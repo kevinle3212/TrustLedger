@@ -1,0 +1,44 @@
+{
+  "name": "trustledger",
+  "version": "0.1.0",
+  "description": "A smart-contract built on the Ethereum blockchain.",
+  "keywords": [
+    "ethereum",
+    "smart-contract",
+    "blockchain",
+    "oregon-blockchain-group",
+    "obg",
+    "contract",
+    "ledger"
+  ],
+  "homepage": "https://github.com/kevinle3212/TrustLedger#readme",
+  "bugs": {
+    "url": "https://github.com/kevinle3212/TrustLedger/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinle3212/TrustLedger.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Kevin Le, Kellen Snider",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"This is a test command.\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "^25.6.0",
+    "eslint": "^10.3.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.1"
+  }
+}

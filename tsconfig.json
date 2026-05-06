@@ -1,0 +1,69 @@
+{
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    /* ── Target & module (Node 20+, latest TS) ─────────────────────────── */
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    /* ── Output ────────────────────────────────────────────────────────── */
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false,
+
+    /* ── Extra strictness on top of @tsconfig/strictest ───────────────── */
+    "verbatimModuleSyntax": true,
+    "noUncheckedSideEffectImports": true,
+    "noErrorTruncation": true,
+    "noEmitOnError": true,
+    "useDefineForClassFields": true,
+    "allowJs": false,
+    "checkJs": false,
+
+    /* ── Re-asserted from strictest (kept explicit for auditability) ───── */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "useUnknownInCatchVariables": true,
+
+    /* ── Interop & resolution ──────────────────────────────────────────── */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+
+    /* ── Build perf ────────────────────────────────────────────────────── */
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+
+    /* ── Terminal output / diagnostics ─────────────────────────────────── */
+    "pretty": true,                  // colorized, formatted error output
+    "extendedDiagnostics": true,     // prints memory, time, file/line/identifier counts after compile
+    "listEmittedFiles": true,        // prints absolute path of every emitted file
+
+    /* The following are DEBUG-ONLY and produce massive output (often 10k+ lines).
+       Uncomment one at a time when you need to investigate a specific issue:
+
+       "listFiles": true,            // every input file incl. all node_modules .d.ts
+       "explainFiles": true,         // listFiles + reason each file was loaded
+       "traceResolution": true,      // every module-resolution attempt (extremely noisy)
+       "generateCpuProfile": "./profile.cpuprofile",  // V8 CPU profile, not terminal output
+       "generateTrace": "./trace"    // writes perf trace dir for @typescript/analyze-trace
+    */
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}
