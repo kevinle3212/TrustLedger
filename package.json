@@ -1,44 +1,59 @@
 {
-  "name": "trustledger",
-  "version": "0.1.0",
-  "description": "A smart-contract built on the Ethereum blockchain.",
-  "keywords": [
-    "ethereum",
-    "smart-contract",
-    "blockchain",
-    "oregon-blockchain-group",
-    "obg",
-    "contract",
-    "ledger"
-  ],
-  "homepage": "https://github.com/kevinle3212/TrustLedger#readme",
-  "bugs": {
-    "url": "https://github.com/kevinle3212/TrustLedger/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kevinle3212/TrustLedger.git"
-  },
-  "license": "Apache-2.0",
-  "author": "Kevin Le, Kellen Snider",
-  "type": "module",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "echo \"This is a test command.\" && exit 1",
-    "build": "tsc",
-    "start": "node dist/index.js"
-  },
-  "engines": {
-    "node": ">=22.0.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "^25.6.0",
-    "eslint": "^10.3.0",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.8.3",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.1"
-  }
+	"name": "trustledger",
+	"version": "0.1.0",
+	"description": "A smart-contract built on the Ethereum blockchain.",
+	"keywords": [
+		"ethereum",
+		"smart-contract",
+		"blockchain",
+		"oregon-blockchain-group",
+		"obg",
+		"contract",
+		"ledger"
+	],
+	"homepage": "https://github.com/kevinle3212/TrustLedger#readme",
+	"bugs": {
+		"url": "https://github.com/kevinle3212/TrustLedger/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kevinle3212/TrustLedger.git"
+	},
+	"license": "Apache-2.0",
+	"author": "Kevin Le, Kellen Snider",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"compile": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat compile",
+		"hardhat:test": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat test",
+		"node": "hardhat node",
+		"deploy:local": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/deploy.ts --network localhost",
+		"hardhat:deploy:arbitrumSepolia": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/deploy.ts --network arbitrumSepolia",
+		"lint:sol": "solhint 'contracts/src/**/*.sol' 'contracts/test/**/*.sol' 'contracts/script/**/*.sol'",
+		"lint:ts": "eslint 'src/**/*.ts' 'test/**/*.ts' 'scripts/**/*.ts' 'hardhat.config.ts'",
+		"lint:prettier": "prettier --check .",
+		"debug:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile"
+	},
+	"engines": {
+		"node": ">=22.0.0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"@nomicfoundation/hardhat-ethers": "^3.0.0",
+		"@nomicfoundation/hardhat-toolbox": "^5.0.0",
+		"@tsconfig/strictest": "^2.0.8",
+		"@types/node": "^25.6.0",
+		"dotenv": "^16.0.0",
+		"eslint": "^10.3.0",
+		"eslint-config-prettier": "^10.1.8",
+		"hardhat": "^2.22.0",
+		"prettier": "^3.8.3",
+		"solhint": "^6.2.1",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.59.1"
+	},
+	"dependencies": {
+		"@openzeppelin/contracts": "^5.6.1"
+	}
 }
