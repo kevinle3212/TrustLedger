@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@nomicfoundation/hardhat-ethers": "^3.0.0",
-		"@nomicfoundation/hardhat-toolbox": "^5.0.0",
+		"@nomicfoundation/hardhat-toolbox": "^7.0.0",
 		"@tsconfig/strictest": "^2.0.8",
 		"@types/node": "^25.6.0",
 		"dotenv": "^16.0.0",
