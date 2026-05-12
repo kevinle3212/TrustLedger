@@ -20,20 +20,19 @@ import {IArbitration} from "./interfaces/IArbitration.sol";
 /// @notice Decentralized escrow contract for freelance agreements on Arbitrum.
 ///         Funds are released on client approval, acceptance-window expiry, or an arbitration ruling.
 contract TrustLedger is ReentrancyGuard {
-
     // ─── Types ────────────────────────────────────────────────────────────────
 
     // An enum defines a finite set of named states. Under the hood Solidity
     // stores it as a uint8 (0, 1, 2 …). Using an enum instead of raw numbers
     // makes the code self-documenting and prevents typos.
     enum Status {
-        PENDING,    // 0 — Contract created; freelancer hasn't responded yet
-        ACTIVE,     // 1 — Freelancer accepted; project deadline is counting down
-        SUBMITTED,  // 2 — Freelancer submitted proof-of-work; acceptance window running
-        APPROVED,   // 3 — Client approved OR acceptance window elapsed (auto-release)
-        DISPUTED,   // 4 — Client opened a dispute; awaiting arbitration
-        RESOLVED,   // 5 — Arbitration finalized and ruling executed
-        CANCELLED   // 6 — Freelancer rejected OR client reclaimed after deadline miss
+        PENDING, // 0 — Contract created; freelancer hasn't responded yet
+        ACTIVE, // 1 — Freelancer accepted; project deadline is counting down
+        SUBMITTED, // 2 — Freelancer submitted proof-of-work; acceptance window running
+        APPROVED, // 3 — Client approved OR acceptance window elapsed (auto-release)
+        DISPUTED, // 4 — Client opened a dispute; awaiting arbitration
+        RESOLVED, // 5 — Arbitration finalized and ruling executed
+        CANCELLED // 6 — Freelancer rejected OR client reclaimed after deadline miss
     }
 
     // A struct is a custom composite type — like a struct/record in other languages.
@@ -48,56 +47,56 @@ contract TrustLedger is ReentrancyGuard {
     // Slots 6-9: two bytes32 + two dynamic strings
     struct EscrowContract {
         // ── Slot 0 (25/32 bytes used) ─────────────────────────────────────────
-        address client;             // who hired the freelancer; deposited the ETH
-        uint16  arbitrationFeeBps;  // percentage of escrow kept as juror fee (basis points)
-                                    // e.g. 1000 bps = 10%
-        uint16  holdBackBps;        // percentage withheld until warranty expires (0 or 500–1500 bps)
-        Status  status;             // current lifecycle state (see enum above)
+        address client; // who hired the freelancer; deposited the ETH
+        uint16 arbitrationFeeBps; // percentage of escrow kept as juror fee (basis points)
+        // e.g. 1000 bps = 10%
+        uint16 holdBackBps; // percentage withheld until warranty expires (0 or 500–1500 bps)
+        Status status; // current lifecycle state (see enum above)
 
         // ── Slot 1 (28/32 bytes used) ─────────────────────────────────────────
-        address freelancer;         // who does the work; receives payment
-        uint64  warrantyDeadline;   // set on approval: approval time + warrantyPeriod
+        address freelancer; // who does the work; receives payment
+        uint64 warrantyDeadline; // set on approval: approval time + warrantyPeriod
 
         // ── Slot 2 (32/32 bytes used) ─────────────────────────────────────────
-        uint64  projectDeadline;    // unix timestamp: when is the project due?
-                                    // = block.timestamp + estimatedDuration × bufferFactor
-        uint64  acceptanceWindow;   // how long the client has to review submitted work (≥ 48h)
-        uint64  acceptanceDeadline; // set when proof is submitted: submission time + acceptanceWindow
-        uint64  warrantyPeriod;     // how long the freelancer's warranty hold-back is locked
+        uint64 projectDeadline; // unix timestamp: when is the project due?
+        // = block.timestamp + estimatedDuration × bufferFactor
+        uint64 acceptanceWindow; // how long the client has to review submitted work (≥ 48h)
+        uint64 acceptanceDeadline; // set when proof is submitted: submission time + acceptanceWindow
+        uint64 warrantyPeriod; // how long the freelancer's warranty hold-back is locked
 
         // ── Slots 3-5 ─────────────────────────────────────────────────────────
-        uint256 amount;             // total ETH escrowed (in wei; 1 ETH = 10^18 wei)
-        uint256 holdBackAmount;     // actual ETH held back (computed from holdBackBps × amount)
-        uint256 arbitrationId;      // the dispute ID in the Arbitration contract (set on dispute)
+        uint256 amount; // total ETH escrowed (in wei; 1 ETH = 10^18 wei)
+        uint256 holdBackAmount; // actual ETH held back (computed from holdBackBps × amount)
+        uint256 arbitrationId; // the dispute ID in the Arbitration contract (set on dispute)
 
         // ── Slots 6+ (dynamic) ────────────────────────────────────────────────
-        bytes32 contractHash;       // keccak256 of the off-chain contract PDF/document;
-                                    // lets anyone verify the document hasn't been tampered with
-        string  contractURI;        // IPFS link to the full document (human-readable)
-        bytes32 proofOfWorkHash;    // keccak256 of the deliverable; set when freelancer submits
-        string  proofOfWorkURI;     // IPFS link to the deliverable
+        bytes32 contractHash; // keccak256 of the off-chain contract PDF/document;
+        // lets anyone verify the document hasn't been tampered with
+        string contractURI; // IPFS link to the full document (human-readable)
+        bytes32 proofOfWorkHash; // keccak256 of the deliverable; set when freelancer submits
+        string proofOfWorkURI; // IPFS link to the deliverable
     }
 
     // ─── Constants ────────────────────────────────────────────────────────────
     // `public constant` — readable by anyone, zero gas, baked into bytecode.
 
     /// @notice Minimum time the client has to review submitted work (48 hours).
-    uint256 public constant MIN_ACCEPTANCE_WINDOW   = 48 hours;
+    uint256 public constant MIN_ACCEPTANCE_WINDOW = 48 hours;
 
     /// @notice Minimum deadline buffer multiplier × 1000 applied to estimated duration (1.1×).
-    uint256 public constant MIN_BUFFER_FACTOR       = 1100;
+    uint256 public constant MIN_BUFFER_FACTOR = 1100;
 
     /// @notice Maximum arbitration fee in basis points (50%).
     uint256 public constant MAX_ARBITRATION_FEE_BPS = 5000;
 
     /// @notice Minimum warranty hold-back in basis points (5%).
-    uint256 public constant MIN_HOLD_BACK_BPS       = 500;
+    uint256 public constant MIN_HOLD_BACK_BPS = 500;
 
     /// @notice Maximum warranty hold-back in basis points (15%).
-    uint256 public constant MAX_HOLD_BACK_BPS       = 1500;
+    uint256 public constant MAX_HOLD_BACK_BPS = 1500;
 
     /// @notice Denominator for basis-point arithmetic (10 000 bps = 100%).
-    uint256 public constant BPS_DENOMINATOR         = 10_000;
+    uint256 public constant BPS_DENOMINATOR = 10_000;
 
     // ─── State ───────────────────────────────────────────────────────────────
 
@@ -260,14 +259,14 @@ contract TrustLedger is ReentrancyGuard {
     function createContract(
         address freelancer,
         bytes32 contractHash,
-        string calldata contractURI,   // `calldata` is read-only and cheaper than `memory`
-                                       // for external function string/bytes params
+        string calldata contractURI, // `calldata` is read-only and cheaper than `memory`
+        // for external function string/bytes params
         uint256 estimatedDuration,
         uint256 bufferFactor,
         uint256 acceptanceWindow,
-        uint16  arbitrationFeeBps,
-        uint16  holdBackBps,
-        uint64  warrantyPeriod
+        uint16 arbitrationFeeBps,
+        uint16 holdBackBps,
+        uint64 warrantyPeriod
     ) external payable returns (uint256 id) {
         // Input validation — follows the "checks-effects-interactions" pattern.
         _validateCreateParams(
@@ -284,25 +283,25 @@ contract TrustLedger is ReentrancyGuard {
 
         // Write the struct into storage. All ETH sent (msg.value) is held by this contract.
         _contracts[id] = EscrowContract({
-            client:           msg.sender,
+            client: msg.sender,
             arbitrationFeeBps: arbitrationFeeBps,
-            holdBackBps:      holdBackBps,
-            status:           Status.PENDING,
-            freelancer:       freelancer,
-            warrantyDeadline: 0,            // set on approval
+            holdBackBps: holdBackBps,
+            status: Status.PENDING,
+            freelancer: freelancer,
+            warrantyDeadline: 0, // set on approval
             // forge-lint: disable-next-line(unsafe-typecast)
-            projectDeadline:  uint64(deadline),          // safe: timestamps won't exceed uint64 for centuries
+            projectDeadline: uint64(deadline), // safe: timestamps won't exceed uint64 for centuries
             // forge-lint: disable-next-line(unsafe-typecast)
-            acceptanceWindow: uint64(acceptanceWindow),  // safe: validated ≥ 48h, reasonable upper bound
-            acceptanceDeadline: 0,          // set when freelancer submits
-            warrantyPeriod:   warrantyPeriod,
-            amount:           msg.value,
-            holdBackAmount:   0,            // computed on approval
-            arbitrationId:    0,            // set when dispute is opened
-            contractHash:     contractHash,
-            contractURI:      contractURI,
-            proofOfWorkHash:  bytes32(0),   // not set until freelancer submits
-            proofOfWorkURI:   ""
+            acceptanceWindow: uint64(acceptanceWindow), // safe: validated ≥ 48h, reasonable upper bound
+            acceptanceDeadline: 0, // set when freelancer submits
+            warrantyPeriod: warrantyPeriod,
+            amount: msg.value,
+            holdBackAmount: 0, // computed on approval
+            arbitrationId: 0, // set when dispute is opened
+            contractHash: contractHash,
+            contractURI: contractURI,
+            proofOfWorkHash: bytes32(0), // not set until freelancer submits
+            proofOfWorkURI: ""
         });
 
         emit ContractCreated(id, msg.sender, freelancer, msg.value);
@@ -346,9 +345,7 @@ contract TrustLedger is ReentrancyGuard {
 
         // `{value: feePool}` sends ETH with the call. Arbitration holds it until
         // jurors claim their rewards after the dispute finalizes.
-        uint256 arbId = ARBITRATION.openDispute{value: feePool}(
-            id, c.client, c.freelancer, c.amount, feePool
-        );
+        uint256 arbId = ARBITRATION.openDispute{value: feePool}(id, c.client, c.freelancer, c.amount, feePool);
         c.arbitrationId = arbId;
 
         emit WorkDisputed(id, arbId);
@@ -428,7 +425,7 @@ contract TrustLedger is ReentrancyGuard {
         if (block.timestamp > c.projectDeadline) revert DeadlineElapsed(); // submitted too late
 
         c.proofOfWorkHash = powHash;
-        c.proofOfWorkURI  = powURI;
+        c.proofOfWorkURI = powURI;
         // acceptanceDeadline = now + acceptanceWindow (the review window starts ticking)
         c.acceptanceDeadline = uint64(block.timestamp + c.acceptanceWindow);
         c.status = Status.SUBMITTED;
@@ -467,7 +464,7 @@ contract TrustLedger is ReentrancyGuard {
         EscrowContract storage c = _contracts[id];
         if (msg.sender != c.freelancer) revert Unauthorized();
         if (c.status != Status.APPROVED) revert InvalidStatus(c.status);
-        if (c.holdBackAmount == 0) revert InvalidHoldBack();          // no hold-back to claim
+        if (c.holdBackAmount == 0) revert InvalidHoldBack(); // no hold-back to claim
         if (block.timestamp < uint256(c.warrantyDeadline) + 1) revert WindowNotElapsed(); // warranty still active
 
         uint256 amount = c.holdBackAmount;
@@ -503,14 +500,14 @@ contract TrustLedger is ReentrancyGuard {
 
         // The fee pool was already forwarded to Arbitration when the dispute was opened.
         // Here we compute it again just to know how much "remaining" is left for the parties.
-        uint256 feePool  = (c.amount * c.arbitrationFeeBps) / BPS_DENOMINATOR;
+        uint256 feePool = (c.amount * c.arbitrationFeeBps) / BPS_DENOMINATOR;
         uint256 remaining = c.amount - feePool; // this is what client + freelancer share
 
         uint256 freelancerPay;
         if (completionPct == 100) {
-            freelancerPay = remaining;       // full win for freelancer
+            freelancerPay = remaining; // full win for freelancer
         } else if (completionPct == 0) {
-            freelancerPay = 0;               // full win for client
+            freelancerPay = 0; // full win for client
         } else {
             // Partial payout: 2/3 of claimed completion percentage
             // e.g. 50% → freelancer gets (2 × 50 × amount) / 300 ≈ 33% of amount
@@ -551,9 +548,9 @@ contract TrustLedger is ReentrancyGuard {
         address freelancer,
         uint256 bufferFactor,
         uint256 acceptanceWindow,
-        uint16  arbitrationFeeBps,
-        uint16  holdBackBps,
-        uint64  warrantyPeriod
+        uint16 arbitrationFeeBps,
+        uint16 holdBackBps,
+        uint64 warrantyPeriod
     ) internal {
         if (freelancer == address(0)) revert ZeroAddress();
         if (freelancer == msg.sender) revert SelfContract();
@@ -573,10 +570,10 @@ contract TrustLedger is ReentrancyGuard {
     function _releaseToFreelancer(uint256 id, EscrowContract storage c) internal {
         // holdBack = amount × holdBackBps / 10000  (e.g. 1000 bps = 10%)
         uint256 holdBack = (c.amount * c.holdBackBps) / BPS_DENOMINATOR;
-        uint256 payout   = c.amount - holdBack;
+        uint256 payout = c.amount - holdBack;
 
         if (holdBack > 0) {
-            c.holdBackAmount  = holdBack;
+            c.holdBackAmount = holdBack;
             // warrantyDeadline starts from NOW (approval time), not from submission time.
             c.warrantyDeadline = uint64(block.timestamp + c.warrantyPeriod);
         }
@@ -595,5 +592,4 @@ contract TrustLedger is ReentrancyGuard {
         (bool ok,) = to.call{value: amount}(""); // empty calldata = plain ETH send
         if (!ok) revert EthTransferFailed();
     }
-
 }

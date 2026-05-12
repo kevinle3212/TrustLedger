@@ -19,13 +19,11 @@ import {TrustLedger} from "../src/TrustLedger.sol";
 /// @author Kevin Le, Kellen Snider
 /// @notice Foundry deployment script for JurorRegistry, TrustLedger, and Arbitration.
 contract Deploy is Script {
-
     /// @notice Reverts when a deployed contract lands at an unexpected address.
     error AddressMismatch();
 
     /// @notice Entry point — Foundry calls this function when executing the script.
     function run() external {
-
         // ── Read the private key from an environment variable ──────────────────
         // vm.envUint("VAR") reads the environment variable and parses it as uint256.
         // Private keys are 256-bit numbers. We never hardcode them in source files
@@ -70,10 +68,10 @@ contract Deploy is Script {
         JurorRegistry jurorRegistry = new JurorRegistry(arbitrationAddr); // nonce N
 
         // Same pattern: TrustLedger stores arbitrationAddr as an immutable.
-        TrustLedger trustLedger = new TrustLedger(arbitrationAddr);       // nonce N+1
+        TrustLedger trustLedger = new TrustLedger(arbitrationAddr); // nonce N+1
 
         // Now deploy Arbitration with the real addresses of the two contracts above.
-        Arbitration arbitration = new Arbitration(                         // nonce N+2
+        Arbitration arbitration = new Arbitration( // nonce N+2
             address(trustLedger),
             address(jurorRegistry)
         );

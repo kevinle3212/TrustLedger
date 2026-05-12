@@ -18,8 +18,7 @@ import {JurorRegistry} from "../../src/JurorRegistry.sol";
 
 // The test contract inherits from Test to gain access to all the cheat codes and assertions.
 contract JurorRegistryTest is Test {
-
-    uint256 public constant MIN_STAKE   = 0.01 ether;
+    uint256 public constant MIN_STAKE = 0.01 ether;
     uint256 public constant LOCK_PERIOD = 7 days;
 
     JurorRegistry public registry;
@@ -27,10 +26,10 @@ contract JurorRegistryTest is Test {
     // makeAddr("label") deterministically generates a unique fake address from a label string.
     // It's reproducible across runs (same label always gives the same address) but the
     // address has no private key, so it can't sign transactions — we use vm.prank() instead.
-    address public arbSim   = makeAddr("arbitration"); // simulates the Arbitration contract
-    address public juror1   = makeAddr("juror1");
-    address public juror2   = makeAddr("juror2");
-    address public stranger = makeAddr("stranger");    // unauthorized caller for revert tests
+    address public arbSim = makeAddr("arbitration"); // simulates the Arbitration contract
+    address public juror1 = makeAddr("juror1");
+    address public juror2 = makeAddr("juror2");
+    address public stranger = makeAddr("stranger"); // unauthorized caller for revert tests
 
     // setUp() runs before every single test function. Foundry takes a snapshot of the
     // EVM state after setUp() and resets to it before each test, giving every test
@@ -43,8 +42,8 @@ contract JurorRegistryTest is Test {
 
         // vm.deal(address, amount) sets an account's ETH balance to `amount`.
         // This gives our test addresses ETH to send with payable calls.
-        vm.deal(juror1,   10 ether);
-        vm.deal(juror2,   10 ether);
+        vm.deal(juror1, 10 ether);
+        vm.deal(juror2, 10 ether);
         vm.deal(stranger, 1 ether);
     }
 
@@ -58,9 +57,9 @@ contract JurorRegistryTest is Test {
 
         // Read back the stored data and verify every field.
         IJurorInfo memory j = _getJuror(juror1);
-        assertTrue(j.active,                   "should be active");
-        assertEq(j.stake, MIN_STAKE,            "stake mismatch");
-        assertEq(j.reputation, 100,             "reputation should start at 100");
+        assertTrue(j.active, "should be active");
+        assertEq(j.stake, MIN_STAKE, "stake mismatch");
+        assertEq(j.reputation, 100, "reputation should start at 100");
         assertEq(j.disputesParticipated, 0);
         assertEq(j.minorityVotes, 0);
         assertEq(j.activeDisputes, 0);
@@ -92,7 +91,7 @@ contract JurorRegistryTest is Test {
         registry.register{value: MIN_STAKE}();
 
         address[] memory list = registry.getJurorList();
-        assertEq(list.length, 2);        // both jurors added
+        assertEq(list.length, 2); // both jurors added
         assertEq(list[0], juror1);
         assertEq(list[1], juror2);
     }
@@ -226,9 +225,9 @@ contract JurorRegistryTest is Test {
         registry.slash(juror1, slashAmt);
 
         IJurorInfo memory j = _getJuror(juror1);
-        assertEq(j.stake,        1 ether - slashAmt, "stake after slash mismatch");
-        assertEq(j.minorityVotes, 1,                 "minority vote count mismatch");
-        assertEq(j.reputation,   90,                 "reputation should decrease by 10");
+        assertEq(j.stake, 1 ether - slashAmt, "stake after slash mismatch");
+        assertEq(j.minorityVotes, 1, "minority vote count mismatch");
+        assertEq(j.reputation, 90, "reputation should decrease by 10");
     }
 
     function test_Slash_DeactivatesIfBelowMin() public {
@@ -276,7 +275,7 @@ contract JurorRegistryTest is Test {
         registry.unlockFromDispute(juror1);
 
         IJurorInfo memory j = _getJuror(juror1);
-        assertEq(j.activeDisputes, 0);       // lock released
+        assertEq(j.activeDisputes, 0); // lock released
         assertEq(j.disputesParticipated, 1); // participation recorded
     }
 
@@ -344,7 +343,7 @@ contract JurorRegistryTest is Test {
         uint256 reputation;
         uint256 disputesParticipated;
         uint256 minorityVotes;
-        bool    active;
+        bool active;
         uint256 activeDisputes;
     }
 
@@ -353,14 +352,14 @@ contract JurorRegistryTest is Test {
         // Manually copy each field — Solidity can't implicitly convert between two
         // structs with identical fields defined in different scopes.
         return IJurorInfo({
-            addr:                 j.addr,
-            stake:                j.stake,
-            stakeUnlockTime:      j.stakeUnlockTime,
-            reputation:           j.reputation,
+            addr: j.addr,
+            stake: j.stake,
+            stakeUnlockTime: j.stakeUnlockTime,
+            reputation: j.reputation,
             disputesParticipated: j.disputesParticipated,
-            minorityVotes:        j.minorityVotes,
-            active:               j.active,
-            activeDisputes:       j.activeDisputes
+            minorityVotes: j.minorityVotes,
+            active: j.active,
+            activeDisputes: j.activeDisputes
         });
     }
 }

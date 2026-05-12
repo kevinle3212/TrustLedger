@@ -22,7 +22,6 @@ import {IJurorRegistry} from "./interfaces/IJurorRegistry.sol";
 /// @notice Registry where anyone can stake ETH to become a juror eligible to vote in TrustLedger disputes.
 ///         Arbitration slashes minority voters and locks stake during active disputes.
 contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
-
     // ─── Constants ───────────────────────────────────────────────────────────
     // `constant` means the value is baked into the bytecode at compile time —
     // reading it costs zero gas because it never touches storage.
@@ -158,9 +157,9 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         // Write the new juror into storage. Struct literal syntax assigns every field.
         _jurors[msg.sender] = JurorInfo({
             addr: msg.sender,
-            stake: msg.value,                              // ETH sent becomes their stake
+            stake: msg.value, // ETH sent becomes their stake
             stakeUnlockTime: block.timestamp + STAKE_LOCK_PERIOD, // can't unstake for 7 days
-            reputation: 100,                               // starts at max reputation
+            reputation: 100, // starts at max reputation
             disputesParticipated: 0,
             minorityVotes: 0,
             active: true,
@@ -289,9 +288,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @return      True when active, stake ≥ MIN_STAKE, and lock period has elapsed.
     function isEligible(address juror) external view returns (bool) {
         JurorInfo storage j = _jurors[juror];
-        return j.active
-            && j.stake > MIN_STAKE - 1
-            && block.timestamp > j.stakeUnlockTime - 1; // lock period has fully elapsed
+        return j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1; // lock period has fully elapsed
     }
 
     // Returns the full JurorInfo struct. Arbitration uses this to read the stake

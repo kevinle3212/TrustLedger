@@ -14,41 +14,40 @@ import {Arbitration} from "../../src/Arbitration.sol";
 import {JurorRegistry} from "../../src/JurorRegistry.sol";
 
 contract TrustLedgerTest is Test {
-
     // ── Test constants ────────────────────────────────────────────────────────
     // These match sensible defaults so helpers can reuse them without needing parameters.
-    uint256 public constant AMOUNT             = 1 ether;
+    uint256 public constant AMOUNT = 1 ether;
     uint256 public constant ESTIMATED_DURATION = 30 days;
-    uint256 public constant BUFFER_FACTOR      = 1200;  // 1.2× — sets deadline 20% beyond estimated
-    uint256 public constant ACCEPTANCE_WINDOW  = 48 hours;
-    uint16  public constant ARB_FEE_BPS        = 1000;  // 10% juror fee
-    uint16  public constant HOLD_BACK_BPS      = 1000;  // 10% warranty hold-back
-    uint64  public constant WARRANTY_PERIOD    = 7 days;
+    uint256 public constant BUFFER_FACTOR = 1200; // 1.2× — sets deadline 20% beyond estimated
+    uint256 public constant ACCEPTANCE_WINDOW = 48 hours;
+    uint16 public constant ARB_FEE_BPS = 1000; // 10% juror fee
+    uint16 public constant HOLD_BACK_BPS = 1000; // 10% warranty hold-back
+    uint64 public constant WARRANTY_PERIOD = 7 days;
 
     // Off-chain document hashes: keccak256 of a string literal evaluates at compile time.
     bytes32 public constant CONTRACT_HASH = keccak256("contract-doc");
-    string  public constant CONTRACT_URI  = "ipfs://QmContractHash";
-    bytes32 public constant POW_HASH      = keccak256("proof-of-work");
-    string  public constant POW_URI       = "ipfs://QmProofOfWork";
+    string public constant CONTRACT_URI = "ipfs://QmContractHash";
+    bytes32 public constant POW_HASH = keccak256("proof-of-work");
+    string public constant POW_URI = "ipfs://QmProofOfWork";
 
     // Contract instances — redeployed fresh before each test via setUp().
-    TrustLedger  public trustLedger;
-    Arbitration  public arbitration;
+    TrustLedger public trustLedger;
+    Arbitration public arbitration;
     JurorRegistry public jurorRegistry;
 
     // Deterministic fake addresses for our three actors.
-    address public client    = makeAddr("client");
+    address public client = makeAddr("client");
     address public freelancer = makeAddr("freelancer");
-    address public stranger  = makeAddr("stranger"); // not a party to any contract
+    address public stranger = makeAddr("stranger"); // not a party to any contract
 
     // ── setUp ─────────────────────────────────────────────────────────────────
     // Runs before EVERY test. Foundry snapshots state here and resets to it
     // before each test_, giving perfect isolation between tests.
     function setUp() public {
         // Give our fake addresses spendable ETH.
-        vm.deal(client,    100 ether);
+        vm.deal(client, 100 ether);
         vm.deal(freelancer, 10 ether);
-        vm.deal(stranger,   10 ether);
+        vm.deal(stranger, 10 ether);
 
         // ── Circular dependency solution ──────────────────────────────────────
         // TrustLedger needs Arbitration's address in its constructor (immutable).
@@ -64,8 +63,8 @@ contract TrustLedgerTest is Test {
 
         // Deploy in exact nonce order: registry (nonce), trustledger (nonce+1), arbitration (nonce+2).
         jurorRegistry = new JurorRegistry(arbitrationAddr);
-        trustLedger   = new TrustLedger(arbitrationAddr);
-        arbitration   = new Arbitration(address(trustLedger), address(jurorRegistry));
+        trustLedger = new TrustLedger(arbitrationAddr);
+        arbitration = new Arbitration(address(trustLedger), address(jurorRegistry));
 
         // Confirm the address prediction was correct.
         assertEq(address(arbitration), arbitrationAddr, "address mismatch");
@@ -120,7 +119,7 @@ contract TrustLedgerTest is Test {
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.SUBMITTED));
         assertEq(c.proofOfWorkHash, POW_HASH);
-        assertEq(c.proofOfWorkURI,  POW_URI);
+        assertEq(c.proofOfWorkURI, POW_URI);
 
         // Record balance before approval to measure exact payout.
         uint256 freelancerBefore = freelancer.balance;
@@ -148,7 +147,7 @@ contract TrustLedgerTest is Test {
         trustLedger.approveWork(id);
 
         uint256 holdBack = (AMOUNT * HOLD_BACK_BPS) / 10_000; // 10% of 1 ETH = 0.1 ETH
-        uint256 payout   = AMOUNT - holdBack;                  // 0.9 ETH immediate payout
+        uint256 payout = AMOUNT - holdBack; // 0.9 ETH immediate payout
 
         assertEq(freelancer.balance, freelancerBefore + payout, "partial payout mismatch");
 
@@ -258,18 +257,18 @@ contract TrustLedgerTest is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        uint256 feePool   = (AMOUNT * ARB_FEE_BPS) / 10_000;
+        uint256 feePool = (AMOUNT * ARB_FEE_BPS) / 10_000;
         uint256 remaining = AMOUNT - feePool;
 
-        uint256 clientBefore     = client.balance;
+        uint256 clientBefore = client.balance;
         uint256 freelancerBefore = freelancer.balance;
 
         // 0% completion → client wins everything (freelancer gets 0).
         vm.prank(address(arbitration)); // pretend we're the Arbitration contract
         trustLedger.executeRuling(id, 0);
 
-        assertEq(client.balance,     clientBefore + remaining, "client payout 0pct mismatch");
-        assertEq(freelancer.balance, freelancerBefore,         "freelancer should get 0 at 0pct");
+        assertEq(client.balance, clientBefore + remaining, "client payout 0pct mismatch");
+        assertEq(freelancer.balance, freelancerBefore, "freelancer should get 0 at 0pct");
     }
 
     function test_ExecuteRuling_100pct_FreelancerWins() public {
@@ -277,18 +276,18 @@ contract TrustLedgerTest is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        uint256 feePool   = (AMOUNT * ARB_FEE_BPS) / 10_000;
+        uint256 feePool = (AMOUNT * ARB_FEE_BPS) / 10_000;
         uint256 remaining = AMOUNT - feePool;
 
         uint256 freelancerBefore = freelancer.balance;
-        uint256 clientBefore     = client.balance;
+        uint256 clientBefore = client.balance;
 
         // 100% completion → freelancer wins everything.
         vm.prank(address(arbitration));
         trustLedger.executeRuling(id, 100);
 
         assertEq(freelancer.balance, freelancerBefore + remaining, "freelancer 100pct mismatch");
-        assertEq(client.balance,     clientBefore,                 "client should get 0 at 100pct");
+        assertEq(client.balance, clientBefore, "client should get 0 at 100pct");
     }
 
     function test_ExecuteRuling_50pct_PartialSplit() public {
@@ -296,22 +295,22 @@ contract TrustLedgerTest is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        uint256 feePool   = (AMOUNT * ARB_FEE_BPS) / 10_000;
+        uint256 feePool = (AMOUNT * ARB_FEE_BPS) / 10_000;
         uint256 remaining = AMOUNT - feePool;
 
         // Formula: freelancerPay = (2 × completionPct × amount) / 300
         // At 50%: (2 × 50 × 1e18) / 300 ≈ 0.333 ETH
         uint256 expectedFreelancerPay = (2 * 50 * AMOUNT) / 300;
-        uint256 expectedClientRefund  = remaining - expectedFreelancerPay;
+        uint256 expectedClientRefund = remaining - expectedFreelancerPay;
 
         uint256 freelancerBefore = freelancer.balance;
-        uint256 clientBefore     = client.balance;
+        uint256 clientBefore = client.balance;
 
         vm.prank(address(arbitration));
         trustLedger.executeRuling(id, 50);
 
         assertEq(freelancer.balance, freelancerBefore + expectedFreelancerPay, "freelancer 50pct mismatch");
-        assertEq(client.balance,     clientBefore + expectedClientRefund,       "client 50pct mismatch");
+        assertEq(client.balance, clientBefore + expectedClientRefund, "client 50pct mismatch");
         // Sanity: payout is conserved (no ETH created or destroyed).
         assertEq(expectedFreelancerPay + expectedClientRefund, remaining, "payout conservation mismatch");
     }
@@ -325,17 +324,17 @@ contract TrustLedgerTest is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        uint256 feePool  = (AMOUNT * ARB_FEE_BPS) / 10_000;
+        uint256 feePool = (AMOUNT * ARB_FEE_BPS) / 10_000;
         uint256 remaining = AMOUNT - feePool;
 
         uint256 freelancerBefore = freelancer.balance;
-        uint256 clientBefore     = client.balance;
+        uint256 clientBefore = client.balance;
 
         vm.prank(address(arbitration));
         trustLedger.executeRuling(id, completionPct);
 
         uint256 freelancerGot = freelancer.balance - freelancerBefore;
-        uint256 clientGot     = client.balance - clientBefore;
+        uint256 clientGot = client.balance - clientBefore;
 
         // Conservation invariant: no ETH is lost or created.
         assertEq(freelancerGot + clientGot, remaining, "payout conservation failed");
@@ -348,9 +347,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.ZeroAddress.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            address(0), CONTRACT_HASH, CONTRACT_URI, // freelancer = zero address
-            ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 0, 0
+            address(0),
+            CONTRACT_HASH,
+            CONTRACT_URI, // freelancer = zero address
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            0,
+            0
         );
     }
 
@@ -358,9 +363,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.SelfContract.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            client, CONTRACT_HASH, CONTRACT_URI, // freelancer = client = hiring yourself
-            ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 0, 0
+            client,
+            CONTRACT_HASH,
+            CONTRACT_URI, // freelancer = client = hiring yourself
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            0,
+            0
         );
     }
 
@@ -368,9 +379,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InsufficientFunds.selector);
         vm.prank(client);
         trustLedger.createContract{value: 0}( // no ETH sent
-            freelancer, CONTRACT_HASH, CONTRACT_URI,
-            ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 0, 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            0,
+            0
         );
     }
 
@@ -378,9 +395,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidBufferFactor.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI,
-            ESTIMATED_DURATION, 1000, ACCEPTANCE_WINDOW, // 1000 = 1.0× (below 1.1× minimum)
-            ARB_FEE_BPS, 0, 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            1000,
+            ACCEPTANCE_WINDOW, // 1000 = 1.0× (below 1.1× minimum)
+            ARB_FEE_BPS,
+            0,
+            0
         );
     }
 
@@ -388,9 +411,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidAcceptanceWindow.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI,
-            ESTIMATED_DURATION, BUFFER_FACTOR, 1 hours, // below 48h minimum
-            ARB_FEE_BPS, 0, 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            1 hours, // below 48h minimum
+            ARB_FEE_BPS,
+            0,
+            0
         );
     }
 
@@ -398,9 +427,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidArbitrationFee.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI,
-            ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            0, 0, 0 // fee bps = 0 is invalid (must be at least 1)
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            0,
+            0,
+            0 // fee bps = 0 is invalid (must be at least 1)
         );
     }
 
@@ -408,9 +443,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidHoldBack.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI,
-            ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 100, 7 days // 100 bps (1%) is below the 500 bps (5%) minimum
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            100,
+            7 days // 100 bps (1%) is below the 500 bps (5%) minimum
         );
     }
 
@@ -418,9 +459,15 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidWarrantyPeriod.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI,
-            ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 1000, 0 // holdback set but warranty period is 0 — inconsistent
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            1000,
+            0 // holdback set but warranty period is 0 — inconsistent
         );
     }
 

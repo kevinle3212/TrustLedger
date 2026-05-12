@@ -10,21 +10,20 @@ pragma solidity ^0.8.24;
 /// @author Kevin Le, Kellen Snider
 /// @notice Minimal interface for Arbitration to interact with the juror staking registry.
 interface IJurorRegistry {
-
     // ─── Shared data type ─────────────────────────────────────────────────────
     // Structs defined in interfaces are importable by any contract that imports
     // the interface, avoiding duplication across the codebase.
     // Fields ordered for tight storage packing: addr(20)+active(1) share one slot.
     struct JurorInfo {
-        address addr;                // the juror's wallet address
-        bool    active;              // false if stake drops below MIN_STAKE or juror explicitly exits
-        uint256 stake;               // ETH staked (in wei); must be ≥ MIN_STAKE to be eligible
-        uint256 stakeUnlockTime;     // unix timestamp after which the juror can unstake;
-                                     // reset on every register() and addStake() call
-        uint256 reputation;          // starts at 100, decremented by 10 for each minority vote
-        uint256 disputesParticipated;// lifetime count of disputes this juror participated in
-        uint256 minorityVotes;       // times the juror voted outside the majority window
-        uint256 activeDisputes;      // number of disputes currently locked (prevents unstaking mid-dispute)
+        address addr; // the juror's wallet address
+        bool active; // false if stake drops below MIN_STAKE or juror explicitly exits
+        uint256 stake; // ETH staked (in wei); must be ≥ MIN_STAKE to be eligible
+        uint256 stakeUnlockTime; // unix timestamp after which the juror can unstake;
+        // reset on every register() and addStake() call
+        uint256 reputation; // starts at 100, decremented by 10 for each minority vote
+        uint256 disputesParticipated; // lifetime count of disputes this juror participated in
+        uint256 minorityVotes; // times the juror voted outside the majority window
+        uint256 activeDisputes; // number of disputes currently locked (prevents unstaking mid-dispute)
     }
 
     // Increments activeDisputes by 1. Called when a juror commits a vote.
