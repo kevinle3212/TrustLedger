@@ -6,9 +6,9 @@ A Solidity-based smart contract system for secure escrow-based transactions that
 
 1. Copy the example env file:
 
-   ```bash
-   cp .env.example .env
-   ```
+    ```bash
+    cp .env.example .env
+    ```
 
 2. Fill in `.env` based on your target network:
 
@@ -62,12 +62,12 @@ Private key: 0x1234...
 
 Copy those values into `.env`, then fill in the remaining variables:
 
-| Variable | Description | Where to get it |
-| --- | --- | --- |
-| `ARBITRUM_SEPOLIA_RPC_URL` | RPC endpoint | [Alchemy](https://www.alchemy.com) or [Infura](https://www.infura.io) — create a free app and copy the Arbitrum Sepolia HTTPS URL |
-| `DEPLOYER_PUBLIC_ADDRESS` | Address printed by `cast wallet new` | See above |
-| `DEPLOYER_PRIVATE_KEY` | Private key printed by `cast wallet new` | See above. **Never commit this value.** |
-| `ETHERSCAN_API_KEY` | Arbiscan key for contract verification | [arbiscan.io/register](https://arbiscan.io/register) — free account, then My API Keys |
+| Variable                   | Description                              | Where to get it                                                                                                                   |
+| -------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `ARBITRUM_SEPOLIA_RPC_URL` | RPC endpoint                             | [Alchemy](https://www.alchemy.com) or [Infura](https://www.infura.io) — create a free app and copy the Arbitrum Sepolia HTTPS URL |
+| `DEPLOYER_PUBLIC_ADDRESS`  | Address printed by `cast wallet new`     | See above                                                                                                                         |
+| `DEPLOYER_PRIVATE_KEY`     | Private key printed by `cast wallet new` | See above. **Never commit this value.**                                                                                           |
+| `ETHERSCAN_API_KEY`        | Arbiscan key for contract verification   | [arbiscan.io/register](https://arbiscan.io/register) — free account, then My API Keys                                             |
 
 Fund the deployer wallet with Sepolia ETH before deploying: [Arbitrum Sepolia faucet](https://www.alchemy.com/faucets/arbitrum-sepolia).
 
@@ -81,20 +81,20 @@ Fund the deployer wallet with Sepolia ETH before deploying: [Arbitrum Sepolia fa
 
 ### npm scripts
 
-| Script | What it runs |
-| --- | --- |
-| `npm run compile` | Hardhat: compile Solidity → generate ABIs + TypeChain types in `artifacts/` |
-| `npm run hardhat:test` | Hardhat: run Mocha/Chai integration tests in `test/` |
-| `npm run node` | Hardhat: spin up a local chain on `localhost:8545` with 20 pre-funded accounts |
-| `npm run deploy:local` | Hardhat: deploy contracts to the local node |
-| `npm run hardhat:deploy:arbitrumSepolia` | Hardhat: deploy to Arbitrum Sepolia testnet |
-| `npm run check:balance` | Hardhat: print the deployer's ETH balance on Arbitrum Sepolia |
-| `npm run report:gas` | Foundry: run `forge test --gas-report` and print per-function gas usage |
-| `npm run lint` | ESLint (TypeScript) + Solhint (Solidity) |
-| `npm run lint:ts` | ESLint only |
-| `npm run lint:sol` | Solhint only |
-| `npm run lint:prettier` | Prettier format check (read-only) |
-| `npm run build` | `tsc` — compile `src/` to `dist/` |
+| Script                                   | What it runs                                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------ |
+| `npm run compile`                        | Hardhat: compile Solidity → generate ABIs + TypeChain types in `artifacts/`    |
+| `npm run hardhat:test`                   | Hardhat: run Mocha/Chai integration tests in `test/`                           |
+| `npm run node`                           | Hardhat: spin up a local chain on `localhost:8545` with 20 pre-funded accounts |
+| `npm run deploy:local`                   | Hardhat: deploy contracts to the local node                                    |
+| `npm run hardhat:deploy:arbitrumSepolia` | Hardhat: deploy to Arbitrum Sepolia testnet                                    |
+| `npm run check:balance`                  | Hardhat: print the deployer's ETH balance on Arbitrum Sepolia                  |
+| `npm run report:gas`                     | Foundry: run `forge test --gas-report` and print per-function gas usage        |
+| `npm run lint`                           | ESLint (TypeScript) + Solhint (Solidity)                                       |
+| `npm run lint:ts`                        | ESLint only                                                                    |
+| `npm run lint:sol`                       | Solhint only                                                                   |
+| `npm run lint:prettier`                  | Prettier format check (read-only)                                              |
+| `npm run build`                          | `tsc` — compile `src/` to `dist/`                                              |
 
 ### Testing
 
@@ -167,9 +167,9 @@ cd contracts && forge fmt --check  # CI check only
 
 The project uses two `tsconfig` files to satisfy different runtime environments:
 
-| File | Used by | Module system |
-| --- | --- | --- |
-| `tsconfig.json` | `src/` (library output to `dist/`) | NodeNext ESM |
+| File                    | Used by                                  | Module system                  |
+| ----------------------- | ---------------------------------------- | ------------------------------ |
+| `tsconfig.json`         | `src/` (library output to `dist/`)       | NodeNext ESM                   |
 | `tsconfig.hardhat.json` | `hardhat.config.ts`, `scripts/`, `test/` | CommonJS (Hardhat requirement) |
 
 Both extend `@tsconfig/strictest` and layer additional compiler flags (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, etc.).
@@ -256,10 +256,10 @@ Four workflows live in `.github/workflows/`. All use least-privilege tokens and 
 
 Runs on every push and pull request to `main`. Cancels in-progress runs when a new commit lands.
 
-| Job | What it does |
-| --- | --- |
-| **TypeScript** | Installs deps (`npm ci`), runs `tsc --noEmit`, ESLint + Solhint (`npm run lint`), and Prettier format check |
-| **Solidity** | Installs Foundry, runs `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, and a non-blocking gas snapshot diff |
+| Job            | What it does                                                                                                               |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **TypeScript** | Installs deps (`npm ci`), runs `tsc --noEmit`, ESLint + Solhint (`npm run lint`), and Prettier format check                |
+| **Solidity**   | Installs Foundry, runs `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, and a non-blocking gas snapshot diff |
 
 The Solidity job sets `working-directory: contracts` so all `forge` commands run from the directory that contains `foundry.toml`.
 
@@ -269,18 +269,18 @@ Triggered only via **Actions → Run workflow** — never auto-deploys on push.
 
 **Inputs:**
 
-| Input | Default | Description |
-| --- | --- | --- |
-| `script` | `script/Deploy.s.sol:DeployScript` | Forge script target (`path:Contract`) |
-| `verify` | `true` | Whether to verify the contract on Arbiscan after broadcast |
+| Input    | Default                            | Description                                                |
+| -------- | ---------------------------------- | ---------------------------------------------------------- |
+| `script` | `script/Deploy.s.sol:DeployScript` | Forge script target (`path:Contract`)                      |
+| `verify` | `true`                             | Whether to verify the contract on Arbiscan after broadcast |
 
 The job requires a GitHub Environment named `arbitrum-sepolia` with three secrets:
 
-| Secret | Description |
-| --- | --- |
-| `ARBITRUM_SEPOLIA_RPC_URL` | RPC endpoint (Alchemy or Infura) |
-| `DEPLOYER_PRIVATE_KEY` | Funded deployer wallet private key |
-| `ETHERSCAN_API_KEY` | Arbiscan API key (only needed when `verify` is `true`) |
+| Secret                     | Description                                            |
+| -------------------------- | ------------------------------------------------------ |
+| `ARBITRUM_SEPOLIA_RPC_URL` | RPC endpoint (Alchemy or Infura)                       |
+| `DEPLOYER_PRIVATE_KEY`     | Funded deployer wallet private key                     |
+| `ETHERSCAN_API_KEY`        | Arbiscan API key (only needed when `verify` is `true`) |
 
 Broadcast artifacts (contract addresses, transaction receipts) are uploaded as a workflow artifact and retained for 30 days.
 
@@ -288,22 +288,22 @@ Broadcast artifacts (contract addresses, transaction receipts) are uploaded as a
 
 Runs on push/PR to `main`, manually via `workflow_dispatch`, and on a weekly cron (Mondays 13:00 UTC) to catch CVEs in transitive deps even when no commits land.
 
-| Job | Tool | What it catches |
-| --- | --- | --- |
-| **Slither** | [`crytic/slither-action`](https://github.com/crytic/slither-action) | Solidity SAST: reentrancy, uninitialized storage, dangerous low-level calls, etc. Results appear as inline PR comments via SARIF upload to the GitHub Security tab. Currently `continue-on-error: true` — flip to `false` once false positives are triaged. |
-| **TruffleHog** | [`trufflesecurity/trufflehog`](https://github.com/trufflesecurity/trufflehog) | Secret scanning across full git history: accidental commits of `.env` values, deployer private keys, or API keys. |
-| **Dependency audit** | `npm audit` | CVEs in the npm dependency tree (Hardhat, ethers, etc.). Scans prod deps only at `high` severity threshold. Currently `continue-on-error: true`. |
-| **CodeQL** | [`github/codeql-action`](https://github.com/github/codeql-action) | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite. Free for public repos. |
+| Job                  | Tool                                                                          | What it catches                                                                                                                                                                                                                                             |
+| -------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Slither**          | [`crytic/slither-action`](https://github.com/crytic/slither-action)           | Solidity SAST: reentrancy, uninitialized storage, dangerous low-level calls, etc. Results appear as inline PR comments via SARIF upload to the GitHub Security tab. Currently `continue-on-error: true` — flip to `false` once false positives are triaged. |
+| **TruffleHog**       | [`trufflesecurity/trufflehog`](https://github.com/trufflesecurity/trufflehog) | Secret scanning across full git history: accidental commits of `.env` values, deployer private keys, or API keys.                                                                                                                                           |
+| **Dependency audit** | `npm audit`                                                                   | CVEs in the npm dependency tree (Hardhat, ethers, etc.). Scans prod deps only at `high` severity threshold. Currently `continue-on-error: true`.                                                                                                            |
+| **CodeQL**           | [`github/codeql-action`](https://github.com/github/codeql-action)             | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite. Free for public repos.                                                                                                                  |
 
 ### `dependabot-automerge.yml` — Dependabot Auto-merge
 
 Triggers on every Dependabot pull request. Only the `dependabot[bot]` actor can reach the merge step.
 
-| Condition | Action |
-| --- | --- |
-| PR has one or more GHSA IDs (security advisory) | Auto-merge via squash, any semver level |
-| Patch bump of a dev-only dependency (no security advisory) | Auto-merge via squash |
-| Everything else (minor/major, prod deps) | No action — requires manual review |
+| Condition                                                  | Action                                  |
+| ---------------------------------------------------------- | --------------------------------------- |
+| PR has one or more GHSA IDs (security advisory)            | Auto-merge via squash, any semver level |
+| Patch bump of a dev-only dependency (no security advisory) | Auto-merge via squash                   |
+| Everything else (minor/major, prod deps)                   | No action — requires manual review      |
 
 `--auto` means the merge is queued and executes only after all required branch protection checks pass. You must enable **auto-merge** in repository Settings → General and set up required status checks (the `CI` jobs) in Settings → Branches for this to hold.
 
@@ -321,14 +321,14 @@ Triggers on every Dependabot pull request. Only the `dependabot[bot]` actor can 
 
 ### Review focus per directory
 
-| Path | Review focus |
-| --- | --- |
-| `contracts/src/**/*.sol` | Reentrancy, access control, pull-over-push pattern, event emissions, unchecked arithmetic |
-| `contracts/test/**/*.sol` | Revert coverage, fuzz tests for unbounded inputs, no hardcoded addresses |
-| `contracts/script/**/*.sol` | No hardcoded secrets, correct `vm.startBroadcast` scope |
-| `**/*.ts` | No `any`, missing `await`, unhandled rejections, no hardcoded keys |
-| `hardhat.config.ts` | Consistent compiler version and optimizer settings with `foundry.toml` |
-| `.github/workflows/**` | Pinned action versions, secrets via `secrets.*` only, least-privilege permissions |
+| Path                        | Review focus                                                                              |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| `contracts/src/**/*.sol`    | Reentrancy, access control, pull-over-push pattern, event emissions, unchecked arithmetic |
+| `contracts/test/**/*.sol`   | Revert coverage, fuzz tests for unbounded inputs, no hardcoded addresses                  |
+| `contracts/script/**/*.sol` | No hardcoded secrets, correct `vm.startBroadcast` scope                                   |
+| `**/*.ts`                   | No `any`, missing `await`, unhandled rejections, no hardcoded keys                        |
+| `hardhat.config.ts`         | Consistent compiler version and optimizer settings with `foundry.toml`                    |
+| `.github/workflows/**`      | Pinned action versions, secrets via `secrets.*` only, least-privilege permissions         |
 
 Vendored directories (`contracts/lib/`, `contracts/out/`, `node_modules/`, etc.) are excluded from review via `path_filters`.
 

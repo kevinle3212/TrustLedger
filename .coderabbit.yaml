@@ -3,81 +3,81 @@
 language: "en-US"
 
 reviews:
-  profile: "assertive"
-  request_changes_workflow: false
-  high_level_summary: true
-  poem: false
-  review_status: true
-  collapse_walkthrough: false
-  auto_review:
-    enabled: true
-    auto_incremental_review: true
-    drafts: false
-    ignore_title_keywords:
-      - "WIP"
-      - "DO NOT MERGE"
+    profile: "assertive"
+    request_changes_workflow: false
+    high_level_summary: true
+    poem: false
+    review_status: true
+    collapse_walkthrough: false
+    auto_review:
+        enabled: true
+        auto_incremental_review: true
+        drafts: false
+        ignore_title_keywords:
+            - "WIP"
+            - "DO NOT MERGE"
 
-  # Exclude generated/vendored directories from review.
-  path_filters:
-    - "!contracts/lib/**"
-    - "!contracts/out/**"
-    - "!contracts/cache/**"
-    - "!contracts/broadcast/**"
-    - "!artifacts/**"
-    - "!hardhat-cache/**"
-    - "!dist/**"
-    - "!node_modules/**"
-    - "!coverage/**"
-    - "!trace/**"
-    - "!*.cpuprofile"
+    # Exclude generated/vendored directories from review.
+    path_filters:
+        - "!contracts/lib/**"
+        - "!contracts/out/**"
+        - "!contracts/cache/**"
+        - "!contracts/broadcast/**"
+        - "!artifacts/**"
+        - "!hardhat-cache/**"
+        - "!dist/**"
+        - "!node_modules/**"
+        - "!coverage/**"
+        - "!trace/**"
+        - "!*.cpuprofile"
 
-  path_instructions:
-    - path: "contracts/src/**/*.sol"
-      instructions: |
-        This is a Solidity escrow contract. Review with these priorities:
-        - Reentrancy: all external calls must follow checks-effects-interactions. Flag any state write after an external call.
-        - Access control: verify that privileged functions (fund release, dispute resolution, emergency withdrawal) are protected by appropriate modifiers.
-        - Integer arithmetic: flag unchecked blocks that touch user-supplied values.
-        - Event emissions: every state transition that moves funds or changes escrow status must emit an event.
-        - Pull-over-push: withdrawals should use the pull pattern; push payments are a reentrancy risk.
-        - Proper use of `receive` / `fallback` if present.
+    path_instructions:
+        - path: "contracts/src/**/*.sol"
+          instructions: |
+              This is a Solidity escrow contract. Review with these priorities:
+              - Reentrancy: all external calls must follow checks-effects-interactions. Flag any state write after an external call.
+              - Access control: verify that privileged functions (fund release, dispute resolution, emergency withdrawal) are protected by appropriate modifiers.
+              - Integer arithmetic: flag unchecked blocks that touch user-supplied values.
+              - Event emissions: every state transition that moves funds or changes escrow status must emit an event.
+              - Pull-over-push: withdrawals should use the pull pattern; push payments are a reentrancy risk.
+              - Proper use of `receive` / `fallback` if present.
 
-    - path: "contracts/test/**/*.sol"
-      instructions: |
-        Review Foundry tests for:
-        - Coverage of the happy path, all revert conditions, and boundary values.
-        - Use of `vm.expectRevert` for every documented failure mode.
-        - Fuzz tests (`testFuzz_*`) where inputs are unbounded (amounts, addresses).
-        - No hardcoded addresses — use `makeAddr()` or `vm.addr()`.
+        - path: "contracts/test/**/*.sol"
+          instructions: |
+              Review Foundry tests for:
+              - Coverage of the happy path, all revert conditions, and boundary values.
+              - Use of `vm.expectRevert` for every documented failure mode.
+              - Fuzz tests (`testFuzz_*`) where inputs are unbounded (amounts, addresses).
+              - No hardcoded addresses — use `makeAddr()` or `vm.addr()`.
 
-    - path: "contracts/script/**/*.sol"
-      instructions: |
-        Forge deploy scripts. Check that:
-        - No private keys or secrets are hardcoded.
-        - `vm.startBroadcast` / `vm.stopBroadcast` wraps only the necessary calls.
-        - Constructor arguments match the deployed contract's expected values.
+        - path: "contracts/script/**/*.sol"
+          instructions: |
+              Forge deploy scripts. Check that:
+              - No private keys or secrets are hardcoded.
+              - `vm.startBroadcast` / `vm.stopBroadcast` wraps only the necessary calls.
+              - Constructor arguments match the deployed contract's expected values.
 
-    - path: "**/*.ts"
-      instructions: |
-        TypeScript strict-mode is enabled. Flag:
-        - Any use of `any` or unsafe type assertions (`as Foo`).
-        - Missing `await` on async calls.
-        - Unhandled promise rejections.
-        - Hardcoded private keys, RPC URLs, or API keys.
+        - path: "**/*.ts"
+          instructions: |
+              TypeScript strict-mode is enabled. Flag:
+              - Any use of `any` or unsafe type assertions (`as Foo`).
+              - Missing `await` on async calls.
+              - Unhandled promise rejections.
+              - Hardcoded private keys, RPC URLs, or API keys.
 
-    - path: "hardhat.config.ts"
-      instructions: |
-        Check that new networks follow the existing pattern (TS_NODE_PROJECT env,
-        correct chain ID, no hardcoded keys). Solidity compiler version and
-        optimizer settings should be consistent with foundry.toml.
+        - path: "hardhat.config.ts"
+          instructions: |
+              Check that new networks follow the existing pattern (TS_NODE_PROJECT env,
+              correct chain ID, no hardcoded keys). Solidity compiler version and
+              optimizer settings should be consistent with foundry.toml.
 
-    - path: ".github/workflows/**"
-      instructions: |
-        Review for:
-        - Pinned action versions (no floating `@main` except where intentional).
-        - Secrets accessed via `${{ secrets.* }}` only, never hardcoded.
-        - Least-privilege permissions (contents: read unless write is required).
-        - No `--no-verify` or `--force` flags that bypass safety checks.
+        - path: ".github/workflows/**"
+          instructions: |
+              Review for:
+              - Pinned action versions (no floating `@main` except where intentional).
+              - Secrets accessed via `${{ secrets.* }}` only, never hardcoded.
+              - Least-privilege permissions (contents: read unless write is required).
+              - No `--no-verify` or `--force` flags that bypass safety checks.
 
 chat:
-  auto_reply: true
+    auto_reply: true
