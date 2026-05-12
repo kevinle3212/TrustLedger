@@ -238,9 +238,10 @@ docker/
   Dockerfile.ci             — CI test runner (compile + hardhat:test + forge test)
 .github/
   workflows/
-    ci.yml                  — GitHub Actions: lint, typecheck, and Forge tests on every push/PR
-    deploy.yml              — manual deploy to Arbitrum Sepolia
-    security.yml            — Slither, TruffleHog, npm audit, and CodeQL scans
+    ci.yml                        — lint, typecheck, and Forge tests on every push/PR
+    deploy.yml                    — manual deploy to Arbitrum Sepolia
+    security.yml                  — Slither, TruffleHog, npm audit, and CodeQL scans
+    dependabot-automerge.yml      — auto-merge Dependabot security and dev-patch PRs
 ```
 
 > **Note:** `docker/Dockerfile.backend` and `docker/docker-compose.yml` (full local stack with PostgreSQL) are defined in `testing/DOCKER_ROADMAP.md` Phase 3 and will be added once the `backend/` directory is scaffolded.
@@ -249,7 +250,7 @@ docker/
 
 ## GitHub Actions Workflows
 
-Three workflows live in `.github/workflows/`. All use least-privilege tokens (`contents: read`) and concurrency groups to cancel stale runs.
+Four workflows live in `.github/workflows/`. All use least-privilege tokens and concurrency groups to cancel stale runs.
 
 ### `ci.yml` — Continuous Integration
 
@@ -293,6 +294,18 @@ Runs on push/PR to `main`, manually via `workflow_dispatch`, and on a weekly cro
 | **TruffleHog** | [`trufflesecurity/trufflehog`](https://github.com/trufflesecurity/trufflehog) | Secret scanning across full git history: accidental commits of `.env` values, deployer private keys, or API keys. |
 | **Dependency audit** | `npm audit` | CVEs in the npm dependency tree (Hardhat, ethers, etc.). Scans prod deps only at `high` severity threshold. Currently `continue-on-error: true`. |
 | **CodeQL** | [`github/codeql-action`](https://github.com/github/codeql-action) | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite. Free for public repos. |
+
+### `dependabot-automerge.yml` — Dependabot Auto-merge
+
+Triggers on every Dependabot pull request. Only the `dependabot[bot]` actor can reach the merge step.
+
+| Condition | Action |
+| --- | --- |
+| PR has one or more GHSA IDs (security advisory) | Auto-merge via squash, any semver level |
+| Patch bump of a dev-only dependency (no security advisory) | Auto-merge via squash |
+| Everything else (minor/major, prod deps) | No action — requires manual review |
+
+`--auto` means the merge is queued and executes only after all required branch protection checks pass. You must enable **auto-merge** in repository Settings → General and set up required status checks (the `CI` jobs) in Settings → Branches for this to hold.
 
 ---
 
