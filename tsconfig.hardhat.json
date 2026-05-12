@@ -5,11 +5,9 @@
 		}
 	},
 	"compilerOptions": {
-		"target": "ES2022",
+		"target": "ES2024",
 		"module": "CommonJS",
-		"ignoreDeprecations": "6.0",
 		"rootDir": ".",
-		"outDir": ".hardhat-out",
 		"esModuleInterop": true,
 		"strict": true,
 		"skipLibCheck": true,
