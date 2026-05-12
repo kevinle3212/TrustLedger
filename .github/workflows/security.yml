@@ -42,7 +42,7 @@ jobs:
 
       - name: Run Slither
         id: slither
-        uses: crytic/slither-action@v0.4.0
+        uses: crytic/slither-action@v0.4.2
         with:
           # Point at the contracts/ subdirectory so Slither finds foundry.toml.
           target: contracts
