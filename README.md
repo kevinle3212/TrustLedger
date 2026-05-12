@@ -75,6 +75,107 @@ Fund the deployer wallet with Sepolia ETH before deploying: [Arbitrum Sepolia fa
 
 `.env` is listed in `.gitignore` and will never be committed.
 
+---
+
+## Development
+
+### npm scripts
+
+| Script | What it runs |
+| --- | --- |
+| `npm run compile` | Hardhat: compile Solidity → generate ABIs + TypeChain types in `artifacts/` |
+| `npm run hardhat:test` | Hardhat: run Mocha/Chai integration tests in `test/` |
+| `npm run node` | Hardhat: spin up a local chain on `localhost:8545` with 20 pre-funded accounts |
+| `npm run deploy:local` | Hardhat: deploy contracts to the local node |
+| `npm run hardhat:deploy:arbitrumSepolia` | Hardhat: deploy to Arbitrum Sepolia testnet |
+| `npm run check:balance` | Hardhat: print the deployer's ETH balance on Arbitrum Sepolia |
+| `npm run report:gas` | Foundry: run `forge test --gas-report` and print per-function gas usage |
+| `npm run lint` | ESLint (TypeScript) + Solhint (Solidity) |
+| `npm run lint:ts` | ESLint only |
+| `npm run lint:sol` | Solhint only |
+| `npm run lint:prettier` | Prettier format check (read-only) |
+| `npm run build` | `tsc` — compile `src/` to `dist/` |
+
+### Testing
+
+The project has two independent test suites that must both pass.
+
+**Hardhat (Mocha/Chai) — integration tests:**
+
+```bash
+npm run hardhat:test
+```
+
+Tests live in `test/`. They compile via `tsconfig.hardhat.json` and connect to an in-memory Hardhat EVM. TypeChain generates typed contract wrappers in `artifacts/typechain-types/` after each compile.
+
+**Foundry (Forge) — unit + fuzz + invariant tests:**
+
+```bash
+cd contracts && forge test -vvv
+```
+
+Tests live in `contracts/test/`. Foundry config (`contracts/foundry.toml`) sets:
+
+- Fuzz: 10,000 runs per fuzz test
+- Invariant: 256 runs × 500 call depth
+
+To see per-function gas costs:
+
+```bash
+npm run report:gas
+```
+
+### Linting and formatting
+
+The project enforces maximum-strictness TypeScript and consistent Solidity style.
+
+**Run all linters at once:**
+
+```bash
+npm run lint
+```
+
+**TypeScript — ESLint:**
+
+Configured in `eslint.config.mjs` using the ESLint 9 flat config format. Extends `typescript-eslint`'s `strictTypeChecked` + `stylisticTypeChecked` presets with additional rules for async correctness, explicit return types, and no `any`. Type-aware rules use both `tsconfig.json` (source) and `tsconfig.hardhat.json` (scripts, tests, config).
+
+**TypeScript — Prettier:**
+
+```bash
+npm run lint:prettier       # check only
+npx prettier --write .      # auto-fix
+```
+
+Prettier is the last layer in the ESLint config (`eslint-config-prettier`) so the two tools never conflict.
+
+**Solidity — Solhint:**
+
+```bash
+npm run lint:sol
+```
+
+Checks `contracts/src/`, `contracts/test/`, and `contracts/script/`.
+
+**Solidity — Forge fmt:**
+
+```bash
+cd contracts && forge fmt        # auto-fix
+cd contracts && forge fmt --check  # CI check only
+```
+
+### TypeScript configuration
+
+The project uses two `tsconfig` files to satisfy different runtime environments:
+
+| File | Used by | Module system |
+| --- | --- | --- |
+| `tsconfig.json` | `src/` (library output to `dist/`) | NodeNext ESM |
+| `tsconfig.hardhat.json` | `hardhat.config.ts`, `scripts/`, `test/` | CommonJS (Hardhat requirement) |
+
+Both extend `@tsconfig/strictest` and layer additional compiler flags (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, etc.).
+
+---
+
 ## Docker Usage
 
 The Docker setup gives every contributor an identical environment — same Node version, same Foundry version, same compiler — without installing anything on the host beyond Docker itself.
@@ -119,7 +220,7 @@ docker compose -f docker/docker-compose.dev.yml down
 
 ### CI image (Phase 2)
 
-The `docker/Dockerfile.ci` image compiles contracts and runs both Hardhat and Foundry tests in one hermetic build. It is used by the GitHub Actions workflow (`.github/workflows/test.yml`) and exits non-zero on any failure.
+The `docker/Dockerfile.ci` image compiles contracts and runs both Hardhat and Foundry tests in one hermetic build. It exits non-zero on any failure and can be used to reproduce CI locally before pushing.
 
 Run it locally to reproduce CI exactly:
 
@@ -192,6 +293,41 @@ Runs on push/PR to `main`, manually via `workflow_dispatch`, and on a weekly cro
 | **TruffleHog** | [`trufflesecurity/trufflehog`](https://github.com/trufflesecurity/trufflehog) | Secret scanning across full git history: accidental commits of `.env` values, deployer private keys, or API keys. |
 | **Dependency audit** | `npm audit` | CVEs in the npm dependency tree (Hardhat, ethers, etc.). Scans prod deps only at `high` severity threshold. Currently `continue-on-error: true`. |
 | **CodeQL** | [`github/codeql-action`](https://github.com/github/codeql-action) | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite. Free for public repos. |
+
+---
+
+## Code Review — CodeRabbit
+
+[CodeRabbit](https://coderabbit.ai) performs automated AI code review on every pull request. Configuration lives in `.coderabbit.yaml` at the repo root (free plan).
+
+### What it does
+
+- Posts a high-level PR summary and a file-by-file walkthrough as a PR comment
+- Leaves inline review comments on individual lines
+- Responds to `@coderabbitai` mentions in PR comments for follow-up questions
+
+### Review focus per directory
+
+| Path | Review focus |
+| --- | --- |
+| `contracts/src/**/*.sol` | Reentrancy, access control, pull-over-push pattern, event emissions, unchecked arithmetic |
+| `contracts/test/**/*.sol` | Revert coverage, fuzz tests for unbounded inputs, no hardcoded addresses |
+| `contracts/script/**/*.sol` | No hardcoded secrets, correct `vm.startBroadcast` scope |
+| `**/*.ts` | No `any`, missing `await`, unhandled rejections, no hardcoded keys |
+| `hardhat.config.ts` | Consistent compiler version and optimizer settings with `foundry.toml` |
+| `.github/workflows/**` | Pinned action versions, secrets via `secrets.*` only, least-privilege permissions |
+
+Vendored directories (`contracts/lib/`, `contracts/out/`, `node_modules/`, etc.) are excluded from review via `path_filters`.
+
+### Interacting with CodeRabbit
+
+Comment on any PR to ask follow-up questions or request a re-review:
+
+```md
+@coderabbitai summary
+@coderabbitai review
+@coderabbitai help
+```
 
 ---
 
