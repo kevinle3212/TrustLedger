@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs on the same branch when a new commit lands.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least-privilege token. Read is enough for checkout.
+permissions:
+  contents: read
+
+jobs:
+  typescript:
+    name: TypeScript (lint + typecheck)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          # Foundry deps (forge-std, openzeppelin-contracts) live as submodules.
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: ESLint + Solhint
+        run: npm run lint
+
+      - name: Prettier check
+        run: npx prettier --check .
+
+  solidity:
+    name: Solidity (forge build + test)
+    runs-on: ubuntu-latest
+    # All `run:` steps execute from within the contracts directory where
+    # foundry.toml lives. `uses:` steps (checkout, toolchain) are unaffected.
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Show Forge version
+        run: forge --version
+
+      - name: Check Solidity formatting
+        run: forge fmt --check
+
+      - name: Build contracts
+        run: forge build --sizes
+
+      - name: Run tests
+        run: forge test -vvv
+        env:
+          FOUNDRY_PROFILE: ci
+
+      - name: Gas snapshot diff (informational, non-blocking)
+        run: forge snapshot --check || true

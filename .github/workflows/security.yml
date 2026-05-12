@@ -1,0 +1,133 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Weekly full scan, Mondays at 13:00 UTC (catches CVEs published in
+    # transitive deps even if no commits land that week).
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+# security-events: write is required to upload SARIF to the GitHub Security tab.
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Solidity static analysis. Slither is the industry workhorse for finding
+  # reentrancy, uninitialized storage, shadowed vars, dangerous low-level calls,
+  # etc. Output goes to the Security tab as SARIF so you get inline PR comments.
+  # ---------------------------------------------------------------------------
+  slither:
+    name: Slither (Solidity SAST)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Run Slither
+        id: slither
+        uses: crytic/slither-action@v0.4.0
+        with:
+          # Point at the contracts/ subdirectory so Slither finds foundry.toml.
+          target: contracts
+          # Skip lib/ (forge-std, OZ) and test/ noise. Only fail on medium+.
+          slither-args: "--filter-paths \"lib/|test/\" --exclude-informational --exclude-low"
+          fail-on: medium
+          sarif: results.sarif
+        # Non-blocking until you've triaged false positives. Flip to false
+        # once the ruleset is tuned.
+        continue-on-error: true
+
+      - name: Upload SARIF to GitHub Security
+        if: always() && steps.slither.outputs.sarif != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}
+          category: slither
+
+  # ---------------------------------------------------------------------------
+  # Secret scanning. Critical for this project specifically because you've got
+  # .env files, deployer private keys, and Etherscan API keys floating around.
+  # Catches accidental commits before they hit a public mirror.
+  # ---------------------------------------------------------------------------
+  trufflehog:
+    name: TruffleHog (secret scanning)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          # Full git history. Secrets often slip in via squashed/old commits.
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          # 'verified' = TruffleHog confirmed the secret is live.
+          # 'unknown'  = looks like a credential but couldn't verify (review manually).
+          extra_args: --results=verified,unknown
+
+  # ---------------------------------------------------------------------------
+  # Dependency vulnerabilities. Catches CVEs in your npm dep tree
+  # (Hardhat, ethers, ts-node, etc.).
+  # ---------------------------------------------------------------------------
+  dependencies:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run audit
+        # --omit=dev skips devDependencies. High threshold avoids noise from
+        # informational advisories. Bump to 'moderate' once you're stable.
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
+
+  # ---------------------------------------------------------------------------
+  # CodeQL on the TypeScript side. Free for public repos. Catches things like
+  # path traversal, prototype pollution, SSRF in any backend/scripts.
+  # ---------------------------------------------------------------------------
+  codeql:
+    name: CodeQL (TypeScript)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          # security-extended adds higher-precision queries beyond the defaults.
+          queries: security-extended
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
