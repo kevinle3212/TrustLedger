@@ -32,8 +32,8 @@ Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 Copy account #0's values into `.env`:
 
 ```txt
-DEPLOYER_PUBLIC_ADDRESS=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-DEPLOYER_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+DEPLOYER_PUBLIC_ADDRESS=0x...  # from Account #0 above
+DEPLOYER_PRIVATE_KEY=0x...
 ```
 
 Leave `ARBITRUM_SEPOLIA_RPC_URL` and `ETHERSCAN_API_KEY` blank — they are not used for local deployments.
