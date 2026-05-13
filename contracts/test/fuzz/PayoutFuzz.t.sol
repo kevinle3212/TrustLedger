@@ -286,8 +286,17 @@ contract PayoutFuzz is Test {
 
         vm.prank(client);
         uint256 id = trustLedger.createContract{value: amount}(
-            freelancer, CONTRACT_HASH, "ipfs://contract", 30 days, 1200, 48 hours, arbitrationFeeBps, 0, 0,
-            address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            "ipfs://contract",
+            30 days,
+            1200,
+            48 hours,
+            arbitrationFeeBps,
+            0,
+            0,
+            address(0),
+            0
         );
 
         (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
@@ -313,8 +322,17 @@ contract PayoutFuzz is Test {
 
         vm.prank(client);
         uint256 id = trustLedger.createContract{value: amount}(
-            freelancer, CONTRACT_HASH, "ipfs://contract", 30 days, 1200, 48 hours, arbitrationFeeBps, 0, 0,
-            address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            "ipfs://contract",
+            30 days,
+            1200,
+            48 hours,
+            arbitrationFeeBps,
+            0,
+            0,
+            address(0),
+            0
         );
 
         (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);

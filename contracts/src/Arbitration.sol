@@ -346,13 +346,14 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         // fulfillRandomWords() will be called back by the coordinator to pre-select jurors.
         // If no coordinator is set, jurors self-select by calling commitVote() (legacy mode).
         if (vrfCoordinator != address(0)) {
-            uint256 requestId = IVRFCoordinator(vrfCoordinator).requestRandomWords(
-                bytes32(0), // keyHash — set by coordinator subscription; stub for interface compliance
-                0, // subId — VRF subscription ID; stub for interface compliance
-                3, // minimumRequestConfirmations — wait 3 blocks for finality
-                200_000, // callbackGasLimit — sufficient for juror pre-selection loop
-                uint32(BASE_MAX_JURORS) // numWords — one random word per juror slot
-            );
+            uint256 requestId = IVRFCoordinator(vrfCoordinator)
+                .requestRandomWords(
+                    bytes32(0), // keyHash — set by coordinator subscription; stub for interface compliance
+                    0, // subId — VRF subscription ID; stub for interface compliance
+                    3, // minimumRequestConfirmations — wait 3 blocks for finality
+                    200_000, // callbackGasLimit — sufficient for juror pre-selection loop
+                    uint32(BASE_MAX_JURORS) // numWords — one random word per juror slot
+                );
             _pendingVrfRequest[requestId] = disputeId;
         }
 

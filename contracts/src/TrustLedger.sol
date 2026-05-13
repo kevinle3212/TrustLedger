@@ -334,7 +334,13 @@ contract TrustLedger is ReentrancyGuard {
         uint256 tokenAmount
     ) external payable returns (uint256 id) {
         _validateCreateParams(
-            freelancer, bufferFactor, acceptanceWindow, arbitrationFeeBps, holdBackBps, warrantyPeriod, token,
+            freelancer,
+            bufferFactor,
+            acceptanceWindow,
+            arbitrationFeeBps,
+            holdBackBps,
+            warrantyPeriod,
+            token,
             tokenAmount
         );
 

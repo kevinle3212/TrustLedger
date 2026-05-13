@@ -358,8 +358,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.ZeroAddress.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            address(0), CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 0, 0, address(0), 0
+            address(0),
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            0,
+            0,
+            address(0),
+            0
         );
     }
 
@@ -367,8 +376,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.SelfContract.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            client, CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 0, 0, address(0), 0
+            client,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            0,
+            0,
+            address(0),
+            0
         );
     }
 
@@ -376,8 +394,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InsufficientFunds.selector);
         vm.prank(client);
         trustLedger.createContract{value: 0}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 0, 0, address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            0,
+            0,
+            address(0),
+            0
         );
     }
 
@@ -385,8 +412,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidBufferFactor.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, 1000, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 0, 0, address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            1000,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            0,
+            0,
+            address(0),
+            0
         );
     }
 
@@ -394,8 +430,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidAcceptanceWindow.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, BUFFER_FACTOR, 1 hours,
-            ARB_FEE_BPS, 0, 0, address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            1 hours,
+            ARB_FEE_BPS,
+            0,
+            0,
+            address(0),
+            0
         );
     }
 
@@ -403,8 +448,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidArbitrationFee.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            0, 0, 0, address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            0,
+            0,
+            0,
+            address(0),
+            0
         );
     }
 
@@ -412,8 +466,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidHoldBack.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 100, 7 days, address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            100,
+            7 days,
+            address(0),
+            0
         );
     }
 
@@ -421,8 +484,17 @@ contract TrustLedgerTest is Test {
         vm.expectRevert(TrustLedger.InvalidWarrantyPeriod.selector);
         vm.prank(client);
         trustLedger.createContract{value: AMOUNT}(
-            freelancer, CONTRACT_HASH, CONTRACT_URI, ESTIMATED_DURATION, BUFFER_FACTOR, ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS, 1000, 0, address(0), 0
+            freelancer,
+            CONTRACT_HASH,
+            CONTRACT_URI,
+            ESTIMATED_DURATION,
+            BUFFER_FACTOR,
+            ACCEPTANCE_WINDOW,
+            ARB_FEE_BPS,
+            1000,
+            0,
+            address(0),
+            0
         );
     }
 
