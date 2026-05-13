@@ -27,11 +27,13 @@ async function main(): Promise<void> {
 		ethers.keccak256(ethers.toUtf8Bytes("contract-v1")),
 		"ipfs://QmDemo",
 		30 * 24 * 3600, // 30-day estimated duration
-		1200,           // 1.2× buffer factor
-		48 * 3600,      // 48-hour acceptance window
-		1500,           // 15% arbitration fee
-		0, 0,           // no hold-back
-		ethers.ZeroAddress, 0n,
+		1200, // 1.2× buffer factor
+		48 * 3600, // 48-hour acceptance window
+		1500, // 15% arbitration fee
+		0,
+		0, // no hold-back
+		ethers.ZeroAddress,
+		0n,
 		{ value: ethers.parseEther("1") },
 	);
 	const createReceipt = await createTx.wait();
@@ -39,7 +41,11 @@ async function main(): Promise<void> {
 
 	const createEvent = createReceipt.logs
 		.map((log): LogDescription | null => {
-			try { return tl.interface.parseLog(log); } catch { return null; }
+			try {
+				return tl.interface.parseLog(log);
+			} catch {
+				return null;
+			}
 		})
 		.find((e): e is LogDescription => e !== null && e.name === "ContractCreated");
 	if (createEvent === undefined) throw new Error("ContractCreated event not found");
@@ -55,9 +61,7 @@ async function main(): Promise<void> {
 		["uint256", "address"],
 		[contractId, await freelancer.getAddress()],
 	);
-	const sig = ethers.Signature.from(
-		await freelancer.signMessage(ethers.getBytes(innerHash)),
-	);
+	const sig = ethers.Signature.from(await freelancer.signMessage(ethers.getBytes(innerHash)));
 	const acceptTx = await tl.connect(freelancer).acceptContract(contractId, sig.v, sig.r, sig.s);
 	await acceptTx.wait();
 	console.log(`  ✓ Tx hash     : ${acceptTx.hash}`);
@@ -65,11 +69,13 @@ async function main(): Promise<void> {
 
 	// ── Step 3: Freelancer submits proof of work ───────────────────────────────
 	console.log("Step 3 — Freelancer submits proof of work...");
-	const powTx = await tl.connect(freelancer).submitProofOfWork(
-		contractId,
-		ethers.keccak256(ethers.toUtf8Bytes("proof-v1")),
-		"ipfs://QmProof",
-	);
+	const powTx = await tl
+		.connect(freelancer)
+		.submitProofOfWork(
+			contractId,
+			ethers.keccak256(ethers.toUtf8Bytes("proof-v1")),
+			"ipfs://QmProof",
+		);
 	await powTx.wait();
 	console.log(`  ✓ Proof IPFS  : ipfs://QmProof`);
 	console.log(`  ✓ Tx hash     : ${powTx.hash}`);

@@ -5,8 +5,8 @@ import { ethers } from "hardhat";
 import type { LogDescription } from "ethers";
 import type { TrustLedger, Arbitration, JurorRegistry } from "../../artifacts/typechain-types";
 
-const TRUST_LEDGER   = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
-const ARBITRATION    = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+const TRUST_LEDGER = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
+const ARBITRATION = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
 const JUROR_REGISTRY = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 
 async function main(): Promise<void> {
@@ -23,9 +23,12 @@ async function main(): Promise<void> {
 	console.log(`Juror 3    : ${j3.address}`);
 	console.log();
 
-	const tl  = (await ethers.getContractAt("TrustLedger",   TRUST_LEDGER))   as unknown as TrustLedger;
-	const arb = (await ethers.getContractAt("Arbitration",   ARBITRATION))    as unknown as Arbitration;
-	const jr  = (await ethers.getContractAt("JurorRegistry", JUROR_REGISTRY)) as unknown as JurorRegistry;
+	const tl = (await ethers.getContractAt("TrustLedger", TRUST_LEDGER)) as unknown as TrustLedger;
+	const arb = (await ethers.getContractAt("Arbitration", ARBITRATION)) as unknown as Arbitration;
+	const jr = (await ethers.getContractAt(
+		"JurorRegistry",
+		JUROR_REGISTRY,
+	)) as unknown as JurorRegistry;
 
 	// ── Step 1: Register jurors (0.1 ETH stake each) ──────────────────────────
 	console.log("Step 1 — Registering jurors (0.1 ETH stake each)...");
@@ -36,7 +39,9 @@ async function main(): Promise<void> {
 		} catch (e: unknown) {
 			if (e instanceof Error && e.message.includes("AlreadyRegistered")) {
 				console.log(`  ℹ  ${juror.address.slice(0, 10)}… already registered, skipping`);
-			} else { throw e; }
+			} else {
+				throw e;
+			}
 		}
 	};
 
@@ -60,11 +65,13 @@ async function main(): Promise<void> {
 		ethers.keccak256(ethers.toUtf8Bytes("contract-v2")),
 		"ipfs://QmDemo2",
 		30 * 24 * 3600, // 30-day estimated duration
-		1200,           // 1.2× buffer factor
-		48 * 3600,      // 48-hour acceptance window
-		1500,           // 15% arbitration fee
-		0, 0,           // no hold-back
-		ethers.ZeroAddress, 0n,
+		1200, // 1.2× buffer factor
+		48 * 3600, // 48-hour acceptance window
+		1500, // 15% arbitration fee
+		0,
+		0, // no hold-back
+		ethers.ZeroAddress,
+		0n,
 		{ value: ethers.parseEther("1") },
 	);
 	const createReceipt = await createTx.wait();
@@ -72,7 +79,11 @@ async function main(): Promise<void> {
 
 	const createEvent = createReceipt.logs
 		.map((log): LogDescription | null => {
-			try { return tl.interface.parseLog(log); } catch { return null; }
+			try {
+				return tl.interface.parseLog(log);
+			} catch {
+				return null;
+			}
 		})
 		.find((e): e is LogDescription => e !== null && e.name === "ContractCreated");
 	if (createEvent === undefined) throw new Error("ContractCreated event not found");
@@ -86,15 +97,17 @@ async function main(): Promise<void> {
 		["uint256", "address"],
 		[contractId, await freelancer.getAddress()],
 	);
-	const sig = ethers.Signature.from(
-		await freelancer.signMessage(ethers.getBytes(innerHash)),
-	);
+	const sig = ethers.Signature.from(await freelancer.signMessage(ethers.getBytes(innerHash)));
 	await (await tl.connect(freelancer).acceptContract(contractId, sig.v, sig.r, sig.s)).wait();
-	await (await tl.connect(freelancer).submitProofOfWork(
-		contractId,
-		ethers.keccak256(ethers.toUtf8Bytes("proof-v2")),
-		"ipfs://QmProof2",
-	)).wait();
+	await (
+		await tl
+			.connect(freelancer)
+			.submitProofOfWork(
+				contractId,
+				ethers.keccak256(ethers.toUtf8Bytes("proof-v2")),
+				"ipfs://QmProof2",
+			)
+	).wait();
 	console.log("  ✓ Accepted and proof submitted");
 	console.log();
 
@@ -106,7 +119,11 @@ async function main(): Promise<void> {
 
 	const disputeEvent = disputeReceipt.logs
 		.map((log): LogDescription | null => {
-			try { return arb.interface.parseLog(log); } catch { return null; }
+			try {
+				return arb.interface.parseLog(log);
+			} catch {
+				return null;
+			}
 		})
 		.find((e): e is LogDescription => e !== null && e.name === "DisputeOpened");
 	if (disputeEvent === undefined) throw new Error("DisputeOpened event not found");
@@ -118,7 +135,7 @@ async function main(): Promise<void> {
 
 	// ── Step 6: Jurors commit hidden votes (50% completion) ───────────────────
 	console.log("Step 6 — Jurors commit hidden votes (50% completion ruling)...");
-	const pct  = 50;
+	const pct = 50;
 	const salt = ethers.randomBytes(32);
 
 	const makeCommit = (addr: string): string =>
