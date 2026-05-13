@@ -4,6 +4,9 @@
 		"editor.insertSpaces": true,
 		"editor.detectIndentation": false
 	},
+	"markdownlint.config": {
+		"MD010": false
+	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**"],
 	"eslint.useFlatConfig": true

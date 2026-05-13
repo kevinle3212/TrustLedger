@@ -473,23 +473,23 @@ import { hardhat, arbitrumSepolia } from "wagmi/chains";
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 
 const config = getDefaultConfig({
-  appName: "TrustLedger",
-  projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
-  chains: [hardhat, arbitrumSepolia],
+	appName: "TrustLedger",
+	projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+	chains: [hardhat, arbitrumSepolia],
 });
 
 const queryClient = new QueryClient();
 
 export function App() {
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          <ConnectButton /> {/* renders MetaMask / wallet picker */}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
+	return (
+		<WagmiProvider config={config}>
+			<QueryClientProvider client={queryClient}>
+				<RainbowKitProvider>
+					<ConnectButton /> {/* renders MetaMask / wallet picker */}
+				</RainbowKitProvider>
+			</QueryClientProvider>
+		</WagmiProvider>
+	);
 }
 ```
 
@@ -501,19 +501,19 @@ import { TRUSTLEDGER_ABI, TRUSTLEDGER_ADDRESS } from "./contracts";
 
 // Read contract state
 const { data: escrow } = useReadContract({
-  address: TRUSTLEDGER_ADDRESS,
-  abi: TRUSTLEDGER_ABI,
-  functionName: "getContract",
-  args: [contractId],
+	address: TRUSTLEDGER_ADDRESS,
+	abi: TRUSTLEDGER_ABI,
+	functionName: "getContract",
+	args: [contractId],
 });
 
 // Write (send a transaction)
 const { writeContract } = useWriteContract();
 writeContract({
-  address: TRUSTLEDGER_ADDRESS,
-  abi: TRUSTLEDGER_ABI,
-  functionName: "approveWork",
-  args: [contractId],
+	address: TRUSTLEDGER_ADDRESS,
+	abi: TRUSTLEDGER_ABI,
+	functionName: "approveWork",
+	args: [contractId],
 });
 ```
 
