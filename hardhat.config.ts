@@ -27,6 +27,9 @@ const config: HardhatUserConfig = {
 				runs: 200, // how many times the contract is expected to be called over its lifetime;
 				// higher = smaller per-call gas, larger deploy size
 			},
+			// viaIR compiles through Yul IR, which avoids "stack too deep" errors
+			// that arise when a function has many local variables (e.g. createContract).
+			viaIR: true,
 		},
 	},
 
