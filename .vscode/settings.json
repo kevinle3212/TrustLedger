@@ -5,7 +5,8 @@
 		"editor.detectIndentation": false
 	},
 	"markdownlint.config": {
-		"MD010": false
+		"MD010": false,
+		"MD041": false
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**"],
