@@ -71,8 +71,6 @@ Copy those values into `.env`, then fill in the remaining variables:
 
 Fund the deployer wallet with Sepolia ETH before deploying: [Arbitrum Sepolia faucet](https://www.alchemy.com/faucets/arbitrum-sepolia).
 
----
-
 `.env` is listed in `.gitignore` and will never be committed.
 
 ---
@@ -173,6 +171,20 @@ The project uses two `tsconfig` files to satisfy different runtime environments:
 | `tsconfig.hardhat.json` | `hardhat.config.ts`, `scripts/`, `test/` | CommonJS (Hardhat requirement) |
 
 Both extend `@tsconfig/strictest` and layer additional compiler flags (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`, etc.).
+
+### Why Hardhat 2.x, not 3.x
+
+This project pins `hardhat@^2.x` and `@nomicfoundation/hardhat-toolbox@^5.x` intentionally. Hardhat 3.x was evaluated and reverted for the following reasons:
+
+| Concern | Hardhat 2.x | Hardhat 3.x (alpha) |
+| ------- | ----------- | ------------------- |
+| **TypeChain** | `@typechain/hardhat` has stable, first-class support | No stable TypeChain plugin — 3.x overhauled the plugin API |
+| **Toolbox** | `hardhat-toolbox@5` bundles TypeChain + ethers v6 + gas reporter + coverage in one package | 3.x toolbox is separate, incomplete, and still evolving |
+| **ESM / CJS** | Works reliably with `"module": "CommonJS"` + `ts-node` CJS override needed for Node.js 25 | Defaults to ESM, which breaks the `ts-node` CJS workaround and would require a larger rearchitecture |
+| **Plugin ecosystem** | `hardhat-gas-reporter`, `solidity-coverage`, Slither all verified working | Support varies — several plugins have not published 3.x-compatible releases |
+| **Stability** | Mature, semver-stable release line | Alpha — breaking changes between releases disrupt local and CI workflows |
+
+Upgrade to Hardhat 3.x once it reaches a stable release and TypeChain publishes a compatible plugin.
 
 ---
 
