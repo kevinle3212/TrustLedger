@@ -68,33 +68,33 @@ Lower gas costs than Ethereum mainnet make smaller freelance agreements economic
 
 ## Contract Architecture
 
-| Contract                 | Role                                                                                                                              |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| `TrustLedger.sol`        | Core escrow. Manages the full contract lifecycle: create → accept → submit → approve/dispute. Holds funds and executes payouts.   |
-| `Arbitration.sol`        | Dispute resolution engine. Manages commit-reveal voting, juror slashing, appeals, and ruling execution.                           |
-| `JurorRegistry.sol`      | Juror staking and eligibility. Tracks staked ETH, lock periods, active disputes, and slashing history.                            |
-| `ReputationRegistry.sol` | On-chain reputation. Records bidirectional ratings (1–100) between clients and freelancers after each completed contract.         |
+| Contract                 | Role                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `TrustLedger.sol`        | Core escrow. Manages the full contract lifecycle: create → accept → submit → approve/dispute. Holds funds and executes payouts. |
+| `Arbitration.sol`        | Dispute resolution engine. Manages commit-reveal voting, juror slashing, appeals, and ruling execution.                         |
+| `JurorRegistry.sol`      | Juror staking and eligibility. Tracks staked ETH, lock periods, active disputes, and slashing history.                          |
+| `ReputationRegistry.sol` | On-chain reputation. Records bidirectional ratings (1–100) between clients and freelancers after each completed contract.       |
 
 ### Interfaces (`contracts/src/interfaces/`)
 
-| Interface                  | Purpose                                                                              |
-| -------------------------- | -------------------------------------------------------------------------------------|
-| `IArbitration.sol`         | Called by TrustLedger to open disputes and execute rulings.                          |
-| `IJurorRegistry.sol`       | Called by Arbitration to check eligibility, lock/unlock jurors, and list pool.       |
-| `IReputationRegistry.sol`  | Called by TrustLedger to submit ratings to ReputationRegistry.                       |
-| `IERC20.sol`               | Minimal ERC-20 interface (`transfer`, `transferFrom`) for stablecoin escrow.         |
-| `AggregatorV3Interface.sol`| Chainlink Data Feed interface for reading ETH/USD price at creation time.            |
-| `IVRFCoordinator.sol`      | Chainlink VRF v2 interface for requesting verifiable randomness for juror selection. |
+| Interface                   | Purpose                                                                              |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| `IArbitration.sol`          | Called by TrustLedger to open disputes and execute rulings.                          |
+| `IJurorRegistry.sol`        | Called by Arbitration to check eligibility, lock/unlock jurors, and list pool.       |
+| `IReputationRegistry.sol`   | Called by TrustLedger to submit ratings to ReputationRegistry.                       |
+| `IERC20.sol`                | Minimal ERC-20 interface (`transfer`, `transferFrom`) for stablecoin escrow.         |
+| `AggregatorV3Interface.sol` | Chainlink Data Feed interface for reading ETH/USD price at creation time.            |
+| `IVRFCoordinator.sol`       | Chainlink VRF v2 interface for requesting verifiable randomness for juror selection. |
 
 ### Optional one-time initializers
 
 Three optional integrations are wired in after deployment via one-time setter functions. Once set, they cannot be changed.
 
-| Function                              | Contract       | Effect                                                   |
-| ------------------------------------- | -------------- | -------------------------------------------------------- |
-| `initPriceFeed(address feed)`         | TrustLedger    | Enables Chainlink ETH/USD recording at contract creation |
-| `initReputationRegistry(address reg)` | TrustLedger    | Enables on-chain reputation scoring after completion     |
-| `initVrfCoordinator(address vrf)`     | Arbitration    | Enables Chainlink VRF juror selection at dispute open    |
+| Function                              | Contract    | Effect                                                   |
+| ------------------------------------- | ----------- | -------------------------------------------------------- |
+| `initPriceFeed(address feed)`         | TrustLedger | Enables Chainlink ETH/USD recording at contract creation |
+| `initReputationRegistry(address reg)` | TrustLedger | Enables on-chain reputation scoring after completion     |
+| `initVrfCoordinator(address vrf)`     | Arbitration | Enables Chainlink VRF juror selection at dispute open    |
 
 ---
 
@@ -273,13 +273,13 @@ Both extend `@tsconfig/strictest` and layer additional compiler flags (`noUnchec
 
 This project pins `hardhat@^2.x` and `@nomicfoundation/hardhat-toolbox@^5.x` intentionally. Hardhat 3.x was evaluated and reverted for the following reasons:
 
-| Concern | Hardhat 2.x | Hardhat 3.x (alpha) |
-| ------- | ----------- | ------------------- |
-| **TypeChain** | `@typechain/hardhat` has stable, first-class support | No stable TypeChain plugin — 3.x overhauled the plugin API |
-| **Toolbox** | `hardhat-toolbox@5` bundles TypeChain + ethers v6 + gas reporter + coverage in one package | 3.x toolbox is separate, incomplete, and still evolving |
-| **ESM / CJS** | Works reliably with `"module": "CommonJS"` + `ts-node` CJS override needed for Node.js 25 | Defaults to ESM, which breaks the `ts-node` CJS workaround and would require a larger rearchitecture |
-| **Plugin ecosystem** | `hardhat-gas-reporter`, `solidity-coverage`, Slither all verified working | Support varies — several plugins have not published 3.x-compatible releases |
-| **Stability** | Mature, semver-stable release line | Alpha — breaking changes between releases disrupt local and CI workflows |
+| Concern              | Hardhat 2.x                                                                                | Hardhat 3.x (alpha)                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **TypeChain**        | `@typechain/hardhat` has stable, first-class support                                       | No stable TypeChain plugin — 3.x overhauled the plugin API                                           |
+| **Toolbox**          | `hardhat-toolbox@5` bundles TypeChain + ethers v6 + gas reporter + coverage in one package | 3.x toolbox is separate, incomplete, and still evolving                                              |
+| **ESM / CJS**        | Works reliably with `"module": "CommonJS"` + `ts-node` CJS override needed for Node.js 25  | Defaults to ESM, which breaks the `ts-node` CJS workaround and would require a larger rearchitecture |
+| **Plugin ecosystem** | `hardhat-gas-reporter`, `solidity-coverage`, Slither all verified working                  | Support varies — several plugins have not published 3.x-compatible releases                          |
+| **Stability**        | Mature, semver-stable release line                                                         | Alpha — breaking changes between releases disrupt local and CI workflows                             |
 
 Upgrade to Hardhat 3.x once it reaches a stable release and TypeChain publishes a compatible plugin.
 
@@ -450,6 +450,74 @@ Comment on any PR to ask follow-up questions or request a re-review:
 @coderabbitai review
 @coderabbitai help
 ```
+
+---
+
+## Frontend Stack
+
+The frontend will be built with **React** and uses **RainbowKit** as the wallet connection layer. RainbowKit wraps wagmi + viem and provides a ready-made connect button that supports MetaMask, WalletConnect, Coinbase Wallet, and others out of the box — no manual `window.ethereum` wiring needed.
+
+**Core dependencies:**
+
+```bash
+npm install @rainbow-me/rainbowkit wagmi viem @tanstack/react-query
+```
+
+**Setup pattern:**
+
+```tsx
+import { RainbowKitProvider, ConnectButton } from "@rainbow-me/rainbowkit";
+import { WagmiProvider } from "wagmi";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { hardhat, arbitrumSepolia } from "wagmi/chains";
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+
+const config = getDefaultConfig({
+	appName: "TrustLedger",
+	projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
+	chains: [hardhat, arbitrumSepolia],
+});
+
+const queryClient = new QueryClient();
+
+export function App() {
+	return (
+		<WagmiProvider config={config}>
+			<QueryClientProvider client={queryClient}>
+				<RainbowKitProvider>
+					<ConnectButton /> {/* renders MetaMask / wallet picker */}
+				</RainbowKitProvider>
+			</QueryClientProvider>
+		</WagmiProvider>
+	);
+}
+```
+
+**Contract calls use wagmi hooks:**
+
+```tsx
+import { useWriteContract, useReadContract } from "wagmi";
+import { TRUSTLEDGER_ABI, TRUSTLEDGER_ADDRESS } from "./contracts";
+
+// Read contract state
+const { data: escrow } = useReadContract({
+	address: TRUSTLEDGER_ADDRESS,
+	abi: TRUSTLEDGER_ABI,
+	functionName: "getContract",
+	args: [contractId],
+});
+
+// Write (send a transaction)
+const { writeContract } = useWriteContract();
+writeContract({
+	address: TRUSTLEDGER_ADDRESS,
+	abi: TRUSTLEDGER_ABI,
+	functionName: "approveWork",
+	args: [contractId],
+});
+```
+
+Target networks: `hardhat` (local dev on `localhost:8545`) and `arbitrumSepolia` (testnet). No mainnet deployment planned.
 
 ---
 
