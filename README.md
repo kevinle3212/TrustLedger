@@ -1,6 +1,102 @@
 # TrustLedger
 
-A Solidity-based smart contract system for secure escrow-based transactions that's built on the Ethereum blockchain.
+A Solidity-based smart contract system for secure, escrow-based freelance agreements built on Arbitrum.
+
+## What Makes TrustLedger Different
+
+Most freelance escrow platforms (Upwork, Fiverr, Escrow.com) are centralized: a company holds the funds, controls dispute outcomes, and can modify terms unilaterally. General-purpose on-chain courts like Kleros handle arbitrary disputes but have no built-in understanding of freelance work — no concept of a deadline, a deliverable, or a warranty.
+
+TrustLedger is purpose-built for the freelance agreement lifecycle. Every design decision reflects a specific failure mode in traditional platforms.
+
+### On-chain proof of the agreement and the deliverable
+
+When a contract is created, a `keccak256` hash of the off-chain agreement document and its IPFS URI are stored on-chain. When the freelancer submits work, a hash of the deliverable and its IPFS URI are stored the same way. Neither party — and neither platform — can alter what was agreed to or what was delivered after the fact. Any tampering is immediately detectable by recomputing the hash.
+
+### ECDSA wallet binding on acceptance
+
+The freelancer does not accept a contract simply by calling a function — they must submit an EIP-191 signature over `keccak256(contractId, freelancerAddress)`. The contract recovers the signer on-chain via `ecrecover` and rejects any mismatch. This prevents a third party from accepting a contract on a freelancer's behalf without their private-key authorization.
+
+### Completion percentage rulings, not binary verdicts
+
+Jurors vote on a completion percentage (0–100), not a simple "client wins / freelancer wins." The median vote becomes the ruling. The payout formula is proportional: the freelancer's share scales with the ruling, and the arbitration fee burden is split proportionally too — not all charged to the freelancer. This allows nuanced outcomes rather than a winner-takes-all result that neither party finds fair.
+
+### Commit-reveal voting prevents herding
+
+Jurors submit a `keccak256` commitment of their vote before anyone reveals. Votes are hidden during the commit phase, so no juror can see the crowd forming and pile on. Only after the commit window closes do jurors reveal their actual numbers. Any deviation from the original commitment is rejected on-chain. This prevents the bandwagon behavior that plagues simple voting systems.
+
+### Verifiable random juror selection via Chainlink VRF
+
+When Chainlink VRF is configured, jurors are selected at dispute-open time using on-chain verifiable randomness — not self-selection. Only the pre-selected wallets can participate in the dispute. When VRF is not configured, jurors self-select from the eligible pool (legacy mode). The two modes are compatible: the same commit-reveal flow applies in both cases.
+
+### Juror slashing creates real accountability
+
+Minority jurors — those whose votes land more than 20 percentage points from the median — lose 10% of their staked ETH. Jurors who commit but never reveal are slashed the same way. Reputation decays with each minority vote and is tracked permanently on-chain. Jurors who vote carelessly or dishonestly lose money; jurors who vote accurately earn fee-pool rewards.
+
+### A full appellate tier with escalating panels
+
+Either party can appeal a ruling within 72 hours by posting a 1.5× bond. The appeal opens a new dispute with double the juror panel (5 → 10 for the first appeal). Original jurors are explicitly blocked from the appeal panel so the second review is independent. If the appeal changes the ruling, the bond is returned to the appealer; if it confirms the original, the bond is forfeited into the appeal's fee pool.
+
+### Warranty hold-back protects clients after approval
+
+Clients can configure 5–15% of the payment to be withheld until a warranty period expires. If a defect surfaces after approval but within the warranty window, the client retains negotiating leverage. The hold-back is released to the freelancer automatically once the warranty deadline passes — no further action needed from either party.
+
+### Automatic release protects freelancers from client ghosting
+
+After a freelancer submits proof of work, the client has a configurable acceptance window (minimum 48 hours) to approve or dispute. If the client does nothing, the freelancer can claim full payment once the window closes. Clients cannot indefinitely delay payment by simply not responding.
+
+### ETH or ERC-20 stablecoin escrow
+
+Escrow can be funded with native ETH or any ERC-20 token (e.g. USDC, DAI). Clients choose at creation time by specifying a token address; `address(0)` means ETH. All payout, hold-back, and dispute logic is token-aware. Stablecoin escrow eliminates price-volatility risk on long-duration agreements.
+
+### Chainlink price feed locks USD value at creation
+
+When a Chainlink ETH/USD feed is configured, the USD equivalent of the escrowed ETH is recorded on-chain at the moment the contract is created. This lets both parties see — and later verify — the agreed dollar value regardless of subsequent ETH price moves.
+
+### Bidirectional on-chain reputation
+
+After a contract reaches a final state (approved or resolved), both parties can submit a rating score (1–100) for each other through `ReputationRegistry`. Scores accumulate permanently on-chain. The registry stores a running `(totalScore, ratingCount)` pair per address so any caller can compute a verifiable average. Only TrustLedger can call `rate()` — third parties cannot manipulate scores.
+
+### Permissionless phase transitions
+
+Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are callable by anyone, not gated to a platform operator. The system progresses autonomously — no trusted admin is needed to move disputes forward or execute payouts.
+
+### Deployed on Arbitrum
+
+Lower gas costs than Ethereum mainnet make smaller freelance agreements economically practical. The same security guarantees apply; Arbitrum inherits Ethereum's settlement finality.
+
+---
+
+## Contract Architecture
+
+| Contract                 | Role                                                                                                                              |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `TrustLedger.sol`        | Core escrow. Manages the full contract lifecycle: create → accept → submit → approve/dispute. Holds funds and executes payouts.   |
+| `Arbitration.sol`        | Dispute resolution engine. Manages commit-reveal voting, juror slashing, appeals, and ruling execution.                           |
+| `JurorRegistry.sol`      | Juror staking and eligibility. Tracks staked ETH, lock periods, active disputes, and slashing history.                            |
+| `ReputationRegistry.sol` | On-chain reputation. Records bidirectional ratings (1–100) between clients and freelancers after each completed contract.         |
+
+### Interfaces (`contracts/src/interfaces/`)
+
+| Interface                  | Purpose                                                                              |
+| -------------------------- | -------------------------------------------------------------------------------------|
+| `IArbitration.sol`         | Called by TrustLedger to open disputes and execute rulings.                          |
+| `IJurorRegistry.sol`       | Called by Arbitration to check eligibility, lock/unlock jurors, and list pool.       |
+| `IReputationRegistry.sol`  | Called by TrustLedger to submit ratings to ReputationRegistry.                       |
+| `IERC20.sol`               | Minimal ERC-20 interface (`transfer`, `transferFrom`) for stablecoin escrow.         |
+| `AggregatorV3Interface.sol`| Chainlink Data Feed interface for reading ETH/USD price at creation time.            |
+| `IVRFCoordinator.sol`      | Chainlink VRF v2 interface for requesting verifiable randomness for juror selection. |
+
+### Optional one-time initializers
+
+Three optional integrations are wired in after deployment via one-time setter functions. Once set, they cannot be changed.
+
+| Function                              | Contract       | Effect                                                   |
+| ------------------------------------- | -------------- | -------------------------------------------------------- |
+| `initPriceFeed(address feed)`         | TrustLedger    | Enables Chainlink ETH/USD recording at contract creation |
+| `initReputationRegistry(address reg)` | TrustLedger    | Enables on-chain reputation scoring after completion     |
+| `initVrfCoordinator(address vrf)`     | Arbitration    | Enables Chainlink VRF juror selection at dispute open    |
+
+---
 
 ## Setup
 
@@ -116,6 +212,7 @@ Tests live in `contracts/test/`. Foundry config (`contracts/foundry.toml`) sets:
 
 - Fuzz: 10,000 runs per fuzz test
 - Invariant: 256 runs × 500 call depth
+- IR pipeline (`via_ir = true`) enabled to handle complex functions without stack-too-deep errors
 
 To see per-function gas costs:
 
