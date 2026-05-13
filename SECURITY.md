@@ -13,16 +13,16 @@ This policy will be updated when mainnet deployment occurs.
 
 ### In scope
 
-| Area | Examples |
-| --- | --- |
-| Smart contracts | `TrustLedger.sol`, `Arbitration.sol`, `JurorRegistry.sol`, `ReputationRegistry.sol` |
-| Interfaces | All contracts under `contracts/src/interfaces/` |
-| Deployment scripts | `contracts/script/Deploy.s.sol`, `scripts/deploy.ts` |
-| Logic bugs | Incorrect payout math, fee calculation errors, state machine violations |
-| Access control | Functions callable by unauthorized addresses |
-| Reentrancy | ETH or token transfers before state updates |
-| Signature issues | Replay attacks, malformed ECDSA validation in `acceptContract()` |
-| Arbitration integrity | Vote manipulation, juror slashing errors, appeal window bypass |
+| Area                  | Examples                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| Smart contracts       | `TrustLedger.sol`, `Arbitration.sol`, `JurorRegistry.sol`, `ReputationRegistry.sol` |
+| Interfaces            | All contracts under `contracts/src/interfaces/`                                     |
+| Deployment scripts    | `contracts/script/Deploy.s.sol`, `scripts/deploy.ts`                                |
+| Logic bugs            | Incorrect payout math, fee calculation errors, state machine violations             |
+| Access control        | Functions callable by unauthorized addresses                                        |
+| Reentrancy            | ETH or token transfers before state updates                                         |
+| Signature issues      | Replay attacks, malformed ECDSA validation in `acceptContract()`                    |
+| Arbitration integrity | Vote manipulation, juror slashing errors, appeal window bypass                      |
 
 ### Out of scope
 
@@ -56,23 +56,23 @@ The more detail you provide, the faster we can respond.
 
 ## Response Timeline
 
-| Milestone | Target |
-| --- | --- |
-| Acknowledgement | Within 48 hours |
-| Initial assessment | Within 5 business days |
-| Fix or mitigation | Depends on severity (see below) |
-| Public disclosure | Coordinated with reporter after fix is deployed |
+| Milestone          | Target                                          |
+| ------------------ | ----------------------------------------------- |
+| Acknowledgement    | Within 48 hours                                 |
+| Initial assessment | Within 5 business days                          |
+| Fix or mitigation  | Depends on severity (see below)                 |
+| Public disclosure  | Coordinated with reporter after fix is deployed |
 
 ---
 
 ## Severity Classification
 
-| Severity | Description | Example |
-| --- | --- | --- |
-| **Critical** | Direct loss of funds or complete contract takeover | Reentrancy draining escrow, unauthorized `executeRuling()` |
-| **High** | Significant disruption to core functionality or partial fund loss | Fee pool manipulation, juror slashing bypass |
-| **Medium** | Incorrect behavior that degrades the system but does not directly lose funds | Wrong payout math, state machine shortcut |
-| **Low** | Minor issues with limited impact | Off-by-one in a non-critical check, event emitted with wrong data |
+| Severity     | Description                                                                  | Example                                                           |
+| ------------ | ---------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Critical** | Direct loss of funds or complete contract takeover                           | Reentrancy draining escrow, unauthorized `executeRuling()`        |
+| **High**     | Significant disruption to core functionality or partial fund loss            | Fee pool manipulation, juror slashing bypass                      |
+| **Medium**   | Incorrect behavior that degrades the system but does not directly lose funds | Wrong payout math, state machine shortcut                         |
+| **Low**      | Minor issues with limited impact                                             | Off-by-one in a non-critical check, event emitted with wrong data |
 
 ---
 
