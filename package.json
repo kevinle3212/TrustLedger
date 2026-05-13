@@ -37,7 +37,9 @@
 		"lint:prettier": "prettier --check .",
 		"debug:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile",
 		"tools:caffeinate": "bash scripts/keep-awake.sh",
-		"report:gas": "cd contracts && forge test --gas-report"
+		"report:gas": "cd contracts && forge test --gas-report",
+		"demo:good": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-good.ts --network localhost",
+		"demo:bad": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-bad.ts --network localhost"
 	},
 	"engines": {
 		"node": ">=22.0.0"
