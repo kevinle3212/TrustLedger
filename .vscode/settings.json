@@ -4,5 +4,8 @@
 		"editor.insertSpaces": true,
 		"editor.detectIndentation": false
 	},
-	"github-actions.workflows.pinned.refresh.enabled": false
+	"github-actions.workflows.pinned.refresh.enabled": false,
+	"todo-tree.filtering.excludeGlobs": [
+		"**/contracts/lib/**"
+	]
 }
