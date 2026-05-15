@@ -29,7 +29,7 @@ import {IReputationRegistry} from "./interfaces/IReputationRegistry.sol";
 
 /// @title TrustLedger
 /// @author Kevin Le, Kellen Snider
-/// @notice Decentralized escrow contract for freelance agreements on Arbitrum.
+/// @notice Decentralized escrow contract for freelance agreements on Ethereum.
 ///         Funds are released on client approval, acceptance-window expiry, or an arbitration ruling.
 contract TrustLedger is ReentrancyGuard {
     // ─── Types ────────────────────────────────────────────────────────────────
@@ -347,39 +347,25 @@ contract TrustLedger is ReentrancyGuard {
         id = nextId;
         ++nextId;
 
-        // Deadline = now + (estimatedDuration × bufferFactor / 1000).
-        // Dividing by 1000 expresses fractional multipliers (1.2× = 1200).
-        uint256 deadline = block.timestamp + (estimatedDuration * bufferFactor) / 1000;
-
-        // For ETH escrows, amount = msg.value. For ERC-20 escrows, amount = tokenAmount.
         uint256 escrowAmount = token == address(0) ? msg.value : tokenAmount;
+        uint256 deadline = block.timestamp + (estimatedDuration * bufferFactor) / 1000;
+        uint256 usdValue = token == address(0) ? _queryUsdValue(msg.value) : 0;
 
-        _contracts[id] = EscrowContract({
-            client: msg.sender,
-            arbitrationFeeBps: arbitrationFeeBps,
-            holdBackBps: holdBackBps,
-            status: Status.PENDING,
-            freelancer: freelancer,
-            warrantyDeadline: 0,
-            // forge-lint: disable-next-line(unsafe-typecast)
-            projectDeadline: uint64(deadline),
-            // forge-lint: disable-next-line(unsafe-typecast)
-            acceptanceWindow: uint64(acceptanceWindow),
-            acceptanceDeadline: 0,
-            warrantyPeriod: warrantyPeriod,
-            amount: escrowAmount,
-            holdBackAmount: 0,
-            arbitrationId: 0,
-            contractHash: contractHash,
-            contractURI: contractURI,
-            proofOfWorkHash: bytes32(0),
-            proofOfWorkURI: "",
-            token: token,
-            // Query ETH/USD price only for ETH escrows; returns 0 if feed not configured.
-            usdValueAtCreation: token == address(0) ? _queryUsdValue(msg.value) : 0
-        });
+        _storeEscrow(
+            id,
+            freelancer,
+            contractHash,
+            contractURI,
+            deadline,
+            acceptanceWindow,
+            arbitrationFeeBps,
+            holdBackBps,
+            warrantyPeriod,
+            token,
+            escrowAmount,
+            usdValue
+        );
 
-        // Pull ERC-20 tokens from the client after writing storage (checks-effects-interactions).
         if (token != address(0)) {
             bool ok = IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
             if (!ok) revert TokenTransferFailed();
@@ -707,6 +693,48 @@ contract TrustLedger is ReentrancyGuard {
             if (msg.value != 0) revert InvalidTokenParams(); // must not send ETH for token escrow
             if (tokenAmount == 0) revert InsufficientFunds(); // token escrow needs tokens
         }
+    }
+
+    // Struct-initialisation helper extracted from createContract to keep the function under the line limit.
+    function _storeEscrow(
+        uint256 id,
+        address freelancer,
+        bytes32 contractHash,
+        string calldata contractURI,
+        uint256 deadline,
+        uint256 acceptanceWindow,
+        uint16 arbitrationFeeBps,
+        uint16 holdBackBps,
+        uint64 warrantyPeriod,
+        address token,
+        uint256 escrowAmount,
+        uint256 usdValue
+    ) internal {
+        // forge-lint: disable-next-line(unsafe-typecast)
+        uint64 dl = uint64(deadline);
+        // forge-lint: disable-next-line(unsafe-typecast)
+        uint64 aw = uint64(acceptanceWindow);
+        _contracts[id] = EscrowContract({
+            client: msg.sender,
+            freelancer: freelancer,
+            contractHash: contractHash,
+            contractURI: contractURI,
+            projectDeadline: dl,
+            acceptanceWindow: aw,
+            acceptanceDeadline: 0,
+            warrantyPeriod: warrantyPeriod,
+            warrantyDeadline: 0,
+            arbitrationFeeBps: arbitrationFeeBps,
+            holdBackBps: holdBackBps,
+            status: Status.PENDING,
+            amount: escrowAmount,
+            holdBackAmount: 0,
+            arbitrationId: 0,
+            proofOfWorkHash: bytes32(0),
+            proofOfWorkURI: "",
+            token: token,
+            usdValueAtCreation: usdValue
+        });
     }
 
     // Shared payout logic for approveWork and claimAfterAcceptanceWindow.

@@ -1,13 +1,34 @@
 // scripts/demo/demo-bad.ts — Dispute Flow: create → accept → submit → dispute → vote → execute
-// Run with: TS_NODE_PROJECT=tsconfig.hardhat.json npx hardhat run scripts/demo/demo-bad.ts --network localhost
+// Run with: npm run demo:bad  (requires: npm run node + npm run hardhat:deploy:local first)
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { ethers } from "hardhat";
 import type { LogDescription } from "ethers";
 import type { TrustLedger, Arbitration, JurorRegistry } from "../../artifacts/typechain-types";
 
-const TRUST_LEDGER = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
-const ARBITRATION = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
-const JUROR_REGISTRY = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
+interface DeployedAddresses {
+	TrustLedger: string;
+	Arbitration: string;
+	JurorRegistry: string;
+}
+
+function loadAddresses(): DeployedAddresses {
+	const path = resolve(__dirname, "../../artifacts/deployed-addresses.json");
+	try {
+		return JSON.parse(readFileSync(path, "utf8")) as DeployedAddresses;
+	} catch {
+		throw new Error(
+			`artifacts/deployed-addresses.json not found.\nRun: npm run compile && npm run hardhat:deploy:local`,
+		);
+	}
+}
+
+const {
+	TrustLedger: TRUST_LEDGER,
+	Arbitration: ARBITRATION,
+	JurorRegistry: JUROR_REGISTRY,
+} = loadAddresses();
 
 async function main(): Promise<void> {
 	const [client, freelancer, j1, j2, j3] = await ethers.getSigners();

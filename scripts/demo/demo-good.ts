@@ -1,11 +1,30 @@
 // scripts/demo/demo-good.ts — Happy Path: create → accept → submit → approve
-// Run with: TS_NODE_PROJECT=tsconfig.hardhat.json npx hardhat run scripts/demo/demo-good.ts --network localhost
+// Run with: npm run demo:good  (requires: npm run node + npm run hardhat:deploy:local first)
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { ethers } from "hardhat";
 import type { LogDescription } from "ethers";
 import type { TrustLedger } from "../../artifacts/typechain-types";
 
-const TRUST_LEDGER = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
+interface DeployedAddresses {
+	TrustLedger: string;
+	Arbitration: string;
+	JurorRegistry: string;
+}
+
+function loadAddresses(): DeployedAddresses {
+	const path = resolve(__dirname, "../../artifacts/deployed-addresses.json");
+	try {
+		return JSON.parse(readFileSync(path, "utf8")) as DeployedAddresses;
+	} catch {
+		throw new Error(
+			`artifacts/deployed-addresses.json not found.\nRun: npm run compile && npm run hardhat:deploy:local`,
+		);
+	}
+}
+
+const { TrustLedger: TRUST_LEDGER } = loadAddresses();
 
 async function main(): Promise<void> {
 	const [client, freelancer] = await ethers.getSigners();
