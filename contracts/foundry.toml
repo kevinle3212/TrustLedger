@@ -18,7 +18,7 @@ runs = 256
 depth = 500
 
 [rpc_endpoints]
-arbitrum_sepolia = "${ARBITRUM_SEPOLIA_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
 
 [etherscan]
-arbitrum_sepolia = { key = "${ETHERSCAN_API_KEY}", chain = 421614 }
+sepolia = { key = "${ETHERSCAN_API_KEY}", chain = 11155111 }
