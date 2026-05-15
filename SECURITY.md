@@ -3,7 +3,7 @@
 ## Deployment Status
 
 TrustLedger is currently **pre-mainnet**. No contracts hold real user funds yet.
-The codebase targets Arbitrum Sepolia (testnet) and is under active development.
+The codebase targets Ethereum Sepolia (testnet) and is under active development.
 
 This policy will be updated when mainnet deployment occurs.
 
