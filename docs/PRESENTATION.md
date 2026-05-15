@@ -21,7 +21,7 @@ Freelancing is a $1.5 trillion global market. Every week, freelancers and client
 
 TrustLedger is a decentralized escrow and dispute resolution protocol for freelance agreements on Ethereum.
 
-**High level:** A client locks funds in a contract. The freelancer completes the work. If everyone agrees, funds release automatically. If there is a dispute, a panel of staked jurors votes on a completion percentage, and funds split accordingly.
+A client locks funds in a contract. The freelancer completes the work. If everyone agrees, funds release automatically. If there is a dispute, a panel of staked jurors votes on a completion percentage, and funds split accordingly.
 
 > No platform fee. No company. No trust required — only math and cryptography.
 
@@ -95,9 +95,13 @@ Step 4:  Deploy Arbitration(trustLedger, jurorRegistry)  ← nonce + 2
          ✓ assert arbitration.address == arbitrationAddr
 
 Step 5:  (Optional) TrustLedger.initPriceFeed(chainlinkFeed)
+         // function implemented; not called in deploy scripts — requires a live Chainlink ETH/USD feed address
 Step 6:  (Optional) TrustLedger.initReputationRegistry(reputationRegistry)
+         // function implemented; not called in deploy scripts — depends on ReputationRegistry address from Step 8
 Step 7:  (Optional) Arbitration.initVrfCoordinator(vrfCoordinator)
+         // function implemented; not called in deploy scripts — requires a funded Chainlink VRF v2 subscription
 Step 8:  Deploy ReputationRegistry(trustLedger)
+         // contract implemented in src/ — not yet included in either deploy script
 ```
 
 No owner or admin role. Once deployed, the addresses are immutable.
@@ -106,9 +110,9 @@ No owner or admin role. Once deployed, the addresses are immutable.
 
 ## Feature: On-Chain Proof of Agreement
 
-**High level:** Neither party can claim the agreement said something different after the fact. Proof of tampering is mathematically instant.
+Neither party can claim the agreement said something different after the fact. Proof of tampering is mathematically instant.
 
-**Low level:** At contract creation, `keccak256` of the off-chain document and its IPFS URI are written to the `EscrowContract` struct. At work submission, the same is done for the deliverable. Any modification to either document changes its hash, which will not match what is stored on-chain.
+At contract creation, `keccak256` of the off-chain document and its IPFS URI are written to the `EscrowContract` struct. At work submission, the same is done for the deliverable. Any modification to either document changes its hash, which will not match what is stored on-chain.
 
 ```solidity
 // stored at creation
@@ -124,9 +128,9 @@ string  proofOfWorkURI;   // ipfs://Qm...
 
 ## Feature: ECDSA Wallet Binding
 
-**High level:** A freelancer cannot be enrolled in a contract without explicit cryptographic consent from their private key. A third party cannot accept on their behalf.
+A freelancer cannot be enrolled in a contract without explicit cryptographic consent from their private key. A third party cannot accept on their behalf.
 
-**Low level:** The contract requires `ecrecover` to return the freelancer's address before advancing to `ACTIVE`. The signed message is `keccak256(contractId, freelancerAddress)`, which binds the signature to one specific contract. The EIP-191 prefix prevents replay attacks and malformed transaction reuse.
+The contract requires `ecrecover` to return the freelancer's address before advancing to `ACTIVE`. The signed message is `keccak256(contractId, freelancerAddress)`, which binds the signature to one specific contract. The EIP-191 prefix prevents replay attacks and malformed transaction reuse.
 
 ```solidity
 bytes32 innerHash = keccak256(abi.encodePacked(id, c.freelancer));
@@ -141,9 +145,9 @@ if (signer != c.freelancer) revert InvalidSignature();
 
 ## Feature: Commit-Reveal Voting
 
-**High level:** Jurors vote in secret. No one can see the crowd forming and pile on at the last second. Votes are revealed only after the commit window closes — and any deviation from the original commitment is rejected.
+Jurors vote in secret. No one can see the crowd forming and pile on at the last second. Votes are revealed only after the commit window closes — and any deviation from the original commitment is rejected.
 
-**Low level:** The commitment is `keccak256(disputeId, jurorAddress, completionPct, salt)`. The salt is a 32-byte random secret the juror keeps off-chain. During reveal, the contract re-derives the hash and compares it to the stored commitment. A mismatch reverts.
+The commitment is `keccak256(disputeId, jurorAddress, completionPct, salt)`. The salt is a 32-byte random secret the juror keeps off-chain. During reveal, the contract re-derives the hash and compares it to the stored commitment. A mismatch reverts.
 
 ```text
 Commit phase (72 h):   juror submits H = keccak256(id ‖ addr ‖ pct ‖ salt)
@@ -156,9 +160,9 @@ Finalize:              median of revealed votes becomes the ruling
 
 ## Feature: Verifiable Random Juror Selection
 
-**High level:** When Chainlink VRF is configured, no one — not even the deployer — can predict or manipulate which jurors are chosen. The selection is provably random.
+When Chainlink VRF is configured, no one — not even the deployer — can predict or manipulate which jurors are chosen. The selection is provably random.
 
-**Low level:** On `openDispute()`, a VRF randomness request is sent to the Chainlink coordinator. The coordinator calls `fulfillRandomWords()` with verified random numbers. Each word selects a candidate from the eligible pool using modulo. Parties and ineligible jurors are skipped. Pre-selected jurors are the only addresses allowed to `commitVote()`.
+On `openDispute()`, a VRF randomness request is sent to the Chainlink coordinator. The coordinator calls `fulfillRandomWords()` with verified random numbers. Each word selects a candidate from the eligible pool using modulo. Parties and ineligible jurors are skipped. Pre-selected jurors are the only addresses allowed to `commitVote()`.
 
 ```text
 openDispute() ──► VRFCoordinator.requestRandomWords(numWords = 5)
@@ -175,9 +179,9 @@ Without VRF: any eligible juror self-selects by calling `commitVote()` (legacy m
 
 ## Feature: Partial Completion Rulings
 
-**High level:** Disputes are not binary. A freelancer who completed 70% of the work gets 70% of the payment — proportionally — not nothing.
+Disputes are not binary. A freelancer who completed 70% of the work gets 70% of the payment — proportionally — not nothing.
 
-**Low level:** Jurors vote `completionPct` in `[0, 100]`. The median vote is the ruling. The payout formula shares the arbitration fee burden proportionally between both parties:
+Jurors vote `completionPct` in `[0, 100]`. The median vote is the ruling. The payout formula shares the arbitration fee burden proportionally between both parties:
 
 ```text
 Payout formula (0 < p < 100):
@@ -205,9 +209,7 @@ Example (p = 50, amount = 1 ETH, arbitrationFeeBps = 1500):
 
 ## Feature: Juror Slashing and Reputation
 
-**High level:** Jurors have skin in the game. Vote wrong and lose 10% of your stake. Do it repeatedly and your on-chain reputation score decays. This deters dishonest and lazy jurors.
-
-**Low level:**
+Jurors have skin in the game. Vote wrong and lose 10% of your stake. Do it repeatedly and your on-chain reputation score decays. This deters dishonest and lazy jurors.
 
 - **Minority threshold:** A vote more than 20 percentage points from the median is classified as minority.
 - **Slash:** Minority voters and non-revealers lose `stake × 1000 / 10_000` (10%).
@@ -227,9 +229,7 @@ if (!inMajority) {
 
 ## Feature: Appeals with Escalating Panels
 
-**High level:** Either party can challenge an unfair ruling within 72 hours. A larger, independent jury re-evaluates the case. Winning returns your bond; losing forfeits it.
-
-**Low level:**
+Either party can challenge an unfair ruling within 72 hours. A larger, independent jury re-evaluates the case. Winning returns your bond; losing forfeits it.
 
 - Appeal bond required: `feePool × 15_000 / 10_000` (1.5× the original fee pool).
 - Appeal panel doubles: first appeal uses 10 jurors (vs. 5 originally).
@@ -248,9 +248,7 @@ Appeal dispute:   10 jurors  →  new ruling
 
 ## Feature: Warranty Hold-Back
 
-**High level:** Clients can withhold 5-15% of payment for a set warranty period after approval. If a bug surfaces post-delivery, the client retains leverage. After the warranty expires, the freelancer claims the hold-back automatically.
-
-**Low level:**
+Clients can withhold 5-15% of payment for a set warranty period after approval. If a bug surfaces post-delivery, the client retains leverage. After the warranty expires, the freelancer claims the hold-back automatically.
 
 ```solidity
 holdBackBps   in [500, 1500]   // 5-15% of amount
@@ -269,33 +267,33 @@ freelancer calls claimWarrantyFunds() → receives holdBackAmount
 
 ## Feature: Anti-Ghosting (Auto-Release)
 
-**High level:** Clients cannot indefinitely withhold payment by ignoring submitted work. The acceptance window is enforced by the chain itself.
+Clients cannot indefinitely withhold payment by ignoring submitted work. The acceptance window is enforced by the chain itself.
 
-**Low level:** When the freelancer calls `submitProofOfWork()`, an `acceptanceDeadline` is written: `block.timestamp + acceptanceWindow`. If the client does not call `approveWork()` or `disputeWork()` before that deadline, the freelancer calls `claimAfterAcceptanceWindow()` for full payment. The minimum acceptance window is `48 hours` (enforced by the contract constant `MIN_ACCEPTANCE_WINDOW`).
+When the freelancer calls `submitProofOfWork()`, an `acceptanceDeadline` is written: `block.timestamp + acceptanceWindow`. If the client does not call `approveWork()` or `disputeWork()` before that deadline, the freelancer calls `claimAfterAcceptanceWindow()` for full payment. The minimum acceptance window is `48 hours` (enforced by the contract constant `MIN_ACCEPTANCE_WINDOW`).
 
 ---
 
 ## Feature: ETH and ERC-20 Stablecoin Escrow
 
-**High level:** Escrow can be denominated in USDC, DAI, or any ERC-20 token, eliminating price volatility on multi-week projects.
+Escrow can be denominated in USDC, DAI, or any ERC-20 token, eliminating price volatility on multi-week projects.
 
-**Low level:** The `token` field on `EscrowContract` is `address(0)` for ETH and the token contract address for ERC-20. Every payout path (`_sendFunds`, `_releaseToFreelancer`) branches on `token`. For ERC-20 disputes, the fee pool is paid in ETH (at dispute time via `msg.value`) since jurors are always rewarded in ETH, while the token amount splits between the parties.
+The `token` field on `EscrowContract` is `address(0)` for ETH and the token contract address for ERC-20. Every payout path (`_sendFunds`, `_releaseToFreelancer`) branches on `token`. For ERC-20 disputes, the fee pool is paid in ETH (at dispute time via `msg.value`) since jurors are always rewarded in ETH, while the token amount splits between the parties.
 
 ---
 
 ## Feature: Chainlink Price Feed
 
-**High level:** The ETH/USD value of the escrowed amount is locked on-chain at creation. Both parties can always prove what the agreed dollar value was, regardless of what ETH does afterward.
+The ETH/USD value of the escrowed amount is locked on-chain at creation. Both parties can always prove what the agreed dollar value was, regardless of what ETH does afterward.
 
-**Low level:** `TrustLedger.initPriceFeed()` wires in a `AggregatorV3Interface` once. In `createContract()`, `_queryUsdValue()` calls `priceFeed.latestRoundData()` and stores the result in `usdValueAtCreation`. Units are Chainlink's standard 8 decimal places (`$1 = 1e8`).
+`TrustLedger.initPriceFeed()` wires in a `AggregatorV3Interface` once. In `createContract()`, `_queryUsdValue()` calls `priceFeed.latestRoundData()` and stores the result in `usdValueAtCreation`. Units are Chainlink's standard 8 decimal places (`$1 = 1e8`).
 
 ---
 
 ## Feature: Bidirectional On-Chain Reputation
 
-**High level:** Both parties rate each other after every completed contract. Scores accumulate permanently on-chain. Freelancers with a history of disputes have lower reputations. So do clients who ghost or behave badly.
+Both parties rate each other after every completed contract. Scores accumulate permanently on-chain. Freelancers with a history of disputes have lower reputations. So do clients who ghost or behave badly.
 
-**Low level:** After a contract reaches `APPROVED` or `RESOLVED`, either party calls `submitRating(id, score)` with a score in `[1, 100]`. TrustLedger calls `ReputationRegistry.rate(counterparty, score)`. Only TrustLedger can write ratings — no third party can manipulate scores. Each party can rate only once per contract.
+After a contract reaches `APPROVED` or `RESOLVED`, either party calls `submitRating(id, score)` with a score in `[1, 100]`. TrustLedger calls `ReputationRegistry.rate(counterparty, score)`. Only TrustLedger can write ratings — no third party can manipulate scores. Each party can rate only once per contract.
 
 ```solidity
 function averageRating(address user) external view
@@ -489,15 +487,18 @@ npm run lint:prettier        # Prettier — formatting check
 
 ## What's Next
 
-| Priority | Item                                  | Status          |
-| -------- | ------------------------------------- | --------------- |
-| 1        | Testnet deployment (Ethereum Sepolia) | Ready to deploy |
-| 2        | Chainlink VRF subscription            | Needs sub ID    |
-| 3        | Backend API (Node.js + PostgreSQL)    | Planned         |
-| 4        | IPFS upload service                   | Planned         |
-| 5        | Email magic link (freelancer invite)  | Planned         |
-| 6        | Frontend (React + RainbowKit + wagmi) | Planned         |
-| 7        | Formal verification (Certora/Echidna) | Future          |
+| Priority | Item                                              | Status          |
+| -------- | ------------------------------------------------- | --------------- |
+| 1        | Testnet deployment + extended soak testing        | Ready to deploy |
+| 2        | Wire ReputationRegistry into deploy scripts       | Not started     |
+| 3        | Wire initPriceFeed and initVrfCoordinator         | Not started     |
+| 4        | Chainlink VRF v2 subscription (funded + consumer) | Needs sub ID    |
+| 5        | External security audit                           | Not started     |
+| 6        | Formal verification (Certora / Echidna)           | Not started     |
+| 7        | Frontend (React + RainbowKit + wagmi)             | Planned         |
+| 8        | IPFS upload service                               | Planned         |
+| 9        | Gas optimization pass                             | Not started     |
+| 10       | Emergency pause / kill switch                     | Not started     |
 
 ---
 
