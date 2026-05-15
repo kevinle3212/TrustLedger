@@ -1,0 +1,12 @@
+{
+	"recommendations": [
+		"NomicFoundation.hardhat-solidity",
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"DavidAnson.vscode-markdownlint",
+		"ms-azuretools.vscode-docker",
+		"GitHub.vscode-github-actions",
+		"Gruntfuggly.todo-tree",
+		"eamodio.gitlens"
+	]
+}
