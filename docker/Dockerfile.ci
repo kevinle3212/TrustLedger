@@ -16,7 +16,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN git submodule update --init --recursive
+RUN git submodule update --init --recursive 2>/dev/null || true
 
 RUN npm run compile
 
