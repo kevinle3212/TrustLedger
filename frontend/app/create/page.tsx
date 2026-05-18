@@ -122,7 +122,7 @@ export default function CreatePage() {
           Transaction confirmed in block {receipt.blockNumber.toString()}.
         </p>
         <a
-          href={`https://sepolia.arbiscan.io/tx/${txHash}`}
+          href={`https://sepolia.etherscan.io/tx/${txHash}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-indigo-400 hover:text-indigo-300 text-sm underline underline-offset-2"

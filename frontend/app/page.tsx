@@ -5,7 +5,7 @@ export default function HomePage() {
     <div className="max-w-4xl mx-auto px-6 py-24 flex flex-col items-center text-center gap-10">
       <div className="flex flex-col items-center gap-4">
         <span className="text-xs font-semibold tracking-widest text-indigo-400 uppercase">
-          Built on Arbitrum
+          Built on Ethereum Sepolia
         </span>
         <h1 className="text-5xl font-bold tracking-tight leading-tight">
           Freelance without<br />
