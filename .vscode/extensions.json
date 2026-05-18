@@ -1,0 +1,30 @@
+{
+	"recommendations": [
+		// Solidity + smart contracts
+		"NomicFoundation.hardhat-solidity",
+
+		// TypeScript / JavaScript
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"usernamehw.errorlens",
+
+		// Frontend
+		"bradlc.vscode-tailwindcss",
+		"formulahendry.auto-rename-tag",
+		"christian-kohler.path-intellisense",
+
+		// Config / environment
+		"mikestead.dotenv",
+
+		// Docs
+		"DavidAnson.vscode-markdownlint",
+
+		// DevOps
+		"ms-azuretools.vscode-docker",
+		"GitHub.vscode-github-actions",
+
+		// Git / productivity
+		"eamodio.gitlens",
+		"Gruntfuggly.todo-tree"
+	]
+}
