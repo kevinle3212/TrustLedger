@@ -66,4 +66,11 @@ interface IJurorRegistry {
     /// @param juror The juror address to look up.
     /// @return      The juror's current info.
     function getJuror(address juror) external view returns (JurorInfo memory);
+
+    // Returns the flat list of all registered juror addresses.
+    // Used by Arbitration's VRF fulfillment to sample a random subset as jurors.
+
+    /// @notice Return every address that has ever called register().
+    /// @return Array of all registered juror wallet addresses.
+    function getJurorList() external view returns (address[] memory);
 }

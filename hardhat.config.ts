@@ -27,6 +27,9 @@ const config: HardhatUserConfig = {
 				runs: 200, // how many times the contract is expected to be called over its lifetime;
 				// higher = smaller per-call gas, larger deploy size
 			},
+			// viaIR compiles through Yul IR, which avoids "stack too deep" errors
+			// that arise when a function has many local variables (e.g. createContract).
+			viaIR: true,
 		},
 	},
 
@@ -50,15 +53,15 @@ const config: HardhatUserConfig = {
 			chainId: 31337, // standard local chain ID; tools like MetaMask recognise it
 		},
 
-		// Arbitrum Sepolia is the Layer-2 testnet we deploy to for real testing.
+		// Ethereum Sepolia — the L1 testnet we deploy to for real testing.
 		// Values are read from .env so private keys never touch source control.
-		arbitrumSepolia: {
-			url: process.env.ARBITRUM_SEPOLIA_RPC_URL ?? "", // node endpoint (e.g. Alchemy/Infura)
+		sepolia: {
+			url: process.env.SEPOLIA_RPC_URL ?? "",
 			accounts:
-				typeof process.env.DEPLOYER_PRIVATE_KEY === "string" // wallet that signs transactions
+				typeof process.env.DEPLOYER_PRIVATE_KEY === "string"
 					? [process.env.DEPLOYER_PRIVATE_KEY]
-					: [], // empty → can't deploy (safe default)
-			chainId: 421614, // Arbitrum Sepolia's official chain ID
+					: [],
+			chainId: 11155111,
 		},
 	},
 
@@ -80,28 +83,22 @@ const config: HardhatUserConfig = {
 		target: "ethers-v6", // generate classes compatible with ethers v6 API
 	},
 
+	// ─── Gas reporter ────────────────────────────────────────────────────────────
+	// hardhat-gas-reporter is bundled with hardhat-toolbox but disabled by default.
+	// Set REPORT_GAS=true (or run `npm run hardhat:gas`) to activate it during tests.
+	gasReporter: {
+		enabled: process.env.REPORT_GAS === "true",
+		currency: "USD",
+	},
+
 	// ─── Etherscan / block explorer verification ──────────────────────────────────
 	// After deploying, `hardhat verify` submits source code to the block explorer
 	// so users can read and interact with your contract on the web UI.
 	etherscan: {
 		apiKey: {
-			// Arbiscan is the block explorer for Arbitrum networks.
-			// Get a free key at https://arbiscan.io/register
-			arbitrumSepolia: process.env.ETHERSCAN_API_KEY ?? "",
+			// Etherscan — for Ethereum Sepolia. Get a key at etherscan.io/register
+			sepolia: process.env.ETHERSCAN_API_KEY ?? "",
 		},
-		// Hardhat's built-in explorer list doesn't include every network.
-		// This block manually registers Arbitrum Sepolia so the verify command knows
-		// which API endpoint and browser URL to use.
-		customChains: [
-			{
-				network: "arbitrumSepolia",
-				chainId: 421614,
-				urls: {
-					apiURL: "https://api-sepolia.arbiscan.io/api", // submission endpoint
-					browserURL: "https://sepolia.arbiscan.io", // human-readable explorer
-				},
-			},
-		],
 	},
 };
 

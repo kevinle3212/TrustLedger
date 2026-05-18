@@ -8,6 +8,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {IArbitration} from "./interfaces/IArbitration.sol";
 import {ITrustLedger} from "./interfaces/ITrustLedger.sol";
 import {IJurorRegistry} from "./interfaces/IJurorRegistry.sol";
+import {IVRFCoordinator} from "./interfaces/IVRFCoordinator.sol";
 
 // Arbitration manages the commit-reveal voting process for disputed escrow contracts.
 //
@@ -51,8 +52,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     //
     // Fields ordered to minimise storage slots:
     // Slot 0: contractId (32)
-    // Slot 1: client(20) + phase(1) + finalized(1) + appealed(1) + phaseDeadline(8) = 31 bytes
-    // Slot 2: freelancer(20) + … (12 bytes spare for future fields)
+    // Slot 1: client(20) + phase(1) + finalized(1) + appealed(1) + vrfFulfilled(1) + phaseDeadline(8) = 32 bytes
+    // Slot 2: freelancer(20) + … (12 bytes spare)
     // Slot 3: contractAmount (32)
     // Slot 4: feePool (32)
     // Slot 5: ruling (32)
@@ -62,18 +63,19 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         // ── Slot 0 ────────────────────────────────────────────────────────────
         uint256 contractId; // TrustLedger escrow ID this dispute belongs to
 
-        // ── Slot 1 (31/32 bytes) ──────────────────────────────────────────────
+        // ── Slot 1 (32/32 bytes) ──────────────────────────────────────────────
         address client; // copied from TrustLedger for convenience
         Phase phase; // current voting phase
         bool finalized; // true after finalizeDispute() succeeds
         bool appealed; // true after appeal() is filed
+        bool vrfFulfilled; // true once VRF randomness arrived and jurors were pre-selected
         uint64 phaseDeadline; // unix timestamp when the current phase expires
 
         // ── Slot 2 (20/32 bytes) ──────────────────────────────────────────────
         address freelancer; // copied from TrustLedger for convenience
 
         // ── Slots 3-5 ─────────────────────────────────────────────────────────
-        uint256 contractAmount; // total ETH in the escrow (for reference, not held here)
+        uint256 contractAmount; // total escrow value (for reference, not held here)
         uint256 feePool; // ETH held by this contract as juror reward pool
         uint256 ruling; // finalized completionPct (0-100); type(uint256).max = not set
 
@@ -148,6 +150,14 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     // ETH slashed from minority/no-reveal jurors is pooled here and added to the
     // next appeal's fee pool if an appeal occurs.
     mapping(uint256 id => uint256 amount) private _slashedPool;
+
+    /// @notice Optional Chainlink VRF coordinator. Set once via initVrfCoordinator().
+    ///         When set, openDispute() requests randomness and fulfillRandomWords() pre-selects jurors.
+    ///         When address(0), jurors self-select by calling commitVote() (legacy mode).
+    address public vrfCoordinator;
+
+    // Maps VRF requestId → disputeId so fulfillRandomWords() knows which dispute to update.
+    mapping(uint256 requestId => uint256 disputeId) private _pendingVrfRequest;
 
     // ─── Events ──────────────────────────────────────────────────────────────
 
@@ -264,6 +274,12 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @notice Low-level ETH transfer to the recipient failed.
     error EthTransferFailed();
 
+    /// @notice Caller is not the expected contract for this privileged action.
+    error Unauthorized();
+
+    /// @notice One-time setter has already been called.
+    error AlreadySet();
+
     // ─── Modifiers ────────────────────────────────────────────────────────────
 
     modifier onlyTrustLedger() {
@@ -311,6 +327,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             phase: Phase.COMMIT, // jurors can start committing immediately
             finalized: false,
             appealed: false,
+            vrfFulfilled: false, // set to true by fulfillRandomWords() if VRF is active
             // forge-lint: disable-next-line(unsafe-typecast)
             phaseDeadline: uint64(block.timestamp + COMMIT_DURATION), // 72h to fill slots
             freelancer: freelancer,
@@ -325,7 +342,74 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             jurorCount: 0
         });
 
+        // If a VRF coordinator has been configured, request randomness for juror selection.
+        // fulfillRandomWords() will be called back by the coordinator to pre-select jurors.
+        // If no coordinator is set, jurors self-select by calling commitVote() (legacy mode).
+        if (vrfCoordinator != address(0)) {
+            uint256 requestId = IVRFCoordinator(vrfCoordinator)
+                .requestRandomWords(
+                    bytes32(0), // keyHash — set by coordinator subscription; stub for interface compliance
+                    0, // subId — VRF subscription ID; stub for interface compliance
+                    3, // minimumRequestConfirmations — wait 3 blocks for finality
+                    200_000, // callbackGasLimit — sufficient for juror pre-selection loop
+                    uint32(BASE_MAX_JURORS) // numWords — one random word per juror slot
+                );
+            _pendingVrfRequest[requestId] = disputeId;
+        }
+
         emit DisputeOpened(disputeId, contractId, client, freelancer);
+    }
+
+    // ─── VRF one-time setup ────────────────────────────────────────────────────
+
+    /// @notice Wire in the Chainlink VRF coordinator (optional). Once set it cannot change.
+    ///         After this call, new disputes will request randomness for juror selection.
+    /// @param vrf_ Address of the deployed Chainlink VRF v2 coordinator.
+    function initVrfCoordinator(address vrf_) external {
+        if (vrfCoordinator != address(0)) revert AlreadySet();
+        if (vrf_ == address(0)) revert ZeroAddress();
+        vrfCoordinator = vrf_;
+    }
+
+    // ─── VRF callback ──────────────────────────────────────────────────────────
+
+    /// @notice Chainlink VRF coordinator calls this with the requested random words.
+    ///         Uses the random values to pre-select jurors from the eligible pool.
+    ///         Pre-selected jurors are marked in _committed and added to _jurors;
+    ///         they must still call commitVote() to submit their hidden vote hash.
+    /// @param requestId  The VRF request ID returned by requestRandomWords().
+    /// @param randomWords The random uint256 values provided by Chainlink.
+    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) external {
+        if (msg.sender != vrfCoordinator) revert Unauthorized();
+
+        uint256 disputeId = _pendingVrfRequest[requestId];
+        delete _pendingVrfRequest[requestId]; // clean up after use
+
+        Dispute storage d = _disputes[disputeId];
+        address[] memory allJurors = JUROR_REGISTRY.getJurorList();
+        uint256 poolSize = allJurors.length;
+
+        // Walk the random words, selecting jurors from the eligible pool.
+        // Each random word picks one candidate via modulo; duplicates and ineligible
+        // candidates are skipped. We stop once maxJurors slots are filled.
+        for (uint256 i = 0; i < randomWords.length && d.jurorCount < d.maxJurors; ++i) {
+            if (poolSize == 0) break;
+            address candidate = allJurors[randomWords[i] % poolSize];
+
+            // Reject parties, already-selected candidates, ineligible jurors, and excluded originals.
+            if (candidate == d.client || candidate == d.freelancer) continue;
+            if (_committed[disputeId][candidate]) continue;
+            if (_isOriginalJuror[disputeId][candidate]) continue;
+            if (!JUROR_REGISTRY.isEligible(candidate)) continue;
+
+            // Pre-select the candidate: mark _committed so commitVote() knows they were chosen.
+            // _commitments[disputeId][candidate] remains bytes32(0) until the juror calls commitVote().
+            _committed[disputeId][candidate] = true;
+            _jurors[disputeId].push(candidate);
+            ++d.jurorCount;
+        }
+
+        d.vrfFulfilled = true; // gate commitVote() into VRF-only mode for this dispute
     }
 
     // ─── Juror actions ────────────────────────────────────────────────────────
@@ -345,20 +429,33 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
         // Valid in COMMIT or APPEAL_COMMIT (same logic applies to appeal disputes)
         if (d.phase != Phase.COMMIT && d.phase != Phase.APPEAL_COMMIT) revert NotInCommitPhase();
-        if (block.timestamp > d.phaseDeadline) revert PhaseEnded(); // window expired
-        if (d.jurorCount + 1 > d.maxJurors) revert JurorSlotsFilled(); // panel is full
-        if (_committed[disputeId][msg.sender]) revert AlreadyCommitted();
-        if (!JUROR_REGISTRY.isEligible(msg.sender)) revert NotEligible(); // stake + lock check
-        // parties can't judge themselves
-        if (msg.sender == d.client || msg.sender == d.freelancer) revert ExcludedJuror();
-        if (_isOriginalJuror[disputeId][msg.sender]) revert ExcludedJuror(); // can't reuse jurors in appeal
+        if (block.timestamp > d.phaseDeadline) revert PhaseEnded();
 
-        // Record the commitment
-        _committed[disputeId][msg.sender] = true;
+        if (d.vrfFulfilled) {
+            // ── VRF mode ───────────────────────────────────────────────────────
+            // Jurors were pre-selected by fulfillRandomWords(). Only they may commit.
+            // _committed == true means "pre-selected"; _commitments == bytes32(0) means
+            // the juror hasn't submitted their vote hash yet.
+            if (!_committed[disputeId][msg.sender]) revert NotEligible(); // not VRF-selected
+            if (_commitments[disputeId][msg.sender] != bytes32(0)) revert AlreadyCommitted();
+            // _jurors and jurorCount were already set by fulfillRandomWords(); don't add again.
+        } else {
+            // ── Legacy (self-select) mode ──────────────────────────────────────
+            // Any eligible juror may claim a slot up to maxJurors.
+            if (d.jurorCount + 1 > d.maxJurors) revert JurorSlotsFilled();
+            if (_committed[disputeId][msg.sender]) revert AlreadyCommitted();
+            if (!JUROR_REGISTRY.isEligible(msg.sender)) revert NotEligible();
+            if (msg.sender == d.client || msg.sender == d.freelancer) revert ExcludedJuror();
+            if (_isOriginalJuror[disputeId][msg.sender]) revert ExcludedJuror();
+
+            _committed[disputeId][msg.sender] = true;
+            _jurors[disputeId].push(msg.sender);
+            ++d.jurorCount;
+        }
+
+        // Record the commitment hash. A sentinel vote marks "not yet revealed".
         _commitments[disputeId][msg.sender] = commitment;
-        _votes[disputeId][msg.sender] = type(uint256).max; // sentinel: not revealed yet
-        _jurors[disputeId].push(msg.sender);
-        ++d.jurorCount;
+        _votes[disputeId][msg.sender] = type(uint256).max;
 
         // Lock the juror's stake so they can't withdraw during the dispute.
         JUROR_REGISTRY.lockForDispute(msg.sender);
@@ -491,6 +588,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             phase: Phase.APPEAL_COMMIT,
             finalized: false,
             appealed: false,
+            vrfFulfilled: false, // appeal disputes also start in legacy mode unless VRF fills them
             // forge-lint: disable-next-line(unsafe-typecast)
             phaseDeadline: uint64(block.timestamp + COMMIT_DURATION),
             freelancer: d.freelancer,

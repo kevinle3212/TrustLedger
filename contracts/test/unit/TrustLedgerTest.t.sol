@@ -8,75 +8,73 @@ pragma solidity ^0.8.24;
 // solhint-disable gas-small-strings
 // solhint-disable ordering
 
-import {Test} from "forge-std/Test.sol";
+import {Test, Vm} from "forge-std/Test.sol";
 import {TrustLedger} from "../../src/TrustLedger.sol";
 import {Arbitration} from "../../src/Arbitration.sol";
 import {JurorRegistry} from "../../src/JurorRegistry.sol";
 
 contract TrustLedgerTest is Test {
     // ── Test constants ────────────────────────────────────────────────────────
-    // These match sensible defaults so helpers can reuse them without needing parameters.
     uint256 public constant AMOUNT = 1 ether;
     uint256 public constant ESTIMATED_DURATION = 30 days;
-    uint256 public constant BUFFER_FACTOR = 1200; // 1.2× — sets deadline 20% beyond estimated
+    uint256 public constant BUFFER_FACTOR = 1200; // 1.2× buffer
     uint256 public constant ACCEPTANCE_WINDOW = 48 hours;
     uint16 public constant ARB_FEE_BPS = 1000; // 10% juror fee
     uint16 public constant HOLD_BACK_BPS = 1000; // 10% warranty hold-back
     uint64 public constant WARRANTY_PERIOD = 7 days;
 
-    // Off-chain document hashes: keccak256 of a string literal evaluates at compile time.
     bytes32 public constant CONTRACT_HASH = keccak256("contract-doc");
     string public constant CONTRACT_URI = "ipfs://QmContractHash";
     bytes32 public constant POW_HASH = keccak256("proof-of-work");
     string public constant POW_URI = "ipfs://QmProofOfWork";
 
-    // Contract instances — redeployed fresh before each test via setUp().
     TrustLedger public trustLedger;
     Arbitration public arbitration;
     JurorRegistry public jurorRegistry;
 
-    // Deterministic fake addresses for our three actors.
     address public client = makeAddr("client");
-    address public freelancer = makeAddr("freelancer");
-    address public stranger = makeAddr("stranger"); // not a party to any contract
+
+    // The freelancer needs a private key (for ECDSA signing in acceptContract).
+    // vm.createWallet gives us both the address and the key.
+    Vm.Wallet internal _freelancerWallet;
+    address public freelancer;
+
+    address public stranger = makeAddr("stranger");
 
     // ── setUp ─────────────────────────────────────────────────────────────────
-    // Runs before EVERY test. Foundry snapshots state here and resets to it
-    // before each test_, giving perfect isolation between tests.
     function setUp() public {
-        // Give our fake addresses spendable ETH.
+        _freelancerWallet = vm.createWallet("freelancer");
+        freelancer = _freelancerWallet.addr;
+
         vm.deal(client, 100 ether);
         vm.deal(freelancer, 10 ether);
         vm.deal(stranger, 10 ether);
 
-        // ── Circular dependency solution ──────────────────────────────────────
-        // TrustLedger needs Arbitration's address in its constructor (immutable).
-        // Arbitration needs TrustLedger's address in its constructor (immutable).
-        // Solution: precompute the address of the 3rd contract (nonce+2) before deploying.
-        //
-        // `address(this)` is the test contract — it's the deployer in Foundry tests.
-        // `vm.getNonce(address(this))` returns how many contracts this test has deployed so far.
+        // Precompute Arbitration address to break the circular dependency.
         uint256 nonce = vm.getNonce(address(this));
-
-        // computeCreateAddress(deployer, nonce) mirrors the EVM's deterministic address formula.
         address arbitrationAddr = computeCreateAddress(address(this), nonce + 2);
 
-        // Deploy in exact nonce order: registry (nonce), trustledger (nonce+1), arbitration (nonce+2).
         jurorRegistry = new JurorRegistry(arbitrationAddr);
         trustLedger = new TrustLedger(arbitrationAddr);
         arbitration = new Arbitration(address(trustLedger), address(jurorRegistry));
 
-        // Confirm the address prediction was correct.
         assertEq(address(arbitration), arbitrationAddr, "address mismatch");
     }
 
-    // ─── Helper: create a contract ────────────────────────────────────────────
-    // Private helpers reduce repetition in tests. These simulate the common
-    // multi-step flows so each test can jump straight to the state it cares about.
+    // ─── Signing helper ───────────────────────────────────────────────────────
+    // Computes the EIP-191 signed hash and signs it with the freelancer's private key.
+    // This mirrors the on-chain ecrecover call inside acceptContract().
+    function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
+        bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
+        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
+        (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
+    }
 
-    // Creates an escrow contract with customizable hold-back and warranty period.
+    // ─── Lifecycle helpers ────────────────────────────────────────────────────
+
+    // Creates a contract with configurable hold-back and warranty.
     function _createContract(uint16 holdBackBps, uint64 warrantyPeriod) internal returns (uint256 id) {
-        vm.prank(client); // next call is from `client`
+        vm.prank(client);
         id = trustLedger.createContract{value: AMOUNT}(
             freelancer,
             CONTRACT_HASH,
@@ -86,23 +84,26 @@ contract TrustLedgerTest is Test {
             ACCEPTANCE_WINDOW,
             ARB_FEE_BPS,
             holdBackBps,
-            warrantyPeriod
+            warrantyPeriod,
+            address(0), // ETH escrow
+            0 // no token amount
         );
     }
 
-    // Creates a simple contract with no hold-back (0 bps, 0 warranty).
+    // Creates a simple ETH contract with no hold-back.
     function _createSimpleContract() internal returns (uint256 id) {
         return _createContract(0, 0);
     }
 
-    // Creates a contract AND has the freelancer accept it (PENDING → ACTIVE).
+    // Creates and has the freelancer accept (signs + calls acceptContract).
     function _createAndAccept() internal returns (uint256 id) {
         id = _createSimpleContract();
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
-        trustLedger.acceptContract(id);
+        trustLedger.acceptContract(id, v, r, s);
     }
 
-    // Creates, accepts, and submits proof of work (ACTIVE → SUBMITTED).
+    // Creates, accepts, and submits proof of work.
     function _createAcceptAndSubmit() internal returns (uint256 id) {
         id = _createAndAccept();
         vm.prank(freelancer);
@@ -111,34 +112,30 @@ contract TrustLedgerTest is Test {
 
     // ─── Happy Path ───────────────────────────────────────────────────────────
 
-    // Tests the golden path: create → accept → submit → client approves → funds released.
     function test_HappyPath_CreateAcceptSubmitApprove() public {
         uint256 id = _createAcceptAndSubmit();
 
-        // Verify the contract is in SUBMITTED state with the correct proof hash.
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.SUBMITTED));
         assertEq(c.proofOfWorkHash, POW_HASH);
         assertEq(c.proofOfWorkURI, POW_URI);
 
-        // Record balance before approval to measure exact payout.
         uint256 freelancerBefore = freelancer.balance;
         vm.prank(client);
         trustLedger.approveWork(id);
 
         c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.APPROVED));
-
-        // With no hold-back, the freelancer receives the full AMOUNT.
         assertEq(freelancer.balance, freelancerBefore + AMOUNT);
     }
 
-    // Tests the hold-back path: approval releases partial payment, rest released after warranty.
     function test_HappyPath_WithHoldBack() public {
         uint256 id = _createContract(HOLD_BACK_BPS, WARRANTY_PERIOD);
 
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
-        trustLedger.acceptContract(id);
+        trustLedger.acceptContract(id, v, r, s);
+
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, POW_URI);
 
@@ -146,26 +143,52 @@ contract TrustLedgerTest is Test {
         vm.prank(client);
         trustLedger.approveWork(id);
 
-        uint256 holdBack = (AMOUNT * HOLD_BACK_BPS) / 10_000; // 10% of 1 ETH = 0.1 ETH
-        uint256 payout = AMOUNT - holdBack; // 0.9 ETH immediate payout
+        uint256 holdBack = (AMOUNT * HOLD_BACK_BPS) / 10_000;
+        uint256 payout = AMOUNT - holdBack;
 
         assertEq(freelancer.balance, freelancerBefore + payout, "partial payout mismatch");
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(c.holdBackAmount, holdBack, "holdback recorded mismatch");
 
-        // Before warranty expires, claiming should revert.
         vm.expectRevert(TrustLedger.WindowNotElapsed.selector);
         vm.prank(freelancer);
         trustLedger.claimWarrantyFunds(id);
 
-        // Fast-forward past warranty period.
         vm.warp(block.timestamp + WARRANTY_PERIOD + 1);
 
         uint256 freelancerBefore2 = freelancer.balance;
         vm.prank(freelancer);
         trustLedger.claimWarrantyFunds(id);
         assertEq(freelancer.balance, freelancerBefore2 + holdBack, "warranty claim mismatch");
+    }
+
+    // ─── Cancel Pending ───────────────────────────────────────────────────────
+
+    function test_CancelPending_RefundsClient() public {
+        uint256 id = _createSimpleContract();
+        uint256 clientBefore = client.balance;
+
+        vm.prank(client);
+        trustLedger.cancelPending(id);
+
+        assertEq(client.balance, clientBefore + AMOUNT, "cancel refund mismatch");
+        TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
+        assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED));
+    }
+
+    function test_CancelPending_OnlyClient_Reverts() public {
+        uint256 id = _createSimpleContract();
+        vm.expectRevert(TrustLedger.Unauthorized.selector);
+        vm.prank(stranger);
+        trustLedger.cancelPending(id);
+    }
+
+    function test_CancelPending_WrongStatus_Reverts() public {
+        uint256 id = _createAndAccept(); // already ACTIVE
+        vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.ACTIVE));
+        vm.prank(client);
+        trustLedger.cancelPending(id);
     }
 
     // ─── Rejection ────────────────────────────────────────────────────────────
@@ -177,7 +200,6 @@ contract TrustLedgerTest is Test {
         vm.prank(freelancer);
         trustLedger.rejectContract(id);
 
-        // Client receives full refund when freelancer rejects.
         assertEq(client.balance, clientBefore + AMOUNT, "refund mismatch");
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
@@ -189,16 +211,13 @@ contract TrustLedgerTest is Test {
     function test_DeadlineMiss_ClientReclaims() public {
         uint256 id = _createAndAccept();
 
-        // Read the actual deadline from storage (computed as timestamp + duration × buffer / 1000).
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         uint256 deadline = c.projectDeadline;
 
-        // Before deadline: reclaim should revert.
         vm.expectRevert(TrustLedger.DeadlineNotElapsed.selector);
         vm.prank(client);
         trustLedger.claimAfterDeadlineMiss(id);
 
-        // Warp to 1 second after deadline.
         vm.warp(deadline + 1);
         uint256 clientBefore = client.balance;
         vm.prank(client);
@@ -217,12 +236,10 @@ contract TrustLedgerTest is Test {
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         uint256 deadline = c.acceptanceDeadline;
 
-        // Before window elapses, the freelancer can't self-release yet.
         vm.expectRevert(TrustLedger.WindowNotElapsed.selector);
         vm.prank(freelancer);
         trustLedger.claimAfterAcceptanceWindow(id);
 
-        // After window, freelancer can claim (client didn't approve or dispute in time).
         vm.warp(deadline + 1);
         uint256 freelancerBefore = freelancer.balance;
         vm.prank(freelancer);
@@ -240,7 +257,6 @@ contract TrustLedgerTest is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        // The arbitration fee (10% of 1 ETH = 0.1 ETH) should be forwarded to Arbitration.
         uint256 feePool = (AMOUNT * ARB_FEE_BPS) / 10_000;
         assertEq(address(arbitration).balance, arbBefore + feePool, "fee pool mismatch");
 
@@ -249,8 +265,6 @@ contract TrustLedgerTest is Test {
     }
 
     // ─── ExecuteRuling ────────────────────────────────────────────────────────
-    // These tests spoof Arbitration calling executeRuling by using vm.prank(address(arbitration)).
-    // In production, Arbitration calls this; in tests we simulate it directly to check payout math.
 
     function test_ExecuteRuling_0pct_ClientWins() public {
         uint256 id = _createAcceptAndSubmit();
@@ -263,8 +277,7 @@ contract TrustLedgerTest is Test {
         uint256 clientBefore = client.balance;
         uint256 freelancerBefore = freelancer.balance;
 
-        // 0% completion → client wins everything (freelancer gets 0).
-        vm.prank(address(arbitration)); // pretend we're the Arbitration contract
+        vm.prank(address(arbitration));
         trustLedger.executeRuling(id, 0);
 
         assertEq(client.balance, clientBefore + remaining, "client payout 0pct mismatch");
@@ -282,7 +295,6 @@ contract TrustLedgerTest is Test {
         uint256 freelancerBefore = freelancer.balance;
         uint256 clientBefore = client.balance;
 
-        // 100% completion → freelancer wins everything.
         vm.prank(address(arbitration));
         trustLedger.executeRuling(id, 100);
 
@@ -298,9 +310,13 @@ contract TrustLedgerTest is Test {
         uint256 feePool = (AMOUNT * ARB_FEE_BPS) / 10_000;
         uint256 remaining = AMOUNT - feePool;
 
-        // Formula: freelancerPay = (2 × completionPct × amount) / 300
-        // At 50%: (2 × 50 × 1e18) / 300 ≈ 0.333 ETH
-        uint256 expectedFreelancerPay = (2 * 50 * AMOUNT) / 300;
+        // New proportional formula (Part 1):
+        //   rawPay              = (2 × 50 × amount) / 300
+        //   freelancerFeeBurden = (feePool × 50) / 100
+        //   freelancerPay       = rawPay - freelancerFeeBurden
+        uint256 rawPay = (2 * 50 * AMOUNT) / 300;
+        uint256 freelancerFeeBurden = (feePool * 50) / 100;
+        uint256 expectedFreelancerPay = rawPay - freelancerFeeBurden;
         uint256 expectedClientRefund = remaining - expectedFreelancerPay;
 
         uint256 freelancerBefore = freelancer.balance;
@@ -311,14 +327,11 @@ contract TrustLedgerTest is Test {
 
         assertEq(freelancer.balance, freelancerBefore + expectedFreelancerPay, "freelancer 50pct mismatch");
         assertEq(client.balance, clientBefore + expectedClientRefund, "client 50pct mismatch");
-        // Sanity: payout is conserved (no ETH created or destroyed).
         assertEq(expectedFreelancerPay + expectedClientRefund, remaining, "payout conservation mismatch");
     }
 
-    // Fuzz-lite test: runs with many values of completionPct to check conservation.
-    // `vm.assume` is available in Foundry unit tests too — it skips inputs that don't satisfy the condition.
     function test_ExecuteRuling_PayoutMathConservation(uint8 completionPct) public {
-        vm.assume(completionPct <= 100); // Foundry will try all uint8 values; assume filters invalid ones
+        vm.assume(completionPct <= 100);
 
         uint256 id = _createAcceptAndSubmit();
         vm.prank(client);
@@ -336,12 +349,10 @@ contract TrustLedgerTest is Test {
         uint256 freelancerGot = freelancer.balance - freelancerBefore;
         uint256 clientGot = client.balance - clientBefore;
 
-        // Conservation invariant: no ETH is lost or created.
         assertEq(freelancerGot + clientGot, remaining, "payout conservation failed");
     }
 
     // ─── Revert Conditions ────────────────────────────────────────────────────
-    // These tests verify that every guarded action correctly rejects invalid callers or states.
 
     function test_Revert_CreateContract_ZeroAddress() public {
         vm.expectRevert(TrustLedger.ZeroAddress.selector);
@@ -349,12 +360,14 @@ contract TrustLedgerTest is Test {
         trustLedger.createContract{value: AMOUNT}(
             address(0),
             CONTRACT_HASH,
-            CONTRACT_URI, // freelancer = zero address
+            CONTRACT_URI,
             ESTIMATED_DURATION,
             BUFFER_FACTOR,
             ACCEPTANCE_WINDOW,
             ARB_FEE_BPS,
             0,
+            0,
+            address(0),
             0
         );
     }
@@ -365,12 +378,14 @@ contract TrustLedgerTest is Test {
         trustLedger.createContract{value: AMOUNT}(
             client,
             CONTRACT_HASH,
-            CONTRACT_URI, // freelancer = client = hiring yourself
+            CONTRACT_URI,
             ESTIMATED_DURATION,
             BUFFER_FACTOR,
             ACCEPTANCE_WINDOW,
             ARB_FEE_BPS,
             0,
+            0,
+            address(0),
             0
         );
     }
@@ -378,7 +393,7 @@ contract TrustLedgerTest is Test {
     function test_Revert_CreateContract_ZeroValue() public {
         vm.expectRevert(TrustLedger.InsufficientFunds.selector);
         vm.prank(client);
-        trustLedger.createContract{value: 0}( // no ETH sent
+        trustLedger.createContract{value: 0}(
             freelancer,
             CONTRACT_HASH,
             CONTRACT_URI,
@@ -387,6 +402,8 @@ contract TrustLedgerTest is Test {
             ACCEPTANCE_WINDOW,
             ARB_FEE_BPS,
             0,
+            0,
+            address(0),
             0
         );
     }
@@ -400,9 +417,11 @@ contract TrustLedgerTest is Test {
             CONTRACT_URI,
             ESTIMATED_DURATION,
             1000,
-            ACCEPTANCE_WINDOW, // 1000 = 1.0× (below 1.1× minimum)
+            ACCEPTANCE_WINDOW,
             ARB_FEE_BPS,
             0,
+            0,
+            address(0),
             0
         );
     }
@@ -416,9 +435,11 @@ contract TrustLedgerTest is Test {
             CONTRACT_URI,
             ESTIMATED_DURATION,
             BUFFER_FACTOR,
-            1 hours, // below 48h minimum
+            1 hours,
             ARB_FEE_BPS,
             0,
+            0,
+            address(0),
             0
         );
     }
@@ -435,7 +456,9 @@ contract TrustLedgerTest is Test {
             ACCEPTANCE_WINDOW,
             0,
             0,
-            0 // fee bps = 0 is invalid (must be at least 1)
+            0,
+            address(0),
+            0
         );
     }
 
@@ -451,7 +474,9 @@ contract TrustLedgerTest is Test {
             ACCEPTANCE_WINDOW,
             ARB_FEE_BPS,
             100,
-            7 days // 100 bps (1%) is below the 500 bps (5%) minimum
+            7 days,
+            address(0),
+            0
         );
     }
 
@@ -467,47 +492,63 @@ contract TrustLedgerTest is Test {
             ACCEPTANCE_WINDOW,
             ARB_FEE_BPS,
             1000,
-            0 // holdback set but warranty period is 0 — inconsistent
+            0,
+            address(0),
+            0
         );
     }
 
     function test_Revert_AcceptContract_WrongCaller() public {
         uint256 id = _createSimpleContract();
+        // Signature is valid (signed by freelancer) but msg.sender is stranger → Unauthorized.
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.expectRevert(TrustLedger.Unauthorized.selector);
-        vm.prank(stranger); // only the designated freelancer may accept
-        trustLedger.acceptContract(id);
+        vm.prank(stranger);
+        trustLedger.acceptContract(id, v, r, s);
+    }
+
+    function test_Revert_AcceptContract_BadSignature() public {
+        uint256 id = _createSimpleContract();
+        // Sign with the wrong private key → ecrecover returns a different address → InvalidSignature.
+        Vm.Wallet memory wrongWallet = vm.createWallet("stranger");
+        bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
+        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(wrongWallet.privateKey, ethSignedHash);
+        vm.expectRevert(TrustLedger.InvalidSignature.selector);
+        vm.prank(freelancer);
+        trustLedger.acceptContract(id, v, r, s);
     }
 
     function test_Revert_AcceptContract_WrongStatus() public {
-        uint256 id = _createAndAccept(); // contract is now ACTIVE, not PENDING
-        // abi.encodeWithSelector creates the exact revert bytes including the error argument.
+        uint256 id = _createAndAccept(); // now ACTIVE
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.ACTIVE));
         vm.prank(freelancer);
-        trustLedger.acceptContract(id); // can't accept an already-ACTIVE contract
+        trustLedger.acceptContract(id, v, r, s);
     }
 
     function test_Revert_ApproveWork_WrongCaller() public {
         uint256 id = _createAcceptAndSubmit();
         vm.expectRevert(TrustLedger.Unauthorized.selector);
-        vm.prank(stranger); // only the client may approve
+        vm.prank(stranger);
         trustLedger.approveWork(id);
     }
 
     function test_Revert_ApproveWork_WindowElapsed() public {
         uint256 id = _createAcceptAndSubmit();
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
-        vm.warp(c.acceptanceDeadline + 1); // past the acceptance deadline
+        vm.warp(c.acceptanceDeadline + 1);
 
         vm.expectRevert(TrustLedger.WindowElapsed.selector);
         vm.prank(client);
-        trustLedger.approveWork(id); // too late to approve
+        trustLedger.approveWork(id);
     }
 
     function test_Revert_DisputeWork_WrongStatus() public {
-        uint256 id = _createSimpleContract(); // status = PENDING (not SUBMITTED)
+        uint256 id = _createSimpleContract();
         vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.PENDING));
         vm.prank(client);
-        trustLedger.disputeWork(id); // can only dispute SUBMITTED contracts
+        trustLedger.disputeWork(id);
     }
 
     function test_Revert_ExecuteRuling_NotArbitration() public {
@@ -516,7 +557,7 @@ contract TrustLedgerTest is Test {
         trustLedger.disputeWork(id);
 
         vm.expectRevert(TrustLedger.Unauthorized.selector);
-        vm.prank(stranger); // only ARBITRATION address can call executeRuling
+        vm.prank(stranger);
         trustLedger.executeRuling(id, 50);
     }
 
@@ -527,36 +568,47 @@ contract TrustLedgerTest is Test {
 
         vm.expectRevert(TrustLedger.CompletionPctOutOfRange.selector);
         vm.prank(address(arbitration));
-        trustLedger.executeRuling(id, 101); // 101% is invalid (max is 100)
+        trustLedger.executeRuling(id, 101);
     }
 
     function test_Revert_SubmitPoW_AfterDeadline() public {
         uint256 id = _createAndAccept();
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
 
-        vm.warp(c.projectDeadline + 1); // past the project deadline
+        vm.warp(c.projectDeadline + 1);
 
         vm.expectRevert(TrustLedger.DeadlineElapsed.selector);
         vm.prank(freelancer);
-        trustLedger.submitProofOfWork(id, POW_HASH, POW_URI); // too late
+        trustLedger.submitProofOfWork(id, POW_HASH, POW_URI);
     }
 
     function test_Revert_ClaimWarranty_NoHoldBack() public {
-        uint256 id = _createAcceptAndSubmit(); // no hold-back configured
+        uint256 id = _createAcceptAndSubmit();
         vm.prank(client);
         trustLedger.approveWork(id);
 
-        // holdBackAmount == 0 → InvalidHoldBack
         vm.expectRevert(TrustLedger.InvalidHoldBack.selector);
         vm.prank(freelancer);
         trustLedger.claimWarrantyFunds(id);
     }
 
+    // ─── Rating ───────────────────────────────────────────────────────────────
+
+    function test_SubmitRating_NoOp_WhenRegistryNotSet() public {
+        // reputationRegistry is address(0) → submitRating silently returns.
+        uint256 id = _createAcceptAndSubmit();
+        vm.prank(client);
+        trustLedger.approveWork(id);
+
+        // Should not revert even though registry is not wired in.
+        vm.prank(client);
+        trustLedger.submitRating(id, 80);
+    }
+
     // ─── Next ID increments ───────────────────────────────────────────────────
 
-    // Confirms that nextId is a monotonically increasing counter.
     function test_NextId_Increments() public {
-        assertEq(trustLedger.nextId(), 0); // starts at 0
+        assertEq(trustLedger.nextId(), 0);
         _createSimpleContract();
         assertEq(trustLedger.nextId(), 1);
         _createSimpleContract();

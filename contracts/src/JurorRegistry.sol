@@ -288,7 +288,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @return      True when active, stake ≥ MIN_STAKE, and lock period has elapsed.
     function isEligible(address juror) external view returns (bool) {
         JurorInfo storage j = _jurors[juror];
-        return j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1; // lock period has fully elapsed
+        return j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1;
     }
 
     // Returns the full JurorInfo struct. Arbitration uses this to read the stake

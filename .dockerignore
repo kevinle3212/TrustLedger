@@ -33,6 +33,10 @@ coverage/
 logs/
 *.log
 
+# ─── Git internals — not needed in the image; submodule content is in contracts/lib/
+.git/
+.gitmodules
+
 # ─── OS / editor generated files ──────────────────────────────────────────────
 .DS_Store
 Thumbs.db

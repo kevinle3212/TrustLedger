@@ -18,6 +18,11 @@ RUN npm ci
 
 COPY . .
 
-RUN git submodule update --init --recursive
+RUN git submodule update --init --recursive 2>/dev/null || true
+
+RUN npm run compile \
+    && cd contracts && forge build
 
 EXPOSE 8545
+
+ENTRYPOINT ["bash", "scripts/docker-demo.sh"]

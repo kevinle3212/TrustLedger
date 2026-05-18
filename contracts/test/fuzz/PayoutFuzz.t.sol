@@ -20,7 +20,7 @@ pragma solidity ^0.8.24;
 //   - Deadlines are always in the future.
 //   - Hold-back amounts stay within their declared percentage bounds.
 
-import {Test} from "forge-std/Test.sol";
+import {Test, Vm} from "forge-std/Test.sol";
 import {TrustLedger} from "../../src/TrustLedger.sol";
 import {Arbitration} from "../../src/Arbitration.sol";
 import {JurorRegistry} from "../../src/JurorRegistry.sol";
@@ -34,23 +34,36 @@ contract PayoutFuzz is Test {
     JurorRegistry public jurorRegistry;
 
     address public client = makeAddr("client");
-    address public freelancer = makeAddr("freelancer");
+
+    // The freelancer wallet is created via vm.createWallet to obtain the private key
+    // needed for signing the ECDSA acceptance in acceptContract().
+    Vm.Wallet internal _freelancerWallet;
+    address public freelancer;
 
     // setUp() runs before every fuzz test — it deploys fresh contracts.
     function setUp() public {
+        _freelancerWallet = vm.createWallet("freelancer");
+        freelancer = _freelancerWallet.addr;
+
         // Give the client enough ETH for even the largest fuzz inputs.
         // type(uint128).max ≈ 3.4 × 10^38 wei. Uint128 is used as the fuzz input
         // type because uint256 amounts could overflow intermediate calculations.
         vm.deal(client, type(uint128).max);
         vm.deal(freelancer, 10 ether);
 
-        // Same precomputed address pattern as the unit tests.
         uint256 nonce = vm.getNonce(address(this));
         address arbitrationAddr = computeCreateAddress(address(this), nonce + 2);
 
         jurorRegistry = new JurorRegistry(arbitrationAddr);
         trustLedger = new TrustLedger(arbitrationAddr);
         arbitration = new Arbitration(address(trustLedger), address(jurorRegistry));
+    }
+
+    // Computes and returns the EIP-191 signed acceptance for this contract ID.
+    function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
+        bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
+        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
+        (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
     }
 
     // ─── Payout conservation invariant ───────────────────────────────────────
@@ -64,28 +77,28 @@ contract PayoutFuzz is Test {
     )
         public
     {
-        // `vm.assume(condition)` tells the fuzzer to skip this run if the condition
-        // is false. This narrows the input space to valid contract parameters.
         vm.assume(completionPct <= 100);
         vm.assume(amount > 0);
-        vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000); // 0.01% to 50%
+        vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000);
 
-        // Run the full lifecycle: create → accept → submit → dispute → ruling.
         vm.prank(client);
         uint256 id = trustLedger.createContract{value: amount}(
             freelancer,
             CONTRACT_HASH,
             "ipfs://contract",
             30 days,
-            1200, // 1.2× buffer factor
+            1200,
             48 hours,
             arbitrationFeeBps,
             0,
-            0 // no hold-back
+            0,
+            address(0), // ETH escrow
+            0
         );
 
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
-        trustLedger.acceptContract(id);
+        trustLedger.acceptContract(id, v, r, s);
 
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
@@ -96,42 +109,51 @@ contract PayoutFuzz is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        // Simulate Arbitration calling back with the fuzz-generated ruling.
         vm.prank(address(arbitration));
         trustLedger.executeRuling(id, completionPct);
 
         uint256 freelancerGot = freelancer.balance - freelancerBefore;
         uint256 clientGot = client.balance - clientBefore;
 
-        // Compute what "remaining" should be after deducting the fee pool.
         uint256 feePool = (uint256(amount) * arbitrationFeeBps) / 10_000;
         uint256 remaining = uint256(amount) - feePool;
 
         // Core invariant: all remaining ETH is distributed; none disappears.
         assertEq(freelancerGot + clientGot, remaining, "payout conservation violated");
 
-        // Sanity bounds: neither party can receive more than the total remaining.
         assertLe(freelancerGot, remaining, "freelancer overpaid");
         assertLe(clientGot, remaining, "client overpaid");
     }
 
     // ─── Partial payout formula ───────────────────────────────────────────────
-    // INVARIANT: for completionPct in 1-99, the formula
-    //   freelancerPay = (2 * pct * amount) / 300
-    // always holds (capped at `remaining`).
-    // This test verifies the contract's math matches the spec exactly.
+    // INVARIANT: for completionPct in 1-99, the proportional-fee formula
+    //   rawPay              = (2 * pct * amount) / 300
+    //   freelancerFeeBurden = (feePool * pct) / 100
+    //   freelancerPay       = rawPay - freelancerFeeBurden  (capped at remaining)
+    // always holds. This test verifies the contract's math matches the spec exactly.
     function testFuzz_PartialPayoutFormula(uint8 completionPct, uint128 amount, uint16 arbitrationFeeBps) public {
-        vm.assume(completionPct >= 1 && completionPct <= 99); // only partial payouts
-        vm.assume(amount > 300); // amounts < 300 can give 0 due to integer truncation
+        vm.assume(completionPct >= 1 && completionPct <= 99);
+        vm.assume(amount > 300); // amounts ≤ 300 can give 0 due to integer truncation
         vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000);
 
         vm.prank(client);
         uint256 id = trustLedger.createContract{value: amount}(
-            freelancer, CONTRACT_HASH, "ipfs://contract", 30 days, 1200, 48 hours, arbitrationFeeBps, 0, 0
+            freelancer,
+            CONTRACT_HASH,
+            "ipfs://contract",
+            30 days,
+            1200,
+            48 hours,
+            arbitrationFeeBps,
+            0,
+            0,
+            address(0),
+            0
         );
 
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
-        trustLedger.acceptContract(id);
+        trustLedger.acceptContract(id, v, r, s);
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
 
@@ -144,11 +166,13 @@ contract PayoutFuzz is Test {
 
         uint256 freelancerGot = freelancer.balance - freelancerBefore;
 
-        // Recompute what we expect the contract to have calculated.
+        // Recompute the expected value using the new proportional formula.
         uint256 feePool = (uint256(amount) * arbitrationFeeBps) / 10_000;
         uint256 remaining = uint256(amount) - feePool;
-        uint256 expected = (2 * uint256(completionPct) * uint256(amount)) / 300;
-        if (expected > remaining) expected = remaining; // cap at remaining
+        uint256 rawPay = (2 * uint256(completionPct) * uint256(amount)) / 300;
+        uint256 freelancerFeeBurden = (feePool * uint256(completionPct)) / 100;
+        uint256 expected = rawPay - freelancerFeeBurden;
+        if (expected > remaining) expected = remaining;
 
         assertEq(freelancerGot, expected, "partial payout formula mismatch");
     }
@@ -164,9 +188,9 @@ contract PayoutFuzz is Test {
         public
     {
         vm.assume(estimatedDuration > 0 && estimatedDuration <= 365 days);
-        vm.assume(bufferFactor >= 1100 && bufferFactor <= 10_000); // 1.1× to 10×
+        vm.assume(bufferFactor >= 1100 && bufferFactor <= 10_000);
 
-        uint256 ts = block.timestamp; // capture timestamp before the transaction
+        uint256 ts = block.timestamp;
 
         vm.prank(client);
         uint256 id = trustLedger.createContract{value: 1 ether}(
@@ -178,15 +202,15 @@ contract PayoutFuzz is Test {
             48 hours,
             100,
             0,
-            0 // 1% fee, no hold-back
+            0,
+            address(0),
+            0
         );
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
 
-        // Deadline must be in the future.
         assertGt(c.projectDeadline, ts, "projectDeadline must be in the future");
 
-        // Deadline must match the exact formula.
         uint256 expectedDeadline = ts + (uint256(estimatedDuration) * bufferFactor) / 1000;
         assertEq(c.projectDeadline, expectedDeadline, "deadline formula mismatch");
     }
@@ -217,11 +241,14 @@ contract PayoutFuzz is Test {
             48 hours,
             100,
             holdBackBps,
-            7 days // 1% fee, variable holdback, 7d warranty
+            7 days,
+            address(0),
+            0
         );
 
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
-        trustLedger.acceptContract(id);
+        trustLedger.acceptContract(id, v, r, s);
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
         vm.prank(client);
@@ -229,7 +256,6 @@ contract PayoutFuzz is Test {
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
 
-        // Compute the expected bounds from first principles.
         uint256 maxHoldBack = (uint256(amount) * 1500) / 10_000; // 15%
         uint256 minHoldBack = (uint256(amount) * 500) / 10_000; // 5%
 
@@ -240,25 +266,18 @@ contract PayoutFuzz is Test {
     // ─── Fee pool bounds invariant ────────────────────────────────────────────
     // INVARIANT: for any (amount, arbitrationFeeBps) in valid ranges,
     //   feePool <= amount (the fee never exceeds the escrow).
-    // This is a pure arithmetic test — no state changes needed, hence `pure`.
     function testFuzz_FeePoolBounds(uint128 amount, uint16 arbitrationFeeBps) public pure {
-        vm.assume(amount > 10_000); // avoid precision issues where fee rounds to 0
+        vm.assume(amount > 10_000);
         vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000);
 
         uint256 feePool = (uint256(amount) * arbitrationFeeBps) / 10_000;
-        uint256 maxFeePool = (uint256(amount) * 5000) / 10_000; // 50% — the maximum
-        uint256 minFeePool = 0; // can legitimately be 0 for very small amounts with low bps
+        uint256 maxFeePool = (uint256(amount) * 5000) / 10_000; // 50%
 
         assertLe(feePool, maxFeePool, "fee pool exceeds 50%");
-        assertGe(feePool, minFeePool, "fee pool underflow (impossible but explicit)");
-
-        // The fee pool can never exceed the full escrow amount.
         assertGe(uint256(amount), feePool, "fee pool exceeds amount");
     }
 
     // ─── Zero / full payout edge cases ───────────────────────────────────────
-    // These test the boundary conditions (completionPct = 0 and 100) across
-    // all possible amounts and fee configurations.
 
     // At 0% completion, the freelancer should get nothing regardless of amount or fee.
     function testFuzz_ZeroPct_FreelancerGetsNothing(uint128 amount, uint16 arbitrationFeeBps) public {
@@ -267,11 +286,22 @@ contract PayoutFuzz is Test {
 
         vm.prank(client);
         uint256 id = trustLedger.createContract{value: amount}(
-            freelancer, CONTRACT_HASH, "ipfs://contract", 30 days, 1200, 48 hours, arbitrationFeeBps, 0, 0
+            freelancer,
+            CONTRACT_HASH,
+            "ipfs://contract",
+            30 days,
+            1200,
+            48 hours,
+            arbitrationFeeBps,
+            0,
+            0,
+            address(0),
+            0
         );
 
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
-        trustLedger.acceptContract(id);
+        trustLedger.acceptContract(id, v, r, s);
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
 
@@ -280,7 +310,7 @@ contract PayoutFuzz is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
         vm.prank(address(arbitration));
-        trustLedger.executeRuling(id, 0); // 0% → freelancer gets nothing
+        trustLedger.executeRuling(id, 0);
 
         assertEq(freelancer.balance, freelancerBefore, "freelancer should get nothing at 0%");
     }
@@ -292,23 +322,32 @@ contract PayoutFuzz is Test {
 
         vm.prank(client);
         uint256 id = trustLedger.createContract{value: amount}(
-            freelancer, CONTRACT_HASH, "ipfs://contract", 30 days, 1200, 48 hours, arbitrationFeeBps, 0, 0
+            freelancer,
+            CONTRACT_HASH,
+            "ipfs://contract",
+            30 days,
+            1200,
+            48 hours,
+            arbitrationFeeBps,
+            0,
+            0,
+            address(0),
+            0
         );
 
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
-        trustLedger.acceptContract(id);
+        trustLedger.acceptContract(id, v, r, s);
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
 
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        // Capture client balance AFTER the disputeWork call (which costs gas).
-        // We want to verify the client gets nothing FROM the ruling, not from gas refunds.
         uint256 clientAfterDispute = client.balance;
 
         vm.prank(address(arbitration));
-        trustLedger.executeRuling(id, 100); // 100% → client gets nothing
+        trustLedger.executeRuling(id, 100);
 
         assertEq(client.balance, clientAfterDispute, "client should get nothing at 100%");
     }

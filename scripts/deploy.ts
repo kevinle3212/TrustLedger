@@ -1,14 +1,14 @@
 // scripts/deploy.ts — Hardhat deployment script (TypeScript/ethers.js equivalent of Deploy.s.sol).
-// Run with: npm run hardhat:deploy:sepolia
-// This is the Node.js counterpart to contracts/script/Deploy.s.sol.
-// It uses ethers.js (via the Hardhat plugin) rather than Foundry's vm cheat codes.
+// Run with: npm run hardhat:deploy:local | npm run hardhat:deploy:sepolia
+// Writes deployed addresses to artifacts/deployed-addresses.json for frontend consumption.
 
+import { writeFileSync, mkdirSync } from "node:fs";
+import { resolve } from "node:path";
 import { ethers } from "hardhat";
 
 async function main(): Promise<void> {
-	console.log(process.env.ARBITRUM_SEPOLIA_RPC_URL);
 	// ethers.getSigners() returns all accounts configured in hardhat.config.ts for the
-	// active network. For arbitrumSepolia, this is the DEPLOYER_PRIVATE_KEY wallet.
+	// active network. For sepolia, this is the DEPLOYER_PRIVATE_KEY wallet.
 	// Destructuring assignment: `[deployer]` picks only the first signer.
 	const [deployer] = await ethers.getSigners();
 	console.log("Deploying with:", deployer.address);
@@ -74,6 +74,21 @@ async function main(): Promise<void> {
 
 	console.log("\nDeployment verified successfully!");
 	console.log("All contract addresses match precomputed values.");
+
+	// ── Write deployed addresses for frontend consumption ─────────────────────
+	// artifacts/ is gitignored; this file is regenerated on every deploy.
+	// Import it in the frontend as: import addrs from "../../artifacts/deployed-addresses.json"
+	const addresses = {
+		JurorRegistry: await jurorRegistry.getAddress(),
+		TrustLedger: await trustLedger.getAddress(),
+		Arbitration: await arbitration.getAddress(),
+		network: (await ethers.provider.getNetwork()).name,
+		deployedAt: new Date().toISOString(),
+	};
+	const outDir = resolve(__dirname, "../artifacts");
+	mkdirSync(outDir, { recursive: true });
+	writeFileSync(resolve(outDir, "deployed-addresses.json"), JSON.stringify(addresses, null, 2));
+	console.log("\nAddresses written to artifacts/deployed-addresses.json");
 }
 
 // Standard Node.js async error handling pattern.

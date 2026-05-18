@@ -1,4 +1,4 @@
-name: Deploy (Arbitrum Sepolia)
+name: Deploy (Ethereum Sepolia)
 
 # Manual trigger only. Never auto-deploy on push to main - too easy to
 # burn through testnet ETH or push a broken contract.
@@ -10,7 +10,7 @@ on:
                 required: true
                 default: "script/Deploy.s.sol:DeployScript"
             verify:
-                description: "Verify on Arbiscan after deploy"
+                description: "Verify on Etherscan after deploy"
                 required: true
                 default: "true"
                 type: choice
@@ -20,7 +20,7 @@ on:
 
 # Don't run two deploys to the same network at once.
 concurrency:
-    group: deploy-arbitrum-sepolia
+    group: deploy-ethereum-sepolia
     cancel-in-progress: false
 
 permissions:
@@ -28,10 +28,10 @@ permissions:
 
 jobs:
     deploy:
-        name: Deploy to Arbitrum Sepolia
+        name: Deploy to Ethereum Sepolia
         runs-on: ubuntu-latest
         # Bind secrets to a GitHub Environment so you can add reviewer approval later.
-        environment: arbitrum-sepolia
+        environment: ethereum-sepolia
         steps:
             - name: Checkout
               uses: actions/checkout@v5
@@ -53,19 +53,19 @@ jobs:
             - name: Pre-deploy tests
               run: forge test
 
-            - name: Deploy (with Arbiscan verification)
+            - name: Deploy (with Etherscan verification)
               if: github.event.inputs.verify == 'true'
               run: |
                   forge script ${{ github.event.inputs.script }} \
-                    --rpc-url "$ARBITRUM_SEPOLIA_RPC_URL" \
+                    --rpc-url "$SEPOLIA_RPC_URL" \
                     --private-key "$DEPLOYER_PRIVATE_KEY" \
                     --broadcast \
                     --verify \
                     --etherscan-api-key "$ETHERSCAN_API_KEY" \
-                    --chain 421614 \
+                    --chain 11155111 \
                     -vvvv
               env:
-                  ARBITRUM_SEPOLIA_RPC_URL: ${{ secrets.ARBITRUM_SEPOLIA_RPC_URL }}
+                  SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
                   DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
                   ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
 
@@ -73,12 +73,12 @@ jobs:
               if: github.event.inputs.verify != 'true'
               run: |
                   forge script ${{ github.event.inputs.script }} \
-                    --rpc-url "$ARBITRUM_SEPOLIA_RPC_URL" \
+                    --rpc-url "$SEPOLIA_RPC_URL" \
                     --private-key "$DEPLOYER_PRIVATE_KEY" \
                     --broadcast \
                     -vvvv
               env:
-                  ARBITRUM_SEPOLIA_RPC_URL: ${{ secrets.ARBITRUM_SEPOLIA_RPC_URL }}
+                  SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
                   DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
 
             # Keep deployment receipts/addresses for the audit trail.

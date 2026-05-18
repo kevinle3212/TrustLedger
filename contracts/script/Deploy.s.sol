@@ -13,7 +13,8 @@ import {Arbitration} from "../src/Arbitration.sol";
 import {TrustLedger} from "../src/TrustLedger.sol";
 
 // Any Foundry script is a contract that extends Script.
-// Run it with: forge script script/Deploy.s.sol --rpc-url $ARBITRUM_SEPOLIA_RPC_URL --broadcast
+// Run via npm: npm run foundry:deploy:sepolia
+// Run manually: forge script script/Deploy.s.sol --rpc-url $SEPOLIA_RPC_URL --private-key $KEY --broadcast --verify
 
 /// @title Deploy
 /// @author Kevin Le, Kellen Snider
@@ -24,17 +25,12 @@ contract Deploy is Script {
 
     /// @notice Entry point — Foundry calls this function when executing the script.
     function run() external {
-        // ── Read the private key from an environment variable ──────────────────
-        // vm.envUint("VAR") reads the environment variable and parses it as uint256.
-        // Private keys are 256-bit numbers. We never hardcode them in source files
-        // (they'd be visible in git history forever).
-        uint256 deployerPk = vm.envUint("DEPLOYER_PRIVATE_KEY");
-
         // ── Broadcast: sign and send real transactions ─────────────────────────
-        // Everything between startBroadcast and stopBroadcast is sent as a real
-        // on-chain transaction signed by the private key above.
-        // Without broadcast, `new Contract()` would be a dry-run simulation only.
-        vm.startBroadcast(deployerPk);
+        // vm.startBroadcast() with no arguments uses the --private-key / --account
+        // passed on the CLI. Everything between startBroadcast and stopBroadcast is
+        // sent as a real on-chain transaction. Without --broadcast on the CLI, this
+        // is a dry-run simulation only.
+        vm.startBroadcast();
 
         // ── Circular dependency problem ────────────────────────────────────────
         // TrustLedger needs Arbitration's address (immutable in constructor).
@@ -51,7 +47,7 @@ contract Deploy is Script {
         //   nonce N+2 → Arbitration
         // We can compute nonce N+2's address before deploying anything.
 
-        address deployer = vm.addr(deployerPk); // derive the deployer's address from the private key
+        address deployer = msg.sender; // the address derived from --private-key on the CLI
 
         // vm.getNonce() returns the current transaction count (nonce) for the account.
         // The next contract deployed will be at nonce, then nonce+1, then nonce+2.
