@@ -1,0 +1,57 @@
+{
+	"extends": "@tsconfig/strictest/tsconfig.json",
+	"compilerOptions": {
+		/* ── Target & module (Node 20+, latest TS) ─────────────────────────── */
+		"target": "ES2024",
+		"lib": ["ES2024", "DOM"],
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+
+		/* ── Extra strictness on top of @tsconfig/strictest ───────────────── */
+		"noEmit": true,
+		"verbatimModuleSyntax": true,
+		"noUncheckedSideEffectImports": true,
+		"noErrorTruncation": true,
+		"useDefineForClassFields": true,
+		"allowJs": false,
+		"checkJs": false,
+
+		/* ── Re-asserted from strictest (kept explicit for auditability) ───── */
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+		"noImplicitOverride": true,
+		"noFallthroughCasesInSwitch": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"useUnknownInCatchVariables": true,
+
+		/* ── Interop & resolution ──────────────────────────────────────────── */
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+
+		/* ── Build perf ────────────────────────────────────────────────────── */
+		"incremental": true,
+		"tsBuildInfoFile": "./.tsbuildinfo",
+
+		/* ── Terminal output ──────────────────────────────────────────────────── */
+		"pretty": true // colorized, formatted error output
+	},
+	"exclude": [
+		"node_modules",
+		"dist",
+		"src/**",
+		"scripts/**",
+		"test/**",
+		"hardhat.config.ts",
+		"**/*.test.ts",
+		"**/*.spec.ts"
+	]
+}

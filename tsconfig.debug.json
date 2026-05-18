@@ -1,0 +1,22 @@
+{
+	// Extends the main tsconfig and layers debug-only diagnostics on top.
+	// Run with: tsc -p tsconfig.debug.json --noEmit
+	//
+	// WARNING: these flags produce large amounts of output.
+	// Disable the ones you don't need before running.
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		// ── Lightweight: safe to enable together ─────────────────────────────
+		"extendedDiagnostics": true, // memory, time, file/line/identifier counts after compile
+		"listEmittedFiles": true, // absolute path of every emitted file
+
+		// ── Heavy: enable ONE at a time — each can produce 10k+ lines ────────
+		"listFiles": true, // every input file incl. all node_modules .d.ts
+		"explainFiles": true, // listFiles + reason each file was loaded
+		"traceResolution": true // every module-resolution attempt (extremely noisy)
+
+		// ── Writes files to disk instead of printing to terminal ──────────────
+		// "generateCpuProfile": "./profile.cpuprofile",  // V8 CPU profile for chrome://tracing
+		// "generateTrace": "./trace"                      // perf trace for @typescript/analyze-trace
+	}
+}
