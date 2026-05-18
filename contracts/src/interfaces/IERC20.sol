@@ -7,7 +7,7 @@ pragma solidity ^0.8.24;
 // Only the two functions TrustLedger actually calls are declared here.
 
 /// @title IERC20
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Minimal ERC-20 interface for token transfers in and out of escrow.
 interface IERC20 {
     // Pull tokens from a pre-approved account into the escrow contract.

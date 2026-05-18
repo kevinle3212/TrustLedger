@@ -1,6 +1,6 @@
 # TrustLedger — OBG Presentation Notes
 
-Presenter: Kevin Le, Kellen Snider | Oregon Blockchain Group
+Presenter: Kevin Le, Kellen Snider
 
 ---
 

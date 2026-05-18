@@ -16,7 +16,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 | [docs/CONTRACTS.md](docs/CONTRACTS.md)         | Full public API for all four contracts — functions, events, errors |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)   | Local setup, compiling, testing, linting, deploying to testnet     |
 | [docs/DOCKER.md](docs/DOCKER.md)               | Docker prerequisites, services, MetaMask setup, troubleshooting    |
-| [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for the Oregon Blockchain Group  |
+| [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for pitches.                     |
 | [docs/MISCELLANEOUS.md](docs/MISCELLANEOUS.md) | Glossary, tooling rationale, Chainlink setup, design decisions     |
 | [SECURITY.md](SECURITY.md)                     | Vulnerability reporting policy and severity classification         |
 | [src/README.md](src/README.md)                 | Frontend setup, scripts, contract artifacts, wagmi integration     |

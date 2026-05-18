@@ -6,7 +6,7 @@ pragma solidity ^0.8.24;
 // Both parties rate each other — clients rate freelancers and vice versa.
 
 /// @title IReputationRegistry
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Interface for submitting and querying on-chain reputation scores.
 interface IReputationRegistry {
     /// @notice Record a rating for a user. Only callable by TrustLedger.

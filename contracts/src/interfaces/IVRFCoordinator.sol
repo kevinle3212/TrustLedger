@@ -7,7 +7,7 @@ pragma solidity ^0.8.24;
 // once the randomness is available on-chain.
 
 /// @title IVRFCoordinator
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Interface for requesting verifiable random words from Chainlink VRF v2.
 interface IVRFCoordinator {
     /// @notice Request random words from the VRF coordinator.

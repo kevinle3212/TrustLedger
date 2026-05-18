@@ -6,7 +6,7 @@ pragma solidity ^0.8.24;
 // needing a real token deployment. It is never deployed to any live network.
 
 /// @title MockERC20
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Test-only ERC-20 token. Provides mint, transfer, approve, and transferFrom.
 ///         Implements the same interface surface as IERC20 that TrustLedger calls.
 contract MockERC20 {

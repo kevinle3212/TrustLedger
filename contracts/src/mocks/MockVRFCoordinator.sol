@@ -7,7 +7,7 @@ pragma solidity ^0.8.24;
 // needing a live Chainlink node or subscription.
 
 /// @title IVRFFulfiller
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Minimal interface for the Arbitration contract's VRF callback.
 ///         The real Chainlink coordinator calls fulfillRandomWords() on the requester;
 ///         MockVRFCoordinator calls it via fulfillWithWords() in tests.
@@ -19,7 +19,7 @@ interface IVRFFulfiller {
 }
 
 /// @title MockVRFCoordinator
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Test-only stand-in for the Chainlink VRF v2 coordinator.
 ///         Implements the requestRandomWords() signature so Arbitration can call it,
 ///         then lets tests drive fulfillment manually via fulfillWithWords().

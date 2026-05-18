@@ -11,7 +11,7 @@ pragma solidity ^0.8.24;
 // This lets tests verify usdValueAtCreation without a live Chainlink node.
 
 /// @title MockPriceFeed
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Test-only Chainlink AggregatorV3Interface substitute.
 ///         Returns a configurable int256 price from latestRoundData() so tests
 ///         can verify ETH/USD locking behaviour in TrustLedger.createContract().

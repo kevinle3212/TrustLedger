@@ -8,7 +8,7 @@ pragma solidity ^0.8.24;
 // only the single function TrustLedger calls is declared here.
 
 /// @title AggregatorV3Interface
-/// @author Oregon Blockchain Group
+/// @author Kevin Le, Kellen Snider
 /// @notice Chainlink price feed interface — used to record the ETH/USD price at escrow creation.
 interface AggregatorV3Interface {
     /// @notice Returns the latest round data from the price feed.
