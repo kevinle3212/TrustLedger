@@ -1,0 +1,30 @@
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+    # ── npm (root package.json) ────────────────────────────────────────────────
+    - package-ecosystem: "npm"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+      groups:
+          dev-dependencies:
+              dependency-type: "development"
+
+    # ── GitHub Actions (.github/workflows/) ───────────────────────────────────
+    - package-ecosystem: "github-actions"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+
+    # ── Docker base images (docker/Dockerfile.*) ──────────────────────────────
+    - package-ecosystem: "docker"
+      directory: "/docker"
+      schedule:
+          interval: "weekly"
+
+    # ── Git submodules (contracts/lib/forge-std, contracts/lib/openzeppelin-contracts) ──
+    - package-ecosystem: "gitsubmodule"
+      directory: "/"
+      schedule:
+          interval: "weekly"

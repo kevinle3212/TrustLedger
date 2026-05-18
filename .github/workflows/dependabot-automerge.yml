@@ -1,0 +1,41 @@
+name: Dependabot auto-merge
+
+# Runs on every Dependabot PR. Only Dependabot's own bot account can trigger
+# the merge step — all other actors are filtered out by the job condition.
+on: pull_request
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    automerge:
+        name: Auto-merge Dependabot PR
+        runs-on: ubuntu-latest
+        if: github.actor == 'dependabot[bot]'
+        steps:
+            - name: Fetch Dependabot metadata
+              id: metadata
+              uses: dependabot/fetch-metadata@v3
+
+            # Auto-merge any update that fixes a known security advisory (any semver
+            # level). The GHSA IDs field is non-empty only when Dependabot opened the
+            # PR in response to a GitHub Security Advisory — i.e. it is a security fix.
+            - name: Auto-merge security updates
+              if: steps.metadata.outputs.ghsa-ids != ''
+              run: gh pr merge --auto --squash "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            # Also auto-merge patch bumps for dev-only dependencies. These have
+            # essentially no production risk and would otherwise pile up as noise.
+            - name: Auto-merge dev-dependency patch updates
+              if: |
+                  steps.metadata.outputs.ghsa-ids == '' &&
+                  steps.metadata.outputs.update-type == 'version-update:semver-patch' &&
+                  steps.metadata.outputs.dependency-type == 'direct:development'
+              run: gh pr merge --auto --squash "$PR_URL"
+              env:
+                  PR_URL: ${{ github.event.pull_request.html_url }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

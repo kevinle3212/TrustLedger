@@ -1,0 +1,92 @@
+name: Deploy (Ethereum Sepolia)
+
+# Manual trigger only. Never auto-deploy on push to main - too easy to
+# burn through testnet ETH or push a broken contract.
+on:
+    workflow_dispatch:
+        inputs:
+            script:
+                description: "Forge script target (path:Contract)"
+                required: true
+                default: "script/Deploy.s.sol:DeployScript"
+            verify:
+                description: "Verify on Etherscan after deploy"
+                required: true
+                default: "true"
+                type: choice
+                options:
+                    - "true"
+                    - "false"
+
+# Don't run two deploys to the same network at once.
+concurrency:
+    group: deploy-ethereum-sepolia
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+jobs:
+    deploy:
+        name: Deploy to Ethereum Sepolia
+        runs-on: ubuntu-latest
+        # Bind secrets to a GitHub Environment so you can add reviewer approval later.
+        environment:
+            name: ethereum-sepolia
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+              with:
+                  submodules: recursive
+
+            - name: Install Foundry
+              uses: foundry-rs/foundry-toolchain@v1
+              with:
+                  version: stable
+              env:
+                  # Avoid foundryup 403 from api.github.com rate limit on shared runner IPs.
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Build
+              run: forge build
+
+            # Re-run tests before deploy. If main is green this is cheap insurance.
+            - name: Pre-deploy tests
+              run: forge test
+
+            - name: Deploy (with Etherscan verification)
+              if: github.event.inputs.verify == 'true'
+              run: |
+                  forge script ${{ github.event.inputs.script }} \
+                    --rpc-url "$SEPOLIA_RPC_URL" \
+                    --private-key "$DEPLOYER_PRIVATE_KEY" \
+                    --broadcast \
+                    --verify \
+                    --etherscan-api-key "$ETHERSCAN_API_KEY" \
+                    --chain 11155111 \
+                    -vvvv
+              env:
+                  SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+                  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+                  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+
+            - name: Deploy (no verification)
+              if: github.event.inputs.verify != 'true'
+              run: |
+                  forge script ${{ github.event.inputs.script }} \
+                    --rpc-url "$SEPOLIA_RPC_URL" \
+                    --private-key "$DEPLOYER_PRIVATE_KEY" \
+                    --broadcast \
+                    -vvvv
+              env:
+                  SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+                  DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+
+            # Keep deployment receipts/addresses for the audit trail.
+            - name: Upload broadcast artifacts
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: broadcast-${{ github.run_id }}
+                  path: broadcast/
+                  retention-days: 30
