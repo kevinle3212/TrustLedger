@@ -41,8 +41,10 @@ jobs:
             - name: Build
               run: npm run build
               env:
-                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID }}
-                  NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: ${{ secrets.NEXT_PUBLIC_TRUSTLEDGER_ADDRESS }}
+                  # Neither value is sensitive — both are visible in the browser bundle.
+                  # Update these when you get a WalletConnect project ID or redeploy the contract.
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+                  NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: "0x0000000000000000000000000000000000000000"
 
             - name: Add .nojekyll
               run: touch out/.nojekyll
