@@ -38,6 +38,7 @@
 	"dependencies": {
 		"@rainbow-me/rainbowkit": "^2.2.11",
 		"@tanstack/react-query": "^5.100.10",
+		"arweave": "^1.15.7",
 		"next": "16.2.6",
 		"react": "19.2.6",
 		"react-dom": "19.2.6",

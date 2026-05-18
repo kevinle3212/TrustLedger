@@ -5,6 +5,7 @@ pragma solidity ^0.8.24;
 // solhint-disable code-complexity
 // solhint-disable ordering
 
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IArbitration} from "./interfaces/IArbitration.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
@@ -31,7 +32,7 @@ import {IReputationRegistry} from "./interfaces/IReputationRegistry.sol";
 /// @author Kevin Le, Kellen Snider
 /// @notice Decentralized escrow contract for freelance agreements on Ethereum.
 ///         Funds are released on client approval, acceptance-window expiry, or an arbitration ruling.
-contract TrustLedger is ReentrancyGuard {
+contract TrustLedger is ReentrancyGuard, Pausable {
     // ─── Types ────────────────────────────────────────────────────────────────
 
     // An enum defines a finite set of named states. Under the hood Solidity stores
@@ -135,6 +136,10 @@ contract TrustLedger is ReentrancyGuard {
     /// @notice Optional reputation registry. Set once via initReputationRegistry().
     ///         If not set, submitRating() silently no-ops.
     IReputationRegistry public reputationRegistry;
+
+    /// @notice Address authorized to pause and unpause new contract creation.
+    ///         Set once via initPauser(). If never called, pause() / unpause() revert.
+    address public pauser;
 
     // Tracks which party has already submitted a rating for each contract.
     // Prevents rating the same counterparty twice.
@@ -271,6 +276,9 @@ contract TrustLedger is ReentrancyGuard {
     /// @notice One-time setter has already been called; the address cannot change.
     error AlreadySet();
 
+    /// @notice Caller is not the designated pauser.
+    error NotPauser();
+
     // ─── Constructor ─────────────────────────────────────────────────────────
 
     /// @notice Deploys TrustLedger and binds it to an Arbitration contract.
@@ -300,6 +308,29 @@ contract TrustLedger is ReentrancyGuard {
         if (address(reputationRegistry) != address(0)) revert AlreadySet();
         if (registry_ == address(0)) revert ZeroAddress();
         reputationRegistry = IReputationRegistry(registry_);
+    }
+
+    /// @notice Wire in the pauser address (optional).
+    ///         Once set it cannot be changed. If never called, pause() and unpause() always revert.
+    /// @param pauser_ Address authorized to pause and unpause new contract creation.
+    function initPauser(address pauser_) external {
+        if (pauser != address(0)) revert AlreadySet();
+        if (pauser_ == address(0)) revert ZeroAddress();
+        pauser = pauser_;
+    }
+
+    /// @notice Pause createContract, blocking new escrows from being opened.
+    ///         All in-flight lifecycle functions (accept, submit, approve, dispute, claim) remain active
+    ///         so that funds already in escrow can always exit.
+    function pause() external {
+        if (msg.sender != pauser) revert NotPauser();
+        _pause();
+    }
+
+    /// @notice Unpause createContract, re-enabling new escrow creation.
+    function unpause() external {
+        if (msg.sender != pauser) revert NotPauser();
+        _unpause();
     }
 
     // ─── Client: create ───────────────────────────────────────────────────────
@@ -332,7 +363,7 @@ contract TrustLedger is ReentrancyGuard {
         uint64 warrantyPeriod,
         address token,
         uint256 tokenAmount
-    ) external payable returns (uint256 id) {
+    ) external payable whenNotPaused returns (uint256 id) {
         _validateCreateParams(
             freelancer,
             bufferFactor,
