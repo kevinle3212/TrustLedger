@@ -10,5 +10,6 @@
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**"],
-	"eslint.useFlatConfig": true
+	"eslint.useFlatConfig": true,
+
 }

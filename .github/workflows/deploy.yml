@@ -31,7 +31,8 @@ jobs:
         name: Deploy to Ethereum Sepolia
         runs-on: ubuntu-latest
         # Bind secrets to a GitHub Environment so you can add reviewer approval later.
-        environment: ethereum-sepolia
+        environment:
+            name: ethereum-sepolia
         steps:
             - name: Checkout
               uses: actions/checkout@v5

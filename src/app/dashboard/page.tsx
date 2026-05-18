@@ -1,0 +1,283 @@
+"use client";
+
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { formatEther } from "viem";
+import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
+import { TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
+import { formatAddress, formatDeadline, STATUS_COLORS } from "@/lib/utils";
+import Link from "next/link";
+
+const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
+
+interface EscrowContract {
+	client: `0x${string}`;
+	arbitrationFeeBps: number;
+	holdBackBps: number;
+	status: number;
+	freelancer: `0x${string}`;
+	warrantyDeadline: bigint;
+	projectDeadline: bigint;
+	acceptanceWindow: bigint;
+	acceptanceDeadline: bigint;
+	warrantyPeriod: bigint;
+	amount: bigint;
+	holdBackAmount: bigint;
+	arbitrationId: bigint;
+	contractHash: `0x${string}`;
+	contractURI: string;
+	proofOfWorkHash: `0x${string}`;
+	proofOfWorkURI: string;
+}
+
+function ActionButton({
+	label,
+	contractId,
+	functionName,
+	disabled,
+}: {
+	label: string;
+	contractId: bigint;
+	functionName: string;
+	disabled?: boolean;
+}): React.JSX.Element {
+	const { writeContract, data: txHash, isPending } = useWriteContract();
+	const { isLoading: isConfirming } = useWaitForTransactionReceipt({ hash: txHash });
+
+	return (
+		<button
+			disabled={(disabled ?? false) || isPending || isConfirming}
+			onClick={() => {
+				writeContract({
+					address: TRUSTLEDGER_ADDRESS,
+					abi: TRUSTLEDGER_ABI,
+					functionName: functionName as never,
+					args: [contractId],
+				});
+			}}
+			className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
+		>
+			{isPending || isConfirming ? "…" : label}
+		</button>
+	);
+}
+
+function ContractCard({
+	id,
+	contract,
+	address,
+}: {
+	id: bigint;
+	contract: EscrowContract;
+	address: `0x${string}`;
+}): React.JSX.Element {
+	const status = contract.status;
+	const isClient = contract.client.toLowerCase() === address.toLowerCase();
+	const isFreelancer = contract.freelancer.toLowerCase() === address.toLowerCase();
+	const now = PAGE_LOAD_TIME_S;
+
+	return (
+		<div className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col gap-4">
+			<div className="flex items-start justify-between gap-2">
+				<div>
+					<span className="text-xs text-gray-500 font-mono">#{id.toString()}</span>
+					<h3 className="font-semibold text-white mt-0.5">
+						{isClient ? "Client" : "Freelancer"} -{" "}
+						{isClient
+							? `Freelancer: ${formatAddress(contract.freelancer)}`
+							: `Client: ${formatAddress(contract.client)}`}
+					</h3>
+				</div>
+				<span
+					className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_COLORS[status] ?? ""}`}
+				>
+					{STATUS_LABELS[status]}
+				</span>
+			</div>
+
+			<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+				<span className="text-gray-500">Amount</span>
+				<span className="text-white font-medium">{formatEther(contract.amount)} ETH</span>
+
+				<span className="text-gray-500">Deadline</span>
+				<span className="text-white">{formatDeadline(contract.projectDeadline)}</span>
+
+				{contract.holdBackBps > 0 && (
+					<>
+						<span className="text-gray-500">Hold-back</span>
+						<span className="text-white">{contract.holdBackBps / 100}%</span>
+					</>
+				)}
+
+				{contract.contractURI !== "" && contract.contractURI !== "ipfs://" && (
+					<>
+						<span className="text-gray-500">Document</span>
+						<a
+							href={contract.contractURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-indigo-400 hover:text-indigo-300 truncate underline underline-offset-2"
+						>
+							View
+						</a>
+					</>
+				)}
+			</div>
+
+			{/* Actions */}
+			<div className="flex flex-wrap gap-2">
+				{/* Freelancer actions */}
+				{isFreelancer && status === 0 && (
+					<>
+						<ActionButton
+							label="Accept"
+							contractId={id}
+							functionName="acceptContract"
+						/>
+						<ActionButton
+							label="Reject"
+							contractId={id}
+							functionName="rejectContract"
+						/>
+					</>
+				)}
+				{/* Client actions */}
+				{isClient && status === 2 && (
+					<>
+						<ActionButton
+							label="Approve Work"
+							contractId={id}
+							functionName="approveWork"
+						/>
+						<ActionButton label="Dispute" contractId={id} functionName="disputeWork" />
+					</>
+				)}
+				{isClient && status === 1 && now > contract.projectDeadline && (
+					<ActionButton
+						label="Reclaim (Deadline Missed)"
+						contractId={id}
+						functionName="claimAfterDeadlineMiss"
+					/>
+				)}
+				{/* Auto-release after acceptance window */}
+				{status === 2 &&
+					now > contract.acceptanceDeadline &&
+					contract.acceptanceDeadline > BigInt(0) && (
+						<ActionButton
+							label="Release After Window"
+							contractId={id}
+							functionName="claimAfterAcceptanceWindow"
+						/>
+					)}
+				{/* Warranty claim */}
+				{isFreelancer &&
+					status === 3 &&
+					contract.holdBackAmount > BigInt(0) &&
+					now > contract.warrantyDeadline && (
+						<ActionButton
+							label="Claim Warranty Funds"
+							contractId={id}
+							functionName="claimWarrantyFunds"
+						/>
+					)}
+			</div>
+		</div>
+	);
+}
+
+function ContractList({ address }: { address: `0x${string}` }): React.JSX.Element {
+	const { data: nextId } = useReadContract({
+		address: TRUSTLEDGER_ADDRESS,
+		abi: TRUSTLEDGER_ABI,
+		functionName: "nextId",
+	});
+
+	const total = Number(nextId ?? BigInt(0));
+
+	if (total === 0) {
+		return (
+			<div className="text-center py-16 text-gray-500">
+				<p>No contracts on-chain yet.</p>
+				<Link
+					href="/create"
+					className="mt-3 inline-block text-indigo-400 hover:text-indigo-300 text-sm underline"
+				>
+					Create the first one
+				</Link>
+			</div>
+		);
+	}
+
+	const ids: bigint[] = [];
+	for (let i = total - 1; i >= 0; i--) {
+		ids.push(BigInt(i));
+	}
+
+	return (
+		<div className="flex flex-col gap-4">
+			{ids.map((id) => (
+				<SingleContract key={id.toString()} id={id} address={address} />
+			))}
+		</div>
+	);
+}
+
+function SingleContract({
+	id,
+	address,
+}: {
+	id: bigint;
+	address: `0x${string}`;
+}): React.JSX.Element | null {
+	const { data: contract, isLoading } = useReadContract({
+		address: TRUSTLEDGER_ADDRESS,
+		abi: TRUSTLEDGER_ABI,
+		functionName: "getContract",
+		args: [id],
+	});
+
+	if (isLoading || contract === undefined) return null;
+
+	const c = contract;
+	const isParticipant =
+		c.client.toLowerCase() === address.toLowerCase() ||
+		c.freelancer.toLowerCase() === address.toLowerCase();
+
+	if (!isParticipant) return null;
+
+	return <ContractCard id={id} contract={c} address={address} />;
+}
+
+export default function DashboardPage(): React.JSX.Element {
+	const { address, isConnected } = useAccount();
+
+	if (!isConnected || address === undefined) {
+		return (
+			<div className="flex flex-col items-center justify-center gap-6 py-32">
+				<p className="text-gray-400 text-lg">Connect your wallet to see your contracts.</p>
+				<ConnectButton />
+			</div>
+		);
+	}
+
+	return (
+		<div className="max-w-2xl mx-auto px-6 py-12">
+			<div className="flex items-center justify-between mb-8">
+				<div>
+					<h1 className="text-3xl font-bold">Dashboard</h1>
+					<p className="text-gray-400 text-sm mt-1">
+						Contracts where you are the client or freelancer.
+					</p>
+				</div>
+				<Link
+					href="/create"
+					className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors"
+				>
+					+ New
+				</Link>
+			</div>
+
+			<ContractList address={address} />
+		</div>
+	);
+}
