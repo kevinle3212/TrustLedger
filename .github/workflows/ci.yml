@@ -1,0 +1,118 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+# Cancel in-progress runs on the same branch when a new commit lands.
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+
+# Least-privilege token. Read is enough for checkout.
+permissions:
+    contents: read
+
+jobs:
+    frontend:
+        name: Frontend (typecheck + lint + build)
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: src
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: src/package-lock.json
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: TypeScript typecheck
+              run: npx tsc --noEmit
+
+            - name: Lint (ESLint + Prettier)
+              run: npm run lint:frontend
+
+            - name: Build
+              run: npm run build:frontend
+              env:
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+                  NEXT_BASE_PATH: /TrustLedger
+
+    typescript:
+        name: TypeScript (lint + typecheck)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+              with:
+                  submodules: recursive
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Compile contracts (generates TypeChain types for ESLint)
+              run: npm run compile
+
+            - name: TypeScript typecheck
+              run: npx tsc --noEmit
+
+            - name: ESLint + Solhint
+              run: npm run lint
+
+            - name: Prettier check
+              run: npx prettier --check .
+
+    solidity:
+        name: Solidity (forge build + test)
+        runs-on: ubuntu-latest
+        # foundry.toml lives in contracts/ — all `run:` steps execute from there.
+        # `uses:` steps (checkout, toolchain) are unaffected by this setting.
+        defaults:
+            run:
+                working-directory: contracts
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+              with:
+                  submodules: recursive
+
+            - name: Install Foundry
+              uses: foundry-rs/foundry-toolchain@v1
+              with:
+                  version: stable
+              env:
+                  # Avoid foundryup 403 from api.github.com rate limit on shared runner IPs.
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Show Forge version
+              run: forge --version
+
+            - name: Check Solidity formatting
+              run: forge fmt --check
+
+            - name: Build contracts
+              run: forge build --sizes
+
+            - name: Run tests
+              run: forge test -vvv
+              env:
+                  FOUNDRY_PROFILE: ci
+
+            - name: Gas snapshot diff (informational, non-blocking)
+              run: forge snapshot --check || true

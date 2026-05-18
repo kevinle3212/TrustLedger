@@ -1,0 +1,67 @@
+{
+	"name": "frontend",
+	"version": "0.1.0",
+	"description": "TrustLedger frontend - Next.js 16 dApp for interacting with the TrustLedger smart contract on Ethereum Sepolia.",
+	"private": true,
+	"keywords": [
+		"ethereum",
+		"smart-contract",
+		"blockchain",
+		"oregon-blockchain-group",
+		"obg",
+		"ledger",
+		"next.js",
+		"react"
+	],
+	"homepage": "https://github.com/kevinle3212/TrustLedger/blob/main/src/README.md",
+	"bugs": {
+		"url": "https://github.com/kevinle3212/TrustLedger/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kevinle3212/TrustLedger.git"
+	},
+	"license": "Apache-2.0",
+	"author": "Kevin Le, Kellen Snider",
+	"engines": {
+		"node": ">=22.0.0"
+	},
+	"scripts": {
+		"dev:frontend": "next dev",
+		"build:frontend": "next build",
+		"start:frontend": "next start",
+		"lint:frontend": "npm run lint:frontend:ts && npm run lint:frontend:prettier",
+		"lint:frontend:ts": "eslint app lib components",
+		"lint:frontend:prettier": "prettier --check \"app/**\" \"lib/**\" \"components/**\" \"next.config.ts\"",
+		"debug:frontend:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile"
+	},
+	"dependencies": {
+		"@rainbow-me/rainbowkit": "^2.2.11",
+		"@tanstack/react-query": "^5.100.10",
+		"arweave": "^1.15.7",
+		"next": "16.2.6",
+		"react": "19.2.6",
+		"react-dom": "19.2.6",
+		"resend": "^6.12.3",
+		"viem": "^2.49.3",
+		"wagmi": "^2.19.5"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.39.4",
+		"@tailwindcss/postcss": "^4.3.0",
+		"@types/node": "^25.8.0",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"eslint": "^9.39.4",
+		"eslint-config-next": "16.2.6",
+		"eslint-config-prettier": "^10.1.8",
+		"prettier": "^3.8.3",
+		"tailwindcss": "^4.3.0",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.59.3"
+	},
+	"overrides": {
+		"ws": "8.20.1",
+		"postcss": "8.5.10"
+	}
+}
