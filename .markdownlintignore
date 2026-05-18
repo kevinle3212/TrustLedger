@@ -1,0 +1,20 @@
+# Ignore Builds, Dependencies, and Artifacts
+
+## Foundry Submodule Dependencies
+
+contracts/lib/
+
+## Build Outputs
+
+contracts/out/
+contracts/cache/
+artifacts/
+dist/
+
+## Node Dependencies
+
+node_modules/
+
+## Vercel Build Cache
+
+.vercel/

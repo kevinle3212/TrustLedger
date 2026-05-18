@@ -1,0 +1,8 @@
+{
+	"mcpServers": {
+		"nexus": {
+			"command": "nexus-graph",
+			"args": ["server", "--project", "."]
+		}
+	}
+}
