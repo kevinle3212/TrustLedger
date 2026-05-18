@@ -38,6 +38,14 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @notice Denominator for basis-point arithmetic (10 000 bps = 100%).
     uint256 public constant BPS_DENOMINATOR = 10_000;
 
+    /// @notice Minimum reputation score required to remain eligible as a juror.
+    ///         Jurors below this threshold are excluded from selection and self-selection.
+    uint256 public constant MIN_REPUTATION = 20;
+
+    /// @notice Post-dispute cooldown before a juror may commit to another dispute (7 days).
+    ///         Limits rapid re-participation and makes coordinated voting patterns harder to sustain.
+    uint256 public constant JUROR_COOLDOWN = 7 days;
+
     // ─── State ───────────────────────────────────────────────────────────────
     // State variables are stored on-chain in the contract's storage slot.
     // Reading/writing them costs gas proportional to the data size.
@@ -58,6 +66,10 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // Used by `eligibleJurorCount()` to iterate — acceptable because the juror pool
     // is expected to be small (hundreds, not millions).
     address[] private _jurorList;
+
+    // Per-juror cooldown timestamp. After a dispute finalizes, a juror must wait
+    // JUROR_COOLDOWN before committing to another. New jurors default to 0 (no cooldown).
+    mapping(address juror => uint64 cooldownUntil) private _jurorCooldown;
 
     // ─── Events ──────────────────────────────────────────────────────────────
     // Events are cheap logs emitted to the blockchain. Off-chain apps (front-ends,
@@ -243,6 +255,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         JurorInfo storage j = _jurors[juror];
         if (j.activeDisputes > 0) --j.activeDisputes; // guard against underflow
         ++j.disputesParticipated;
+        _jurorCooldown[juror] = uint64(block.timestamp + JUROR_COOLDOWN);
     }
 
     // Called for minority-vote jurors and no-reveal jurors after finalization.
@@ -288,7 +301,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @return      True when active, stake ≥ MIN_STAKE, and lock period has elapsed.
     function isEligible(address juror) external view returns (bool) {
         JurorInfo storage j = _jurors[juror];
-        return j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1;
+        return j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1
+            && j.reputation > MIN_REPUTATION - 1 && block.timestamp + 1 > uint256(_jurorCooldown[juror]);
     }
 
     // Returns the full JurorInfo struct. Arbitration uses this to read the stake
@@ -319,13 +333,24 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @return count Number of jurors currently meeting all eligibility criteria.
     function eligibleJurorCount() external view returns (uint256 count) {
         for (uint256 i = 0; i < _jurorList.length; ++i) {
-            JurorInfo storage j = _jurors[_jurorList[i]];
-            if (j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1) {
+            address a = _jurorList[i];
+            JurorInfo storage j = _jurors[a];
+            if (
+                j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1
+                    && j.reputation > MIN_REPUTATION - 1 && block.timestamp + 1 > uint256(_jurorCooldown[a])
+            ) {
                 ++count;
             }
         }
         // Solidity named return: `count` was declared in the signature, so no
         // explicit `return count;` is needed — it's returned automatically.
+    }
+
+    /// @notice Returns the unix timestamp after which the juror is re-eligible to vote.
+    ///         Returns 0 for jurors who have never participated in a dispute.
+    /// @param juror The juror's address.
+    function getCooldownUntil(address juror) external view returns (uint64) {
+        return _jurorCooldown[juror];
     }
 
     // ─── Internal access control ──────────────────────────────────────────────

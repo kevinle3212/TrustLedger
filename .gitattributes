@@ -1,5 +1,0 @@
-# Set default behavior to automatically normalize line endings.
-* text=auto
-
-# This ensures that all text files use LF line endings in the repository, regardless of the operating system.
-text eol=lf

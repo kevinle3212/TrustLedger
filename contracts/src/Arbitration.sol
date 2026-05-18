@@ -119,6 +119,13 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @notice Denominator for basis-point arithmetic (10 000 bps = 100%).
     uint256 public constant BPS_DENOMINATOR = 10_000;
 
+    /// @notice Votes more than ±30 pct-points from the median trigger a severe slash.
+    ///         Deters extreme outlier votes that are characteristic of bribed or colluding jurors.
+    uint256 public constant SEVERE_MINORITY_THRESHOLD = 30;
+
+    /// @notice Severe minority slash in basis points (20%).
+    uint256 public constant SEVERE_SLASH_BPS = 2000;
+
     // ─── State ───────────────────────────────────────────────────────────────
 
     /// @notice The TrustLedger escrow contract that opens disputes and receives rulings.
@@ -196,6 +203,11 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param appealDisputeId   The new appeal dispute ID.
     /// @param originalDisputeId The dispute being appealed.
     event AppealDisputeOpened(uint256 indexed appealDisputeId, uint256 indexed originalDisputeId);
+
+    /// @notice Emitted when a juror committee is pre-selected for a dispute.
+    /// @param disputeId The dispute ID.
+    /// @param count     Number of jurors selected into the committee.
+    event CommitteeSelected(uint256 indexed disputeId, uint256 indexed count);
 
     /// @notice Emitted when a majority juror claims their fee reward.
     /// @param disputeId The dispute ID.
@@ -342,19 +354,25 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             jurorCount: 0
         });
 
-        // If a VRF coordinator has been configured, request randomness for juror selection.
-        // fulfillRandomWords() will be called back by the coordinator to pre-select jurors.
-        // If no coordinator is set, jurors self-select by calling commitVote() (legacy mode).
+        // Select a fixed committee of MIN_JURORS–BASE_MAX_JURORS jurors from the staked pool
+        // using verifiable randomness. Two paths:
+        //   VRF path: request one random word from Chainlink; fulfillRandomWords() runs the
+        //             Fisher-Yates shuffle once the coordinator delivers the word.
+        //   RANDAO path: use block.prevrandao (EIP-4399 RANDAO reveal) combined with dispute
+        //                context as a synchronous seed; committee is selected immediately.
         if (vrfCoordinator != address(0)) {
             uint256 requestId = IVRFCoordinator(vrfCoordinator)
                 .requestRandomWords(
-                    bytes32(0), // keyHash — set by coordinator subscription; stub for interface compliance
-                    0, // subId — VRF subscription ID; stub for interface compliance
-                    3, // minimumRequestConfirmations — wait 3 blocks for finality
-                    200_000, // callbackGasLimit — sufficient for juror pre-selection loop
-                    uint32(BASE_MAX_JURORS) // numWords — one random word per juror slot
+                    bytes32(0), // keyHash — gas lane; set by subscription
+                    0, // subId — VRF subscription ID
+                    3, // minimumRequestConfirmations
+                    200_000, // callbackGasLimit
+                    1 // numWords — one word used as Fisher-Yates seed
                 );
             _pendingVrfRequest[requestId] = disputeId;
+        } else {
+            uint256 seed = uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, disputeId)));
+            _selectJurorsFromSeed(disputeId, seed);
         }
 
         emit DisputeOpened(disputeId, contractId, client, freelancer);
@@ -373,43 +391,17 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     // ─── VRF callback ──────────────────────────────────────────────────────────
 
-    /// @notice Chainlink VRF coordinator calls this with the requested random words.
-    ///         Uses the random values to pre-select jurors from the eligible pool.
+    /// @notice Chainlink VRF coordinator calls this with the requested random word.
+    ///         Uses randomWords[0] as the seed for a Fisher-Yates committee selection.
     ///         Pre-selected jurors are marked in _committed and added to _jurors;
     ///         they must still call commitVote() to submit their hidden vote hash.
-    /// @param requestId  The VRF request ID returned by requestRandomWords().
-    /// @param randomWords The random uint256 values provided by Chainlink.
+    /// @param requestId   The VRF request ID returned by requestRandomWords().
+    /// @param randomWords Array of random uint256 values (only index 0 is used as seed).
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) external {
         if (msg.sender != vrfCoordinator) revert Unauthorized();
-
         uint256 disputeId = _pendingVrfRequest[requestId];
-        delete _pendingVrfRequest[requestId]; // clean up after use
-
-        Dispute storage d = _disputes[disputeId];
-        address[] memory allJurors = JUROR_REGISTRY.getJurorList();
-        uint256 poolSize = allJurors.length;
-
-        // Walk the random words, selecting jurors from the eligible pool.
-        // Each random word picks one candidate via modulo; duplicates and ineligible
-        // candidates are skipped. We stop once maxJurors slots are filled.
-        for (uint256 i = 0; i < randomWords.length && d.jurorCount < d.maxJurors; ++i) {
-            if (poolSize == 0) break;
-            address candidate = allJurors[randomWords[i] % poolSize];
-
-            // Reject parties, already-selected candidates, ineligible jurors, and excluded originals.
-            if (candidate == d.client || candidate == d.freelancer) continue;
-            if (_committed[disputeId][candidate]) continue;
-            if (_isOriginalJuror[disputeId][candidate]) continue;
-            if (!JUROR_REGISTRY.isEligible(candidate)) continue;
-
-            // Pre-select the candidate: mark _committed so commitVote() knows they were chosen.
-            // _commitments[disputeId][candidate] remains bytes32(0) until the juror calls commitVote().
-            _committed[disputeId][candidate] = true;
-            _jurors[disputeId].push(candidate);
-            ++d.jurorCount;
-        }
-
-        d.vrfFulfilled = true; // gate commitVote() into VRF-only mode for this dispute
+        delete _pendingVrfRequest[requestId];
+        _selectJurorsFromSeed(disputeId, randomWords[0]);
     }
 
     // ─── Juror actions ────────────────────────────────────────────────────────
@@ -606,6 +598,15 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         // Block original jurors from voting in the appeal (prevents self-serving bias).
         _markOriginalJurors(appealId, _jurors[disputeId]);
 
+        // Select a fresh committee for the appeal dispute using the same VRF/RANDAO logic.
+        if (vrfCoordinator != address(0)) {
+            uint256 vrfReqId = IVRFCoordinator(vrfCoordinator).requestRandomWords(bytes32(0), 0, 3, 200_000, 1);
+            _pendingVrfRequest[vrfReqId] = appealId;
+        } else {
+            uint256 seed = uint256(keccak256(abi.encodePacked(block.prevrandao, block.timestamp, appealId)));
+            _selectJurorsFromSeed(appealId, seed);
+        }
+
         emit Appealed(disputeId, msg.sender, msg.value);
         emit AppealDisputeOpened(appealId, disputeId);
     }
@@ -696,6 +697,37 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     // ─── Internal ─────────────────────────────────────────────────────────────
 
+    // Partial Fisher-Yates shuffle over the full juror registry. At each position i,
+    // a random index j ∈ [i, n-1] is chosen and swapped to position i; the candidate
+    // at that position is accepted if eligible. This guarantees O(n) unique candidates
+    // without modulo bias, stopping once maxJurors slots are filled.
+    function _selectJurorsFromSeed(uint256 disputeId, uint256 seed) internal {
+        Dispute storage d = _disputes[disputeId];
+        address[] memory pool = JUROR_REGISTRY.getJurorList();
+        uint256 n = pool.length;
+
+        for (uint256 i = 0; i < n && d.jurorCount < d.maxJurors; ++i) {
+            uint256 j = i + (seed % (n - i));
+            seed = uint256(keccak256(abi.encodePacked(seed)));
+            address tmp = pool[i];
+            pool[i] = pool[j];
+            pool[j] = tmp;
+
+            address candidate = pool[i];
+            if (candidate == d.client || candidate == d.freelancer) continue;
+            if (_committed[disputeId][candidate]) continue;
+            if (_isOriginalJuror[disputeId][candidate]) continue;
+            if (!JUROR_REGISTRY.isEligible(candidate)) continue;
+
+            _committed[disputeId][candidate] = true;
+            _jurors[disputeId].push(candidate);
+            ++d.jurorCount;
+        }
+
+        d.vrfFulfilled = true;
+        emit CommitteeSelected(disputeId, d.jurorCount);
+    }
+
     // Unlocks all jurors, classifies majority/minority, slashes losers, and returns total slashed.
     function _slashAndClassify(uint256 disputeId, address[] storage jurors, uint256 jurorLen, uint256 ruling)
         internal
@@ -721,7 +753,9 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
             if (!inMajority) {
                 uint256 stake = JUROR_REGISTRY.getJuror(juror).stake;
-                uint256 sAmt = (stake * SLASH_BPS) / BPS_DENOMINATOR;
+                uint256 deviation = ruling > vote ? ruling - vote : vote - ruling;
+                uint256 activeBps = deviation > SEVERE_MINORITY_THRESHOLD ? SEVERE_SLASH_BPS : SLASH_BPS;
+                uint256 sAmt = (stake * activeBps) / BPS_DENOMINATOR;
                 JUROR_REGISTRY.slash(juror, sAmt);
                 slashAmount += sAmt;
             }

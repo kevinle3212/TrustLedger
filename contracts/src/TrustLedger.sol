@@ -59,6 +59,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // Slots 6-9: two bytes32 + two dynamic strings
     // Slot 10: address(20) — token address (12 bytes spare)
     // Slot 11: uint256 — USD value at creation from price feed
+    // Slot 12: uint256 — previous contract ID (type(uint256).max = no predecessor)
     struct EscrowContract {
         // ── Slot 0 (25/32 bytes used) ─────────────────────────────────────────
         address client; // who hired the freelancer; deposited the funds
@@ -93,6 +94,11 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         // ── Slot 11 ───────────────────────────────────────────────────────────
         // ETH/USD at creation (8 Chainlink decimals); 0 if feed not set or ERC-20 escrow.
         uint256 usdValueAtCreation;
+
+        // ── Slot 12 ───────────────────────────────────────────────────────────
+        // Links this contract to a cancelled predecessor for amendment version history.
+        // type(uint256).max = no predecessor (this is an original contract).
+        uint256 previousContractId;
     }
 
     // ─── Constants ────────────────────────────────────────────────────────────
@@ -114,6 +120,14 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
     /// @notice Denominator for basis-point arithmetic (10 000 bps = 100%).
     uint256 public constant BPS_DENOMINATOR = 10_000;
+
+    /// @notice Ruling at or above this threshold triggers an automatic reputation penalty for the client.
+    ///         A completionPct ≥ 80 means the freelancer clearly won — the dispute was frivolous.
+    uint256 public constant FRIVOLOUS_DISPUTE_THRESHOLD = 80;
+
+    /// @notice Ruling at or below this threshold triggers an automatic reputation penalty for the freelancer.
+    ///         A completionPct ≤ 20 means the freelancer delivered clearly deficient work.
+    uint256 public constant POOR_WORK_THRESHOLD = 20;
 
     // ─── State ───────────────────────────────────────────────────────────────
 
@@ -205,6 +219,11 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param score The rating score (1–100).
     event RatingSubmitted(uint256 indexed id, address indexed rater, uint8 indexed score);
 
+    /// @notice Emitted when a new contract is linked as an amendment of a cancelled predecessor.
+    /// @param newId      The replacement contract ID.
+    /// @param previousId The cancelled contract ID being superseded.
+    event ContractAmended(uint256 indexed newId, uint256 indexed previousId);
+
     // ─── Errors ──────────────────────────────────────────────────────────────
 
     /// @notice Caller is not the expected party for this action.
@@ -278,6 +297,15 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
     /// @notice Caller is not the designated pauser.
     error NotPauser();
+
+    /// @notice contractHash or proofOfWorkHash must not be bytes32(0).
+    error EmptyHash();
+
+    /// @notice contractURI or proofOfWorkURI must not be an empty string.
+    error EmptyURI();
+
+    /// @notice The referenced previous contract is not CANCELLED, or the caller is not its client.
+    error InvalidPreviousContract();
 
     // ─── Constructor ─────────────────────────────────────────────────────────
 
@@ -364,6 +392,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         address token,
         uint256 tokenAmount
     ) external payable whenNotPaused returns (uint256 id) {
+        if (contractHash == bytes32(0)) revert EmptyHash();
+        if (bytes(contractURI).length == 0) revert EmptyURI();
         _validateCreateParams(
             freelancer,
             bufferFactor,
@@ -425,6 +455,35 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit ContractCancelled(id);
     }
 
+    // ─── Client: amendment linking ────────────────────────────────────────────
+
+    /// @notice Links a PENDING replacement contract to its CANCELLED predecessor,
+    ///         establishing an on-chain amendment version history. Emits {ContractAmended}.
+    ///
+    ///         Amendment flow:
+    ///           1. Client calls cancelPending(oldId)  → oldId becomes CANCELLED.
+    ///           2. Client calls createContract(...)   → newId is PENDING.
+    ///           3. Client calls linkAmendment(newId, oldId) → on-chain link recorded.
+    ///
+    ///         Constraints:
+    ///           - Caller must be the client on both contracts.
+    ///           - oldId must be CANCELLED; newId must be PENDING.
+    ///           - newId must not already have a predecessor (each contract links to at most one).
+    /// @param newId      The replacement contract ID.
+    /// @param previousId The cancelled contract ID being superseded.
+    function linkAmendment(uint256 newId, uint256 previousId) external {
+        EscrowContract storage oldC = _contracts[previousId];
+        EscrowContract storage newC = _contracts[newId];
+        if (msg.sender != oldC.client) revert InvalidPreviousContract();
+        if (msg.sender != newC.client) revert Unauthorized();
+        if (oldC.status != Status.CANCELLED) revert InvalidPreviousContract();
+        if (newC.status != Status.PENDING) revert InvalidStatus(newC.status);
+        if (newC.previousContractId != type(uint256).max) revert AlreadySet();
+
+        newC.previousContractId = previousId;
+        emit ContractAmended(newId, previousId);
+    }
+
     // ─── Client: approve / dispute ────────────────────────────────────────────
 
     /// @notice Client approves submitted work and releases funds. Emits {WorkApproved} and {FundsReleased}.
@@ -445,7 +504,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         For ETH escrows: call with no msg.value (fee pool is deducted from held ETH).
     ///         For ERC-20 escrows: send ETH as msg.value to fund the juror fee pool.
     /// @param id The escrow contract ID.
-    function disputeWork(uint256 id) external payable {
+    function disputeWork(uint256 id) external payable nonReentrant {
         EscrowContract storage c = _contracts[id];
         if (msg.sender != c.client) revert Unauthorized();
         if (c.status != Status.SUBMITTED) revert InvalidStatus(c.status);
@@ -548,6 +607,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         if (msg.sender != c.freelancer) revert Unauthorized();
         if (c.status != Status.ACTIVE) revert InvalidStatus(c.status);
         if (block.timestamp > c.projectDeadline) revert DeadlineElapsed();
+        if (powHash == bytes32(0)) revert EmptyHash();
+        if (bytes(powURI).length == 0) revert EmptyURI();
 
         c.proofOfWorkHash = powHash;
         c.proofOfWorkURI = powURI;
@@ -683,6 +744,18 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         }
 
         emit RulingExecuted(id, completionPct);
+
+        // Automatically record a reputation penalty for the party whose conduct was clearly at fault.
+        // Setting the rated flag prevents the same party from also calling submitRating() for this contract.
+        if (address(reputationRegistry) != address(0)) {
+            if (completionPct > FRIVOLOUS_DISPUTE_THRESHOLD - 1) {
+                _clientRated[id] = true;
+                reputationRegistry.rate(c.client, 1);
+            } else if (completionPct < POOR_WORK_THRESHOLD + 1) {
+                _freelancerRated[id] = true;
+                reputationRegistry.rate(c.freelancer, 1);
+            }
+        }
     }
 
     // ─── View ─────────────────────────────────────────────────────────────────
@@ -764,7 +837,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
             proofOfWorkHash: bytes32(0),
             proofOfWorkURI: "",
             token: token,
-            usdValueAtCreation: usdValue
+            usdValueAtCreation: usdValue,
+            previousContractId: type(uint256).max
         });
     }
 
