@@ -115,6 +115,33 @@ jobs:
               continue-on-error: true
 
     # ---------------------------------------------------------------------------
+    # Separate audit for the frontend (src/) package tree, which is independent
+    # of the root npm workspace (Hardhat, TypeChain, etc.).
+    # ---------------------------------------------------------------------------
+    frontend-dependencies:
+        name: Frontend dependency audit
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: src/package-lock.json
+
+            - name: Install frontend dependencies
+              run: npm ci
+              working-directory: src
+
+            - name: Run audit
+              run: npm audit --omit=dev --audit-level=high
+              working-directory: src
+              continue-on-error: true
+
+    # ---------------------------------------------------------------------------
     # CodeQL on the TypeScript side. Free for public repos. Catches things like
     # path traversal, prototype pollution, SSRF in any backend/scripts.
     # ---------------------------------------------------------------------------

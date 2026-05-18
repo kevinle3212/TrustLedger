@@ -244,6 +244,89 @@ cd contracts && forge fmt
 
 ---
 
+## Nexus Code Graph (AI Context)
+
+`nexus-graph` indexes the TypeScript and JavaScript source into a SQLite symbol graph and serves it to Claude Code as an MCP server. This gives Claude token-budgeted context about functions, classes, and their dependencies without reading every file.
+
+The MCP server is configured in `.mcp.json` at the repo root. Claude Code picks it up automatically on session start.
+
+```bash
+# Build or refresh the symbol graph (run from repo root)
+npm run nexus:index
+
+# Start the MCP server manually (Claude Code auto-starts it via .mcp.json)
+npm run nexus:server
+
+# Open a local browser visualization of the code graph
+npm run nexus:viz
+```
+
+Re-run `nexus:index` after large refactors to keep the graph current. The generated database lives in `.nexus/graph.db` (gitignored).
+
+---
+
+## Frontend Development
+
+The `src/` directory is a standalone Next.js 16 package. It has its own `package.json` and `node_modules` — it is not part of the root npm workspace.
+
+### Install
+
+```bash
+cd src
+npm install
+```
+
+### Environment variables
+
+All frontend env vars are read from the root `.env` file by `next.config.ts` — no `src/.env.local` is needed.
+
+| Variable                               | Description                                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`. |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Auto-resolved from `artifacts/deployed-addresses.json`. Only set manually to override.           |
+| `NEXT_BASE_PATH`                       | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.          |
+
+### Running the dev server
+
+Start the contracts node and compile first (if interacting with the local chain):
+
+```bash
+# repo root — terminal 1
+npm run node
+
+# repo root — terminal 2
+npm run compile && npm run hardhat:deploy:local
+```
+
+Then start the frontend:
+
+```bash
+# src/
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### Linting
+
+```bash
+# from src/
+npm run lint          # ESLint + Prettier
+npm run lint:ts       # ESLint only
+npm run lint:prettier # Prettier only
+```
+
+### Building
+
+```bash
+# from src/
+npm run build    # static export to src/out/
+```
+
+The build is also verified automatically in the `frontend` CI job on every push and pull request.
+
+---
+
 ## Deploying to Ethereum Sepolia
 
 Requires `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, and `ETHERSCAN_API_KEY` in `.env`.
@@ -364,3 +447,26 @@ If the commit message is rejected, amend it with `git commit --amend` and try ag
 5. CodeRabbit will automatically review the PR. Address any comments before requesting a human review.
 
 For security-related findings, do not open a public PR. Instead, follow the process in [SECURITY.md](../SECURITY.md).
+
+---
+
+## Security
+
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+
+**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+
+---
+
+## Authors
+
+- Kevin Le
+- Kellen Snider

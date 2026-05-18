@@ -347,3 +347,26 @@ EVM storage slots are 32 bytes each. Field ordering in structs is packed to mini
 | 3-5  | `contractAmount`, `feePool`, `ruling` (3 × 256)                                                           | 96    |
 | 6    | `appealer` (20)                                                                                           | 20    |
 | 7-11 | `appealBond`, `appealDisputeId`, `parentDisputeId`, `maxJurors`, `jurorCount`                             | 160   |
+
+---
+
+## Security
+
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+
+**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+
+---
+
+## Authors
+
+- Kevin Le
+- Kellen Snider

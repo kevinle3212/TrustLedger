@@ -7,19 +7,11 @@
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 
-		/* ── Output ────────────────────────────────────────────────────────── */
-		"outDir": "./dist",
-		"rootDir": "./src",
-		"declaration": true,
-		"declarationMap": true,
-		"sourceMap": true,
-		"removeComments": false,
-
 		/* ── Extra strictness on top of @tsconfig/strictest ───────────────── */
+		"noEmit": true,
 		"verbatimModuleSyntax": true,
 		"noUncheckedSideEffectImports": true,
 		"noErrorTruncation": true,
-		"noEmitOnError": true,
 		"useDefineForClassFields": true,
 		"allowJs": false,
 		"checkJs": false,
@@ -52,6 +44,14 @@
 		/* ── Terminal output ──────────────────────────────────────────────────── */
 		"pretty": true // colorized, formatted error output
 	},
-	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+	"exclude": [
+		"node_modules",
+		"dist",
+		"src/**",
+		"scripts/**",
+		"test/**",
+		"hardhat.config.ts",
+		"**/*.test.ts",
+		"**/*.spec.ts"
+	]
 }

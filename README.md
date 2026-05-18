@@ -15,6 +15,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 | [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for the Oregon Blockchain Group  |
 | [docs/MISCELLANEOUS.md](docs/MISCELLANEOUS.md) | Glossary, tooling rationale, Chainlink setup, design decisions     |
 | [SECURITY.md](SECURITY.md)                     | Vulnerability reporting policy and severity classification         |
+| [src/README.md](src/README.md)                 | Frontend setup, scripts, contract artifacts, wagmi integration     |
 
 ---
 
@@ -98,24 +99,24 @@ Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are calla
 
 ## Tech Stack
 
-| Layer                          | Technology                                |
-| ------------------------------ | ----------------------------------------- |
-| Smart contracts                | Solidity 0.8.24                           |
-| Contract testing (unit + fuzz) | Foundry (Forge)                           |
-| Contract testing (integration) | Hardhat 2.x + Mocha/Chai                  |
-| TypeScript types               | TypeChain (ethers-v6)                     |
-| Chain                          | Ethereum Sepolia (testnet)                |
-| Off-chain storage              | IPFS via Web3.Storage                     |
-| Wallet                         | MetaMask + RainbowKit                     |
-| Frontend (planned)             | React, wagmi, viem, RainbowKit            |
-| Backend (planned)              | Node.js, TypeScript, SQL                  |
-| Randomness                     | Chainlink VRF v2                          |
-| Price feed                     | Chainlink AggregatorV3 (ETH/USD)          |
-| Reentrancy guard               | OpenZeppelin ReentrancyGuard v5           |
-| Linting                        | Solhint, ESLint 9 (flat config), Prettier |
-| CI/CD                          | GitHub Actions                            |
-| Security scans                 | Slither, TruffleHog, CodeQL, npm audit    |
-| Containerization               | Docker                                    |
+| Layer                          | Technology                                       |
+| ------------------------------ | ------------------------------------------------ |
+| Smart contracts                | Solidity 0.8.24                                  |
+| Contract testing (unit + fuzz) | Foundry (Forge)                                  |
+| Contract testing (integration) | Hardhat 2.x + Mocha/Chai                         |
+| TypeScript types               | TypeChain (ethers-v6)                            |
+| Chain                          | Ethereum Sepolia (testnet)                       |
+| Off-chain storage              | IPFS via Web3.Storage                            |
+| Wallet                         | MetaMask + RainbowKit                            |
+| Frontend                       | Next.js 16, React 19, wagmi v2, RainbowKit, viem |
+| Backend (planned)              | Node.js, TypeScript, SQL                         |
+| Randomness                     | Chainlink VRF v2                                 |
+| Price feed                     | Chainlink AggregatorV3 (ETH/USD)                 |
+| Reentrancy guard               | OpenZeppelin ReentrancyGuard v5                  |
+| Linting                        | Solhint, ESLint 9 (flat config), Prettier        |
+| CI/CD                          | GitHub Actions                                   |
+| Security scans                 | Slither, TruffleHog, CodeQL, npm audit           |
+| Containerization               | Docker                                           |
 
 ---
 
@@ -209,97 +210,368 @@ clientRefund     = amount − feePool − freelancerPay
 
 ## Setup
 
+> **Not sure where to start?**
+>
+> - **Just want to see a demo run?** → Skip to [Docker](#docker) — only Docker Desktop required, no other installs needed.
+> - **Want to run scripts or deploy to testnet?** → Follow the [Prerequisites](#prerequisites) and [Local Development](#local-development-hardhat-node) steps below.
+> - **Want to use the live website?** → See [src/README.md](src/README.md) for the frontend setup.
+
+---
+
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) ≥ 22
-- [Foundry](https://book.getfoundry.sh/getting-started/installation) — `curl -L https://foundry.paradigm.xyz | bash && foundryup`
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional, for containerized dev)
+You need three tools installed before anything else. Check if you already have them, then install any that are missing.
 
-Install dependencies:
+#### 1. Node.js (version 22 or later)
+
+Node.js is the JavaScript runtime that powers Hardhat (the local blockchain) and all the deploy and test scripts. Without it, no `npm run ...` command will work.
+
+**Check if you have it:**
+
+```bash
+node --version
+npm --version
+```
+
+If `node --version` prints `v22.x.x` or higher, skip ahead. If it prints a lower version or `command not found`, install it:
+
+- **macOS / Linux (recommended — use nvm so you can switch versions easily):**
+
+    ```bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    ```
+
+    Close and reopen your terminal, then run:
+
+    ```bash
+    nvm install 22
+    nvm use 22
+    node --version   # should now print v22.x.x
+    ```
+
+- **Windows:** Download and run the installer from [nodejs.org](https://nodejs.org/). Select the version labeled **22.x.x LTS**.
+
+- **Direct download (all platforms):** [nodejs.org/en/download](https://nodejs.org/en/download/)
+
+#### 2. Foundry (forge, cast, anvil)
+
+Foundry is the Solidity toolchain. It compiles contracts, runs the Solidity test suite, and ships `cast` — a command-line wallet utility used to generate deployer keys.
+
+**Check if you have it:**
+
+```bash
+forge --version
+```
+
+If it prints a version number, you're good. Otherwise:
+
+**macOS / Linux:**
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+```
+
+This downloads the Foundry installer. After it finishes, close and reopen your terminal, then run:
+
+```bash
+foundryup
+```
+
+`foundryup` downloads the latest stable `forge`, `cast`, and `anvil` binaries. Verify with:
+
+```bash
+forge --version   # e.g. forge 0.3.x
+cast --version
+```
+
+**Windows:** Foundry does not natively support Windows. Use [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/install) (Windows Subsystem for Linux) and follow the macOS/Linux steps inside the WSL terminal.
+
+#### 3. Git
+
+Git is required to clone the repository and fetch the smart contract library dependencies.
+
+**Check if you have it:**
+
+```bash
+git --version
+```
+
+If it says `git version 2.x.x` you're good. Otherwise download from [git-scm.com](https://git-scm.com) and run the installer.
+
+---
+
+### Clone the Repository
+
+Open a terminal, navigate to wherever you keep your projects, and run:
+
+```bash
+git clone https://github.com/kevinle3212/TrustLedger.git
+cd TrustLedger
+```
+
+Then pull in the smart contract library dependencies (OpenZeppelin and forge-std). These are stored as Git submodules — a way of pointing to another repo from inside this one:
+
+```bash
+git submodule update --init --recursive
+```
+
+> This is a one-time step. It downloads `contracts/lib/openzeppelin-contracts/` and `contracts/lib/forge-std/` which the Solidity compiler needs. If you skip it, `forge build` will fail.
+
+---
+
+### Install Node Dependencies
+
+From the project root (the `TrustLedger/` folder you cloned into):
 
 ```bash
 npm install
 ```
 
+This reads `package.json` and downloads Hardhat, ethers.js, TypeScript, TypeChain, linters, and all other Node packages into a local `node_modules/` folder. Nothing is installed globally on your system. It takes about 30–60 seconds.
+
+---
+
 ### Environment Variables
 
+Your `.env` file holds private configuration (API keys, wallet private keys) that must never be uploaded to GitHub. The `.env.example` file is the safe public template showing which variables are needed.
+
+**Step 1 — Copy the template:**
+
 ```bash
+# macOS / Linux
 cp .env.example .env
+
+# Windows Command Prompt
+copy .env.example .env
 ```
 
-Fill in `.env` based on your target:
+**Step 2 — Open `.env` in a text editor** (VS Code, Notepad, TextEdit, etc.) and fill in the values you need. The subsections below walk through how to get each one.
 
-| Variable                  | Required for          | Description                                                                   |
-| ------------------------- | --------------------- | ----------------------------------------------------------------------------- |
-| `SEPOLIA_RPC_URL`         | Testnet deploy        | Alchemy or Infura Ethereum Sepolia HTTPS endpoint                             |
-| `DEPLOYER_PUBLIC_ADDRESS` | Testnet deploy        | The `0x…` address of your deployer wallet                                     |
-| `DEPLOYER_PRIVATE_KEY`    | Testnet deploy        | Raw hex private key — **never commit this value**                             |
-| `ETHERSCAN_API_KEY`       | Contract verification | Etherscan API key from [etherscan.io/myapikey](https://etherscan.io/myapikey) |
+| Variable                               | Required for            | Notes                                                                                 |
+| -------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------- |
+| `SEPOLIA_RPC_URL`                      | Testnet deploy          | HTTP endpoint to reach Ethereum Sepolia — see below                                   |
+| `DEPLOYER_PUBLIC_ADDRESS`              | Testnet deploy          | Your wallet `0x…` address — see below                                                 |
+| `DEPLOYER_PRIVATE_KEY`                 | Testnet deploy          | Private key for that wallet — **never share or commit this**                          |
+| `ETHERSCAN_API_KEY`                    | Contract verification   | Optional but recommended — see below                                                  |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Frontend wallet connect | Free key — see [src/README.md](src/README.md#getting-a-walletconnect-project-id)      |
+| `NEXT_BASE_PATH`                       | Frontend build          | Leave empty (`NEXT_BASE_PATH=`) for local dev; set to `/TrustLedger` for GitHub Pages |
 
-`.env` is in `.gitignore` and will never be committed. Use a dedicated testnet-only wallet; never use a wallet that holds real funds.
+> `.env` is listed in `.gitignore` — Git will never include it in a commit. Only you can see it.
 
-### Local Development (Hardhat Node)
+#### Getting an RPC URL (Alchemy or Infura)
 
-```bash
-# Terminal 1 — start local chain (keep open)
-npm run node
-```
+An RPC URL is a web address that lets your scripts communicate with the Ethereum Sepolia network. You get one for free from either Alchemy or Infura.
 
-Hardhat prints 20 pre-funded test accounts with addresses and private keys on startup. Use those for local testing. Account #0 is the deployer.
+**Alchemy (recommended):**
 
-```bash
-# Terminal 2 — compile and deploy
-npm run compile
-npm run hardhat:deploy:local
-```
+1. Sign up at [alchemy.com](https://www.alchemy.com/) — a Google or GitHub login works.
+2. From the dashboard, click **+ Create new app**.
+3. Set **Chain** to `Ethereum` and **Network** to `Ethereum Sepolia`. Name it anything.
+4. Open the app you just created and click **API key** (top right). Copy the **HTTPS** URL.
+   It looks like: `https://eth-sepolia.g.alchemy.com/v2/abc123yourkey`
+5. In your `.env` file, set:
 
-Deployed addresses are written to `artifacts/deployed-addresses.json` automatically.
+    ```text
+    SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/abc123yourkey
+    ```
 
-### Ethereum Sepolia (Testnet)
+**Infura:**
 
-Generate a fresh throwaway wallet with `cast` (included with Foundry):
+1. Sign up at [infura.io](https://www.infura.io/).
+2. Click **Create new API key** → choose **Web3 API** → name it.
+3. Open the key, find the **Sepolia** endpoint, copy the HTTPS URL.
+   It looks like: `https://sepolia.infura.io/v3/abc123yourkey`
+4. In your `.env` file, set:
+
+    ```text
+    SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/abc123yourkey
+    ```
+
+#### Creating a Deployer Wallet
+
+You need a wallet address and its private key to pay for and sign deployment transactions. **Always use a dedicated throwaway wallet — never your main MetaMask account with real ETH.**
+
+**Option A — Generate one with `cast` (fastest):**
 
 ```bash
 cast wallet new
 ```
 
-Copy the address and private key into `.env`. Fund the address from an [Ethereum Sepolia faucet](https://alchemy.com/faucets/ethereum-sepolia), then:
+Output looks like:
+
+```text
+Successfully created new keypair.
+Address:     0xAbCd1234...
+Private key: 0xdeadbeef...
+```
+
+Copy both values into `.env`:
+
+```text
+DEPLOYER_PUBLIC_ADDRESS=0xAbCd1234...
+DEPLOYER_PRIVATE_KEY=0xdeadbeef...
+```
+
+**Option B — Create a new account in MetaMask:**
+
+1. Open MetaMask in your browser. Click the circular account icon at the top right.
+2. Click **Add account or hardware wallet** → **Add a new Ethereum account**.
+3. Give it a name like `TrustLedger Deploy` so you can identify it.
+4. To get the private key: click the three-dot menu next to the account → **Account details** → **Show private key** → enter your MetaMask password → copy the key.
+5. Copy the wallet address (shown at the top of MetaMask) and the private key into `.env`.
+
+#### Getting Testnet ETH (Sepolia faucet)
+
+Deploying to Sepolia costs a tiny amount of Sepolia ETH. Sepolia ETH is **free and has no real-world value** — it only works on the Sepolia test network.
+
+1. Copy your deployer wallet address (the `0x…` string).
+2. Paste it into any of these faucets and click **Send** / **Request**:
+    - [Alchemy Faucet](https://www.alchemy.com/faucets/ethereum-sepolia) _(requires Alchemy account)_
+    - [Infura Faucet](https://www.infura.io/faucet/sepolia) _(requires Infura account)_
+    - [Google Faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia) _(requires Google account)_
+3. Wait about 30 seconds. You need at least **0.05 ETH** to cover deployment gas.
+
+Check your balance at any time:
+
+```bash
+npm run hardhat:check-balance
+```
+
+#### Getting an Etherscan API Key
+
+Etherscan verification uploads your contract's source code to [sepolia.etherscan.io](https://sepolia.etherscan.io) so anyone can read and verify it. This is optional but strongly recommended for any public deployment.
+
+1. Go to [etherscan.io/register](https://etherscan.io/register) and create a free account.
+2. After logging in, click your username (top right) → **API Keys**.
+3. Click **Add** → give it a name → click **Create New API Key**.
+4. Copy the key and add it to `.env`:
+
+    ```text
+    ETHERSCAN_API_KEY=ABCDEF1234567890...
+    ```
+
+---
+
+### Local Development (Hardhat Node)
+
+Running locally spins up a fake Ethereum blockchain on your own computer — no real ETH, no internet required, and no risk of losing money.
+
+You need **two terminal windows open at the same time**.
+
+**Terminal 1 — Start the local chain and keep it running:**
+
+```bash
+npm run node
+```
+
+Hardhat starts a local blockchain at `http://127.0.0.1:8545` and prints 20 pre-funded test accounts:
+
+```text
+Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
+
+Accounts
+========
+Account #0: 0x... (10000 ETH)
+Private Key: 0x...
+...
+```
+
+These are fake wallets with fake ETH. Leave this terminal open — closing it shuts down the chain.
+
+**Terminal 2 — Compile the contracts and deploy them:**
+
+```bash
+npm run compile
+```
+
+This translates the Solidity `.sol` files into bytecode and generates TypeScript type definitions (TypeChain). Then deploy:
+
+```bash
+npm run hardhat:deploy:local
+```
+
+You should see output like:
+
+```text
+JurorRegistry deployed to: 0x...
+TrustLedger   deployed to: 0x...
+Arbitration   deployed to: 0x...
+Deployed addresses written to artifacts/deployed-addresses.json
+```
+
+**Run the demo scripts (optional):**
+
+```bash
+# Happy path: client deposits ETH → freelancer accepts → submits work → client approves → payout
+npm run demo:good
+
+# Dispute path: client disputes → jurors vote → ruling executed → partial payout
+npm run demo:bad
+```
+
+Both demos complete in seconds because they use time-travel (`evm_increaseTime`) to skip lock periods instantly.
+
+---
+
+### Ethereum Sepolia (Testnet)
+
+Deploying to Sepolia puts the contracts on a public Ethereum test network that anyone can see and interact with. Requires a funded deployer wallet and an RPC endpoint — see [Environment Variables](#environment-variables) above.
+
+Make sure your `.env` has `SEPOLIA_RPC_URL`, `DEPLOYER_PUBLIC_ADDRESS`, `DEPLOYER_PRIVATE_KEY`, and at least 0.05 Sepolia ETH in the wallet, then run:
 
 ```bash
 npm run hardhat:deploy:sepolia
 ```
 
-Deployed addresses are printed to the console and written to `artifacts/deployed-addresses.json`.
+The console prints all three contract addresses and writes them to `artifacts/deployed-addresses.json`. The frontend reads this file automatically — no manual copy step needed.
+
+To also verify the source code on Etherscan (requires `ETHERSCAN_API_KEY` in `.env`):
+
+```bash
+npm run start:deploy:hardhat
+```
+
+---
 
 ### Docker
 
-The Docker setup gives every contributor an identical environment without installing Node or Foundry on the host.
+Docker lets you run demos and tests **without installing Node.js or Foundry**. Only Docker Desktop is required.
 
-**Dev container:**
+**Install Docker Desktop:** [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+
+After installing, verify:
 
 ```bash
-# Build image (first time or after package-lock.json changes)
+docker --version
+docker compose version
+```
+
+**One-time setup (do this once after cloning):**
+
+```bash
+git submodule update --init --recursive   # fetch contract libraries if not done yet
+docker compose build                       # build the image (~2-3 minutes first time)
+```
+
+**Run a demo or the test suite:**
+
+```bash
+docker compose up demo-good    # happy-path demo
+docker compose up demo-bad     # dispute-flow demo
+docker compose up node         # local chain only — connect MetaMask to http://localhost:8545
+docker compose run test        # full Hardhat + Foundry test suite
+```
+
+**Dev container** (live-reloading, mounts your local files):
+
+```bash
 docker compose -f docker/docker-compose.dev.yml build
-
-# Start the dev environment (Hardhat node on localhost:8545)
 docker compose -f docker/docker-compose.dev.yml up
-
-# Open a shell inside the container
-docker compose -f docker/docker-compose.dev.yml exec dev bash
-
-# Run tests from inside the container
-docker compose -f docker/docker-compose.dev.yml exec dev npm run hardhat:test
-docker compose -f docker/docker-compose.dev.yml exec dev bash -c "cd contracts && forge test"
-
-# Tear down
-docker compose -f docker/docker-compose.dev.yml down
+docker compose -f docker/docker-compose.dev.yml exec dev bash   # open a shell inside
+docker compose -f docker/docker-compose.dev.yml down            # tear down
 ```
 
-**CI image** (reproduces what GitHub Actions runs):
-
-```bash
-docker build --file docker/Dockerfile.ci --tag trustledger-ci .
-```
+See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including MetaMask connection and troubleshooting.
 
 ---
 
@@ -347,6 +619,16 @@ docker build --file docker/Dockerfile.ci --tag trustledger-ci .
 | `npm run lint:sol`      | Solhint only                             |
 | `npm run lint:prettier` | Prettier format check (read-only)        |
 | `npm run build`         | `tsc` — compile `src/` to `dist/`        |
+
+### Nexus Code Graph (AI Context)
+
+| Script                 | What it runs                                                             |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `npm run nexus:index`  | Scan the project and build/refresh the symbol graph in `.nexus/graph.db` |
+| `npm run nexus:server` | Start the Nexus MCP server on stdio (used automatically by `.mcp.json`)  |
+| `npm run nexus:viz`    | Open a local browser visualization of the symbol graph                   |
+
+The Nexus code graph gives Claude Code token-budgeted symbol and dependency context via the MCP server defined in `.mcp.json`. Re-run `nexus:index` after large refactors to keep the graph current.
 
 ---
 
@@ -457,121 +739,17 @@ TypeScript ESLint uses the `strictTypeChecked` + `stylisticTypeChecked` presets 
 
 ### TypeScript Configuration
 
-| File                    | Used by                                  | Module system                  |
-| ----------------------- | ---------------------------------------- | ------------------------------ |
-| `tsconfig.json`         | `src/` (SDK output to `dist/`)           | NodeNext ESM                   |
-| `tsconfig.hardhat.json` | `hardhat.config.ts`, `scripts/`, `test/` | CommonJS (Hardhat requirement) |
+| File                    | Used by                                              | Module system                  |
+| ----------------------- | ---------------------------------------------------- | ------------------------------ |
+| `tsconfig.json`         | Root project (type-aware ESLint — `src/**` excluded) | NodeNext ESM                   |
+| `tsconfig.hardhat.json` | `hardhat.config.ts`, `scripts/`, `test/`             | CommonJS (Hardhat requirement) |
+| `src/tsconfig.json`     | Next.js frontend (`src/`)                            | ESNext, bundler resolution     |
 
-Both extend `@tsconfig/strictest` with additional flags (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`).
+The root and Hardhat configs extend `@tsconfig/strictest` with additional flags (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`). The frontend config uses its own strict settings compatible with Next.js and bundler resolution.
 
 ---
 
 ## Usage
-
-### For the Frontend Developer
-
-After `npm run compile` and `npm run hardhat:deploy:local`, the following are available:
-
-| Artifact                 | Location                                         |
-| ------------------------ | ------------------------------------------------ |
-| Contract ABIs            | `artifacts/contracts/src/<Name>.sol/<Name>.json` |
-| TypeChain typed wrappers | `artifacts/typechain-types/`                     |
-| Deployed addresses       | `artifacts/deployed-addresses.json`              |
-
-**Install wallet integration packages:**
-
-```bash
-npm install @rainbow-me/rainbowkit wagmi viem @tanstack/react-query
-```
-
-**App setup with RainbowKit:**
-
-```tsx
-import { RainbowKitProvider, ConnectButton } from "@rainbow-me/rainbowkit";
-import { WagmiProvider } from "wagmi";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { hardhat, sepolia } from "wagmi/chains";
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-
-const config = getDefaultConfig({
-	appName: "TrustLedger",
-	projectId: "YOUR_WALLETCONNECT_PROJECT_ID",
-	chains: [hardhat, sepolia],
-});
-
-export function App() {
-	return (
-		<WagmiProvider config={config}>
-			<QueryClientProvider client={new QueryClient()}>
-				<RainbowKitProvider>
-					<ConnectButton />
-				</RainbowKitProvider>
-			</QueryClientProvider>
-		</WagmiProvider>
-	);
-}
-```
-
-**Read and write contracts with wagmi hooks:**
-
-```tsx
-import { useReadContract, useWriteContract } from "wagmi";
-
-// Read escrow state
-const { data: escrow } = useReadContract({
-	address: TRUSTLEDGER_ADDRESS,
-	abi: TRUSTLEDGER_ABI,
-	functionName: "getContract",
-	args: [contractId],
-});
-
-// Write a transaction
-const { writeContract } = useWriteContract();
-writeContract({
-	address: TRUSTLEDGER_ADDRESS,
-	abi: TRUSTLEDGER_ABI,
-	functionName: "approveWork",
-	args: [contractId],
-});
-```
-
-**Key view functions:**
-
-| Contract             | Function                       | Returns                                         |
-| -------------------- | ------------------------------ | ----------------------------------------------- |
-| `TrustLedger`        | `getContract(id)`              | Full `EscrowContract` struct                    |
-| `TrustLedger`        | `nextId()`                     | Total number of contracts created               |
-| `Arbitration`        | `getDispute(disputeId)`        | Full `Dispute` struct                           |
-| `Arbitration`        | `getJurors(disputeId)`         | Array of juror addresses                        |
-| `Arbitration`        | `isMajority(disputeId, juror)` | Whether juror voted with majority               |
-| `JurorRegistry`      | `getJuror(address)`            | Full `JurorInfo` struct                         |
-| `JurorRegistry`      | `getJurorList()`               | All registered juror addresses                  |
-| `JurorRegistry`      | `eligibleJurorCount()`         | Count of currently eligible jurors              |
-| `JurorRegistry`      | `isEligible(address)`          | Whether an address can currently vote           |
-| `ReputationRegistry` | `averageRating(address)`       | `(numerator, denominator)` — divide for average |
-
-**Key events to index:**
-
-| Event                                                      | Contract      | When                            |
-| ---------------------------------------------------------- | ------------- | ------------------------------- |
-| `ContractCreated(id, client, freelancer, amount)`          | TrustLedger   | New escrow created              |
-| `ContractAccepted(id)`                                     | TrustLedger   | Freelancer accepted             |
-| `ContractRejected(id)`                                     | TrustLedger   | Freelancer rejected             |
-| `ProofSubmitted(id, hash, uri)`                            | TrustLedger   | Proof of work uploaded          |
-| `WorkApproved(id)`                                         | TrustLedger   | Client approved                 |
-| `WorkDisputed(id, arbitrationId)`                          | TrustLedger   | Dispute opened                  |
-| `FundsReleased(id, to, amount)`                            | TrustLedger   | Funds transferred out of escrow |
-| `ContractCancelled(id)`                                    | TrustLedger   | Contract cancelled              |
-| `WarrantyFundsClaimed(id, freelancer, amount)`             | TrustLedger   | Warranty hold-back released     |
-| `RulingExecuted(id, completionPct)`                        | TrustLedger   | Arbitration ruling applied      |
-| `RatingSubmitted(id, rater, score)`                        | TrustLedger   | Post-contract rating submitted  |
-| `DisputeOpened(disputeId, contractId, client, freelancer)` | Arbitration   | Dispute created                 |
-| `VoteCommitted(disputeId, juror)`                          | Arbitration   | Juror submitted commitment      |
-| `VoteRevealed(disputeId, juror, completionPct)`            | Arbitration   | Juror revealed vote             |
-| `DisputeFinalized(disputeId, ruling)`                      | Arbitration   | Median ruling computed          |
-| `Appealed(disputeId, appealer, bond)`                      | Arbitration   | Appeal filed                    |
-| `Registered(juror, stake)`                                 | JurorRegistry | New juror registered            |
-| `Slashed(juror, amount)`                                   | JurorRegistry | Juror stake slashed             |
 
 ### For the Backend Developer
 
@@ -679,8 +857,24 @@ TrustLedger/
 │       ├── forge-std/
 │       └── openzeppelin-contracts/
 │
-├── src/
-│   └── index.ts                          # SDK entry point (reserved for tooling)
+├── src/                                            # Next.js 16 static dApp (frontend)
+│   ├── app/
+│   │   ├── layout.tsx                            # Root layout with Providers + Navbar
+│   │   ├── page.tsx                              # Landing page
+│   │   ├── globals.css                           # Tailwind v4 base styles + font vars
+│   │   ├── create/page.tsx                       # Create escrow contract form
+│   │   └── dashboard/page.tsx                    # User's contract dashboard
+│   ├── components/
+│   │   ├── Navbar.tsx                            # Sticky nav with RainbowKit connect button
+│   │   └── Providers.tsx                         # WagmiProvider + RainbowKitProvider
+│   ├── lib/
+│   │   ├── abi.ts                                # TrustLedger ABI + status labels
+│   │   ├── utils.ts                              # Address/ETH formatters, status colors
+│   │   └── wagmi.ts                              # wagmi config + contract address resolver
+│   ├── public/                                   # Static assets (favicons, SVGs)
+│   ├── next.config.ts                            # basePath + root .env injection
+│   ├── package.json                              # Frontend-only dependencies
+│   └── README.md                                 # Frontend setup guide
 │
 ├── test/
 │   └── TrustLedger.test.ts               # 73 Hardhat/Mocha integration tests
@@ -699,9 +893,10 @@ TrustLedger/
 │
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml                        # Lint, typecheck, Forge tests on every push/PR
+│       ├── ci.yml                        # Lint, typecheck, Forge tests + frontend build on every push/PR
 │       ├── deploy.yml                    # Manual deploy to Ethereum Sepolia
-│       ├── security.yml                  # Slither, TruffleHog, npm audit, CodeQL
+│       ├── frontend-deploy.yml           # Auto-deploy Next.js frontend to GitHub Pages
+│       ├── security.yml                  # Slither, TruffleHog, npm audit (root + frontend), CodeQL
 │       └── dependabot-automerge.yml      # Auto-merge Dependabot security/patch PRs
 │
 ├── artifacts/                            # Auto-generated — do not edit or commit
@@ -719,6 +914,7 @@ TrustLedger/
 ├── .env                                  # Actual secrets — NEVER commit this
 ├── .gitignore                            # Excludes .env, node_modules, build artifacts
 ├── .dockerignore                         # Excludes secrets/artifacts from Docker images
+├── .mcp.json                             # Claude Code MCP server config — wires nexus-graph as the `nexus` server
 ├── .coderabbit.yaml                      # CodeRabbit AI code review config
 ├── SECURITY.md                           # Vulnerability reporting policy
 └── LICENSE                               # Apache-2.0
@@ -734,12 +930,13 @@ Four workflows live in `.github/workflows/`. All use least-privilege tokens and 
 
 Runs on every push and pull request to `main`.
 
-| Job            | What it does                                                                                      |
-| -------------- | ------------------------------------------------------------------------------------------------- |
-| **TypeScript** | `npm ci`, `tsc --noEmit`, ESLint + Solhint, Prettier format check                                 |
-| **Solidity**   | Foundry install, `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, gas snapshot diff |
+| Job            | What it does                                                                                                   |
+| -------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Frontend**   | `npm ci` (in `src/`), TypeScript typecheck, ESLint + Prettier, `next build` with `NEXT_BASE_PATH=/TrustLedger` |
+| **TypeScript** | `npm ci`, `tsc --noEmit`, ESLint + Solhint, Prettier format check                                              |
+| **Solidity**   | Foundry install, `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, gas snapshot diff              |
 
-The Solidity job sets `working-directory: contracts` so all `forge` commands run from the directory containing `foundry.toml`.
+The Solidity job sets `working-directory: contracts` so all `forge` commands run from the directory containing `foundry.toml`. The Frontend job sets `working-directory: src` and uses `src/package-lock.json` for npm cache keying.
 
 ### `deploy.yml` — Manual Deploy to Ethereum Sepolia
 
@@ -759,12 +956,24 @@ Broadcast artifacts (contract addresses, transaction receipts) are uploaded as a
 
 Runs on push/PR to `main`, manually via `workflow_dispatch`, and weekly (Mondays 13:00 UTC) to catch CVEs in transitive deps even when no code changes.
 
-| Job            | Tool                         | Catches                                                                                                                                                 |
-| -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Slither**    | `crytic/slither-action`      | Solidity SAST: reentrancy, uninitialized storage, dangerous low-level calls. Results appear as inline PR comments via SARIF upload to the Security tab. |
-| **TruffleHog** | `trufflesecurity/trufflehog` | Secret scanning across full git history — accidental commits of `.env` values or private keys.                                                          |
-| **npm audit**  | built-in                     | CVEs in the npm dependency tree at `high` severity threshold.                                                                                           |
-| **CodeQL**     | `github/codeql-action`       | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite.                                     |
+| Job                    | Tool                         | Catches                                                                                                                                                 |
+| ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Slither**            | `crytic/slither-action`      | Solidity SAST: reentrancy, uninitialized storage, dangerous low-level calls. Results appear as inline PR comments via SARIF upload to the Security tab. |
+| **TruffleHog**         | `trufflesecurity/trufflehog` | Secret scanning across full git history — accidental commits of `.env` values or private keys.                                                          |
+| **npm audit**          | built-in                     | CVEs in the npm dependency tree at `high` severity threshold.                                                                                           |
+| **Frontend npm audit** | built-in                     | Separate audit of `src/package-lock.json` at `high` severity threshold.                                                                                 |
+| **CodeQL**             | `github/codeql-action`       | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite.                                     |
+
+### `frontend-deploy.yml` — GitHub Pages Deploy
+
+Triggers on push to `main` when files under `src/**`, `artifacts/deployed-addresses.json`, or the workflow file itself change. Also supports manual `workflow_dispatch`.
+
+| Step   | What it does                                                                                                                                                         |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build  | `npm ci` + `npm run build` in `src/` with `NEXT_BASE_PATH=/TrustLedger`; `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS` is auto-resolved from `artifacts/deployed-addresses.json` |
+| Deploy | Uploads `src/out/` to GitHub Pages via `actions/upload-pages-artifact` + `actions/deploy-pages`                                                                      |
+
+Add `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` as a repository secret (Settings → Secrets → Actions) to enable WalletConnect on the live site.
 
 ### `dependabot-automerge.yml` — Dependabot Auto-Merge
 
@@ -864,6 +1073,12 @@ See [SECURITY.md](SECURITY.md) for the full vulnerability reporting policy, in-s
 **Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
 
 TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for full terms.
 
 ---
 

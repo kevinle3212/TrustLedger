@@ -10,7 +10,12 @@ hardhat-cache/
 
 # ─── Package manager ─────────────────────────────────────────────────────────
 node_modules/
-package-lock.json
+**/package-lock.json
+
+# ─── Next.js build output ────────────────────────────────────────────────────
+src/.next/
+src/out/
+src/next-env.d.ts
 
 # ─── Environment / secrets ───────────────────────────────────────────────────
 .env

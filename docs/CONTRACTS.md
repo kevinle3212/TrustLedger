@@ -714,3 +714,26 @@ Returns the cumulative score sum and rating count. Compute the average as `numer
 | `OnlyTrustLedger` | Caller is not the `TRUST_LEDGER` address. |
 | `InvalidScore`    | Score is 0 or greater than 100.           |
 | `ZeroAddress`     | Constructor called with the zero address. |
+
+---
+
+## Security
+
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+
+**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+
+---
+
+## Authors
+
+- Kevin Le
+- Kellen Snider

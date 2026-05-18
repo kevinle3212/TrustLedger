@@ -91,3 +91,16 @@ The following are not permitted under any circumstances:
 - Testing against contracts on mainnet or any network holding real user funds
 - Social engineering attacks against contributors
 - Denial-of-service testing against live infrastructure
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for full terms.
+
+---
+
+## Authors
+
+- Kevin Le
+- Kellen Snider

@@ -502,10 +502,29 @@ npm run lint:prettier        # Prettier — formatting check
 
 ---
 
-## Questions
+## Repository
 
 Repository: [github.com/kevinle3212/TrustLedger](https://github.com/kevinle3212/TrustLedger)
 
-Security: [SECURITY.md](../SECURITY.md) — Report vulnerabilities by emailing **<kevinle3212@gmail.com>**
+---
 
-License: Apache-2.0
+## Security
+
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+
+**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+
+---
+
+## Authors
+
+- Kevin Le
+- Kellen Snider

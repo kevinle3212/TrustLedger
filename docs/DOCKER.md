@@ -2,6 +2,20 @@
 
 TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` that lets you run demos, start a local chain for MetaMask, and execute the full test suite — all without installing Node.js or Foundry on your machine.
 
+> **Scope:** Docker covers the contracts and Hardhat environment only. The Next.js frontend (`src/`) does not need Docker — run it directly with `npm run dev`. See [`src/README.md`](../src/README.md) for frontend setup.
+
+---
+
+## Docker Files Reference
+
+| File                            | Type                      | Purpose                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Dockerfile`                    | Production / demo         | Two-stage build: copies Foundry binaries from `ghcr.io/foundry-rs/foundry`, sets up Node.js 22 with `git`, `curl`, and `ca-certificates`, installs npm dependencies, and pre-compiles contracts via Hardhat and Foundry at image build time so the container starts instantly. Entrypoint is `scripts/docker-demo.sh`. Used by the root `docker-compose.yml`. |
+| `docker-compose.yml`            | Orchestration             | Defines four services (`demo-good`, `demo-bad`, `node`, `test`) that all build from `Dockerfile`. Sets the `DEMO` env var per service to control which demo script `docker-demo.sh` runs. Exposes port 8545 on the host.                                                                                                                                      |
+| `docker/Dockerfile.dev`         | Development               | Same two-stage Node + Foundry base as the root `Dockerfile` but designed for live development: source files are mounted as a volume so edits appear inside the container immediately without rebuilding the image. Entrypoint is `scripts/docker-demo.sh`. Used by `docker/docker-compose.dev.yml`.                                                           |
+| `docker/docker-compose.dev.yml` | Development orchestration | Builds from `docker/Dockerfile.dev` with the repo root as the build context, mounts the repo root as a live volume (excluding `node_modules`), loads secrets from the root `.env` via `env_file`, and runs `npm run node` (Hardhat local chain) on port 8545.                                                                                                 |
+| `docker/Dockerfile.ci`          | CI verification           | Runs the full test suite as Docker `RUN` build steps: `npm run compile` → `npm run hardhat:test` → `cd contracts && forge test`. Has no entrypoint — the image build fails if any step fails. Use this to locally reproduce exactly what GitHub Actions runs without setting up a full CI environment.                                                        |
+
 ---
 
 ## Prerequisites
@@ -387,3 +401,26 @@ Check the output for an error before the node started. Common causes:
 ### `DEMO` value not recognized
 
 If you see `Unknown DEMO='...'`, the environment variable was set incorrectly. Valid values are `good`, `bad`, `both`, and `node` (lowercase).
+
+---
+
+## Security
+
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+
+**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+
+---
+
+## Authors
+
+- Kevin Le
+- Kellen Snider

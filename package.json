@@ -2,6 +2,7 @@
 	"name": "trustledger",
 	"version": "0.1.0",
 	"description": "A smart-contract built on the Ethereum blockchain.",
+	"private": true,
 	"keywords": [
 		"ethereum",
 		"smart-contract",
@@ -21,10 +22,10 @@
 	},
 	"license": "Apache-2.0",
 	"author": "Kevin Le, Kellen Snider",
-	"main": "dist/index.js",
+	"engines": {
+		"node": ">=22.0.0"
+	},
 	"scripts": {
-		"build": "tsc",
-		"start": "node dist/index.js",
 		"compile": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat compile",
 		"hardhat:test": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat test",
 		"hardhat:gas": "REPORT_GAS=true TS_NODE_PROJECT=tsconfig.hardhat.json hardhat test",
@@ -38,7 +39,7 @@
 		"start:deploy:foundry": "npm run foundry:build && npm run foundry:deploy:sepolia",
 		"lint": "npm run lint:ts && npm run lint:sol",
 		"lint:sol": "solhint 'contracts/src/**/*.sol' 'contracts/test/**/*.sol' 'contracts/script/**/*.sol'",
-		"lint:ts": "eslint 'src/**/*.ts' 'test/**/*.ts' 'scripts/**/*.ts' 'hardhat.config.ts'",
+		"lint:ts": "eslint 'test/**/*.ts' 'scripts/**/*.ts' 'hardhat.config.ts'",
 		"lint:prettier": "prettier --check .",
 		"debug:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile",
 		"foundry:gas": "cd contracts && forge test --gas-report",
@@ -48,12 +49,13 @@
 		"foundry:deploy:sepolia:dry-run": "set -a && . ./.env && set +a && cd contracts && forge script script/Deploy.s.sol --rpc-url sepolia --private-key \"$DEPLOYER_PRIVATE_KEY\" -vvvv",
 		"demo:good": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-good.ts --network localhost --no-compile",
 		"demo:bad": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-bad.ts --network localhost --no-compile",
-		"prepare": "husky"
-	},
-	"engines": {
-		"node": ">=22.0.0"
+		"prepare": "husky",
+		"nexus:index": "nexus-graph index --project .",
+		"nexus:server": "nexus-graph server --project .",
+		"nexus:viz": "nexus-graph viz --project ."
 	},
 	"devDependencies": {
+		"@costline/nexus-graph": "^0.1.1",
 		"@commitlint/cli": "^21.0.1",
 		"@commitlint/config-conventional": "^21.0.1",
 		"@eslint/js": "^10.0.1",

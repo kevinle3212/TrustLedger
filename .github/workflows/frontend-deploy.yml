@@ -4,7 +4,8 @@ on:
     push:
         branches: [main]
         paths:
-            - "frontend/**"
+            - "src/**"
+            - "artifacts/deployed-addresses.json"
             - ".github/workflows/frontend-deploy.yml"
     workflow_dispatch:
 
@@ -23,7 +24,7 @@ jobs:
         runs-on: ubuntu-latest
         defaults:
             run:
-                working-directory: frontend
+                working-directory: src
         steps:
             - name: Checkout
               uses: actions/checkout@v5
@@ -33,7 +34,7 @@ jobs:
               with:
                   node-version: 22
                   cache: npm
-                  cache-dependency-path: frontend/package-lock.json
+                  cache-dependency-path: src/package-lock.json
 
             - name: Install dependencies
               run: npm ci
@@ -41,10 +42,13 @@ jobs:
             - name: Build
               run: npm run build
               env:
-                  # Neither value is sensitive — both are visible in the browser bundle.
-                  # Update these when you get a WalletConnect project ID or redeploy the contract.
-                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
-                  NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: "0x0000000000000000000000000000000000000000"
+                  # Add NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID as a repo/environment secret
+                  # (Settings -> Secrets -> Actions) to enable WalletConnect on the live site.
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '' }}
+                  # GitHub Pages serves the site at /TrustLedger unless a custom domain is set.
+                  NEXT_BASE_PATH: /TrustLedger
+                  # NEXT_PUBLIC_TRUSTLEDGER_ADDRESS is intentionally omitted here.
+                  # next.config.ts reads it automatically from artifacts/deployed-addresses.json.
 
             - name: Add .nojekyll
               run: touch out/.nojekyll
@@ -52,7 +56,7 @@ jobs:
             - name: Upload Pages artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: frontend/out
+                  path: src/out
 
     deploy:
         name: Deploy to GitHub Pages

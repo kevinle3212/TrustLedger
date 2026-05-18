@@ -28,17 +28,18 @@ Supplementary notes that don't belong in any single other document.
 
 ## Tooling Overview
 
-| Tool                  | Role                                                                                                                        |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                               |
-| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment |
-| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                       |
-| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                           |
-| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                            |
-| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                  |
-| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                        |
-| **Solhint**           | Solidity-specific style and security linting rules                                                                          |
-| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                            |
+| Tool                  | Role                                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                                   |
+| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment     |
+| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                           |
+| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                               |
+| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                                |
+| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                      |
+| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                            |
+| **Solhint**           | Solidity-specific style and security linting rules                                                                              |
+| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                                |
+| **nexus-graph**       | Indexes TypeScript/JavaScript source as a symbol graph; serves token-budgeted code context to Claude Code via MCP (`.mcp.json`) |
 
 ### Why both Hardhat and Foundry?
 
@@ -93,3 +94,26 @@ On a local Hardhat node or in tests, a `MockVRFCoordinator` is deployed and wire
 - **GitHub Actions** — workflow pinned-refresh disabled to avoid noisy background fetches.
 - **Todo Tree** — submodule directories (`contracts/lib/**`) excluded so third-party TODOs don't pollute the tree.
 - **ESLint flat config** — `eslint.useFlatConfig: true` tells the ESLint VS Code extension to use the new flat config format (`eslint.config.mjs`).
+
+---
+
+## Security
+
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+
+**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+---
+
+## License
+
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+
+---
+
+## Authors
+
+- Kevin Le
+- Kellen Snider

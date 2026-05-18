@@ -12,6 +12,8 @@ export default [
 			"node_modules/**",
 			"artifacts/**",
 			"hardhat-cache/**",
+			"contracts/lib/**",
+			"src/**",
 			"eslint.config.mjs",
 			"*.config.js",
 			"*.config.cjs",
