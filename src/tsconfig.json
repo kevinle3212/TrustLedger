@@ -1,0 +1,55 @@
+{
+	"compilerOptions": {
+		/* ── Target & module (bundler mode for Next.js) ─────────────────────── */
+		"target": "ES2024",
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"jsx": "react-jsx",
+
+		/* ── Extra strictness on top of strict: true ─────────────────────────── */
+		"strict": true,
+		"noEmit": true,
+		"verbatimModuleSyntax": true,
+		"noUncheckedSideEffectImports": true,
+		"noErrorTruncation": true,
+		"useDefineForClassFields": true,
+		"allowJs": false,
+		"checkJs": false,
+
+		/* ── Re-asserted from strictest (kept explicit for auditability) ─────── */
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+		"noImplicitOverride": true,
+		"noFallthroughCasesInSwitch": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"useUnknownInCatchVariables": true,
+
+		/* ── Interop & resolution ───────────────────────────────────────────── */
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+
+		/* ── Build perf ─────────────────────────────────────────────────────── */
+		"incremental": true,
+
+		/* ── Next.js plugin + path alias ────────────────────────────────────── */
+		"plugins": [{ "name": "next" }],
+		"paths": { "@/*": ["./*"] }
+	},
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		".next/dev/types/**/*.ts"
+	],
+	"exclude": ["node_modules", "out", ".next"]
+}
