@@ -50,6 +50,8 @@ const nextConfig: NextConfig = {
 	// Controls the URL prefix. Read from process.env first (set via Vercel project settings),
 	// then falls back to the root .env (parsed above), then to empty string (served at root).
 	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "",
+	// Both must match — Next.js enforces this at build time.
+	outputFileTracingRoot: path.resolve(__dirname),
 	turbopack: {
 		// Pin the workspace root to the frontend directory so Next.js doesn't
 		// pick up the parent repo's package-lock.json as the workspace root.
