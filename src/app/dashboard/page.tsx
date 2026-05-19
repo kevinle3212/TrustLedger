@@ -71,7 +71,7 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
 		const trimmed = uri.trim();
-		if (!trimmed) return;
+		if (trimmed === "") return;
 		writeContract({
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
@@ -91,18 +91,20 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 				type="text"
 				placeholder="Deliverable URL or IPFS link"
 				value={uri}
-				onChange={(e) => setUri(e.target.value)}
+				onChange={(e) => {
+					setUri(e.target.value);
+				}}
 				required
 				className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
 			/>
-			{error && (
+			{error !== null && (
 				<p className="text-xs text-red-400">
 					{(error as { shortMessage?: string }).shortMessage ?? error.message}
 				</p>
 			)}
 			<button
 				type="submit"
-				disabled={isPending || isConfirming || !uri.trim()}
+				disabled={isPending || isConfirming || uri.trim() === ""}
 				className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
 			>
 				{isPending || isConfirming ? "Submitting…" : "Submit Work"}

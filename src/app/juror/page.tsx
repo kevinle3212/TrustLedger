@@ -10,6 +10,9 @@ import { formatAddress } from "@/lib/utils";
 
 const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 
+// Captured at module load; avoids calling Date.now() during render
+const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
+
 function formatTimestamp(ts: bigint): string {
 	if (ts === 0n) return "—";
 	return new Date(Number(ts) * 1000).toLocaleDateString(undefined, {
@@ -47,9 +50,8 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 	if (isLoading) return <div className="text-gray-500 text-sm">Loading…</div>;
 
 	const isRegistered = juror?.active === true || (juror?.stake ?? 0n) > 0n;
-	const nowS = BigInt(Math.floor(Date.now() / 1000));
-	const lockElapsed = juror ? nowS >= juror.stakeUnlockTime : false;
-	const cooldownActive = cooldown !== undefined && cooldown > 0n && nowS < cooldown;
+	const lockElapsed = juror !== undefined ? PAGE_LOAD_TIME_S >= juror.stakeUnlockTime : false;
+	const cooldownActive = cooldown !== undefined && cooldown > 0n && PAGE_LOAD_TIME_S < cooldown;
 
 	return (
 		<div className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col gap-4">
@@ -57,10 +59,16 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				<h2 className="font-semibold text-white">Your Juror Status</h2>
 				<span
 					className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-						eligible ? "bg-green-500/20 text-green-300" : "bg-gray-500/20 text-gray-400"
+						eligible === true
+							? "bg-green-500/20 text-green-300"
+							: "bg-gray-500/20 text-gray-400"
 					}`}
 				>
-					{eligible ? "Eligible" : isRegistered ? "Ineligible" : "Not Registered"}
+					{eligible === true
+						? "Eligible"
+						: isRegistered
+							? "Ineligible"
+							: "Not Registered"}
 				</span>
 			</div>
 
@@ -69,24 +77,28 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				<span className="text-white font-mono">{formatAddress(address)}</span>
 
 				<span className="text-gray-500">Stake</span>
-				<span className="text-white">{juror ? formatEther(juror.stake) : "0"} ETH</span>
+				<span className="text-white">
+					{juror !== undefined ? formatEther(juror.stake) : "0"} ETH
+				</span>
 
 				<span className="text-gray-500">Reputation</span>
 				<span className="text-white">
-					{juror ? juror.reputation.toString() : "—"} / 100
+					{juror !== undefined ? juror.reputation.toString() : "—"} / 100
 				</span>
 
 				<span className="text-gray-500">Disputes</span>
 				<span className="text-white">
-					{juror ? juror.disputesParticipated.toString() : "—"}
+					{juror !== undefined ? juror.disputesParticipated.toString() : "—"}
 				</span>
 
 				<span className="text-gray-500">Minority Votes</span>
-				<span className="text-white">{juror ? juror.minorityVotes.toString() : "—"}</span>
+				<span className="text-white">
+					{juror !== undefined ? juror.minorityVotes.toString() : "—"}
+				</span>
 
 				<span className="text-gray-500">Stake Unlocks</span>
-				<span className={`${lockElapsed ? "text-green-400" : "text-yellow-300"}`}>
-					{juror
+				<span className={lockElapsed ? "text-green-400" : "text-yellow-300"}>
+					{juror !== undefined
 						? lockElapsed
 							? "Unlocked"
 							: formatTimestamp(juror.stakeUnlockTime)
@@ -96,7 +108,7 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				{cooldownActive && (
 					<>
 						<span className="text-gray-500">Cooldown Until</span>
-						<span className="text-yellow-300">{formatTimestamp(cooldown!)}</span>
+						<span className="text-yellow-300">{formatTimestamp(cooldown)}</span>
 					</>
 				)}
 
@@ -104,22 +116,22 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				<span className="text-white">{poolCount?.toString() ?? "—"} eligible jurors</span>
 			</div>
 
-			{!eligible && isRegistered && (
+			{eligible !== true && isRegistered && (
 				<div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3 text-xs text-yellow-300 space-y-1">
 					{!lockElapsed && (
 						<p>
 							Stake is locked for 7 days after deposit. Eligible after{" "}
-							{formatTimestamp(juror!.stakeUnlockTime)}.
+							{formatTimestamp(juror?.stakeUnlockTime ?? 0n)}.
 						</p>
 					)}
-					{juror && juror.reputation < 20n && (
+					{juror !== undefined && juror.reputation < 20n && (
 						<p>
 							Reputation below minimum (20). Minority votes reduce reputation by 10
 							each.
 						</p>
 					)}
 					{cooldownActive && (
-						<p>Post-dispute cooldown active until {formatTimestamp(cooldown!)}.</p>
+						<p>Post-dispute cooldown active until {formatTimestamp(cooldown)}.</p>
 					)}
 				</div>
 			)}
@@ -180,12 +192,14 @@ function RegisterForm(): React.JSX.Element {
 						min="0.01"
 						step="0.001"
 						value={ethAmount}
-						onChange={(e) => setEthAmount(e.target.value)}
+						onChange={(e) => {
+							setEthAmount(e.target.value);
+						}}
 						className="w-36 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
 					/>
 					<span className="text-sm text-gray-400">ETH</span>
 				</div>
-				{error && (
+				{error !== null && (
 					<p className="text-xs text-red-400">
 						{(error as { shortMessage?: string }).shortMessage ?? error.message}
 					</p>
@@ -276,7 +290,9 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 						min="0.001"
 						step="0.001"
 						value={addAmount}
-						onChange={(e) => setAddAmount(e.target.value)}
+						onChange={(e) => {
+							setAddAmount(e.target.value);
+						}}
 						className="w-36 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
 					/>
 					<span className="text-sm text-gray-400">ETH</span>
@@ -288,7 +304,7 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 						{addPending || addConfirming ? "…" : "Add"}
 					</button>
 				</div>
-				{addError && (
+				{addError !== null && (
 					<p className="text-xs text-red-400">
 						{(addError as { shortMessage?: string }).shortMessage ?? addError.message}
 					</p>
@@ -297,7 +313,8 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 
 			<form onSubmit={handleUnstake} className="flex flex-col gap-2">
 				<label className="text-xs text-gray-500">
-					Withdraw Stake{juror ? ` (max ${formatEther(juror.stake)} ETH)` : ""}
+					Withdraw Stake
+					{juror !== undefined ? ` (max ${formatEther(juror.stake)} ETH)` : ""}
 				</label>
 				<div className="flex gap-2 items-center">
 					<input
@@ -305,7 +322,9 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 						min="0.001"
 						step="0.001"
 						value={unstakeAmount}
-						onChange={(e) => setUnstakeAmount(e.target.value)}
+						onChange={(e) => {
+							setUnstakeAmount(e.target.value);
+						}}
 						placeholder="0.01"
 						className="w-36 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 					/>
@@ -318,7 +337,7 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 						{unstakePending || unstakeConfirming ? "…" : "Unstake"}
 					</button>
 				</div>
-				{unstakeError && (
+				{unstakeError !== null && (
 					<p className="text-xs text-red-400">
 						{(unstakeError as { shortMessage?: string }).shortMessage ??
 							unstakeError.message}
