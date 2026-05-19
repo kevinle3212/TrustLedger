@@ -9,12 +9,7 @@ pragma solidity ^0.8.24;
 // solhint-disable function-max-lines
 // solhint-disable ordering
 
-// Fuzzing is a testing technique where the test framework automatically generates
-// thousands of random inputs and checks that invariants (properties that must ALWAYS hold)
-// are never violated. Foundry's fuzzer runs each `testFuzz_*` function with many
-// different values (default 256 runs; we use 10,000 in foundry.toml for more coverage).
-//
-// This file tests mathematical invariants of the payout system:
+// Mathematical invariants verified by fuzz testing:
 //   - Total payouts never exceed the escrowed amount minus the fee pool.
 //   - The partial payout formula matches its expected mathematical form.
 //   - Deadlines are always in the future.
@@ -40,7 +35,6 @@ contract PayoutFuzz is Test {
     Vm.Wallet internal _freelancerWallet;
     address public freelancer;
 
-    // setUp() runs before every fuzz test — it deploys fresh contracts.
     function setUp() public {
         _freelancerWallet = vm.createWallet("freelancer");
         freelancer = _freelancerWallet.addr;
@@ -59,11 +53,33 @@ contract PayoutFuzz is Test {
         arbitration = new Arbitration(address(trustLedger), address(jurorRegistry));
     }
 
-    // Computes and returns the EIP-191 signed acceptance for this contract ID.
     function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
         bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
         bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
         (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
+    }
+
+    /// Creates a contract, accepts it, and submits proof of work with no hold-back.
+    function _createSubmitted(uint128 amount, uint16 arbitrationFeeBps) internal returns (uint256 id) {
+        vm.prank(client);
+        id = trustLedger.createContract{value: amount}(
+            freelancer,
+            CONTRACT_HASH,
+            "ipfs://contract",
+            30 days,
+            1200,
+            48 hours,
+            arbitrationFeeBps,
+            0,
+            0,
+            address(0),
+            0
+        );
+        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
+        vm.prank(freelancer);
+        trustLedger.acceptContract(id, v, r, s);
+        vm.prank(freelancer);
+        trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
     }
 
     // ─── Payout conservation invariant ───────────────────────────────────────
@@ -81,27 +97,7 @@ contract PayoutFuzz is Test {
         vm.assume(amount > 0);
         vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000);
 
-        vm.prank(client);
-        uint256 id = trustLedger.createContract{value: amount}(
-            freelancer,
-            CONTRACT_HASH,
-            "ipfs://contract",
-            30 days,
-            1200,
-            48 hours,
-            arbitrationFeeBps,
-            0,
-            0,
-            address(0), // ETH escrow
-            0
-        );
-
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
-
-        vm.prank(freelancer);
-        trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
+        uint256 id = _createSubmitted(amount, arbitrationFeeBps);
 
         uint256 freelancerBefore = freelancer.balance;
         uint256 clientBefore = client.balance;
@@ -118,7 +114,6 @@ contract PayoutFuzz is Test {
         uint256 feePool = (uint256(amount) * arbitrationFeeBps) / 10_000;
         uint256 remaining = uint256(amount) - feePool;
 
-        // Core invariant: all remaining ETH is distributed; none disappears.
         assertEq(freelancerGot + clientGot, remaining, "payout conservation violated");
 
         assertLe(freelancerGot, remaining, "freelancer overpaid");
@@ -136,27 +131,7 @@ contract PayoutFuzz is Test {
         vm.assume(amount > 300); // amounts ≤ 300 can give 0 due to integer truncation
         vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000);
 
-        vm.prank(client);
-        uint256 id = trustLedger.createContract{value: amount}(
-            freelancer,
-            CONTRACT_HASH,
-            "ipfs://contract",
-            30 days,
-            1200,
-            48 hours,
-            arbitrationFeeBps,
-            0,
-            0,
-            address(0),
-            0
-        );
-
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
-        vm.prank(freelancer);
-        trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
-
+        uint256 id = _createSubmitted(amount, arbitrationFeeBps);
         uint256 freelancerBefore = freelancer.balance;
 
         vm.prank(client);
@@ -284,27 +259,7 @@ contract PayoutFuzz is Test {
         vm.assume(amount > 0);
         vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000);
 
-        vm.prank(client);
-        uint256 id = trustLedger.createContract{value: amount}(
-            freelancer,
-            CONTRACT_HASH,
-            "ipfs://contract",
-            30 days,
-            1200,
-            48 hours,
-            arbitrationFeeBps,
-            0,
-            0,
-            address(0),
-            0
-        );
-
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
-        vm.prank(freelancer);
-        trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
-
+        uint256 id = _createSubmitted(amount, arbitrationFeeBps);
         uint256 freelancerBefore = freelancer.balance;
 
         vm.prank(client);
@@ -320,26 +275,7 @@ contract PayoutFuzz is Test {
         vm.assume(amount > 0);
         vm.assume(arbitrationFeeBps >= 1 && arbitrationFeeBps <= 5000);
 
-        vm.prank(client);
-        uint256 id = trustLedger.createContract{value: amount}(
-            freelancer,
-            CONTRACT_HASH,
-            "ipfs://contract",
-            30 days,
-            1200,
-            48 hours,
-            arbitrationFeeBps,
-            0,
-            0,
-            address(0),
-            0
-        );
-
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
-        vm.prank(freelancer);
-        trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
+        uint256 id = _createSubmitted(amount, arbitrationFeeBps);
 
         vm.prank(client);
         trustLedger.disputeWork(id);

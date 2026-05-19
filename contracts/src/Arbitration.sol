@@ -428,6 +428,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             // Jurors were pre-selected by fulfillRandomWords(). Only they may commit.
             // _committed == true means "pre-selected"; _commitments == bytes32(0) means
             // the juror hasn't submitted their vote hash yet.
+            if (_isOriginalJuror[disputeId][msg.sender]) revert ExcludedJuror();
             if (!_committed[disputeId][msg.sender]) revert NotEligible(); // not VRF-selected
             if (_commitments[disputeId][msg.sender] != bytes32(0)) revert AlreadyCommitted();
             // _jurors and jurorCount were already set by fulfillRandomWords(); don't add again.

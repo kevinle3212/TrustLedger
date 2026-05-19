@@ -38,6 +38,7 @@
 		"skipLibCheck": true,
 
 		/* ── Build perf ────────────────────────────────────────────────────── */
+		"rootDir": ".",
 		"incremental": true,
 		"tsBuildInfoFile": "./.tsbuildinfo",
 

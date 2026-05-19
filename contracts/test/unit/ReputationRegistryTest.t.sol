@@ -17,7 +17,6 @@ contract ReputationRegistryTest is Test {
     address public user2 = makeAddr("user2");
     address public stranger = makeAddr("stranger");
 
-    // setUp() deploys a fresh ReputationRegistry before every test.
     function setUp() public {
         registry = new ReputationRegistry(trustLedger);
     }
@@ -54,18 +53,15 @@ contract ReputationRegistryTest is Test {
         (uint256 num, uint256 den) = registry.averageRating(user1);
         assertEq(num, 160, "accumulated numerator mismatch");
         assertEq(den, 2, "accumulated denominator mismatch");
-        // Average = 160 / 2 = 80
     }
 
     function test_Rate_OnlyTrustLedger_Reverts() public {
-        // A stranger calling rate() should revert with OnlyTrustLedger.
         vm.expectRevert(ReputationRegistry.OnlyTrustLedger.selector);
         vm.prank(stranger);
         registry.rate(user1, 80);
     }
 
     function test_Rate_ZeroScore_Reverts() public {
-        // Score 0 is invalid (range is [1, 100]).
         vm.expectRevert(ReputationRegistry.InvalidScore.selector);
         vm.prank(trustLedger);
         registry.rate(user1, 0);
@@ -101,7 +97,6 @@ contract ReputationRegistryTest is Test {
     // ─── AverageRating ────────────────────────────────────────────────────────
 
     function test_AverageRating_UnratedUser_ReturnsZero() public view {
-        // A user who has never been rated should return (0, 0).
         (uint256 num, uint256 den) = registry.averageRating(user1);
         assertEq(num, 0, "expected 0 numerator for unrated user");
         assertEq(den, 0, "expected 0 denominator for unrated user");

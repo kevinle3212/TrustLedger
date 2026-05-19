@@ -8,15 +8,9 @@ pragma solidity ^0.8.24;
 // solhint-disable gas-struct-packing
 // solhint-disable ordering
 
-// `Test` is Foundry's base test contract. It provides:
-//   - vm: a "cheat code" interface to manipulate the EVM state during tests
-//   - assert* functions: assertEq, assertTrue, assertFalse, assertGt, assertLe, etc.
-//   - makeAddr(), computeCreateAddress(), and other test utilities
-// Foundry automatically detects any function whose name starts with `test_` and runs it.
 import {Test} from "forge-std/Test.sol";
 import {JurorRegistry} from "../../src/JurorRegistry.sol";
 
-// The test contract inherits from Test to gain access to all the cheat codes and assertions.
 contract JurorRegistryTest is Test {
     uint256 public constant MIN_STAKE = 0.01 ether;
     uint256 public constant LOCK_PERIOD = 7 days;
@@ -25,25 +19,13 @@ contract JurorRegistryTest is Test {
 
     JurorRegistry public registry;
 
-    // makeAddr("label") deterministically generates a unique fake address from a label string.
-    // It's reproducible across runs (same label always gives the same address) but the
-    // address has no private key, so it can't sign transactions — we use vm.prank() instead.
-    address public arbSim = makeAddr("arbitration"); // simulates the Arbitration contract
+    address public arbSim = makeAddr("arbitration");
     address public juror1 = makeAddr("juror1");
     address public juror2 = makeAddr("juror2");
-    address public stranger = makeAddr("stranger"); // unauthorized caller for revert tests
+    address public stranger = makeAddr("stranger");
 
-    // setUp() runs before every single test function. Foundry takes a snapshot of the
-    // EVM state after setUp() and resets to it before each test, giving every test
-    // a clean starting state. This is equivalent to `beforeEach` in Hardhat/Mocha.
     function setUp() public {
-        // Deploy a fresh JurorRegistry. We pass arbSim as the "arbitration" address
-        // so that tests can simulate Arbitration calling lockForDispute / slash by
-        // using vm.prank(arbSim).
         registry = new JurorRegistry(arbSim);
-
-        // vm.deal(address, amount) sets an account's ETH balance to `amount`.
-        // This gives our test addresses ETH to send with payable calls.
         vm.deal(juror1, 10 ether);
         vm.deal(juror2, 10 ether);
         vm.deal(stranger, 1 ether);
@@ -52,12 +34,9 @@ contract JurorRegistryTest is Test {
     // ─── Registration ─────────────────────────────────────────────────────────
 
     function test_Register_SufficientStake() public {
-        // vm.prank(addr) makes the very next call appear to come from `addr`.
-        // After that one call, msg.sender reverts to the test contract's address.
         vm.prank(juror1);
-        registry.register{value: MIN_STAKE}(); // `{value: x}` sends ETH with the call
+        registry.register{value: MIN_STAKE}();
 
-        // Read back the stored data and verify every field.
         IJurorInfo memory j = _getJuror(juror1);
         assertTrue(j.active, "should be active");
         assertEq(j.stake, MIN_STAKE, "stake mismatch");
@@ -68,12 +47,9 @@ contract JurorRegistryTest is Test {
     }
 
     function test_Register_BelowMinimum_Reverts() public {
-        // vm.expectRevert(selector) tells Foundry: "the next call MUST revert with this error".
-        // If the call doesn't revert, or reverts with a different error, the test fails.
-        // `.selector` extracts the 4-byte function selector from the error type.
         vm.expectRevert(JurorRegistry.StakeBelowMinimum.selector);
         vm.prank(juror1);
-        registry.register{value: MIN_STAKE - 1}(); // 1 wei below minimum → should revert
+        registry.register{value: MIN_STAKE - 1}();
     }
 
     function test_Register_AlreadyRegistered_Reverts() public {
@@ -114,15 +90,12 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
 
-        // vm.warp(timestamp) fast-forwards block.timestamp to the given value.
-        // This lets us test time-dependent logic without waiting real time.
         vm.warp(block.timestamp + LOCK_PERIOD + 1);
 
         uint256 before = juror1.balance;
         vm.prank(juror1);
         registry.unstake(MIN_STAKE);
 
-        // Verify the ETH was returned to the juror's balance.
         assertEq(juror1.balance, before + MIN_STAKE, "unstake amount mismatch");
     }
 
@@ -146,15 +119,11 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
 
-        // Simulate Arbitration locking the juror into a dispute.
-        // vm.prank(arbSim) makes the call appear to come from the arbSim address,
-        // which passes the `onlyArbitration` modifier check.
         vm.prank(arbSim);
         registry.lockForDispute(juror1);
 
         vm.warp(block.timestamp + LOCK_PERIOD + 1);
 
-        // Even after the lock period, unstaking is blocked while in an active dispute.
         vm.expectRevert(JurorRegistry.HasActiveDisputes.selector);
         vm.prank(juror1);
         registry.unstake(MIN_STAKE);
@@ -220,9 +189,7 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: 1 ether}(); // register with 100× minimum stake
 
-        uint256 slashAmt = 0.1 ether; // slash 10% of 1 ether
-
-        // Simulate Arbitration calling slash (only arbSim passes the onlyArbitration check).
+        uint256 slashAmt = 0.1 ether;
         vm.prank(arbSim);
         registry.slash(juror1, slashAmt);
 
@@ -237,7 +204,7 @@ contract JurorRegistryTest is Test {
         registry.register{value: MIN_STAKE}(); // exactly at the minimum
 
         vm.prank(arbSim);
-        registry.slash(juror1, 1); // slash just 1 wei → drops below minimum → deactivate
+        registry.slash(juror1, 1);
 
         IJurorInfo memory j = _getJuror(juror1);
         assertFalse(j.active, "should be deactivated after slash below minimum");
@@ -247,7 +214,6 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: 1 ether}();
 
-        // A random stranger cannot call slash — must come from arbSim (the Arbitration address).
         vm.expectRevert(JurorRegistry.OnlyArbitration.selector);
         vm.prank(stranger);
         registry.slash(juror1, 0.1 ether);
@@ -285,7 +251,6 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
 
-        // Both lock and unlock are gated by onlyArbitration.
         vm.expectRevert(JurorRegistry.OnlyArbitration.selector);
         vm.prank(stranger);
         registry.lockForDispute(juror1);

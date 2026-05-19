@@ -43,6 +43,16 @@ describe("TrustLedger", function () {
 	const CONTRACT_HASH = ethers.keccak256(ethers.toUtf8Bytes("contract-doc"));
 	const POW_HASH = ethers.keccak256(ethers.toUtf8Bytes("proof-of-work"));
 
+	const STATUS = {
+		PENDING: 0,
+		ACTIVE: 1,
+		SUBMITTED: 2,
+		APPROVED: 3,
+		DISPUTED: 4,
+		RESOLVED: 5,
+		CANCELLED: 6,
+	} as const;
+
 	// ── deployContracts ────────────────────────────────────────────────────────
 	async function deployContracts() {
 		const signers = await ethers.getSigners();
@@ -160,6 +170,20 @@ describe("TrustLedger", function () {
 		return id;
 	}
 
+	// Returns an impersonated signer with a funded ETH balance for the given address.
+	async function impersonate(addr: string) {
+		await ethers.provider.send("hardhat_setBalance", [addr, "0x56BC75E2D630FFFFF"]);
+		return await ethers.getImpersonatedSigner(addr);
+	}
+
+	// Builds a commit-reveal commitment hash for a juror vote.
+	function makeCommitment(disputeId: bigint, juror: string, pct: number, salt: string): string {
+		return ethers.solidityPackedKeccak256(
+			["uint256", "address", "uint256", "bytes32"],
+			[disputeId, juror, pct, ethers.encodeBytes32String(salt)],
+		);
+	}
+
 	// ─── Deployment ───────────────────────────────────────────────────────────
 
 	describe("Deployment", function () {
@@ -186,7 +210,7 @@ describe("TrustLedger", function () {
 			expect(c.client).to.equal(await client.getAddress());
 			expect(c.freelancer).to.equal(await freelancer.getAddress());
 			expect(c.amount).to.equal(AMOUNT);
-			expect(c.status).to.equal(0); // PENDING
+			expect(c.status).to.equal(STATUS.PENDING);
 			expect(c.contractHash).to.equal(CONTRACT_HASH);
 			expect(c.token).to.equal(ethers.ZeroAddress); // ETH escrow
 		});
@@ -201,7 +225,7 @@ describe("TrustLedger", function () {
 				.withArgs(id);
 
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(1); // ACTIVE
+			expect(c.status).to.equal(STATUS.ACTIVE);
 		});
 
 		it("should allow freelancer to submit proof of work", async function () {
@@ -213,7 +237,7 @@ describe("TrustLedger", function () {
 				.withArgs(id, POW_HASH, "ipfs://QmPoW");
 
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(2); // SUBMITTED
+			expect(c.status).to.equal(STATUS.SUBMITTED);
 			expect(c.proofOfWorkHash).to.equal(POW_HASH);
 		});
 
@@ -249,7 +273,7 @@ describe("TrustLedger", function () {
 			expect(balAfter - balBefore + gasUsed).to.equal(AMOUNT);
 
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(6); // CANCELLED
+			expect(c.status).to.equal(STATUS.CANCELLED);
 		});
 	});
 
@@ -273,7 +297,7 @@ describe("TrustLedger", function () {
 			const id = await createContract();
 			await trustLedger.connect(freelancer).rejectContract(id);
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(6); // CANCELLED
+			expect(c.status).to.equal(STATUS.CANCELLED);
 		});
 	});
 
@@ -412,7 +436,7 @@ describe("TrustLedger", function () {
 			const id = await createAcceptAndSubmit();
 			await trustLedger.connect(client).disputeWork(id);
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(4); // DISPUTED
+			expect(c.status).to.equal(STATUS.DISPUTED);
 		});
 
 		it("should open dispute in arbitration contract", async function () {
@@ -429,15 +453,6 @@ describe("TrustLedger", function () {
 	// ─── executeRuling ────────────────────────────────────────────────────────
 
 	describe("executeRuling", function () {
-		async function getArbSigner() {
-			const arbSigner = await ethers.getImpersonatedSigner(await arbitration.getAddress());
-			await ethers.provider.send("hardhat_setBalance", [
-				await arbitration.getAddress(),
-				"0x56BC75E2D630FFFFF",
-			]);
-			return arbSigner;
-		}
-
 		it("should distribute 0% to client", async function () {
 			const id = await createAcceptAndSubmit();
 			await trustLedger.connect(client).disputeWork(id);
@@ -445,7 +460,7 @@ describe("TrustLedger", function () {
 			const feePool = (AMOUNT * BigInt(ARB_FEE_BPS)) / 10000n;
 			const remaining = AMOUNT - feePool;
 
-			const arbSigner = await getArbSigner();
+			const arbSigner = await impersonate(await arbitration.getAddress());
 			const clientAddr = await client.getAddress();
 			const balBefore = await ethers.provider.getBalance(clientAddr);
 
@@ -462,7 +477,7 @@ describe("TrustLedger", function () {
 			const feePool = (AMOUNT * BigInt(ARB_FEE_BPS)) / 10000n;
 			const remaining = AMOUNT - feePool;
 
-			const arbSigner = await getArbSigner();
+			const arbSigner = await impersonate(await arbitration.getAddress());
 			const freelancerAddr = await freelancer.getAddress();
 			const balBefore = await ethers.provider.getBalance(freelancerAddr);
 
@@ -488,7 +503,7 @@ describe("TrustLedger", function () {
 			const expectedFreelancerPay = rawPay - freelancerFeeBurden;
 			const expectedClientRefund = remaining - expectedFreelancerPay;
 
-			const arbSigner = await getArbSigner();
+			const arbSigner = await impersonate(await arbitration.getAddress());
 			const freelancerAddr = await freelancer.getAddress();
 			const clientAddr = await client.getAddress();
 			const freelancerBefore = await ethers.provider.getBalance(freelancerAddr);
@@ -625,11 +640,7 @@ describe("TrustLedger", function () {
 			const id = await createAcceptAndSubmit();
 			await trustLedger.connect(client).disputeWork(id);
 
-			const arbSigner = await ethers.getImpersonatedSigner(await arbitration.getAddress());
-			await ethers.provider.send("hardhat_setBalance", [
-				await arbitration.getAddress(),
-				"0x56BC75E2D630FFFFF",
-			]);
+			const arbSigner = await impersonate(await arbitration.getAddress());
 
 			await expect(
 				trustLedger.connect(arbSigner).executeRuling(id, 101n),
@@ -856,15 +867,10 @@ describe("TrustLedger", function () {
 			const feePool = ethers.parseEther("0.1");
 			await trustLedger.connect(client).disputeWork(id, { value: feePool });
 
-			const arbSigner = await ethers.getImpersonatedSigner(await arbitration.getAddress());
-			await ethers.provider.send("hardhat_setBalance", [
-				await arbitration.getAddress(),
-				"0x56BC75E2D630FFFFF",
-			]);
+			const arbSigner = await impersonate(await arbitration.getAddress());
 
 			const freelancerAddr = await freelancer.getAddress();
 			const before = await token.balanceOf(freelancerAddr);
-			// 100% → all tokens to freelancer (feePool was in ETH, all tokens distributable)
 			await trustLedger.connect(arbSigner).executeRuling(id, 100n);
 			expect((await token.balanceOf(freelancerAddr)) - before).to.equal(TOKEN_AMOUNT);
 		});
@@ -1018,19 +1024,6 @@ describe("TrustLedger", function () {
 	describe("Full Arbitration Dispute Flow (commit → reveal → finalize → execute)", function () {
 		let jurors: Signer[];
 
-		// Helpers for the commit-reveal flow
-		function makeCommitment(
-			disputeId: bigint,
-			juror: string,
-			pct: number,
-			salt: string,
-		): string {
-			return ethers.solidityPackedKeccak256(
-				["uint256", "address", "uint256", "bytes32"],
-				[disputeId, juror, pct, ethers.encodeBytes32String(salt)],
-			);
-		}
-
 		beforeEach(async function () {
 			// Register 3 jurors (signers 3-5) and warp past the lock period
 			const allSigners = await ethers.getSigners();
@@ -1095,9 +1088,8 @@ describe("TrustLedger", function () {
 
 			await arbitration.executeRuling(disputeId);
 
-			// Verify TrustLedger contract is RESOLVED
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(5n); // RESOLVED
+			expect(c.status).to.equal(STATUS.RESOLVED);
 
 			// Verify funds distributed (freelancer should get more than 0 at 75%)
 			expect(await ethers.provider.getBalance(freelancerAddr)).to.be.gt(freelancerBefore);
@@ -1209,38 +1201,35 @@ describe("TrustLedger", function () {
 	// serve as original jurors and the last three as fresh appeal jurors.
 
 	describe("Appeal Flow", function () {
-		let jurors: Signer[];
-
-		function makeCommitment(
-			disputeId: bigint,
-			juror: string,
-			pct: number,
-			salt: string,
-		): string {
-			return ethers.solidityPackedKeccak256(
-				["uint256", "address", "uint256", "bytes32"],
-				[disputeId, juror, pct, ethers.encodeBytes32String(salt)],
+		// Runs a full commit→reveal→finalize cycle for the given dispute using the
+		// contract's pre-selected juror panel (from getJurors), all voting the same value.
+		async function runDisputeToFinalized(disputeId: bigint, vote: number): Promise<bigint> {
+			const allSigners = await ethers.getSigners();
+			const addrToSigner = new Map(
+				await Promise.all(allSigners.map(async (s) => [await s.getAddress(), s] as const)),
 			);
-		}
-
-		async function runDisputeToFinalized(
-			contractId: bigint,
-			disputeId: bigint,
-			panel: Signer[],
-			votes: number[],
-		): Promise<bigint> {
-			const salts = votes.map((unusedVote, i) => `salt${String(i)}`);
-			for (let i = 0; i < panel.length; i++) {
-				const addr = await panel[i].getAddress();
+			const selectedAddrs = await arbitration.getJurors(disputeId);
+			const salts: string[] = [];
+			for (let i = 0; i < selectedAddrs.length; i++) salts.push(`salt${String(i)}`);
+			for (let i = 0; i < selectedAddrs.length; i++) {
+				const signer = addrToSigner.get(selectedAddrs[i]);
+				if (signer === undefined)
+					throw new Error(`No signer for pre-selected juror ${selectedAddrs[i]}`);
 				await arbitration
-					.connect(panel[i])
-					.commitVote(disputeId, makeCommitment(disputeId, addr, votes[i], salts[i]));
+					.connect(signer)
+					.commitVote(
+						disputeId,
+						makeCommitment(disputeId, selectedAddrs[i], vote, salts[i]),
+					);
 			}
 			await arbitration.advanceToReveal(disputeId);
-			for (let i = 0; i < panel.length; i++) {
+			for (let i = 0; i < selectedAddrs.length; i++) {
+				const signer = addrToSigner.get(selectedAddrs[i]);
+				if (signer === undefined)
+					throw new Error(`No signer for pre-selected juror ${selectedAddrs[i]}`);
 				await arbitration
-					.connect(panel[i])
-					.revealVote(disputeId, votes[i], ethers.encodeBytes32String(salts[i]));
+					.connect(signer)
+					.revealVote(disputeId, vote, ethers.encodeBytes32String(salts[i]));
 			}
 			const d = await arbitration.getDispute(disputeId);
 			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d.phaseDeadline) + 1]);
@@ -1251,9 +1240,10 @@ describe("TrustLedger", function () {
 		}
 
 		beforeEach(async function () {
-			// Register 6 jurors (3 for original, 3 fresh for appeal since originals are excluded)
+			// Register 8 jurors: openDispute() auto-selects 5 (BASE_MAX_JURORS), leaving
+			// 3 fresh ones eligible for the appeal (original jurors are excluded).
 			const allSigners = await ethers.getSigners();
-			jurors = allSigners.slice(3, 9);
+			const jurors = allSigners.slice(3, 11);
 			for (const j of jurors) {
 				await jurorRegistry.connect(j).register({ value: ethers.parseEther("0.1") });
 			}
@@ -1266,7 +1256,7 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).disputeWork(id);
 			const disputeId = 0n;
 
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [30, 30, 30]);
+			await runDisputeToFinalized(disputeId, 30);
 			const d = await arbitration.getDispute(disputeId);
 
 			// Bond = feePool × 1.5
@@ -1286,7 +1276,7 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).disputeWork(id);
 			const disputeId = 0n;
 
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [30, 30, 30]);
+			await runDisputeToFinalized(disputeId, 30);
 
 			await expect(
 				arbitration.connect(client).appeal(disputeId, { value: 1n }),
@@ -1298,7 +1288,7 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).disputeWork(id);
 			const disputeId = 0n;
 
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [30, 30, 30]);
+			await runDisputeToFinalized(disputeId, 30);
 			const d = await arbitration.getDispute(disputeId);
 
 			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d.phaseDeadline) + 1]);
@@ -1315,7 +1305,7 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).disputeWork(id);
 			const disputeId = 0n;
 
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [30, 30, 30]);
+			await runDisputeToFinalized(disputeId, 30);
 			const d = await arbitration.getDispute(disputeId);
 			const bond = (d.feePool * 15000n) / 10000n;
 
@@ -1329,7 +1319,7 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).disputeWork(id);
 			const disputeId = 0n;
 
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [30, 30, 30]);
+			await runDisputeToFinalized(disputeId, 30);
 			const d = await arbitration.getDispute(disputeId);
 			const bond = (d.feePool * 15000n) / 10000n;
 
@@ -1345,30 +1335,24 @@ describe("TrustLedger", function () {
 			const disputeId = 0n;
 
 			// Original ruling = 30 (freelancer loses most funds)
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [30, 30, 30]);
+			await runDisputeToFinalized(disputeId, 30);
 			const d = await arbitration.getDispute(disputeId);
 			const bond = (d.feePool * 15000n) / 10000n;
 
 			const clientAddr = await client.getAddress();
 			await arbitration.connect(client).appeal(disputeId, { value: bond });
 
-			// Appeal dispute = disputeId 1; use fresh jurors (3-5 are original, use 3-5 which are excluded → use 3-5+3=6-8 but we only have 3-8)
-			// Actually, original jurors were jurors.slice(0,3) = signers[3,4,5]. Appeal must use different jurors.
-			// jurors.slice(3,6) = signers[6,7,8] are fresh
-			const appealDisputeId = 1n;
-			const appealJurors = jurors.slice(3, 6);
-			const clientBalBefore = await ethers.provider.getBalance(clientAddr);
-
 			// Appeal ruling = 90 (changed from 30) → bond returned to client
-			await runDisputeToFinalized(id, appealDisputeId, appealJurors, [90, 90, 90]);
+			const appealDisputeId = 1n;
+			const clientBalBefore = await ethers.provider.getBalance(clientAddr);
+			await runDisputeToFinalized(appealDisputeId, 90);
 
 			// After _resolveAppeal executes, client bond is returned and TrustLedger is resolved
 			const clientBalAfter = await ethers.provider.getBalance(clientAddr);
-			// Client gets bond back (90 ≠ 30)
 			expect(clientBalAfter).to.be.gt(clientBalBefore);
 
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(5n); // RESOLVED
+			expect(c.status).to.equal(STATUS.RESOLVED);
 		});
 
 		it("should forfeit bond when appeal does not change ruling", async function () {
@@ -1377,7 +1361,7 @@ describe("TrustLedger", function () {
 			const disputeId = 0n;
 
 			// Original ruling = 50
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [50, 50, 50]);
+			await runDisputeToFinalized(disputeId, 50);
 			const d = await arbitration.getDispute(disputeId);
 			const bond = (d.feePool * 15000n) / 10000n;
 
@@ -1385,10 +1369,10 @@ describe("TrustLedger", function () {
 
 			// Appeal gives same ruling = 50 → bond forfeited (stays in feePool)
 			const appealDisputeId = 1n;
-			await runDisputeToFinalized(id, appealDisputeId, jurors.slice(3, 6), [50, 50, 50]);
+			await runDisputeToFinalized(appealDisputeId, 50);
 
 			const c = await trustLedger.getContract(id);
-			expect(c.status).to.equal(5n); // RESOLVED — ruling executed even when bond forfeited
+			expect(c.status).to.equal(STATUS.RESOLVED); // ruling executed even when bond forfeited
 		});
 
 		it("should double maxJurors in appeal dispute", async function () {
@@ -1396,7 +1380,7 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).disputeWork(id);
 			const disputeId = 0n;
 
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [50, 50, 50]);
+			await runDisputeToFinalized(disputeId, 50);
 			const d = await arbitration.getDispute(disputeId);
 			const bond = (d.feePool * 15000n) / 10000n;
 			await arbitration.connect(client).appeal(disputeId, { value: bond });
@@ -1410,16 +1394,26 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).disputeWork(id);
 			const disputeId = 0n;
 
-			await runDisputeToFinalized(id, disputeId, jurors.slice(0, 3), [50, 50, 50]);
+			await runDisputeToFinalized(disputeId, 50);
+
+			// Read an original juror's address and find its signer
+			const originalPanel = await arbitration.getJurors(disputeId);
+			const allSigners = await ethers.getSigners();
+			const addrToSigner = new Map(
+				await Promise.all(allSigners.map(async (s) => [await s.getAddress(), s] as const)),
+			);
+			const originalJurorSigner = addrToSigner.get(originalPanel[0]);
+			if (originalJurorSigner === undefined) throw new Error("No signer for original juror");
+
 			const d = await arbitration.getDispute(disputeId);
 			const bond = (d.feePool * 15000n) / 10000n;
 			await arbitration.connect(client).appeal(disputeId, { value: bond });
 
-			// Original juror tries to commit to the appeal dispute
+			// Original juror tries to commit to the appeal dispute → ExcludedJuror
 			const appealDisputeId = 1n;
 			const commitment = ethers.keccak256(ethers.toUtf8Bytes("test"));
 			await expect(
-				arbitration.connect(jurors[0]).commitVote(appealDisputeId, commitment),
+				arbitration.connect(originalJurorSigner).commitVote(appealDisputeId, commitment),
 			).to.be.revertedWithCustomError(arbitration, "ExcludedJuror");
 		});
 	});
@@ -1538,11 +1532,7 @@ describe("TrustLedger", function () {
 			const id = await createAcceptAndSubmit();
 			await trustLedger.connect(client).disputeWork(id);
 
-			const arbSigner = await ethers.getImpersonatedSigner(await arbitration.getAddress());
-			await ethers.provider.send("hardhat_setBalance", [
-				await arbitration.getAddress(),
-				"0x56BC75E2D630FFFFF",
-			]);
+			const arbSigner = await impersonate(await arbitration.getAddress());
 			await trustLedger.connect(arbSigner).executeRuling(id, 50n);
 
 			await expect(trustLedger.connect(client).submitRating(id, 50)).to.emit(
@@ -1552,61 +1542,49 @@ describe("TrustLedger", function () {
 		});
 
 		it("should no-op submitRating when registry not set", async function () {
-			// Deploy fresh TrustLedger without wiring up a registry
 			const arb2Addr = ethers.getCreateAddress({
 				from: await client.getAddress(),
 				nonce: (await ethers.provider.getTransactionCount(await client.getAddress())) + 2,
 			});
 			const JRF = await ethers.getContractFactory("JurorRegistry", client);
-			await JRF.deploy(arb2Addr); // must be deployed first so arb2Addr is a valid contract address
+			await JRF.deploy(arb2Addr);
 			const TLF = await ethers.getContractFactory("TrustLedger", client);
 			const tl2 = (await TLF.deploy(arb2Addr)) as unknown as TrustLedger;
 
-			const id = await (async () => {
-				const tx = await tl2
-					.connect(client)
-					.createContract(
-						await freelancer.getAddress(),
-						CONTRACT_HASH,
-						"ipfs://",
-						ESTIMATED_DURATION,
-						BUFFER_FACTOR,
-						ACCEPTANCE_WINDOW,
-						ARB_FEE_BPS,
-						0,
-						0,
-						ethers.ZeroAddress,
-						0n,
-						{ value: AMOUNT },
-					);
-				const receipt = await tx.wait();
-				const event = receipt?.logs
-					.map((log) => {
-						try {
-							return tl2.interface.parseLog(log);
-						} catch {
-							return null;
-						}
-					})
-					.find((e) => e?.name === "ContractCreated");
-				return event?.args[0] as bigint;
-			})();
-
-			const { v, r, s } = await (async () => {
-				const freelancerAddr = await freelancer.getAddress();
-				const innerHash = ethers.solidityPackedKeccak256(
-					["uint256", "address"],
-					[id, freelancerAddr],
+			const tx2 = await tl2
+				.connect(client)
+				.createContract(
+					await freelancer.getAddress(),
+					CONTRACT_HASH,
+					"ipfs://",
+					ESTIMATED_DURATION,
+					BUFFER_FACTOR,
+					ACCEPTANCE_WINDOW,
+					ARB_FEE_BPS,
+					0,
+					0,
+					ethers.ZeroAddress,
+					0n,
+					{ value: AMOUNT },
 				);
-				const sig = await freelancer.signMessage(ethers.getBytes(innerHash));
-				return ethers.Signature.from(sig);
-			})();
+			const receipt2 = await tx2.wait();
+			const ev = receipt2?.logs
+				.map((log) => {
+					try {
+						return tl2.interface.parseLog(log);
+					} catch {
+						return null;
+					}
+				})
+				.find((e) => e?.name === "ContractCreated");
+			const id = ev?.args[0] as bigint;
+
+			const { v, r, s } = await signAccept(id);
 
 			await tl2.connect(freelancer).acceptContract(id, v, r, s);
 			await tl2.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://QmPoW");
 			await tl2.connect(client).approveWork(id);
 
-			// No registry → silent no-op, no revert
 			await expect(tl2.connect(client).submitRating(id, 80)).to.not.be.reverted;
 		});
 
@@ -1618,11 +1596,7 @@ describe("TrustLedger", function () {
 
 		it("should revert rate() with invalid score", async function () {
 			// Call via impersonation of TrustLedger
-			const tlSigner = await ethers.getImpersonatedSigner(await trustLedger.getAddress());
-			await ethers.provider.send("hardhat_setBalance", [
-				await trustLedger.getAddress(),
-				"0x56BC75E2D630FFFFF",
-			]);
+			const tlSigner = await impersonate(await trustLedger.getAddress());
 			await expect(
 				repRegistry.connect(tlSigner).rate(await freelancer.getAddress(), 0),
 			).to.be.revertedWithCustomError(repRegistry, "InvalidScore");
