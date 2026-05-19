@@ -46,6 +46,8 @@
 		"foundry:gas": "cd contracts && forge test --gas-report",
 		"foundry:build": "cd contracts && forge build",
 		"foundry:test": "cd contracts && forge test",
+		"foundry:test:staging": "cd contracts && FOUNDRY_PROFILE=staging forge test -vvv",
+		"foundry:test:fork": "cd contracts && forge test --match-path 'test/fork/**' -vvv",
 		"foundry:deploy:sepolia": "set -a && . ./.env && set +a && cd contracts && forge script script/Deploy.s.sol --rpc-url sepolia --private-key \"$DEPLOYER_PRIVATE_KEY\" --broadcast --verify -vvvv",
 		"foundry:deploy:sepolia:dry-run": "set -a && . ./.env && set +a && cd contracts && forge script script/Deploy.s.sol --rpc-url sepolia --private-key \"$DEPLOYER_PRIVATE_KEY\" -vvvv",
 		"demo:good": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-good.ts --network localhost --no-compile",
@@ -79,6 +81,8 @@
 	},
 	"overrides": {
 		"ws": "8.20.1",
-		"minimatch": "9.0.5"
+		"minimatch": "9.0.9",
+		"lodash": "4.18.1",
+		"serialize-javascript": "7.0.5"
 	}
 }
