@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAccount, useChainId, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useEffect, useMemo, useState } from "react";
+import {
+	useAccount,
+	useChainId,
+	useWriteContract,
+	useSimulateContract,
+	useWaitForTransactionReceipt,
+} from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { parseEther, keccak256, toBytes, parseEventLogs } from "viem";
 import { TRUSTLEDGER_ABI } from "@/lib/abi";
@@ -101,41 +107,51 @@ export default function CreatePage(): React.JSX.Element {
 		setForm((f) => ({ ...f, [key]: value }));
 	}
 
-	function handleSubmit(e: React.SyntheticEvent): void {
-		e.preventDefault();
-
-		const estimatedDuration = daysToSeconds(Number(form.estimatedDurationDays));
-		const acceptanceWindow = daysToSeconds(Number(form.acceptanceWindowDays));
-		const warrantyPeriod =
-			form.holdBack === "none" ? 0n : BigInt(Number(form.warrantyPeriodDays) * 86400);
-		const bufferFactor = BigInt(form.bufferFactor);
-		const arbitrationFeeBps = Math.round(Number(form.arbitrationFeePct) * 100);
-		const holdBackBps = form.holdBack === "none" ? 0 : Number(form.holdBack) * 100;
+	// Pre-compute tx args whenever the form changes — fed into useSimulateContract so the
+	// transaction is validated on-chain before MetaMask opens. This prevents the "gas limit
+	// too high" symptom caused by gas estimation failing on a reverting transaction.
+	const txArgs = useMemo(() => {
+		if (
+			!/^0x[0-9a-fA-F]{40}$/.test(form.freelancer) ||
+			form.amountEth === "" ||
+			Number(form.amountEth) <= 0 ||
+			Number(form.arbitrationFeePct) <= 0
+		) {
+			return null;
+		}
 		const trimmedURI = form.contractURI.trim();
 		const contractURI = trimmedURI !== "" ? trimmedURI : "ipfs://";
-		// Prefer hash of file content over hash of the URI string.
-		const contractHash = fileHash ?? keccak256(toBytes(contractURI));
-		const value = parseEther(form.amountEth);
-
-		writeContract({
+		return {
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
-			functionName: "createContract",
+			functionName: "createContract" as const,
 			args: [
 				form.freelancer as `0x${string}`,
-				contractHash,
+				fileHash ?? keccak256(toBytes(contractURI)),
 				contractURI,
-				estimatedDuration,
-				bufferFactor,
-				acceptanceWindow,
-				arbitrationFeeBps,
-				holdBackBps,
-				warrantyPeriod,
+				daysToSeconds(Number(form.estimatedDurationDays)),
+				BigInt(form.bufferFactor),
+				daysToSeconds(Number(form.acceptanceWindowDays)),
+				Math.round(Number(form.arbitrationFeePct) * 100),
+				form.holdBack === "none" ? 0 : Number(form.holdBack) * 100,
+				form.holdBack === "none" ? 0n : BigInt(Number(form.warrantyPeriodDays) * 86400),
 				"0x0000000000000000000000000000000000000000",
 				0n,
-			],
-			value,
-		});
+			] as const,
+			value: parseEther(form.amountEth),
+		};
+	}, [form, fileHash]);
+
+	const { data: simData, error: simError } = useSimulateContract({
+		...txArgs,
+		query: { enabled: txArgs !== null },
+	});
+
+	function handleSubmit(e: React.SyntheticEvent): void {
+		e.preventDefault();
+		if (simData?.request !== undefined) {
+			writeContract(simData.request);
+		}
 	}
 
 	useEffect(() => {
@@ -722,6 +738,13 @@ export default function CreatePage(): React.JSX.Element {
 					</div>
 				)}
 
+				{/* Simulation error — shown before MetaMask opens, surfaces revert reason. */}
+				{simError !== null && txArgs !== null && (
+					<p className="text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
+						{(simError as { shortMessage?: string }).shortMessage ?? simError.message}
+					</p>
+				)}
+
 				{writeError !== null && (
 					<p className="text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
 						{(writeError as { shortMessage?: string }).shortMessage ??
@@ -731,7 +754,11 @@ export default function CreatePage(): React.JSX.Element {
 
 				<button
 					type="submit"
-					disabled={isPending || isConfirming}
+					disabled={
+						isPending ||
+						isConfirming ||
+						(txArgs !== null && simData?.request === undefined && simError === null)
+					}
 					className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
 				>
 					{isPending
