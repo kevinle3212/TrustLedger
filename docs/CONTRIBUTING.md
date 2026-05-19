@@ -45,11 +45,13 @@ Copy the example file and fill in your values:
 cp .env.example .env
 ```
 
-| Variable               | Required for           | Description                                                                                       |
-| ---------------------- | ---------------------- | ------------------------------------------------------------------------------------------------- |
-| `SEPOLIA_RPC_URL`      | Testnet deploy / check | Ethereum Sepolia RPC endpoint.                                                                    |
-| `DEPLOYER_PRIVATE_KEY` | Testnet deploy         | Private key of the deployer wallet. Use a dedicated testnet-only wallet that holds no real funds. |
-| `ETHERSCAN_API_KEY`    | Contract verification  | Optional. Needed for `--verify` during deploy.                                                    |
+| Variable               | Required for                | Description                                                                                       |
+| ---------------------- | --------------------------- | ------------------------------------------------------------------------------------------------- |
+| `SEPOLIA_RPC_URL`      | Testnet deploy / fork tests | Ethereum Sepolia RPC endpoint.                                                                    |
+| `DEPLOYER_PRIVATE_KEY` | Testnet deploy              | Private key of the deployer wallet. Use a dedicated testnet-only wallet that holds no real funds. |
+| `ETHERSCAN_API_KEY`    | Contract verification       | Optional. Needed for `--verify` during deploy.                                                    |
+| `FORK_URL`             | Fork integration tests      | Any RPC URL to fork from. Can reuse `SEPOLIA_RPC_URL`. Leave blank to skip fork tests.            |
+| `FORK_BLOCK_NUMBER`    | Fork integration tests      | Optional. Pin the fork to a specific block for reproducible results.                              |
 
 **Never commit `.env`.** It is listed in `.gitignore`.
 
@@ -177,12 +179,12 @@ The suite includes:
 
 ## Foundry Tests
 
-The Foundry suite runs Solidity-native unit and fuzz tests. Fuzz tests run 10,000 random inputs per test by default.
+The Foundry suite runs Solidity-native unit, fuzz, and fork integration tests.
 
 ```bash
 cd contracts
 
-# Run all tests
+# Run all tests (unit + fuzz; fork tests skip when FORK_URL is unset)
 forge test
 
 # Verbose output with full traces
@@ -193,21 +195,32 @@ forge test --match-contract TrustLedgerTest
 forge test --match-contract JurorRegistryTest
 forge test --match-contract ReputationRegistryTest
 forge test --match-contract PayoutFuzz
+forge test --match-contract FullLifecycleFork   # skips without FORK_URL
 
 # Run a single test by name
 forge test --match-test test_HappyPath_CreateAcceptSubmitApprove
 forge test --match-test testFuzz_PayoutConservation
+forge test --match-test test_Fork_HappyPath_CreateAcceptSubmitApprove
 
 # Gas cost report
 forge test --gas-report
 ```
 
-| Suite                          | Tests | Type            |
-| ------------------------------ | ----- | --------------- |
-| `TrustLedgerTest.t.sol`        | 37    | Unit            |
-| `JurorRegistryTest.t.sol`      | 29    | Unit            |
-| `ReputationRegistryTest.t.sol` | 11    | Unit            |
-| `PayoutFuzz.t.sol`             | 7     | Fuzz (10k runs) |
+From the repo root you can also use the npm shortcuts:
+
+```bash
+npm run foundry:test            # all tests (unit + fuzz)
+npm run foundry:test:staging    # staging profile (2 500 fuzz runs, includes fork tests)
+npm run foundry:test:fork       # fork tests only (requires FORK_URL in .env)
+```
+
+| Suite                          | Tests | Type                         |
+| ------------------------------ | ----- | ---------------------------- |
+| `TrustLedgerTest.t.sol`        | 37    | Unit                         |
+| `JurorRegistryTest.t.sol`      | 29    | Unit                         |
+| `ReputationRegistryTest.t.sol` | 11    | Unit                         |
+| `PayoutFuzz.t.sol`             | 7     | Fuzz (10k runs, default)     |
+| `FullLifecycleFork.t.sol`      | 4     | Fork integration (needs RPC) |
 
 ---
 

@@ -134,10 +134,16 @@ docker compose run test
 Runs all tests inside the container and exits when done:
 
 - 73 Hardhat / Mocha / Chai integration tests (TypeScript)
-- 33 Foundry unit tests (`TrustLedgerTest`)
-- 22 Foundry unit tests (`JurorRegistryTest`)
+- 37 Foundry unit tests (`TrustLedgerTest`)
+- 29 Foundry unit tests (`JurorRegistryTest`)
 - 11 Foundry unit tests (`ReputationRegistryTest`)
 - 7 Foundry fuzz tests (`PayoutFuzz`, 10,000 runs each)
+
+Fork integration tests (`FullLifecycleFork`) are skipped inside Docker because no `FORK_URL` is set in the default environment. To run them, pass the variable explicitly:
+
+```bash
+docker compose run -e FORK_URL=<your-rpc-url> test bash -c "cd contracts && forge test --match-contract FullLifecycleFork -vvv"
+```
 
 Note: `docker compose run` (not `up`) is used here because `test` is a one-shot job that should exit when finished, not restart.
 
@@ -151,13 +157,13 @@ Note: `docker compose run` (not `up`) is used here because `test` is a one-shot 
 docker compose run test
 ```
 
-Runs all 146 tests in sequence and exits with a non-zero code if any fail.
+Runs all 157 tests in sequence and exits with a non-zero code if any fail.
 
 | Suite                          | Count | Type                     | Runner  |
 | ------------------------------ | ----- | ------------------------ | ------- |
 | `TrustLedger.test.ts`          | 73    | Integration (TypeScript) | Hardhat |
-| `TrustLedgerTest.t.sol`        | 33    | Unit                     | Foundry |
-| `JurorRegistryTest.t.sol`      | 22    | Unit                     | Foundry |
+| `TrustLedgerTest.t.sol`        | 37    | Unit                     | Foundry |
+| `JurorRegistryTest.t.sol`      | 29    | Unit                     | Foundry |
 | `ReputationRegistryTest.t.sol` | 11    | Unit                     | Foundry |
 | `PayoutFuzz.t.sol`             | 7     | Fuzz (10,000 runs each)  | Foundry |
 

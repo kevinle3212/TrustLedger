@@ -468,10 +468,7 @@ export default function CreatePage(): React.JSX.Element {
 							{/* Pinata JWT — shown if not baked in via env */}
 							{(process.env["NEXT_PUBLIC_PINATA_JWT"] === undefined ||
 								process.env["NEXT_PUBLIC_PINATA_JWT"] === "") && (
-								<Field
-									label="Pinata JWT"
-									hint="Get a free JWT at pinata.cloud → API Keys. Set NEXT_PUBLIC_PINATA_JWT in .env.local to persist it."
-								>
+								<Field label="Pinata JWT">
 									<Input
 										type="password"
 										placeholder="eyJhbGciOiJIUzI1NiIs…"

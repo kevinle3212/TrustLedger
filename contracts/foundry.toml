@@ -33,6 +33,22 @@ seed = "0x1"
 runs = 64
 depth = 100
 
+# Staging profile — production-identical optimizer settings with more thorough
+# fuzz/invariant coverage than CI. Includes fork tests when RPC URLs are set.
+# Run with: FOUNDRY_PROFILE=staging forge test -vvv
+[profile.staging]
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+
+[profile.staging.fuzz]
+runs = 2500
+seed = "0x1"
+
+[profile.staging.invariant]
+runs = 128
+depth = 250
+
 [rpc_endpoints]
 sepolia      = "${SEPOLIA_RPC_URL}"
 arbitrum     = "${ARBITRUM_RPC_URL}"

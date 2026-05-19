@@ -98,7 +98,7 @@ vercel env add NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS preview
 | `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically                          |
 | `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically                          |
 | `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically                          |
-| `NEXT_PUBLIC_PINATA_JWT`               | Production/Preview | Pinata JWT for IPFS uploads — see `.env.example`                                                                         |
+| `NEXT_PUBLIC_PINATA_JWT`               | Production/Preview | Pinata JWT for IPFS uploads — see [Obtaining a Pinata JWT](#obtaining-a-pinata-jwt) below                                |
 | `MAGIC_LINK_SECRET`                    | Production/Preview | Random 32-byte hex: `openssl rand -hex 32` — never expose                                                                |
 | `RESEND_API_KEY`                       | Production/Preview | From [resend.com/api-keys](https://resend.com/api-keys) — never expose                                                   |
 | `RESEND_FROM`                          | Production/Preview | Verified sender address, e.g. `TrustLedger <noreply@yourdomain.com>`                                                     |
@@ -108,6 +108,22 @@ vercel env add NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS preview
 
 > **Why contract address env vars must be set in Vercel:**
 > `artifacts/deployed-addresses.json` is gitignored and never reaches the CI checkout. The Vercel build has no access to it. Env vars are the only mechanism for the frontend to know the deployed addresses. `deploy.yml` keeps all three (`TrustLedger`, `Arbitration`, `JurorRegistry`) in sync automatically after every deploy.
+
+### Obtaining a Pinata JWT
+
+`NEXT_PUBLIC_PINATA_JWT` powers the **Upload File** tab on the contract creation page (IPFS pinning via Pinata).
+
+1. Go to [app.pinata.cloud](https://app.pinata.cloud) and sign in (or create a free account).
+2. In the left sidebar, click **API Keys**.
+3. Click **+ New Key**.
+4. Under **Key Permissions**, select **Files** scope (sufficient for pinning; no admin access needed).
+5. Give the key a name (e.g. `trustledger-frontend`) and click **Create Key**.
+6. Copy the **JWT** from the dialog — it is only shown once.
+7. Paste it into your environment:
+    - **Local dev**: add `NEXT_PUBLIC_PINATA_JWT=<jwt>` to `.env.local`.
+    - **Vercel**: run `vercel env add NEXT_PUBLIC_PINATA_JWT production` and `vercel env add NEXT_PUBLIC_PINATA_JWT preview`, pasting the JWT when prompted.
+
+> **Note:** A Files-scoped JWT can only pin new content — it cannot delete pins or access account settings. It is safe to embed in a public Next.js bundle (`NEXT_PUBLIC_` prefix).
 
 ---
 

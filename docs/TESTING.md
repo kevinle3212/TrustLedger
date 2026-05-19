@@ -6,14 +6,16 @@ TrustLedger uses two parallel test suites: **Hardhat/Mocha** (TypeScript, integr
 
 ## Quick Reference
 
-| Goal                            | Command                                  |
-| ------------------------------- | ---------------------------------------- |
-| Run all Hardhat tests           | `npm run hardhat:test`                   |
-| Run all Foundry tests           | `npm run foundry:test`                   |
-| Run Hardhat with gas report     | `npm run hardhat:gas`                    |
-| Run Foundry with gas report     | `npm run foundry:gas`                    |
-| Run Foundry with verbose output | `cd contracts && forge test -vvv`        |
-| Check Foundry gas snapshot      | `cd contracts && forge snapshot --check` |
+| Goal                                    | Command                                                   |
+| --------------------------------------- | --------------------------------------------------------- |
+| Run all Hardhat tests                   | `npm run hardhat:test`                                    |
+| Run all Foundry tests                   | `npm run foundry:test`                                    |
+| Run Hardhat with gas report             | `npm run hardhat:gas`                                     |
+| Run Foundry with gas report             | `npm run foundry:gas`                                     |
+| Run Foundry with verbose output         | `cd contracts && forge test -vvv`                         |
+| Check Foundry gas snapshot              | `cd contracts && forge snapshot --check`                  |
+| Run all tests under the staging profile | `npm run foundry:test:staging`                            |
+| Run fork integration tests              | `npm run foundry:test:fork` (requires `FORK_URL` in .env) |
 
 ---
 
@@ -28,11 +30,14 @@ contracts/test/
 │   ├── TrustLedgerTest.t.sol    # Foundry unit tests for TrustLedger
 │   ├── JurorRegistryTest.t.sol  # Foundry unit tests for JurorRegistry
 │   └── ReputationRegistryTest.t.sol
-└── fuzz/
-    └── PayoutFuzz.t.sol         # Fuzz tests for payout math invariants
+├── fuzz/
+│   └── PayoutFuzz.t.sol         # Fuzz tests for payout math invariants
+└── fork/
+    └── FullLifecycleFork.t.sol  # Fork integration tests (skip when FORK_URL unset)
 ```
 
-**Current counts:** 73 Hardhat + 84 Foundry = **157 tests total**.
+**Baseline counts:** 73 Hardhat + 84 Foundry = **157 tests total**.
+An additional **4 fork integration tests** run when `FORK_URL` (or `SEPOLIA_RPC_URL`) is set in `.env`; they skip automatically otherwise.
 
 ---
 
@@ -109,15 +114,17 @@ Follow the naming convention `testFuzz_<Invariant>`:
 
 Configured in `contracts/foundry.toml`:
 
-| Profile   | Fuzz runs | Use                        |
-| --------- | --------- | -------------------------- |
-| `default` | 10 000    | Local development          |
-| `ci`      | 256       | CI (keeps job under 5 min) |
+| Profile   | Fuzz runs | Use                                          |
+| --------- | --------- | -------------------------------------------- |
+| `default` | 10 000    | Local development                            |
+| `staging` | 2 500     | Production-parity pre-deploy / staging check |
+| `ci`      | 256       | CI (keeps job under 5 min)                   |
 
-To use the CI profile locally:
+To switch profiles:
 
 ```bash
-FOUNDRY_PROFILE=ci forge test
+FOUNDRY_PROFILE=ci forge test       # fast CI pass
+FOUNDRY_PROFILE=staging forge test  # staging check (or npm run foundry:test:staging)
 ```
 
 ### Running a single test
@@ -125,6 +132,45 @@ FOUNDRY_PROFILE=ci forge test
 ```bash
 cd contracts && forge test --match-test test_HappyPath_CreateAcceptSubmitApprove -vvv
 ```
+
+---
+
+## Fork Integration Tests (`contracts/test/fork/`)
+
+Fork tests run the same lifecycle flows as unit tests but against a **forked Sepolia chain** instead of a blank in-memory EVM. This catches issues that only appear when the deployer nonce is non-zero or real chain state is present — conditions that match production exactly.
+
+### Activation
+
+Fork tests **skip automatically** when no RPC URL is configured, so they never block offline development or CI. To run them:
+
+1. Set `FORK_URL` in `.env` to any Sepolia (or mainnet) RPC endpoint. You can reuse `SEPOLIA_RPC_URL`:
+
+    ```bash
+    FORK_URL=https://eth-sepolia.g.alchemy.com/v2/<your-key>
+    ```
+
+2. Run the fork suite:
+
+    ```bash
+    npm run foundry:test:fork
+    ```
+
+    Or run all tests (including fork) under the staging profile:
+
+    ```bash
+    npm run foundry:test:staging
+    ```
+
+Optionally set `FORK_BLOCK_NUMBER` to pin to a specific block for reproducible results. Omit it to fork from the latest block.
+
+### What `FullLifecycleFork.t.sol` covers
+
+| Test                                            | What it verifies                                                            |
+| ----------------------------------------------- | --------------------------------------------------------------------------- |
+| `test_Fork_HappyPath_CreateAcceptSubmitApprove` | Full lifecycle (create → accept → submit → approve) on forked chain state   |
+| `test_Fork_DeployAddressPrediction`             | Nonce-based address prediction from `Deploy.s.sol` is correct on real chain |
+| `test_Fork_DisputePath_FreelancerWins`          | Dispute → ruling → payout works against forked Sepolia                      |
+| `test_Fork_CancelPending_RefundsClient`         | Cancellation refund is unaffected by live chain state                       |
 
 ---
 
@@ -150,6 +196,18 @@ cd contracts && forge test --match-test test_HappyPath_CreateAcceptSubmitApprove
 2. Add to `contracts/test/fuzz/PayoutFuzz.t.sol` for payout math, or create a new file for unrelated invariants.
 3. Bound inputs with `vm.assume(...)` or `bound(input, min, max)` to avoid trivial rejections.
 4. Fuzz tests must express a mathematical invariant — not just a happy-path scenario.
+
+### Foundry fork tests
+
+1. Add files to `contracts/test/fork/` with a `.t.sol` suffix.
+2. Start every `setUp()` with the skip guard:
+    ```solidity
+    string memory rpcUrl = vm.envOr("SEPOLIA_RPC_URL", string(""));
+    vm.skip(bytes(rpcUrl).length == 0);
+    vm.createSelectFork(rpcUrl);
+    ```
+3. Name functions `test_Fork_<Scenario>_<Outcome>`.
+4. Fork tests should verify behaviour that differs between a blank EVM and a real chain — deployment ordering, nonce effects, and production-equivalent gas conditions.
 
 ---
 
@@ -184,7 +242,9 @@ All four jobs must pass for a PR to merge.
 
 ## Environment Setup
 
-No `.env` file is needed to run the test suites — they run against a local in-process Hardhat node or Foundry's internal EVM. A `.env` is only required for testnet deployments.
+No `.env` file is needed to run the unit or fuzz test suites — they run against a local in-process Hardhat node or Foundry's internal EVM. A `.env` is only required for testnet deployments and fork tests.
+
+To enable fork integration tests, add `FORK_URL` (or `SEPOLIA_RPC_URL`) to `.env`. Optionally set `FORK_BLOCK_NUMBER` to pin to a specific block.
 
 **Prerequisites:**
 

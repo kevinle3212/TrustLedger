@@ -47,6 +47,12 @@ jobs:
               env:
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+                  # Vercel system env vars are only injected when Vercel runs the build
+                  # on its own servers (Git integration). This workflow builds locally, so
+                  # we mirror them from GitHub Actions context so next.config.ts can
+                  # construct NEXT_PUBLIC_GITHUB_URL correctly.
+                  VERCEL_GIT_REPO_OWNER: ${{ github.repository_owner }}
+                  VERCEL_GIT_REPO_SLUG: ${{ github.event.repository.name }}
 
             - name: Deploy
               run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
