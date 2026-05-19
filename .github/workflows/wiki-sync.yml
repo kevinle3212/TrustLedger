@@ -1,0 +1,40 @@
+name: Sync Docs to Wiki
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "docs/**"
+    workflow_dispatch:
+
+concurrency:
+    group: wiki-sync
+    cancel-in-progress: true
+
+permissions:
+    contents: write
+
+jobs:
+    sync:
+        name: Sync docs/ to GitHub Wiki
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Clone wiki
+              run: |
+                  git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git wiki
+
+            - name: Copy docs to wiki
+              run: |
+                  cp docs/*.md wiki/
+
+            - name: Commit and push
+              run: |
+                  cd wiki
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add .
+                  git diff --staged --quiet && echo "No changes to sync." || git commit -m "chore: sync docs from main"
+                  git push
