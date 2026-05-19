@@ -52,11 +52,6 @@ const nextConfig: NextConfig = {
 	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "",
 	// Both must match — Next.js enforces this at build time.
 	outputFileTracingRoot: path.resolve(__dirname),
-	turbopack: {
-		// Pin the workspace root to the frontend directory so Next.js doesn't
-		// pick up the parent repo's package-lock.json as the workspace root.
-		root: path.resolve(__dirname),
-	},
 	env: {
 		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: resolveAddress(
 			"TrustLedger",

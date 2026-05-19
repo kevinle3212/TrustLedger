@@ -84,8 +84,8 @@ contract FullLifecycleFork is Test {
         address arbitrationAddr = computeCreateAddress(address(this), nonce + 2);
 
         jurorRegistry = new JurorRegistry(arbitrationAddr); // nonce
-        trustLedger = new TrustLedger(arbitrationAddr);     // nonce + 1
-        arbitration = new Arbitration(                       // nonce + 2
+        trustLedger = new TrustLedger(arbitrationAddr); // nonce + 1
+        arbitration = new Arbitration( // nonce + 2
             address(trustLedger),
             address(jurorRegistry)
         );
