@@ -77,6 +77,30 @@ jobs:
             - name: Prettier check
               run: npx prettier --check .
 
+    hardhat:
+        name: Hardhat (compile + test)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+              with:
+                  submodules: recursive
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Compile contracts (generates TypeChain types)
+              run: npm run compile
+
+            - name: Run Hardhat tests
+              run: npm run hardhat:test
+
     solidity:
         name: Solidity (forge build + test)
         runs-on: ubuntu-latest
