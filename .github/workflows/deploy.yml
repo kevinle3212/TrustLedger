@@ -41,7 +41,7 @@ jobs:
                 working-directory: contracts
         steps:
             - name: Checkout
-              uses: actions/checkout@v5
+              uses: actions/checkout@v6
               with:
                   submodules: recursive
 
@@ -91,7 +91,7 @@ jobs:
             # Keep deployment receipts/addresses for the audit trail.
             - name: Upload broadcast artifacts
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: broadcast-${{ github.run_id }}
                   path: contracts/broadcast/
