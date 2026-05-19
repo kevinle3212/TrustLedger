@@ -1,1 +1,1 @@
-npm run lint:sol && npm run lint:frontend && npm run lint:prettier
+npm run lint && npm run lint:frontend && npm run lint:prettier
