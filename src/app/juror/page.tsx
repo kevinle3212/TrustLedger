@@ -72,17 +72,25 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				<span className="text-white">{juror ? formatEther(juror.stake) : "0"} ETH</span>
 
 				<span className="text-gray-500">Reputation</span>
-				<span className="text-white">{juror ? juror.reputation.toString() : "—"} / 100</span>
+				<span className="text-white">
+					{juror ? juror.reputation.toString() : "—"} / 100
+				</span>
 
 				<span className="text-gray-500">Disputes</span>
-				<span className="text-white">{juror ? juror.disputesParticipated.toString() : "—"}</span>
+				<span className="text-white">
+					{juror ? juror.disputesParticipated.toString() : "—"}
+				</span>
 
 				<span className="text-gray-500">Minority Votes</span>
 				<span className="text-white">{juror ? juror.minorityVotes.toString() : "—"}</span>
 
 				<span className="text-gray-500">Stake Unlocks</span>
 				<span className={`${lockElapsed ? "text-green-400" : "text-yellow-300"}`}>
-					{juror ? (lockElapsed ? "Unlocked" : formatTimestamp(juror.stakeUnlockTime)) : "—"}
+					{juror
+						? lockElapsed
+							? "Unlocked"
+							: formatTimestamp(juror.stakeUnlockTime)
+						: "—"}
 				</span>
 
 				{cooldownActive && (
@@ -99,10 +107,16 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 			{!eligible && isRegistered && (
 				<div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3 text-xs text-yellow-300 space-y-1">
 					{!lockElapsed && (
-						<p>Stake is locked for 7 days after deposit. Eligible after {formatTimestamp(juror!.stakeUnlockTime)}.</p>
+						<p>
+							Stake is locked for 7 days after deposit. Eligible after{" "}
+							{formatTimestamp(juror!.stakeUnlockTime)}.
+						</p>
 					)}
 					{juror && juror.reputation < 20n && (
-						<p>Reputation below minimum (20). Minority votes reduce reputation by 10 each.</p>
+						<p>
+							Reputation below minimum (20). Minority votes reduce reputation by 10
+							each.
+						</p>
 					)}
 					{cooldownActive && (
 						<p>Post-dispute cooldown active until {formatTimestamp(cooldown!)}.</p>
@@ -138,9 +152,13 @@ function RegisterForm(): React.JSX.Element {
 		return (
 			<div className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col gap-3">
 				<p className="text-sm text-green-400">
-					Registered. Stake is locked for {SEVEN_DAYS_S / 86400} days before eligibility activates.
+					Registered. Stake is locked for {SEVEN_DAYS_S / 86400} days before eligibility
+					activates.
 				</p>
-				<button onClick={reset} className="text-xs text-gray-400 hover:text-white underline self-start">
+				<button
+					onClick={reset}
+					className="text-xs text-gray-400 hover:text-white underline self-start"
+				>
 					Register another
 				</button>
 			</div>
@@ -151,8 +169,8 @@ function RegisterForm(): React.JSX.Element {
 			<div>
 				<h2 className="font-semibold text-white">Register as Juror</h2>
 				<p className="text-xs text-gray-500 mt-1">
-					Stake at least 0.01 ETH. Stake is locked 7 days before you become eligible. Minority votes
-					slash 10% of your stake.
+					Stake at least 0.01 ETH. Stake is locked 7 days before you become eligible.
+					Minority votes slash 10% of your stake.
 				</p>
 			</div>
 			<form onSubmit={handleRegister} className="flex flex-col gap-3">
@@ -217,15 +235,33 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 	function handleAdd(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
 		let value: bigint;
-		try { value = parseEther(addAmount); } catch { return; }
-		writeAdd({ address: JUROR_REGISTRY_ADDRESS, abi: JUROR_REGISTRY_ABI, functionName: "addStake", value });
+		try {
+			value = parseEther(addAmount);
+		} catch {
+			return;
+		}
+		writeAdd({
+			address: JUROR_REGISTRY_ADDRESS,
+			abi: JUROR_REGISTRY_ABI,
+			functionName: "addStake",
+			value,
+		});
 	}
 
 	function handleUnstake(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
 		let amount: bigint;
-		try { amount = parseEther(unstakeAmount); } catch { return; }
-		writeUnstake({ address: JUROR_REGISTRY_ADDRESS, abi: JUROR_REGISTRY_ABI, functionName: "unstake", args: [amount] });
+		try {
+			amount = parseEther(unstakeAmount);
+		} catch {
+			return;
+		}
+		writeUnstake({
+			address: JUROR_REGISTRY_ADDRESS,
+			abi: JUROR_REGISTRY_ABI,
+			functionName: "unstake",
+			args: [amount],
+		});
 	}
 
 	return (
@@ -236,19 +272,27 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 				<label className="text-xs text-gray-500">Add Stake</label>
 				<div className="flex gap-2 items-center">
 					<input
-						type="number" min="0.001" step="0.001" value={addAmount}
+						type="number"
+						min="0.001"
+						step="0.001"
+						value={addAmount}
 						onChange={(e) => setAddAmount(e.target.value)}
 						className="w-36 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
 					/>
 					<span className="text-sm text-gray-400">ETH</span>
 					<button
-						type="submit" disabled={addPending || addConfirming}
+						type="submit"
+						disabled={addPending || addConfirming}
 						className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-medium transition-colors"
 					>
 						{addPending || addConfirming ? "…" : "Add"}
 					</button>
 				</div>
-				{addError && <p className="text-xs text-red-400">{(addError as { shortMessage?: string }).shortMessage ?? addError.message}</p>}
+				{addError && (
+					<p className="text-xs text-red-400">
+						{(addError as { shortMessage?: string }).shortMessage ?? addError.message}
+					</p>
+				)}
 			</form>
 
 			<form onSubmit={handleUnstake} className="flex flex-col gap-2">
@@ -257,20 +301,29 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 				</label>
 				<div className="flex gap-2 items-center">
 					<input
-						type="number" min="0.001" step="0.001" value={unstakeAmount}
+						type="number"
+						min="0.001"
+						step="0.001"
+						value={unstakeAmount}
 						onChange={(e) => setUnstakeAmount(e.target.value)}
 						placeholder="0.01"
 						className="w-36 rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 					/>
 					<span className="text-sm text-gray-400">ETH</span>
 					<button
-						type="submit" disabled={unstakePending || unstakeConfirming}
+						type="submit"
+						disabled={unstakePending || unstakeConfirming}
 						className="px-3 py-1.5 text-xs rounded-lg bg-red-700 hover:bg-red-600 disabled:opacity-40 text-white font-medium transition-colors"
 					>
 						{unstakePending || unstakeConfirming ? "…" : "Unstake"}
 					</button>
 				</div>
-				{unstakeError && <p className="text-xs text-red-400">{(unstakeError as { shortMessage?: string }).shortMessage ?? unstakeError.message}</p>}
+				{unstakeError && (
+					<p className="text-xs text-red-400">
+						{(unstakeError as { shortMessage?: string }).shortMessage ??
+							unstakeError.message}
+					</p>
+				)}
 			</form>
 		</div>
 	);
@@ -282,7 +335,9 @@ export default function JurorPage(): React.JSX.Element {
 	if (!isConnected || address === undefined) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-6 py-32">
-				<p className="text-gray-400 text-lg">Connect your wallet to manage your juror registration.</p>
+				<p className="text-gray-400 text-lg">
+					Connect your wallet to manage your juror registration.
+				</p>
 				<ConnectButton />
 			</div>
 		);
@@ -293,7 +348,8 @@ export default function JurorPage(): React.JSX.Element {
 			<div>
 				<h1 className="text-3xl font-bold">Juror Panel</h1>
 				<p className="text-gray-400 text-sm mt-1">
-					Stake ETH to become eligible for dispute committees. Earn fees for majority votes.
+					Stake ETH to become eligible for dispute committees. Earn fees for majority
+					votes.
 				</p>
 			</div>
 			<StatusCard address={address} />

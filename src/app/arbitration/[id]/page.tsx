@@ -11,7 +11,15 @@ import { formatAddress, formatDeadline } from "@/lib/utils";
 import Link from "next/link";
 
 // Phase enum mirrors Arbitration.sol
-const PHASE_LABELS = ["Commit", "Reveal", "Finalized", "Appealed", "Appeal Commit", "Appeal Reveal", "Appeal Finalized"] as const;
+const PHASE_LABELS = [
+	"Commit",
+	"Reveal",
+	"Finalized",
+	"Appealed",
+	"Appeal Commit",
+	"Appeal Reveal",
+	"Appeal Finalized",
+] as const;
 const PHASE_COLORS: Record<number, string> = {
 	0: "bg-yellow-500/20 text-yellow-300",
 	1: "bg-blue-500/20 text-blue-300",
@@ -99,7 +107,10 @@ function CommitForm({
 			.join("")}` as `0x${string}`;
 
 		const commitment = keccak256(
-			encodePacked(["uint256", "address", "uint256", "bytes32"], [disputeId, address, BigInt(pct), salt]),
+			encodePacked(
+				["uint256", "address", "uint256", "bytes32"],
+				[disputeId, address, BigInt(pct), salt],
+			),
 		);
 
 		localStorage.setItem(saltKey(idStr), salt);
@@ -118,7 +129,8 @@ function CommitForm({
 			<div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4">
 				<p className="text-sm text-green-300 font-medium">Vote committed.</p>
 				<p className="text-xs text-green-400/80 mt-1">
-					Your salt and completion % have been saved to localStorage. You will need them to reveal.
+					Your salt and completion % have been saved to localStorage. You will need them
+					to reveal.
 				</p>
 			</div>
 		);
@@ -126,8 +138,9 @@ function CommitForm({
 	return (
 		<form onSubmit={handleCommit} className="flex flex-col gap-3">
 			<p className="text-xs text-gray-400">
-				Choose a completion percentage (0 = fully refund client, 100 = fully pay freelancer).
-				A random salt will be generated and saved locally — do not clear your browser storage before revealing.
+				Choose a completion percentage (0 = fully refund client, 100 = fully pay
+				freelancer). A random salt will be generated and saved locally — do not clear your
+				browser storage before revealing.
 			</p>
 			<div className="flex items-center gap-4">
 				<input
@@ -160,8 +173,10 @@ function CommitForm({
 
 function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 	const idStr = disputeId.toString();
-	const storedSalt = (typeof window !== "undefined" ? localStorage.getItem(saltKey(idStr)) : null) ?? "";
-	const storedPct = (typeof window !== "undefined" ? localStorage.getItem(pctKey(idStr)) : null) ?? "50";
+	const storedSalt =
+		(typeof window !== "undefined" ? localStorage.getItem(saltKey(idStr)) : null) ?? "";
+	const storedPct =
+		(typeof window !== "undefined" ? localStorage.getItem(pctKey(idStr)) : null) ?? "50";
 
 	const [pct, setPct] = useState(Number(storedPct));
 	const [salt, setSalt] = useState(storedSalt);
@@ -178,14 +193,13 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 		});
 	}
 
-	if (isSuccess)
-		return <p className="text-sm text-green-400">Vote revealed successfully.</p>;
+	if (isSuccess) return <p className="text-sm text-green-400">Vote revealed successfully.</p>;
 
 	return (
 		<form onSubmit={handleReveal} className="flex flex-col gap-3">
 			<p className="text-xs text-gray-400">
-				Enter the same percentage and salt you committed with. These are pre-filled from localStorage if
-				available.
+				Enter the same percentage and salt you committed with. These are pre-filled from
+				localStorage if available.
 			</p>
 			<div className="flex items-center gap-4">
 				<input
@@ -242,8 +256,8 @@ function AppealButton({
 	return (
 		<div className="flex flex-col gap-1">
 			<p className="text-xs text-gray-400">
-				Bond required: <span className="text-white">{formatEther(bond)} ETH</span> (1.5× fee pool).
-				Returned if you win; forfeited if you lose.
+				Bond required: <span className="text-white">{formatEther(bond)} ETH</span> (1.5× fee
+				pool). Returned if you win; forfeited if you lose.
 			</p>
 			{error && (
 				<p className="text-xs text-red-400">
@@ -301,15 +315,17 @@ export default function ArbitrationPage(): React.JSX.Element {
 		return <div className="flex justify-center py-32 text-gray-500">Loading dispute…</div>;
 
 	const phase = dispute.phase;
-	const isSelectedJuror = jurors?.some((j) => j.toLowerCase() === address?.toLowerCase()) ?? false;
+	const isSelectedJuror =
+		jurors?.some((j) => j.toLowerCase() === address?.toLowerCase()) ?? false;
 	const isClient = address?.toLowerCase() === dispute.client.toLowerCase();
 	const isFreelancer = address?.toLowerCase() === dispute.freelancer.toLowerCase();
 	const isParty = isClient || isFreelancer;
 	const phaseDeadlinePassed = nowS > dispute.phaseDeadline;
-	const appealWindowOpen = dispute.finalized && !dispute.appealed && nowS <= dispute.phaseDeadline;
+	const appealWindowOpen =
+		dispute.finalized && !dispute.appealed && nowS <= dispute.phaseDeadline;
 	const canExecute = dispute.finalized && !dispute.appealed && nowS > dispute.phaseDeadline;
 
-	const MAX_UINT256 = (2n ** 256n) - 1n;
+	const MAX_UINT256 = 2n ** 256n - 1n;
 	const rulingSet = dispute.ruling !== MAX_UINT256;
 
 	return (
@@ -329,7 +345,9 @@ export default function ArbitrationPage(): React.JSX.Element {
 						</Link>
 					</p>
 				</div>
-				<span className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${PHASE_COLORS[phase] ?? ""}`}>
+				<span
+					className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${PHASE_COLORS[phase] ?? ""}`}
+				>
 					{PHASE_LABELS[phase] ?? `Phase ${phase}`}
 				</span>
 			</div>
@@ -341,7 +359,9 @@ export default function ArbitrationPage(): React.JSX.Element {
 					<span className="text-white font-mono">{formatAddress(dispute.client)}</span>
 
 					<span className="text-gray-500">Freelancer</span>
-					<span className="text-white font-mono">{formatAddress(dispute.freelancer)}</span>
+					<span className="text-white font-mono">
+						{formatAddress(dispute.freelancer)}
+					</span>
 
 					<span className="text-gray-500">Contract Amount</span>
 					<span className="text-white">{formatEther(dispute.contractAmount)} ETH</span>
@@ -366,7 +386,9 @@ export default function ArbitrationPage(): React.JSX.Element {
 			{rulingSet && (
 				<div className="rounded-2xl border border-green-500/20 bg-green-500/5 p-5 flex flex-col gap-2">
 					<h2 className="font-semibold text-white">Ruling</h2>
-					<p className="text-2xl font-bold text-green-300">{dispute.ruling.toString()}% complete</p>
+					<p className="text-2xl font-bold text-green-300">
+						{dispute.ruling.toString()}% complete
+					</p>
 					<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm mt-1">
 						<span className="text-gray-500">Freelancer receives</span>
 						<span className="text-white">
@@ -374,7 +396,12 @@ export default function ArbitrationPage(): React.JSX.Element {
 						</span>
 						<span className="text-gray-500">Client receives</span>
 						<span className="text-white">
-							{formatEther(dispute.contractAmount - linearPayout(dispute.ruling, dispute.contractAmount) - dispute.feePool)} ETH
+							{formatEther(
+								dispute.contractAmount -
+									linearPayout(dispute.ruling, dispute.contractAmount) -
+									dispute.feePool,
+							)}{" "}
+							ETH
 						</span>
 					</div>
 				</div>
@@ -406,40 +433,63 @@ export default function ArbitrationPage(): React.JSX.Element {
 				)}
 
 				{/* Juror: commit phase */}
-				{isConnected && isSelectedJuror && (phase === 0 || phase === 4) && !phaseDeadlinePassed && (
-					<div className="flex flex-col gap-2">
-						<p className="text-xs font-medium text-yellow-300">You are selected — commit your vote</p>
-						<CommitForm disputeId={disputeId} address={address!} />
-					</div>
-				)}
+				{isConnected &&
+					isSelectedJuror &&
+					(phase === 0 || phase === 4) &&
+					!phaseDeadlinePassed && (
+						<div className="flex flex-col gap-2">
+							<p className="text-xs font-medium text-yellow-300">
+								You are selected — commit your vote
+							</p>
+							<CommitForm disputeId={disputeId} address={address!} />
+						</div>
+					)}
 
 				{/* Juror: reveal phase */}
-				{isConnected && isSelectedJuror && (phase === 1 || phase === 5) && !phaseDeadlinePassed && (
-					<div className="flex flex-col gap-2">
-						<p className="text-xs font-medium text-blue-300">Reveal your vote</p>
-						<RevealForm disputeId={disputeId} />
-					</div>
-				)}
+				{isConnected &&
+					isSelectedJuror &&
+					(phase === 1 || phase === 5) &&
+					!phaseDeadlinePassed && (
+						<div className="flex flex-col gap-2">
+							<p className="text-xs font-medium text-blue-300">Reveal your vote</p>
+							<RevealForm disputeId={disputeId} />
+						</div>
+					)}
 
 				{/* Juror: claim reward */}
 				{isConnected && isSelectedJuror && dispute.finalized && isMajorityJuror && (
-					<PermissionlessButton label="Claim Reward" disputeId={disputeId} functionName="claimReward" />
+					<PermissionlessButton
+						label="Claim Reward"
+						disputeId={disputeId}
+						functionName="claimReward"
+					/>
 				)}
 
 				{/* Permissionless: advance to reveal */}
-				{(phase === 0 || phase === 4) && (phaseDeadlinePassed || dispute.jurorCount >= dispute.maxJurors) && (
-					<PermissionlessButton label="Advance to Reveal" disputeId={disputeId} functionName="advanceToReveal" />
-				)}
+				{(phase === 0 || phase === 4) &&
+					(phaseDeadlinePassed || dispute.jurorCount >= dispute.maxJurors) && (
+						<PermissionlessButton
+							label="Advance to Reveal"
+							disputeId={disputeId}
+							functionName="advanceToReveal"
+						/>
+					)}
 
 				{/* Permissionless: finalize */}
 				{(phase === 1 || phase === 5) && phaseDeadlinePassed && (
-					<PermissionlessButton label="Finalize Dispute" disputeId={disputeId} functionName="finalizeDispute" />
+					<PermissionlessButton
+						label="Finalize Dispute"
+						disputeId={disputeId}
+						functionName="finalizeDispute"
+					/>
 				)}
 
 				{/* Party: appeal */}
 				{isConnected && isParty && appealWindowOpen && (
 					<div className="flex flex-col gap-2">
-						<p className="text-xs font-medium text-red-400">Appeal window open (72h after finalization)</p>
+						<p className="text-xs font-medium text-red-400">
+							Appeal window open (72h after finalization)
+						</p>
 						<AppealButton disputeId={disputeId} feePool={dispute.feePool} />
 					</div>
 				)}
@@ -447,14 +497,22 @@ export default function ArbitrationPage(): React.JSX.Element {
 				{/* Permissionless: execute ruling */}
 				{canExecute && (
 					<div className="flex flex-col gap-1">
-						<p className="text-xs text-gray-400">Appeal window elapsed — ruling can be executed.</p>
-						<PermissionlessButton label="Execute Ruling" disputeId={disputeId} functionName="executeRuling" />
+						<p className="text-xs text-gray-400">
+							Appeal window elapsed — ruling can be executed.
+						</p>
+						<PermissionlessButton
+							label="Execute Ruling"
+							disputeId={disputeId}
+							functionName="executeRuling"
+						/>
 					</div>
 				)}
 
 				{/* Nothing to do */}
 				{isConnected && !isSelectedJuror && !isParty && dispute.finalized && (
-					<p className="text-sm text-gray-500">You are not a party or juror in this dispute.</p>
+					<p className="text-sm text-gray-500">
+						You are not a party or juror in this dispute.
+					</p>
 				)}
 			</div>
 		</div>

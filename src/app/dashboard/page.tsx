@@ -81,7 +81,9 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 	}
 
 	if (isSuccess)
-		return <p className="text-xs text-green-400">Work submitted — waiting for client approval.</p>;
+		return (
+			<p className="text-xs text-green-400">Work submitted — waiting for client approval.</p>
+		);
 
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">

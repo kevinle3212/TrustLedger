@@ -97,50 +97,59 @@ jobs:
                   path: contracts/broadcast/
                   retention-days: 30
 
-            # Parse the Forge broadcast output for the deployed TrustLedger address.
+            # Parse the Forge broadcast output for all three deployed contract addresses.
             # Broadcast is written to contracts/broadcast/Deploy.s.sol/11155111/run-latest.json.
-            - name: Extract deployed TrustLedger address
+            - name: Extract deployed contract addresses
               id: addresses
               run: |
-                  ADDR=$(jq -r \
-                    '.transactions[] | select(.contractName == "TrustLedger") | .contractAddress' \
-                    broadcast/Deploy.s.sol/11155111/run-latest.json)
-                  echo "trustledger=$ADDR" >> "$GITHUB_OUTPUT"
-                  echo "Deployed TrustLedger: $ADDR"
+                  BROADCAST=broadcast/Deploy.s.sol/11155111/run-latest.json
+                  TL=$(jq -r '.transactions[] | select(.contractName == "TrustLedger") | .contractAddress' "$BROADCAST")
+                  ARB=$(jq -r '.transactions[] | select(.contractName == "Arbitration") | .contractAddress' "$BROADCAST")
+                  JR=$(jq -r '.transactions[] | select(.contractName == "JurorRegistry") | .contractAddress' "$BROADCAST")
+                  echo "trustledger=$TL" >> "$GITHUB_OUTPUT"
+                  echo "arbitration=$ARB" >> "$GITHUB_OUTPUT"
+                  echo "juror_registry=$JR" >> "$GITHUB_OUTPUT"
+                  echo "Deployed TrustLedger: $TL"
+                  echo "Deployed Arbitration: $ARB"
+                  echo "Deployed JurorRegistry: $JR"
 
-            # Upsert NEXT_PUBLIC_TRUSTLEDGER_ADDRESS in Vercel so the next frontend
-            # build picks up the new address without any manual env var editing.
+            # Upsert all three contract addresses in Vercel so the next frontend
+            # build picks up the new addresses without any manual env var editing.
             # Requires VERCEL_TOKEN, VERCEL_PROJECT_ID, and VERCEL_ORG_ID secrets
             # to be set in the ethereum-sepolia environment (or as repo secrets).
-            - name: Update NEXT_PUBLIC_TRUSTLEDGER_ADDRESS in Vercel
+            - name: Update contract addresses in Vercel
               run: |
-                  ADDR="${{ steps.addresses.outputs.trustledger }}"
                   TEAM_QUERY=""
                   if [ -n "$VERCEL_ORG_ID" ]; then
                     TEAM_QUERY="?teamId=$VERCEL_ORG_ID"
                   fi
 
-                  ENV_ID=$(curl -sf \
-                    "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env$TEAM_QUERY" \
-                    -H "Authorization: Bearer $VERCEL_TOKEN" | \
-                    jq -r '.envs // [] | .[] | select(.key == "NEXT_PUBLIC_TRUSTLEDGER_ADDRESS") | .id' \
-                    | head -1)
-
-                  if [ -n "$ENV_ID" ] && [ "$ENV_ID" != "null" ]; then
-                    curl -sf -X PATCH \
-                      "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$ENV_ID$TEAM_QUERY" \
-                      -H "Authorization: Bearer $VERCEL_TOKEN" \
-                      -H "Content-Type: application/json" \
-                      -d "{\"value\":\"$ADDR\",\"target\":[\"production\",\"preview\"]}"
-                    echo "Updated NEXT_PUBLIC_TRUSTLEDGER_ADDRESS → $ADDR"
-                  else
-                    curl -sf -X POST \
+                  upsert_env() {
+                    local KEY="$1" VAL="$2"
+                    ENV_ID=$(curl -sf \
                       "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env$TEAM_QUERY" \
-                      -H "Authorization: Bearer $VERCEL_TOKEN" \
-                      -H "Content-Type: application/json" \
-                      -d "{\"key\":\"NEXT_PUBLIC_TRUSTLEDGER_ADDRESS\",\"value\":\"$ADDR\",\"target\":[\"production\",\"preview\"],\"type\":\"plain\"}"
-                    echo "Created NEXT_PUBLIC_TRUSTLEDGER_ADDRESS → $ADDR"
-                  fi
+                      -H "Authorization: Bearer $VERCEL_TOKEN" | \
+                      jq -r --arg k "$KEY" '.envs // [] | .[] | select(.key == $k) | .id' | head -1)
+                    if [ -n "$ENV_ID" ] && [ "$ENV_ID" != "null" ]; then
+                      curl -sf -X PATCH \
+                        "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$ENV_ID$TEAM_QUERY" \
+                        -H "Authorization: Bearer $VERCEL_TOKEN" \
+                        -H "Content-Type: application/json" \
+                        -d "{\"value\":\"$VAL\",\"target\":[\"production\",\"preview\"]}"
+                      echo "Updated $KEY → $VAL"
+                    else
+                      curl -sf -X POST \
+                        "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env$TEAM_QUERY" \
+                        -H "Authorization: Bearer $VERCEL_TOKEN" \
+                        -H "Content-Type: application/json" \
+                        -d "{\"key\":\"$KEY\",\"value\":\"$VAL\",\"target\":[\"production\",\"preview\"],\"type\":\"plain\"}"
+                      echo "Created $KEY → $VAL"
+                    fi
+                  }
+
+                  upsert_env "NEXT_PUBLIC_TRUSTLEDGER_ADDRESS" "${{ steps.addresses.outputs.trustledger }}"
+                  upsert_env "NEXT_PUBLIC_ARBITRATION_ADDRESS" "${{ steps.addresses.outputs.arbitration }}"
+                  upsert_env "NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS" "${{ steps.addresses.outputs.juror_registry }}"
               env:
                   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
