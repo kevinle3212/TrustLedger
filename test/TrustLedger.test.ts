@@ -1605,4 +1605,878 @@ describe("TrustLedger", function () {
 			).to.be.revertedWithCustomError(repRegistry, "InvalidScore");
 		});
 	});
+
+	// ─── Input Validation ─────────────────────────────────────────────────────
+
+	describe("Input Validation", function () {
+		// Thin wrapper so each case only needs to override the relevant parameter.
+		async function createWith(overrides: {
+			hash?: string;
+			uri?: string;
+			arbFeeBps?: number;
+			holdBackBps?: number;
+			warranty?: bigint;
+			tokenAmount?: bigint;
+			value?: bigint;
+		}) {
+			const o = {
+				hash: CONTRACT_HASH,
+				uri: "ipfs://test",
+				arbFeeBps: ARB_FEE_BPS,
+				holdBackBps: 0,
+				warranty: 0n,
+				tokenAmount: 0n,
+				value: AMOUNT,
+				...overrides,
+			};
+			return await trustLedger
+				.connect(client)
+				.createContract(
+					await freelancer.getAddress(),
+					o.hash,
+					o.uri,
+					ESTIMATED_DURATION,
+					BUFFER_FACTOR,
+					ACCEPTANCE_WINDOW,
+					o.arbFeeBps,
+					o.holdBackBps,
+					o.warranty,
+					ethers.ZeroAddress,
+					o.tokenAmount,
+					{ value: o.value },
+				);
+		}
+
+		it("should revert createContract with zero contractHash", async function () {
+			await expect(createWith({ hash: ethers.ZeroHash })).to.be.revertedWithCustomError(
+				trustLedger,
+				"EmptyHash",
+			);
+		});
+
+		it("should revert createContract with empty contractURI", async function () {
+			await expect(createWith({ uri: "" })).to.be.revertedWithCustomError(
+				trustLedger,
+				"EmptyURI",
+			);
+		});
+
+		it("should revert createContract with zero arbitrationFeeBps", async function () {
+			await expect(createWith({ arbFeeBps: 0 })).to.be.revertedWithCustomError(
+				trustLedger,
+				"InvalidArbitrationFee",
+			);
+		});
+
+		it("should revert createContract with arbitrationFeeBps > 5000", async function () {
+			await expect(createWith({ arbFeeBps: 5001 })).to.be.revertedWithCustomError(
+				trustLedger,
+				"InvalidArbitrationFee",
+			);
+		});
+
+		it("should revert createContract with holdBackBps below minimum (300)", async function () {
+			await expect(
+				createWith({ holdBackBps: 300, warranty: 7n * 24n * 3600n }),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidHoldBack");
+		});
+
+		it("should revert createContract with holdBackBps above maximum (1600)", async function () {
+			await expect(
+				createWith({ holdBackBps: 1600, warranty: 7n * 24n * 3600n }),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidHoldBack");
+		});
+
+		it("should revert createContract with holdBack set but warrantyPeriod = 0", async function () {
+			await expect(
+				createWith({ holdBackBps: 1000, warranty: 0n }),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidWarrantyPeriod");
+		});
+
+		it("should revert createContract with warrantyPeriod set but holdBack = 0", async function () {
+			await expect(
+				createWith({ holdBackBps: 0, warranty: 7n * 24n * 3600n }),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidWarrantyPeriod");
+		});
+
+		it("should revert ETH escrow createContract when tokenAmount is non-zero", async function () {
+			await expect(createWith({ tokenAmount: 100n })).to.be.revertedWithCustomError(
+				trustLedger,
+				"InvalidTokenParams",
+			);
+		});
+
+		it("should revert submitProofOfWork with zero powHash", async function () {
+			const id = await createAndAccept();
+			await expect(
+				trustLedger.connect(freelancer).submitProofOfWork(id, ethers.ZeroHash, "ipfs://"),
+			).to.be.revertedWithCustomError(trustLedger, "EmptyHash");
+		});
+
+		it("should revert submitProofOfWork with empty powURI", async function () {
+			const id = await createAndAccept();
+			await expect(
+				trustLedger.connect(freelancer).submitProofOfWork(id, POW_HASH, ""),
+			).to.be.revertedWithCustomError(trustLedger, "EmptyURI");
+		});
+
+		it("should revert initPriceFeed with zero address", async function () {
+			await expect(
+				trustLedger.connect(client).initPriceFeed(ethers.ZeroAddress),
+			).to.be.revertedWithCustomError(trustLedger, "ZeroAddress");
+		});
+
+		it("should revert initReputationRegistry with zero address", async function () {
+			await expect(
+				trustLedger.connect(client).initReputationRegistry(ethers.ZeroAddress),
+			).to.be.revertedWithCustomError(trustLedger, "ZeroAddress");
+		});
+	});
+
+	// ─── State Guards ─────────────────────────────────────────────────────────
+
+	describe("State Guards", function () {
+		it("should revert rejectContract when caller is not freelancer", async function () {
+			const id = await createContract();
+			await expect(
+				trustLedger.connect(stranger).rejectContract(id),
+			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
+		});
+
+		it("should revert rejectContract when status is not PENDING", async function () {
+			const id = await createAndAccept(); // ACTIVE
+			await expect(
+				trustLedger.connect(freelancer).rejectContract(id),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
+		it("should revert cancelPending when caller is not client", async function () {
+			const id = await createContract();
+			await expect(
+				trustLedger.connect(stranger).cancelPending(id),
+			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
+		});
+
+		it("should revert cancelPending when status is not PENDING", async function () {
+			const id = await createAndAccept(); // ACTIVE
+			await expect(
+				trustLedger.connect(client).cancelPending(id),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
+		it("should revert submitProofOfWork when caller is not freelancer", async function () {
+			const id = await createAndAccept();
+			await expect(
+				trustLedger.connect(stranger).submitProofOfWork(id, POW_HASH, "ipfs://"),
+			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
+		});
+
+		it("should revert submitProofOfWork when status is not ACTIVE", async function () {
+			const id = await createContract(); // PENDING
+			await expect(
+				trustLedger.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://"),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
+		it("should revert acceptContract when project deadline has elapsed", async function () {
+			const id = await createContract();
+			const c = await trustLedger.getContract(id);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [
+				Number(c.projectDeadline) + 1,
+			]);
+			await ethers.provider.send("evm_mine", []);
+			const { v, r, s } = await signAccept(id);
+			await expect(
+				trustLedger.connect(freelancer).acceptContract(id, v, r, s),
+			).to.be.revertedWithCustomError(trustLedger, "DeadlineElapsed");
+		});
+
+		it("should revert disputeWork when caller is not client", async function () {
+			const id = await createAcceptAndSubmit();
+			await expect(
+				trustLedger.connect(stranger).disputeWork(id),
+			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
+		});
+
+		it("should revert disputeWork when status is not SUBMITTED", async function () {
+			const id = await createAndAccept(); // ACTIVE
+			await expect(trustLedger.connect(client).disputeWork(id)).to.be.revertedWithCustomError(
+				trustLedger,
+				"InvalidStatus",
+			);
+		});
+
+		it("should revert disputeWork for ETH escrow when msg.value is non-zero", async function () {
+			const id = await createAcceptAndSubmit();
+			await expect(
+				trustLedger.connect(client).disputeWork(id, { value: ethers.parseEther("0.01") }),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidTokenParams");
+		});
+
+		it("should revert disputeWork after acceptance window has elapsed", async function () {
+			const id = await createAcceptAndSubmit();
+			const c = await trustLedger.getContract(id);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [
+				Number(c.acceptanceDeadline) + 1,
+			]);
+			await ethers.provider.send("evm_mine", []);
+			await expect(trustLedger.connect(client).disputeWork(id)).to.be.revertedWithCustomError(
+				trustLedger,
+				"WindowElapsed",
+			);
+		});
+
+		it("should revert claimAfterAcceptanceWindow when caller is not freelancer", async function () {
+			const id = await createAcceptAndSubmit();
+			const c = await trustLedger.getContract(id);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [
+				Number(c.acceptanceDeadline) + 1,
+			]);
+			await ethers.provider.send("evm_mine", []);
+			await expect(
+				trustLedger.connect(stranger).claimAfterAcceptanceWindow(id),
+			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
+		});
+
+		it("should revert claimWarrantyFunds when caller is not freelancer", async function () {
+			const id = await createAcceptAndSubmit({
+				holdBackBps: 1000,
+				warrantyPeriod: 7n * 24n * 3600n,
+			});
+			await trustLedger.connect(client).approveWork(id);
+			const c = await trustLedger.getContract(id);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [
+				Number(c.warrantyDeadline) + 1,
+			]);
+			await ethers.provider.send("evm_mine", []);
+			await expect(
+				trustLedger.connect(stranger).claimWarrantyFunds(id),
+			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
+		});
+
+		it("should revert claimWarrantyFunds when holdBackAmount is zero (no holdBack set)", async function () {
+			const id = await createAcceptAndSubmit(); // holdBackBps = 0
+			await trustLedger.connect(client).approveWork(id);
+			await expect(
+				trustLedger.connect(freelancer).claimWarrantyFunds(id),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidHoldBack");
+		});
+
+		it("should revert claimAfterDeadlineMiss when caller is not client", async function () {
+			const id = await createAndAccept();
+			const c = await trustLedger.getContract(id);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [
+				Number(c.projectDeadline) + 1,
+			]);
+			await ethers.provider.send("evm_mine", []);
+			await expect(
+				trustLedger.connect(stranger).claimAfterDeadlineMiss(id),
+			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
+		});
+
+		it("should revert claimAfterDeadlineMiss when status is not ACTIVE", async function () {
+			const id = await createContract(); // PENDING
+			await expect(
+				trustLedger.connect(client).claimAfterDeadlineMiss(id),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
+		it("should revert executeRuling when status is not DISPUTED", async function () {
+			const id = await createAcceptAndSubmit(); // SUBMITTED
+			const arbSigner = await impersonate(await arbitration.getAddress());
+			await expect(
+				trustLedger.connect(arbSigner).executeRuling(id, 50n),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+	});
+
+	// ─── JurorRegistry ────────────────────────────────────────────────────────
+
+	describe("JurorRegistry", function () {
+		it("should revert register when already registered", async function () {
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			await expect(
+				jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") }),
+			).to.be.revertedWithCustomError(jurorRegistry, "AlreadyRegistered");
+		});
+
+		it("should revert register when stake is below minimum", async function () {
+			await expect(
+				jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.001") }),
+			).to.be.revertedWithCustomError(jurorRegistry, "StakeBelowMinimum");
+		});
+
+		it("should revert addStake when not registered", async function () {
+			await expect(
+				jurorRegistry.connect(stranger).addStake({ value: ethers.parseEther("0.1") }),
+			).to.be.revertedWithCustomError(jurorRegistry, "NotRegistered");
+		});
+
+		it("should revert addStake with zero value", async function () {
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			await expect(
+				jurorRegistry.connect(stranger).addStake({ value: 0n }),
+			).to.be.revertedWithCustomError(jurorRegistry, "StakeBelowMinimum");
+		});
+
+		it("should accumulate stake via addStake and reset lock period", async function () {
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			await jurorRegistry.connect(stranger).addStake({ value: ethers.parseEther("0.05") });
+			const info = await jurorRegistry.getJuror(await stranger.getAddress());
+			expect(info.stake).to.equal(ethers.parseEther("0.15"));
+		});
+
+		it("should revert unstake when not registered", async function () {
+			await expect(
+				jurorRegistry.connect(stranger).unstake(ethers.parseEther("0.01")),
+			).to.be.revertedWithCustomError(jurorRegistry, "NotRegistered");
+		});
+
+		it("should revert unstake when stake is still locked", async function () {
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			await expect(
+				jurorRegistry.connect(stranger).unstake(ethers.parseEther("0.01")),
+			).to.be.revertedWithCustomError(jurorRegistry, "StakeLocked");
+		});
+
+		it("should revert unstake when amount exceeds balance", async function () {
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+			await ethers.provider.send("evm_mine", []);
+			await expect(
+				jurorRegistry.connect(stranger).unstake(ethers.parseEther("1")),
+			).to.be.revertedWithCustomError(jurorRegistry, "InsufficientStake");
+		});
+
+		it("should allow unstake and deactivate juror when stake falls below minimum", async function () {
+			const strangerAddr = await stranger.getAddress();
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+			await ethers.provider.send("evm_mine", []);
+
+			const balBefore = await ethers.provider.getBalance(strangerAddr);
+			const tx = await jurorRegistry.connect(stranger).unstake(ethers.parseEther("0.1"));
+			const receipt = await tx.wait();
+			if (receipt === null) throw new Error("not mined");
+			const gas = receipt.gasUsed * receipt.gasPrice;
+			const balAfter = await ethers.provider.getBalance(strangerAddr);
+
+			expect(balAfter + gas - balBefore).to.equal(ethers.parseEther("0.1"));
+			expect((await jurorRegistry.getJuror(strangerAddr)).active).to.equal(false);
+		});
+
+		it("should revert unstake when juror has active disputes", async function () {
+			const strangerAddr = await stranger.getAddress();
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+			await ethers.provider.send("evm_mine", []);
+
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const disputeId = 0n;
+			const commitment = makeCommitment(disputeId, strangerAddr, 50, "salt");
+			await arbitration.connect(stranger).commitVote(disputeId, commitment);
+
+			await expect(
+				jurorRegistry.connect(stranger).unstake(ethers.parseEther("0.01")),
+			).to.be.revertedWithCustomError(jurorRegistry, "HasActiveDisputes");
+		});
+
+		it("should revert lockForDispute when not arbitration", async function () {
+			await expect(
+				jurorRegistry.connect(stranger).lockForDispute(await stranger.getAddress()),
+			).to.be.revertedWithCustomError(jurorRegistry, "OnlyArbitration");
+		});
+
+		it("should revert unlockFromDispute when not arbitration", async function () {
+			await expect(
+				jurorRegistry.connect(stranger).unlockFromDispute(await stranger.getAddress()),
+			).to.be.revertedWithCustomError(jurorRegistry, "OnlyArbitration");
+		});
+
+		it("should revert slash when not arbitration", async function () {
+			await expect(
+				jurorRegistry.connect(stranger).slash(await stranger.getAddress(), 100n),
+			).to.be.revertedWithCustomError(jurorRegistry, "OnlyArbitration");
+		});
+
+		it("should increment eligibleJurorCount after lock period elapses", async function () {
+			const countBefore = await jurorRegistry.eligibleJurorCount();
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			expect(await jurorRegistry.eligibleJurorCount()).to.equal(countBefore); // locked
+			await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+			await ethers.provider.send("evm_mine", []);
+			expect(await jurorRegistry.eligibleJurorCount()).to.equal(countBefore + 1n);
+		});
+
+		it("should return getCooldownUntil = 0 for fresh juror", async function () {
+			await jurorRegistry.connect(stranger).register({ value: ethers.parseEther("0.1") });
+			expect(await jurorRegistry.getCooldownUntil(await stranger.getAddress())).to.equal(0n);
+		});
+	});
+
+	// ─── Amendment Flow ───────────────────────────────────────────────────────
+
+	describe("Amendment Flow", function () {
+		it("should link amendment and emit ContractAmended", async function () {
+			const oldId = await createContract();
+			await trustLedger.connect(client).cancelPending(oldId);
+			const newId = await createContract();
+
+			await expect(trustLedger.connect(client).linkAmendment(newId, oldId))
+				.to.emit(trustLedger, "ContractAmended")
+				.withArgs(newId, oldId);
+
+			const c = await trustLedger.getContract(newId);
+			expect(c.previousContractId).to.equal(oldId);
+		});
+
+		it("should revert linkAmendment when caller is not client of old contract", async function () {
+			const oldId = await createContract();
+			await trustLedger.connect(client).cancelPending(oldId);
+			const newId = await createContract();
+			await expect(
+				trustLedger.connect(stranger).linkAmendment(newId, oldId),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidPreviousContract");
+		});
+
+		it("should revert linkAmendment when old contract is not CANCELLED", async function () {
+			const oldId = await createContract(); // still PENDING
+			const newId = await createContract();
+			await expect(
+				trustLedger.connect(client).linkAmendment(newId, oldId),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidPreviousContract");
+		});
+
+		it("should revert linkAmendment when new contract is not PENDING", async function () {
+			const oldId = await createContract();
+			await trustLedger.connect(client).cancelPending(oldId);
+			const newId = await createAndAccept(); // ACTIVE
+			await expect(
+				trustLedger.connect(client).linkAmendment(newId, oldId),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
+		it("should revert linkAmendment when already linked", async function () {
+			const oldId = await createContract();
+			await trustLedger.connect(client).cancelPending(oldId);
+			const newId = await createContract();
+			await trustLedger.connect(client).linkAmendment(newId, oldId);
+
+			const anotherId = await createContract();
+			await trustLedger.connect(client).cancelPending(anotherId);
+			await expect(
+				trustLedger.connect(client).linkAmendment(newId, anotherId),
+			).to.be.revertedWithCustomError(trustLedger, "AlreadySet");
+		});
+	});
+
+	// ─── Pauser ───────────────────────────────────────────────────────────────
+
+	describe("Pauser", function () {
+		it("should revert initPauser with zero address", async function () {
+			await expect(
+				trustLedger.connect(client).initPauser(ethers.ZeroAddress),
+			).to.be.revertedWithCustomError(trustLedger, "ZeroAddress");
+		});
+
+		it("should revert initPauser when already set", async function () {
+			await trustLedger.connect(client).initPauser(await client.getAddress());
+			await expect(
+				trustLedger.connect(client).initPauser(await client.getAddress()),
+			).to.be.revertedWithCustomError(trustLedger, "AlreadySet");
+		});
+
+		it("should revert pause when caller is not pauser", async function () {
+			await trustLedger.connect(client).initPauser(await client.getAddress());
+			await expect(trustLedger.connect(stranger).pause()).to.be.revertedWithCustomError(
+				trustLedger,
+				"NotPauser",
+			);
+		});
+
+		it("should block createContract when paused and re-enable after unpause", async function () {
+			await trustLedger.connect(client).initPauser(await client.getAddress());
+			await trustLedger.connect(client).pause();
+
+			await expect(createContract()).to.be.reverted;
+
+			await trustLedger.connect(client).unpause();
+			await expect(createContract()).to.not.be.reverted;
+		});
+	});
+
+	// ─── Automatic Reputation Penalties ───────────────────────────────────────
+
+	describe("Automatic Reputation Penalties", function () {
+		let penaltyRegistry: ReputationRegistry;
+
+		beforeEach(async function () {
+			const RepFactory = await ethers.getContractFactory("ReputationRegistry", client);
+			penaltyRegistry = (await RepFactory.deploy(
+				await trustLedger.getAddress(),
+			)) as unknown as ReputationRegistry;
+			await penaltyRegistry.waitForDeployment();
+			await trustLedger
+				.connect(client)
+				.initReputationRegistry(await penaltyRegistry.getAddress());
+		});
+
+		it("should auto-penalize client (score=1) when completionPct >= 80", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const arbSigner = await impersonate(await arbitration.getAddress());
+			await trustLedger.connect(arbSigner).executeRuling(id, 80n);
+
+			const [num, den] = await penaltyRegistry.averageRating(await client.getAddress());
+			expect(num).to.equal(1n);
+			expect(den).to.equal(1n);
+		});
+
+		it("should block client submitRating after auto-penalty sets their rated flag", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const arbSigner = await impersonate(await arbitration.getAddress());
+			await trustLedger.connect(arbSigner).executeRuling(id, 80n);
+
+			await expect(
+				trustLedger.connect(client).submitRating(id, 90),
+			).to.be.revertedWithCustomError(trustLedger, "RatingAlreadySubmitted");
+		});
+
+		it("should auto-penalize freelancer (score=1) when completionPct <= 20", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const arbSigner = await impersonate(await arbitration.getAddress());
+			await trustLedger.connect(arbSigner).executeRuling(id, 20n);
+
+			const [num, den] = await penaltyRegistry.averageRating(await freelancer.getAddress());
+			expect(num).to.equal(1n);
+			expect(den).to.equal(1n);
+		});
+
+		it("should not auto-penalize either party at completionPct = 50", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const arbSigner = await impersonate(await arbitration.getAddress());
+			await trustLedger.connect(arbSigner).executeRuling(id, 50n);
+
+			const [, clientDen] = await penaltyRegistry.averageRating(await client.getAddress());
+			const [, freelancerDen] = await penaltyRegistry.averageRating(
+				await freelancer.getAddress(),
+			);
+			expect(clientDen).to.equal(0n);
+			expect(freelancerDen).to.equal(0n);
+		});
+	});
+
+	// ─── Arbitration Phase Guards ─────────────────────────────────────────────
+
+	describe("Arbitration Phase Guards", function () {
+		let phaseJurors: Signer[];
+
+		beforeEach(async function () {
+			const allSigners = await ethers.getSigners();
+			phaseJurors = allSigners.slice(3, 8);
+			for (const j of phaseJurors) {
+				await jurorRegistry.connect(j).register({ value: ethers.parseEther("0.1") });
+			}
+			await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+			await ethers.provider.send("evm_mine", []);
+		});
+
+		// Opens a dispute and has the first `n` phaseJurors commit with vote 50.
+		async function commitN(disputeId: bigint, n: number) {
+			for (let i = 0; i < n; i++) {
+				const addr = await phaseJurors[i].getAddress();
+				await arbitration
+					.connect(phaseJurors[i])
+					.commitVote(disputeId, makeCommitment(disputeId, addr, 50, `s${String(i)}`));
+			}
+		}
+
+		it("should revert commitVote when not in commit phase", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			await commitN(0n, 3);
+			await arbitration.advanceToReveal(0n);
+
+			const addr = await phaseJurors[3].getAddress();
+			await expect(
+				arbitration
+					.connect(phaseJurors[3])
+					.commitVote(0n, makeCommitment(0n, addr, 50, "s3")),
+			).to.be.revertedWithCustomError(arbitration, "NotInCommitPhase");
+		});
+
+		it("should revert commitVote when commit phase deadline has elapsed", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const d = await arbitration.getDispute(0n);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d.phaseDeadline) + 1]);
+			await ethers.provider.send("evm_mine", []);
+
+			const addr = await phaseJurors[0].getAddress();
+			await expect(
+				arbitration
+					.connect(phaseJurors[0])
+					.commitVote(0n, makeCommitment(0n, addr, 50, "s0")),
+			).to.be.revertedWithCustomError(arbitration, "PhaseEnded");
+		});
+
+		it("should revert commitVote when juror already committed", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const addr = await phaseJurors[0].getAddress();
+			await arbitration
+				.connect(phaseJurors[0])
+				.commitVote(0n, makeCommitment(0n, addr, 50, "s0"));
+			await expect(
+				arbitration
+					.connect(phaseJurors[0])
+					.commitVote(0n, makeCommitment(0n, addr, 60, "s0")),
+			).to.be.revertedWithCustomError(arbitration, "AlreadyCommitted");
+		});
+
+		it("should revert revealVote when still in commit phase", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const addr = await phaseJurors[0].getAddress();
+			await arbitration
+				.connect(phaseJurors[0])
+				.commitVote(0n, makeCommitment(0n, addr, 50, "s0"));
+			await expect(
+				arbitration
+					.connect(phaseJurors[0])
+					.revealVote(0n, 50, ethers.encodeBytes32String("s0")),
+			).to.be.revertedWithCustomError(arbitration, "NotInRevealPhase");
+		});
+
+		it("should revert revealVote when caller has not committed", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			await commitN(0n, 3);
+			await arbitration.advanceToReveal(0n);
+			// stranger is unregistered and was never pre-selected by RANDAO
+			await expect(
+				arbitration
+					.connect(stranger)
+					.revealVote(0n, 50, ethers.encodeBytes32String("salt")),
+			).to.be.revertedWithCustomError(arbitration, "NotAJuror");
+		});
+
+		it("should revert revealVote with mismatched commitment values", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			await commitN(0n, 3);
+			await arbitration.advanceToReveal(0n);
+			// Reveal with wrong pct → hash mismatch
+			await expect(
+				arbitration
+					.connect(phaseJurors[0])
+					.revealVote(0n, 99, ethers.encodeBytes32String("s0")),
+			).to.be.revertedWithCustomError(arbitration, "InvalidCommitment");
+		});
+
+		it("should revert revealVote when already revealed", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			await commitN(0n, 3);
+			await arbitration.advanceToReveal(0n);
+			await arbitration
+				.connect(phaseJurors[0])
+				.revealVote(0n, 50, ethers.encodeBytes32String("s0"));
+			await expect(
+				arbitration
+					.connect(phaseJurors[0])
+					.revealVote(0n, 50, ethers.encodeBytes32String("s0")),
+			).to.be.revertedWithCustomError(arbitration, "AlreadyRevealed");
+		});
+
+		it("should revert revealVote with completionPct > 100", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			await commitN(0n, 3);
+			await arbitration.advanceToReveal(0n);
+			await expect(
+				arbitration
+					.connect(phaseJurors[0])
+					.revealVote(0n, 101, ethers.encodeBytes32String("s0")),
+			).to.be.revertedWithCustomError(arbitration, "CompletionPctOutOfRange");
+		});
+
+		it("should revert advanceToReveal when fewer than MIN_JURORS and deadline not elapsed", async function () {
+			// Deploy fresh contracts with only 2 jurors so RANDAO selects jurorCount=2 < MIN_JURORS=3.
+			const clientAddr = await client.getAddress();
+			const nonce2 = await ethers.provider.getTransactionCount(clientAddr);
+			const arb2Addr = ethers.getCreateAddress({ from: clientAddr, nonce: nonce2 + 2 });
+
+			const jr2 = (await (
+				await ethers.getContractFactory("JurorRegistry", client)
+			).deploy(arb2Addr)) as unknown as JurorRegistry;
+			const tl2 = (await (
+				await ethers.getContractFactory("TrustLedger", client)
+			).deploy(arb2Addr)) as unknown as TrustLedger;
+			const arb2 = (await (
+				await ethers.getContractFactory("Arbitration", client)
+			).deploy(await tl2.getAddress(), await jr2.getAddress())) as unknown as Arbitration;
+
+			const allSigners = await ethers.getSigners();
+			for (const j of allSigners.slice(3, 5)) {
+				await jr2.connect(j).register({ value: ethers.parseEther("0.1") });
+			}
+			await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
+			await ethers.provider.send("evm_mine", []);
+
+			const tx2 = await tl2
+				.connect(client)
+				.createContract(
+					await freelancer.getAddress(),
+					CONTRACT_HASH,
+					"ipfs://QmC",
+					ESTIMATED_DURATION,
+					BUFFER_FACTOR,
+					ACCEPTANCE_WINDOW,
+					ARB_FEE_BPS,
+					0,
+					0,
+					ethers.ZeroAddress,
+					0n,
+					{ value: AMOUNT },
+				);
+			const rcpt2 = await tx2.wait();
+			const cid = rcpt2?.logs
+				.map((l) => {
+					try {
+						return tl2.interface.parseLog(l);
+					} catch {
+						return null;
+					}
+				})
+				.find((e) => e?.name === "ContractCreated")?.args[0] as bigint;
+
+			const { v, r, s } = await signAccept(cid);
+			await tl2.connect(freelancer).acceptContract(cid, v, r, s);
+			await tl2.connect(freelancer).submitProofOfWork(cid, POW_HASH, "ipfs://QmP");
+			await tl2.connect(client).disputeWork(cid);
+
+			// RANDAO selected 2 jurors (< MIN_JURORS=3); commit deadline not yet elapsed
+			await expect(arb2.advanceToReveal(0n)).to.be.revertedWithCustomError(
+				arb2,
+				"PhaseNotEnded",
+			);
+		});
+
+		it("should revert finalizeDispute when not in reveal phase", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			// Still in COMMIT phase
+			await expect(arbitration.finalizeDispute(0n)).to.be.revertedWithCustomError(
+				arbitration,
+				"NotInRevealPhase",
+			);
+		});
+
+		it("should revert finalizeDispute before reveal deadline elapses", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			await commitN(0n, 3);
+			await arbitration.advanceToReveal(0n);
+			// Reveal deadline not yet elapsed
+			await expect(arbitration.finalizeDispute(0n)).to.be.revertedWithCustomError(
+				arbitration,
+				"PhaseNotEnded",
+			);
+		});
+
+		it("should revert executeRuling when dispute is not finalized", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			await expect(arbitration.executeRuling(0n)).to.be.revertedWithCustomError(
+				arbitration,
+				"DisputeNotFinalized",
+			);
+		});
+
+		it("should revert openDispute when caller is not TrustLedger", async function () {
+			await expect(
+				arbitration
+					.connect(stranger)
+					.openDispute(
+						0n,
+						await client.getAddress(),
+						await freelancer.getAddress(),
+						AMOUNT,
+						100n,
+						{ value: 100n },
+					),
+			).to.be.revertedWithCustomError(arbitration, "OnlyTrustLedger");
+		});
+
+		it("should revert claimReward for a minority juror", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const disputeId = 0n;
+
+			// votes: [50, 50, 99] → median = 50; jurors[2] is minority (|99-50|=49 > 20)
+			const votes = [50, 50, 99];
+			const salts = ["a", "b", "c"];
+			for (let i = 0; i < 3; i++) {
+				const addr = await phaseJurors[i].getAddress();
+				await arbitration
+					.connect(phaseJurors[i])
+					.commitVote(disputeId, makeCommitment(disputeId, addr, votes[i], salts[i]));
+			}
+			await arbitration.advanceToReveal(disputeId);
+			for (let i = 0; i < 3; i++) {
+				await arbitration
+					.connect(phaseJurors[i])
+					.revealVote(disputeId, votes[i], ethers.encodeBytes32String(salts[i]));
+			}
+			const d = await arbitration.getDispute(disputeId);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d.phaseDeadline) + 1]);
+			await ethers.provider.send("evm_mine", []);
+			await arbitration.finalizeDispute(disputeId);
+			const d2 = await arbitration.getDispute(disputeId);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d2.phaseDeadline) + 1]);
+			await ethers.provider.send("evm_mine", []);
+
+			await expect(
+				arbitration.connect(phaseJurors[2]).claimReward(disputeId),
+			).to.be.revertedWithCustomError(arbitration, "NotMajority");
+		});
+
+		it("should revert claimReward when already claimed", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+			const disputeId = 0n;
+
+			const votes = [60, 60, 60];
+			const salts = ["x", "y", "z"];
+			for (let i = 0; i < 3; i++) {
+				const addr = await phaseJurors[i].getAddress();
+				await arbitration
+					.connect(phaseJurors[i])
+					.commitVote(disputeId, makeCommitment(disputeId, addr, votes[i], salts[i]));
+			}
+			await arbitration.advanceToReveal(disputeId);
+			for (let i = 0; i < 3; i++) {
+				await arbitration
+					.connect(phaseJurors[i])
+					.revealVote(disputeId, votes[i], ethers.encodeBytes32String(salts[i]));
+			}
+			const d = await arbitration.getDispute(disputeId);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d.phaseDeadline) + 1]);
+			await ethers.provider.send("evm_mine", []);
+			await arbitration.finalizeDispute(disputeId);
+			const d2 = await arbitration.getDispute(disputeId);
+			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d2.phaseDeadline) + 1]);
+			await ethers.provider.send("evm_mine", []);
+
+			await arbitration.connect(phaseJurors[0]).claimReward(disputeId);
+			await expect(
+				arbitration.connect(phaseJurors[0]).claimReward(disputeId),
+			).to.be.revertedWithCustomError(arbitration, "RewardAlreadyClaimed");
+		});
+	});
 });
