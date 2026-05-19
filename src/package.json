@@ -33,7 +33,8 @@
 		"lint:frontend": "npm run lint:frontend:ts && npm run lint:frontend:prettier",
 		"lint:frontend:ts": "eslint app lib components",
 		"lint:frontend:prettier": "prettier --check \"app/**\" \"lib/**\" \"components/**\" \"next.config.ts\"",
-		"debug:frontend:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile"
+		"debug:frontend:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile",
+		"deploy:vercel": "vercel --prod"
 	},
 	"dependencies": {
 		"@rainbow-me/rainbowkit": "^2.2.11",

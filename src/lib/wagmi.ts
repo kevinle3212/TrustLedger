@@ -5,9 +5,11 @@ export const TRUSTLEDGER_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"] as `0x${string}` | undefined) ??
 	"0x0000000000000000000000000000000000000000";
 
+const wcProjectId = process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"];
+
 export const config = getDefaultConfig({
 	appName: "TrustLedger",
-	projectId: process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] || "YOUR_PROJECT_ID",
+	projectId: wcProjectId !== undefined && wcProjectId !== "" ? wcProjectId : "YOUR_PROJECT_ID",
 	// Sepolia: testing and development only.
 	// Arbitrum / Base / Optimism: production L2s with gas costs proportional to typical contract values.
 	chains: [sepolia, arbitrum, base, optimism],

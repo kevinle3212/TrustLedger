@@ -6,6 +6,8 @@
 
 A decentralized escrow and dispute resolution protocol for freelance agreements, deployed on Ethereum. Clients lock ETH or ERC-20 tokens; freelancers complete work; disputes are resolved by a staked juror panel using commit-reveal voting.
 
+**Live app:** [trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app) — hosted on Vercel, deployed automatically on every push to `main`.
+
 ---
 
 ## Documentation
@@ -120,6 +122,7 @@ Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are calla
 | Reentrancy guard               | OpenZeppelin ReentrancyGuard v5                  |
 | Linting                        | Solhint, ESLint 9 (flat config), Prettier        |
 | CI/CD                          | GitHub Actions                                   |
+| Frontend hosting               | [Vercel](https://vercel.com)                     |
 | Security scans                 | Slither, TruffleHog, CodeQL, npm audit           |
 | Containerization               | Docker                                           |
 

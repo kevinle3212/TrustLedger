@@ -1,6 +1,6 @@
 # TrustLedger - Frontend
 
-Next.js 16 static dApp for interacting with the TrustLedger smart contracts on Ethereum Sepolia.
+Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum Sepolia. Hosted on [Vercel](https://vercel.com) at **[trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)**.
 
 ---
 
@@ -172,6 +172,7 @@ The page hot-reloads automatically as you edit files under `app/`.
 | `npm run lint:frontend:ts`       | ESLint only (targets `app/`, `lib/`, `components/`)                                                   |
 | `npm run lint:frontend:prettier` | Prettier format check (targets `app/`, `lib/`, `components/`, `next.config.ts`)                       |
 | `npm run debug:frontend:files`   | TypeScript trace + CPU profile — outputs `trace/` and `profile.cpuprofile` for compile-time debugging |
+| `npm run deploy:vercel`          | Deploy to Vercel production (`vercel --prod`) — requires a linked project (`vercel link` from `src/`) |
 
 ---
 

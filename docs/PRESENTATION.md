@@ -25,6 +25,8 @@ A client locks funds in a contract. The freelancer completes the work. If everyo
 
 > No platform fee. No company. No trust required — only math and cryptography.
 
+**Live demo:** [https://trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app) (hosted on Vercel, Ethereum Sepolia testnet)
+
 ---
 
 ## Architecture

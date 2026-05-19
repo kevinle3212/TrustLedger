@@ -1,6 +1,10 @@
 # Deployment
 
-TrustLedger's frontend is deployed to [Vercel](https://vercel.com). Vercel handles the build pipeline, edge distribution, and environment variable injection — no static export or custom base path is required.
+TrustLedger's frontend is hosted on [Vercel](https://vercel.com) and deployed automatically on every push to `main`.
+
+**Production URL:** [https://trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)
+
+Vercel handles the build pipeline, global edge distribution, and environment variable injection — no static export or custom server configuration is required.
 
 ---
 
@@ -53,11 +57,12 @@ Go to **Settings → Secrets and variables → Actions → New repository secret
 
 In the Vercel dashboard under **Project → Settings → Environment Variables**, add:
 
-| Variable                               | Environment        | Notes                                                                      |
-| -------------------------------------- | ------------------ | -------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Production/Preview | Free key from [cloud.walletconnect.com](https://cloud.walletconnect.com)   |
-| `NEXT_PUBLIC_PINATA_JWT`               | Production/Preview | Pinata JWT for IPFS uploads — see `.env.example` for instructions          |
-| `NEXT_BASE_PATH`                       | Production/Preview | Leave unset (served at root `/`); only needed if hosting at a URL sub-path |
+| Variable                               | Environment        | Notes                                                                                            |
+| -------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Production/Preview | Free key from [cloud.walletconnect.com](https://cloud.walletconnect.com)                         |
+| `NEXT_PUBLIC_PINATA_JWT`               | Production/Preview | Pinata JWT for IPFS uploads — see `.env.example` for instructions                                |
+| `NEXT_BASE_PATH`                       | Production/Preview | Leave unset (served at root `/`); only needed if hosting at a URL sub-path                       |
+| `NEXT_PUBLIC_APP_URL`                  | Production/Preview | Base URL used to build magic links — set to `https://trustledger-zeta.vercel.app` for production |
 
 `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS` is auto-resolved from `artifacts/deployed-addresses.json` at build time — no manual env var needed unless you want to override it.
 
@@ -87,8 +92,11 @@ cd src
 # Preview deploy (staging URL)
 vercel
 
-# Production deploy
+# Production deploy (full command)
 vercel --prod
+
+# Production deploy via npm script
+npm run deploy:vercel
 ```
 
 ---
