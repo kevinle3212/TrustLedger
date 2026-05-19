@@ -106,7 +106,7 @@ export default function CreatePage(): React.JSX.Element {
 
 		const estimatedDuration = daysToSeconds(Number(form.estimatedDurationDays));
 		const acceptanceWindow = daysToSeconds(Number(form.acceptanceWindowDays));
-		const warrantyPeriod = BigInt(Number(form.warrantyPeriodDays) * 86400);
+		const warrantyPeriod = form.holdBack === "none" ? 0n : BigInt(Number(form.warrantyPeriodDays) * 86400);
 		const bufferFactor = BigInt(form.bufferFactor);
 		const arbitrationFeeBps = Math.round(Number(form.arbitrationFeePct) * 100);
 		const holdBackBps = form.holdBack === "none" ? 0 : Number(form.holdBack) * 100;
