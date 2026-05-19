@@ -7,7 +7,7 @@ export const TRUSTLEDGER_ADDRESS: `0x${string}` =
 
 export const config = getDefaultConfig({
 	appName: "TrustLedger",
-	projectId: process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ?? "YOUR_PROJECT_ID",
+	projectId: process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] || "YOUR_PROJECT_ID",
 	// Sepolia: testing and development only.
 	// Arbitrum / Base / Optimism: production L2s with gas costs proportional to typical contract values.
 	chains: [sepolia, arbitrum, base, optimism],
