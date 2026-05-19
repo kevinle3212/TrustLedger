@@ -27,8 +27,8 @@
 		"node": ">=22.0.0"
 	},
 	"scripts": {
-		"dev:frontend": "next dev",
-		"build:frontend": "next build",
+		"dev:frontend": "NODE_OPTIONS='--disable-warning=DEP0205' next dev",
+		"build:frontend": "NODE_OPTIONS='--disable-warning=DEP0205' next build",
 		"start:frontend": "next start",
 		"lint:frontend": "npm run lint:frontend:ts && npm run lint:frontend:prettier",
 		"lint:frontend:ts": "eslint app lib components",

@@ -51,6 +51,7 @@
 		"scripts/**",
 		"test/**",
 		"hardhat.config.ts",
+		"artifacts/**",
 		"**/*.test.ts",
 		"**/*.spec.ts"
 	]

@@ -26,6 +26,7 @@ export function Navbar(): React.JSX.Element {
 							width={28}
 							height={28}
 							className="rounded-sm"
+							style={{ height: "auto" }}
 						/>
 						TrustLedger
 					</Link>

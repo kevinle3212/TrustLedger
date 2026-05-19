@@ -15,6 +15,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)   | System diagram, state machine, payout formulas, storage layout     |
 | [docs/CONTRACTS.md](docs/CONTRACTS.md)         | Full public API for all four contracts — functions, events, errors |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)   | Local setup, compiling, testing, linting, deploying to testnet     |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Vercel deployment setup — secrets, project linking, CI/CD          |
 | [docs/DOCKER.md](docs/DOCKER.md)               | Docker prerequisites, services, MetaMask setup, troubleshooting    |
 | [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for pitches.                     |
 | [docs/MISCELLANEOUS.md](docs/MISCELLANEOUS.md) | Glossary, tooling rationale, Chainlink setup, design decisions     |
@@ -351,14 +352,14 @@ copy .env.example .env
 
 **Step 2 — Open `.env` in a text editor** (VS Code, Notepad, TextEdit, etc.) and fill in the values you need. The subsections below walk through how to get each one.
 
-| Variable                               | Required for            | Notes                                                                                 |
-| -------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------- |
-| `SEPOLIA_RPC_URL`                      | Testnet deploy          | HTTP endpoint to reach Ethereum Sepolia — see below                                   |
-| `DEPLOYER_PUBLIC_ADDRESS`              | Testnet deploy          | Your wallet `0x…` address — see below                                                 |
-| `DEPLOYER_PRIVATE_KEY`                 | Testnet deploy          | Private key for that wallet — **never share or commit this**                          |
-| `ETHERSCAN_API_KEY`                    | Contract verification   | Optional but recommended — see below                                                  |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Frontend wallet connect | Free key — see [src/README.md](src/README.md#getting-a-walletconnect-project-id)      |
-| `NEXT_BASE_PATH`                       | Frontend build          | Leave empty (`NEXT_BASE_PATH=`) for local dev; set to `/TrustLedger` for GitHub Pages |
+| Variable                               | Required for            | Notes                                                                                     |
+| -------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------- |
+| `SEPOLIA_RPC_URL`                      | Testnet deploy          | HTTP endpoint to reach Ethereum Sepolia — see below                                       |
+| `DEPLOYER_PUBLIC_ADDRESS`              | Testnet deploy          | Your wallet `0x…` address — see below                                                     |
+| `DEPLOYER_PRIVATE_KEY`                 | Testnet deploy          | Private key for that wallet — **never share or commit this**                              |
+| `ETHERSCAN_API_KEY`                    | Contract verification   | Optional but recommended — see below                                                      |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Frontend wallet connect | Free key — see [src/README.md](src/README.md#getting-a-walletconnect-project-id)          |
+| `NEXT_BASE_PATH`                       | Frontend build          | Leave empty (`NEXT_BASE_PATH=`) to serve from root `/`; only set if hosting at a sub-path |
 
 > `.env` is listed in `.gitignore` — Git will never include it in a commit. Only you can see it.
 
@@ -899,7 +900,7 @@ TrustLedger/
 │   └── workflows/
 │       ├── ci.yml                        # Lint, typecheck, Forge tests + frontend build on every push/PR
 │       ├── deploy.yml                    # Manual deploy to Ethereum Sepolia
-│       ├── frontend-deploy.yml           # Auto-deploy Next.js frontend to GitHub Pages
+│       ├── frontend-deploy.yml           # Auto-deploy Next.js frontend to Vercel on push to main
 │       ├── security.yml                  # Slither, TruffleHog, npm audit (root + frontend), CodeQL
 │       └── dependabot-automerge.yml      # Auto-merge Dependabot security/patch PRs
 │
@@ -934,11 +935,11 @@ Four workflows live in `.github/workflows/`. All use least-privilege tokens and 
 
 Runs on every push and pull request to `main`.
 
-| Job            | What it does                                                                                                   |
-| -------------- | -------------------------------------------------------------------------------------------------------------- |
-| **Frontend**   | `npm ci` (in `src/`), TypeScript typecheck, ESLint + Prettier, `next build` with `NEXT_BASE_PATH=/TrustLedger` |
-| **TypeScript** | `npm ci`, `tsc --noEmit`, ESLint + Solhint, Prettier format check                                              |
-| **Solidity**   | Foundry install, `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, gas snapshot diff              |
+| Job            | What it does                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| **Frontend**   | `npm ci` (in `src/`), TypeScript typecheck, ESLint + Prettier, `next build`                       |
+| **TypeScript** | `npm ci`, `tsc --noEmit`, ESLint + Solhint, Prettier format check                                 |
+| **Solidity**   | Foundry install, `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, gas snapshot diff |
 
 The Solidity job sets `working-directory: contracts` so all `forge` commands run from the directory containing `foundry.toml`. The Frontend job sets `working-directory: src` and uses `src/package-lock.json` for npm cache keying.
 
@@ -968,16 +969,17 @@ Runs on push/PR to `main`, manually via `workflow_dispatch`, and weekly (Mondays
 | **Frontend npm audit** | built-in                     | Separate audit of `src/package-lock.json` at `high` severity threshold.                                                                                 |
 | **CodeQL**             | `github/codeql-action`       | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite.                                     |
 
-### `frontend-deploy.yml` — GitHub Pages Deploy
+### `frontend-deploy.yml` — Vercel Deploy
 
 Triggers on push to `main` when files under `src/**`, `artifacts/deployed-addresses.json`, or the workflow file itself change. Also supports manual `workflow_dispatch`.
 
-| Step   | What it does                                                                                                                                                         |
-| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Build  | `npm ci` + `npm run build` in `src/` with `NEXT_BASE_PATH=/TrustLedger`; `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS` is auto-resolved from `artifacts/deployed-addresses.json` |
-| Deploy | Uploads `src/out/` to GitHub Pages via `actions/upload-pages-artifact` + `actions/deploy-pages`                                                                      |
+| Step   | What it does                                                                             |
+| ------ | ---------------------------------------------------------------------------------------- |
+| Pull   | `vercel pull --environment=production` — syncs project settings and env vars from Vercel |
+| Build  | `vercel build --prod` — builds the Next.js app using Vercel's build pipeline             |
+| Deploy | `vercel deploy --prebuilt --prod` — uploads the prebuilt output to Vercel's edge network |
 
-Add `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` as a repository secret (Settings → Secrets → Actions) to enable WalletConnect on the live site.
+Requires three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for setup instructions.
 
 ### `dependabot-automerge.yml` — Dependabot Auto-Merge
 

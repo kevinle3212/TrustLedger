@@ -2,6 +2,19 @@
 # Prettier has no Solidity plugin installed — skip the entire contracts tree.
 contracts/
 
+# ─── Binary / non-text assets ────────────────────────────────────────────────
+*.ico
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.gif
+*.webp
+*.woff
+*.woff2
+*.ttf
+*.eot
+
 # ─── Build output ────────────────────────────────────────────────────────────
 dist/
 artifacts/

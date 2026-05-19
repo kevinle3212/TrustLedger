@@ -1,0 +1,20 @@
+# ─── Binary / non-text assets ────────────────────────────────────────────────
+*.ico
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# ─── Build output ────────────────────────────────────────────────────────────
+.next/
+out/
+next-env.d.ts
+
+# ─── Package manager ─────────────────────────────────────────────────────────
+node_modules/
+package-lock.json

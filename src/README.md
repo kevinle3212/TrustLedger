@@ -181,19 +181,19 @@ The page hot-reloads automatically as you edit files under `app/`.
 
 Runs on every push and pull request to `main`. The `frontend` job covers this package.
 
-| Step                 | What it does                                                |
-| -------------------- | ----------------------------------------------------------- |
-| TypeScript typecheck | `npx tsc --noEmit`                                          |
-| Lint                 | `npm run lint:frontend` (ESLint + Prettier)                 |
-| Build                | `npm run build:frontend` with `NEXT_BASE_PATH=/TrustLedger` |
+| Step                 | What it does                                |
+| -------------------- | ------------------------------------------- |
+| TypeScript typecheck | `npx tsc --noEmit`                          |
+| Lint                 | `npm run lint:frontend` (ESLint + Prettier) |
+| Build                | `npm run build:frontend`                    |
 
-### `frontend-deploy.yml` - GitHub Pages Deploy
+### `frontend-deploy.yml` - Vercel Deploy
 
 Triggers on push to `main` when `src/**`, `artifacts/deployed-addresses.json`, or the workflow file itself changes.
 
-Builds with `NEXT_BASE_PATH=/TrustLedger` and deploys the `out/` directory to GitHub Pages via `actions/deploy-pages`.
+Pulls Vercel environment settings, builds with `vercel build --prod`, and deploys the prebuilt output via `vercel deploy --prebuilt --prod`.
 
-To enable WalletConnect on the live site, add `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` as a repository secret (Settings -> Secrets and variables -> Actions).
+Requires `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` as repository secrets. See [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) for setup instructions.
 
 ### `security.yml` - Dependency Audit
 

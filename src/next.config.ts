@@ -49,14 +49,9 @@ function resolveTrustLedgerAddress(): string {
 const rootEnv = parseRootEnv();
 
 const nextConfig: NextConfig = {
-	output: "export",
-	// Controls the URL prefix. Read from process.env first (CI sets this explicitly),
-	// then falls back to the root .env (parsed above), then to /TrustLedger for GitHub Pages.
-	// Set NEXT_BASE_PATH= (empty) in root .env for local dev or custom-domain deploys.
-	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "/TrustLedger",
-	images: {
-		unoptimized: true,
-	},
+	// Controls the URL prefix. Read from process.env first (set via Vercel project settings),
+	// then falls back to the root .env (parsed above), then to empty string (served at root).
+	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "",
 	turbopack: {
 		// Pin the workspace root to the frontend directory so Next.js doesn't
 		// pick up the parent repo's package-lock.json as the workspace root.

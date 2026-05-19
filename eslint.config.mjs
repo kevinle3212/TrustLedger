@@ -31,10 +31,9 @@ export default [
 			ecmaVersion: 2023,
 			sourceType: "module",
 			parserOptions: {
-				// Explicit list covers both tsconfigs: tsconfig.json (src/) and
-				// tsconfig.hardhat.json (hardhat.config.ts, scripts/, test/).
-				// projectService auto-discovery skips non-standard tsconfig names.
-				project: ["./tsconfig.json", "./tsconfig.hardhat.json"],
+				// src/ is excluded from ESLint. All linted files (test/, scripts/,
+				// hardhat.config.ts) are covered by tsconfig.hardhat.json.
+				project: ["./tsconfig.hardhat.json"],
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},
