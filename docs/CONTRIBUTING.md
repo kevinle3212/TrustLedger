@@ -6,12 +6,12 @@ This guide covers everything needed to clone, compile, test, lint, and deploy Tr
 
 ## Prerequisites
 
-| Tool    | Version  | Install                                              |
-| ------- | -------- | ---------------------------------------------------- | ------------------ |
-| Node.js | ≥ 22.0.0 | [nodejs.org](https://nodejs.org) or `nvm install 22` |
-| npm     | Bundled  | Included with Node.js                                |
-| Foundry | Latest   | `curl -L https://foundry.paradigm.xyz                | bash && foundryup` |
-| Git     | Any      | [git-scm.com](https://git-scm.com)                   |
+| Tool    | Version  | Install                                                     |
+| ------- | -------- | ----------------------------------------------------------- |
+| Node.js | ≥ 22.0.0 | [nodejs.org](https://nodejs.org) or `nvm install 22`        |
+| npm     | Bundled  | Included with Node.js                                       |
+| Foundry | Latest   | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
+| Git     | Any      | [git-scm.com](https://git-scm.com)                          |
 
 Verify your installation:
 
@@ -204,8 +204,8 @@ forge test --gas-report
 
 | Suite                          | Tests | Type            |
 | ------------------------------ | ----- | --------------- |
-| `TrustLedgerTest.t.sol`        | 33    | Unit            |
-| `JurorRegistryTest.t.sol`      | 22    | Unit            |
+| `TrustLedgerTest.t.sol`        | 37    | Unit            |
+| `JurorRegistryTest.t.sol`      | 29    | Unit            |
 | `ReputationRegistryTest.t.sol` | 11    | Unit            |
 | `PayoutFuzz.t.sol`             | 7     | Fuzz (10k runs) |
 
@@ -280,16 +280,16 @@ npm install
 
 All frontend env vars are read from the root `.env` file by `next.config.ts` — no `src/.env.local` is needed.
 
-| Variable                               | Description                                                                                                       |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`.                  |
-| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Auto-resolved from `artifacts/deployed-addresses.json`. Only set manually to override.                            |
-| `NEXT_BASE_PATH`                       | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.                           |
-| `NEXT_PUBLIC_PINATA_JWT`               | Pinata JWT for IPFS uploads. Get at [pinata.cloud](https://pinata.cloud) → API Keys.                              |
-| `NEXT_PUBLIC_APP_URL`                  | Base URL for magic links in emails (e.g. `http://localhost:3000`).                                                |
-| `MAGIC_LINK_SECRET`                    | Random 32-byte hex secret for HMAC-signing magic link tokens. Generate: `openssl rand -hex 32`. **Never expose.** |
-| `RESEND_API_KEY`                       | Email delivery key from [resend.com/api-keys](https://resend.com/api-keys). **Never expose.**                     |
-| `RESEND_FROM`                          | Verified sender address (e.g. `TrustLedger <noreply@yourdomain.com>`). Use `onboarding@resend.dev` for local dev. |
+| Variable                               | Description                                                                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`.                                                                         |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Locally: auto-resolved from `artifacts/deployed-addresses.json`. On Vercel: must be set as an env var — `deploy.yml` does this automatically after each contract deploy. |
+| `NEXT_BASE_PATH`                       | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.                                                                                  |
+| `NEXT_PUBLIC_PINATA_JWT`               | Pinata JWT for IPFS uploads. Get at [pinata.cloud](https://pinata.cloud) → API Keys.                                                                                     |
+| `NEXT_PUBLIC_APP_URL`                  | Base URL for magic links in emails (e.g. `http://localhost:3000`).                                                                                                       |
+| `MAGIC_LINK_SECRET`                    | Random 32-byte hex secret for HMAC-signing magic link tokens. Generate: `openssl rand -hex 32`. **Never expose.**                                                        |
+| `RESEND_API_KEY`                       | Email delivery key from [resend.com/api-keys](https://resend.com/api-keys). **Never expose.**                                                                            |
+| `RESEND_FROM`                          | Verified sender address (e.g. `TrustLedger <noreply@yourdomain.com>`). Use `onboarding@resend.dev` for local dev.                                                        |
 
 ### Running the dev server
 
