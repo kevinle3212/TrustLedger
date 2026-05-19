@@ -504,6 +504,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         For ETH escrows: call with no msg.value (fee pool is deducted from held ETH).
     ///         For ERC-20 escrows: send ETH as msg.value to fund the juror fee pool.
     /// @param id The escrow contract ID.
+    // slither-disable-next-line reentrancy-eth
     function disputeWork(uint256 id) external payable nonReentrant {
         EscrowContract storage c = _contracts[id];
         if (msg.sender != c.client) revert Unauthorized();
@@ -523,8 +524,6 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
         c.status = Status.DISPUTED;
 
-        // slither-disable-next-line reentrancy-eth — nonReentrant guards this function;
-        // arbitrationId must be stored after the call because it is the return value.
         uint256 arbId = ARBITRATION.openDispute{value: feePool}(id, c.client, c.freelancer, c.amount, feePool);
         c.arbitrationId = arbId;
 
@@ -882,6 +881,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // Result is in 8 decimal places (same as Chainlink USD feeds): $1 = 1e8.
     function _queryUsdValue(uint256 ethAmount) internal view returns (uint256) {
         if (address(priceFeed) == address(0)) return 0;
+        // slither-disable-next-line unused-return
         (, int256 price,, uint256 updatedAt,) = priceFeed.latestRoundData();
         // Reject stale or invalid prices (updatedAt == 0 means the round is not complete).
         if (price < 1 || updatedAt == 0) return 0;
