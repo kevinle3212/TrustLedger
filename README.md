@@ -8,6 +8,8 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 
 **Live app:** [trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app) — hosted on Vercel, deployed automatically on every push to `main`.
 
+> [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Frontend (`src/`)](src/README.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts API](docs/CONTRACTS.md) &nbsp;·&nbsp; [Deployment](docs/DEPLOYMENT.md) &nbsp;·&nbsp; [Contributing](docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](SECURITY.md)
+
 ---
 
 ## Documentation
@@ -102,9 +104,14 @@ Contract documents and proof-of-work artifacts are stored off-chain on IPFS. The
 
 Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are callable by anyone, not gated to a platform operator. The system progresses autonomously — no trusted admin is needed to move disputes forward or execute payouts.
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Tech Stack
+
+<details>
+<summary>Expand — full technology stack</summary>
 
 | Layer                          | Technology                                       |
 | ------------------------------ | ------------------------------------------------ |
@@ -125,6 +132,10 @@ Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are calla
 | Frontend hosting               | [Vercel](https://vercel.com)                     |
 | Security scans                 | Slither, TruffleHog, CodeQL, npm audit           |
 | Containerization               | Docker                                           |
+
+</details>
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -150,6 +161,9 @@ TrustLedger  ←──────────────→  Arbitration  ←�
 
 ### Interfaces
 
+<details>
+<summary>Expand — all contract interfaces and their consumers</summary>
+
 | Interface                   | Used By     | Purpose                                               |
 | --------------------------- | ----------- | ----------------------------------------------------- |
 | `IArbitration.sol`          | TrustLedger | `openDispute()` payable call                          |
@@ -160,7 +174,12 @@ TrustLedger  ←──────────────→  Arbitration  ←�
 | `AggregatorV3Interface.sol` | TrustLedger | `latestRoundData()` for ETH/USD price                 |
 | `IVRFCoordinator.sol`       | Arbitration | `requestRandomWords()` for juror selection            |
 
+</details>
+
 ### Optional One-Time Initializers
+
+<details>
+<summary>Expand — post-deploy optional integrations (immutable once set)</summary>
 
 Three optional integrations are wired in after deployment via one-time setter functions. Once set they cannot be changed — there is no owner role.
 
@@ -169,6 +188,8 @@ Three optional integrations are wired in after deployment via one-time setter fu
 | `initPriceFeed(address)`          | TrustLedger | Enables Chainlink ETH/USD recording at creation |
 | `initReputationRegistry(address)` | TrustLedger | Enables post-completion on-chain ratings        |
 | `initVrfCoordinator(address)`     | Arbitration | Enables Chainlink VRF juror selection           |
+
+</details>
 
 ### Deploy Order — Circular Dependency Resolution
 
@@ -213,6 +234,8 @@ clientRefund     = amount − feePool − freelancerPay
 ```
 
 `0%` → full refund to client. `100%` → full payout to freelancer. Partial rulings scale proportionally with no threshold cliffs.
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -581,11 +604,14 @@ docker compose -f docker/docker-compose.dev.yml down            # tear down
 
 See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including MetaMask connection and troubleshooting.
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Development Scripts
 
-### Hardhat
+<details>
+<summary>Hardhat — local node, deploy, test, demo</summary>
 
 | Script                           | What it runs                                                    |
 | -------------------------------- | --------------------------------------------------------------- |
@@ -599,7 +625,10 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run demo:good`              | Happy-path demo against a running local node                    |
 | `npm run demo:bad`               | Dispute-flow demo against a running local node                  |
 
-### Foundry
+</details>
+
+<details>
+<summary>Foundry — compile, test, gas, deploy</summary>
 
 | Script                                   | What it runs                                         |
 | ---------------------------------------- | ---------------------------------------------------- |
@@ -609,7 +638,10 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run foundry:deploy:sepolia:dry-run` | Simulate Sepolia deploy (no broadcast), loads `.env` |
 | `npm run foundry:deploy:sepolia`         | Broadcast deploy to Sepolia + Etherscan verification |
 
-### Combined (One-Shot)
+</details>
+
+<details>
+<summary>Combined one-shot scripts</summary>
 
 | Script                         | What it runs                                                            |
 | ------------------------------ | ----------------------------------------------------------------------- |
@@ -618,7 +650,10 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run start:deploy:hardhat` | Compile → deploy to Ethereum Sepolia via Hardhat.                       |
 | `npm run start:deploy:foundry` | Foundry build → deploy to Ethereum Sepolia via Forge + Etherscan verify |
 
-### Tooling
+</details>
+
+<details>
+<summary>Tooling — lint, format, build</summary>
 
 | Script                  | What it runs                             |
 | ----------------------- | ---------------------------------------- |
@@ -628,7 +663,10 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run lint:prettier` | Prettier format check (read-only)        |
 | `npm run build`         | `tsc` — compile `src/` to `dist/`        |
 
-### Nexus Code Graph (AI Context)
+</details>
+
+<details>
+<summary>Nexus Code Graph — AI context for Claude Code</summary>
 
 | Script                 | What it runs                                                             |
 | ---------------------- | ------------------------------------------------------------------------ |
@@ -637,6 +675,10 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run nexus:viz`    | Open a local browser visualization of the symbol graph                   |
 
 The Nexus code graph gives Claude Code token-budgeted symbol and dependency context via the MCP server defined in `.mcp.json`. Re-run `nexus:index` after large refactors to keep the graph current.
+
+</details>
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -680,6 +722,9 @@ Foundry runs entirely in Solidity, making it faster and more precise for low-lev
 
 ### Why both?
 
+<details>
+<summary>Expand — Hardhat vs. Foundry comparison</summary>
+
 | Concern                  | Hardhat                                   | Foundry                            |
 | ------------------------ | ----------------------------------------- | ---------------------------------- |
 | Multi-wallet integration | Native (ethers.js signers)                | Requires `vm.prank` workarounds    |
@@ -690,6 +735,10 @@ Foundry runs entirely in Solidity, making it faster and more precise for low-lev
 | Gas reports              | Plugin-based, less granular               | Per-function, built-in             |
 | Solidity deployment      | JS script via ethers.js                   | Native Solidity (`forge script`)   |
 | Testnet verification     | `hardhat verify` (Etherscan plugin)       | `forge script --verify` (built-in) |
+
+</details>
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -715,12 +764,17 @@ cd contracts && forge test -vvv
 
 73 Foundry tests across four suites:
 
+<details>
+<summary>Expand — Foundry test suite breakdown</summary>
+
 | Suite                    | Count | Type            | Covers                                                                    |
 | ------------------------ | ----- | --------------- | ------------------------------------------------------------------------- |
 | `TrustLedgerTest`        | 33    | Unit            | Full lifecycle, deadline, warranty, dispute, ruling payouts, reverts      |
 | `JurorRegistryTest`      | 22    | Unit            | Register, stake lock, slash, eligibility, active dispute guard            |
 | `ReputationRegistryTest` | 11    | Unit            | Constructor, `rate()` access control, score bounds, accumulation          |
 | `PayoutFuzz`             | 7     | Fuzz (10k runs) | Payout conservation, formula correctness, buffer factor, hold-back bounds |
+
+</details>
 
 Foundry config (`contracts/foundry.toml`):
 
@@ -747,6 +801,9 @@ TypeScript ESLint uses the `strictTypeChecked` + `stylisticTypeChecked` presets 
 
 ### TypeScript Configuration
 
+<details>
+<summary>Expand — tsconfig files and their roles</summary>
+
 | File                    | Used by                                              | Module system                  |
 | ----------------------- | ---------------------------------------------------- | ------------------------------ |
 | `tsconfig.json`         | Root project (type-aware ESLint — `src/**` excluded) | NodeNext ESM                   |
@@ -754,6 +811,10 @@ TypeScript ESLint uses the `strictTypeChecked` + `stylisticTypeChecked` presets 
 | `src/tsconfig.json`     | Next.js frontend (`src/`)                            | ESNext, bundler resolution     |
 
 The root and Hardhat configs extend `@tsconfig/strictest` with additional flags (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`). The frontend config uses its own strict settings compatible with Next.js and bundler resolution.
+
+</details>
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -810,11 +871,16 @@ npm run demo:bad
 
 For MetaMask and Remix IDE manual testing, see `testing/demo-instructions.md`.
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Why Hardhat 2.x, Not 3.x
 
 This project pins `hardhat@^2.x` intentionally. Hardhat 3.x was evaluated and reverted:
+
+<details>
+<summary>Expand — Hardhat 2.x vs. 3.x comparison</summary>
 
 | Concern              | Hardhat 2.x                                                                 | Hardhat 3.x (alpha)                                        |
 | -------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------- |
@@ -824,11 +890,18 @@ This project pins `hardhat@^2.x` intentionally. Hardhat 3.x was evaluated and re
 | **Plugin ecosystem** | `hardhat-gas-reporter`, `solidity-coverage`, Slither all verified           | Several plugins lack 3.x-compatible releases               |
 | **Stability**        | Mature, semver-stable                                                       | Alpha — breaking changes between releases disrupt CI       |
 
+</details>
+
 Upgrade once Hardhat 3.x reaches a stable release and TypeChain publishes a compatible plugin.
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
 ## File Layout
+
+<details>
+<summary>Expand — full repository file tree</summary>
 
 ```text
 TrustLedger/
@@ -936,6 +1009,8 @@ TrustLedger/
 └── LICENSE                               # Apache-2.0
 ```
 
+</details>
+
 > **Frontend developer?** The `src/` subtree has its own README with a per-file breakdown, env var setup, scripts, and wagmi examples. See [src/README.md](src/README.md).
 
 [↑ Back to top](#table-of-contents)
@@ -950,6 +1025,9 @@ Four workflows live in `.github/workflows/`. All use least-privilege tokens and 
 
 Runs on every push and pull request to `main`.
 
+<details>
+<summary>Expand — CI job breakdown</summary>
+
 | Job            | What it does                                                                                      |
 | -------------- | ------------------------------------------------------------------------------------------------- |
 | **Frontend**   | `npm ci` (in `src/`), TypeScript typecheck, ESLint + Prettier, `next build`                       |
@@ -958,9 +1036,14 @@ Runs on every push and pull request to `main`.
 
 The Solidity job sets `working-directory: contracts` so all `forge` commands run from the directory containing `foundry.toml`. The Frontend job sets `working-directory: src` and uses `src/package-lock.json` for npm cache keying.
 
+</details>
+
 ### `deploy.yml` — Manual Deploy to Ethereum Sepolia
 
 Triggered only via **Actions → Run workflow** — never auto-deploys on push.
+
+<details>
+<summary>Expand — required secrets</summary>
 
 Requires a GitHub Environment named `ethereum-sepolia` with three secrets:
 
@@ -970,11 +1053,16 @@ Requires a GitHub Environment named `ethereum-sepolia` with three secrets:
 | `DEPLOYER_PRIVATE_KEY` | Funded deployer wallet private key             |
 | `ETHERSCAN_API_KEY`    | Etherscan API key (only needed when verifying) |
 
+</details>
+
 Broadcast artifacts (contract addresses, transaction receipts) are uploaded as a workflow artifact and retained for 30 days.
 
 ### `security.yml` — Security Scans
 
 Runs on push/PR to `main`, manually via `workflow_dispatch`, and weekly (Mondays 13:00 UTC) to catch CVEs in transitive deps even when no code changes.
+
+<details>
+<summary>Expand — security scan jobs</summary>
 
 | Job                    | Tool                         | Catches                                                                                                                                                 |
 | ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -984,9 +1072,14 @@ Runs on push/PR to `main`, manually via `workflow_dispatch`, and weekly (Mondays
 | **Frontend npm audit** | built-in                     | Separate audit of `src/package-lock.json` at `high` severity threshold.                                                                                 |
 | **CodeQL**             | `github/codeql-action`       | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite.                                     |
 
+</details>
+
 ### `frontend-deploy.yml` — Vercel Deploy
 
 Triggers on push to `main` when files under `src/**`, `artifacts/deployed-addresses.json`, or the workflow file itself change. Also supports manual `workflow_dispatch`.
+
+<details>
+<summary>Expand — deploy steps and required secrets</summary>
 
 | Step   | What it does                                                                             |
 | ------ | ---------------------------------------------------------------------------------------- |
@@ -996,7 +1089,12 @@ Triggers on push to `main` when files under `src/**`, `artifacts/deployed-addres
 
 Requires three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for setup instructions.
 
+</details>
+
 ### `dependabot-automerge.yml` — Dependabot Auto-Merge
+
+<details>
+<summary>Expand — auto-merge rules</summary>
 
 | Condition                                                  | Action                                  |
 | ---------------------------------------------------------- | --------------------------------------- |
@@ -1004,7 +1102,11 @@ Requires three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_
 | Patch bump of a dev-only dependency (no security advisory) | Auto-merge via squash                   |
 | Everything else (minor/major, prod deps)                   | Requires manual review                  |
 
+</details>
+
 `--auto` queues the merge and executes only after all required branch protection checks pass. Enable **auto-merge** in repository Settings → General and configure required status checks in Settings → Branches.
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -1014,6 +1116,9 @@ Requires three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_
 
 [CodeRabbit](https://coderabbit.ai) performs automated AI code review on every pull request. Configuration lives in `.coderabbit.yaml` at the repo root.
 
+<details>
+<summary>Expand — CodeRabbit review paths and focus areas</summary>
+
 | Path                        | Review focus                                                                              |
 | --------------------------- | ----------------------------------------------------------------------------------------- |
 | `contracts/src/**/*.sol`    | Reentrancy, access control, pull-over-push pattern, event emissions, unchecked arithmetic |
@@ -1022,6 +1127,8 @@ Requires three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_
 | `**/*.ts`                   | No `any`, missing `await`, unhandled rejections, no hardcoded keys                        |
 | `hardhat.config.ts`         | Consistent compiler version and optimizer settings with `foundry.toml`                    |
 | `.github/workflows/**`      | Pinned action versions, secrets via `secrets.*` only, least-privilege permissions         |
+
+</details>
 
 Interact with CodeRabbit in any PR comment:
 
@@ -1044,6 +1151,9 @@ docs: update README with frontend integration guide
 lint: fix Solhint max-line-length warning in JurorRegistry
 ```
 
+<details>
+<summary>Expand — commit type reference</summary>
+
 | Type       | When to use                                     |
 | ---------- | ----------------------------------------------- |
 | `feat`     | New feature or function                         |
@@ -1053,6 +1163,8 @@ lint: fix Solhint max-line-length warning in JurorRegistry
 | `docs`     | Documentation only                              |
 | `lint`     | Linting or formatting fixes                     |
 | `refactor` | Code restructured without behavior change       |
+
+</details>
 
 Keep the subject line under 72 characters. Reference issue numbers in the body when applicable. Do not include AI tool attribution footers.
 
@@ -1070,6 +1182,8 @@ echo "bad message" > /tmp/test-commit-msg && \
   npx commitlint --edit /tmp/test-commit-msg
 ```
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Testnet vs. Local — Do You Need Faucet Funds?
@@ -1085,6 +1199,8 @@ npm run hardhat:deploy:sepolia
 
 For testnet faucet ETH: use a Sepolia ETH faucet (Alchemy, Infura, or Google).
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Security
@@ -1094,6 +1210,8 @@ See [SECURITY.md](SECURITY.md) for the full vulnerability reporting policy, in-s
 **Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
 
 TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -1107,3 +1225,7 @@ This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) fo
 
 - Kevin Le
 - Kellen Snider
+
+---
+
+[↑ Back to top](#table-of-contents) &nbsp;·&nbsp; [Frontend (`src/`)](src/README.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts API](docs/CONTRACTS.md) &nbsp;·&nbsp; [Deployment](docs/DEPLOYMENT.md) &nbsp;·&nbsp; [Contributing](docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](SECURITY.md)
