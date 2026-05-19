@@ -133,7 +133,9 @@ jobs:
                   cache-dependency-path: src/package-lock.json
 
             - name: Install npm 11 via corepack
-              run: corepack prepare npm@11.12.1 --activate
+              run: |
+                  corepack enable
+                  corepack prepare npm@11.12.1 --activate
 
             - name: Install frontend dependencies
               run: npm ci
