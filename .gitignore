@@ -11,9 +11,10 @@ contracts/out/
 contracts/cache/
 contracts/broadcast/
 
-# ─── Hardhat build output (The deployed addresses are not sensitive and can be published without an issue.) ─────────────────────────────────────────────────────
+# ─── Hardhat build output ────────────────────────────────────────────────────
+# deployed-addresses.json is regenerated on every deploy and pushed to Vercel
+# as NEXT_PUBLIC_TRUSTLEDGER_ADDRESS by deploy.yml — no need to commit it.
 artifacts/
-!artifacts/deployed-addresses.json
 hardhat-cache/
 .hardhat-out/
 

@@ -8,7 +8,7 @@ on:
             script:
                 description: "Forge script target (path:Contract)"
                 required: true
-                default: "script/Deploy.s.sol:DeployScript"
+                default: "script/Deploy.s.sol:Deploy"
             verify:
                 description: "Verify on Etherscan after deploy"
                 required: true
@@ -25,6 +25,8 @@ concurrency:
 
 permissions:
     contents: read
+    # Needed to trigger frontend-deploy.yml after contracts are deployed.
+    actions: write
 
 jobs:
     deploy:
@@ -33,6 +35,10 @@ jobs:
         # Bind secrets to a GitHub Environment so you can add reviewer approval later.
         environment:
             name: ethereum-sepolia
+        # foundry.toml lives in contracts/ — all forge run: steps execute from there.
+        defaults:
+            run:
+                working-directory: contracts
         steps:
             - name: Checkout
               uses: actions/checkout@v5
@@ -88,5 +94,65 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: broadcast-${{ github.run_id }}
-                  path: broadcast/
+                  path: contracts/broadcast/
                   retention-days: 30
+
+            # Parse the Forge broadcast output for the deployed TrustLedger address.
+            # Broadcast is written to contracts/broadcast/Deploy.s.sol/11155111/run-latest.json.
+            - name: Extract deployed TrustLedger address
+              id: addresses
+              run: |
+                  ADDR=$(jq -r \
+                    '.transactions[] | select(.contractName == "TrustLedger") | .contractAddress' \
+                    broadcast/Deploy.s.sol/11155111/run-latest.json)
+                  echo "trustledger=$ADDR" >> "$GITHUB_OUTPUT"
+                  echo "Deployed TrustLedger: $ADDR"
+
+            # Upsert NEXT_PUBLIC_TRUSTLEDGER_ADDRESS in Vercel so the next frontend
+            # build picks up the new address without any manual env var editing.
+            # Requires VERCEL_TOKEN, VERCEL_PROJECT_ID, and VERCEL_ORG_ID secrets
+            # to be set in the ethereum-sepolia environment (or as repo secrets).
+            - name: Update NEXT_PUBLIC_TRUSTLEDGER_ADDRESS in Vercel
+              run: |
+                  ADDR="${{ steps.addresses.outputs.trustledger }}"
+                  TEAM_QUERY=""
+                  if [ -n "$VERCEL_ORG_ID" ]; then
+                    TEAM_QUERY="?teamId=$VERCEL_ORG_ID"
+                  fi
+
+                  ENV_ID=$(curl -sf \
+                    "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env$TEAM_QUERY" \
+                    -H "Authorization: Bearer $VERCEL_TOKEN" | \
+                    jq -r '.envs // [] | .[] | select(.key == "NEXT_PUBLIC_TRUSTLEDGER_ADDRESS") | .id' \
+                    | head -1)
+
+                  if [ -n "$ENV_ID" ] && [ "$ENV_ID" != "null" ]; then
+                    curl -sf -X PATCH \
+                      "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$ENV_ID$TEAM_QUERY" \
+                      -H "Authorization: Bearer $VERCEL_TOKEN" \
+                      -H "Content-Type: application/json" \
+                      -d "{\"value\":\"$ADDR\",\"target\":[\"production\",\"preview\"]}"
+                    echo "Updated NEXT_PUBLIC_TRUSTLEDGER_ADDRESS → $ADDR"
+                  else
+                    curl -sf -X POST \
+                      "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env$TEAM_QUERY" \
+                      -H "Authorization: Bearer $VERCEL_TOKEN" \
+                      -H "Content-Type: application/json" \
+                      -d "{\"key\":\"NEXT_PUBLIC_TRUSTLEDGER_ADDRESS\",\"value\":\"$ADDR\",\"target\":[\"production\",\"preview\"],\"type\":\"plain\"}"
+                    echo "Created NEXT_PUBLIC_TRUSTLEDGER_ADDRESS → $ADDR"
+                  fi
+              env:
+                  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+                  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+                  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+            # Kick off a fresh Vercel production build so it picks up the new env var.
+            - name: Trigger frontend redeploy
+              run: |
+                  curl -sf -X POST \
+                    "https://api.github.com/repos/${{ github.repository }}/actions/workflows/frontend-deploy.yml/dispatches" \
+                    -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    -H "Accept: application/vnd.github+json" \
+                    -H "X-GitHub-Api-Version: 2022-11-28" \
+                    -d '{"ref":"main"}'
+                  echo "Triggered frontend-deploy.yml"
