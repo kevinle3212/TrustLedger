@@ -37,6 +37,9 @@ export function Navbar(): React.JSX.Element {
 						<Link href="/dashboard" className={linkClass("/dashboard")}>
 							Dashboard
 						</Link>
+						<Link href="/juror" className={linkClass("/juror")}>
+							Juror
+						</Link>
 					</nav>
 				</div>
 				<ConnectButton chainStatus="icon" showBalance={false} />

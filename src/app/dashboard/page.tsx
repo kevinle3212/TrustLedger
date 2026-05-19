@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { formatEther } from "viem";
+import { formatEther, keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress, formatDeadline, STATUS_COLORS } from "@/lib/utils";
@@ -59,6 +60,52 @@ function ActionButton({
 		>
 			{isPending || isConfirming ? "…" : label}
 		</button>
+	);
+}
+
+function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Element {
+	const [uri, setUri] = useState("");
+	const { writeContract, data: txHash, isPending, error } = useWriteContract();
+	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+
+	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
+		e.preventDefault();
+		const trimmed = uri.trim();
+		if (!trimmed) return;
+		writeContract({
+			address: TRUSTLEDGER_ADDRESS,
+			abi: TRUSTLEDGER_ABI,
+			functionName: "submitProofOfWork",
+			args: [contractId, keccak256(toBytes(trimmed)), trimmed],
+		});
+	}
+
+	if (isSuccess)
+		return <p className="text-xs text-green-400">Work submitted — waiting for client approval.</p>;
+
+	return (
+		<form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">
+			<input
+				type="text"
+				placeholder="Deliverable URL or IPFS link"
+				value={uri}
+				onChange={(e) => setUri(e.target.value)}
+				required
+				className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+			/>
+			{error && (
+				<p className="text-xs text-red-400">
+					{(error as { shortMessage?: string }).shortMessage ?? error.message}
+				</p>
+			)}
+			<button
+				type="submit"
+				disabled={isPending || isConfirming || !uri.trim()}
+				className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
+			>
+				{isPending || isConfirming ? "Submitting…" : "Submit Work"}
+			</button>
+		</form>
 	);
 }
 
@@ -180,7 +227,18 @@ function ContractCard({
 							functionName="claimWarrantyFunds"
 						/>
 					)}
+				{/* Submit work */}
+				{isFreelancer && status === 1 && <SubmitWorkForm contractId={id} />}
 			</div>
+			{/* Dispute link */}
+			{status === 4 && (
+				<Link
+					href={`/arbitration/${contract.arbitrationId.toString()}`}
+					className="text-xs text-red-400 hover:text-red-300 underline underline-offset-2"
+				>
+					View Dispute →
+				</Link>
+			)}
 		</div>
 	);
 }

@@ -26,11 +26,9 @@ function parseRootEnv(): Record<string, string> {
 	}
 }
 
-// Resolve the deployed TrustLedger address without requiring manual .env edits.
-// Priority: explicit non-zero env var > artifacts/deployed-addresses.json > zero address.
-// The address is a public Sepolia contract address - not a secret.
-function resolveTrustLedgerAddress(): string {
-	const envAddr = process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"];
+// Resolve a deployed contract address. Priority: env var > artifacts JSON > zero address.
+function resolveAddress(jsonKey: string, envKey: string): string {
+	const envAddr = process.env[envKey];
 	if (envAddr !== undefined && envAddr !== ZERO) return envAddr;
 
 	try {
@@ -40,7 +38,7 @@ function resolveTrustLedgerAddress(): string {
 				"utf8",
 			),
 		) as Record<string, string | undefined>;
-		return json["TrustLedger"] ?? ZERO;
+		return json[jsonKey] ?? ZERO;
 	} catch {
 		return ZERO;
 	}
@@ -58,7 +56,9 @@ const nextConfig: NextConfig = {
 		root: path.resolve(__dirname),
 	},
 	env: {
-		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: resolveTrustLedgerAddress(),
+		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: resolveAddress("TrustLedger", "NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"),
+		NEXT_PUBLIC_ARBITRATION_ADDRESS: resolveAddress("Arbitration", "NEXT_PUBLIC_ARBITRATION_ADDRESS"),
+		NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS: resolveAddress("JurorRegistry", "NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS"),
 		NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:
 			process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??
 			rootEnv["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??

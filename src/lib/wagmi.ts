@@ -5,6 +5,14 @@ export const TRUSTLEDGER_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"] as `0x${string}` | undefined) ??
 	"0x0000000000000000000000000000000000000000";
 
+export const ARBITRATION_ADDRESS: `0x${string}` =
+	(process.env["NEXT_PUBLIC_ARBITRATION_ADDRESS"] as `0x${string}` | undefined) ??
+	"0x0000000000000000000000000000000000000000";
+
+export const JUROR_REGISTRY_ADDRESS: `0x${string}` =
+	(process.env["NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
+	"0x0000000000000000000000000000000000000000";
+
 const wcProjectId = process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"];
 
 export const config = getDefaultConfig({
