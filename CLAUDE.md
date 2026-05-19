@@ -22,3 +22,11 @@
     - A concise description of what the code element does.
     - Any important parameters or return values, if applicable.
     - An example usage, if relevant.
+
+## Dependabot Alerts, Code Scanning, Vulnerabilities, and Pull Requests
+
+- Pull each one with the `gh` CLI, I've already authenticated my account.
+- For every issue, please ensure it is safe to merge and apply the changes with the latest codebase. If there are any conflicts, please resolve them before merging, but ensure that the code is still functional and doesn't break any existing features.
+- If there are any issues that require manual intervention or cannot be automatically merged, please provide a detailed explanation of the issue and the steps needed to resolve it, so it can be addressed manually.
+- After merging, please verify that the changes have been successfully applied and that there are no new issues or vulnerabilities introduced. You can do this by running the tests and checking the codebase for any errors or warnings.
+- If there are any issues that arise after merging, please provide a detailed explanation of the issue and the steps needed to resolve it, so it can be addressed promptly.
