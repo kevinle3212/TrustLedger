@@ -26,6 +26,7 @@
 	"engines": {
 		"node": ">=22.0.0"
 	},
+	"packageManager": "npm@11.12.1",
 	"scripts": {
 		"dev:frontend": "NODE_OPTIONS='--disable-warning=DEP0205' next dev",
 		"build:frontend": "NODE_OPTIONS='--disable-warning=DEP0205' next build",
