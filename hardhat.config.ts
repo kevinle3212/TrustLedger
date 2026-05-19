@@ -49,8 +49,21 @@ const config: HardhatUserConfig = {
 	networks: {
 		// The built-in ephemeral network: spins up a local chain in memory for each
 		// test run, giving every test a clean slate with no persistent state.
+		// When FORK_URL is set, Hardhat forks from that chain instead of starting blank —
+		// this gives tests access to real deployed contracts, token balances, and chain
+		// history, closely mimicking what production looks like.
 		hardhat: {
 			chainId: 31337, // standard local chain ID; tools like MetaMask recognise it
+			...(process.env.FORK_URL !== undefined
+				? {
+						forking: {
+							url: process.env.FORK_URL,
+							...(process.env.FORK_BLOCK_NUMBER !== undefined
+								? { blockNumber: parseInt(process.env.FORK_BLOCK_NUMBER, 10) }
+								: {}),
+						},
+					}
+				: {}),
 		},
 
 		// Ethereum Sepolia — the L1 testnet used for development and testing only.

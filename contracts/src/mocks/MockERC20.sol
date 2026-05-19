@@ -13,13 +13,13 @@ contract MockERC20 {
     // ─── State ────────────────────────────────────────────────────────────────
 
     /// @notice Human-readable token name (not used on-chain by TrustLedger).
-    string public name = "Mock Token";
+    string public constant name = "Mock Token"; // solhint-disable-line const-name-snakecase
 
     /// @notice Short token ticker symbol.
-    string public symbol = "MOCK";
+    string public constant symbol = "MOCK"; // solhint-disable-line const-name-snakecase
 
     /// @notice Number of decimal places (matches standard ERC-20 convention).
-    uint8 public decimals = 18;
+    uint8 public constant decimals = 18; // solhint-disable-line const-name-snakecase
 
     /// @notice Running total of all minted tokens.
     uint256 public totalSupply;

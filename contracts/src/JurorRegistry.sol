@@ -50,13 +50,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // State variables are stored on-chain in the contract's storage slot.
     // Reading/writing them costs gas proportional to the data size.
 
-    // The address of the Arbitration contract. Only Arbitration is allowed to call
-    // lockForDispute / unlockFromDispute / slash. This is NOT immutable because
-    // JurorRegistry is deployed before Arbitration (to avoid circular dependency),
-    // so we pass the pre-computed address in the constructor and just store it.
-
     /// @notice Address of the Arbitration contract; the only caller allowed to lock, unlock, and slash.
-    address public arbitration;
+    address public immutable ARBITRATION;
 
     // Maps each juror address to their JurorInfo struct.
     // `private` means external callers must use the `getJuror()` view function.
@@ -152,7 +147,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         // Reject the zero address — a typo here would brick the contract's
         // ability to call back into Arbitration.
         if (arbitration_ == address(0)) revert ZeroAddress();
-        arbitration = arbitration_;
+        ARBITRATION = arbitration_;
     }
 
     // ─── Public actions ──────────────────────────────────────────────────────
@@ -332,7 +327,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @notice Counts currently eligible jurors by iterating the full registry.
     /// @return count Number of jurors currently meeting all eligibility criteria.
     function eligibleJurorCount() external view returns (uint256 count) {
-        for (uint256 i = 0; i < _jurorList.length; ++i) {
+        uint256 len = _jurorList.length;
+        for (uint256 i = 0; i < len; ++i) {
             address a = _jurorList[i];
             JurorInfo storage j = _jurors[a];
             if (
@@ -360,6 +356,6 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // because the compiler can share one copy of the check instead of inlining it
     // at every call site.
     function _onlyArbitration() internal view {
-        if (msg.sender != arbitration) revert OnlyArbitration();
+        if (msg.sender != ARBITRATION) revert OnlyArbitration();
     }
 }

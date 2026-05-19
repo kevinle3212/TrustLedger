@@ -708,6 +708,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         uint256 n = pool.length;
 
         for (uint256 i = 0; i < n && d.jurorCount < d.maxJurors; ++i) {
+            // slither-disable-next-line weak-prng — seed derives from block.prevrandao (RANDAO, EIP-4399);
+            // this path is only active when Chainlink VRF is not configured.
             uint256 j = i + (seed % (n - i));
             seed = uint256(keccak256(abi.encodePacked(seed)));
             address tmp = pool[i];
