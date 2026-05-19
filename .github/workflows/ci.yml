@@ -119,9 +119,7 @@ jobs:
               uses: foundry-rs/foundry-toolchain@v1
               with:
                   version: stable
-              env:
-                  # Avoid foundryup 403 from api.github.com rate limit on shared runner IPs.
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Show Forge version
               run: forge --version
