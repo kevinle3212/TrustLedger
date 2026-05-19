@@ -35,15 +35,15 @@ jobs:
               run: npm install -g vercel@latest
 
             - name: Pull Vercel environment
+              # Run from repo root so Vercel resolves rootDirectory=src correctly.
+              # Running from src/ with rootDirectory=src causes double-nesting (src/src/).
               run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-              working-directory: src
               env:
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
             - name: Build
               run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-              working-directory: src
               env:
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -56,7 +56,6 @@ jobs:
 
             - name: Deploy
               run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-              working-directory: src
               env:
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
