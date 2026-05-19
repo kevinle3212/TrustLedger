@@ -132,17 +132,12 @@ jobs:
                   cache: npm
                   cache-dependency-path: src/package-lock.json
 
-            - name: Install npm 11 via corepack
-              run: |
-                  corepack enable
-                  corepack prepare npm@11.12.1 --activate
-
             - name: Install frontend dependencies
-              run: npm ci
+              run: npx --yes npm@11.12.1 ci
               working-directory: src
 
             - name: Run audit
-              run: npm audit --omit=dev --audit-level=high
+              run: npx --yes npm@11.12.1 audit --omit=dev --audit-level=high
               working-directory: src
               continue-on-error: true
 
