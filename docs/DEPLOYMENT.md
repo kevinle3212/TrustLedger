@@ -92,18 +92,19 @@ vercel env add NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS production
 vercel env add NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS preview
 ```
 
-| Variable                               | Environment        | Notes                                                                                           |
-| -------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Production/Preview | Free project ID from [cloud.walletconnect.com](https://cloud.walletconnect.com) — type: App     |
-| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically |
-| `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically |
-| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically |
-| `NEXT_PUBLIC_PINATA_JWT`               | Production/Preview | Pinata JWT for IPFS uploads — see `.env.example`                                                |
-| `MAGIC_LINK_SECRET`                    | Production/Preview | Random 32-byte hex: `openssl rand -hex 32` — never expose                                       |
-| `RESEND_API_KEY`                       | Production/Preview | From [resend.com/api-keys](https://resend.com/api-keys) — never expose                          |
-| `RESEND_FROM`                          | Production/Preview | Verified sender address, e.g. `TrustLedger <noreply@yourdomain.com>`                            |
-| `NEXT_PUBLIC_APP_URL`                  | Production/Preview | Base URL for magic links, e.g. `https://trustledger-zeta.vercel.app`                            |
-| `NEXT_BASE_PATH`                       | Production/Preview | Leave unset to serve from root `/`; only needed for sub-path hosting                            |
+| Variable                               | Environment        | Notes                                                                                                                    |
+| -------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Production/Preview | Free project ID from [cloud.walletconnect.com](https://cloud.walletconnect.com) — type: App                              |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically                          |
+| `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically                          |
+| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Production/Preview | Set to `0x000…` initially; `deploy.yml` overwrites it after every contract deploy automatically                          |
+| `NEXT_PUBLIC_PINATA_JWT`               | Production/Preview | Pinata JWT for IPFS uploads — see `.env.example`                                                                         |
+| `MAGIC_LINK_SECRET`                    | Production/Preview | Random 32-byte hex: `openssl rand -hex 32` — never expose                                                                |
+| `RESEND_API_KEY`                       | Production/Preview | From [resend.com/api-keys](https://resend.com/api-keys) — never expose                                                   |
+| `RESEND_FROM`                          | Production/Preview | Verified sender address, e.g. `TrustLedger <noreply@yourdomain.com>`                                                     |
+| `NEXT_PUBLIC_APP_URL`                  | Production/Preview | Base URL for magic links, e.g. `https://trustledger-zeta.vercel.app`                                                     |
+| `NEXT_PUBLIC_GITHUB_URL`               | —                  | **Do not set.** Auto-constructed from Vercel's `VERCEL_GIT_REPO_OWNER`/`VERCEL_GIT_REPO_SLUG` system vars at build time. |
+| `NEXT_BASE_PATH`                       | Production/Preview | Leave unset to serve from root `/`; only needed for sub-path hosting                                                     |
 
 > **Why contract address env vars must be set in Vercel:**
 > `artifacts/deployed-addresses.json` is gitignored and never reaches the CI checkout. The Vercel build has no access to it. Env vars are the only mechanism for the frontend to know the deployed addresses. `deploy.yml` keeps all three (`TrustLedger`, `Arbitration`, `JurorRegistry`) in sync automatically after every deploy.

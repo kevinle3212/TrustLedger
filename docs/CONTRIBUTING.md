@@ -280,18 +280,19 @@ npm install
 
 All frontend env vars are read from the root `.env` file by `next.config.ts` — no `src/.env.local` is needed.
 
-| Variable                               | Description                                                                                                                                                              |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`.                                                                         |
-| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Locally: auto-resolved from `artifacts/deployed-addresses.json`. On Vercel: must be set as an env var — `deploy.yml` does this automatically after each contract deploy. |
-| `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Same as above — resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                          |
-| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Same as above — resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                          |
-| `NEXT_BASE_PATH`                       | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.                                                                                  |
-| `NEXT_PUBLIC_PINATA_JWT`               | Pinata JWT for IPFS uploads. Get at [pinata.cloud](https://pinata.cloud) → API Keys.                                                                                     |
-| `NEXT_PUBLIC_APP_URL`                  | Base URL for magic links in emails (e.g. `http://localhost:3000`).                                                                                                       |
-| `MAGIC_LINK_SECRET`                    | Random 32-byte hex secret for HMAC-signing magic link tokens. Generate: `openssl rand -hex 32`. **Never expose.**                                                        |
-| `RESEND_API_KEY`                       | Email delivery key from [resend.com/api-keys](https://resend.com/api-keys). **Never expose.**                                                                            |
-| `RESEND_FROM`                          | Verified sender address (e.g. `TrustLedger <noreply@yourdomain.com>`). Use `onboarding@resend.dev` for local dev.                                                        |
+| Variable                               | Description                                                                                                                                                                        |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`.                                                                                   |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Locally: auto-resolved from `artifacts/deployed-addresses.json`. On Vercel: must be set as an env var — `deploy.yml` does this automatically after each contract deploy.           |
+| `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Same as above — resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
+| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Same as above — resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
+| `NEXT_BASE_PATH`                       | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.                                                                                            |
+| `NEXT_PUBLIC_PINATA_JWT`               | Pinata JWT for IPFS uploads. Get at [pinata.cloud](https://pinata.cloud) → API Keys.                                                                                               |
+| `NEXT_PUBLIC_APP_URL`                  | Base URL for magic links in emails (e.g. `http://localhost:3000`).                                                                                                                 |
+| `NEXT_PUBLIC_GITHUB_URL`               | Source code link shown in the navbar. On Vercel, auto-constructed from `VERCEL_GIT_REPO_OWNER`/`VERCEL_GIT_REPO_SLUG` — no manual config needed. Set in root `.env` for local dev. |
+| `MAGIC_LINK_SECRET`                    | Random 32-byte hex secret for HMAC-signing magic link tokens. Generate: `openssl rand -hex 32`. **Never expose.**                                                                  |
+| `RESEND_API_KEY`                       | Email delivery key from [resend.com/api-keys](https://resend.com/api-keys). **Never expose.**                                                                                      |
+| `RESEND_FROM`                          | Verified sender address (e.g. `TrustLedger <noreply@yourdomain.com>`). Use `onboarding@resend.dev` for local dev.                                                                  |
 
 ### Running the dev server
 

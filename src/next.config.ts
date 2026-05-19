@@ -72,6 +72,12 @@ const nextConfig: NextConfig = {
 			process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??
 			rootEnv["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??
 			"",
+		// Constructed automatically from Vercel's git system env vars so any fork
+		// or clone that deploys to Vercel gets the correct repo URL without manual config.
+		NEXT_PUBLIC_GITHUB_URL:
+			process.env["VERCEL_GIT_REPO_OWNER"] && process.env["VERCEL_GIT_REPO_SLUG"]
+				? `https://github.com/${process.env["VERCEL_GIT_REPO_OWNER"]}/${process.env["VERCEL_GIT_REPO_SLUG"]}`
+				: (rootEnv["NEXT_PUBLIC_GITHUB_URL"] ?? ""),
 	},
 };
 

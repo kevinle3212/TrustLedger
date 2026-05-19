@@ -4,6 +4,26 @@
 		"editor.insertSpaces": true,
 		"editor.detectIndentation": false
 	},
+	"[typescript]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false
+	},
+	"[typescriptreact]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false
+	},
+	"[javascript]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false
+	},
+	"[javascriptreact]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false
+	},
 	"markdownlint.config": {
 		"MD010": false,
 		"MD041": false
