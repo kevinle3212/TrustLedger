@@ -1,4 +1,6 @@
-# TrustLedger - Frontend
+# TrustLedger — Frontend (`src/`)
+
+> [← Back to root README](../README.md) &nbsp;·&nbsp; [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Docs](../docs/) &nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts](../docs/CONTRACTS.md) &nbsp;·&nbsp; [Security](../SECURITY.md)
 
 Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum Sepolia. Hosted on [Vercel](https://vercel.com) at **[trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)**.
 
@@ -10,12 +12,19 @@ Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum
 - [Install](#install)
 - [Environment Variables](#environment-variables)
 - [Development Server](#development-server)
+- [File Layout](#file-layout)
+    - [Pages — `app/`](#pages--app)
+    - [Components — `components/`](#components--components)
+    - [Library — `lib/`](#library--lib)
 - [Scripts](#scripts)
 - [CI/CD](#cicd)
 - [Contract Artifacts](#contract-artifacts)
 - [wagmi Integration](#wagmi-integration)
 - [Key View Functions](#key-view-functions)
 - [Key Events to Index](#key-events-to-index)
+- [Security](#security)
+- [License](#license)
+- [Authors](#authors)
 
 ---
 
@@ -86,7 +95,8 @@ Then open `.env` in any text editor and fill in the values below.
 | `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | No (auto-detected)         | Deployed `TrustLedger` contract address. Left blank, it is read from `artifacts/deployed-addresses.json` automatically.   |
 | `NEXT_BASE_PATH`                       | No                         | URL prefix. Leave empty (`NEXT_BASE_PATH=`) to serve from the root path `/`. The root `.env` already sets this correctly. |
 
-### Getting a WalletConnect Project ID
+<details>
+<summary>How to get a WalletConnect Project ID</summary>
 
 WalletConnect is the protocol that lets MetaMask, Coinbase Wallet, and other wallets connect to the site. You need a free project ID to use it.
 
@@ -101,6 +111,10 @@ WalletConnect is the protocol that lets MetaMask, Coinbase Wallet, and other wal
     ```
 
 > Without this ID, the wallet connect button will appear but may not work correctly in all browsers.
+
+</details>
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -159,6 +173,8 @@ Then import a test account by copying any private key from the Terminal 1 output
 
 The page hot-reloads automatically as you edit files under `app/`.
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Scripts
@@ -173,6 +189,8 @@ The page hot-reloads automatically as you edit files under `app/`.
 | `npm run lint:frontend:prettier` | Prettier format check (targets `app/`, `lib/`, `components/`, `next.config.ts`)                       |
 | `npm run debug:frontend:files`   | TypeScript trace + CPU profile — outputs `trace/` and `profile.cpuprofile` for compile-time debugging |
 | `npm run deploy:vercel`          | Deploy to Vercel production (`vercel --prod`) — requires a linked project (`vercel link` from `src/`) |
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -200,6 +218,78 @@ Requires `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` as repository 
 
 The `frontend-dependencies` job runs `npm audit --omit=dev --audit-level=high` against `src/package-lock.json` separately from the root audit.
 
+[↑ Back to top](#table-of-contents)
+
+---
+
+## File Layout
+
+```text
+src/
+├── app/                              # Next.js App Router pages
+│   ├── api/
+│   │   └── magic-link/
+│   │       ├── send/route.ts         # POST — generate & email a magic-link JWT to a freelancer
+│   │       └── verify/route.ts       # GET  — validate the JWT and return the pre-signed accept payload
+│   ├── arbitration/
+│   │   └── [id]/page.tsx             # Dispute detail: commit/reveal voting UI for jurors and parties
+│   ├── create/page.tsx               # Create-contract form: escrow amount, deadlines, IPFS upload
+│   ├── dashboard/page.tsx            # User dashboard: lists all contracts where user is client or freelancer
+│   ├── freelancer/
+│   │   └── accept/page.tsx           # Magic-link landing page: freelancer reviews and accepts the contract
+│   ├── juror/page.tsx                # Juror portal: register stake, view open disputes, cast commit/reveal votes
+│   ├── globals.css                   # Tailwind v4 base styles and CSS custom properties
+│   ├── layout.tsx                    # Root layout: wraps every page with Providers and Navbar
+│   └── page.tsx                      # Landing page: hero, feature highlights, CTA buttons
+│
+├── components/
+│   ├── Navbar.tsx                    # Sticky top nav with RainbowKit ConnectButton
+│   └── Providers.tsx                 # WagmiProvider + RainbowKitProvider + QueryClientProvider
+│
+└── lib/
+    ├── abi.ts                        # TrustLedger / Arbitration / JurorRegistry ABIs + status label map
+    ├── arweave.ts                    # Arweave upload helper — permanent on-chain storage for large artifacts
+    ├── encryption.ts                 # AES-GCM encrypt/decrypt for off-chain document privacy
+    ├── ipfs.ts                       # IPFS upload via Web3.Storage; returns CID for on-chain storage
+    ├── magicLink.ts                  # JWT sign/verify helpers for freelancer magic-link onboarding
+    ├── utils.ts                      # Address shortener, ETH formatter, status color map
+    └── wagmi.ts                      # wagmi config (chains, transports) + contract address resolver
+```
+
+### Pages — `app/`
+
+| Page                             | Route                        | Description                                                                            |
+| -------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------- |
+| `page.tsx`                       | `/`                          | Landing page                                                                           |
+| `create/page.tsx`                | `/create`                    | Create escrow contract — IPFS upload, deadlines, token selection                       |
+| `dashboard/page.tsx`             | `/dashboard`                 | Lists all contracts for the connected wallet                                           |
+| `freelancer/accept/page.tsx`     | `/freelancer/accept`         | Magic-link accept flow — verifies JWT, renders contract details, triggers ECDSA accept |
+| `arbitration/[id]/page.tsx`      | `/arbitration/:id`           | Per-dispute view — commit phase, reveal phase, ruling display                          |
+| `juror/page.tsx`                 | `/juror`                     | Juror portal — stake registration, dispute queue, vote submission                      |
+| `api/magic-link/send/route.ts`   | `POST /api/magic-link/send`  | Generates a signed JWT and returns the magic link for the client to email              |
+| `api/magic-link/verify/route.ts` | `GET /api/magic-link/verify` | Verifies the JWT and returns the contract payload                                      |
+
+### Components — `components/`
+
+| File            | Description                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| `Navbar.tsx`    | Sticky navigation bar with the RainbowKit `ConnectButton` and page links                        |
+| `Providers.tsx` | Tree of `WagmiProvider`, `QueryClientProvider`, and `RainbowKitProvider` — wraps the entire app |
+
+### Library — `lib/`
+
+| File            | Description                                                                                                                  |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `abi.ts`        | Re-exports all contract ABIs and a `CONTRACT_STATUS_LABELS` map for human-readable status strings                            |
+| `arweave.ts`    | Uploads files to Arweave for permanent, immutable storage; returns the transaction ID as a URI                               |
+| `encryption.ts` | AES-GCM helpers: `encrypt(data, key)` → ciphertext, `decrypt(ciphertext, key)` → plaintext                                   |
+| `ipfs.ts`       | Uploads a `File` or `Blob` to Web3.Storage; returns the IPFS CID used as `contractURI` or `proofOfWorkURI`                   |
+| `magicLink.ts`  | `signMagicLink(contractId, freelancerAddress)` / `verifyMagicLink(token)` — JWT helpers for the accept flow                  |
+| `utils.ts`      | `shortenAddress`, `formatEth`, `statusColor` — formatting helpers used across pages                                          |
+| `wagmi.ts`      | Exports `config` (wagmi chain + transport config) and `TRUSTLEDGER_ADDRESS` (resolved from env or `deployed-addresses.json`) |
+
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Contract Artifacts
@@ -213,6 +303,8 @@ After `npm run compile` from the repo root:
 | Deployed addresses       | `artifacts/deployed-addresses.json`              |
 
 The frontend imports ABIs and the resolved address via `src/lib/abi.ts` and `src/lib/wagmi.ts`. The address is injected by `next.config.ts` at build time — no runtime fetch needed.
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -267,9 +359,14 @@ writeContract({
 });
 ```
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Key View Functions
+
+<details>
+<summary>Expand — all read-only contract functions used by the frontend</summary>
 
 | Contract             | Function                       | Returns                                         |
 | -------------------- | ------------------------------ | ----------------------------------------------- |
@@ -284,9 +381,18 @@ writeContract({
 | `JurorRegistry`      | `isEligible(address)`          | Whether an address can currently vote           |
 | `ReputationRegistry` | `averageRating(address)`       | `(numerator, denominator)` - divide for average |
 
+</details>
+
+> Full contract API reference → [docs/CONTRACTS.md](../docs/CONTRACTS.md)
+
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Key Events to Index
+
+<details>
+<summary>Expand — all events emitted by the contracts, used for frontend indexing</summary>
 
 | Event                                                      | Contract      | When                            |
 | ---------------------------------------------------------- | ------------- | ------------------------------- |
@@ -308,6 +414,12 @@ writeContract({
 | `Appealed(disputeId, appealer, bond)`                      | Arbitration   | Appeal filed                    |
 | `Registered(juror, stake)`                                 | JurorRegistry | New juror registered            |
 | `Slashed(juror, amount)`                                   | JurorRegistry | Juror stake slashed             |
+
+</details>
+
+> Full event reference with indexed parameters → [docs/CONTRACTS.md](../docs/CONTRACTS.md)
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -331,3 +443,7 @@ This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE)
 
 - Kevin Le
 - Kellen Snider
+
+---
+
+[↑ Back to top](#table-of-contents) &nbsp;·&nbsp; [← Root README](../README.md) &nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts API](../docs/CONTRACTS.md) &nbsp;·&nbsp; [Deployment](../docs/DEPLOYMENT.md) &nbsp;·&nbsp; [Contributing](../docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](../SECURITY.md)

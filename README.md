@@ -12,17 +12,17 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 
 ## Documentation
 
-| Document                                       | Description                                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------ |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)   | System diagram, state machine, payout formulas, storage layout     |
-| [docs/CONTRACTS.md](docs/CONTRACTS.md)         | Full public API for all four contracts — functions, events, errors |
-| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)   | Local setup, compiling, testing, linting, deploying to testnet     |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Vercel deployment setup — secrets, project linking, CI/CD          |
-| [docs/DOCKER.md](docs/DOCKER.md)               | Docker prerequisites, services, MetaMask setup, troubleshooting    |
-| [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for pitches.                     |
-| [docs/MISCELLANEOUS.md](docs/MISCELLANEOUS.md) | Glossary, tooling rationale, Chainlink setup, design decisions     |
-| [SECURITY.md](SECURITY.md)                     | Vulnerability reporting policy and severity classification         |
-| [src/README.md](src/README.md)                 | Frontend setup, scripts, contract artifacts, wagmi integration     |
+| Document                                       | Description                                                                                                   |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)   | System diagram, state machine, payout formulas, storage layout                                                |
+| [docs/CONTRACTS.md](docs/CONTRACTS.md)         | Full public API for all four contracts — functions, events, errors                                            |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)   | Local setup, compiling, testing, linting, deploying to testnet                                                |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Vercel deployment setup — secrets, project linking, CI/CD                                                     |
+| [docs/DOCKER.md](docs/DOCKER.md)               | Docker prerequisites, services, MetaMask setup, troubleshooting                                               |
+| [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for pitches.                                                                |
+| [docs/MISCELLANEOUS.md](docs/MISCELLANEOUS.md) | Glossary, tooling rationale, Chainlink setup, design decisions                                                |
+| [SECURITY.md](SECURITY.md)                     | Vulnerability reporting policy and severity classification                                                    |
+| [src/README.md](src/README.md)                 | Frontend setup, scripts, file layout, contract artifacts, wagmi integration — **start here for frontend dev** |
 
 ---
 
@@ -865,24 +865,32 @@ TrustLedger/
 │       ├── forge-std/
 │       └── openzeppelin-contracts/
 │
-├── src/                                            # Next.js 16 static dApp (frontend)
+├── src/                                            # Next.js 16 static dApp (frontend) — see src/README.md
 │   ├── app/
+│   │   ├── api/magic-link/                       # Magic-link JWT API routes (send + verify)
+│   │   ├── arbitration/[id]/page.tsx             # Per-dispute commit/reveal voting UI
+│   │   ├── create/page.tsx                       # Create escrow contract form
+│   │   ├── dashboard/page.tsx                    # User's contract dashboard
+│   │   ├── freelancer/accept/page.tsx            # Magic-link freelancer accept landing page
+│   │   ├── juror/page.tsx                        # Juror portal — stake, vote, view disputes
 │   │   ├── layout.tsx                            # Root layout with Providers + Navbar
 │   │   ├── page.tsx                              # Landing page
-│   │   ├── globals.css                           # Tailwind v4 base styles + font vars
-│   │   ├── create/page.tsx                       # Create escrow contract form
-│   │   └── dashboard/page.tsx                    # User's contract dashboard
+│   │   └── globals.css                           # Tailwind v4 base styles + font vars
 │   ├── components/
 │   │   ├── Navbar.tsx                            # Sticky nav with RainbowKit connect button
 │   │   └── Providers.tsx                         # WagmiProvider + RainbowKitProvider
 │   ├── lib/
-│   │   ├── abi.ts                                # TrustLedger ABI + status labels
+│   │   ├── abi.ts                                # TrustLedger / Arbitration / JurorRegistry ABIs
+│   │   ├── arweave.ts                            # Arweave permanent storage helper
+│   │   ├── encryption.ts                         # AES-GCM encrypt/decrypt for off-chain docs
+│   │   ├── ipfs.ts                               # IPFS upload via Web3.Storage
+│   │   ├── magicLink.ts                          # JWT sign/verify for freelancer onboarding
 │   │   ├── utils.ts                              # Address/ETH formatters, status colors
 │   │   └── wagmi.ts                              # wagmi config + contract address resolver
 │   ├── public/                                   # Static assets (favicons, SVGs)
 │   ├── next.config.ts                            # basePath + root .env injection
 │   ├── package.json                              # Frontend-only dependencies
-│   └── README.md                                 # Frontend setup guide
+│   └── README.md                                 # Frontend setup guide → src/README.md
 │
 ├── test/
 │   └── TrustLedger.test.ts               # 73 Hardhat/Mocha integration tests
@@ -927,6 +935,10 @@ TrustLedger/
 ├── SECURITY.md                           # Vulnerability reporting policy
 └── LICENSE                               # Apache-2.0
 ```
+
+> **Frontend developer?** The `src/` subtree has its own README with a per-file breakdown, env var setup, scripts, and wagmi examples. See [src/README.md](src/README.md).
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
