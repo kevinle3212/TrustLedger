@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { signMagicToken } from "@/lib/magicLink";
 
@@ -10,8 +10,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	const from = process.env["RESEND_FROM"] ?? "TrustLedger <noreply@trustledger.app>";
 	const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
-	if (!secret) return NextResponse.json({ error: "MAGIC_LINK_SECRET not set" }, { status: 500 });
-	if (!apiKey) return NextResponse.json({ error: "RESEND_API_KEY not set" }, { status: 500 });
+	if (secret === undefined || secret === "")
+		return NextResponse.json({ error: "MAGIC_LINK_SECRET not set" }, { status: 500 });
+	if (apiKey === undefined || apiKey === "")
+		return NextResponse.json({ error: "RESEND_API_KEY not set" }, { status: 500 });
 
 	let body: { contractId?: unknown; freelancerEmail?: unknown; freelancerAddress?: unknown };
 	try {
@@ -21,7 +23,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	}
 
 	const { contractId, freelancerEmail, freelancerAddress } = body;
-	if (typeof contractId !== "string" || !contractId)
+	if (typeof contractId !== "string" || contractId === "")
 		return NextResponse.json({ error: "contractId required" }, { status: 400 });
 	if (typeof freelancerEmail !== "string" || !freelancerEmail.includes("@"))
 		return NextResponse.json({ error: "valid freelancerEmail required" }, { status: 400 });
@@ -46,7 +48,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 		html: buildEmail(link, contractId),
 	});
 
-	if (error) return NextResponse.json({ error: error.message }, { status: 502 });
+	if (error !== null) return NextResponse.json({ error: error.message }, { status: 502 });
 
 	return NextResponse.json({ ok: true });
 }

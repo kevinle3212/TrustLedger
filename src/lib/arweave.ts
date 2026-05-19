@@ -29,7 +29,7 @@ export async function uploadToArweave(
 
 	const res = await arweave.transactions.post(tx);
 	if (res.status !== 200 && res.status !== 202) {
-		throw new Error(`Arweave upload failed (${res.status}): ${res.statusText}`);
+		throw new Error(`Arweave upload failed (${String(res.status)}): ${res.statusText}`);
 	}
 
 	return `ar://${tx.id}`;

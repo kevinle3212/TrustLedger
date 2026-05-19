@@ -11,7 +11,7 @@ import {
 	useSignMessage,
 } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { keccak256, encodePacked, hexToSignature } from "viem";
+import { keccak256, encodePacked, parseSignature } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
 import { formatEth } from "@/lib/utils";
@@ -22,29 +22,36 @@ function AcceptPageInner(): React.JSX.Element {
 	const token = searchParams.get("token") ?? "";
 
 	const [payload, setPayload] = useState<MagicLinkPayload | null>(null);
-	const [tokenError, setTokenError] = useState<string | null>(null);
-	const [tokenLoading, setTokenLoading] = useState(true);
+	const [tokenError, setTokenError] = useState<string | null>(
+		token === "" ? "No token provided." : null,
+	);
+	const [tokenLoading, setTokenLoading] = useState(token !== "");
 
 	useEffect(() => {
-		if (!token) {
-			setTokenError("No token provided.");
-			setTokenLoading(false);
-			return;
-		}
-		fetch(`/api/magic-link/verify?token=${encodeURIComponent(token)}`)
-			.then((r) => r.json())
-			.then((data: { ok?: boolean; error?: string; payload?: MagicLinkPayload }) => {
-				if (data.ok && data.payload) setPayload(data.payload);
+		if (token === "") return;
+		const verify = async (): Promise<void> => {
+			try {
+				const r = await fetch(`/api/magic-link/verify?token=${encodeURIComponent(token)}`);
+				const data = (await r.json()) as {
+					ok?: boolean;
+					error?: string;
+					payload?: MagicLinkPayload;
+				};
+				if (data.ok === true && data.payload !== undefined) setPayload(data.payload);
 				else setTokenError(data.error ?? "Invalid link.");
-			})
-			.catch(() => setTokenError("Failed to verify link."))
-			.finally(() => setTokenLoading(false));
+			} catch {
+				setTokenError("Failed to verify link.");
+			} finally {
+				setTokenLoading(false);
+			}
+		};
+		void verify();
 	}, [token]);
 
 	const { address, isConnected } = useAccount();
 	const chainId = useChainId();
 
-	const contractId = payload ? BigInt(payload.contractId) : 0n;
+	const contractId = payload !== null ? BigInt(payload.contractId) : 0n;
 
 	const { data: contract, isLoading: contractLoading } = useReadContract({
 		address: TRUSTLEDGER_ADDRESS,
@@ -68,10 +75,10 @@ function AcceptPageInner(): React.JSX.Element {
 	} = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-	const explorerTxUrl = txHash ? getExplorerTxUrl(chainId ?? 11155111, txHash) : null;
+	const explorerTxUrl = txHash !== undefined ? getExplorerTxUrl(chainId, txHash) : null;
 
 	function handleSign(): void {
-		if (!payload) return;
+		if (payload === null) return;
 		const message = keccak256(
 			encodePacked(
 				["uint256", "address"],
@@ -82,8 +89,8 @@ function AcceptPageInner(): React.JSX.Element {
 	}
 
 	useEffect(() => {
-		if (!signature || !payload) return;
-		const { v, r, s } = hexToSignature(signature);
+		if (signature === undefined || payload === null) return;
+		const { v, r, s } = parseSignature(signature);
 		writeContract({
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
@@ -100,7 +107,7 @@ function AcceptPageInner(): React.JSX.Element {
 			</PageShell>
 		);
 
-	if (tokenError) {
+	if (tokenError !== null) {
 		return (
 			<PageShell>
 				<div className="rounded-xl bg-red-500/10 border border-red-500/20 px-6 py-5 text-center">
@@ -146,7 +153,7 @@ function AcceptPageInner(): React.JSX.Element {
 		);
 	}
 
-	if (contractLoading || !contract) {
+	if (contractLoading || contract === undefined) {
 		return (
 			<PageShell>
 				<p className="text-gray-400">Loading contract…</p>
@@ -178,7 +185,7 @@ function AcceptPageInner(): React.JSX.Element {
 				<p className="text-gray-400 text-sm text-center mb-4">
 					The project deadline timer has started.
 				</p>
-				{txHash && explorerTxUrl && (
+				{txHash !== undefined && explorerTxUrl !== null && (
 					<a
 						href={explorerTxUrl}
 						target="_blank"
@@ -213,9 +220,9 @@ function AcceptPageInner(): React.JSX.Element {
 					}
 				/>
 				{contract.holdBackBps > 0 && (
-					<Row label="Hold-back" value={`${contract.holdBackBps / 100}%`} />
+					<Row label="Hold-back" value={`${String(contract.holdBackBps / 100)}%`} />
 				)}
-				{contract.contractURI && (
+				{contract.contractURI !== "" && (
 					<Row
 						label="Document"
 						value={
@@ -242,7 +249,7 @@ function AcceptPageInner(): React.JSX.Element {
 				</div>
 			)}
 
-			{(signError ?? writeError) && (
+			{(signError ?? writeError) !== null && (
 				<p className="text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
 					{((signError ?? writeError) as { shortMessage?: string } | null)
 						?.shortMessage ?? (signError ?? writeError)?.message}

@@ -25,7 +25,7 @@ function b64urlDecode(s: string): Uint8Array<ArrayBuffer> {
 }
 
 async function importKey(secret: string): Promise<CryptoKey> {
-	return crypto.subtle.importKey(
+	return await crypto.subtle.importKey(
 		"raw",
 		new TextEncoder().encode(secret),
 		{ name: "HMAC", hash: "SHA-256" },
@@ -35,7 +35,7 @@ async function importKey(secret: string): Promise<CryptoKey> {
 }
 
 export async function signMagicToken(payload: MagicLinkPayload, secret: string): Promise<string> {
-	const header = b64url(new TextEncoder().encode(JSON.stringify(payload)).buffer as ArrayBuffer);
+	const header = b64url(new TextEncoder().encode(JSON.stringify(payload)).buffer);
 	const key = await importKey(secret);
 	const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(header));
 	return `${header}.${b64url(sig)}`;
@@ -50,7 +50,7 @@ export async function verifyMagicToken(token: string, secret: string): Promise<M
 	const valid = await crypto.subtle.verify(
 		"HMAC",
 		key,
-		sig.buffer as ArrayBuffer,
+		sig.buffer,
 		new TextEncoder().encode(header),
 	);
 	if (!valid) throw new Error("invalid signature");

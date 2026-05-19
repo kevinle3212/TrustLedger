@@ -19,7 +19,7 @@ export async function uploadToPinata(
 
 	if (!res.ok) {
 		const text = await res.text();
-		throw new Error(`Pinata upload failed (${res.status}): ${text}`);
+		throw new Error(`Pinata upload failed (${String(res.status)}): ${text}`);
 	}
 
 	const json = (await res.json()) as { IpfsHash: string };

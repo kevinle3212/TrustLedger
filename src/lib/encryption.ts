@@ -2,15 +2,15 @@
 // The encrypted output is a self-describing JSON bundle so decryption parameters
 // travel with the ciphertext — no side-channel needed to recover them.
 
-type EncryptedBundle = {
-	v: 1;
+interface EncryptedBundle {
+	v: number;
 	alg: "AES-256-GCM";
 	kdf: "PBKDF2-SHA256";
 	iter: number;
 	salt: string;
 	iv: string;
 	ct: string;
-};
+}
 
 const ITERATIONS = 100_000;
 
@@ -36,7 +36,7 @@ async function deriveKey(passphrase: string, salt: Uint8Array<ArrayBuffer>): Pro
 		false,
 		["deriveKey"],
 	);
-	return crypto.subtle.deriveKey(
+	return await crypto.subtle.deriveKey(
 		{ name: "PBKDF2", salt, iterations: ITERATIONS, hash: "SHA-256" },
 		raw,
 		{ name: "AES-GCM", length: 256 },
@@ -71,7 +71,7 @@ export async function encryptFile(
 		ct: btoa(String.fromCharCode(...new Uint8Array(ct))),
 	};
 	// TextEncoder.encode allocates its own ArrayBuffer, giving Uint8Array<ArrayBuffer>.
-	return new TextEncoder().encode(JSON.stringify(bundle)) as Uint8Array<ArrayBuffer>;
+	return new TextEncoder().encode(JSON.stringify(bundle));
 }
 
 // Decrypt a bundle produced by encryptFile.
@@ -84,5 +84,5 @@ export async function decryptFile(data: ArrayBuffer, passphrase: string): Promis
 	// Wrap in new Uint8Array() to ensure Uint8Array<ArrayBuffer> for Web Crypto.
 	const ct = new Uint8Array(Uint8Array.from(atob(bundle.ct), (c) => c.charCodeAt(0)));
 	const key = await deriveKey(passphrase, salt);
-	return crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct);
+	return await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct);
 }

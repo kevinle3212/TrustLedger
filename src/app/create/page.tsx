@@ -138,17 +138,16 @@ export default function CreatePage(): React.JSX.Element {
 	}
 
 	useEffect(() => {
-		if (!isSuccess || !receipt || !form.freelancerEmail) return;
+		if (!isSuccess || form.freelancerEmail === "") return;
 
 		const logs = parseEventLogs({
 			abi: TRUSTLEDGER_ABI,
 			eventName: "ContractCreated",
 			logs: receipt.logs,
 		});
-		const contractId = logs[0]?.args?.id;
+		const contractId = logs[0]?.args.id;
 		if (contractId === undefined) return;
 
-		setMagicLinkStatus("sending");
 		fetch("/api/magic-link/send", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -158,13 +157,17 @@ export default function CreatePage(): React.JSX.Element {
 				freelancerAddress: form.freelancer,
 			}),
 		})
-			.then((r) => (r.ok ? setMagicLinkStatus("sent") : setMagicLinkStatus("error")))
-			.catch(() => setMagicLinkStatus("error"));
+			.then((r) => {
+				setMagicLinkStatus(r.ok ? "sent" : "error");
+			})
+			.catch(() => {
+				setMagicLinkStatus("error");
+			});
 	}, [isSuccess, receipt, form.freelancerEmail, form.freelancer]);
 
 	async function handleUploadToIPFS(): Promise<void> {
-		if (!selectedFile) return;
-		if (!pinataJwt) {
+		if (selectedFile === null) return;
+		if (pinataJwt === "") {
 			setUploadError("Enter your Pinata JWT to enable IPFS upload.");
 			setUploadStatus("error");
 			return;
@@ -179,13 +182,13 @@ export default function CreatePage(): React.JSX.Element {
 			let mime: string;
 
 			if (encryptEnabled) {
-				if (!passphrase) throw new Error("Passphrase required for encryption.");
+				if (passphrase === "") throw new Error("Passphrase required for encryption.");
 				bytes = await encryptFile(rawBytes.buffer, passphrase);
 				mime = "application/octet-stream";
 			} else {
 				// new Uint8Array(ArrayBuffer) narrows to Uint8Array<ArrayBuffer>.
 				bytes = new Uint8Array(rawBytes.buffer);
-				mime = selectedFile.type || "application/octet-stream";
+				mime = selectedFile.type !== "" ? selectedFile.type : "application/octet-stream";
 			}
 
 			const hash = keccak256(bytes);
@@ -206,9 +209,9 @@ export default function CreatePage(): React.JSX.Element {
 
 	function handleArweaveWalletLoad(e: React.ChangeEvent<HTMLInputElement>): void {
 		const file = e.target.files?.[0];
-		if (!file) return;
+		if (file === undefined) return;
 		const reader = new FileReader();
-		reader.onload = async (ev) => {
+		reader.onload = async (ev): Promise<void> => {
 			try {
 				const jwk = JSON.parse(ev.target?.result as string) as ArweaveJWK;
 				setArweaveWallet(jwk);
@@ -224,7 +227,7 @@ export default function CreatePage(): React.JSX.Element {
 	}
 
 	async function handleArweaveUpload(): Promise<void> {
-		if (!uploadedBytes || !arweaveWallet) return;
+		if (uploadedBytes === null || arweaveWallet === null) return;
 		setArweaveStatus("working");
 		try {
 			const { uploadToArweave } = await import("@/lib/arweave");
@@ -275,7 +278,7 @@ export default function CreatePage(): React.JSX.Element {
 				>
 					View on explorer
 				</a>
-				{form.freelancerEmail && (
+				{form.freelancerEmail !== "" && (
 					<p className="text-sm">
 						{magicLinkStatus === "sending" && (
 							<span className="text-gray-400">Sending magic link…</span>
@@ -403,11 +406,11 @@ export default function CreatePage(): React.JSX.Element {
 									}}
 								/>
 								<span className="text-sm text-gray-400">
-									{selectedFile
+									{selectedFile !== null
 										? selectedFile.name
 										: "Click to browse or drop a file"}
 								</span>
-								{selectedFile && (
+								{selectedFile !== null && (
 									<span className="text-xs text-gray-600">
 										{(selectedFile.size / 1024).toFixed(1)} KB
 									</span>
@@ -446,7 +449,8 @@ export default function CreatePage(): React.JSX.Element {
 							)}
 
 							{/* Pinata JWT — shown if not baked in via env */}
-							{!process.env["NEXT_PUBLIC_PINATA_JWT"] && (
+							{(process.env["NEXT_PUBLIC_PINATA_JWT"] === undefined ||
+								process.env["NEXT_PUBLIC_PINATA_JWT"] === "") && (
 								<Field
 									label="Pinata JWT"
 									hint="Get a free JWT at pinata.cloud → API Keys. Set NEXT_PUBLIC_PINATA_JWT in .env.local to persist it."
@@ -469,10 +473,10 @@ export default function CreatePage(): React.JSX.Element {
 									void handleUploadToIPFS();
 								}}
 								disabled={
-									!selectedFile ||
+									selectedFile === null ||
 									uploadStatus === "working" ||
-									(encryptEnabled && !passphrase) ||
-									!pinataJwt
+									(encryptEnabled && passphrase === "") ||
+									pinataJwt === ""
 								}
 								className="px-4 py-2 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
 							>
@@ -480,7 +484,7 @@ export default function CreatePage(): React.JSX.Element {
 							</button>
 
 							{/* Upload result */}
-							{uploadStatus === "done" && form.contractURI && (
+							{uploadStatus === "done" && form.contractURI !== "" && (
 								<div className="flex flex-col gap-3">
 									<div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-green-300">
 										<span className="shrink-0 mt-0.5">✓</span>
@@ -505,11 +509,11 @@ export default function CreatePage(): React.JSX.Element {
 														className="sr-only"
 														onChange={handleArweaveWalletLoad}
 													/>
-													{arweaveWallet
+													{arweaveWallet !== null
 														? "Wallet loaded"
 														: "Load Arweave wallet (.json)"}
 												</label>
-												{arweaveWallet && (
+												{arweaveWallet !== null && (
 													<>
 														{arweaveBalance !== null && (
 															<span className="text-xs text-gray-500">
@@ -534,7 +538,7 @@ export default function CreatePage(): React.JSX.Element {
 												Uploading to Arweave…
 											</span>
 										)}
-										{arweaveStatus === "done" && arweaveUri && (
+										{arweaveStatus === "done" && arweaveUri !== "" && (
 											<span className="text-xs text-green-400 font-mono break-all">
 												✓ {arweaveUri}
 											</span>
@@ -548,11 +552,13 @@ export default function CreatePage(): React.JSX.Element {
 								</div>
 							)}
 
-							{uploadStatus === "error" && uploadError && (
-								<p className="text-xs text-red-400 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
-									{uploadError}
-								</p>
-							)}
+							{uploadStatus === "error" &&
+								uploadError !== null &&
+								uploadError !== "" && (
+									<p className="text-xs text-red-400 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+										{uploadError}
+									</p>
+								)}
 						</div>
 					) : (
 						<Field
