@@ -52,6 +52,7 @@
 		"foundry:deploy:sepolia:dry-run": "set -a && . ./.env && set +a && cd contracts && forge script script/Deploy.s.sol --rpc-url sepolia --private-key \"$DEPLOYER_PRIVATE_KEY\" -vvvv",
 		"demo:good": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-good.ts --network localhost --no-compile",
 		"demo:bad": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-bad.ts --network localhost --no-compile",
+		"deploy:vercel": "vercel --prod",
 		"prepare": "husky",
 		"nexus:index": "nexus-graph index --project .",
 		"nexus:server": "nexus-graph server --project .",
