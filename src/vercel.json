@@ -1,3 +1,3 @@
 {
-	"ignoreCommand": "git diff --quiet HEAD~1 -- src/ artifacts/deployed-addresses.json"
+	"ignoreCommand": "git diff --quiet HEAD~1 -- . ../artifacts/deployed-addresses.json"
 }
