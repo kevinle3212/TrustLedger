@@ -599,12 +599,12 @@ export const JUROR_REGISTRY_ABI = [
 			{
 				components: [
 					{ internalType: "address", name: "addr", type: "address" },
+					{ internalType: "bool", name: "active", type: "bool" },
 					{ internalType: "uint256", name: "stake", type: "uint256" },
 					{ internalType: "uint256", name: "stakeUnlockTime", type: "uint256" },
 					{ internalType: "uint256", name: "reputation", type: "uint256" },
 					{ internalType: "uint256", name: "disputesParticipated", type: "uint256" },
 					{ internalType: "uint256", name: "minorityVotes", type: "uint256" },
-					{ internalType: "bool", name: "active", type: "bool" },
 					{ internalType: "uint256", name: "activeDisputes", type: "uint256" },
 				],
 				internalType: "struct IJurorRegistry.JurorInfo",
