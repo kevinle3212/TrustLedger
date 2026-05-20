@@ -1,6 +1,6 @@
 # Contract Reference
 
-Full public API for all four TrustLedger contracts. All contracts are deployed on Ethereum Sepolia. Addresses are written to `artifacts/deployed-addresses.json` after each deploy.
+Full public API for all five TrustLedger contracts. All contracts are deployed on Ethereum Sepolia. Addresses are written to `artifacts/deployed-addresses.json` after each deploy (Hardhat `scripts/deploy.ts` includes `ReputationRegistry` and calls `initReputationRegistry`).
 
 ---
 

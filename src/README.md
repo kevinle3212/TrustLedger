@@ -89,11 +89,12 @@ cp .env.example .env
 
 Then open `.env` in any text editor and fill in the values below.
 
-| Variable                               | Required                   | Description                                                                                                               |
-| -------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Yes, for wallet connection | Free project ID from WalletConnect Cloud - see steps below.                                                               |
-| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | No (auto-detected)         | Deployed `TrustLedger` contract address. Left blank, it is read from `artifacts/deployed-addresses.json` automatically.   |
-| `NEXT_BASE_PATH`                       | No                         | URL prefix. Leave empty (`NEXT_BASE_PATH=`) to serve from the root path `/`. The root `.env` already sets this correctly. |
+| Variable                                  | Required                   | Description                                                                                                               |
+| ----------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`    | Yes, for wallet connection | Free project ID from WalletConnect Cloud - see steps below.                                                               |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`         | No (auto-detected)         | Deployed `TrustLedger` contract address. Left blank, it is read from `artifacts/deployed-addresses.json` automatically.   |
+| `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` | No (auto-detected)         | Deployed `ReputationRegistry` address. Same resolution as above. Required for `/reputation` and dashboard rating forms.   |
+| `NEXT_BASE_PATH`                          | No                         | URL prefix. Leave empty (`NEXT_BASE_PATH=`) to serve from the root path `/`. The root `.env` already sets this correctly. |
 
 <details>
 <summary>How to get a WalletConnect Project ID</summary>
@@ -265,7 +266,8 @@ src/
 | `dashboard/page.tsx`             | `/dashboard`                 | Lists all contracts for the connected wallet                                           |
 | `freelancer/accept/page.tsx`     | `/freelancer/accept`         | Magic-link accept flow - verifies JWT, renders contract details, triggers ECDSA accept |
 | `arbitration/[id]/page.tsx`      | `/arbitration/:id`           | Per-dispute view - commit phase, reveal phase, ruling display                          |
-| `juror/page.tsx`                 | `/juror`                     | Juror portal - stake registration, dispute queue, vote submission                      |
+| `juror/page.tsx`                 | `/juror`                     | Juror portal - stake registration, eligibility, stake management                       |
+| `reputation/page.tsx`            | `/reputation`                | Look up cumulative escrow ratings (`ReputationRegistry.averageRating`)                 |
 | `api/magic-link/send/route.ts`   | `POST /api/magic-link/send`  | Generates a signed JWT and returns the magic link for the client to email              |
 | `api/magic-link/verify/route.ts` | `GET /api/magic-link/verify` | Verifies the JWT and returns the contract payload                                      |
 
@@ -278,15 +280,15 @@ src/
 
 ### Library - `lib/`
 
-| File            | Description                                                                                                                  |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `abi.ts`        | Re-exports all contract ABIs and a `CONTRACT_STATUS_LABELS` map for human-readable status strings                            |
-| `arweave.ts`    | Uploads files to Arweave for permanent, immutable storage; returns the transaction ID as a URI                               |
-| `encryption.ts` | AES-GCM helpers: `encrypt(data, key)` → ciphertext, `decrypt(ciphertext, key)` → plaintext                                   |
-| `ipfs.ts`       | Uploads a `File` or `Blob` to Web3.Storage; returns the IPFS CID used as `contractURI` or `proofOfWorkURI`                   |
-| `magicLink.ts`  | `signMagicLink(contractId, freelancerAddress)` / `verifyMagicLink(token)` - JWT helpers for the accept flow                  |
-| `utils.ts`      | `shortenAddress`, `formatEth`, `statusColor` - formatting helpers used across pages                                          |
-| `wagmi.ts`      | Exports `config` (wagmi chain + transport config) and `TRUSTLEDGER_ADDRESS` (resolved from env or `deployed-addresses.json`) |
+| File            | Description                                                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `abi.ts`        | Contract ABIs including `REPUTATION_REGISTRY_ABI`; `STATUS_LABELS` for human-readable contract status strings                              |
+| `arweave.ts`    | Uploads files to Arweave for permanent, immutable storage; returns the transaction ID as a URI                                             |
+| `encryption.ts` | AES-GCM helpers: `encrypt(data, key)` → ciphertext, `decrypt(ciphertext, key)` → plaintext                                                 |
+| `ipfs.ts`       | Uploads a `File` or `Blob` to Web3.Storage; returns the IPFS CID used as `contractURI` or `proofOfWorkURI`                                 |
+| `magicLink.ts`  | `signMagicLink(contractId, freelancerAddress)` / `verifyMagicLink(token)` - JWT helpers for the accept flow                                |
+| `utils.ts`      | `shortenAddress`, `formatEth`, `statusColor` - formatting helpers used across pages                                                        |
+| `wagmi.ts`      | Exports `config` and contract addresses (`TRUSTLEDGER_ADDRESS`, `REPUTATION_REGISTRY_ADDRESS`, etc.) from env or `deployed-addresses.json` |
 
 [↑ Back to top](#table-of-contents)
 

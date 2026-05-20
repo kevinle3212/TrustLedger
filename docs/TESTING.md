@@ -211,6 +211,20 @@ Optionally set `FORK_BLOCK_NUMBER` to pin to a specific block for reproducible r
 
 ---
 
+## Local demo scripts (manual smoke tests)
+
+These are not automated test suites; they exercise full flows on a local Hardhat node. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup.
+
+| Script                  | Command                   | What it verifies                                                           |
+| ----------------------- | ------------------------- | -------------------------------------------------------------------------- |
+| Happy path              | `npm run demo:good`       | ETH escrow lifecycle                                                       |
+| Dispute                 | `npm run demo:bad`        | Commit-reveal + ruling                                                     |
+| Juror reputation        | `npm run demo:jurors`     | Minority slash + juror reputation table                                    |
+| Stablecoin + reputation | `npm run demo:stablecoin` | ERC-20 escrow, gas comparison, `submitRating` + `ReputationRegistry` reads |
+| All scenarios           | `npm run demo:run`        | Interactive menu (options 1–7)                                             |
+
+---
+
 ## Pre-commit Checks
 
 The Husky pre-commit hook runs automatically on every commit:

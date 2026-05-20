@@ -11,7 +11,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 | Page                            | Description                                                                     |
 | ------------------------------- | ------------------------------------------------------------------------------- |
 | [Architecture](ARCHITECTURE)    | System diagram, contract interaction flow, state machine, and payout formulas   |
-| [Contract Reference](CONTRACTS) | Full public API - functions, events, errors, and storage for all four contracts |
+| [Contract Reference](CONTRACTS) | Full public API - functions, events, errors, and storage for all five contracts |
 | [Contributing](CONTRIBUTING)    | Local setup, compiling, testing, linting, and deploying to testnet              |
 | [Deployment](DEPLOYMENT)        | Vercel deployment, environment variables, CI/CD pipeline                        |
 | [Docker](DOCKER)                | Docker setup, services, MetaMask configuration, and troubleshooting             |
@@ -38,10 +38,12 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 - **ECDSA wallet binding** - freelancers accept contracts with their private key via EIP-191 signatures
 - **Commit-reveal voting** - votes are hidden during the commit phase to prevent herding
 - **Chainlink VRF juror selection** - verifiable randomness selects jurors at dispute time
-- **Partial completion rulings** - median vote (0–100) produces a proportional payout, not a binary verdict
+- **Partial completion rulings** - median vote (0-100) produces a proportional payout, not a binary verdict
 - **Juror slashing** - minority voters lose 10% stake; accurate voters earn fee-pool rewards
 - **Appeals** - either party can appeal within 72 hours with a 1.5× bond and a fresh independent panel
 - **Warranty hold-back** - a configurable portion of payment is withheld until a warranty period elapses
+- **Bidirectional reputation** - clients and freelancers rate each other after completion; scores accumulate in `ReputationRegistry`
+- **ERC-20 escrow** - stablecoin escrows avoid locking ETH; local demo compares gas vs ETH escrow (`npm run demo:stablecoin`)
 
 ---
 

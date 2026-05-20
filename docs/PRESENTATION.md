@@ -98,12 +98,13 @@ Step 4:  Deploy Arbitration(trustLedger, jurorRegistry)  ← nonce + 2
 
 Step 5:  (Optional) TrustLedger.initPriceFeed(chainlinkFeed)
          // function implemented; not called in deploy scripts - requires a live Chainlink ETH/USD feed address
-Step 6:  (Optional) TrustLedger.initReputationRegistry(reputationRegistry)
-         // function implemented; not called in deploy scripts - depends on ReputationRegistry address from Step 8
-Step 7:  (Optional) Arbitration.initVrfCoordinator(vrfCoordinator)
-         // function implemented; not called in deploy scripts - requires a funded Chainlink VRF v2 subscription
-Step 8:  Deploy ReputationRegistry(trustLedger)
-         // contract implemented in src/ - not yet included in either deploy script
+Step 6:  Deploy ReputationRegistry(trustLedger)     ← after Arbitration (nonce+2 precompute unaffected)
+Step 7:  TrustLedger.initReputationRegistry(reputationRegistry)
+         // wires submitRating() → ReputationRegistry.rate(); done in scripts/deploy.ts
+Step 8:  (Optional) TrustLedger.initPriceFeed(chainlinkFeed)
+         // not called in deploy scripts - requires a live Chainlink ETH/USD feed address
+Step 9:  (Optional) Arbitration.initVrfCoordinator(vrfCoordinator)
+         // not called in deploy scripts - requires a funded Chainlink VRF v2 subscription
 ```
 
 No owner or admin role. Once deployed, the addresses are immutable.
@@ -303,24 +304,67 @@ function averageRating(address user) external view
 // average = numerator / denominator (check denominator > 0)
 ```
 
+**Frontend:** `/reputation` looks up any wallet's cumulative average. The **Dashboard** shows a rating form on completed contracts (`APPROVED` / `RESOLVED`). **Juror** page shows separate juror-stake reputation from `JurorRegistry` (minority-vote slashing).
+
+---
+
+## Local Demo Scenarios
+
+Seven local demos run without a testnet or real funds. The interactive runner (`scripts/run-demo.sh`) auto-starts the Hardhat node, deploys all contracts (including `ReputationRegistry`), and runs the selected scenario using EVM time-travel to skip lock periods.
+
+```bash
+npm run demo:run           # interactive menu - type 1-7 at the prompt
+./scripts/run-demo.sh 3    # or pass a number directly
+npm run demo:stablecoin    # ERC-20 escrow + gas comparison + reputation (standalone)
+```
+
+| #   | Scenario                                       | Juror votes                        | Median ruling | Payout outcome                                                          |
+| --- | ---------------------------------------------- | ---------------------------------- | ------------- | ----------------------------------------------------------------------- |
+| 1   | **Plaintiff (client) wins**                    | J1=0%, J2=0%, J3=0%                | **0%**        | Full refund to client                                                   |
+| 2   | **Defendant (freelancer) wins**                | J1=100%, J2=100%, J3=100%          | **100%**      | Full payment to freelancer                                              |
+| 3   | **Tie**                                        | J1=50%, J2=50%, J3=50%             | **50%**       | Split (~0.258 ETH freelancer, ~0.592 ETH client)                        |
+| 4   | **Arbitration ruling, in favor of client**     | J1=0%, J2=0%, J3=100% (minority)   | **0%**        | Refund to client; J3 stake slashed 20%, juror reputation -10            |
+| 5   | **Arbitration ruling, in favor of freelancer** | J1=100%, J2=100%, J3=0% (minority) | **100%**      | Full payment to freelancer; J3 stake slashed 20%, juror reputation -10  |
+| 6   | **Juror reputation demo**                      | J1/J2=70%, J3=20% (minority)       | **70%**       | Same as scenario 4/5 flow; prints before/after juror reputation table   |
+| 7   | **Stablecoin escrow demo**                     | — (happy path)                     | —             | ERC-20 escrow, ETH vs token gas benchmark, bidirectional `submitRating` |
+
+Scenarios 4 and 5 are the most instructive: they show the system reaching the correct majority ruling even when one juror dissents, and they demonstrate the slashing mechanism penalizing the minority juror automatically on-chain (100 pt deviation from median exceeds the `SEVERE_MINORITY_THRESHOLD` of 30).
+
+Each scenario runs the same 12-step flow:
+
+```text
+Step  1  Register jurors (0.1 ETH stake each)
+Step  2  Fast-forward 7 days (stake lock period, EVM time-travel)
+Step  3  Client creates 1 ETH escrow
+Step  4  Freelancer accepts (ECDSA wallet binding) + submits proof of work
+Step  5  Client opens dispute
+Step  6  Jurors commit hidden votes (commit-reveal)
+Step  7  Advance to reveal phase (all 3 committed)
+Step  8  Jurors reveal votes
+Step  9  Fast-forward past 72-hour reveal window
+Step 10  Finalize dispute (median ruling computed on-chain)
+Step 11  Fast-forward past 72-hour appeal window
+Step 12  Execute ruling (funds released; minority jurors slashed if applicable)
+```
+
 ---
 
 ## Tech Stack
 
-| Layer               | Technology                                | Why                                                       |
-| ------------------- | ----------------------------------------- | --------------------------------------------------------- |
-| Smart contracts     | Solidity 0.8.24                           | Latest stable; custom errors, `immutable`, named mappings |
-| EVM network         | Ethereum Sepolia (testnet)                | Native L1 settlement; no bridging required                |
-| Security library    | OpenZeppelin 5.x `ReentrancyGuard`        | Industry-standard reentrancy protection                   |
-| Oracle - price      | Chainlink AggregatorV3Interface           | Decentralized, tamper-resistant ETH/USD feed              |
-| Oracle - randomness | Chainlink VRF v2                          | On-chain verifiable random juror selection                |
-| Off-chain storage   | IPFS                                      | Content-addressed; hashes verifiable on-chain             |
-| Solidity testing    | Foundry (`forge test`)                    | Native Solidity, fast, 10k fuzz runs per suite            |
-| TS testing          | Hardhat 2.x + Mocha + Chai + ethers.js v6 | Full integration tests with TypeChain types               |
-| TypeScript          | TypeScript 6 / Node.js 22+                | Strict types, ESM + CJS dual config                       |
-| Frontend (planned)  | RainbowKit + wagmi + viem                 | Best-in-class wallet connection, typed contract calls     |
-| CI/CD               | GitHub Actions                            | Lint, compile, test on every pull request                 |
-| Code review         | CodeRabbit                                | AI-assisted PR review with Solidity awareness             |
+| Layer               | Technology                                | Why                                                           |
+| ------------------- | ----------------------------------------- | ------------------------------------------------------------- |
+| Smart contracts     | Solidity 0.8.24                           | Latest stable; custom errors, `immutable`, named mappings     |
+| EVM network         | Ethereum Sepolia (testnet)                | Native L1 settlement; no bridging required                    |
+| Security library    | OpenZeppelin 5.x `ReentrancyGuard`        | Industry-standard reentrancy protection                       |
+| Oracle - price      | Chainlink AggregatorV3Interface           | Decentralized, tamper-resistant ETH/USD feed                  |
+| Oracle - randomness | Chainlink VRF v2                          | On-chain verifiable random juror selection                    |
+| Off-chain storage   | IPFS                                      | Content-addressed; hashes verifiable on-chain                 |
+| Solidity testing    | Foundry (`forge test`)                    | Native Solidity, fast, 10k fuzz runs per suite                |
+| TS testing          | Hardhat 2.x + Mocha + Chai + ethers.js v6 | Full integration tests with TypeChain types                   |
+| TypeScript          | TypeScript 6 / Node.js 22+                | Strict types, ESM + CJS dual config                           |
+| Frontend            | Next.js 16 + RainbowKit + wagmi + viem    | Wallet connection, dashboard, juror portal, reputation lookup |
+| CI/CD               | GitHub Actions                            | Lint, compile, test on every pull request                     |
+| Code review         | CodeRabbit                                | AI-assisted PR review with Solidity awareness                 |
 
 ---
 
@@ -413,8 +457,10 @@ cd TrustLedger
 git submodule update --init --recursive
 
 docker compose build        # one-time build (~2-3 min)
-docker compose up demo-good # happy path
-docker compose up demo-bad  # dispute flow
+docker compose up demo-good   # happy path
+docker compose up demo-bad    # dispute flow
+docker compose up demo-jurors     # juror reputation system
+docker compose up demo-stablecoin # ERC-20 escrow + gas + reputation
 ```
 
 ### Option B - Local toolchain
@@ -440,8 +486,10 @@ npm run node
 npm run hardhat:deploy:local
 
 # 6. Run demo scripts
-npm run demo:good    # happy path: create → accept → submit → approve → payout
-npm run demo:bad     # dispute:   create → accept → submit → dispute → vote → ruling
+npm run demo:good    # happy path:   create → accept → submit → approve → payout
+npm run demo:bad     # dispute flow: create → accept → submit → dispute → vote → ruling
+npm run demo:jurors     # juror rep:    register → vote → minority slash → before/after table
+npm run demo:stablecoin # ERC-20 escrow, gas comparison, bidirectional reputation
 ```
 
 ---
@@ -489,18 +537,18 @@ npm run lint:prettier        # Prettier - formatting check
 
 ## What's Next
 
-| Priority | Item                                              | Status          |
-| -------- | ------------------------------------------------- | --------------- |
-| 1        | Testnet deployment + extended soak testing        | Ready to deploy |
-| 2        | Wire ReputationRegistry into deploy scripts       | Not started     |
-| 3        | Wire initPriceFeed and initVrfCoordinator         | Not started     |
-| 4        | Chainlink VRF v2 subscription (funded + consumer) | Needs sub ID    |
-| 5        | External security audit                           | Not started     |
-| 6        | Formal verification (Certora / Echidna)           | Not started     |
-| 7        | Frontend (React + RainbowKit + wagmi)             | Planned         |
-| 8        | IPFS upload service                               | Planned         |
-| 9        | Gas optimization pass                             | Not started     |
-| 10       | Emergency pause / kill switch                     | Not started     |
+| Priority | Item                                              | Status                                         |
+| -------- | ------------------------------------------------- | ---------------------------------------------- |
+| 1        | Testnet deployment + extended soak testing        | Ready to deploy                                |
+| 2        | Wire ReputationRegistry into deploy scripts       | Done (Hardhat `scripts/deploy.ts`)             |
+| 3        | Wire initPriceFeed and initVrfCoordinator         | Not started                                    |
+| 4        | Chainlink VRF v2 subscription (funded + consumer) | Needs sub ID                                   |
+| 5        | External security audit                           | Not started                                    |
+| 6        | Formal verification (Certora / Echidna)           | Not started                                    |
+| 7        | Frontend (Next.js + RainbowKit + wagmi)           | In progress (`/reputation`, dashboard ratings) |
+| 8        | IPFS upload service                               | Planned                                        |
+| 9        | Gas optimization pass                             | Not started                                    |
+| 10       | Emergency pause / kill switch                     | Not started                                    |
 
 ---
 

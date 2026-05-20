@@ -90,11 +90,15 @@ git submodule update --init --recursive
 
 docker compose build          # one-time image build (~2-3 min)
 
-docker compose up demo-good   # happy path: create → accept → submit → approve → payout
-docker compose up demo-bad    # dispute flow: create → accept → submit → dispute → vote → ruling
-docker compose up node        # chain only - connect MetaMask to http://localhost:8545
+docker compose up demo-good    # happy path:   create → accept → submit → approve → payout
+docker compose up demo-bad     # dispute flow: create → accept → submit → dispute → vote → ruling
+docker compose up demo-jurors     # juror rep:    register → vote → minority slash → before/after table
+docker compose up demo-stablecoin # ERC-20 escrow, gas comparison, bidirectional reputation
+docker compose up node            # chain only - connect MetaMask to http://localhost:8545
 docker compose run test       # full Hardhat + Foundry test suite
 ```
+
+For the interactive case-scenario runner (7 outcomes including juror and stablecoin demos), use the local toolchain instead - see [Option B](#option-b---local-toolchain) below.
 
 The `node` service exposes the chain at `http://localhost:8545` (chain ID 31337). Private keys for all 20 test accounts are printed on startup - import any of them into MetaMask to interact manually.
 
@@ -118,7 +122,7 @@ In a second terminal:
 npm run hardhat:deploy:local
 ```
 
-This deploys `JurorRegistry`, `TrustLedger`, and `Arbitration` in the correct order and writes their addresses to `artifacts/deployed-addresses.json`. The address file is consumed automatically by the demo scripts.
+This deploys `JurorRegistry`, `TrustLedger`, `Arbitration`, and `ReputationRegistry` (wired via `initReputationRegistry`) in the correct order and writes their addresses to `artifacts/deployed-addresses.json`. The address file is consumed automatically by the demo scripts and the frontend (`next.config.ts`).
 
 **Or do both steps in a single command:**
 
@@ -130,15 +134,58 @@ This compiles, starts the local node in the background, waits for it to be ready
 
 ### 3. Run the demo scripts
 
+#### Interactive scenario runner
+
+The easiest way to run any demo is the interactive scenario runner. It auto-starts the Hardhat node and deploys contracts if they are not already running, then lets you pick a case scenario by number:
+
+```bash
+npm run demo:run
+# or
+./scripts/run-demo.sh
+```
+
+You can also pass the scenario number directly to skip the menu:
+
+```bash
+./scripts/run-demo.sh 1   # Plaintiff (client) wins
+./scripts/run-demo.sh 4   # Arbitration ruling in favor of client
+```
+
+#### Case scenarios
+
+| #   | Scenario                                   | J1 vote | J2 vote | J3 vote         | Median ruling | Result                                                                     |
+| --- | ------------------------------------------ | ------- | ------- | --------------- | ------------- | -------------------------------------------------------------------------- |
+| 1   | Plaintiff (client) wins                    | 0%      | 0%      | 0%              | **0%**        | Full refund to client                                                      |
+| 2   | Defendant (freelancer) wins                | 100%    | 100%    | 100%            | **100%**      | Full payment to freelancer                                                 |
+| 3   | Tie                                        | 50%     | 50%     | 50%             | **50%**       | Split (~0.258 ETH freelancer)                                              |
+| 4   | Arbitration ruling, in favor of client     | 0%      | 0%      | 100% (minority) | **0%**        | Refund to client; J3 slashed                                               |
+| 5   | Arbitration ruling, in favor of freelancer | 100%    | 100%    | 0% (minority)   | **100%**      | Full payment; J3 slashed                                                   |
+| 6   | Juror reputation demo                      | —       | —       | —               | —             | Register 3 jurors, dispute, before/after stake & juror reputation table    |
+| 7   | Stablecoin escrow demo                     | —       | —       | —               | —             | ERC-20 escrow, ETH vs token gas comparison, `submitRating` on both parties |
+
+Scenarios 1–5 run the full dispute flow: register jurors → 7-day stake lock (EVM time-travel) → create escrow → accept → submit proof → dispute → commit-reveal vote → finalize → execute ruling.
+
+Scenarios 4 and 5 demonstrate the minority slashing system: J3 deviates 100 percentage points from the median, which exceeds the `SEVERE_MINORITY_THRESHOLD` (30 pts) and triggers a 20% stake slash and -10 reputation penalty.
+
+#### Individual demo scripts
+
+The original scripts are still available if you want to run a specific flow directly (requires the node and contracts to already be running):
+
 ```bash
 # Happy path: create → accept → submit → approve → full payout
 npm run demo:good
 
-# Dispute flow: create → accept → submit → dispute → vote → ruling → partial payout
+# Dispute flow: create → accept → submit → dispute → 50% ruling → partial payout
 npm run demo:bad
+
+# Juror reputation: register → majority/minority vote → slash → before/after table
+npm run demo:jurors
+
+# Stablecoin escrow: MockERC20 escrow, gas benchmark vs ETH, bidirectional reputation
+npm run demo:stablecoin
 ```
 
-Both demos advance EVM time using `evm_increaseTime` to skip lock periods and voting windows, so the full flow completes in seconds.
+All demos advance EVM time using `evm_increaseTime` to skip lock periods and voting windows, so the full flow completes in seconds.
 
 ---
 
@@ -293,19 +340,20 @@ npm install
 
 All frontend env vars are read from the root `.env` file by `next.config.ts` - no `src/.env.local` is needed.
 
-| Variable                               | Description                                                                                                                                                                        |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`.                                                                                   |
-| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Locally: auto-resolved from `artifacts/deployed-addresses.json`. On Vercel: must be set as an env var - `deploy.yml` does this automatically after each contract deploy.           |
-| `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Same as above - resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
-| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Same as above - resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
-| `NEXT_BASE_PATH`                       | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.                                                                                            |
-| `NEXT_PUBLIC_PINATA_JWT`               | Pinata JWT for IPFS uploads. Get at [pinata.cloud](https://pinata.cloud) → API Keys.                                                                                               |
-| `NEXT_PUBLIC_APP_URL`                  | Base URL for magic links in emails (e.g. `http://localhost:3000`).                                                                                                                 |
-| `NEXT_PUBLIC_GITHUB_URL`               | Source code link shown in the navbar. On Vercel, auto-constructed from `VERCEL_GIT_REPO_OWNER`/`VERCEL_GIT_REPO_SLUG` - no manual config needed. Set in root `.env` for local dev. |
-| `MAGIC_LINK_SECRET`                    | Random 32-byte hex secret for HMAC-signing magic link tokens. Generate: `openssl rand -hex 32`. **Never expose.**                                                                  |
-| `RESEND_API_KEY`                       | Email delivery key from [resend.com/api-keys](https://resend.com/api-keys). **Never expose.**                                                                                      |
-| `RESEND_FROM`                          | Verified sender address (e.g. `TrustLedger <noreply@yourdomain.com>`). Use `onboarding@resend.dev` for local dev.                                                                  |
+| Variable                                  | Description                                                                                                                                                                        |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`    | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`.                                                                                   |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`         | Locally: auto-resolved from `artifacts/deployed-addresses.json`. On Vercel: must be set as an env var - `deploy.yml` does this automatically after each contract deploy.           |
+| `NEXT_PUBLIC_ARBITRATION_ADDRESS`         | Same as above - resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
+| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`      | Same as above - resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
+| `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` | Same as above for local deploys. On Vercel: set manually until Forge deploy syncs this address (Hardhat `scripts/deploy.ts` deploys it today).                                     |
+| `NEXT_BASE_PATH`                          | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.                                                                                            |
+| `NEXT_PUBLIC_PINATA_JWT`                  | Pinata JWT for IPFS uploads. Get at [pinata.cloud](https://pinata.cloud) → API Keys.                                                                                               |
+| `NEXT_PUBLIC_APP_URL`                     | Base URL for magic links in emails (e.g. `http://localhost:3000`).                                                                                                                 |
+| `NEXT_PUBLIC_GITHUB_URL`                  | Source code link shown in the navbar. On Vercel, auto-constructed from `VERCEL_GIT_REPO_OWNER`/`VERCEL_GIT_REPO_SLUG` - no manual config needed. Set in root `.env` for local dev. |
+| `MAGIC_LINK_SECRET`                       | Random 32-byte hex secret for HMAC-signing magic link tokens. Generate: `openssl rand -hex 32`. **Never expose.**                                                                  |
+| `RESEND_API_KEY`                          | Email delivery key from [resend.com/api-keys](https://resend.com/api-keys). **Never expose.**                                                                                      |
+| `RESEND_FROM`                             | Verified sender address (e.g. `TrustLedger <noreply@yourdomain.com>`). Use `onboarding@resend.dev` for local dev.                                                                  |
 
 ### Running the dev server
 

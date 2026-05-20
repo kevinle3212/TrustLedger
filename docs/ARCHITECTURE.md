@@ -443,6 +443,20 @@ EVM storage slots are 32 bytes each. Field ordering in structs is packed to mini
 
 ---
 
+## Frontend reputation UI
+
+Two distinct on-chain reputation systems surface in the Next.js app:
+
+| UI route      | Contract             | What it shows                                                                     |
+| ------------- | -------------------- | --------------------------------------------------------------------------------- |
+| `/reputation` | `ReputationRegistry` | Cumulative escrow rating average (`averageRating`) for any address                |
+| `/dashboard`  | `TrustLedger`        | `submitRating` form on `APPROVED` / `RESOLVED` contracts                          |
+| `/juror`      | `JurorRegistry`      | Juror stake reputation (100 → −10 per minority vote); unrelated to escrow ratings |
+
+Local dev: deploy with `npm run hardhat:deploy:local` so `artifacts/deployed-addresses.json` includes `ReputationRegistry`; `next.config.ts` injects `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` at build time.
+
+---
+
 ## Threat Mitigations
 
 The following mechanisms address the protocol's stated threat model directly.

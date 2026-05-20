@@ -11,7 +11,7 @@ TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` tha
 | File                            | Type                      | Purpose                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Dockerfile`                    | Production / demo         | Two-stage build: copies Foundry binaries from `ghcr.io/foundry-rs/foundry`, sets up Node.js 22 with `git`, `curl`, and `ca-certificates`, installs npm dependencies, and pre-compiles contracts via Hardhat and Foundry at image build time so the container starts instantly. Entrypoint is `scripts/docker-demo.sh`. Used by the root `docker-compose.yml`. |
-| `docker-compose.yml`            | Orchestration             | Defines four services (`demo-good`, `demo-bad`, `node`, `test`) that all build from `Dockerfile`. Sets the `DEMO` env var per service to control which demo script `docker-demo.sh` runs. Exposes port 8545 on the host.                                                                                                                                      |
+| `docker-compose.yml`            | Orchestration             | Defines six demo services (`demo-good`, `demo-bad`, `demo-jurors`, `demo-stablecoin`, `node`, `test`) that all build from `Dockerfile`. Sets the `DEMO` env var per service to control which demo script `docker-demo.sh` runs. Exposes port 8545 on the host.                                                                                                |
 | `docker/Dockerfile.dev`         | Development               | Same two-stage Node + Foundry base as the root `Dockerfile` but designed for live development: source files are mounted as a volume so edits appear inside the container immediately without rebuilding the image. Entrypoint is `scripts/docker-demo.sh`. Used by `docker/docker-compose.dev.yml`.                                                           |
 | `docker/docker-compose.dev.yml` | Development orchestration | Builds from `docker/Dockerfile.dev` with the repo root as the build context, mounts the repo root as a live volume (excluding `node_modules`), loads secrets from the root `.env` via `env_file`, and runs `npm run node` (Hardhat local chain) on port 8545.                                                                                                 |
 | `docker/Dockerfile.ci`          | CI verification           | Runs the full test suite as Docker `RUN` build steps: `npm run compile` → `npm run hardhat:test` → `cd contracts && forge test`. Has no entrypoint - the image build fails if any step fails. Use this to locally reproduce exactly what GitHub Actions runs without setting up a full CI environment.                                                        |
@@ -114,6 +114,59 @@ Starts the node, deploys, then runs the dispute-flow demo:
 12. Ruling executed → **~0.258 ETH released to freelancer.**
 
 The entire flow completes in seconds because `evm_increaseTime` is used to skip lock and voting windows.
+
+### `demo-jurors` - Juror reputation system demo
+
+```bash
+docker compose up demo-jurors
+```
+
+Starts the node, deploys, then demonstrates the juror reputation and slashing system:
+
+1. Three jurors register with different stakes (0.1, 0.2, 0.3 ETH).
+2. Baseline reputation table printed (all start at 100).
+3. 7-day stake lock elapses (EVM time-travel) - all 3 become eligible.
+4. Client creates a 1 ETH escrow; freelancer accepts and submits proof.
+5. Client disputes; J1 and J2 commit **70%** (majority), J3 commits **20%** (minority).
+6. Reveal phase: all votes revealed.
+7. Dispute finalized - median ruling is 70%.
+8. J3's deviation (50 pct-points from median) exceeds the severe threshold → **20% stake slash, −10 reputation**.
+9. Final reputation table printed with before/after diff for each juror.
+
+### `demo-stablecoin` - ERC-20 escrow and reputation demo
+
+```bash
+docker compose up demo-stablecoin
+```
+
+Starts the node, deploys (including `ReputationRegistry`), then runs `scripts/demo/demo-stablecoin.ts`:
+
+1. Deploys a `MockERC20` stablecoin and mints tokens to the client.
+2. Gas benchmark: `createContract` with ETH vs ERC-20 escrow.
+3. Full happy path on token escrow (accept → submit → approve).
+4. Both parties call `submitRating`; scores read back from `ReputationRegistry`.
+
+On L2 networks, stablecoin escrows avoid ETH price exposure while keeping similar per-tx gas costs.
+
+### Interactive scenario runner (local only)
+
+Docker covers the four scripted demos above. For all seven interactive options (five dispute outcomes plus juror and stablecoin demos), use the runner on your local machine:
+
+```bash
+# Interactive menu - type 1-7 at the prompt
+npm run demo:run
+
+# Or pass the scenario number directly
+./scripts/run-demo.sh 1   # Plaintiff (client) wins - unanimous 0% ruling
+./scripts/run-demo.sh 2   # Defendant (freelancer) wins - unanimous 100% ruling
+./scripts/run-demo.sh 3   # Tie - unanimous 50% ruling
+./scripts/run-demo.sh 4   # Arbitration ruling, in favor of client (minority slashed)
+./scripts/run-demo.sh 5   # Arbitration ruling, in favor of freelancer (minority slashed)
+./scripts/run-demo.sh 6   # Juror reputation demo (same flow as demo-jurors)
+./scripts/run-demo.sh 7   # Stablecoin escrow demo (same flow as demo-stablecoin)
+```
+
+The runner auto-starts the Hardhat node and deploys contracts if they are not already running. See [CONTRIBUTING.md](./CONTRIBUTING.md#case-scenarios) for the full scenario table.
 
 ### `node` - Local chain only
 
@@ -284,7 +337,7 @@ docker compose run test bash -c "echo 'bad message' | npx commitlint; echo exit 
 
 ## Connecting MetaMask to the Docker Node
 
-When `demo-good`, `demo-bad`, or `node` is running, the chain is accessible from your host machine at `http://localhost:8545`.
+When `demo-good`, `demo-bad`, `demo-jurors`, or `node` is running, the chain is accessible from your host machine at `http://localhost:8545`.
 
 ### Add the network to MetaMask
 
