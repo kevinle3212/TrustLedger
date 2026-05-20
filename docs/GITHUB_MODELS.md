@@ -54,6 +54,8 @@ gh models generate .github/prompts/summarize-text.prompt.yml
 
 ## Python example (Azure AI Inference SDK)
 
+> **Note**: `azure-ai-inference` is still in preview (`1.0.0b*`). `requirements.txt` pins `>=1.0.0b1` — there is no stable `1.0.0` release yet.
+
 Same endpoint as the Models docs; uses `GITHUB_TOKEN`:
 
 ```bash
@@ -114,9 +116,10 @@ steps:
     - uses: actions/ai-inference@v1
       with:
           prompt-file: .github/prompts/summarize-text.prompt.yml
-          input: |
-              input: |
-                Client disputes late delivery on contract #42.
+          # Pass template variables as a single-line quoted YAML scalar.
+          # Multi-line block scalars or unquoted values containing ":" break
+          # the YAML parser inside the action.
+          input: 'input: "Client disputes late delivery on contract #42."'
           endpoint: https://models.github.ai/inference
           model: openai/gpt-4.1
           token: ${{ secrets.GITHUB_TOKEN }}
