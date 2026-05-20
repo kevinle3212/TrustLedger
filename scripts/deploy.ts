@@ -5,6 +5,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ethers } from "hardhat";
+import type { TrustLedger as TrustLedgerContract } from "../artifacts/typechain-types";
 
 async function main(): Promise<void> {
 	// ethers.getSigners() returns all accounts configured in hardhat.config.ts for the
@@ -48,7 +49,9 @@ async function main(): Promise<void> {
 
 	// ── Deploy TrustLedger ────────────────────────────────────────────────────
 	const TrustLedger = await ethers.getContractFactory("TrustLedger");
-	const trustLedger = await TrustLedger.deploy(arbitrationAddr);
+	const trustLedger = (await TrustLedger.deploy(
+		arbitrationAddr,
+	)) as unknown as TrustLedgerContract;
 	await trustLedger.waitForDeployment();
 	console.log("TrustLedger:  ", await trustLedger.getAddress());
 
@@ -75,6 +78,17 @@ async function main(): Promise<void> {
 	console.log("\nDeployment verified successfully!");
 	console.log("All contract addresses match precomputed values.");
 
+	// ── Deploy ReputationRegistry ──────────────────────────────────────────────
+	// Deployed after Arbitration so the nonce+2 precomputation above is unaffected.
+	const ReputationRegistry = await ethers.getContractFactory("ReputationRegistry");
+	const reputationRegistry = await ReputationRegistry.deploy(await trustLedger.getAddress());
+	await reputationRegistry.waitForDeployment();
+	console.log("ReputationRegistry:", await reputationRegistry.getAddress());
+
+	// Wire ReputationRegistry into TrustLedger so submitRating() is live.
+	await (await trustLedger.initReputationRegistry(await reputationRegistry.getAddress())).wait();
+	console.log("Wired: TrustLedger -> ReputationRegistry");
+
 	// ── Write deployed addresses for frontend consumption ─────────────────────
 	// artifacts/ is gitignored; this file is regenerated on every deploy.
 	// Import it in the frontend as: import addrs from "../../artifacts/deployed-addresses.json"
@@ -82,6 +96,7 @@ async function main(): Promise<void> {
 		JurorRegistry: await jurorRegistry.getAddress(),
 		TrustLedger: await trustLedger.getAddress(),
 		Arbitration: await arbitration.getAddress(),
+		ReputationRegistry: await reputationRegistry.getAddress(),
 		network: (await ethers.provider.getNetwork()).name,
 		deployedAt: new Date().toISOString(),
 	};
