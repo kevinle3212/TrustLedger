@@ -49,7 +49,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	});
 
 	if (error !== null) {
-		console.error("[magic-link/send] Resend error:", JSON.stringify(error));
 		return NextResponse.json({ error: error.message }, { status: 502 });
 	}
 
