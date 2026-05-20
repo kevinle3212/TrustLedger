@@ -62,6 +62,9 @@ export function Navbar(): React.JSX.Element {
 						<Link href="/juror" className={linkClass("/juror")}>
 							Juror
 						</Link>
+						<Link href="/reputation" className={linkClass("/reputation")}>
+							Reputation
+						</Link>
 					</nav>
 				</div>
 				<div className="flex items-center gap-2">

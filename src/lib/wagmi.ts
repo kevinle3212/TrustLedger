@@ -13,6 +13,10 @@ export const JUROR_REGISTRY_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
 	"0x0000000000000000000000000000000000000000";
 
+export const REPUTATION_REGISTRY_ADDRESS: `0x${string}` =
+	(process.env["NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
+	"0x0000000000000000000000000000000000000000";
+
 const wcProjectId = process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"];
 
 export const config = getDefaultConfig({

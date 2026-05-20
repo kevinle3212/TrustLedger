@@ -652,6 +652,35 @@ export const JUROR_REGISTRY_ABI = [
 	},
 ] as const;
 
+export const REPUTATION_REGISTRY_ABI = [
+	{
+		inputs: [{ internalType: "address", name: "user", type: "address" }],
+		name: "averageRating",
+		outputs: [
+			{ internalType: "uint256", name: "numerator", type: "uint256" },
+			{ internalType: "uint256", name: "denominator", type: "uint256" },
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "TRUST_LEDGER",
+		outputs: [{ internalType: "address", name: "", type: "address" }],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{ indexed: true, internalType: "address", name: "user", type: "address" },
+			{ indexed: true, internalType: "uint8", name: "score", type: "uint8" },
+		],
+		name: "Rated",
+		type: "event",
+	},
+] as const;
+
 export const STATUS_LABELS = [
 	"Pending",
 	"Active",

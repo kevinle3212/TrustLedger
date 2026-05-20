@@ -5,7 +5,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatEther, keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
-import { TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
+import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress, formatDeadline, STATUS_COLORS } from "@/lib/utils";
 import Link from "next/link";
 
@@ -60,6 +60,77 @@ function ActionButton({
 		>
 			{isPending || isConfirming ? "…" : label}
 		</button>
+	);
+}
+
+function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
+	const [score, setScore] = useState("80");
+	const { writeContract, data: txHash, isPending, error, reset } = useWriteContract();
+	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+
+	const registryDeployed =
+		REPUTATION_REGISTRY_ADDRESS !== "0x0000000000000000000000000000000000000000";
+
+	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
+		e.preventDefault();
+		const parsed = Number(score);
+		if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) return;
+		writeContract({
+			address: TRUSTLEDGER_ADDRESS,
+			abi: TRUSTLEDGER_ABI,
+			functionName: "submitRating",
+			args: [contractId, parsed],
+		});
+	}
+
+	if (!registryDeployed) return <></>;
+
+	if (isSuccess) {
+		return (
+			<p className="text-xs text-green-500 dark:text-green-400">
+				Rating submitted.{" "}
+				<button
+					type="button"
+					onClick={reset}
+					className="underline text-gray-500 hover:text-gray-900 dark:hover:text-white"
+				>
+					Submit another
+				</button>
+			</p>
+		);
+	}
+
+	return (
+		<form
+			onSubmit={handleSubmit}
+			className="flex flex-col gap-2 w-full border-t border-gray-200 dark:border-white/10 pt-3 mt-1"
+		>
+			<label className="text-xs text-gray-500">Rate counterparty (1–100)</label>
+			<div className="flex gap-2 items-center">
+				<input
+					type="number"
+					min={1}
+					max={100}
+					value={score}
+					onChange={(e) => {
+						setScore(e.target.value);
+					}}
+					className="w-20 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+				/>
+				<button
+					type="submit"
+					disabled={isPending || isConfirming}
+					className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-medium transition-colors"
+				>
+					{isPending || isConfirming ? "…" : "Submit rating"}
+				</button>
+			</div>
+			{error !== null && (
+				<p className="text-xs text-red-500 dark:text-red-400">
+					{(error as { shortMessage?: string }).shortMessage ?? error.message}
+				</p>
+			)}
+		</form>
 	);
 }
 
@@ -242,6 +313,9 @@ function ContractCard({
 				{/* Submit work */}
 				{isFreelancer && status === 1 && <SubmitWorkForm contractId={id} />}
 			</div>
+			{(status === 3 || status === 5) && (isClient || isFreelancer) && (
+				<RatingForm contractId={id} />
+			)}
 			{/* Dispute link */}
 			{status === 4 && (
 				<Link
