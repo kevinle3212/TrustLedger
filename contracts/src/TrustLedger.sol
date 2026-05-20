@@ -504,7 +504,6 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @dev For ETH escrows: call with no msg.value (fee pool is deducted from held ETH).
     /// @dev For ERC-20 escrows: send ETH as msg.value to fund the juror fee pool.
     /// @param id The escrow contract ID.
-    // slither-disable-next-line reentrancy-eth
     function disputeWork(uint256 id) external payable nonReentrant {
         EscrowContract storage c = _contracts[id];
         if (msg.sender != c.client) revert Unauthorized();
@@ -524,6 +523,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
         c.status = Status.DISPUTED;
 
+        // slither-disable-next-line reentrancy-eth
         uint256 arbId = ARBITRATION.openDispute{value: feePool}(id, c.client, c.freelancer, c.amount, feePool);
         c.arbitrationId = arbId;
 
