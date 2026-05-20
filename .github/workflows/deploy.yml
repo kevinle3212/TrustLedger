@@ -25,8 +25,6 @@ concurrency:
 
 permissions:
     contents: read
-    # Needed to trigger frontend-deploy.yml after contracts are deployed.
-    actions: write
 
 jobs:
     deploy:
@@ -155,13 +153,15 @@ jobs:
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
                   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
 
-            # Kick off a fresh Vercel production build so it picks up the new env var.
+            # Kick off a fresh Vercel production build so it picks up the new contract addresses.
+            # Vercel's ignoreCommand is not evaluated for CLI-triggered deploys, so this always runs.
+            - name: Install Vercel CLI
+              run: npm install -g vercel@latest
+              working-directory: ${{ github.workspace }}
+
             - name: Trigger frontend redeploy
-              run: |
-                  curl -sf -X POST \
-                    "https://api.github.com/repos/${{ github.repository }}/actions/workflows/frontend-deploy.yml/dispatches" \
-                    -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                    -H "Accept: application/vnd.github+json" \
-                    -H "X-GitHub-Api-Version: 2022-11-28" \
-                    -d '{"ref":"main"}'
-                  echo "Triggered frontend-deploy.yml"
+              run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+              working-directory: ${{ github.workspace }}
+              env:
+                  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+                  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

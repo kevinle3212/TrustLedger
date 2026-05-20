@@ -3,11 +3,11 @@
 TrustLedger has two independently deployable pieces:
 
 - **Contracts** — Solidity contracts deployed to Ethereum Sepolia via Foundry and a GitHub Actions workflow (`deploy.yml`).
-- **Frontend** — Next.js app deployed to [Vercel](https://vercel.com) via a separate workflow (`frontend-deploy.yml`).
+- **Frontend** — Next.js app deployed to [Vercel](https://vercel.com) via Vercel's Git integration (automatic on every push to `main` that touches `src/` or `artifacts/deployed-addresses.json`).
 
 **Production URL:** [https://trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)
 
-The two pipelines are linked: after a successful contract deploy, `deploy.yml` automatically updates the `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS` env var in Vercel and triggers a frontend redeploy. You never need to manually sync an address.
+The two pipelines are linked: after a successful contract deploy, `deploy.yml` automatically updates the contract address env vars in Vercel and triggers a frontend redeploy via the Vercel CLI. You never need to manually sync an address.
 
 ---
 
@@ -65,19 +65,7 @@ Note the `orgId` and `projectId` values.
 | `VERCEL_ORG_ID`        | The `orgId` from `src/.vercel/project.json`               |
 | `VERCEL_PROJECT_ID`    | The `projectId` from `src/.vercel/project.json`           |
 
-### 5. Add repository-level secrets for the frontend workflow
-
-`frontend-deploy.yml` runs outside any environment, so its Vercel secrets live at the repo level.
-
-Go to **Settings → Secrets and variables → Actions → New repository secret** and add:
-
-| Secret              | Value                                           |
-| ------------------- | ----------------------------------------------- |
-| `VERCEL_TOKEN`      | Same token from step 3                          |
-| `VERCEL_ORG_ID`     | The `orgId` from `src/.vercel/project.json`     |
-| `VERCEL_PROJECT_ID` | The `projectId` from `src/.vercel/project.json` |
-
-### 6. Set Vercel environment variables
+### 5. Set Vercel environment variables
 
 The frontend reads its configuration entirely from Vercel environment variables — there is no `.env` file on Vercel's build servers. The table below lists every variable, whether it is required, and where to get the value.
 
@@ -188,8 +176,8 @@ The workflow:
 1. Builds and tests the contracts (`forge build` + `forge test`).
 2. Runs the Forge deploy script with `--broadcast`.
 3. Parses the broadcast output to extract the deployed `TrustLedger` address.
-4. Updates `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS` in Vercel via the Vercel API.
-5. Triggers `frontend-deploy.yml` to rebuild the frontend with the new address.
+4. Updates all three contract address env vars in Vercel via the Vercel API.
+5. Runs `vercel deploy --prod` to rebuild the frontend with the new addresses.
 
 ### Via local CLI (manual)
 
@@ -206,11 +194,12 @@ npm run start:deploy:foundry
 npm run start:deploy:hardhat
 ```
 
-After a local deploy, update `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS` in Vercel manually and trigger a frontend redeploy:
+After a local deploy, update the contract address env vars in Vercel and trigger a frontend redeploy:
 
 ```bash
 vercel env rm NEXT_PUBLIC_TRUSTLEDGER_ADDRESS production
 echo "0xYOUR_ADDRESS" | vercel env add NEXT_PUBLIC_TRUSTLEDGER_ADDRESS production
+# Repeat for NEXT_PUBLIC_ARBITRATION_ADDRESS and NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS if redeployed.
 vercel deploy --prod
 ```
 
@@ -218,29 +207,22 @@ vercel deploy --prod
 
 ## Frontend Deployment
 
-### Automatic (CI/CD)
+### Automatic (Git integration)
 
-`frontend-deploy.yml` deploys to production automatically on every push to `main` that touches `src/**` or `.github/workflows/frontend-deploy.yml`. It is also triggered by `deploy.yml` after a contract deploy.
+Vercel's Git integration deploys to production automatically on every push to `main`. The `ignoreCommand` in `src/vercel.json` skips the build if neither `src/` nor `artifacts/deployed-addresses.json` changed — so contract-only or docs-only pushes don't trigger a frontend build.
 
-The workflow:
-
-1. `vercel pull --environment=production` — syncs env vars and project config from Vercel.
-2. `vercel build --prod` — builds the Next.js app locally in CI with the pulled env vars.
-3. `vercel deploy --prebuilt --prod` — uploads the pre-built output to Vercel's edge network without rebuilding on Vercel's servers.
+`deploy.yml` also triggers a frontend redeploy via `vercel deploy --prod` after updating contract addresses, bypassing the `ignoreCommand` (CLI-triggered deploys always proceed).
 
 ### Manual
 
 ```bash
-cd src
+# From the repo root
 
 # Preview deploy (staging URL)
 vercel
 
 # Production deploy
 vercel --prod
-
-# Or via npm script
-npm run deploy:vercel
 ```
 
 ---
