@@ -500,7 +500,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit WorkApproved(id);
     }
 
-    /// @notice Client disputes submitted work, forwarding the fee pool to Arbitration. Emits {WorkDisputed}. For ETH escrows: call with no msg.value (fee pool is deducted from held ETH). For ERC-20 escrows: send ETH as msg.value to fund the juror fee pool.
+    /// @notice Client disputes submitted work, forwarding the fee pool to Arbitration. Emits {WorkDisputed}.
+    /// @dev For ETH escrows: call with no msg.value (fee pool is deducted from held ETH).
+    /// @dev For ERC-20 escrows: send ETH as msg.value to fund the juror fee pool.
     /// @param id The escrow contract ID.
     // slither-disable-next-line reentrancy-eth
     function disputeWork(uint256 id) external payable nonReentrant {
