@@ -14,7 +14,7 @@ import {JurorRegistry} from "../../src/JurorRegistry.sol";
 contract JurorRegistryTest is Test {
     uint256 public constant MIN_STAKE = 0.01 ether;
     uint256 public constant LOCK_PERIOD = 7 days;
-    uint256 public constant COOLDOWN_PERIOD = 7 days; // mirrors JurorRegistry.JUROR_COOLDOWN
+    uint64 public constant COOLDOWN_PERIOD = 7 days; // mirrors JurorRegistry.JUROR_COOLDOWN
     uint256 public constant MIN_REPUTATION = 20; // mirrors JurorRegistry.MIN_REPUTATION
 
     JurorRegistry public registry;
@@ -297,7 +297,7 @@ contract JurorRegistryTest is Test {
 
         assertEq(
             registry.getCooldownUntil(juror1),
-            unlockTs + uint64(COOLDOWN_PERIOD),
+            unlockTs + COOLDOWN_PERIOD,
             "cooldown should be set to unlock time + JUROR_COOLDOWN"
         );
     }

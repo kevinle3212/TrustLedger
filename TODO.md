@@ -18,6 +18,10 @@ This is a list to prepare for the version 1.0.0 release. It includes tasks that 
 - [x] Add indent setting inside .vscode/settings.json that follows current code style and linting rules.
 - [x] Remove `Get a free JWT at pinata.cloud → API Keys. Set NEXT_PUBLIC_PINATA_JWT in .env.local to persist it.` from the create contract page, below JWT input field, add to the documentation, and replace it with the actual steps to retrieve the JWT from Pinata.
 - [x] GitHub Models `.prompt.yml` files + CI workflow - see `.github/prompts/`, `docs/GITHUB_MODELS.md`, `scripts/models/github_models_example.py`
+- [x] Have Opus 4.7 go through the entire codebase, excluding Git submodules and build outputs (e.g. node_modules, out, .next, etc.). Fix any issues pertaining to styling issues (lint, indentations, etc.) and build issues (unused imports, variables, etc.) that it finds. Ensure that the documentation is updated to reflect the whole application and to fill in any gaps or missing information.
+      Goal is to have a clean codebase with consistent styling and up-to-date documentation that accurately reflects the current state of the project.
+
+## Tasks and Future Improvements for Mainnet Release
 
 - [ ] (Mainnet) Add in user authentication and authorization for the website, so that users can create accounts and log in to access their own data and settings.
     - This would involve setting up a database to store user information, as well as implementing a secure authentication system using JWTs or OAuth.

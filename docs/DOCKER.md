@@ -186,7 +186,7 @@ docker compose run test
 
 Runs all tests inside the container and exits when done:
 
-- 73 Hardhat / Mocha / Chai integration tests (TypeScript)
+- 146 Hardhat / Mocha / Chai integration tests (TypeScript)
 - 37 Foundry unit tests (`TrustLedgerTest`)
 - 29 Foundry unit tests (`JurorRegistryTest`)
 - 11 Foundry unit tests (`ReputationRegistryTest`)
@@ -210,11 +210,11 @@ Note: `docker compose run` (not `up`) is used here because `test` is a one-shot 
 docker compose run test
 ```
 
-Runs all 157 tests in sequence and exits with a non-zero code if any fail.
+Runs all 230 tests in sequence and exits with a non-zero code if any fail.
 
 | Suite                          | Count | Type                     | Runner  |
 | ------------------------------ | ----- | ------------------------ | ------- |
-| `TrustLedger.test.ts`          | 73    | Integration (TypeScript) | Hardhat |
+| `TrustLedger.test.ts`          | 146   | Integration (TypeScript) | Hardhat |
 | `TrustLedgerTest.t.sol`        | 37    | Unit                     | Foundry |
 | `JurorRegistryTest.t.sol`      | 29    | Unit                     | Foundry |
 | `ReputationRegistryTest.t.sol` | 11    | Unit                     | Foundry |
@@ -247,7 +247,7 @@ docker compose run test bash -c "cd contracts && forge test --gas-report"
 
 ### What each suite covers
 
-#### `TrustLedger.test.ts` - Hardhat integration tests (73 tests)
+#### `TrustLedger.test.ts` - Hardhat integration tests (146 tests)
 
 End-to-end TypeScript tests that deploy all contracts to a live Hardhat node and drive them through full lifecycle flows using ethers.js and TypeChain-generated types. Balance diffs are verified at each payout step.
 

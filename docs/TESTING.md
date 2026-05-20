@@ -23,7 +23,7 @@ TrustLedger uses two parallel test suites: **Hardhat/Mocha** (TypeScript, integr
 
 ```text
 test/
-└── TrustLedger.test.ts          # Hardhat integration suite (73 tests)
+└── TrustLedger.test.ts          # Hardhat integration suite (146 tests)
 
 contracts/test/
 ├── unit/
@@ -36,7 +36,7 @@ contracts/test/
     └── FullLifecycleFork.t.sol  # Fork integration tests (skip when FORK_URL unset)
 ```
 
-**Baseline counts:** 73 Hardhat + 84 Foundry = **157 tests total**.
+**Baseline counts:** 146 Hardhat + 84 Foundry = **230 tests total**.
 An additional **4 fork integration tests** run when `FORK_URL` (or `SEPOLIA_RPC_URL`) is set in `.env`; they skip automatically otherwise.
 
 ---
@@ -201,11 +201,13 @@ Optionally set `FORK_BLOCK_NUMBER` to pin to a specific block for reproducible r
 
 1. Add files to `contracts/test/fork/` with a `.t.sol` suffix.
 2. Start every `setUp()` with the skip guard:
+
     ```solidity
     string memory rpcUrl = vm.envOr("SEPOLIA_RPC_URL", string(""));
     vm.skip(bytes(rpcUrl).length == 0);
     vm.createSelectFork(rpcUrl);
     ```
+
 3. Name functions `test_Fork_<Scenario>_<Outcome>`.
 4. Fork tests should verify behaviour that differs between a blank EVM and a real chain - deployment ordering, nonce effects, and production-equivalent gas conditions.
 
@@ -259,7 +261,7 @@ Four parallel jobs run on every push and PR (`.github/workflows/ci.yml`):
 | ---------- | --------------------------------------------------------------------------------------- |
 | Frontend   | `tsc --noEmit`, `lint:frontend`, `build:frontend`                                       |
 | TypeScript | `tsc -p tsconfig.hardhat.json --noEmit`, `lint`, `prettier`                             |
-| Hardhat    | `compile`, `hardhat:test` (73 integration tests)                                        |
+| Hardhat    | `compile`, `hardhat:test` (146 integration tests)                                       |
 | Solidity   | `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, `forge snapshot --check` |
 
 All four jobs must pass for a PR to merge.

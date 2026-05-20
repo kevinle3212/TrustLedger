@@ -94,7 +94,8 @@ These must be set before the frontend will work correctly in production.
 | `NEXT_BASE_PATH`         | Production/Preview | Leave unset to serve from root `/`; only needed for sub-path hosting                                                          |
 
 > **Why contract address env vars must be set in Vercel:**
-> `artifacts/deployed-addresses.json` is gitignored and never reaches the CI checkout. Vercel's build has no access to it. Env vars are the only mechanism the frontend uses to know deployed addresses. `deploy.yml` keeps the three core contracts in sync automatically after every Forge deploy; set `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` manually until the Forge script deploys `ReputationRegistry` too.
+> `artifacts/deployed-addresses.json` is gitignored and never reaches the CI checkout. Vercel's build has no access to it. Env vars are the only mechanism the frontend uses to know deployed addresses.
+> `deploy.yml` keeps the three core contracts in sync automatically after every Forge deploy; set `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` manually until the Forge script deploys `ReputationRegistry` too.
 
 #### Method A - Vercel dashboard (recommended for first-time setup)
 

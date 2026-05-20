@@ -310,7 +310,8 @@ function averageRating(address user) external view
 
 ## Local Demo Scenarios
 
-Seven local demos run without a testnet or real funds. The interactive runner (`scripts/run-demo.sh`) auto-starts the Hardhat node, deploys all contracts (including `ReputationRegistry`), and runs the selected scenario using EVM time-travel to skip lock periods. After each scenario completes it loops back to the menu - press `Ctrl+C` to exit. Each of the 12 steps prints a plain-language explanation of what is happening on-chain and why.
+Seven local demos run without a testnet or real funds. The interactive runner (`scripts/run-demo.sh`) auto-starts the Hardhat node, deploys all contracts (including `ReputationRegistry`), and runs the selected scenario using EVM time-travel to skip lock periods.
+After each scenario completes it loops back to the menu - press `Ctrl+C` to exit. Each of the 12 steps prints a plain-language explanation of what is happening on-chain and why.
 
 ```bash
 npm run demo:run           # interactive menu - type 1-7 at the prompt
@@ -379,7 +380,7 @@ Both tools compile the same Solidity source files with the same compiler setting
   any public testnet.
 - Deployment scripts (`scripts/deploy.ts`) use ethers.js to deploy all three contracts in the
   correct nonce order and write addresses to `artifacts/deployed-addresses.json` for the frontend.
-- 73 integration tests (`test/TrustLedger.test.ts`) simulate multi-wallet flows in TypeScript.
+- 146 integration tests (`test/TrustLedger.test.ts`) simulate multi-wallet flows in TypeScript.
   TypeChain generates typed contract wrappers so every function call is checked at compile time.
 - Balance diffs, event assertions, and revert messages are verified in plain TypeScript -
   readable by anyone who knows JavaScript.
@@ -501,7 +502,7 @@ npm run demo:stablecoin # ERC-20 escrow, gas comparison, bidirectional reputatio
 ```bash
 cd contracts
 
-forge test                                        # all 73 tests
+forge test                                        # all 84 tests (fork suite skips without FORK_URL)
 forge test -vvv                                   # verbose output with traces
 forge test --match-contract TrustLedgerTest       # one suite
 forge test --match-test test_HappyPath            # one test
@@ -512,7 +513,7 @@ forge test --gas-report                           # gas cost per function
 
 ```bash
 # from project root
-npm run hardhat:test        # 73 tests: ETH, ERC-20, VRF, appeals, reputation
+npm run hardhat:test        # 146 tests: ETH, ERC-20, VRF, appeals, reputation
 ```
 
 ### Linting
@@ -535,13 +536,14 @@ See [GITHUB_MODELS.md](GITHUB_MODELS.md) for `.prompt.yml` files and the Actions
 
 **Test coverage summary:**
 
-| Suite                    | Count | Type                         |
-| ------------------------ | ----- | ---------------------------- |
-| `TrustLedgerTest`        | 33    | Foundry unit                 |
-| `JurorRegistryTest`      | 22    | Foundry unit                 |
-| `ReputationRegistryTest` | 11    | Foundry unit                 |
-| `PayoutFuzz`             | 7     | Foundry fuzz (10k runs each) |
-| Hardhat / Mocha / Chai   | 73    | TypeScript integration       |
+| Suite                    | Count | Type                          |
+| ------------------------ | ----- | ----------------------------- |
+| `TrustLedgerTest`        | 37    | Foundry unit                  |
+| `JurorRegistryTest`      | 29    | Foundry unit                  |
+| `ReputationRegistryTest` | 11    | Foundry unit                  |
+| `PayoutFuzz`             | 7     | Foundry fuzz (10k runs each)  |
+| `FullLifecycleFork`      | 4     | Foundry fork (needs FORK_URL) |
+| Hardhat / Mocha / Chai   | 146   | TypeScript integration        |
 
 ---
 

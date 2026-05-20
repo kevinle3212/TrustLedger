@@ -46,6 +46,21 @@ function resolveAddress(jsonKey: string, envKey: string): string {
 
 const rootEnv = parseRootEnv();
 
+// Resolve the public GitHub URL. Priority:
+//   1. Vercel system vars (VERCEL_GIT_REPO_OWNER / VERCEL_GIT_REPO_SLUG) - injected
+//      automatically by Vercel's build infrastructure on Git-integration deploys.
+//   2. NEXT_PUBLIC_GITHUB_URL - set in Vercel project settings or root .env;
+//      covers `vercel --prod` CLI deploys where the git system vars are absent.
+//   3. Empty string - icon is hidden rather than broken.
+function resolveGithubUrl(): string {
+	const owner = process.env["VERCEL_GIT_REPO_OWNER"];
+	const slug = process.env["VERCEL_GIT_REPO_SLUG"];
+	if (owner !== undefined && owner !== "" && slug !== undefined && slug !== "") {
+		return `https://github.com/${owner}/${slug}`;
+	}
+	return process.env["NEXT_PUBLIC_GITHUB_URL"] ?? rootEnv["NEXT_PUBLIC_GITHUB_URL"] ?? "";
+}
+
 const nextConfig: NextConfig = {
 	// Controls the URL prefix. Read from process.env first (set via Vercel project settings),
 	// then falls back to the root .env (parsed above), then to empty string (served at root).
@@ -74,19 +89,7 @@ const nextConfig: NextConfig = {
 			process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??
 			rootEnv["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??
 			"",
-		// Resolution order:
-		//   1. Vercel system vars - injected by Vercel's build infrastructure when a
-		//      Git integration push triggers the deploy, or when the CI workflow
-		//      explicitly sets them (see frontend-deploy.yml).
-		//   2. NEXT_PUBLIC_GITHUB_URL - set in Vercel project settings or root .env;
-		//      covers `vercel --prod` CLI deploys where git system vars are absent.
-		//   3. Empty string - icon is hidden rather than broken.
-		NEXT_PUBLIC_GITHUB_URL:
-			process.env["VERCEL_GIT_REPO_OWNER"] && process.env["VERCEL_GIT_REPO_SLUG"]
-				? `https://github.com/${process.env["VERCEL_GIT_REPO_OWNER"]}/${process.env["VERCEL_GIT_REPO_SLUG"]}`
-				: (process.env["NEXT_PUBLIC_GITHUB_URL"] ??
-					rootEnv["NEXT_PUBLIC_GITHUB_URL"] ??
-					""),
+		NEXT_PUBLIC_GITHUB_URL: resolveGithubUrl(),
 	},
 };
 

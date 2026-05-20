@@ -1,5 +1,8 @@
 import { keccak256, toBytes } from "viem";
 
+// Convenience wrapper for keccak256(toBytes(value)). Currently unused - call sites
+// inline the keccak256 call directly - but kept as a potentially useful helper for
+// future hashing needs (e.g. contract/proof URIs) to keep those call sites terse.
 export function hashString(value: string): `0x${string}` {
 	return keccak256(toBytes(value));
 }

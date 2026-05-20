@@ -121,7 +121,7 @@ Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are calla
 | Contract testing (integration) | Hardhat 2.x + Mocha/Chai                                                                    |
 | TypeScript types               | TypeChain (ethers-v6)                                                                       |
 | Chain                          | Ethereum Sepolia (testnet)                                                                  |
-| Off-chain storage              | IPFS via Web3.Storage                                                                       |
+| Off-chain storage              | IPFS via Pinata (with optional Arweave)                                                     |
 | Wallet                         | MetaMask + RainbowKit                                                                       |
 | Frontend                       | Next.js 16, React 19, wagmi v2, RainbowKit, viem                                            |
 | Backend (planned)              | Node.js, TypeScript, SQL                                                                    |
@@ -630,6 +630,7 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run demo:bad`               | Dispute-flow demo against a running local node                  |
 | `npm run demo:jurors`            | Juror reputation demo (slash + before/after table)              |
 | `npm run demo:stablecoin`        | ERC-20 escrow + gas comparison + reputation                     |
+| `npm run demo:scenario`          | Run the scripted multi-scenario walkthrough                     |
 | `npm run demo:run`               | Interactive menu (scenarios 1-7)                                |
 
 </details>
@@ -657,6 +658,7 @@ Requires `GITHUB_TOKEN` with Models access.
 | ---------------------------------------- | ---------------------------------------------------- |
 | `npm run foundry:build`                  | `forge build` - compile contracts via Foundry        |
 | `npm run foundry:test`                   | `forge test` - run all Solidity unit and fuzz tests  |
+| `npm run foundry:test:fork`              | Run fork integration tests (requires `FORK_URL`)     |
 | `npm run foundry:gas`                    | `forge test --gas-report` - per-function gas usage   |
 | `npm run foundry:deploy:sepolia:dry-run` | Simulate Sepolia deploy (no broadcast), loads `.env` |
 | `npm run foundry:deploy:sepolia`         | Broadcast deploy to Sepolia + Etherscan verification |
@@ -678,13 +680,13 @@ Requires `GITHUB_TOKEN` with Models access.
 <details>
 <summary>Tooling - lint, format, build</summary>
 
-| Script                  | What it runs                             |
-| ----------------------- | ---------------------------------------- |
-| `npm run lint`          | ESLint (TypeScript) + Solhint (Solidity) |
-| `npm run lint:ts`       | ESLint only                              |
-| `npm run lint:sol`      | Solhint only                             |
-| `npm run lint:prettier` | Prettier format check (read-only)        |
-| `npm run build`         | `tsc` - compile `src/` to `dist/`        |
+| Script                  | What it runs                                    |
+| ----------------------- | ----------------------------------------------- |
+| `npm run lint`          | ESLint (TypeScript) + Solhint (Solidity)        |
+| `npm run lint:ts`       | ESLint only                                     |
+| `npm run lint:sol`      | Solhint only                                    |
+| `npm run lint:prettier` | Prettier format check (read-only)               |
+| `npm run lint:frontend` | ESLint + Prettier check for the `src/` frontend |
 
 </details>
 
@@ -720,7 +722,7 @@ Hardhat is the TypeScript runtime for everything that crosses the contract bound
 - **Deployment scripts** (`scripts/deploy.ts`) - ethers.js + TypeChain deploy all three contracts
   in the correct nonce order and write the resulting addresses to `artifacts/deployed-addresses.json`
   for frontend consumption.
-- **Integration tests** (`test/TrustLedger.test.ts`, 73 tests) - multi-wallet flows written in
+- **Integration tests** (`test/TrustLedger.test.ts`, 146 tests) - multi-wallet flows written in
   TypeScript with full type safety. Tests cover ETH and ERC-20 escrow, Chainlink mock feeds, VRF
   mock, full dispute commit-reveal, appeals, and reputation. Balance diffs are verified at every
   payout step using ethers.js `BigInt` arithmetic.
@@ -773,7 +775,7 @@ Foundry runs entirely in Solidity, making it faster and more precise for low-lev
 npm run hardhat:test
 ```
 
-73 tests in `test/TrustLedger.test.ts`. Covers the full escrow lifecycle for ETH and ERC-20,
+146 tests in `test/TrustLedger.test.ts`. Covers the full escrow lifecycle for ETH and ERC-20,
 Chainlink price feed mock, VRF mock, full dispute flow with commit-reveal, appeals, and
 ReputationRegistry. Uses TypeChain typed contract wrappers.
 
@@ -785,17 +787,18 @@ npm run foundry:test
 cd contracts && forge test -vvv
 ```
 
-73 Foundry tests across four suites:
+84 Foundry tests across five suites (the fork suite is skipped unless `FORK_URL` is set):
 
 <details>
 <summary>Expand - Foundry test suite breakdown</summary>
 
 | Suite                    | Count | Type            | Covers                                                                    |
 | ------------------------ | ----- | --------------- | ------------------------------------------------------------------------- |
-| `TrustLedgerTest`        | 33    | Unit            | Full lifecycle, deadline, warranty, dispute, ruling payouts, reverts      |
-| `JurorRegistryTest`      | 22    | Unit            | Register, stake lock, slash, eligibility, active dispute guard            |
+| `TrustLedgerTest`        | 37    | Unit            | Full lifecycle, deadline, warranty, dispute, ruling payouts, reverts      |
+| `JurorRegistryTest`      | 29    | Unit            | Register, stake lock, slash, eligibility, active dispute guard            |
 | `ReputationRegistryTest` | 11    | Unit            | Constructor, `rate()` access control, score bounds, accumulation          |
 | `PayoutFuzz`             | 7     | Fuzz (10k runs) | Payout conservation, formula correctness, buffer factor, hold-back bounds |
+| `FullLifecycleFork`      | 4     | Fork            | End-to-end lifecycle against forked state (skipped without `FORK_URL`)    |
 
 </details>
 
@@ -988,7 +991,7 @@ TrustLedger/
 │   │   ├── abi.ts                                # TrustLedger / Arbitration / JurorRegistry / ReputationRegistry ABIs
 │   │   ├── arweave.ts                            # Arweave permanent storage helper
 │   │   ├── encryption.ts                         # AES-GCM encrypt/decrypt for off-chain docs
-│   │   ├── ipfs.ts                               # IPFS upload via Web3.Storage
+│   │   ├── ipfs.ts                               # IPFS upload via Pinata's pinning API
 │   │   ├── magicLink.ts                          # JWT sign/verify for freelancer onboarding
 │   │   ├── utils.ts                              # Address/ETH formatters, status colors
 │   │   └── wagmi.ts                              # wagmi config + contract address resolver
@@ -1005,7 +1008,7 @@ TrustLedger/
 │   └── README.md                                 # Frontend setup guide -> src/README.md
 │
 ├── test/
-│   └── TrustLedger.test.ts               # 73 Hardhat/Mocha integration tests
+│   └── TrustLedger.test.ts               # 146 Hardhat/Mocha integration tests
 │
 ├── scripts/
 │   ├── deploy.ts                         # Hardhat deploy (writes artifacts/deployed-addresses.json)
@@ -1055,6 +1058,7 @@ TrustLedger/
 │       ├── ci.yml                        # Lint, typecheck, Forge tests + frontend build on every push/PR
 │       ├── deploy.yml                    # Manual deploy to Ethereum Sepolia
 │       ├── security.yml                  # Slither, TruffleHog, npm audit (root + frontend), CodeQL
+│       ├── github-models.yml             # Evaluates .github/prompts/*.prompt.yml on prompt/script changes
 │       ├── wiki-sync.yml                 # Auto-sync docs/Home.md to GitHub Wiki on push to main
 │       └── dependabot-automerge.yml      # Auto-merge Dependabot security/patch PRs
 │

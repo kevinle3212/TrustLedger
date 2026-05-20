@@ -213,7 +213,7 @@ The Hardhat test suite covers the full contract surface in TypeScript using Moch
 # Compile (required before first test run or after contract changes)
 npm run compile
 
-# Run all 73 Hardhat tests
+# Run all 146 Hardhat tests
 npm run hardhat:test
 ```
 

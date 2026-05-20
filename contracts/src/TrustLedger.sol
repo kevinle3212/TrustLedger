@@ -886,6 +886,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         // Reject stale or invalid prices (updatedAt == 0 means the round is not complete).
         if (price < 1 || updatedAt == 0) return 0;
         // ethAmount is in wei (1 ETH = 1e18). price is in 8 decimals. Dividing by 1e18 gives USD.
+        // The `price < 1` guard above guarantees price is positive, so the int256->uint256 cast cannot wrap.
+        // forge-lint: disable-next-line(unsafe-typecast)
         return (ethAmount * uint256(price)) / 1e18;
     }
 }

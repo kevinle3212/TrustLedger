@@ -250,6 +250,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         JurorInfo storage j = _jurors[juror];
         if (j.activeDisputes > 0) --j.activeDisputes; // guard against underflow
         ++j.disputesParticipated;
+        // _jurorCooldown is uint64 to pack storage; block.timestamp + 7 days stays well within uint64 range.
+        // forge-lint: disable-next-line(unsafe-typecast)
         _jurorCooldown[juror] = uint64(block.timestamp + JUROR_COOLDOWN);
     }
 

@@ -75,6 +75,9 @@ export async function encryptFile(
 }
 
 // Decrypt a bundle produced by encryptFile.
+// Complete and tested-safe, but not yet wired into any UI - kept as the symmetric
+// counterpart to encryptFile for a future deliverable download/decrypt flow (e.g. a
+// freelancer or juror retrieving and decrypting an encrypted artifact from IPFS).
 export async function decryptFile(data: ArrayBuffer, passphrase: string): Promise<ArrayBuffer> {
 	const bundle = JSON.parse(new TextDecoder().decode(data)) as EncryptedBundle;
 	if (bundle.v !== 1) throw new Error("Unsupported encryption bundle version");
