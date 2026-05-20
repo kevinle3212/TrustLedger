@@ -40,16 +40,11 @@ jobs:
                     - edge-cases.prompt.yml
                 include:
                     - prompt: summarize-text.prompt.yml
-                      input: |
-                          The freelancer delivered on time but the client disputes quality of the PDF export.
+                      input: "The freelancer delivered on time but the client disputes quality of the PDF export."
                     - prompt: generate-text.prompt.yml
-                      input: |
-                          - Reputation registry wired in deploy script
-                          - Stablecoin escrow demo added
+                      input: "Reputation registry wired in deploy script; stablecoin escrow demo added"
                     - prompt: answer-questions.prompt.yml
-                      input: |
-                          Context: TrustLedger escrows ETH or ERC-20 until work is approved or disputed.
-                          Question: Can escrow use stablecoins?
+                      input: "Context: TrustLedger escrows ETH or ERC-20. Question: Can escrow use stablecoins?"
                     - prompt: edge-cases.prompt.yml
                       input: ""
 
@@ -61,8 +56,7 @@ jobs:
               uses: actions/ai-inference@v1
               with:
                   prompt-file: .github/prompts/${{ matrix.prompt }}
-                  input: |
-                      input: ${{ matrix.input }}
+                  input: 'input: "${{ matrix.input }}"'
                   endpoint: https://models.github.ai/inference
                   model: openai/gpt-4.1
                   token: ${{ secrets.GITHUB_TOKEN }}
