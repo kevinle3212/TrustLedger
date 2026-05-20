@@ -10,6 +10,15 @@ updates:
       groups:
           dev-dependencies:
               dependency-type: "development"
+      ignore:
+          # Hardhat v3 is ESM-only and requires a planned migration from v2.
+          # Ignore major bumps until the Hardhat v3 migration is scheduled.
+          - dependency-name: "hardhat"
+            update-types: ["version-update:semver-major"]
+          - dependency-name: "@nomicfoundation/hardhat-ethers"
+            update-types: ["version-update:semver-major"]
+          - dependency-name: "@nomicfoundation/hardhat-toolbox"
+            update-types: ["version-update:semver-major"]
 
     # ── GitHub Actions (.github/workflows/) ───────────────────────────────────
     - package-ecosystem: "github-actions"
