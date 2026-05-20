@@ -1,4 +1,4 @@
-// hardhat.config.ts — central configuration for the Hardhat development environment.
+// hardhat.config.ts - central configuration for the Hardhat development environment.
 // Hardhat is a JavaScript/TypeScript toolkit for compiling, testing, and deploying
 // Solidity smart contracts. Everything it does is driven by this file.
 
@@ -49,7 +49,7 @@ const config: HardhatUserConfig = {
 	networks: {
 		// The built-in ephemeral network: spins up a local chain in memory for each
 		// test run, giving every test a clean slate with no persistent state.
-		// When FORK_URL is set, Hardhat forks from that chain instead of starting blank —
+		// When FORK_URL is set, Hardhat forks from that chain instead of starting blank -
 		// this gives tests access to real deployed contracts, token balances, and chain
 		// history, closely mimicking what production looks like.
 		hardhat: {
@@ -66,7 +66,7 @@ const config: HardhatUserConfig = {
 				: {}),
 		},
 
-		// Ethereum Sepolia — the L1 testnet used for development and testing only.
+		// Ethereum Sepolia - the L1 testnet used for development and testing only.
 		// Values are read from .env so private keys never touch source control.
 		sepolia: {
 			url: process.env.SEPOLIA_RPC_URL ?? "",
@@ -140,13 +140,13 @@ const config: HardhatUserConfig = {
 	// so users can read and interact with your contract on the web UI.
 	etherscan: {
 		apiKey: {
-			// Etherscan — for Ethereum Sepolia. Get a key at etherscan.io/register
+			// Etherscan - for Ethereum Sepolia. Get a key at etherscan.io/register
 			sepolia: process.env.ETHERSCAN_API_KEY ?? "",
-			// Arbiscan — for Arbitrum One. Get a key at arbiscan.io
+			// Arbiscan - for Arbitrum One. Get a key at arbiscan.io
 			arbitrumOne: process.env.ARBISCAN_API_KEY ?? "",
-			// Basescan — for Base. Get a key at basescan.org
+			// Basescan - for Base. Get a key at basescan.org
 			base: process.env.BASESCAN_API_KEY ?? "",
-			// Optimism Etherscan — for Optimism. Get a key at optimistic.etherscan.io
+			// Optimism Etherscan - for Optimism. Get a key at optimistic.etherscan.io
 			optimism: process.env.OPTIMISM_ETHERSCAN_API_KEY ?? "",
 		},
 	},

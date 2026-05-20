@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 // Interface for the on-chain reputation system.
 // TrustLedger calls `rate()` when a contract reaches APPROVED or RESOLVED.
-// Both parties rate each other — clients rate freelancers and vice versa.
+// Both parties rate each other - clients rate freelancers and vice versa.
 
 /// @title IReputationRegistry
 /// @author Kevin Le, Kellen Snider

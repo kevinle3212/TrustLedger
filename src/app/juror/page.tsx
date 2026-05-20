@@ -14,7 +14,7 @@ const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
 
 function formatTimestamp(ts: bigint): string {
-	if (ts === 0n) return "—";
+	if (ts === 0n) return "-";
 	return new Date(Number(ts) * 1000).toLocaleDateString(undefined, {
 		year: "numeric",
 		month: "short",
@@ -83,17 +83,17 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 
 				<span className="text-gray-500">Reputation</span>
 				<span className="text-white">
-					{juror !== undefined ? juror.reputation.toString() : "—"} / 100
+					{juror !== undefined ? juror.reputation.toString() : "-"} / 100
 				</span>
 
 				<span className="text-gray-500">Disputes</span>
 				<span className="text-white">
-					{juror !== undefined ? juror.disputesParticipated.toString() : "—"}
+					{juror !== undefined ? juror.disputesParticipated.toString() : "-"}
 				</span>
 
 				<span className="text-gray-500">Minority Votes</span>
 				<span className="text-white">
-					{juror !== undefined ? juror.minorityVotes.toString() : "—"}
+					{juror !== undefined ? juror.minorityVotes.toString() : "-"}
 				</span>
 
 				<span className="text-gray-500">Stake Unlocks</span>
@@ -102,7 +102,7 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 						? lockElapsed
 							? "Unlocked"
 							: formatTimestamp(juror.stakeUnlockTime)
-						: "—"}
+						: "-"}
 				</span>
 
 				{cooldownActive && (
@@ -113,7 +113,7 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				)}
 
 				<span className="text-gray-500">Pool Size</span>
-				<span className="text-white">{poolCount?.toString() ?? "—"} eligible jurors</span>
+				<span className="text-white">{poolCount?.toString() ?? "-"} eligible jurors</span>
 			</div>
 
 			{eligible !== true && isRegistered && (

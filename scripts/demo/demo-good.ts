@@ -1,4 +1,4 @@
-// scripts/demo/demo-good.ts — Happy Path: create → accept → submit → approve
+// scripts/demo/demo-good.ts - Happy Path: create → accept → submit → approve
 // Run with: npm run demo:good  (requires: npm run node + npm run hardhat:deploy:local first)
 
 import { readFileSync } from "node:fs";
@@ -30,7 +30,7 @@ async function main(): Promise<void> {
 	const [client, freelancer] = await ethers.getSigners();
 
 	console.log("=".repeat(60));
-	console.log("  TrustLedger Demo — Happy Path");
+	console.log("  TrustLedger Demo - Happy Path");
 	console.log("=".repeat(60));
 	console.log(`Client     : ${client.address}`);
 	console.log(`Freelancer : ${freelancer.address}`);
@@ -40,7 +40,7 @@ async function main(): Promise<void> {
 	const tl = (await ethers.getContractAt("TrustLedger", TRUST_LEDGER)) as unknown as TrustLedger;
 
 	// ── Step 1: Client creates a 1 ETH escrow ─────────────────────────────────
-	console.log("Step 1 — Client creates a 1 ETH escrow...");
+	console.log("Step 1 - Client creates a 1 ETH escrow...");
 	const createTx = await tl.connect(client).createContract(
 		await freelancer.getAddress(),
 		ethers.keccak256(ethers.toUtf8Bytes("contract-v1")),
@@ -75,7 +75,7 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 2: Freelancer accepts with ECDSA wallet binding ──────────────────
-	console.log("Step 2 — Freelancer signs & accepts...");
+	console.log("Step 2 - Freelancer signs & accepts...");
 	const innerHash = ethers.solidityPackedKeccak256(
 		["uint256", "address"],
 		[contractId, await freelancer.getAddress()],
@@ -87,7 +87,7 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 3: Freelancer submits proof of work ───────────────────────────────
-	console.log("Step 3 — Freelancer submits proof of work...");
+	console.log("Step 3 - Freelancer submits proof of work...");
 	const powTx = await tl
 		.connect(freelancer)
 		.submitProofOfWork(
@@ -100,8 +100,8 @@ async function main(): Promise<void> {
 	console.log(`  ✓ Tx hash     : ${powTx.hash}`);
 	console.log();
 
-	// ── Step 4: Client approves — full 1 ETH released to freelancer ───────────
-	console.log("Step 4 — Client approves, funds released...");
+	// ── Step 4: Client approves - full 1 ETH released to freelancer ───────────
+	console.log("Step 4 - Client approves, funds released...");
 	const balBefore = await ethers.provider.getBalance(freelancer.address);
 	const approveTx = await tl.connect(client).approveWork(contractId);
 	await approveTx.wait();
@@ -112,7 +112,7 @@ async function main(): Promise<void> {
 	console.log();
 
 	console.log("=".repeat(60));
-	console.log("  Happy path complete — all steps passed!");
+	console.log("  Happy path complete - all steps passed!");
 	console.log("=".repeat(60));
 }
 

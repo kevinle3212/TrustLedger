@@ -1,8 +1,8 @@
 # Docker Guide
 
-TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` that lets you run demos, start a local chain for MetaMask, and execute the full test suite — all without installing Node.js or Foundry on your machine.
+TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` that lets you run demos, start a local chain for MetaMask, and execute the full test suite - all without installing Node.js or Foundry on your machine.
 
-> **Scope:** Docker covers the contracts and Hardhat environment only. The Next.js frontend (`src/`) does not need Docker — run it directly with `npm run dev:frontend` (from `src/`). See [`src/README.md`](../src/README.md) for frontend setup.
+> **Scope:** Docker covers the contracts and Hardhat environment only. The Next.js frontend (`src/`) does not need Docker - run it directly with `npm run dev:frontend` (from `src/`). See [`src/README.md`](../src/README.md) for frontend setup.
 
 ---
 
@@ -14,7 +14,7 @@ TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` tha
 | `docker-compose.yml`            | Orchestration             | Defines four services (`demo-good`, `demo-bad`, `node`, `test`) that all build from `Dockerfile`. Sets the `DEMO` env var per service to control which demo script `docker-demo.sh` runs. Exposes port 8545 on the host.                                                                                                                                      |
 | `docker/Dockerfile.dev`         | Development               | Same two-stage Node + Foundry base as the root `Dockerfile` but designed for live development: source files are mounted as a volume so edits appear inside the container immediately without rebuilding the image. Entrypoint is `scripts/docker-demo.sh`. Used by `docker/docker-compose.dev.yml`.                                                           |
 | `docker/docker-compose.dev.yml` | Development orchestration | Builds from `docker/Dockerfile.dev` with the repo root as the build context, mounts the repo root as a live volume (excluding `node_modules`), loads secrets from the root `.env` via `env_file`, and runs `npm run node` (Hardhat local chain) on port 8545.                                                                                                 |
-| `docker/Dockerfile.ci`          | CI verification           | Runs the full test suite as Docker `RUN` build steps: `npm run compile` → `npm run hardhat:test` → `cd contracts && forge test`. Has no entrypoint — the image build fails if any step fails. Use this to locally reproduce exactly what GitHub Actions runs without setting up a full CI environment.                                                        |
+| `docker/Dockerfile.ci`          | CI verification           | Runs the full test suite as Docker `RUN` build steps: `npm run compile` → `npm run hardhat:test` → `cd contracts && forge test`. Has no entrypoint - the image build fails if any step fails. Use this to locally reproduce exactly what GitHub Actions runs without setting up a full CI environment.                                                        |
 
 ---
 
@@ -77,7 +77,7 @@ Subsequent builds are fast because Docker caches each layer. A layer is only reb
 
 Four services are defined in `docker-compose.yml`. All of them use the same image.
 
-### `demo-good` — Happy path demo
+### `demo-good` - Happy path demo
 
 ```bash
 docker compose up demo-good
@@ -92,7 +92,7 @@ Starts the Hardhat node, deploys all three contracts, then runs the happy-path d
 
 After the demo completes, the node stays running at `http://localhost:8545` so you can inspect chain state. Press `Ctrl+C` to stop.
 
-### `demo-bad` — Dispute flow demo
+### `demo-bad` - Dispute flow demo
 
 ```bash
 docker compose up demo-bad
@@ -109,13 +109,13 @@ Starts the node, deploys, then runs the dispute-flow demo:
 7. Phase advances to reveal.
 8. Jurors reveal their votes.
 9. 72-hour reveal window elapses (EVM time-travel).
-10. Dispute finalized — median ruling computed.
+10. Dispute finalized - median ruling computed.
 11. 72-hour appeal window elapses (EVM time-travel).
 12. Ruling executed → **~0.258 ETH released to freelancer.**
 
 The entire flow completes in seconds because `evm_increaseTime` is used to skip lock and voting windows.
 
-### `node` — Local chain only
+### `node` - Local chain only
 
 ```bash
 docker compose up node
@@ -123,9 +123,9 @@ docker compose up node
 
 Starts the Hardhat node and keeps it running at `http://localhost:8545` (chain ID 31337). No contracts are deployed. Use this service when you want to deploy and interact manually via MetaMask, Remix IDE, or your own scripts.
 
-Hardhat prints 20 pre-funded test accounts and their private keys on startup. Each account starts with 10,000 ETH — no faucet needed.
+Hardhat prints 20 pre-funded test accounts and their private keys on startup. Each account starts with 10,000 ETH - no faucet needed.
 
-### `test` — Full test suite
+### `test` - Full test suite
 
 ```bash
 docker compose run test
@@ -173,16 +173,16 @@ Runs all 157 tests in sequence and exits with a non-zero code if any fail.
 # Hardhat integration tests only
 docker compose run test bash -c "npm run hardhat:test"
 
-# Foundry — TrustLedger contract (with full traces)
+# Foundry - TrustLedger contract (with full traces)
 docker compose run test bash -c "cd contracts && forge test --match-contract TrustLedgerTest -vvv"
 
-# Foundry — JurorRegistry contract
+# Foundry - JurorRegistry contract
 docker compose run test bash -c "cd contracts && forge test --match-contract JurorRegistryTest -vvv"
 
-# Foundry — ReputationRegistry contract
+# Foundry - ReputationRegistry contract
 docker compose run test bash -c "cd contracts && forge test --match-contract ReputationRegistryTest -vvv"
 
-# Foundry — fuzz suite only
+# Foundry - fuzz suite only
 docker compose run test bash -c "cd contracts && forge test --match-contract PayoutFuzz -vv"
 
 # Single test by name
@@ -194,7 +194,7 @@ docker compose run test bash -c "cd contracts && forge test --gas-report"
 
 ### What each suite covers
 
-#### `TrustLedger.test.ts` — Hardhat integration tests (73 tests)
+#### `TrustLedger.test.ts` - Hardhat integration tests (73 tests)
 
 End-to-end TypeScript tests that deploy all contracts to a live Hardhat node and drive them through full lifecycle flows using ethers.js and TypeChain-generated types. Balance diffs are verified at each payout step.
 
@@ -217,7 +217,7 @@ End-to-end TypeScript tests that deploy all contracts to a live Hardhat node and
 | Appeal flow            | Bond validation, window enforcement, non-party rejection, double-appeal, bond return/forfeiture    |
 | Reputation registry    | Bidirectional rating, accumulation, score bounds, double-rate prevention, timing enforcement       |
 
-#### `TrustLedgerTest.t.sol` — Foundry unit tests (33 tests)
+#### `TrustLedgerTest.t.sol` - Foundry unit tests (33 tests)
 
 Solidity-native tests targeting `TrustLedger.sol` using Foundry `vm` cheatcodes for time travel, address pranking, and revert matching.
 
@@ -231,9 +231,9 @@ Solidity-native tests targeting `TrustLedger.sol` using Foundry `vm` cheatcodes 
 | Revert guards      | All invalid-input paths across `createContract`, `acceptContract`, `approveWork`, `executeRuling`, `submitProofOfWork` |
 | Ancillary          | Rating no-op when registry unset; `nextId` increments after each creation                                              |
 
-#### `JurorRegistryTest.t.sol` — Foundry unit tests (22 tests)
+#### `JurorRegistryTest.t.sol` - Foundry unit tests (22 tests)
 
-Tests `JurorRegistry.sol` — the staking and eligibility contract that manages the juror pool.
+Tests `JurorRegistry.sol` - the staking and eligibility contract that manages the juror pool.
 
 | Group         | What it covers                                                                                         |
 | ------------- | ------------------------------------------------------------------------------------------------------ |
@@ -245,9 +245,9 @@ Tests `JurorRegistry.sol` — the staking and eligibility contract that manages 
 | Lock / unlock | Active dispute counter incremented and decremented; participated counter on unlock; access control     |
 | Juror count   | Eligible juror count reflects active, locked jurors correctly                                          |
 
-#### `ReputationRegistryTest.t.sol` — Foundry unit tests (11 tests)
+#### `ReputationRegistryTest.t.sol` - Foundry unit tests (11 tests)
 
-Tests `ReputationRegistry.sol` — the on-chain rating system for clients and freelancers.
+Tests `ReputationRegistry.sol` - the on-chain rating system for clients and freelancers.
 
 | Group          | What it covers                                                                     |
 | -------------- | ---------------------------------------------------------------------------------- |
@@ -256,7 +256,7 @@ Tests `ReputationRegistry.sol` — the on-chain rating system for clients and fr
 | Access control | Only `TrustLedger` can call `rate()`; zero score and above-100 reverted            |
 | Averages       | Unrated users return zero; scores accumulate independently per address             |
 
-#### `PayoutFuzz.t.sol` — Foundry fuzz tests (7 tests, 10,000 runs each)
+#### `PayoutFuzz.t.sol` - Foundry fuzz tests (7 tests, 10,000 runs each)
 
 Property-based tests that send random inputs across the full `uint` range into the payout math to prove invariants hold universally.
 
@@ -297,7 +297,7 @@ When `demo-good`, `demo-bad`, or `node` is running, the chain is accessible from
 
 ### Import a test account
 
-When the container starts, Hardhat prints all 20 test accounts with their private keys. Copy any private key and import it into MetaMask. These are ephemeral dev keys — **never use them on mainnet or with real funds.**
+When the container starts, Hardhat prints all 20 test accounts with their private keys. Copy any private key and import it into MetaMask. These are ephemeral dev keys - **never use them on mainnet or with real funds.**
 
 | Role       | Account index |
 | ---------- | ------------- |
@@ -356,11 +356,11 @@ The `DEMO` environment variable controls what the container does after the node 
 The `Dockerfile` at the project root uses a two-stage build:
 
 ```text
-Stage 1 — foundry-bin
+Stage 1 - foundry-bin
   FROM ghcr.io/foundry-rs/foundry:latest
-  (official Foundry image — contains forge, cast, anvil)
+  (official Foundry image - contains forge, cast, anvil)
 
-Stage 2 — trustledger
+Stage 2 - trustledger
   FROM node:22-bookworm-slim
   COPY --from=foundry-bin forge cast anvil → /usr/local/bin/
   RUN apt-get install git curl
@@ -401,8 +401,8 @@ docker compose build
 
 Check the output for an error before the node started. Common causes:
 
-- `npm run compile` failed — check that `contracts/lib/` is populated (submodule issue).
-- Missing `artifacts/` — the compile step was skipped. Rebuild the image.
+- `npm run compile` failed - check that `contracts/lib/` is populated (submodule issue).
+- Missing `artifacts/` - the compile step was skipped. Rebuild the image.
 
 ### `DEMO` value not recognized
 

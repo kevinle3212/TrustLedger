@@ -44,7 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	const { error } = await resend.emails.send({
 		from,
 		to: freelancerEmail,
-		subject: `You have a new contract to review — TrustLedger #${contractId}`,
+		subject: `You have a new contract to review - TrustLedger #${contractId}`,
 		html: buildEmail(link, contractId),
 	});
 
@@ -70,7 +70,7 @@ function buildEmail(link: string, contractId: string): string {
     </a>
     <p style="margin:32px 0 0;color:#6b7280;font-size:12px">
       If you were not expecting this email, you can ignore it.
-      Do not share this link — it is tied to your wallet address.
+      Do not share this link - it is tied to your wallet address.
     </p>
   </div>
 </body>

@@ -9,7 +9,7 @@ pragma solidity ^0.8.24;
 
 /// @title AggregatorV3Interface
 /// @author Kevin Le, Kellen Snider
-/// @notice Chainlink price feed interface — used to record the ETH/USD price at escrow creation.
+/// @notice Chainlink price feed interface - used to record the ETH/USD price at escrow creation.
 interface AggregatorV3Interface {
     /// @notice Returns the latest round data from the price feed.
     /// @return roundId         The round ID of this data point.

@@ -14,7 +14,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {IJurorRegistry} from "./interfaces/IJurorRegistry.sol";
 
 // `is IJurorRegistry` means JurorRegistry must implement every function declared
-// in the interface. The compiler enforces this — if a function is missing it won't compile.
+// in the interface. The compiler enforces this - if a function is missing it won't compile.
 // `is ReentrancyGuard` mixes in the reentrancy protection.
 
 /// @title JurorRegistry
@@ -23,7 +23,7 @@ import {IJurorRegistry} from "./interfaces/IJurorRegistry.sol";
 ///         Arbitration slashes minority voters and locks stake during active disputes.
 contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // ─── Constants ───────────────────────────────────────────────────────────
-    // `constant` means the value is baked into the bytecode at compile time —
+    // `constant` means the value is baked into the bytecode at compile time -
     // reading it costs zero gas because it never touches storage.
 
     /// @notice Minimum ETH required to register as a juror (0.01 ETH).
@@ -58,7 +58,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     mapping(address juror => JurorInfo info) private _jurors;
 
     // A flat list of all juror addresses ever registered.
-    // Used by `eligibleJurorCount()` to iterate — acceptable because the juror pool
+    // Used by `eligibleJurorCount()` to iterate - acceptable because the juror pool
     // is expected to be small (hundreds, not millions).
     address[] private _jurorList;
 
@@ -144,7 +144,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @notice Deploys JurorRegistry and binds it to the Arbitration contract.
     /// @param arbitration_ Address of the Arbitration contract.
     constructor(address arbitration_) {
-        // Reject the zero address — a typo here would brick the contract's
+        // Reject the zero address - a typo here would brick the contract's
         // ability to call back into Arbitration.
         if (arbitration_ == address(0)) revert ZeroAddress();
         ARBITRATION = arbitration_;
@@ -153,7 +153,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // ─── Public actions ──────────────────────────────────────────────────────
 
     // Anyone can register as a juror by sending at least MIN_STAKE ETH.
-    // `external payable` — callable only from outside the contract, accepts ETH.
+    // `external payable` - callable only from outside the contract, accepts ETH.
     // `msg.value` is the amount of ETH sent with the transaction (in wei).
 
     /// @notice Register as a juror by staking ETH. Emits {Registered}.
@@ -180,7 +180,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     }
 
     // A registered juror can top up their stake at any time.
-    // Adding stake resets the lock period — you can't deposit and immediately withdraw.
+    // Adding stake resets the lock period - you can't deposit and immediately withdraw.
 
     /// @notice Add more stake to an existing juror registration. Emits {StakeAdded}.
     function addStake() external payable {
@@ -196,9 +196,9 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     }
 
     // Withdraw some or all stake. Three safety checks prevent abuse:
-    //   1. Lock period — skin in the game; can't register and immediately exit.
-    //   2. Active disputes — can't pull stake while judging a live case.
-    //   3. Sufficient balance — can't withdraw more than you deposited.
+    //   1. Lock period - skin in the game; can't register and immediately exit.
+    //   2. Active disputes - can't pull stake while judging a live case.
+    //   3. Sufficient balance - can't withdraw more than you deposited.
     // `nonReentrant` prevents a malicious receive() hook from calling unstake again
     // before the first call updates the storage balance.
 
@@ -276,7 +276,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
             j.reputation = 0;
         }
 
-        // Deactivate if slashed below minimum — prevents them from voting again
+        // Deactivate if slashed below minimum - prevents them from voting again
         // on another dispute until they top up their stake.
         if (j.stake < MIN_STAKE) j.active = false;
 
@@ -321,7 +321,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     }
 
     // Counts how many jurors are currently eligible to vote.
-    // Iterates the entire list — this is fine for a small registry but would
+    // Iterates the entire list - this is fine for a small registry but would
     // need a different pattern (e.g. a separate counter) for a very large pool.
 
     /// @notice Counts currently eligible jurors by iterating the full registry.
@@ -339,7 +339,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
             }
         }
         // Solidity named return: `count` was declared in the signature, so no
-        // explicit `return count;` is needed — it's returned automatically.
+        // explicit `return count;` is needed - it's returned automatically.
     }
 
     /// @notice Returns the unix timestamp after which the juror is re-eligible to vote.

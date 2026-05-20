@@ -82,7 +82,7 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 
 	if (isSuccess)
 		return (
-			<p className="text-xs text-green-400">Work submitted — waiting for client approval.</p>
+			<p className="text-xs text-green-400">Work submitted - waiting for client approval.</p>
 		);
 
 	return (

@@ -48,7 +48,7 @@ reviews:
               - Coverage of the happy path, all revert conditions, and boundary values.
               - Use of `vm.expectRevert` for every documented failure mode.
               - Fuzz tests (`testFuzz_*`) where inputs are unbounded (amounts, addresses).
-              - No hardcoded addresses — use `makeAddr()` or `vm.addr()`.
+              - No hardcoded addresses - use `makeAddr()` or `vm.addr()`.
 
         - path: "contracts/script/**/*.sol"
           instructions: |

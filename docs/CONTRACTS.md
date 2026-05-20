@@ -64,8 +64,8 @@ Creates an escrow contract and locks funds. For ETH: set `token = address(0)`, `
 
 Reverts with `EnforcedPause` when the contract is paused. Call `unpause()` first.
 
-`contractHash` must be the `keccak256` of the document bytes (not the URI string) and must be non-zero — the contract enforces `contractHash != bytes32(0)`. Computing the hash off-chain before uploading to IPFS ensures on-chain tamper detection covers file content, not just the pointer.
-`contractURI` must be a non-empty IPFS URI (e.g. `ipfs://<CID>`); both are required — passing a zero hash or empty URI reverts with `EmptyHash` or `EmptyURI`.
+`contractHash` must be the `keccak256` of the document bytes (not the URI string) and must be non-zero - the contract enforces `contractHash != bytes32(0)`. Computing the hash off-chain before uploading to IPFS ensures on-chain tamper detection covers file content, not just the pointer.
+`contractURI` must be a non-empty IPFS URI (e.g. `ipfs://<CID>`); both are required - passing a zero hash or empty URI reverts with `EmptyHash` or `EmptyURI`.
 
 Emits `ContractCreated`.
 
@@ -105,7 +105,7 @@ function submitProofOfWork(
 ) external
 ```
 
-Freelancer submits a `keccak256` hash of the deliverable and an IPFS URI. Both are enforced: `powHash` must be non-zero and `powURI` must be non-empty — passing either as zero/empty reverts with `EmptyHash` or `EmptyURI`.
+Freelancer submits a `keccak256` hash of the deliverable and an IPFS URI. Both are enforced: `powHash` must be non-zero and `powURI` must be non-empty - passing either as zero/empty reverts with `EmptyHash` or `EmptyURI`.
 The hash must be computed from the actual file bytes before upload; this lets the client (and any future auditor) independently verify the delivered file matches what was committed on-chain. Sets `acceptanceDeadline = block.timestamp + acceptanceWindow`. Status transitions to `SUBMITTED`.
 
 Emits `ProofSubmitted`.
@@ -194,9 +194,9 @@ Links a `PENDING` replacement contract to its `CANCELLED` predecessor, establish
 
 Amendment flow:
 
-1. `cancelPending(oldId)` — invalidates the existing contract, returns funds.
-2. `createContract(...)` — creates the replacement with updated terms and a new `contractHash`.
-3. `linkAmendment(newId, oldId)` — records the on-chain link; the `previousContractId` field on the new contract becomes `oldId`.
+1. `cancelPending(oldId)` - invalidates the existing contract, returns funds.
+2. `createContract(...)` - creates the replacement with updated terms and a new `contractHash`.
+3. `linkAmendment(newId, oldId)` - records the on-chain link; the `previousContractId` field on the new contract becomes `oldId`.
 
 Each cancelled contract produces a new contract ID with a distinct hash, so the full renegotiation history is permanently visible on-chain.
 
@@ -442,7 +442,7 @@ Finalizes the dispute after the reveal window closes. Computes the median ruling
 **Tiered slashing** is applied based on how far a minority vote deviates from the median:
 
 - Deviation ≤ 30 pct-points: standard slash (10% of stake).
-- Deviation > 30 pct-points: severe slash (20% of stake). Extreme outliers — characteristic of bribed or colluding jurors — are penalized more heavily.
+- Deviation > 30 pct-points: severe slash (20% of stake). Extreme outliers - characteristic of bribed or colluding jurors - are penalized more heavily.
 
 Non-reveal jurors always receive the standard slash (10%).
 

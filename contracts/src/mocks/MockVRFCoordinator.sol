@@ -26,7 +26,7 @@ interface IVRFFulfiller {
 contract MockVRFCoordinator {
     // ─── State ────────────────────────────────────────────────────────────────
 
-    // Monotonically increasing request ID counter — starts at 1 so 0 is never a valid ID.
+    // Monotonically increasing request ID counter - starts at 1 so 0 is never a valid ID.
     uint256 private _nextRequestId = 1;
 
     // Retained so tests can assert that a request was made and retrieve its ID.
@@ -35,15 +35,15 @@ contract MockVRFCoordinator {
     // ─── IVRFCoordinator interface ────────────────────────────────────────────
 
     /// @notice Record a VRF randomness request and return a unique request ID.
-    ///         Ignores all coordinator-specific parameters — they are only present
+    ///         Ignores all coordinator-specific parameters - they are only present
     ///         to satisfy the IVRFCoordinator interface that Arbitration calls.
     /// @return requestId Monotonically increasing ID assigned to this request.
     function requestRandomWords(
-        bytes32, // keyHash — gas lane; ignored in tests
-        uint64, // subId — VRF subscription; ignored in tests
-        uint16, // minimumRequestConfirmations — ignored in tests
-        uint32, // callbackGasLimit — ignored in tests
-        uint32 // numWords — ignored; tests supply words manually via fulfillWithWords()
+        bytes32, // keyHash - gas lane; ignored in tests
+        uint64, // subId - VRF subscription; ignored in tests
+        uint16, // minimumRequestConfirmations - ignored in tests
+        uint32, // callbackGasLimit - ignored in tests
+        uint32 // numWords - ignored; tests supply words manually via fulfillWithWords()
     )
         external
         returns (uint256 requestId)

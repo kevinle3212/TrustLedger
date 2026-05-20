@@ -8,7 +8,7 @@ import {IReputationRegistry} from "./interfaces/IReputationRegistry.sol";
 // can rate each other once per contract; TrustLedger enforces the "once-each" rule.
 //
 // `is IReputationRegistry` means this contract must implement every function in
-// the interface. The compiler enforces this — a missing function is a compile error.
+// the interface. The compiler enforces this - a missing function is a compile error.
 
 /// @title ReputationRegistry
 /// @author Kevin Le, Kellen Snider

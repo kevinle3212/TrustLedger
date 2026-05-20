@@ -142,7 +142,7 @@ function CommitForm({
 		<form onSubmit={handleCommit} className="flex flex-col gap-3">
 			<p className="text-xs text-gray-400">
 				Choose a completion percentage (0 = fully refund client, 100 = fully pay
-				freelancer). A random salt will be generated and saved locally — do not clear your
+				freelancer). A random salt will be generated and saved locally - do not clear your
 				browser storage before revealing.
 			</p>
 			<div className="flex items-center gap-4">
@@ -449,7 +449,7 @@ export default function ArbitrationPage(): React.JSX.Element {
 					!phaseDeadlinePassed && (
 						<div className="flex flex-col gap-2">
 							<p className="text-xs font-medium text-yellow-300">
-								You are selected — commit your vote
+								You are selected - commit your vote
 							</p>
 							<CommitForm disputeId={disputeId} address={address} />
 						</div>
@@ -511,7 +511,7 @@ export default function ArbitrationPage(): React.JSX.Element {
 				{canExecute && (
 					<div className="flex flex-col gap-1">
 						<p className="text-xs text-gray-400">
-							Appeal window elapsed — ruling can be executed.
+							Appeal window elapsed - ruling can be executed.
 						</p>
 						<PermissionlessButton
 							label="Execute Ruling"

@@ -1,4 +1,4 @@
-// test/TrustLedger.test.ts — Hardhat/Mocha/Chai test suite for TrustLedger.
+// test/TrustLedger.test.ts - Hardhat/Mocha/Chai test suite for TrustLedger.
 // This file mirrors the Foundry unit tests but uses TypeScript + ethers.js,
 // testing the same contract through the JavaScript ecosystem tools.
 //
@@ -597,7 +597,7 @@ describe("TrustLedger", function () {
 
 		it("should revert acceptContract with bad signature", async function () {
 			const id = await createContract();
-			// Sign with a wrong address — ecrecover will return a different address.
+			// Sign with a wrong address - ecrecover will return a different address.
 			const wrongSig = await stranger.signMessage(ethers.toUtf8Bytes("wrong message"));
 			const { v, r, s } = ethers.Signature.from(wrongSig);
 			await expect(
@@ -999,7 +999,7 @@ describe("TrustLedger", function () {
 				4n,
 			]);
 
-			// stranger (signers[2]) was not pre-selected — must revert
+			// stranger (signers[2]) was not pre-selected - must revert
 			const commitment = ethers.keccak256(ethers.toUtf8Bytes("fake"));
 			await expect(
 				arbitration.connect(stranger).commitVote(0n, commitment),
@@ -1158,7 +1158,7 @@ describe("TrustLedger", function () {
 			await ethers.provider.send("evm_setNextBlockTimestamp", [Number(d2.phaseDeadline) + 1]);
 			await ethers.provider.send("evm_mine", []);
 
-			// All 3 jurors are majority — each gets feePool/3
+			// All 3 jurors are majority - each gets feePool/3
 			const before = await ethers.provider.getBalance(await jurors[0].getAddress());
 			const tx = await arbitration.connect(jurors[0]).claimReward(disputeId);
 			const receipt = await tx.wait();

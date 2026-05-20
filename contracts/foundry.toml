@@ -17,7 +17,7 @@ seed = "0x1"
 runs = 256
 depth = 500
 
-# CI profile — referenced by FOUNDRY_PROFILE=ci in ci.yml.
+# CI profile - referenced by FOUNDRY_PROFILE=ci in ci.yml.
 # Reduces fuzz/invariant runs to keep the CI job under 5 minutes
 # while still catching most edge cases.
 [profile.ci]
@@ -33,7 +33,7 @@ seed = "0x1"
 runs = 64
 depth = 100
 
-# Staging profile — production-identical optimizer settings with more thorough
+# Staging profile - production-identical optimizer settings with more thorough
 # fuzz/invariant coverage than CI. Includes fork tests when RPC URLs are set.
 # Run with: FOUNDRY_PROFILE=staging forge test -vvv
 [profile.staging]

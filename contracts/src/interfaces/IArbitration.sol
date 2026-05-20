@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.24;
 
-// An interface is a contract with no implementation — only function signatures.
+// An interface is a contract with no implementation - only function signatures.
 // It serves two purposes:
 //   1. Lets TrustLedger call Arbitration without importing its full bytecode.
 //   2. Forces Arbitration to implement exactly these functions (enforced at compile time).
@@ -13,7 +13,7 @@ pragma solidity ^0.8.24;
 /// @notice Minimal interface for TrustLedger to open disputes in the Arbitration contract.
 interface IArbitration {
     // Called by TrustLedger when a client disputes submitted work.
-    // The `payable` keyword means ETH is transferred alongside this call —
+    // The `payable` keyword means ETH is transferred alongside this call -
     // specifically, the arbitration fee pool deducted from the escrow amount.
     // Returns a unique disputeId so TrustLedger can track which dispute belongs
     // to which escrow contract.

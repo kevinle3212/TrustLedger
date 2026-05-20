@@ -33,7 +33,7 @@ cd TrustLedger
 npm install
 ```
 
-No `forge install` is needed — Foundry dependencies (`forge-std`, `openzeppelin-contracts`) are committed directly to `contracts/lib/`.
+No `forge install` is needed - Foundry dependencies (`forge-std`, `openzeppelin-contracts`) are committed directly to `contracts/lib/`.
 
 ---
 
@@ -79,7 +79,7 @@ Both compilers use the same settings: `solc 0.8.24`, `optimizer_runs = 200`.
 
 ## Local Development
 
-### Option A — Docker (no local toolchain required)
+### Option A - Docker (no local toolchain required)
 
 If you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed, this is the fastest path. Node.js and Foundry do not need to be installed on your machine.
 
@@ -92,15 +92,15 @@ docker compose build          # one-time image build (~2-3 min)
 
 docker compose up demo-good   # happy path: create → accept → submit → approve → payout
 docker compose up demo-bad    # dispute flow: create → accept → submit → dispute → vote → ruling
-docker compose up node        # chain only — connect MetaMask to http://localhost:8545
+docker compose up node        # chain only - connect MetaMask to http://localhost:8545
 docker compose run test       # full Hardhat + Foundry test suite
 ```
 
-The `node` service exposes the chain at `http://localhost:8545` (chain ID 31337). Private keys for all 20 test accounts are printed on startup — import any of them into MetaMask to interact manually.
+The `node` service exposes the chain at `http://localhost:8545` (chain ID 31337). Private keys for all 20 test accounts are printed on startup - import any of them into MetaMask to interact manually.
 
 ---
 
-### Option B — Local toolchain
+### Option B - Local toolchain
 
 ### 1. Start a local Hardhat chain
 
@@ -126,7 +126,7 @@ This deploys `JurorRegistry`, `TrustLedger`, and `Arbitration` in the correct or
 npm run start:deploy:local
 ```
 
-This compiles, starts the local node in the background, waits for it to be ready, then deploys. The node keeps running after the deploy — stop it with `pkill -f "hardhat node"` when done.
+This compiles, starts the local node in the background, waits for it to be ready, then deploys. The node keeps running after the deploy - stop it with `pkill -f "hardhat node"` when done.
 
 ### 3. Run the demo scripts
 
@@ -230,16 +230,16 @@ npm run foundry:test:fork       # fork tests only (requires FORK_URL in .env)
 # Run all linters
 npm run lint
 
-# Solhint — Solidity style and security rules
+# Solhint - Solidity style and security rules
 npm run lint:sol
 
-# ESLint — TypeScript style rules
+# ESLint - TypeScript style rules
 npm run lint:ts
 
-# Prettier — check formatting for all files
+# Prettier - check formatting for all files
 npm run lint:prettier
 
-# Forge fmt — Solidity formatting
+# Forge fmt - Solidity formatting
 cd contracts && forge fmt --check
 ```
 
@@ -280,7 +280,7 @@ Re-run `nexus:index` after large refactors to keep the graph current. The genera
 
 ## Frontend Development
 
-The `src/` directory is a standalone Next.js 16 package. It has its own `package.json` and `node_modules` — it is not part of the root npm workspace.
+The `src/` directory is a standalone Next.js 16 package. It has its own `package.json` and `node_modules` - it is not part of the root npm workspace.
 
 ### Install
 
@@ -291,18 +291,18 @@ npm install
 
 ### Environment variables
 
-All frontend env vars are read from the root `.env` file by `next.config.ts` — no `src/.env.local` is needed.
+All frontend env vars are read from the root `.env` file by `next.config.ts` - no `src/.env.local` is needed.
 
 | Variable                               | Description                                                                                                                                                                        |
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Free ID from [cloud.walletconnect.com](https://cloud.walletconnect.com). Already in root `.env`.                                                                                   |
-| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Locally: auto-resolved from `artifacts/deployed-addresses.json`. On Vercel: must be set as an env var — `deploy.yml` does this automatically after each contract deploy.           |
-| `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Same as above — resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
-| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Same as above — resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`      | Locally: auto-resolved from `artifacts/deployed-addresses.json`. On Vercel: must be set as an env var - `deploy.yml` does this automatically after each contract deploy.           |
+| `NEXT_PUBLIC_ARBITRATION_ADDRESS`      | Same as above - resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
+| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`   | Same as above - resolves from JSON locally, Vercel env var in CI. Auto-updated by `deploy.yml`.                                                                                    |
 | `NEXT_BASE_PATH`                       | URL prefix. `NEXT_BASE_PATH=` (empty) serves from root `/`. Already set in root `.env`.                                                                                            |
 | `NEXT_PUBLIC_PINATA_JWT`               | Pinata JWT for IPFS uploads. Get at [pinata.cloud](https://pinata.cloud) → API Keys.                                                                                               |
 | `NEXT_PUBLIC_APP_URL`                  | Base URL for magic links in emails (e.g. `http://localhost:3000`).                                                                                                                 |
-| `NEXT_PUBLIC_GITHUB_URL`               | Source code link shown in the navbar. On Vercel, auto-constructed from `VERCEL_GIT_REPO_OWNER`/`VERCEL_GIT_REPO_SLUG` — no manual config needed. Set in root `.env` for local dev. |
+| `NEXT_PUBLIC_GITHUB_URL`               | Source code link shown in the navbar. On Vercel, auto-constructed from `VERCEL_GIT_REPO_OWNER`/`VERCEL_GIT_REPO_SLUG` - no manual config needed. Set in root `.env` for local dev. |
 | `MAGIC_LINK_SECRET`                    | Random 32-byte hex secret for HMAC-signing magic link tokens. Generate: `openssl rand -hex 32`. **Never expose.**                                                                  |
 | `RESEND_API_KEY`                       | Email delivery key from [resend.com/api-keys](https://resend.com/api-keys). **Never expose.**                                                                                      |
 | `RESEND_FROM`                          | Verified sender address (e.g. `TrustLedger <noreply@yourdomain.com>`). Use `onboarding@resend.dev` for local dev.                                                                  |
@@ -312,10 +312,10 @@ All frontend env vars are read from the root `.env` file by `next.config.ts` —
 Start the contracts node and compile first (if interacting with the local chain):
 
 ```bash
-# repo root — terminal 1
+# repo root - terminal 1
 npm run node
 
-# repo root — terminal 2
+# repo root - terminal 2
 npm run compile && npm run hardhat:deploy:local
 ```
 
@@ -368,10 +368,10 @@ Deploys all three contracts, prints addresses to the console, and writes them to
 ### Foundry (npm scripts)
 
 ```bash
-# Dry-run — simulate against Sepolia, no broadcast (also runs foundry:build first)
+# Dry-run - simulate against Sepolia, no broadcast (also runs foundry:build first)
 npm run start:deploy:dry-run
 
-# Live deploy — broadcast + Etherscan verification (also runs foundry:build first)
+# Live deploy - broadcast + Etherscan verification (also runs foundry:build first)
 npm run start:deploy:foundry
 
 # Or call the underlying scripts directly
@@ -424,11 +424,11 @@ Prints the balance of the configured deployer wallet on the connected network.
 
 Two hooks are enforced automatically via [Husky](https://typicode.github.io/husky/) on every commit.
 
-### pre-commit — linting and formatting
+### pre-commit - linting and formatting
 
 Runs `npm run lint` (ESLint + Solhint) and `npm run lint:prettier` (Prettier format check) before the commit is recorded. If any error is found the commit is aborted. Fix the errors and re-run `git commit`.
 
-### commit-msg — conventional commits
+### commit-msg - conventional commits
 
 Runs [commitlint](https://commitlint.js.org/) against the commit message using the `@commitlint/config-conventional` ruleset. The message must follow the pattern:
 
@@ -453,7 +453,7 @@ If the commit message is rejected, amend it with `git commit --amend` and try ag
 
 ## Code Style
 
-- **Solidity:** `forge fmt` for formatting; `solhint` for rules. No magic numbers — use named constants. Custom errors over `require` strings.
+- **Solidity:** `forge fmt` for formatting; `solhint` for rules. No magic numbers - use named constants. Custom errors over `require` strings.
 - **TypeScript:** `eslint` + `prettier`. Strict mode. `node:` prefix on built-in imports.
 - **Commits:** Follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, etc.). Enforced automatically by the `commit-msg` hook.
 

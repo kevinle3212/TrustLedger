@@ -326,7 +326,7 @@ contract JurorRegistryTest is Test {
         vm.prank(arbSim);
         registry.unlockFromDispute(juror1);
 
-        // Warp to the exact cooldown expiry stored in the contract — avoids any
+        // Warp to the exact cooldown expiry stored in the contract - avoids any
         // IR-optimizer constant-folding issue with block.timestamp + COOLDOWN_PERIOD.
         vm.warp(uint256(registry.getCooldownUntil(juror1)));
         assertTrue(registry.isEligible(juror1), "should be eligible after cooldown expires");
@@ -426,7 +426,7 @@ contract JurorRegistryTest is Test {
 
     function _getJuror(address juror) internal view returns (IJurorInfo memory) {
         JurorRegistry.JurorInfo memory j = registry.getJuror(juror);
-        // Manually copy each field — Solidity can't implicitly convert between two
+        // Manually copy each field - Solidity can't implicitly convert between two
         // structs with identical fields defined in different scopes.
         return IJurorInfo({
             addr: j.addr,

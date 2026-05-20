@@ -15,14 +15,14 @@ This policy will be updated when mainnet deployment occurs.
 
 ### Before deploying to mainnet
 
-- [ ] **Independent audit** — Have the contracts audited by at least one reputable third-party security firm. Pay particular attention to `TrustLedger.sol` (escrow custody), `Arbitration.sol` (fee pool and ruling execution), and `JurorRegistry.sol` (stake slashing).
-- [ ] **Token flow review** — Trace every ETH path end-to-end: deposit → escrow hold → payout / refund / fee split. Confirm no ETH can become permanently locked (check all `revert` paths, fallback handling, and re-entrancy guards).
-- [ ] **Access control audit** — Verify that every privileged function (owner operations, `executeRuling`, juror selection) is callable only by the intended address and cannot be spoofed.
-- [ ] **Testnet soak** — Run a full end-to-end lifecycle on Sepolia with realistic amounts and timing before touching mainnet. Simulate dispute creation, juror commit/reveal, ruling execution, and appeal.
-- [ ] **Private key hygiene** — The `DEPLOYER_PRIVATE_KEY` used for deployment must never be reused and should be kept in a hardware wallet or secrets manager. Rotate all secrets before going live.
-- [ ] **Upgrade path / immutability** — These contracts are not upgradeable. There is no admin escape hatch. Confirm this is intentional and document the disaster-recovery plan (e.g. migrate funds to a new deployment).
-- [ ] **Oracle / timestamp risk** — The contracts rely on `block.timestamp` for deadlines. Verify that miner/validator timestamp manipulation cannot unlock funds or bypass phase transitions ahead of schedule.
-- [ ] **Formal verification (recommended)** — Run Foundry's fuzz suite with increased run counts and consider a formal verification pass on critical invariants (escrow balance ≥ sum of all held amounts, fee pool monotonicity).
+- [ ] **Independent audit** - Have the contracts audited by at least one reputable third-party security firm. Pay particular attention to `TrustLedger.sol` (escrow custody), `Arbitration.sol` (fee pool and ruling execution), and `JurorRegistry.sol` (stake slashing).
+- [ ] **Token flow review** - Trace every ETH path end-to-end: deposit → escrow hold → payout / refund / fee split. Confirm no ETH can become permanently locked (check all `revert` paths, fallback handling, and re-entrancy guards).
+- [ ] **Access control audit** - Verify that every privileged function (owner operations, `executeRuling`, juror selection) is callable only by the intended address and cannot be spoofed.
+- [ ] **Testnet soak** - Run a full end-to-end lifecycle on Sepolia with realistic amounts and timing before touching mainnet. Simulate dispute creation, juror commit/reveal, ruling execution, and appeal.
+- [ ] **Private key hygiene** - The `DEPLOYER_PRIVATE_KEY` used for deployment must never be reused and should be kept in a hardware wallet or secrets manager. Rotate all secrets before going live.
+- [ ] **Upgrade path / immutability** - These contracts are not upgradeable. There is no admin escape hatch. Confirm this is intentional and document the disaster-recovery plan (e.g. migrate funds to a new deployment).
+- [ ] **Oracle / timestamp risk** - The contracts rely on `block.timestamp` for deadlines. Verify that miner/validator timestamp manipulation cannot unlock funds or bypass phase transitions ahead of schedule.
+- [ ] **Formal verification (recommended)** - Run Foundry's fuzz suite with increased run counts and consider a formal verification pass on critical invariants (escrow balance ≥ sum of all held amounts, fee pool monotonicity).
 
 Skipping any item above before a mainnet deployment puts real user funds at risk.
 
@@ -45,7 +45,7 @@ Skipping any item above before a mainnet deployment puts real user funds at risk
 
 ### Out of scope
 
-- Vulnerabilities in third-party dependencies (OpenZeppelin, Hardhat, ethers.js) — report those to their maintainers directly
+- Vulnerabilities in third-party dependencies (OpenZeppelin, Hardhat, ethers.js) - report those to their maintainers directly
 - Issues in `contracts/lib/` (forge-std, openzeppelin-contracts submodules)
 - Findings on already-deployed testnet contracts with no real funds at risk
 - Gas optimization suggestions (not security issues)
@@ -65,7 +65,7 @@ Use the subject line: `[TrustLedger Security] <short description>`
 
 - A clear description of the vulnerability
 - Which contract(s) and function(s) are affected
-- A proof-of-concept — a Foundry test (`forge test`) or a step-by-step reproduction is ideal
+- A proof-of-concept - a Foundry test (`forge test`) or a step-by-step reproduction is ideal
 - The impact: what an attacker could do and under what conditions
 - Your suggested severity (see below)
 

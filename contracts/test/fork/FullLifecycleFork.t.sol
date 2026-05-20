@@ -8,7 +8,7 @@ pragma solidity ^0.8.24;
 // solhint-disable gas-small-strings
 // solhint-disable ordering
 
-// Fork integration tests — exercise the full contract lifecycle against a forked
+// Fork integration tests - exercise the full contract lifecycle against a forked
 // chain instead of a fresh in-memory EVM. This catches issues that only appear
 // when the deployed nonce sequence, gas prices, or chain state differ from a
 // blank slate (the usual unit-test environment).

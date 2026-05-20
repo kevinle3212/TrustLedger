@@ -12,7 +12,7 @@ const arweave = Arweave.init({
 	protocol: "https",
 });
 
-// Shape of an Arweave JWK — the parsed contents of a wallet .json file.
+// Shape of an Arweave JWK - the parsed contents of a wallet .json file.
 export type ArweaveJWK = Parameters<typeof arweave.wallets.jwkToAddress>[0];
 
 // Upload bytes to Arweave and return an "ar://<txId>" URI.

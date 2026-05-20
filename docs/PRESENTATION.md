@@ -1,4 +1,4 @@
-# TrustLedger — OBG Presentation Notes
+# TrustLedger - OBG Presentation Notes
 
 Presenter: Kevin Le, Kellen Snider
 
@@ -8,10 +8,10 @@ Presenter: Kevin Le, Kellen Snider
 
 Freelancing is a $1.5 trillion global market. Every week, freelancers and clients deal with:
 
-- **Ghost clients** — clients who approve work but never pay.
-- **Scope creep** — clients who refuse payment claiming work was "incomplete."
-- **No recourse** — centralized platforms (Upwork, Fiverr) take 20% and resolve disputes opaquely.
-- **Volatility risk** — dollar-denominated agreements paid in ETH after weeks of price movement.
+- **Ghost clients** - clients who approve work but never pay.
+- **Scope creep** - clients who refuse payment claiming work was "incomplete."
+- **No recourse** - centralized platforms (Upwork, Fiverr) take 20% and resolve disputes opaquely.
+- **Volatility risk** - dollar-denominated agreements paid in ETH after weeks of price movement.
 
 **The question:** Can smart contracts replace the middleman entirely?
 
@@ -23,7 +23,7 @@ TrustLedger is a decentralized escrow and dispute resolution protocol for freela
 
 A client locks funds in a contract. The freelancer completes the work. If everyone agrees, funds release automatically. If there is a dispute, a panel of staked jurors votes on a completion percentage, and funds split accordingly.
 
-> No platform fee. No company. No trust required — only math and cryptography.
+> No platform fee. No company. No trust required - only math and cryptography.
 
 **Live demo:** [https://trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app) (hosted on Vercel, Ethereum Sepolia testnet)
 
@@ -97,13 +97,13 @@ Step 4:  Deploy Arbitration(trustLedger, jurorRegistry)  ← nonce + 2
          ✓ assert arbitration.address == arbitrationAddr
 
 Step 5:  (Optional) TrustLedger.initPriceFeed(chainlinkFeed)
-         // function implemented; not called in deploy scripts — requires a live Chainlink ETH/USD feed address
+         // function implemented; not called in deploy scripts - requires a live Chainlink ETH/USD feed address
 Step 6:  (Optional) TrustLedger.initReputationRegistry(reputationRegistry)
-         // function implemented; not called in deploy scripts — depends on ReputationRegistry address from Step 8
+         // function implemented; not called in deploy scripts - depends on ReputationRegistry address from Step 8
 Step 7:  (Optional) Arbitration.initVrfCoordinator(vrfCoordinator)
-         // function implemented; not called in deploy scripts — requires a funded Chainlink VRF v2 subscription
+         // function implemented; not called in deploy scripts - requires a funded Chainlink VRF v2 subscription
 Step 8:  Deploy ReputationRegistry(trustLedger)
-         // contract implemented in src/ — not yet included in either deploy script
+         // contract implemented in src/ - not yet included in either deploy script
 ```
 
 No owner or admin role. Once deployed, the addresses are immutable.
@@ -147,7 +147,7 @@ if (signer != c.freelancer) revert InvalidSignature();
 
 ## Feature: Commit-Reveal Voting
 
-Jurors vote in secret. No one can see the crowd forming and pile on at the last second. Votes are revealed only after the commit window closes — and any deviation from the original commitment is rejected.
+Jurors vote in secret. No one can see the crowd forming and pile on at the last second. Votes are revealed only after the commit window closes - and any deviation from the original commitment is rejected.
 
 The commitment is `keccak256(disputeId, jurorAddress, completionPct, salt)`. The salt is a 32-byte random secret the juror keeps off-chain. During reveal, the contract re-derives the hash and compares it to the stored commitment. A mismatch reverts.
 
@@ -162,7 +162,7 @@ Finalize:              median of revealed votes becomes the ruling
 
 ## Feature: Verifiable Random Juror Selection
 
-When Chainlink VRF is configured, no one — not even the deployer — can predict or manipulate which jurors are chosen. The selection is provably random.
+When Chainlink VRF is configured, no one - not even the deployer - can predict or manipulate which jurors are chosen. The selection is provably random.
 
 On `openDispute()`, a VRF randomness request is sent to the Chainlink coordinator. The coordinator calls `fulfillRandomWords()` with verified random numbers. Each word selects a candidate from the eligible pool using modulo. Parties and ineligible jurors are skipped. Pre-selected jurors are the only addresses allowed to `commitVote()`.
 
@@ -181,7 +181,7 @@ Without VRF: any eligible juror self-selects by calling `commitVote()` (legacy m
 
 ## Feature: Partial Completion Rulings
 
-Disputes are not binary. A freelancer who completed 70% of the work gets 70% of the payment — proportionally — not nothing.
+Disputes are not binary. A freelancer who completed 70% of the work gets 70% of the payment - proportionally - not nothing.
 
 Jurors vote `completionPct` in `[0, 100]`. The median vote is the ruling. The payout formula shares the arbitration fee burden proportionally between both parties:
 
@@ -295,7 +295,7 @@ The ETH/USD value of the escrowed amount is locked on-chain at creation. Both pa
 
 Both parties rate each other after every completed contract. Scores accumulate permanently on-chain. Freelancers with a history of disputes have lower reputations. So do clients who ghost or behave badly.
 
-After a contract reaches `APPROVED` or `RESOLVED`, either party calls `submitRating(id, score)` with a score in `[1, 100]`. TrustLedger calls `ReputationRegistry.rate(counterparty, score)`. Only TrustLedger can write ratings — no third party can manipulate scores. Each party can rate only once per contract.
+After a contract reaches `APPROVED` or `RESOLVED`, either party calls `submitRating(id, score)` with a score in `[1, 100]`. TrustLedger calls `ReputationRegistry.rate(counterparty, score)`. Only TrustLedger can write ratings - no third party can manipulate scores. Each party can rate only once per contract.
 
 ```solidity
 function averageRating(address user) external view
@@ -312,8 +312,8 @@ function averageRating(address user) external view
 | Smart contracts     | Solidity 0.8.24                           | Latest stable; custom errors, `immutable`, named mappings |
 | EVM network         | Ethereum Sepolia (testnet)                | Native L1 settlement; no bridging required                |
 | Security library    | OpenZeppelin 5.x `ReentrancyGuard`        | Industry-standard reentrancy protection                   |
-| Oracle — price      | Chainlink AggregatorV3Interface           | Decentralized, tamper-resistant ETH/USD feed              |
-| Oracle — randomness | Chainlink VRF v2                          | On-chain verifiable random juror selection                |
+| Oracle - price      | Chainlink AggregatorV3Interface           | Decentralized, tamper-resistant ETH/USD feed              |
+| Oracle - randomness | Chainlink VRF v2                          | On-chain verifiable random juror selection                |
 | Off-chain storage   | IPFS                                      | Content-addressed; hashes verifiable on-chain             |
 | Solidity testing    | Foundry (`forge test`)                    | Native Solidity, fast, 10k fuzz runs per suite            |
 | TS testing          | Hardhat 2.x + Mocha + Chai + ethers.js v6 | Full integration tests with TypeChain types               |
@@ -324,7 +324,7 @@ function averageRating(address user) external view
 
 ---
 
-## Hardhat and Foundry — Two Toolchains, One Codebase
+## Hardhat and Foundry - Two Toolchains, One Codebase
 
 Both tools compile the same Solidity source files with the same compiler settings
 (`solc 0.8.24`, `optimizer_runs = 200`, `via_ir = true`). They serve different roles.
@@ -337,16 +337,16 @@ Both tools compile the same Solidity source files with the same compiler setting
   correct nonce order and write addresses to `artifacts/deployed-addresses.json` for the frontend.
 - 73 integration tests (`test/TrustLedger.test.ts`) simulate multi-wallet flows in TypeScript.
   TypeChain generates typed contract wrappers so every function call is checked at compile time.
-- Balance diffs, event assertions, and revert messages are verified in plain TypeScript —
+- Balance diffs, event assertions, and revert messages are verified in plain TypeScript -
   readable by anyone who knows JavaScript.
 
 **Foundry** is the contract-native performance layer:
 
 - 65 unit tests written in Solidity (`contracts/test/`) run with `vm.prank`, `vm.warp`,
-  `vm.deal`, and `vm.expectRevert` cheatcodes. No Node.js overhead — tests finish in seconds.
+  `vm.deal`, and `vm.expectRevert` cheatcodes. No Node.js overhead - tests finish in seconds.
 - 7 fuzz tests (`PayoutFuzz.t.sol`) run 10,000 random inputs each, proving payout conservation
   and formula correctness hold for the full `uint128` range.
-- Gas reporting (`npm run foundry:gas`) shows per-function min/mean/max gas costs — used to catch
+- Gas reporting (`npm run foundry:gas`) shows per-function min/mean/max gas costs - used to catch
   regressions before deployment.
 - `Deploy.s.sol` is a Solidity deployment script that precomputes the `Arbitration` address using
   the deployer's nonce, deploys all three contracts in order, asserts addresses match, and logs
@@ -362,7 +362,7 @@ hardhat:deploy:sepolia           foundry:deploy:sepolia
 artifacts/deployed-addresses.json  broadcast/ receipts
 ```
 
-Both toolchains are available as npm scripts — no need to call `forge` or `hardhat` directly.
+Both toolchains are available as npm scripts - no need to call `forge` or `hardhat` directly.
 
 ---
 
@@ -403,7 +403,7 @@ Both toolchains are available as npm scripts — no need to call `forge` or `har
 
 ## How to Recreate This Locally
 
-### Option A — Docker (no toolchain install needed)
+### Option A - Docker (no toolchain install needed)
 
 Requires only [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
@@ -417,7 +417,7 @@ docker compose up demo-good # happy path
 docker compose up demo-bad  # dispute flow
 ```
 
-### Option B — Local toolchain
+### Option B - Local toolchain
 
 **Prerequisites:** Node.js ≥ 22, npm, Foundry, Git
 
@@ -470,9 +470,9 @@ npm run hardhat:test        # 73 tests: ETH, ERC-20, VRF, appeals, reputation
 ### Linting
 
 ```bash
-npm run lint:sol             # Solhint — Solidity style and security
-npm run lint:ts              # ESLint — TypeScript
-npm run lint:prettier        # Prettier — formatting check
+npm run lint:sol             # Solhint - Solidity style and security
+npm run lint:ts              # ESLint - TypeScript
+npm run lint:prettier        # Prettier - formatting check
 ```
 
 **Test coverage summary:**

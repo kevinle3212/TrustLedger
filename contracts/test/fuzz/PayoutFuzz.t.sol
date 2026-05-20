@@ -85,7 +85,7 @@ contract PayoutFuzz is Test {
     // ─── Payout conservation invariant ───────────────────────────────────────
     // INVARIANT: for any valid (completionPct, amount, arbitrationFeeBps),
     //   freelancerPay + clientRefund == amount - feePool
-    // This means no ETH is lost or created by the ruling — it's a zero-sum split.
+    // This means no ETH is lost or created by the ruling - it's a zero-sum split.
     function testFuzz_PayoutConservation(
         uint8 completionPct, // Foundry generates random uint8 values (0-255)
         uint128 amount, // uint128 keeps intermediate math within uint256 range

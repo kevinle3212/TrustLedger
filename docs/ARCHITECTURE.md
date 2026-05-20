@@ -1,6 +1,6 @@
 # Architecture
 
-TrustLedger is a four-contract system deployed on Ethereum. The contracts communicate through well-defined interfaces with no owner or admin role — every state transition is enforced by the EVM.
+TrustLedger is a four-contract system deployed on Ethereum. The contracts communicate through well-defined interfaces with no owner or admin role - every state transition is enforced by the EVM.
 
 ---
 
@@ -83,7 +83,7 @@ TrustLedger is a four-contract system deployed on Ethereum. The contracts commun
 
 ---
 
-## Scenario A — Happy Path
+## Scenario A - Happy Path
 
 ### On-chain flow
 
@@ -155,7 +155,7 @@ store is required.
 
 ---
 
-## Scenario B — Dispute Flow
+## Scenario B - Dispute Flow
 
 ```text
 Client              TrustLedger          Arbitration          JurorRegistry
@@ -419,7 +419,7 @@ EVM storage slots are 32 bytes each. Field ordering in structs is packed to mini
 | 9    | `proofOfWorkURI` (string, dynamic)                                                               | 32+        |
 | 10   | `token` (address 20)                                                                             | 20         |
 | 11   | `usdValueAtCreation` (256)                                                                       | 32         |
-| 12   | `previousContractId` (256) — `type(uint256).max` if no predecessor                               | 32         |
+| 12   | `previousContractId` (256) - `type(uint256).max` if no predecessor                               | 32         |
 
 ### `TrustLedger` contract-level state (outside `EscrowContract`)
 
@@ -465,7 +465,7 @@ After each dispute finalizes, `unlockFromDispute` sets a 7-day cooldown (`JUROR_
 
 ### Sybil attacks (fake juror identities)
 
-`isEligible()` now enforces a minimum reputation of 20 (`MIN_REPUTATION`). A freshly registered Sybil account starts at reputation 100 but drops by 10 per minority vote. After 8 slashed votes the account falls below the threshold and is permanently excluded until the operator tops up reputation — which requires genuinely honest participation.
+`isEligible()` now enforces a minimum reputation of 20 (`MIN_REPUTATION`). A freshly registered Sybil account starts at reputation 100 but drops by 10 per minority vote. After 8 slashed votes the account falls below the threshold and is permanently excluded until the operator tops up reputation - which requires genuinely honest participation.
 
 ---
 

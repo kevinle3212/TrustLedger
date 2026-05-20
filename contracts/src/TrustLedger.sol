@@ -39,13 +39,13 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // it as a uint8 (0, 1, 2 …). Using an enum instead of raw numbers makes the
     // code self-documenting and prevents typos.
     enum Status {
-        PENDING, // 0 — Contract created; freelancer hasn't responded yet
-        ACTIVE, // 1 — Freelancer accepted; project deadline is counting down
-        SUBMITTED, // 2 — Freelancer submitted proof-of-work; acceptance window running
-        APPROVED, // 3 — Client approved OR acceptance window elapsed (auto-release)
-        DISPUTED, // 4 — Client opened a dispute; awaiting arbitration
-        RESOLVED, // 5 — Arbitration finalized and ruling executed
-        CANCELLED // 6 — Freelancer rejected, client cancelled pending, or client reclaimed after deadline miss
+        PENDING, // 0 - Contract created; freelancer hasn't responded yet
+        ACTIVE, // 1 - Freelancer accepted; project deadline is counting down
+        SUBMITTED, // 2 - Freelancer submitted proof-of-work; acceptance window running
+        APPROVED, // 3 - Client approved OR acceptance window elapsed (auto-release)
+        DISPUTED, // 4 - Client opened a dispute; awaiting arbitration
+        RESOLVED, // 5 - Arbitration finalized and ruling executed
+        CANCELLED // 6 - Freelancer rejected, client cancelled pending, or client reclaimed after deadline miss
     }
 
     // A struct is a custom composite type. Each EscrowContract lives in the _contracts
@@ -57,9 +57,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // Slot 2: uint64(8) × 4                                         = 32 bytes
     // Slots 3-5: three uint256 fields                                = 96 bytes
     // Slots 6-9: two bytes32 + two dynamic strings
-    // Slot 10: address(20) — token address (12 bytes spare)
-    // Slot 11: uint256 — USD value at creation from price feed
-    // Slot 12: uint256 — previous contract ID (type(uint256).max = no predecessor)
+    // Slot 10: address(20) - token address (12 bytes spare)
+    // Slot 11: uint256 - USD value at creation from price feed
+    // Slot 12: uint256 - previous contract ID (type(uint256).max = no predecessor)
     struct EscrowContract {
         // ── Slot 0 (25/32 bytes used) ─────────────────────────────────────────
         address client; // who hired the freelancer; deposited the funds
@@ -122,7 +122,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     uint256 public constant BPS_DENOMINATOR = 10_000;
 
     /// @notice Ruling at or above this threshold triggers an automatic reputation penalty for the client.
-    ///         A completionPct ≥ 80 means the freelancer clearly won — the dispute was frivolous.
+    ///         A completionPct ≥ 80 means the freelancer clearly won - the dispute was frivolous.
     uint256 public constant FRIVOLOUS_DISPUTE_THRESHOLD = 80;
 
     /// @notice Ruling at or below this threshold triggers an automatic reputation penalty for the freelancer.
@@ -447,7 +447,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
         c.status = Status.CANCELLED;
 
-        // Zero out amount before sending — checks-effects-interactions pattern.
+        // Zero out amount before sending - checks-effects-interactions pattern.
         uint256 amount = c.amount;
         c.amount = 0;
 
@@ -712,7 +712,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
         // For ETH escrows, the fee pool was already forwarded to Arbitration at dispute time.
         // We recompute it here to know how much "remaining" is left for the parties.
-        // For ERC-20 escrows, the fee was paid in ETH separately — all tokens are distributable.
+        // For ERC-20 escrows, the fee was paid in ETH separately - all tokens are distributable.
         uint256 feePool = c.token == address(0) ? (c.amount * c.arbitrationFeeBps) / BPS_DENOMINATOR : 0;
         uint256 remaining = c.amount - feePool;
 

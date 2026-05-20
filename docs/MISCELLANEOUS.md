@@ -11,7 +11,7 @@ Supplementary notes that don't belong in any single other document.
 | **Escrow**                | ETH or ERC-20 tokens locked inside `TrustLedger.sol` until a contract resolves (approved, rejected, cancelled, or ruled on by arbitration).                                                                                                                                                                               |
 | **Hold-back**             | A percentage of the escrow withheld from the freelancer's payout at approval and released later after a warranty period passes without a claim.                                                                                                                                                                           |
 | **Warranty period**       | A time window after approval during which the hold-back is locked. The freelancer can claim it once the window elapses with no dispute.                                                                                                                                                                                   |
-| **Buffer factor**         | A multiplier (expressed as integer per-1000) applied to `estimatedDuration` to compute the project deadline — e.g., 1200 = 1.2× buffer.                                                                                                                                                                                   |
+| **Buffer factor**         | A multiplier (expressed as integer per-1000) applied to `estimatedDuration` to compute the project deadline - e.g., 1200 = 1.2× buffer.                                                                                                                                                                                   |
 | **Acceptance window**     | How long the freelancer has to sign and call `acceptContract()` before the client can treat the contract as void and reclaim funds.                                                                                                                                                                                       |
 | **Commit-reveal**         | A two-phase voting scheme where jurors first submit `keccak256(vote, salt)` (commit), then later reveal `(vote, salt)` to prevent front-running.                                                                                                                                                                          |
 | **Completion pct**        | The integer 0-100 returned by arbitration after dispute resolution. Determines the split: `freelancerPayout = amount × completionPct / 100`.                                                                                                                                                                              |
@@ -22,7 +22,7 @@ Supplementary notes that don't belong in any single other document.
 | **Appeal bond**           | The ETH deposit required to appeal a ruling. Set at 1.5× the original arbitration fee pool. Half is refunded if the appeal changes the ruling.                                                                                                                                                                            |
 | **Median ruling**         | After all reveals, `Arbitration` computes the median of juror `completionPct` values as the final ruling, making it resistant to outlier votes.                                                                                                                                                                           |
 | **IPFS hash**             | A `bytes32` `keccak256` digest of a file's raw bytes, stored on-chain alongside its IPFS URI. Required (non-zero) for both `contractHash` and `proofOfWorkHash`; computed client-side before upload so the on-chain record covers file content, not just the pointer.                                                     |
-| **VRF**                   | Chainlink Verifiable Random Function — optional oracle used to randomly pre-select a subset of eligible jurors for a dispute. When configured, provides a cryptographic proof of randomness. When not configured, the contract falls back to RANDAO.                                                                      |
+| **VRF**                   | Chainlink Verifiable Random Function - optional oracle used to randomly pre-select a subset of eligible jurors for a dispute. When configured, provides a cryptographic proof of randomness. When not configured, the contract falls back to RANDAO.                                                                      |
 | **RANDAO**                | EIP-4399 beacon-chain entropy (`block.prevrandao`) used as the default juror-selection seed when Chainlink VRF is not configured. Combined with `block.timestamp` and the `disputeId` and hashed with `keccak256` to produce a unique seed per dispute.                                                                   |
 | **Price feed**            | Chainlink `AggregatorV3Interface` queried at contract creation to record the ETH/USD value of the escrow at that moment (informational only).                                                                                                                                                                             |
 | **contractHash**          | `keccak256` of the contract document bytes (not the URI string). Stored on-chain so any modification to the document is immediately detectable.                                                                                                                                                                           |
@@ -56,13 +56,13 @@ Hardhat is used for integration tests: ethers.js + TypeChain make it easy to sim
 
 ## Known Dependency Issues
 
-### `ws` — WebSocket DoS (CVE-2024-37890)
+### `ws` - WebSocket DoS (CVE-2024-37890)
 
 - **Affected:** All versions of `ws` before 8.17.1 allow a remote attacker to cause a DoS by sending a specially crafted HTTP request.
 - **Fix:** Both `package.json` and `src/package.json` pin `ws` to `8.20.1` via npm `overrides`. This forces every transitive dependent (RainbowKit, wagmi, Hardhat) to resolve to the patched version.
 - **Status:** Suppressed. `npm audit` exits clean.
 
-### `postcss` — Line-Return Parsing Issue (CVE-2023-44270)
+### `postcss` - Line-Return Parsing Issue (CVE-2023-44270)
 
 - **Affected:** `postcss` < 8.4.31 incorrectly parses `\r` line endings, which could allow CSS injection in certain linter configurations.
 - **Fix:** `src/package.json` pins `postcss` to `8.5.10` via `overrides`. The root package does not use PostCSS directly.
@@ -88,8 +88,8 @@ Hardhat is used for integration tests: ethers.js + TypeChain make it easy to sim
 
 The create-contract page can upload files directly to IPFS using Pinata's pinning API. Set `NEXT_PUBLIC_PINATA_JWT` (a scoped API JWT from [pinata.cloud](https://pinata.cloud)) in the root `.env`. If the env var is not set, a JWT input field is shown in the UI at runtime.
 
-After upload the IPFS URI is auto-filled into the form, and `contractHash` is computed from the uploaded bytes — not the URI string — so on-chain tamper detection covers actual file content. Both the hash and the URI are **required by the contract**: `createContract` reverts with `EmptyHash` if `contractHash == bytes32(0)` and `EmptyURI` if `contractURI` is empty.
-The same enforcement applies to `submitProofOfWork` — `powHash` and `powURI` must both be provided. The UI computes the hash client-side before the Pinata upload so the hash always reflects the actual file bytes.
+After upload the IPFS URI is auto-filled into the form, and `contractHash` is computed from the uploaded bytes - not the URI string - so on-chain tamper detection covers actual file content. Both the hash and the URI are **required by the contract**: `createContract` reverts with `EmptyHash` if `contractHash == bytes32(0)` and `EmptyURI` if `contractURI` is empty.
+The same enforcement applies to `submitProofOfWork` - `powHash` and `powURI` must both be provided. The UI computes the hash client-side before the Pinata upload so the hash always reflects the actual file bytes.
 
 ### Client-Side Encryption (AES-256-GCM)
 
@@ -98,7 +98,7 @@ The passphrase must be shared with the counterparty out-of-band (e.g. via a secu
 
 ### Arweave Permanent Backup
 
-After IPFS upload, users can optionally back up documents to Arweave for permanent retention. The user loads their Arweave JWK wallet file — the private key never leaves the browser. The frontend signs and broadcasts the transaction using the `arweave` JS library. The `ar://` URI is displayed after a successful upload and can be noted alongside the IPFS URI.
+After IPFS upload, users can optionally back up documents to Arweave for permanent retention. The user loads their Arweave JWK wallet file - the private key never leaves the browser. The frontend signs and broadcasts the transaction using the `arweave` JS library. The `ar://` URI is displayed after a successful upload and can be noted alongside the IPFS URI.
 
 ---
 
@@ -114,12 +114,12 @@ When a client creates a contract and provides the freelancer's email address, th
 4. Freelancer opens `/freelancer/accept?token=…` in their browser.
 5. The page calls `GET /api/magic-link/verify` to validate the HMAC signature and expiry server-side.
 6. The page reads the contract from chain via `getContract`, shows the terms, and prompts wallet connection.
-7. The connected wallet must match `freelancerAddress` encoded in the token — mismatches are blocked.
+7. The connected wallet must match `freelancerAddress` encoded in the token - mismatches are blocked.
 8. The freelancer signs `keccak256(abi.encodePacked(contractId, freelancerAddress))` via `signMessage` (EIP-191 personal sign).
 9. The page extracts `v, r, s` from the signature and calls `acceptContract(id, v, r, s)` on-chain.
 10. The contract transitions `PENDING → ACTIVE`; the project deadline timer starts.
 
-**Single-use guarantee:** The token carries no server-side revocation state. Idempotency comes entirely from the contract's irreversible status machine — a replayed link will find the contract in `ACTIVE` (or later) state and `acceptContract` will revert with `InvalidStatus`.
+**Single-use guarantee:** The token carries no server-side revocation state. Idempotency comes entirely from the contract's irreversible status machine - a replayed link will find the contract in `ACTIVE` (or later) state and `acceptContract` will revert with `InvalidStatus`.
 
 **Required env vars:**
 
@@ -134,11 +134,11 @@ When a client creates a contract and provides the freelancer's email address, th
 
 ## Optional Chainlink Integrations
 
-Both integrations are optional. The contracts work without them — `initPriceFeed` and `initVrfCoordinator` are one-time setup calls that can be skipped entirely in local dev and tests.
+Both integrations are optional. The contracts work without them - `initPriceFeed` and `initVrfCoordinator` are one-time setup calls that can be skipped entirely in local dev and tests.
 
 ### Price Feed (ETH/USD)
 
-Wired via `TrustLedger.initPriceFeed(address feed)`. After calling it, every new ETH escrow records the USD value of the deposit at creation time in `usdValueAtCreation`. This is informational only — it does not affect payouts.
+Wired via `TrustLedger.initPriceFeed(address feed)`. After calling it, every new ETH escrow records the USD value of the deposit at creation time in `usdValueAtCreation`. This is informational only - it does not affect payouts.
 
 ```bash
 # Ethereum Sepolia ETH/USD feed address
@@ -162,13 +162,13 @@ On a local Hardhat node or in tests, a `MockVRFCoordinator` is deployed and wire
 
 ## Design Decisions
 
-**L2 production deployments.** The contracts are chain-agnostic EVM bytecode. Sepolia is used for development and testing only. Production targets Arbitrum One (chainId 42161), Base (8453), or Optimism (10) — all three are configured in `hardhat.config.ts` and `foundry.toml`. The appropriate L2 is selected based on where the freelance market has the most liquidity and lowest gas costs at launch time.
+**L2 production deployments.** The contracts are chain-agnostic EVM bytecode. Sepolia is used for development and testing only. Production targets Arbitrum One (chainId 42161), Base (8453), or Optimism (10) - all three are configured in `hardhat.config.ts` and `foundry.toml`. The appropriate L2 is selected based on where the freelance market has the most liquidity and lowest gas costs at launch time.
 Foundry deploy scripts accept `--rpc-url` as a parameter, so switching chains requires only changing the network flag.
 
 **Contract amendment via invalidation and replacement.** When a client needs to renegotiate terms before the freelancer has accepted, the amendment flow is: `cancelPending(oldId)` → `createContract(...)` → `linkAmendment(newId, oldId)`. This produces a permanent on-chain version chain: each contract stores `previousContractId` pointing to its cancelled predecessor (`type(uint256).max` = original).
-The amendment history is fully reconstructable from events (`ContractCancelled` + `ContractAmended`) without any trusted intermediary. Amendments are only possible while the contract is `PENDING` — once a freelancer accepts (`ACTIVE`), renegotiation requires mutual off-chain agreement and a new contract from scratch.
+The amendment history is fully reconstructable from events (`ContractCancelled` + `ContractAmended`) without any trusted intermediary. Amendments are only possible while the contract is `PENDING` - once a freelancer accepts (`ACTIVE`), renegotiation requires mutual off-chain agreement and a new contract from scratch.
 
-**Minimal privileged role — pauser only.** There is no `owner` or `admin` role in any contract. The only privilege is the optional `pauser` address on `TrustLedger`, set once via `initPauser()`. It can pause `createContract` to block new deposits during an incident, but cannot touch funds already in escrow — all lifecycle exits remain open.
+**Minimal privileged role - pauser only.** There is no `owner` or `admin` role in any contract. The only privilege is the optional `pauser` address on `TrustLedger`, set once via `initPauser()`. It can pause `createContract` to block new deposits during an incident, but cannot touch funds already in escrow - all lifecycle exits remain open.
 If `initPauser` is never called, pause is permanently unavailable. Every other state transition is fully on-chain and permissionless from the participants' perspective.
 
 **No upgradeability.** The contracts are not proxies. A bug requires deploying a new set of contracts and migrating. This is a deliberate trade-off: upgrade mechanisms add complexity and are often the root cause of exploits (storage collisions, initialization issues).
@@ -185,11 +185,11 @@ If `initPauser` is never called, pause is permanently unavailable. Every other s
 
 `.vscode/settings.json` configures:
 
-- **Solidity tab size** — 4 spaces, no auto-detection, consistent with `forge fmt` defaults.
-- **markdownlint** — MD010 (hard tabs) and MD041 (first-line heading) disabled to match `.markdownlint.json` and allow tabs in code blocks.
-- **GitHub Actions** — workflow pinned-refresh disabled to avoid noisy background fetches.
-- **Todo Tree** — submodule directories (`contracts/lib/**`) excluded so third-party TODOs don't pollute the tree.
-- **ESLint flat config** — `eslint.useFlatConfig: true` tells the ESLint VS Code extension to use the new flat config format (`eslint.config.mjs`).
+- **Solidity tab size** - 4 spaces, no auto-detection, consistent with `forge fmt` defaults.
+- **markdownlint** - MD010 (hard tabs) and MD041 (first-line heading) disabled to match `.markdownlint.json` and allow tabs in code blocks.
+- **GitHub Actions** - workflow pinned-refresh disabled to avoid noisy background fetches.
+- **Todo Tree** - submodule directories (`contracts/lib/**`) excluded so third-party TODOs don't pollute the tree.
+- **ESLint flat config** - `eslint.useFlatConfig: true` tells the ESLint VS Code extension to use the new flat config format (`eslint.config.mjs`).
 
 ---
 

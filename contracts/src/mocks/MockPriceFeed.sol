@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 // solhint-disable not-rely-on-time
-// block.timestamp is intentional here — the mock returns it as the feed's
+// block.timestamp is intentional here - the mock returns it as the feed's
 // updatedAt timestamp so callers that validate freshness don't reject the data.
 
 // MockPriceFeed is a test-only stand-in for the Chainlink AggregatorV3Interface.

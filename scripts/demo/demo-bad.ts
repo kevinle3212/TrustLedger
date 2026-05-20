@@ -1,4 +1,4 @@
-// scripts/demo/demo-bad.ts — Dispute Flow: create → accept → submit → dispute → vote → execute
+// scripts/demo/demo-bad.ts - Dispute Flow: create → accept → submit → dispute → vote → execute
 // Run with: npm run demo:bad  (requires: npm run node + npm run hardhat:deploy:local first)
 
 import { readFileSync } from "node:fs";
@@ -35,7 +35,7 @@ async function main(): Promise<void> {
 	type Signer = Awaited<ReturnType<typeof ethers.getSigners>>[number];
 
 	console.log("=".repeat(60));
-	console.log("  TrustLedger Demo — Dispute Flow");
+	console.log("  TrustLedger Demo - Dispute Flow");
 	console.log("=".repeat(60));
 	console.log(`Client     : ${client.address}`);
 	console.log(`Freelancer : ${freelancer.address}`);
@@ -52,7 +52,7 @@ async function main(): Promise<void> {
 	)) as unknown as JurorRegistry;
 
 	// ── Step 1: Register jurors (0.1 ETH stake each) ──────────────────────────
-	console.log("Step 1 — Registering jurors (0.1 ETH stake each)...");
+	console.log("Step 1 - Registering jurors (0.1 ETH stake each)...");
 
 	const tryRegister = async (juror: Signer): Promise<void> => {
 		try {
@@ -73,14 +73,14 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 2: Fast-forward past the 7-day stake lock ────────────────────────
-	console.log("Step 2 — Fast-forwarding 7 days (stake lock period)...");
+	console.log("Step 2 - Fast-forwarding 7 days (stake lock period)...");
 	await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
 	await ethers.provider.send("evm_mine", []);
 	console.log("  ✓ Jurors now eligible to vote");
 	console.log();
 
 	// ── Step 3: Create a 1 ETH escrow ─────────────────────────────────────────
-	console.log("Step 3 — Client creates a 1 ETH escrow...");
+	console.log("Step 3 - Client creates a 1 ETH escrow...");
 	const createTx = await tl.connect(client).createContract(
 		await freelancer.getAddress(),
 		ethers.keccak256(ethers.toUtf8Bytes("contract-v2")),
@@ -113,7 +113,7 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 4: Freelancer accepts & submits proof of work ────────────────────
-	console.log("Step 4 — Freelancer accepts & submits proof of work...");
+	console.log("Step 4 - Freelancer accepts & submits proof of work...");
 	const innerHash = ethers.solidityPackedKeccak256(
 		["uint256", "address"],
 		[contractId, await freelancer.getAddress()],
@@ -133,7 +133,7 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 5: Client disputes instead of approving ──────────────────────────
-	console.log("Step 5 — Client opens a dispute...");
+	console.log("Step 5 - Client opens a dispute...");
 	const disputeTx = await tl.connect(client).disputeWork(contractId);
 	const disputeReceipt = await disputeTx.wait();
 	if (disputeReceipt === null) throw new Error("disputeWork tx not mined");
@@ -155,7 +155,7 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 6: Jurors commit hidden votes (50% completion) ───────────────────
-	console.log("Step 6 — Jurors commit hidden votes (50% completion ruling)...");
+	console.log("Step 6 - Jurors commit hidden votes (50% completion ruling)...");
 	const pct = 50;
 	const salt = ethers.randomBytes(32);
 
@@ -171,14 +171,14 @@ async function main(): Promise<void> {
 	console.log("  ✓ All 3 jurors committed");
 	console.log();
 
-	// ── Step 7: Advance to reveal phase (all 3 committed — skip 72h wait) ─────
-	console.log("Step 7 — Advancing to reveal phase...");
+	// ── Step 7: Advance to reveal phase (all 3 committed - skip 72h wait) ─────
+	console.log("Step 7 - Advancing to reveal phase...");
 	await (await arb.advanceToReveal(disputeId)).wait();
 	console.log("  ✓ Now in reveal phase");
 	console.log();
 
 	// ── Step 8: Jurors reveal their votes ─────────────────────────────────────
-	console.log("Step 8 — Jurors reveal votes...");
+	console.log("Step 8 - Jurors reveal votes...");
 	await (await arb.connect(j1).revealVote(disputeId, pct, salt)).wait();
 	await (await arb.connect(j2).revealVote(disputeId, pct, salt)).wait();
 	await (await arb.connect(j3).revealVote(disputeId, pct, salt)).wait();
@@ -186,27 +186,27 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 9: Fast-forward past the 72-hour reveal window ───────────────────
-	console.log("Step 9 — Fast-forwarding past 72-hour reveal window...");
+	console.log("Step 9 - Fast-forwarding past 72-hour reveal window...");
 	await ethers.provider.send("evm_increaseTime", [72 * 3600 + 1]);
 	await ethers.provider.send("evm_mine", []);
 	console.log("  ✓ Reveal window elapsed");
 	console.log();
 
-	// ── Step 10: Finalize — computes median ruling, slashes minority ──────────
-	console.log("Step 10 — Finalizing dispute (median ruling)...");
+	// ── Step 10: Finalize - computes median ruling, slashes minority ──────────
+	console.log("Step 10 - Finalizing dispute (median ruling)...");
 	await (await arb.finalizeDispute(disputeId)).wait();
 	console.log("  ✓ Dispute finalized");
 	console.log();
 
 	// ── Step 11: Fast-forward past 72-hour appeal window ─────────────────────
-	console.log("Step 11 — Fast-forwarding past 72-hour appeal window...");
+	console.log("Step 11 - Fast-forwarding past 72-hour appeal window...");
 	await ethers.provider.send("evm_increaseTime", [72 * 3600 + 1]);
 	await ethers.provider.send("evm_mine", []);
 	console.log("  ✓ Appeal window elapsed");
 	console.log();
 
-	// ── Step 12: Execute ruling — pays out based on median vote ───────────────
-	console.log("Step 12 — Executing ruling, partial payout to freelancer...");
+	// ── Step 12: Execute ruling - pays out based on median vote ───────────────
+	console.log("Step 12 - Executing ruling, partial payout to freelancer...");
 	const balBefore = await ethers.provider.getBalance(freelancer.address);
 	await (await arb.executeRuling(disputeId)).wait();
 	const balAfter = await ethers.provider.getBalance(freelancer.address);
@@ -222,7 +222,7 @@ async function main(): Promise<void> {
 	console.log();
 
 	console.log("=".repeat(60));
-	console.log("  Dispute flow complete — ruling executed!");
+	console.log("  Dispute flow complete - ruling executed!");
 	console.log("=".repeat(60));
 }
 

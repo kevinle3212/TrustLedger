@@ -99,7 +99,7 @@ function AcceptPageInner(): React.JSX.Element {
 		});
 	}, [signature, payload, writeContract]);
 
-	// — Loading states —
+	// - Loading states -
 	if (tokenLoading)
 		return (
 			<PageShell>

@@ -10,7 +10,7 @@
 		"extendedDiagnostics": true, // memory, time, file/line/identifier counts after compile
 		"listEmittedFiles": true, // absolute path of every emitted file
 
-		// ── Heavy: enable ONE at a time — each can produce 10k+ lines ────────
+		// ── Heavy: enable ONE at a time - each can produce 10k+ lines ────────
 		"listFiles": true, // every input file incl. all node_modules .d.ts
 		"explainFiles": true, // listFiles + reason each file was loaded
 		"traceResolution": true // every module-resolution attempt (extremely noisy)

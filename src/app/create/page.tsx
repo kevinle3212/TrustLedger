@@ -91,10 +91,10 @@ export default function CreatePage(): React.JSX.Element {
 	const [pinataJwt, setPinataJwt] = useState(process.env["NEXT_PUBLIC_PINATA_JWT"] ?? "");
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
 	const [uploadError, setUploadError] = useState<string | null>(null);
-	// Bytes that were actually uploaded (post-encryption if applicable) — reused for Arweave backup.
+	// Bytes that were actually uploaded (post-encryption if applicable) - reused for Arweave backup.
 	const [uploadedBytes, setUploadedBytes] = useState<Uint8Array<ArrayBuffer> | null>(null);
 	const [uploadedMime, setUploadedMime] = useState("application/octet-stream");
-	// keccak256 of the uploaded bytes — used as contractHash instead of hashing the URI.
+	// keccak256 of the uploaded bytes - used as contractHash instead of hashing the URI.
 	const [fileHash, setFileHash] = useState<`0x${string}` | null>(null);
 
 	// Arweave backup state
@@ -107,7 +107,7 @@ export default function CreatePage(): React.JSX.Element {
 		setForm((f) => ({ ...f, [key]: value }));
 	}
 
-	// Pre-compute tx args whenever the form changes — fed into useSimulateContract so the
+	// Pre-compute tx args whenever the form changes - fed into useSimulateContract so the
 	// transaction is validated on-chain before MetaMask opens. This prevents the "gas limit
 	// too high" symptom caused by gas estimation failing on a reverting transaction.
 	const txArgs = useMemo(() => {
@@ -209,7 +209,7 @@ export default function CreatePage(): React.JSX.Element {
 			}
 
 			const hash = keccak256(bytes);
-			// Pass the underlying ArrayBuffer — Blob accepts ArrayBuffer as BlobPart.
+			// Pass the underlying ArrayBuffer - Blob accepts ArrayBuffer as BlobPart.
 			const blob = new Blob([bytes.buffer], { type: mime });
 			const uri = await uploadToPinata(blob, selectedFile.name, pinataJwt);
 
@@ -237,7 +237,7 @@ export default function CreatePage(): React.JSX.Element {
 				const bal = await getArweaveBalance(jwk);
 				setArweaveBalance(bal);
 			} catch {
-				// ignore parse errors — bad wallet file
+				// ignore parse errors - bad wallet file
 			}
 		};
 		reader.readAsText(file);
@@ -307,7 +307,7 @@ export default function CreatePage(): React.JSX.Element {
 						)}
 						{magicLinkStatus === "error" && (
 							<span className="text-red-400">
-								Failed to send magic link — check server env vars.
+								Failed to send magic link - check server env vars.
 							</span>
 						)}
 					</p>
@@ -465,7 +465,7 @@ export default function CreatePage(): React.JSX.Element {
 								</Field>
 							)}
 
-							{/* Pinata JWT — shown if not baked in via env */}
+							{/* Pinata JWT - shown if not baked in via env */}
 							{(process.env["NEXT_PUBLIC_PINATA_JWT"] === undefined ||
 								process.env["NEXT_PUBLIC_PINATA_JWT"] === "") && (
 								<Field label="Pinata JWT">
@@ -510,7 +510,7 @@ export default function CreatePage(): React.JSX.Element {
 									{/* Arweave backup */}
 									<div className="flex flex-col gap-2 border-t border-white/5 pt-3">
 										<p className="text-xs text-gray-500">
-											Permanent backup to Arweave (optional — for long-term
+											Permanent backup to Arweave (optional - for long-term
 											legal retention)
 										</p>
 
@@ -559,7 +559,7 @@ export default function CreatePage(): React.JSX.Element {
 										)}
 										{arweaveStatus === "error" && (
 											<span className="text-xs text-red-400">
-												Arweave upload failed — check wallet balance.
+												Arweave upload failed - check wallet balance.
 											</span>
 										)}
 									</div>
@@ -735,7 +735,7 @@ export default function CreatePage(): React.JSX.Element {
 					</div>
 				)}
 
-				{/* Simulation error — shown before MetaMask opens, surfaces revert reason. */}
+				{/* Simulation error - shown before MetaMask opens, surfaces revert reason. */}
 				{simError !== null && txArgs !== null && (
 					<p className="text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
 						{(simError as { shortMessage?: string }).shortMessage ?? simError.message}

@@ -1,4 +1,4 @@
-// scripts/deploy.ts — Hardhat deployment script (TypeScript/ethers.js equivalent of Deploy.s.sol).
+// scripts/deploy.ts - Hardhat deployment script (TypeScript/ethers.js equivalent of Deploy.s.sol).
 // Run with: npm run hardhat:deploy:local | npm run hardhat:deploy:sepolia
 // Writes deployed addresses to artifacts/deployed-addresses.json for frontend consumption.
 
@@ -14,7 +14,7 @@ async function main(): Promise<void> {
 	console.log("Deploying with:", deployer.address);
 
 	// Read the deployer's current nonce (transaction count).
-	// Like vm.getNonce() in Foundry — the nonce tells us where the next contracts will land.
+	// Like vm.getNonce() in Foundry - the nonce tells us where the next contracts will land.
 	const nonce = await deployer.getNonce();
 
 	// ── Precompute contract addresses ──────────────────────────────────────────
@@ -27,7 +27,7 @@ async function main(): Promise<void> {
 	// Deploy order → nonce mapping:
 	//   nonce   → JurorRegistry (deployed first)
 	//   nonce+1 → TrustLedger  (deployed second)
-	//   nonce+2 → Arbitration  (deployed third — address is what we precompute)
+	//   nonce+2 → Arbitration  (deployed third - address is what we precompute)
 	const arbitrationAddr = ethers.getCreateAddress({ from: deployer.address, nonce: nonce + 2 });
 	// const trustLedgerAddr = ethers.getCreateAddress({ from: deployer.address, nonce: nonce + 1 });
 
@@ -37,7 +37,7 @@ async function main(): Promise<void> {
 	const JurorRegistry = await ethers.getContractFactory("JurorRegistry");
 
 	// factory.deploy(...args) sends a CREATE transaction to the network.
-	// We pass arbitrationAddr even though Arbitration doesn't exist yet —
+	// We pass arbitrationAddr even though Arbitration doesn't exist yet -
 	// the constructor just stores it as a plain address.
 	const jurorRegistry = await JurorRegistry.deploy(arbitrationAddr);
 

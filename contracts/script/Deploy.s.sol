@@ -23,7 +23,7 @@ contract Deploy is Script {
     /// @notice Reverts when a deployed contract lands at an unexpected address.
     error AddressMismatch();
 
-    /// @notice Entry point — Foundry calls this function when executing the script.
+    /// @notice Entry point - Foundry calls this function when executing the script.
     function run() external {
         // ── Broadcast: sign and send real transactions ─────────────────────────
         // vm.startBroadcast() with no arguments uses the --private-key / --account
@@ -60,7 +60,7 @@ contract Deploy is Script {
         // ── Deploy in the exact nonce order we pre-computed ─────────────────────
         // `new JurorRegistry(arbitrationAddr)` compiles to a CREATE opcode.
         // We pass the precomputed arbitrationAddr even though Arbitration doesn't
-        // exist yet — JurorRegistry just stores it and never calls it during deploy.
+        // exist yet - JurorRegistry just stores it and never calls it during deploy.
         JurorRegistry jurorRegistry = new JurorRegistry(arbitrationAddr); // nonce N
 
         // Same pattern: TrustLedger stores arbitrationAddr as an immutable.
@@ -80,7 +80,7 @@ contract Deploy is Script {
 
         // ── Log deployed addresses ─────────────────────────────────────────────
         // console.log writes to stdout during the script run. Not included in the
-        // on-chain transaction — purely for operator convenience.
+        // on-chain transaction - purely for operator convenience.
         console.log("JurorRegistry:", address(jurorRegistry));
         console.log("TrustLedger:  ", address(trustLedger));
         console.log("Arbitration:  ", address(arbitration));

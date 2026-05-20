@@ -6,7 +6,7 @@
 
 A decentralized escrow and dispute resolution protocol for freelance agreements, deployed on Ethereum. Clients lock ETH or ERC-20 tokens; freelancers complete work; disputes are resolved by a staked juror panel using commit-reveal voting.
 
-**Live app:** [trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app) — hosted on Vercel, deployed automatically on every push to `main`.
+**Live app:** [trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app) - hosted on Vercel, deployed automatically on every push to `main`.
 
 > [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Frontend (`src/`)](src/README.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts API](docs/CONTRACTS.md) &nbsp;·&nbsp; [Deployment](docs/DEPLOYMENT.md) &nbsp;·&nbsp; [Contributing](docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](SECURITY.md)
 
@@ -17,14 +17,14 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 | Document                                       | Description                                                                                                   |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)   | System diagram, state machine, payout formulas, storage layout                                                |
-| [docs/CONTRACTS.md](docs/CONTRACTS.md)         | Full public API for all four contracts — functions, events, errors                                            |
+| [docs/CONTRACTS.md](docs/CONTRACTS.md)         | Full public API for all four contracts - functions, events, errors                                            |
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)   | Local setup, compiling, testing, linting, deploying to testnet                                                |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Vercel deployment setup — secrets, project linking, CI/CD                                                     |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Vercel deployment setup - secrets, project linking, CI/CD                                                     |
 | [docs/DOCKER.md](docs/DOCKER.md)               | Docker prerequisites, services, MetaMask setup, troubleshooting                                               |
 | [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for pitches.                                                                |
 | [docs/MISCELLANEOUS.md](docs/MISCELLANEOUS.md) | Glossary, tooling rationale, Chainlink setup, design decisions                                                |
 | [SECURITY.md](SECURITY.md)                     | Vulnerability reporting policy and severity classification                                                    |
-| [src/README.md](src/README.md)                 | Frontend setup, scripts, file layout, contract artifacts, wagmi integration — **start here for frontend dev** |
+| [src/README.md](src/README.md)                 | Frontend setup, scripts, file layout, contract artifacts, wagmi integration - **start here for frontend dev** |
 
 ---
 
@@ -54,23 +54,23 @@ When a contract is created, a `keccak256` hash of the off-chain agreement docume
 
 ### ECDSA Wallet Binding on Acceptance
 
-The freelancer does not accept a contract by calling a function alone — they must submit an EIP-191 signature over `keccak256(contractId, freelancerAddress)`. The contract recovers the signer on-chain via `ecrecover` and rejects any mismatch. This prevents a third party from accepting a contract on a freelancer's behalf without their private-key authorization.
+The freelancer does not accept a contract by calling a function alone - they must submit an EIP-191 signature over `keccak256(contractId, freelancerAddress)`. The contract recovers the signer on-chain via `ecrecover` and rejects any mismatch. This prevents a third party from accepting a contract on a freelancer's behalf without their private-key authorization.
 
 ### Commit-Reveal Voting Prevents Herding
 
 Jurors submit a `keccak256` commitment of their vote before anyone reveals. Votes are hidden during the commit phase so no juror can see the crowd forming and pile on. Only after the commit window closes do jurors reveal their actual numbers. Any deviation from the original commitment is rejected on-chain.
 
-### Verifiable Random Juror Selection — Chainlink VRF
+### Verifiable Random Juror Selection - Chainlink VRF
 
-When Chainlink VRF is configured, jurors are selected at dispute-open time using on-chain verifiable randomness — not self-selection. Only pre-selected wallets can participate. When VRF is not configured, jurors self-select from the eligible pool (legacy mode). Both modes use the same commit-reveal flow.
+When Chainlink VRF is configured, jurors are selected at dispute-open time using on-chain verifiable randomness - not self-selection. Only pre-selected wallets can participate. When VRF is not configured, jurors self-select from the eligible pool (legacy mode). Both modes use the same commit-reveal flow.
 
 ### Partial Completion Rulings and Proportional Payouts
 
-Jurors vote on a completion percentage (0-100), not a binary verdict. The median vote becomes the ruling. The payout formula is proportional: the freelancer's share scales with the ruling, and the arbitration fee burden is split proportionally between both parties — not charged entirely to the freelancer. This prevents winner-takes-all outcomes that neither party finds fair.
+Jurors vote on a completion percentage (0-100), not a binary verdict. The median vote becomes the ruling. The payout formula is proportional: the freelancer's share scales with the ruling, and the arbitration fee burden is split proportionally between both parties - not charged entirely to the freelancer. This prevents winner-takes-all outcomes that neither party finds fair.
 
 ### Juror Slashing and On-Chain Reputation
 
-Minority jurors — those whose votes fall more than 20 percentage points from the median — lose 10% of their staked ETH. Jurors who commit but never reveal are slashed the same way. Reputation decays with each minority vote and is tracked permanently on-chain. Jurors who vote accurately earn fee-pool rewards; careless or dishonest jurors lose money.
+Minority jurors - those whose votes fall more than 20 percentage points from the median - lose 10% of their staked ETH. Jurors who commit but never reveal are slashed the same way. Reputation decays with each minority vote and is tracked permanently on-chain. Jurors who vote accurately earn fee-pool rewards; careless or dishonest jurors lose money.
 
 ### Appeals with Escalating Panels
 
@@ -78,9 +78,9 @@ Either party can appeal a ruling within 72 hours by posting a 1.5× bond. The ap
 
 ### Warranty Hold-Back
 
-Clients can configure 5-15% of the payment to be withheld until a warranty period expires. If a defect surfaces after approval but within the warranty window, the client retains negotiating leverage. The hold-back is released to the freelancer automatically once the warranty deadline passes — no further action needed from either party.
+Clients can configure 5-15% of the payment to be withheld until a warranty period expires. If a defect surfaces after approval but within the warranty window, the client retains negotiating leverage. The hold-back is released to the freelancer automatically once the warranty deadline passes - no further action needed from either party.
 
-### Automatic Release — Anti-Ghosting
+### Automatic Release - Anti-Ghosting
 
 After a freelancer submits proof of work, the client has a configurable acceptance window (minimum 48 hours) to approve or dispute. If the client does nothing, the freelancer can claim full payment once the window closes. Clients cannot indefinitely delay payment by simply not responding.
 
@@ -88,13 +88,13 @@ After a freelancer submits proof of work, the client has a configurable acceptan
 
 Escrow can be funded with native ETH or any ERC-20 token (e.g. USDC, DAI). Clients choose at creation time by specifying a token address; `address(0)` means ETH. All payout, hold-back, and dispute logic is token-aware. Stablecoin escrow eliminates price-volatility risk on long-duration agreements.
 
-### Chainlink Price Feed — USD Value Lock
+### Chainlink Price Feed - USD Value Lock
 
-When a Chainlink ETH/USD feed is configured, the USD equivalent of the escrowed ETH is recorded on-chain at the moment of contract creation. Both parties can see — and later verify — the agreed dollar value regardless of subsequent ETH price moves.
+When a Chainlink ETH/USD feed is configured, the USD equivalent of the escrowed ETH is recorded on-chain at the moment of contract creation. Both parties can see - and later verify - the agreed dollar value regardless of subsequent ETH price moves.
 
 ### Bidirectional On-Chain Reputation
 
-After a contract reaches a final state (approved or resolved), both parties can submit a rating score (1-100) for each other via `submitRating()`. Scores accumulate permanently on-chain in `ReputationRegistry`. Only `TrustLedger` can call `rate()` — third parties cannot manipulate scores.
+After a contract reaches a final state (approved or resolved), both parties can submit a rating score (1-100) for each other via `submitRating()`. Scores accumulate permanently on-chain in `ReputationRegistry`. Only `TrustLedger` can call `rate()` - third parties cannot manipulate scores.
 
 ### IPFS Hybrid Storage
 
@@ -102,7 +102,7 @@ Contract documents and proof-of-work artifacts are stored off-chain on IPFS. The
 
 ### Permissionless Phase Transitions
 
-Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are callable by anyone, not gated to a platform operator. The system progresses autonomously — no trusted admin is needed to move disputes forward or execute payouts.
+Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are callable by anyone, not gated to a platform operator. The system progresses autonomously - no trusted admin is needed to move disputes forward or execute payouts.
 
 [↑ Back to top](#table-of-contents)
 
@@ -111,7 +111,7 @@ Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are calla
 ## Tech Stack
 
 <details>
-<summary>Expand — full technology stack</summary>
+<summary>Expand - full technology stack</summary>
 
 | Layer                          | Technology                                       |
 | ------------------------------ | ------------------------------------------------ |
@@ -162,7 +162,7 @@ TrustLedger  ←──────────────→  Arbitration  ←�
 ### Interfaces
 
 <details>
-<summary>Expand — all contract interfaces and their consumers</summary>
+<summary>Expand - all contract interfaces and their consumers</summary>
 
 | Interface                   | Used By     | Purpose                                               |
 | --------------------------- | ----------- | ----------------------------------------------------- |
@@ -179,9 +179,9 @@ TrustLedger  ←──────────────→  Arbitration  ←�
 ### Optional One-Time Initializers
 
 <details>
-<summary>Expand — post-deploy optional integrations (immutable once set)</summary>
+<summary>Expand - post-deploy optional integrations (immutable once set)</summary>
 
-Three optional integrations are wired in after deployment via one-time setter functions. Once set they cannot be changed — there is no owner role.
+Three optional integrations are wired in after deployment via one-time setter functions. Once set they cannot be changed - there is no owner role.
 
 | Function                          | Contract    | Effect                                          |
 | --------------------------------- | ----------- | ----------------------------------------------- |
@@ -191,14 +191,14 @@ Three optional integrations are wired in after deployment via one-time setter fu
 
 </details>
 
-### Deploy Order — Circular Dependency Resolution
+### Deploy Order - Circular Dependency Resolution
 
 All three contracts have cross-references. Both deploy scripts precompute the Arbitration address before deployment so no contract needs a mutable setter:
 
 ```text
 nonce N   →  JurorRegistry  (initialized with precomputed Arbitration address)
 nonce N+1 →  TrustLedger    (initialized with precomputed Arbitration address)
-nonce N+2 →  Arbitration    (actual deploy — lands at the precomputed address)
+nonce N+2 →  Arbitration    (actual deploy - lands at the precomputed address)
 ```
 
 ### Contract Lifecycle
@@ -243,7 +243,7 @@ clientRefund     = amount − feePool − freelancerPay
 
 > **Not sure where to start?**
 >
-> - **Just want to see a demo run?** → Skip to [Docker](#docker) — only Docker Desktop required, no other installs needed.
+> - **Just want to see a demo run?** → Skip to [Docker](#docker) - only Docker Desktop required, no other installs needed.
 > - **Want to run scripts or deploy to testnet?** → Follow the [Prerequisites](#prerequisites) and [Local Development](#local-development-hardhat-node) steps below.
 > - **Want to use the live website?** → See [src/README.md](src/README.md) for the frontend setup.
 
@@ -266,7 +266,7 @@ npm --version
 
 If `node --version` prints `v22.x.x` or higher, skip ahead. If it prints a lower version or `command not found`, install it:
 
-- **macOS / Linux (recommended — use nvm so you can switch versions easily):**
+- **macOS / Linux (recommended - use nvm so you can switch versions easily):**
 
     ```bash
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -286,7 +286,7 @@ If `node --version` prints `v22.x.x` or higher, skip ahead. If it prints a lower
 
 #### 2. Foundry (forge, cast, anvil)
 
-Foundry is the Solidity toolchain. It compiles contracts, runs the Solidity test suite, and ships `cast` — a command-line wallet utility used to generate deployer keys.
+Foundry is the Solidity toolchain. It compiles contracts, runs the Solidity test suite, and ships `cast` - a command-line wallet utility used to generate deployer keys.
 
 **Check if you have it:**
 
@@ -340,7 +340,7 @@ git clone https://github.com/kevinle3212/TrustLedger.git
 cd TrustLedger
 ```
 
-Then pull in the smart contract library dependencies (OpenZeppelin and forge-std). These are stored as Git submodules — a way of pointing to another repo from inside this one:
+Then pull in the smart contract library dependencies (OpenZeppelin and forge-std). These are stored as Git submodules - a way of pointing to another repo from inside this one:
 
 ```bash
 git submodule update --init --recursive
@@ -366,7 +366,7 @@ This reads `package.json` and downloads Hardhat, ethers.js, TypeScript, TypeChai
 
 Your `.env` file holds private configuration (API keys, wallet private keys) that must never be uploaded to GitHub. The `.env.example` file is the safe public template showing which variables are needed.
 
-**Step 1 — Copy the template:**
+**Step 1 - Copy the template:**
 
 ```bash
 # macOS / Linux
@@ -376,18 +376,18 @@ cp .env.example .env
 copy .env.example .env
 ```
 
-**Step 2 — Open `.env` in a text editor** (VS Code, Notepad, TextEdit, etc.) and fill in the values you need. The subsections below walk through how to get each one.
+**Step 2 - Open `.env` in a text editor** (VS Code, Notepad, TextEdit, etc.) and fill in the values you need. The subsections below walk through how to get each one.
 
 | Variable                               | Required for            | Notes                                                                                     |
 | -------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------- |
-| `SEPOLIA_RPC_URL`                      | Testnet deploy          | HTTP endpoint to reach Ethereum Sepolia — see below                                       |
-| `DEPLOYER_PUBLIC_ADDRESS`              | Testnet deploy          | Your wallet `0x…` address — see below                                                     |
-| `DEPLOYER_PRIVATE_KEY`                 | Testnet deploy          | Private key for that wallet — **never share or commit this**                              |
-| `ETHERSCAN_API_KEY`                    | Contract verification   | Optional but recommended — see below                                                      |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Frontend wallet connect | Free key — see [src/README.md](src/README.md#getting-a-walletconnect-project-id)          |
+| `SEPOLIA_RPC_URL`                      | Testnet deploy          | HTTP endpoint to reach Ethereum Sepolia - see below                                       |
+| `DEPLOYER_PUBLIC_ADDRESS`              | Testnet deploy          | Your wallet `0x…` address - see below                                                     |
+| `DEPLOYER_PRIVATE_KEY`                 | Testnet deploy          | Private key for that wallet - **never share or commit this**                              |
+| `ETHERSCAN_API_KEY`                    | Contract verification   | Optional but recommended - see below                                                      |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | Frontend wallet connect | Free key - see [src/README.md](src/README.md#getting-a-walletconnect-project-id)          |
 | `NEXT_BASE_PATH`                       | Frontend build          | Leave empty (`NEXT_BASE_PATH=`) to serve from root `/`; only set if hosting at a sub-path |
 
-> `.env` is listed in `.gitignore` — Git will never include it in a commit. Only you can see it.
+> `.env` is listed in `.gitignore` - Git will never include it in a commit. Only you can see it.
 
 #### Getting an RPC URL (Alchemy or Infura)
 
@@ -395,7 +395,7 @@ An RPC URL is a web address that lets your scripts communicate with the Ethereum
 
 **Alchemy (recommended):**
 
-1. Sign up at [alchemy.com](https://www.alchemy.com/) — a Google or GitHub login works.
+1. Sign up at [alchemy.com](https://www.alchemy.com/) - a Google or GitHub login works.
 2. From the dashboard, click **+ Create new app**.
 3. Set **Chain** to `Ethereum` and **Network** to `Ethereum Sepolia`. Name it anything.
 4. Open the app you just created and click **API key** (top right). Copy the **HTTPS** URL.
@@ -420,9 +420,9 @@ An RPC URL is a web address that lets your scripts communicate with the Ethereum
 
 #### Creating a Deployer Wallet
 
-You need a wallet address and its private key to pay for and sign deployment transactions. **Always use a dedicated throwaway wallet — never your main MetaMask account with real ETH.**
+You need a wallet address and its private key to pay for and sign deployment transactions. **Always use a dedicated throwaway wallet - never your main MetaMask account with real ETH.**
 
-**Option A — Generate one with `cast` (fastest):**
+**Option A - Generate one with `cast` (fastest):**
 
 ```bash
 cast wallet new
@@ -443,7 +443,7 @@ DEPLOYER_PUBLIC_ADDRESS=0xAbCd1234...
 DEPLOYER_PRIVATE_KEY=0xdeadbeef...
 ```
 
-**Option B — Create a new account in MetaMask:**
+**Option B - Create a new account in MetaMask:**
 
 1. Open MetaMask in your browser. Click the circular account icon at the top right.
 2. Click **Add account or hardware wallet** → **Add a new Ethereum account**.
@@ -453,7 +453,7 @@ DEPLOYER_PRIVATE_KEY=0xdeadbeef...
 
 #### Getting Testnet ETH (Sepolia faucet)
 
-Deploying to Sepolia costs a tiny amount of Sepolia ETH. Sepolia ETH is **free and has no real-world value** — it only works on the Sepolia test network.
+Deploying to Sepolia costs a tiny amount of Sepolia ETH. Sepolia ETH is **free and has no real-world value** - it only works on the Sepolia test network.
 
 1. Copy your deployer wallet address (the `0x…` string).
 2. Paste it into any of these faucets and click **Send** / **Request**:
@@ -485,11 +485,11 @@ Etherscan verification uploads your contract's source code to [sepolia.etherscan
 
 ### Local Development (Hardhat Node)
 
-Running locally spins up a fake Ethereum blockchain on your own computer — no real ETH, no internet required, and no risk of losing money.
+Running locally spins up a fake Ethereum blockchain on your own computer - no real ETH, no internet required, and no risk of losing money.
 
 You need **two terminal windows open at the same time**.
 
-**Terminal 1 — Start the local chain and keep it running:**
+**Terminal 1 - Start the local chain and keep it running:**
 
 ```bash
 npm run node
@@ -507,9 +507,9 @@ Private Key: 0x...
 ...
 ```
 
-These are fake wallets with fake ETH. Leave this terminal open — closing it shuts down the chain.
+These are fake wallets with fake ETH. Leave this terminal open - closing it shuts down the chain.
 
-**Terminal 2 — Compile the contracts and deploy them:**
+**Terminal 2 - Compile the contracts and deploy them:**
 
 ```bash
 npm run compile
@@ -546,7 +546,7 @@ Both demos complete in seconds because they use time-travel (`evm_increaseTime`)
 
 ### Ethereum Sepolia (Testnet)
 
-Deploying to Sepolia puts the contracts on a public Ethereum test network that anyone can see and interact with. Requires a funded deployer wallet and an RPC endpoint — see [Environment Variables](#environment-variables) above.
+Deploying to Sepolia puts the contracts on a public Ethereum test network that anyone can see and interact with. Requires a funded deployer wallet and an RPC endpoint - see [Environment Variables](#environment-variables) above.
 
 Make sure your `.env` has `SEPOLIA_RPC_URL`, `DEPLOYER_PUBLIC_ADDRESS`, `DEPLOYER_PRIVATE_KEY`, and at least 0.05 Sepolia ETH in the wallet, then run:
 
@@ -554,7 +554,7 @@ Make sure your `.env` has `SEPOLIA_RPC_URL`, `DEPLOYER_PUBLIC_ADDRESS`, `DEPLOYE
 npm run hardhat:deploy:sepolia
 ```
 
-The console prints all three contract addresses and writes them to `artifacts/deployed-addresses.json`. The frontend reads this file automatically — no manual copy step needed.
+The console prints all three contract addresses and writes them to `artifacts/deployed-addresses.json`. The frontend reads this file automatically - no manual copy step needed.
 
 To also verify the source code on Etherscan (requires `ETHERSCAN_API_KEY` in `.env`):
 
@@ -589,7 +589,7 @@ docker compose build                       # build the image (~2-3 minutes first
 ```bash
 docker compose up demo-good    # happy-path demo
 docker compose up demo-bad     # dispute-flow demo
-docker compose up node         # local chain only — connect MetaMask to http://localhost:8545
+docker compose up node         # local chain only - connect MetaMask to http://localhost:8545
 docker compose run test        # full Hardhat + Foundry test suite
 ```
 
@@ -611,7 +611,7 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 ## Development Scripts
 
 <details>
-<summary>Hardhat — local node, deploy, test, demo</summary>
+<summary>Hardhat - local node, deploy, test, demo</summary>
 
 | Script                           | What it runs                                                    |
 | -------------------------------- | --------------------------------------------------------------- |
@@ -628,13 +628,13 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 </details>
 
 <details>
-<summary>Foundry — compile, test, gas, deploy</summary>
+<summary>Foundry - compile, test, gas, deploy</summary>
 
 | Script                                   | What it runs                                         |
 | ---------------------------------------- | ---------------------------------------------------- |
-| `npm run foundry:build`                  | `forge build` — compile contracts via Foundry        |
-| `npm run foundry:test`                   | `forge test` — run all Solidity unit and fuzz tests  |
-| `npm run foundry:gas`                    | `forge test --gas-report` — per-function gas usage   |
+| `npm run foundry:build`                  | `forge build` - compile contracts via Foundry        |
+| `npm run foundry:test`                   | `forge test` - run all Solidity unit and fuzz tests  |
+| `npm run foundry:gas`                    | `forge test --gas-report` - per-function gas usage   |
 | `npm run foundry:deploy:sepolia:dry-run` | Simulate Sepolia deploy (no broadcast), loads `.env` |
 | `npm run foundry:deploy:sepolia`         | Broadcast deploy to Sepolia + Etherscan verification |
 
@@ -653,7 +653,7 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 </details>
 
 <details>
-<summary>Tooling — lint, format, build</summary>
+<summary>Tooling - lint, format, build</summary>
 
 | Script                  | What it runs                             |
 | ----------------------- | ---------------------------------------- |
@@ -661,12 +661,12 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run lint:ts`       | ESLint only                              |
 | `npm run lint:sol`      | Solhint only                             |
 | `npm run lint:prettier` | Prettier format check (read-only)        |
-| `npm run build`         | `tsc` — compile `src/` to `dist/`        |
+| `npm run build`         | `tsc` - compile `src/` to `dist/`        |
 
 </details>
 
 <details>
-<summary>Nexus Code Graph — AI context for Claude Code</summary>
+<summary>Nexus Code Graph - AI context for Claude Code</summary>
 
 | Script                 | What it runs                                                             |
 | ---------------------- | ------------------------------------------------------------------------ |
@@ -688,42 +688,42 @@ TrustLedger uses both toolchains side by side. They share the same Solidity sour
 compiler settings (`solc 0.8.24`, `optimizer_runs = 200`, `via_ir = true`) but serve different
 roles.
 
-### Hardhat — integration layer
+### Hardhat - integration layer
 
 Hardhat is the TypeScript runtime for everything that crosses the contract boundary:
 
-- **Local node** (`npm run node`) — an in-process EVM that mimics mainnet, used for manual
+- **Local node** (`npm run node`) - an in-process EVM that mimics mainnet, used for manual
   interaction and demo scripts.
-- **Deployment scripts** (`scripts/deploy.ts`) — ethers.js + TypeChain deploy all three contracts
+- **Deployment scripts** (`scripts/deploy.ts`) - ethers.js + TypeChain deploy all three contracts
   in the correct nonce order and write the resulting addresses to `artifacts/deployed-addresses.json`
   for frontend consumption.
-- **Integration tests** (`test/TrustLedger.test.ts`, 73 tests) — multi-wallet flows written in
+- **Integration tests** (`test/TrustLedger.test.ts`, 73 tests) - multi-wallet flows written in
   TypeScript with full type safety. Tests cover ETH and ERC-20 escrow, Chainlink mock feeds, VRF
   mock, full dispute commit-reveal, appeals, and reputation. Balance diffs are verified at every
   payout step using ethers.js `BigInt` arithmetic.
-- **TypeChain** — after every compile, TypeChain generates TypeScript classes for each contract so
+- **TypeChain** - after every compile, TypeChain generates TypeScript classes for each contract so
   test code gets compile-time type checking on function signatures, arguments, and return values.
 
-### Foundry — contract-native layer
+### Foundry - contract-native layer
 
 Foundry runs entirely in Solidity, making it faster and more precise for low-level testing:
 
-- **Unit tests** (`contracts/test/`, 65 tests) — Solidity-native tests using `vm.prank`,
+- **Unit tests** (`contracts/test/`, 65 tests) - Solidity-native tests using `vm.prank`,
   `vm.warp`, `vm.expectRevert`, and `vm.deal` cheatcodes. No JavaScript runtime overhead.
-- **Fuzz tests** (`PayoutFuzz.t.sol`, 7 tests × 10,000 runs each) — property-based tests that
+- **Fuzz tests** (`PayoutFuzz.t.sol`, 7 tests × 10,000 runs each) - property-based tests that
   prove payout invariants hold for the full `uint` input range. A single fuzz run covers more edge
   cases than hundreds of hand-written unit tests.
-- **Gas reporting** (`npm run foundry:gas`) — per-function min/mean/max gas costs, used to catch
+- **Gas reporting** (`npm run foundry:gas`) - per-function min/mean/max gas costs, used to catch
   regressions before deployment.
-- **Deployment script** (`contracts/script/Deploy.s.sol`) — Forge script that precomputes contract
+- **Deployment script** (`contracts/script/Deploy.s.sol`) - Forge script that precomputes contract
   addresses using the deployer's nonce, deploys all three contracts in order, and asserts the
   addresses match predictions. Run via `npm run foundry:deploy:sepolia`.
-- **Formatter** (`forge fmt`) — enforces consistent Solidity style, configured in `foundry.toml`.
+- **Formatter** (`forge fmt`) - enforces consistent Solidity style, configured in `foundry.toml`.
 
 ### Why both?
 
 <details>
-<summary>Expand — Hardhat vs. Foundry comparison</summary>
+<summary>Expand - Hardhat vs. Foundry comparison</summary>
 
 | Concern                  | Hardhat                                   | Foundry                            |
 | ------------------------ | ----------------------------------------- | ---------------------------------- |
@@ -731,7 +731,7 @@ Foundry runs entirely in Solidity, making it faster and more precise for low-lev
 | TypeScript / frontend    | Native (TypeChain, wagmi-compatible ABIs) | No TypeScript support              |
 | Test speed               | Slower (Node.js + JSON-RPC)               | Faster (native EVM, no IPC)        |
 | Fuzz testing             | Requires external tools                   | Built-in, 10k runs per test        |
-| Time travel              | `evm_increaseTime` via JSON-RPC           | `vm.warp` — inline, zero overhead  |
+| Time travel              | `evm_increaseTime` via JSON-RPC           | `vm.warp` - inline, zero overhead  |
 | Gas reports              | Plugin-based, less granular               | Per-function, built-in             |
 | Solidity deployment      | JS script via ethers.js                   | Native Solidity (`forge script`)   |
 | Testnet verification     | `hardhat verify` (Etherscan plugin)       | `forge script --verify` (built-in) |
@@ -744,7 +744,7 @@ Foundry runs entirely in Solidity, making it faster and more precise for low-lev
 
 ## Testing
 
-### Hardhat (Mocha/Chai) — Integration Tests
+### Hardhat (Mocha/Chai) - Integration Tests
 
 ```bash
 npm run hardhat:test
@@ -754,7 +754,7 @@ npm run hardhat:test
 Chainlink price feed mock, VRF mock, full dispute flow with commit-reveal, appeals, and
 ReputationRegistry. Uses TypeChain typed contract wrappers.
 
-### Foundry (Forge) — Unit + Fuzz Tests
+### Foundry (Forge) - Unit + Fuzz Tests
 
 ```bash
 npm run foundry:test
@@ -765,7 +765,7 @@ cd contracts && forge test -vvv
 73 Foundry tests across four suites:
 
 <details>
-<summary>Expand — Foundry test suite breakdown</summary>
+<summary>Expand - Foundry test suite breakdown</summary>
 
 | Suite                    | Count | Type            | Covers                                                                    |
 | ------------------------ | ----- | --------------- | ------------------------------------------------------------------------- |
@@ -780,7 +780,7 @@ Foundry config (`contracts/foundry.toml`):
 
 - Fuzz: 10,000 random inputs per fuzz test
 - Invariant: 256 runs × 500 call depth
-- IR pipeline (`via_ir = true`) — handles complex functions without stack-too-deep errors
+- IR pipeline (`via_ir = true`) - handles complex functions without stack-too-deep errors
 
 ### Linting and Formatting
 
@@ -802,11 +802,11 @@ TypeScript ESLint uses the `strictTypeChecked` + `stylisticTypeChecked` presets 
 ### TypeScript Configuration
 
 <details>
-<summary>Expand — tsconfig files and their roles</summary>
+<summary>Expand - tsconfig files and their roles</summary>
 
 | File                    | Used by                                              | Module system                  |
 | ----------------------- | ---------------------------------------------------- | ------------------------------ |
-| `tsconfig.json`         | Root project (type-aware ESLint — `src/**` excluded) | NodeNext ESM                   |
+| `tsconfig.json`         | Root project (type-aware ESLint - `src/**` excluded) | NodeNext ESM                   |
 | `tsconfig.hardhat.json` | `hardhat.config.ts`, `scripts/`, `test/`             | CommonJS (Hardhat requirement) |
 | `src/tsconfig.json`     | Next.js frontend (`src/`)                            | ESNext, bundler resolution     |
 
@@ -826,7 +826,7 @@ The backend is responsible for the parts of the application flow that happen off
 
 #### IPFS uploads before on-chain calls
 
-Before calling `createContract()`, upload the agreement document to IPFS and pass the resulting CID as `contractURI`. Before calling `submitProofOfWork()`, upload the deliverable and pass the CID as `proofOfWorkURI`. The Solidity contract stores the CID and a `keccak256` hash of the file — the backend must hash the file before upload and pass both values.
+Before calling `createContract()`, upload the agreement document to IPFS and pass the resulting CID as `contractURI`. Before calling `submitProofOfWork()`, upload the deliverable and pass the CID as `proofOfWorkURI`. The Solidity contract stores the CID and a `keccak256` hash of the file - the backend must hash the file before upload and pass both values.
 
 #### Magic-link freelancer onboarding
 
@@ -854,18 +854,18 @@ Use an Ethereum JSON-RPC node (Alchemy, Infura) or a dedicated indexer (The Grap
 Two scripts illustrate the full lifecycle against a running local node:
 
 ```bash
-# Option A — two terminals
+# Option A - two terminals
 npm run node                   # terminal 1 (keep open)
 npm run compile
 npm run hardhat:deploy:local   # terminal 2
 
-# Option B — single command (starts node in background)
+# Option B - single command (starts node in background)
 npm run start:deploy:local
 
-# Happy path — client approves, freelancer receives full 1 ETH
+# Happy path - client approves, freelancer receives full 1 ETH
 npm run demo:good
 
-# Dispute flow — jurors vote 50%, freelancer receives ~0.258 ETH
+# Dispute flow - jurors vote 50%, freelancer receives ~0.258 ETH
 npm run demo:bad
 ```
 
@@ -880,15 +880,15 @@ For MetaMask and Remix IDE manual testing, see `testing/demo-instructions.md`.
 This project pins `hardhat@^2.x` intentionally. Hardhat 3.x was evaluated and reverted:
 
 <details>
-<summary>Expand — Hardhat 2.x vs. 3.x comparison</summary>
+<summary>Expand - Hardhat 2.x vs. 3.x comparison</summary>
 
 | Concern              | Hardhat 2.x                                                                 | Hardhat 3.x (alpha)                                        |
 | -------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **TypeChain**        | Stable first-class plugin                                                   | No stable TypeChain plugin — 3.x overhauled the plugin API |
+| **TypeChain**        | Stable first-class plugin                                                   | No stable TypeChain plugin - 3.x overhauled the plugin API |
 | **Toolbox**          | `hardhat-toolbox@5` bundles TypeChain + ethers v6 + gas reporter + coverage | 3.x toolbox is separate, incomplete, and still evolving    |
 | **ESM/CJS**          | Works with `"module": "CommonJS"` + ts-node CJS override for Node.js 22+    | Defaults to ESM, which breaks the ts-node CJS workaround   |
 | **Plugin ecosystem** | `hardhat-gas-reporter`, `solidity-coverage`, Slither all verified           | Several plugins lack 3.x-compatible releases               |
-| **Stability**        | Mature, semver-stable                                                       | Alpha — breaking changes between releases disrupt CI       |
+| **Stability**        | Mature, semver-stable                                                       | Alpha - breaking changes between releases disrupt CI       |
 
 </details>
 
@@ -901,7 +901,7 @@ Upgrade once Hardhat 3.x reaches a stable release and TypeChain publishes a comp
 ## File Layout
 
 <details>
-<summary>Expand — full repository file tree</summary>
+<summary>Expand - full repository file tree</summary>
 
 ```text
 TrustLedger/
@@ -938,14 +938,14 @@ TrustLedger/
 │       ├── forge-std/
 │       └── openzeppelin-contracts/
 │
-├── src/                                            # Next.js 16 static dApp (frontend) — see src/README.md
+├── src/                                            # Next.js 16 static dApp (frontend) - see src/README.md
 │   ├── app/
 │   │   ├── api/magic-link/                       # Magic-link JWT API routes (send + verify)
 │   │   ├── arbitration/[id]/page.tsx             # Per-dispute commit/reveal voting UI
 │   │   ├── create/page.tsx                       # Create escrow contract form
 │   │   ├── dashboard/page.tsx                    # User's contract dashboard
 │   │   ├── freelancer/accept/page.tsx            # Magic-link freelancer accept landing page
-│   │   ├── juror/page.tsx                        # Juror portal — stake, vote, view disputes
+│   │   ├── juror/page.tsx                        # Juror portal - stake, vote, view disputes
 │   │   ├── layout.tsx                            # Root layout with Providers + Navbar
 │   │   ├── page.tsx                              # Landing page
 │   │   └── globals.css                           # Tailwind v4 base styles + font vars
@@ -988,8 +988,8 @@ TrustLedger/
 │       ├── security.yml                  # Slither, TruffleHog, npm audit (root + frontend), CodeQL
 │       └── dependabot-automerge.yml      # Auto-merge Dependabot security/patch PRs
 │
-├── artifacts/                            # Auto-generated — do not edit or commit
-│   ├── deployed-addresses.json           # Written by deploy scripts — import in frontend
+├── artifacts/                            # Auto-generated - do not edit or commit
+│   ├── deployed-addresses.json           # Written by deploy scripts - import in frontend
 │   └── typechain-types/                  # TypeScript contract wrappers
 │
 ├── hardhat.config.ts                     # Hardhat: compiler, networks, TypeChain, Etherscan
@@ -999,11 +999,11 @@ TrustLedger/
 ├── .prettierrc.json                      # Prettier formatting rules
 ├── .solhint.json                         # Solhint rules
 ├── package.json                          # npm scripts + dependencies
-├── .env.example                          # Environment variable template — safe to commit
-├── .env                                  # Actual secrets — NEVER commit this
+├── .env.example                          # Environment variable template - safe to commit
+├── .env                                  # Actual secrets - NEVER commit this
 ├── .gitignore                            # Excludes .env, node_modules, build artifacts
 ├── .dockerignore                         # Excludes secrets/artifacts from Docker images
-├── .mcp.json                             # Claude Code MCP server config — wires nexus-graph as the `nexus` server
+├── .mcp.json                             # Claude Code MCP server config - wires nexus-graph as the `nexus` server
 ├── .coderabbit.yaml                      # CodeRabbit AI code review config
 ├── SECURITY.md                           # Vulnerability reporting policy
 └── LICENSE                               # Apache-2.0
@@ -1021,12 +1021,12 @@ TrustLedger/
 
 Four workflows live in `.github/workflows/`. All use least-privilege tokens and concurrency groups to cancel stale runs on new commits.
 
-### `ci.yml` — Continuous Integration
+### `ci.yml` - Continuous Integration
 
 Runs on every push and pull request to `main`.
 
 <details>
-<summary>Expand — CI job breakdown</summary>
+<summary>Expand - CI job breakdown</summary>
 
 | Job            | What it does                                                                                      |
 | -------------- | ------------------------------------------------------------------------------------------------- |
@@ -1038,12 +1038,12 @@ The Solidity job sets `working-directory: contracts` so all `forge` commands run
 
 </details>
 
-### `deploy.yml` — Manual Deploy to Ethereum Sepolia
+### `deploy.yml` - Manual Deploy to Ethereum Sepolia
 
-Triggered only via **Actions → Run workflow** — never auto-deploys on push.
+Triggered only via **Actions → Run workflow** - never auto-deploys on push.
 
 <details>
-<summary>Expand — required secrets</summary>
+<summary>Expand - required secrets</summary>
 
 Requires a GitHub Environment named `ethereum-sepolia` with three secrets:
 
@@ -1057,44 +1057,44 @@ Requires a GitHub Environment named `ethereum-sepolia` with three secrets:
 
 Broadcast artifacts (contract addresses, transaction receipts) are uploaded as a workflow artifact and retained for 30 days.
 
-### `security.yml` — Security Scans
+### `security.yml` - Security Scans
 
 Runs on push/PR to `main`, manually via `workflow_dispatch`, and weekly (Mondays 13:00 UTC) to catch CVEs in transitive deps even when no code changes.
 
 <details>
-<summary>Expand — security scan jobs</summary>
+<summary>Expand - security scan jobs</summary>
 
 | Job                    | Tool                         | Catches                                                                                                                                                 |
 | ---------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Slither**            | `crytic/slither-action`      | Solidity SAST: reentrancy, uninitialized storage, dangerous low-level calls. Results appear as inline PR comments via SARIF upload to the Security tab. |
-| **TruffleHog**         | `trufflesecurity/trufflehog` | Secret scanning across full git history — accidental commits of `.env` values or private keys.                                                          |
+| **TruffleHog**         | `trufflesecurity/trufflehog` | Secret scanning across full git history - accidental commits of `.env` values or private keys.                                                          |
 | **npm audit**          | built-in                     | CVEs in the npm dependency tree at `high` severity threshold.                                                                                           |
 | **Frontend npm audit** | built-in                     | Separate audit of `src/package-lock.json` at `high` severity threshold.                                                                                 |
 | **CodeQL**             | `github/codeql-action`       | TypeScript SAST: path traversal, prototype pollution, SSRF, and other CWEs via the `security-extended` query suite.                                     |
 
 </details>
 
-### `frontend-deploy.yml` — Vercel Deploy
+### `frontend-deploy.yml` - Vercel Deploy
 
 Triggers on push to `main` when files under `src/**`, `artifacts/deployed-addresses.json`, or the workflow file itself change. Also supports manual `workflow_dispatch`.
 
 <details>
-<summary>Expand — deploy steps and required secrets</summary>
+<summary>Expand - deploy steps and required secrets</summary>
 
 | Step   | What it does                                                                             |
 | ------ | ---------------------------------------------------------------------------------------- |
-| Pull   | `vercel pull --environment=production` — syncs project settings and env vars from Vercel |
-| Build  | `vercel build --prod` — builds the Next.js app using Vercel's build pipeline             |
-| Deploy | `vercel deploy --prebuilt --prod` — uploads the prebuilt output to Vercel's edge network |
+| Pull   | `vercel pull --environment=production` - syncs project settings and env vars from Vercel |
+| Build  | `vercel build --prod` - builds the Next.js app using Vercel's build pipeline             |
+| Deploy | `vercel deploy --prebuilt --prod` - uploads the prebuilt output to Vercel's edge network |
 
 Requires three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for setup instructions.
 
 </details>
 
-### `dependabot-automerge.yml` — Dependabot Auto-Merge
+### `dependabot-automerge.yml` - Dependabot Auto-Merge
 
 <details>
-<summary>Expand — auto-merge rules</summary>
+<summary>Expand - auto-merge rules</summary>
 
 | Condition                                                  | Action                                  |
 | ---------------------------------------------------------- | --------------------------------------- |
@@ -1117,7 +1117,7 @@ Requires three repository secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_
 [CodeRabbit](https://coderabbit.ai) performs automated AI code review on every pull request. Configuration lives in `.coderabbit.yaml` at the repo root.
 
 <details>
-<summary>Expand — CodeRabbit review paths and focus areas</summary>
+<summary>Expand - CodeRabbit review paths and focus areas</summary>
 
 | Path                        | Review focus                                                                              |
 | --------------------------- | ----------------------------------------------------------------------------------------- |
@@ -1152,7 +1152,7 @@ lint: fix Solhint max-line-length warning in JurorRegistry
 ```
 
 <details>
-<summary>Expand — commit type reference</summary>
+<summary>Expand - commit type reference</summary>
 
 | Type       | When to use                                     |
 | ---------- | ----------------------------------------------- |
@@ -1186,9 +1186,9 @@ echo "bad message" > /tmp/test-commit-msg && \
 
 ---
 
-## Testnet vs. Local — Do You Need Faucet Funds?
+## Testnet vs. Local - Do You Need Faucet Funds?
 
-No. All local development, demos, and tests run entirely on the Hardhat node inside the container. Hardhat pre-funds all 20 test accounts with 10,000 ETH each — no external faucet is needed.
+No. All local development, demos, and tests run entirely on the Hardhat node inside the container. Hardhat pre-funds all 20 test accounts with 10,000 ETH each - no external faucet is needed.
 
 Faucet ETH (Ethereum Sepolia) is only required when you deploy to the public testnet:
 

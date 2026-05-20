@@ -1,5 +1,5 @@
 // Magic link tokens: base64url(JSON payload) + "." + base64url(HMAC-SHA256 signature)
-// Stateless — single-use enforcement relies on on-chain status (PENDING → ACTIVE is irreversible).
+// Stateless - single-use enforcement relies on on-chain status (PENDING → ACTIVE is irreversible).
 
 export interface MagicLinkPayload {
 	contractId: string;

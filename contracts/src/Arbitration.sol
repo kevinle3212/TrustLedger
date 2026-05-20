@@ -14,10 +14,10 @@ import {IVRFCoordinator} from "./interfaces/IVRFCoordinator.sol";
 //
 // High-level flow:
 //   1. TrustLedger calls openDispute() → a Dispute is created in COMMIT phase.
-//   2. Eligible jurors call commitVote(commitment) — they don't reveal their vote yet.
+//   2. Eligible jurors call commitVote(commitment) - they don't reveal their vote yet.
 //      The commitment is keccak256(disputeId, jurorAddress, completionPct, salt).
 //   3. Anyone calls advanceToReveal() once the commit window closes or slots fill up.
-//   4. Jurors call revealVote(completionPct, salt) — re-derived hash must match commitment.
+//   4. Jurors call revealVote(completionPct, salt) - re-derived hash must match commitment.
 //   5. Anyone calls finalizeDispute() after the reveal window closes.
 //      Median ruling is computed; minority voters are slashed.
 //   6. Anyone calls executeRuling() after the appeal window closes (if no appeal).
@@ -47,7 +47,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     }
 
     // One Dispute struct per opened dispute. Both original disputes and appeal
-    // disputes are stored in the same _disputes mapping — they just have different
+    // disputes are stored in the same _disputes mapping - they just have different
     // parentDisputeId values.
     //
     // Fields ordered to minimise storage slots:
@@ -363,11 +363,11 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         if (vrfCoordinator != address(0)) {
             uint256 requestId = IVRFCoordinator(vrfCoordinator)
                 .requestRandomWords(
-                    bytes32(0), // keyHash — gas lane; set by subscription
-                    0, // subId — VRF subscription ID
+                    bytes32(0), // keyHash - gas lane; set by subscription
+                    0, // subId - VRF subscription ID
                     3, // minimumRequestConfirmations
                     200_000, // callbackGasLimit
-                    1 // numWords — one word used as Fisher-Yates seed
+                    1 // numWords - one word used as Fisher-Yates seed
                 );
             _pendingVrfRequest[requestId] = disputeId;
         } else {
@@ -407,7 +407,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     // ─── Juror actions ────────────────────────────────────────────────────────
 
     // Step 1 of the commit-reveal scheme: juror submits a hash of their vote.
-    // They don't reveal the actual number yet — this prevents jurors from copying
+    // They don't reveal the actual number yet - this prevents jurors from copying
     // each other's votes and only voting with the "crowd" (herding behavior).
     //
     // The commitment must be: keccak256(abi.encodePacked(disputeId, msg.sender, completionPct, salt))
@@ -487,7 +487,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     // ─── Phase transitions ────────────────────────────────────────────────────
 
     // Advances from COMMIT → REVEAL (or APPEAL_COMMIT → APPEAL_REVEAL).
-    // Anyone can call this — it's permissionless. The condition is:
+    // Anyone can call this - it's permissionless. The condition is:
     //   either the commit window has expired, OR MIN_JURORS slots are filled.
     // Allowing early advance if slots fill up prevents long waits when enough
     // jurors have committed.
@@ -560,7 +560,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         if (msg.sender != d.client && msg.sender != d.freelancer) revert NotParty(); // only parties can appeal
 
         // Require a bond of 1.5× the original fee pool.
-        // This deters frivolous appeals — if you lose, you lose 1.5× what the jurors cost.
+        // This deters frivolous appeals - if you lose, you lose 1.5× what the jurors cost.
         uint256 required = (d.feePool * APPEAL_BOND_MULTIPLIER_BPS) / BPS_DENOMINATOR;
         if (msg.value < required) revert InsufficientAppealBond();
 
@@ -568,7 +568,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         d.appealer = msg.sender;
         d.appealBond = msg.value;
 
-        // Create the appeal dispute — this is a brand-new Dispute entry with doubled juror slots
+        // Create the appeal dispute - this is a brand-new Dispute entry with doubled juror slots
         // so a larger panel re-evaluates the case.
         uint256 appealId = nextDisputeId;
         ++nextDisputeId;
@@ -639,7 +639,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         }
 
         // Each majority juror gets an equal share. Integer division means a tiny
-        // remainder stays in the contract — acceptable for this use case.
+        // remainder stays in the contract - acceptable for this use case.
         uint256 share = d.feePool / majorityCount;
 
         (bool ok,) = msg.sender.call{value: share}("");
@@ -652,7 +652,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     // After finalization and the appeal window has passed (with no appeal filed),
     // anyone can trigger the ruling execution back in TrustLedger.
-    // Permissionless: no need for a specific address to call it — any account can
+    // Permissionless: no need for a specific address to call it - any account can
     // trigger the payout, which keeps the system self-operating.
 
     /// @notice Execute the ruling in TrustLedger after the appeal window has passed.
@@ -772,7 +772,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     }
 
     // Called from finalizeDispute() when the dispute being finalized is an appeal.
-    // The `/*appealDisputeId*/` parameter is unused — commented out to suppress a compiler warning.
+    // The `/*appealDisputeId*/` parameter is unused - commented out to suppress a compiler warning.
     function _resolveAppeal(
         uint256,
         /*appealDisputeId*/
@@ -830,7 +830,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         return arr[len / 2];
     }
 
-    // Accept ETH payments — required so the contract can receive the fee pool
+    // Accept ETH payments - required so the contract can receive the fee pool
     // from TrustLedger's openDispute() call.
     /// @notice Accepts ETH sent directly to this contract (fee pool from TrustLedger).
     receive() external payable {} // solhint-disable-line ordering, no-empty-blocks

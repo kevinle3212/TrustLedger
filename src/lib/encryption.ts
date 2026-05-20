@@ -1,6 +1,6 @@
 // Client-side AES-256-GCM encryption using the browser's native Web Crypto API.
 // The encrypted output is a self-describing JSON bundle so decryption parameters
-// travel with the ciphertext — no side-channel needed to recover them.
+// travel with the ciphertext - no side-channel needed to recover them.
 
 interface EncryptedBundle {
 	v: number;
