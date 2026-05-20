@@ -82,7 +82,9 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 
 	if (isSuccess)
 		return (
-			<p className="text-xs text-green-400">Work submitted - waiting for client approval.</p>
+			<p className="text-xs text-green-500 dark:text-green-400">
+				Work submitted - waiting for client approval.
+			</p>
 		);
 
 	return (
@@ -95,10 +97,10 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 					setUri(e.target.value);
 				}}
 				required
-				className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
 			/>
 			{error !== null && (
-				<p className="text-xs text-red-400">
+				<p className="text-xs text-red-500 dark:text-red-400">
 					{(error as { shortMessage?: string }).shortMessage ?? error.message}
 				</p>
 			)}
@@ -128,11 +130,11 @@ function ContractCard({
 	const now = PAGE_LOAD_TIME_S;
 
 	return (
-		<div className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col gap-4">
+		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
 			<div className="flex items-start justify-between gap-2">
 				<div>
 					<span className="text-xs text-gray-500 font-mono">#{id.toString()}</span>
-					<h3 className="font-semibold text-white mt-0.5">
+					<h3 className="font-semibold text-gray-900 dark:text-white mt-0.5">
 						{isClient ? "Client" : "Freelancer"} -{" "}
 						{isClient
 							? `Freelancer: ${formatAddress(contract.freelancer)}`
@@ -148,15 +150,21 @@ function ContractCard({
 
 			<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
 				<span className="text-gray-500">Amount</span>
-				<span className="text-white font-medium">{formatEther(contract.amount)} ETH</span>
+				<span className="text-gray-900 dark:text-white font-medium">
+					{formatEther(contract.amount)} ETH
+				</span>
 
 				<span className="text-gray-500">Deadline</span>
-				<span className="text-white">{formatDeadline(contract.projectDeadline)}</span>
+				<span className="text-gray-900 dark:text-white">
+					{formatDeadline(contract.projectDeadline)}
+				</span>
 
 				{contract.holdBackBps > 0 && (
 					<>
 						<span className="text-gray-500">Hold-back</span>
-						<span className="text-white">{contract.holdBackBps / 100}%</span>
+						<span className="text-gray-900 dark:text-white">
+							{contract.holdBackBps / 100}%
+						</span>
 					</>
 				)}
 
@@ -167,7 +175,7 @@ function ContractCard({
 							href={contract.contractURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="text-indigo-400 hover:text-indigo-300 truncate underline underline-offset-2"
+							className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 truncate underline underline-offset-2"
 						>
 							View
 						</a>
@@ -238,7 +246,7 @@ function ContractCard({
 			{status === 4 && (
 				<Link
 					href={`/arbitration/${contract.arbitrationId.toString()}`}
-					className="text-xs text-red-400 hover:text-red-300 underline underline-offset-2"
+					className="text-xs text-red-500 dark:text-red-400 hover:text-red-400 dark:hover:text-red-300 underline underline-offset-2"
 				>
 					View Dispute →
 				</Link>
@@ -262,7 +270,7 @@ function ContractList({ address }: { address: `0x${string}` }): React.JSX.Elemen
 				<p>No contracts on-chain yet.</p>
 				<Link
 					href="/create"
-					className="mt-3 inline-block text-indigo-400 hover:text-indigo-300 text-sm underline"
+					className="mt-3 inline-block text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-sm underline"
 				>
 					Create the first one
 				</Link>
@@ -316,7 +324,9 @@ export default function DashboardPage(): React.JSX.Element {
 	if (!isConnected || address === undefined) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-6 py-32">
-				<p className="text-gray-400 text-lg">Connect your wallet to see your contracts.</p>
+				<p className="text-gray-500 dark:text-gray-400 text-lg">
+					Connect your wallet to see your contracts.
+				</p>
 				<ConnectButton />
 			</div>
 		);
@@ -327,7 +337,7 @@ export default function DashboardPage(): React.JSX.Element {
 			<div className="flex items-center justify-between mb-8">
 				<div>
 					<h1 className="text-3xl font-bold">Dashboard</h1>
-					<p className="text-gray-400 text-sm mt-1">
+					<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
 						Contracts where you are the client or freelancer.
 					</p>
 				</div>

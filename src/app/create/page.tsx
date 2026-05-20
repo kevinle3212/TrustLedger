@@ -28,7 +28,7 @@ function Field({
 }): React.JSX.Element {
 	return (
 		<div className="flex flex-col gap-1.5">
-			<label className="text-sm font-medium text-gray-200">{label}</label>
+			<label className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</label>
 			{children}
 			{hint !== undefined && <p className="text-xs text-gray-500">{hint}</p>}
 		</div>
@@ -39,7 +39,7 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>): React.JSX.El
 	return (
 		<input
 			{...props}
-			className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+			className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
 		/>
 	);
 }
@@ -48,7 +48,7 @@ function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>): React.JSX
 	return (
 		<select
 			{...props}
-			className="rounded-lg bg-gray-900 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+			className="rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
 		/>
 	);
 }
@@ -259,7 +259,9 @@ export default function CreatePage(): React.JSX.Element {
 	if (!isConnected) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-6 py-32">
-				<p className="text-gray-400 text-lg">Connect your wallet to create a contract.</p>
+				<p className="text-gray-500 dark:text-gray-400 text-lg">
+					Connect your wallet to create a contract.
+				</p>
 				<ConnectButton />
 			</div>
 		);
@@ -270,7 +272,7 @@ export default function CreatePage(): React.JSX.Element {
 			<div className="max-w-lg mx-auto px-6 py-24 flex flex-col items-center gap-6 text-center">
 				<div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center">
 					<svg
-						className="w-8 h-8 text-green-400"
+						className="w-8 h-8 text-green-500 dark:text-green-400"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -284,29 +286,31 @@ export default function CreatePage(): React.JSX.Element {
 					</svg>
 				</div>
 				<h2 className="text-2xl font-bold">Contract Created!</h2>
-				<p className="text-gray-400 text-sm">
+				<p className="text-gray-500 dark:text-gray-400 text-sm">
 					Transaction confirmed in block {receipt.blockNumber.toString()}.
 				</p>
 				<a
 					href={getExplorerTxUrl(chainId, txHash ?? "")}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-indigo-400 hover:text-indigo-300 text-sm underline underline-offset-2"
+					className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-sm underline underline-offset-2"
 				>
 					View on explorer
 				</a>
 				{form.freelancerEmail !== "" && (
 					<p className="text-sm">
 						{magicLinkStatus === "sending" && (
-							<span className="text-gray-400">Sending magic link…</span>
+							<span className="text-gray-500 dark:text-gray-400">
+								Sending magic link…
+							</span>
 						)}
 						{magicLinkStatus === "sent" && (
-							<span className="text-green-400">
+							<span className="text-green-500 dark:text-green-400">
 								Magic link sent to {form.freelancerEmail}
 							</span>
 						)}
 						{magicLinkStatus === "error" && (
-							<span className="text-red-400">
+							<span className="text-red-500 dark:text-red-400">
 								Failed to send magic link - check server env vars.
 							</span>
 						)}
@@ -328,7 +332,7 @@ export default function CreatePage(): React.JSX.Element {
 		<div className="max-w-2xl mx-auto px-6 py-12">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold">New Escrow Contract</h1>
-				<p className="text-gray-400 mt-2 text-sm">
+				<p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
 					ETH will be held in escrow until the freelancer delivers and you approve - or a
 					dispute is resolved.
 				</p>
@@ -336,8 +340,10 @@ export default function CreatePage(): React.JSX.Element {
 
 			<form onSubmit={handleSubmit} className="flex flex-col gap-6">
 				{/* Parties & Payment */}
-				<div className="rounded-2xl border border-white/10 bg-white/5 p-6 flex flex-col gap-4">
-					<h2 className="font-semibold text-white">Parties &amp; Payment</h2>
+				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
+					<h2 className="font-semibold text-gray-900 dark:text-white">
+						Parties &amp; Payment
+					</h2>
 
 					<Field
 						label="Freelancer Address"
@@ -385,10 +391,12 @@ export default function CreatePage(): React.JSX.Element {
 				</div>
 
 				{/* Contract Document */}
-				<div className="rounded-2xl border border-white/10 bg-white/5 p-6 flex flex-col gap-4">
+				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
 					<div className="flex items-center justify-between">
-						<h2 className="font-semibold text-white">Contract Document</h2>
-						<div className="flex gap-1 rounded-lg bg-white/5 p-1">
+						<h2 className="font-semibold text-gray-900 dark:text-white">
+							Contract Document
+						</h2>
+						<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1">
 							{(["upload", "manual"] as DocMode[]).map((m) => (
 								<button
 									key={m}
@@ -399,7 +407,7 @@ export default function CreatePage(): React.JSX.Element {
 									className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
 										docMode === m
 											? "bg-indigo-600 text-white"
-											: "text-gray-400 hover:text-white"
+											: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
 									}`}
 								>
 									{m === "upload" ? "Upload File" : "Enter URI"}
@@ -411,7 +419,7 @@ export default function CreatePage(): React.JSX.Element {
 					{docMode === "upload" ? (
 						<div className="flex flex-col gap-3">
 							{/* File picker */}
-							<label className="flex flex-col items-center justify-center gap-2 h-20 rounded-lg border-2 border-dashed border-white/15 hover:border-indigo-500/50 cursor-pointer transition-colors">
+							<label className="flex flex-col items-center justify-center gap-2 h-20 rounded-lg border-2 border-dashed border-gray-300 dark:border-white/15 hover:border-indigo-500/50 cursor-pointer transition-colors">
 								<input
 									type="file"
 									className="sr-only"
@@ -422,13 +430,13 @@ export default function CreatePage(): React.JSX.Element {
 										setUploadedBytes(null);
 									}}
 								/>
-								<span className="text-sm text-gray-400">
+								<span className="text-sm text-gray-500 dark:text-gray-400">
 									{selectedFile !== null
 										? selectedFile.name
 										: "Click to browse or drop a file"}
 								</span>
 								{selectedFile !== null && (
-									<span className="text-xs text-gray-600">
+									<span className="text-xs text-gray-500">
 										{(selectedFile.size / 1024).toFixed(1)} KB
 									</span>
 								)}
@@ -442,9 +450,9 @@ export default function CreatePage(): React.JSX.Element {
 									onChange={(e) => {
 										setEncryptEnabled(e.target.checked);
 									}}
-									className="w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-500 focus:ring-indigo-500"
+									className="w-4 h-4 rounded border-gray-300 dark:border-white/20 bg-gray-100 dark:bg-white/5 text-indigo-500 focus:ring-indigo-500"
 								/>
-								<span className="text-sm text-gray-300">
+								<span className="text-sm text-gray-600 dark:text-gray-300">
 									Encrypt before upload (AES-256-GCM)
 								</span>
 							</label>
@@ -500,7 +508,7 @@ export default function CreatePage(): React.JSX.Element {
 							{/* Upload result */}
 							{uploadStatus === "done" && form.contractURI !== "" && (
 								<div className="flex flex-col gap-3">
-									<div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-green-300">
+									<div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-green-600 dark:text-green-300">
 										<span className="shrink-0 mt-0.5">✓</span>
 										<span className="font-mono break-all">
 											{form.contractURI}
@@ -508,7 +516,7 @@ export default function CreatePage(): React.JSX.Element {
 									</div>
 
 									{/* Arweave backup */}
-									<div className="flex flex-col gap-2 border-t border-white/5 pt-3">
+									<div className="flex flex-col gap-2 border-t border-gray-100 dark:border-white/5 pt-3">
 										<p className="text-xs text-gray-500">
 											Permanent backup to Arweave (optional - for long-term
 											legal retention)
@@ -516,7 +524,7 @@ export default function CreatePage(): React.JSX.Element {
 
 										{arweaveStatus === "idle" && (
 											<div className="flex items-center gap-3">
-												<label className="cursor-pointer text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2">
+												<label className="cursor-pointer text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2">
 													<input
 														type="file"
 														accept=".json"
@@ -539,7 +547,7 @@ export default function CreatePage(): React.JSX.Element {
 															onClick={() => {
 																void handleArweaveUpload();
 															}}
-															className="text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
+															className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
 														>
 															Upload to Arweave
 														</button>
@@ -553,12 +561,12 @@ export default function CreatePage(): React.JSX.Element {
 											</span>
 										)}
 										{arweaveStatus === "done" && arweaveUri !== "" && (
-											<span className="text-xs text-green-400 font-mono break-all">
+											<span className="text-xs text-green-500 dark:text-green-400 font-mono break-all">
 												✓ {arweaveUri}
 											</span>
 										)}
 										{arweaveStatus === "error" && (
-											<span className="text-xs text-red-400">
+											<span className="text-xs text-red-500 dark:text-red-400">
 												Arweave upload failed - check wallet balance.
 											</span>
 										)}
@@ -569,7 +577,7 @@ export default function CreatePage(): React.JSX.Element {
 							{uploadStatus === "error" &&
 								uploadError !== null &&
 								uploadError !== "" && (
-									<p className="text-xs text-red-400 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+									<p className="text-xs text-red-500 dark:text-red-400 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
 										{uploadError}
 									</p>
 								)}
@@ -592,8 +600,8 @@ export default function CreatePage(): React.JSX.Element {
 				</div>
 
 				{/* Timeline */}
-				<div className="rounded-2xl border border-white/10 bg-white/5 p-6 flex flex-col gap-4">
-					<h2 className="font-semibold text-white">Timeline</h2>
+				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
+					<h2 className="font-semibold text-gray-900 dark:text-white">Timeline</h2>
 
 					<div className="grid grid-cols-2 gap-4">
 						<Field
@@ -645,8 +653,10 @@ export default function CreatePage(): React.JSX.Element {
 				</div>
 
 				{/* Advanced */}
-				<div className="rounded-2xl border border-white/10 bg-white/5 p-6 flex flex-col gap-4">
-					<h2 className="font-semibold text-white">Advanced Options</h2>
+				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
+					<h2 className="font-semibold text-gray-900 dark:text-white">
+						Advanced Options
+					</h2>
 
 					<Field
 						label="Arbitration Fee (%)"
@@ -702,14 +712,16 @@ export default function CreatePage(): React.JSX.Element {
 
 				{/* Summary */}
 				{form.amountEth !== "" && (
-					<div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-4 text-sm text-gray-300 flex flex-col gap-1">
+					<div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-4 text-sm text-gray-600 dark:text-gray-300 flex flex-col gap-1">
 						<p>
-							<span className="text-gray-400">Escrow amount:</span>{" "}
-							<span className="text-white font-medium">{form.amountEth} ETH</span>
+							<span className="text-gray-500 dark:text-gray-400">Escrow amount:</span>{" "}
+							<span className="text-gray-900 dark:text-white font-medium">
+								{form.amountEth} ETH
+							</span>
 						</p>
 						<p>
-							<span className="text-gray-400">Deadline:</span>{" "}
-							<span className="text-white font-medium">
+							<span className="text-gray-500 dark:text-gray-400">Deadline:</span>{" "}
+							<span className="text-gray-900 dark:text-white font-medium">
 								~
 								{Math.round(
 									(Number(form.estimatedDurationDays) *
@@ -721,8 +733,8 @@ export default function CreatePage(): React.JSX.Element {
 						</p>
 						{form.holdBack !== "none" && (
 							<p>
-								<span className="text-gray-400">Hold-back:</span>{" "}
-								<span className="text-white font-medium">
+								<span className="text-gray-500 dark:text-gray-400">Hold-back:</span>{" "}
+								<span className="text-gray-900 dark:text-white font-medium">
 									{form.holdBack}% (
 									{(
 										(Number(form.amountEth) * Number(form.holdBack)) /
@@ -737,13 +749,13 @@ export default function CreatePage(): React.JSX.Element {
 
 				{/* Simulation error - shown before MetaMask opens, surfaces revert reason. */}
 				{simError !== null && txArgs !== null && (
-					<p className="text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
+					<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
 						{(simError as { shortMessage?: string }).shortMessage ?? simError.message}
 					</p>
 				)}
 
 				{writeError !== null && (
-					<p className="text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
+					<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
 						{(writeError as { shortMessage?: string }).shortMessage ??
 							writeError.message}
 					</p>

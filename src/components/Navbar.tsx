@@ -4,6 +4,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 /** GitHub mark SVG icon. */
 function GitHubIcon(): React.JSX.Element {
@@ -28,16 +29,18 @@ export function Navbar(): React.JSX.Element {
 
 	const linkClass = (href: string): string =>
 		`text-sm font-medium transition-colors ${
-			path === href ? "text-white" : "text-gray-400 hover:text-white"
+			path === href
+				? "text-gray-900 dark:text-white"
+				: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
 		}`;
 
 	return (
-		<header className="border-b border-white/10 bg-gray-950/80 backdrop-blur sticky top-0 z-50">
+		<header className="border-b border-gray-200 dark:border-white/10 bg-white/80 dark:bg-gray-950/80 backdrop-blur sticky top-0 z-50">
 			<div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
 				<div className="flex items-center gap-8">
 					<Link
 						href="/"
-						className="flex items-center gap-2 text-indigo-400 font-bold text-lg tracking-tight"
+						className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-lg tracking-tight"
 					>
 						<Image
 							src="/logo.png"
@@ -61,18 +64,19 @@ export function Navbar(): React.JSX.Element {
 						</Link>
 					</nav>
 				</div>
-				<div className="flex items-center gap-4">
+				<div className="flex items-center gap-2">
 					{githubUrl !== undefined && githubUrl !== "" && (
 						<a
 							href={githubUrl}
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="View source on GitHub"
-							className="text-gray-400 hover:text-white transition-colors"
+							className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
 						>
 							<GitHubIcon />
 						</a>
 					)}
+					<ThemeToggle />
 					<ConnectButton chainStatus="icon" showBalance={false} />
 				</div>
 			</div>

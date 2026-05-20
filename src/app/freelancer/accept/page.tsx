@@ -103,7 +103,7 @@ function AcceptPageInner(): React.JSX.Element {
 	if (tokenLoading)
 		return (
 			<PageShell>
-				<p className="text-gray-400">Verifying link…</p>
+				<p className="text-gray-500 dark:text-gray-400">Verifying link…</p>
 			</PageShell>
 		);
 
@@ -111,8 +111,10 @@ function AcceptPageInner(): React.JSX.Element {
 		return (
 			<PageShell>
 				<div className="rounded-xl bg-red-500/10 border border-red-500/20 px-6 py-5 text-center">
-					<p className="text-red-400 font-semibold mb-1">Invalid or Expired Link</p>
-					<p className="text-gray-400 text-sm">{tokenError}</p>
+					<p className="text-red-500 dark:text-red-400 font-semibold mb-1">
+						Invalid or Expired Link
+					</p>
+					<p className="text-gray-500 dark:text-gray-400 text-sm">{tokenError}</p>
 				</div>
 			</PageShell>
 		);
@@ -121,9 +123,11 @@ function AcceptPageInner(): React.JSX.Element {
 	if (!isConnected) {
 		return (
 			<PageShell>
-				<p className="text-gray-400 text-sm mb-4">
+				<p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
 					Connect the wallet at{" "}
-					<span className="font-mono text-indigo-400">{payload?.freelancerAddress}</span>{" "}
+					<span className="font-mono text-indigo-600 dark:text-indigo-400">
+						{payload?.freelancerAddress}
+					</span>{" "}
 					to accept contract #{payload?.contractId}.
 				</p>
 				<ConnectButton />
@@ -137,10 +141,12 @@ function AcceptPageInner(): React.JSX.Element {
 		return (
 			<PageShell>
 				<div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-6 py-5">
-					<p className="text-yellow-400 font-semibold mb-1">Wrong Wallet</p>
-					<p className="text-gray-400 text-sm">
+					<p className="text-yellow-600 dark:text-yellow-400 font-semibold mb-1">
+						Wrong Wallet
+					</p>
+					<p className="text-gray-500 dark:text-gray-400 text-sm">
 						This link is for{" "}
-						<span className="font-mono text-yellow-300">
+						<span className="font-mono text-yellow-600 dark:text-yellow-300">
 							{payload?.freelancerAddress}
 						</span>
 						. Please switch to that account.
@@ -156,7 +162,7 @@ function AcceptPageInner(): React.JSX.Element {
 	if (contractLoading || contract === undefined) {
 		return (
 			<PageShell>
-				<p className="text-gray-400">Loading contract…</p>
+				<p className="text-gray-500 dark:text-gray-400">Loading contract…</p>
 			</PageShell>
 		);
 	}
@@ -168,7 +174,7 @@ function AcceptPageInner(): React.JSX.Element {
 			<PageShell>
 				<div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
 					<svg
-						className="w-8 h-8 text-green-400"
+						className="w-8 h-8 text-green-500 dark:text-green-400"
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -182,7 +188,7 @@ function AcceptPageInner(): React.JSX.Element {
 					</svg>
 				</div>
 				<h2 className="text-2xl font-bold text-center mb-2">Contract Accepted!</h2>
-				<p className="text-gray-400 text-sm text-center mb-4">
+				<p className="text-gray-500 dark:text-gray-400 text-sm text-center mb-4">
 					The project deadline timer has started.
 				</p>
 				{txHash !== undefined && explorerTxUrl !== null && (
@@ -190,7 +196,7 @@ function AcceptPageInner(): React.JSX.Element {
 						href={explorerTxUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="text-indigo-400 hover:text-indigo-300 text-sm underline underline-offset-2 block text-center"
+						className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-sm underline underline-offset-2 block text-center"
 					>
 						View transaction
 					</a>
@@ -204,9 +210,11 @@ function AcceptPageInner(): React.JSX.Element {
 	return (
 		<PageShell>
 			<h1 className="text-2xl font-bold mb-1">Contract #{payload?.contractId}</h1>
-			<p className="text-gray-400 text-sm mb-6">Review the terms below before accepting.</p>
+			<p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+				Review the terms below before accepting.
+			</p>
 
-			<div className="rounded-2xl border border-white/10 bg-white/5 p-5 flex flex-col gap-3 text-sm mb-6">
+			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3 text-sm mb-6">
 				<Row label="Status" value={statusLabel} />
 				<Row label="Client" value={contract.client} mono />
 				<Row label="Freelancer" value={contract.freelancer} mono />
@@ -233,7 +241,7 @@ function AcceptPageInner(): React.JSX.Element {
 								)}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 truncate"
+								className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2 truncate"
 							>
 								{contract.contractURI}
 							</a>
@@ -243,14 +251,14 @@ function AcceptPageInner(): React.JSX.Element {
 			</div>
 
 			{!canAccept && (
-				<div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-4 py-3 text-sm text-yellow-400 mb-4">
+				<div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400 mb-4">
 					Contract is not in PENDING state (current: {statusLabel}). It may already be
 					accepted or cancelled.
 				</div>
 			)}
 
 			{(signError ?? writeError) !== null && (
-				<p className="text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
+				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
 					{((signError ?? writeError) as { shortMessage?: string } | null)
 						?.shortMessage ?? (signError ?? writeError)?.message}
 				</p>
@@ -286,7 +294,7 @@ function Row({
 		<div className="flex justify-between gap-4">
 			<span className="text-gray-500 shrink-0">{label}</span>
 			<span
-				className={`text-right truncate ${mono ? "font-mono text-xs text-gray-300" : "text-white"}`}
+				className={`text-right truncate ${mono ? "font-mono text-xs text-gray-600 dark:text-gray-300" : "text-gray-900 dark:text-white"}`}
 			>
 				{value}
 			</span>
