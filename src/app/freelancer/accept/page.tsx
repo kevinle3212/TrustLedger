@@ -14,7 +14,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { keccak256, encodePacked, parseSignature } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
-import { formatEth } from "@/lib/utils";
+import { formatEth, resolveDocUrl } from "@/lib/utils";
 import type { MagicLinkPayload } from "@/lib/magicLink";
 
 function AcceptPageInner(): React.JSX.Element {
@@ -206,6 +206,7 @@ function AcceptPageInner(): React.JSX.Element {
 	}
 
 	const canAccept = contract.status === 0; // PENDING
+	const docUrl = resolveDocUrl(contract.contractURI);
 
 	return (
 		<PageShell>
@@ -218,7 +219,7 @@ function AcceptPageInner(): React.JSX.Element {
 				<Row label="Status" value={statusLabel} />
 				<Row label="Client" value={contract.client} mono />
 				<Row label="Freelancer" value={contract.freelancer} mono />
-				<Row label="Amount" value={`${formatEth(contract.amount)} ETH`} />
+				<Row label="Amount" value={formatEth(contract.amount)} />
 				<Row
 					label="Deadline"
 					value={
@@ -230,15 +231,12 @@ function AcceptPageInner(): React.JSX.Element {
 				{contract.holdBackBps > 0 && (
 					<Row label="Hold-back" value={`${String(contract.holdBackBps / 100)}%`} />
 				)}
-				{contract.contractURI !== "" && (
+				{docUrl !== undefined && (
 					<Row
 						label="Document"
 						value={
 							<a
-								href={contract.contractURI.replace(
-									"ipfs://",
-									"https://ipfs.io/ipfs/",
-								)}
+								href={docUrl}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2 truncate"

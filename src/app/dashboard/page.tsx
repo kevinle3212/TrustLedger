@@ -6,7 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatEther, keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
-import { formatAddress, formatDeadline, STATUS_COLORS } from "@/lib/utils";
+import { formatAddress, formatDeadline, resolveDocUrl, STATUS_COLORS } from "@/lib/utils";
 import Link from "next/link";
 
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
@@ -199,6 +199,8 @@ function ContractCard({
 	const isClient = contract.client.toLowerCase() === address.toLowerCase();
 	const isFreelancer = contract.freelancer.toLowerCase() === address.toLowerCase();
 	const now = PAGE_LOAD_TIME_S;
+	const docUrl = resolveDocUrl(contract.contractURI);
+	const deliverableUrl = resolveDocUrl(contract.proofOfWorkURI);
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
@@ -239,11 +241,25 @@ function ContractCard({
 					</>
 				)}
 
-				{contract.contractURI !== "" && contract.contractURI !== "ipfs://" && (
+				{docUrl !== undefined && (
 					<>
 						<span className="text-gray-500">Document</span>
 						<a
-							href={contract.contractURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
+							href={docUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 truncate underline underline-offset-2"
+						>
+							View
+						</a>
+					</>
+				)}
+
+				{deliverableUrl !== undefined && (
+					<>
+						<span className="text-gray-500">Deliverable</span>
+						<a
+							href={deliverableUrl}
 							target="_blank"
 							rel="noopener noreferrer"
 							className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 truncate underline underline-offset-2"

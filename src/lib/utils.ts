@@ -11,6 +11,31 @@ export function daysToSeconds(days: number): bigint {
 	return BigInt(Math.floor(days * 24 * 60 * 60));
 }
 
+// Bare IPFS CIDs: v0 (Qm…, 46 chars) or v1 (b…, base32). Loose check - enough to
+// distinguish a pasted CID from an http URL or arbitrary text.
+const BARE_CID = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[A-Za-z2-7]{20,})$/;
+
+// Resolve an on-chain document URI to a browser-openable gateway URL.
+// Handles ipfs:// and ar:// schemes, bare IPFS CIDs, and passes http(s) URLs
+// through unchanged. Returns undefined when the value cannot resolve to a real
+// link (empty, the "ipfs://" placeholder, or arbitrary non-URL text) so callers
+// can hide the link instead of rendering a broken one.
+//
+// Example: resolveDocUrl("ipfs://QmHash") -> "https://ipfs.io/ipfs/QmHash"
+export function resolveDocUrl(uri: string): string | undefined {
+	const trimmed = uri.trim();
+	if (trimmed === "" || trimmed === "ipfs://" || trimmed === "ar://") return undefined;
+	if (trimmed.startsWith("ipfs://")) {
+		return `https://ipfs.io/ipfs/${trimmed.slice("ipfs://".length)}`;
+	}
+	if (trimmed.startsWith("ar://")) {
+		return `https://arweave.net/${trimmed.slice("ar://".length)}`;
+	}
+	if (trimmed.startsWith("https://") || trimmed.startsWith("http://")) return trimmed;
+	if (BARE_CID.test(trimmed)) return `https://ipfs.io/ipfs/${trimmed}`;
+	return undefined;
+}
+
 export function formatAddress(addr: string): string {
 	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
