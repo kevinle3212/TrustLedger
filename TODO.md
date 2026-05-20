@@ -34,9 +34,20 @@ This is a list to prepare for the version 1.0.0 release. It includes tasks that 
     - This would be used to test the Models section of the website, and would be run in a GitHub Action workflow. It would test the functionality of the Models section, and would also serve as an example for users who want to use the Models section in their own projects.
     - Add in more prompts that test different functionalities of the Models section, such as generating text, summarizing text, and answering questions. Also add in prompts that test the error handling of the Models section, such as invalid input and rate limiting.
 
-- [ ] Add in user authentication and authorization for the website, so that users can create accounts and log in to access their own data and settings.
+- [ ] (Mainnet) Add in user authentication and authorization for the website, so that users can create accounts and log in to access their own data and settings.
     - This would involve setting up a database to store user information, as well as implementing a secure authentication system using JWTs or OAuth.
-- [ ] GitHub pages for the documentation, but even more in-depth and detailed than the current documentation on the website. This would include tutorials, examples, and API reference for all the features of the project.
+- [ ] (Mainnet) GitHub pages for the documentation, but even more in-depth and detailed than the current documentation on the website. This would include tutorials, examples, and API reference for all the features of the project.
     - Have this be on a separate branch, and have it be automatically deployed to GitHub pages whenever changes are made to the documentation. This would make it easier for users to access the documentation and learn how to use the project, and would also make it easier for developers to contribute to the documentation.
     - This would make it easier for users to learn how to use the project and would also serve as a reference for developers who want to contribute to the project.
     - Once a project prospectus is done, have a whitepaper be made as well. Then we will have it be on the GitHub pages as well, and link to it from the main website. This would provide more in-depth information about the project, its goals, and its technical details for users who are interested in learning more about it.
+- [ ] Local testing scripts on local to show functionality without relying on testnet and real-world data.
+    - Ensure the following 3 are working:
+        - [ ] Stable coin evaluation with cheaper gas.
+        - [ ] Live juror testing.
+        - [ ] Implementing the reputation system fully in the front end and back end, and testing it with live jurors.
+
+    - [x] Somehow have all case scenarios (1. Plaintiff wins, 2. Defendant wins, 3. Tie, 4. Arbitration Ruling, 1 in favor of the client, 1 in favor of the freelancer) work in a shell script: I can type 1 in shell to run scenario 1, 2 for scenario 2, etc. so I don't have to run multiple scripts.
+        - [ ] Add explanations into the output when running the script.
+        - [ ] Also fix after typing 1 and getting the results, have the script keep prompting me for a new option until I hit Crtl + C.
+
+- [ ] Generate a markdown skill file for agents, instructing them on how to clean up code, fix issues, lint it, and properly commit it.
