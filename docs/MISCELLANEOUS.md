@@ -130,6 +130,10 @@ When a client creates a contract and provides the freelancer's email address, th
 | `RESEND_FROM`         | Verified sender address (or `onboarding@resend.dev` for dev)     |
 | `NEXT_PUBLIC_APP_URL` | Base URL for the magic link (e.g. `http://localhost:3000`)       |
 
+**Known issues:**
+
+- **`onboarding@resend.dev` recipient restriction** - When `RESEND_FROM` is set to `onboarding@resend.dev` (Resend's shared test address), Resend only delivers to the single email address registered on the Resend account. Sending to any other address returns a 502. This affects staging/preview environments and local dev that share the same test API key. Fix: verify a custom domain at [resend.com/domains](https://resend.com/domains) and set `RESEND_FROM` to an address on that domain, then Resend will deliver to any recipient.
+
 ---
 
 ## Optional Chainlink Integrations
