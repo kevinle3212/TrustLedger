@@ -4,10 +4,12 @@
 # Starts the Hardhat node in the background, waits until it is ready,
 # deploys all contracts, then runs the demo selected by the DEMO env var.
 #
-#   DEMO=good   happy path demo  (default)
-#   DEMO=bad    dispute-flow demo
-#   DEMO=both   good then bad
-#   DEMO=node   node only — useful for connecting MetaMask or Remix IDE
+#   DEMO=good    happy path demo  (default)
+#   DEMO=bad     dispute-flow demo
+#   DEMO=jurors     juror reputation demo
+#   DEMO=stablecoin ERC-20 escrow + gas comparison + reputation
+#   DEMO=both       good then bad
+#   DEMO=node    node only — useful for connecting MetaMask or Remix IDE
 set -euo pipefail
 
 cleanup() {
@@ -35,21 +37,35 @@ echo ""
 case "${DEMO:-good}" in
     good)
         echo "Deploying contracts..."
-        npm run deploy:local
+        npm run hardhat:deploy:local
         echo ""
         echo "Running happy-path demo (create → accept → submit → approve → payout)..."
         npm run demo:good
         ;;
     bad)
         echo "Deploying contracts..."
-        npm run deploy:local
+        npm run hardhat:deploy:local
         echo ""
         echo "Running dispute-flow demo (create → accept → submit → dispute → vote → ruling)..."
         npm run demo:bad
         ;;
+    jurors)
+        echo "Deploying contracts..."
+        npm run hardhat:deploy:local
+        echo ""
+        echo "Running juror reputation demo (register → vote → minority slash → before/after table)..."
+        npm run demo:jurors
+        ;;
+    stablecoin)
+        echo "Deploying contracts..."
+        npm run hardhat:deploy:local
+        echo ""
+        echo "Running stablecoin escrow demo (ERC-20 escrow + gas comparison + reputation)..."
+        npm run demo:stablecoin
+        ;;
     both)
         echo "Deploying contracts..."
-        npm run deploy:local
+        npm run hardhat:deploy:local
         echo ""
         echo "Running happy-path demo..."
         npm run demo:good
@@ -65,7 +81,7 @@ case "${DEMO:-good}" in
         exit 0
         ;;
     *)
-        echo "Unknown DEMO='${DEMO}'. Valid values: good | bad | both | node" >&2
+        echo "Unknown DEMO='${DEMO}'. Valid values: good | bad | jurors | stablecoin | both | node" >&2
         exit 1
         ;;
 esac

@@ -4,10 +4,12 @@
 #
 #   docker compose build
 #
-#   docker compose up demo-good   # happy path: client approves, freelancer gets 1 ETH
-#   docker compose up demo-bad    # dispute flow: jurors vote, freelancer gets ~0.258 ETH
-#   docker compose up node        # local chain only (port 8545 open for MetaMask / Remix)
-#   docker compose run test       # run all 73 Hardhat tests + Foundry unit + fuzz tests
+#   docker compose up demo-good    # happy path: client approves, freelancer gets 1 ETH
+#   docker compose up demo-bad     # dispute flow: jurors vote, freelancer gets ~0.258 ETH
+#   docker compose up demo-jurors     # reputation:  minority slash, before/after reputation table
+#   docker compose up demo-stablecoin # ERC-20 escrow, gas comparison, bidirectional reputation
+#   docker compose up node         # local chain only (port 8545 open for MetaMask / Remix)
+#   docker compose run test        # run all 73 Hardhat tests + Foundry unit + fuzz tests
 
 services:
     demo-good:
@@ -21,6 +23,20 @@ services:
         build: .
         environment:
             DEMO: bad
+        ports:
+            - "8545:8545"
+
+    demo-jurors:
+        build: .
+        environment:
+            DEMO: jurors
+        ports:
+            - "8545:8545"
+
+    demo-stablecoin:
+        build: .
+        environment:
+            DEMO: stablecoin
         ports:
             - "8545:8545"
 
