@@ -50,7 +50,9 @@ const nextConfig: NextConfig = {
 	// Controls the URL prefix. Read from process.env first (set via Vercel project settings),
 	// then falls back to the root .env (parsed above), then to empty string (served at root).
 	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "",
-	outputFileTracingRoot: path.resolve(__dirname),
+	// Must point to the repo root so Next.js traces node_modules relative to
+	// /vercel/path0/ rather than /vercel/path0/src/, matching where Vercel resolves them.
+	outputFileTracingRoot: path.resolve(__dirname, ".."),
 	env: {
 		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: resolveAddress(
 			"TrustLedger",
