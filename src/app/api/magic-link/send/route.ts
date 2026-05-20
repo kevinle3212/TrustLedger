@@ -48,7 +48,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 		html: buildEmail(link, contractId),
 	});
 
-	if (error !== null) return NextResponse.json({ error: error.message }, { status: 502 });
+	if (error !== null) {
+		console.error("[magic-link/send] Resend error:", JSON.stringify(error));
+		return NextResponse.json({ error: error.message }, { status: 502 });
+	}
 
 	return NextResponse.json({ ok: true });
 }
