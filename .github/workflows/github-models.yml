@@ -53,7 +53,7 @@ jobs:
 
             - name: Run actions/ai-inference
               id: inference
-              uses: actions/ai-inference@v1
+              uses: actions/ai-inference@v2
               with:
                   prompt-file: .github/prompts/${{ matrix.prompt }}
                   input: 'input: "${{ matrix.input }}"'
@@ -129,7 +129,7 @@ jobs:
             - name: Invalid prompt-file should fail
               id: bad_inference
               continue-on-error: true
-              uses: actions/ai-inference@v1
+              uses: actions/ai-inference@v2
               with:
                   prompt: "Hello"
                   model: invalid/provider-model-id-000
