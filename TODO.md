@@ -1,26 +1,5 @@
 # To-Do List
 
-## Tasks for Version 1.0.0 Release and Ongoing Maintenance
-
-These are tasks for the version 1.0.0 release and ongoing maintenance of the project.
-
-This is a list to prepare for the version 1.0.0 release. It includes tasks that need to be completed before the release, as well as some ongoing tasks for maintenance and improvement.
-
-- [x] Add more test cases for edge cases and error handling.
-- [x] Implement automated testing for continuous integration.
-- [x] Review and refactor existing test cases for better readability and maintainability.
-- [x] Set up a testing environment that closely mimics production.
-- [x] Document testing procedures and guidelines for the team.
-- [x] Check if Vercel is deployed every time I push.
-- [x] Use `gh` CLI to either merge or squash pull requests related to vulnerabilities. Also use it to fix code scan and dependabot alerts.
-- [x] Add a link to the source code inside the navigation bar of the website, but don't hardcode it and have Vercel automatically update it when I push to the main branch.
-    - This way, users can easily access the source code and contribute to the project if they want to. And if someone were to clone this, it would automatically update the link to the source code without needing to change it manually. There is a NEXT_PUBLIC_APP_URL environment variable that might be of use, but Vercel would have to know it.
-- [x] Add indent setting inside .vscode/settings.json that follows current code style and linting rules.
-- [x] Remove `Get a free JWT at pinata.cloud → API Keys. Set NEXT_PUBLIC_PINATA_JWT in .env.local to persist it.` from the create contract page, below JWT input field, add to the documentation, and replace it with the actual steps to retrieve the JWT from Pinata.
-- [x] GitHub Models `.prompt.yml` files + CI workflow - see `.github/prompts/`, `docs/GITHUB_MODELS.md`, `scripts/models/github_models_example.py`
-- [x] Have Opus 4.7 go through the entire codebase, excluding Git submodules and build outputs (e.g. node_modules, out, .next, etc.). Fix any issues pertaining to styling issues (lint, indentations, etc.) and build issues (unused imports, variables, etc.) that it finds. Ensure that the documentation is updated to reflect the whole application and to fill in any gaps or missing information.
-      Goal is to have a clean codebase with consistent styling and up-to-date documentation that accurately reflects the current state of the project.
-
 ## Tasks and Future Improvements for Mainnet Release
 
 - [ ] (Mainnet) Add in user authentication and authorization for the website, so that users can create accounts and log in to access their own data and settings.
