@@ -1,0 +1,169 @@
+# Runs GitHub Models .prompt.yml files and Python examples for docs/CI.
+# Requires models: read on GITHUB_TOKEN (enabled by default for GITHUB_TOKEN in many repos).
+#
+# Manual: Actions → GitHub Models prompts → Run workflow
+# Local eval: gh models eval .github/prompts/summarize-text.prompt.yml
+
+name: GitHub Models prompts
+
+on:
+    workflow_dispatch:
+    pull_request:
+        paths:
+            - ".github/prompts/**"
+            - ".github/workflows/github-models.yml"
+            - "scripts/models/**"
+            - "docs/GITHUB_MODELS.md"
+    push:
+        branches: [main]
+        paths:
+            - ".github/prompts/**"
+            - ".github/workflows/github-models.yml"
+            - "scripts/models/**"
+            - "docs/GITHUB_MODELS.md"
+
+permissions:
+    contents: read
+    models: read
+
+jobs:
+    prompt-files:
+        name: Inference via prompt.yml (${{ matrix.prompt }})
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                prompt:
+                    - summarize-text.prompt.yml
+                    - generate-text.prompt.yml
+                    - answer-questions.prompt.yml
+                    - edge-cases.prompt.yml
+                include:
+                    - prompt: summarize-text.prompt.yml
+                      input: |
+                          The freelancer delivered on time but the client disputes quality of the PDF export.
+                    - prompt: generate-text.prompt.yml
+                      input: |
+                          - Reputation registry wired in deploy script
+                          - Stablecoin escrow demo added
+                    - prompt: answer-questions.prompt.yml
+                      input: |
+                          Context: TrustLedger escrows ETH or ERC-20 until work is approved or disputed.
+                          Question: Can escrow use stablecoins?
+                    - prompt: edge-cases.prompt.yml
+                      input: ""
+
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Run actions/ai-inference
+              id: inference
+              uses: actions/ai-inference@v1
+              with:
+                  prompt-file: .github/prompts/${{ matrix.prompt }}
+                  input: |
+                      input: ${{ matrix.input }}
+                  endpoint: https://models.github.ai/inference
+                  model: openai/gpt-4.1
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Print response
+              run: |
+                  echo "Prompt: ${{ matrix.prompt }}"
+                  echo "Response:"
+                  echo "${{ steps.inference.outputs.response }}"
+
+            - name: Assert non-empty response
+              run: test -n "${{ steps.inference.outputs.response }}"
+
+    evaluate-prompts:
+        name: Evaluate prompts (gh models eval)
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Run gh models eval
+              continue-on-error: true
+              run: |
+                  if ! gh models eval --help >/dev/null 2>&1; then
+                    echo "gh models eval not available on this runner; skip eval job"
+                    exit 0
+                  fi
+                  for f in .github/prompts/*.prompt.yml; do
+                    echo "Evaluating $f"
+                    gh models eval "$f" --json || exit 1
+                  done
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    python-examples:
+        name: Python SDK examples
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install dependencies
+              run: pip install -r scripts/models/requirements.txt
+
+            - name: Run happy-path scenarios
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: python scripts/models/github_models_example.py --scenario all --skip-rate-limit
+
+    error-handling:
+        name: Error handling (invalid model)
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install dependencies
+              run: pip install -r scripts/models/requirements.txt
+
+            - name: Expect invalid model to fail
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: python scripts/models/github_models_example.py --scenario invalid_model
+
+            - name: Invalid prompt-file should fail
+              id: bad_inference
+              continue-on-error: true
+              uses: actions/ai-inference@v1
+              with:
+                  prompt: "Hello"
+                  model: invalid/provider-model-id-000
+                  endpoint: https://models.github.ai/inference
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Assert inference step failed
+              if: steps.bad_inference.outcome == 'success'
+              run: |
+                  echo "Expected invalid model to fail"
+                  exit 1
+
+    rate-limit-probe:
+        name: Rate limit probe (optional)
+        runs-on: ubuntu-latest
+        if: github.event_name == 'workflow_dispatch'
+        steps:
+            - uses: actions/checkout@v6
+
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install dependencies
+              run: pip install -r scripts/models/requirements.txt
+
+            - name: Burst requests (may return HTTP 429)
+              continue-on-error: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: python scripts/models/github_models_example.py --scenario rate_limit

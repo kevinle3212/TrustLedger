@@ -654,7 +654,7 @@ contract TrustLedgerTest is Test {
         vm.prank(client);
         trustLedger.disputeWork(id);
 
-        // Ruling in the neutral band (21–79) → no automatic penalty.
+        // Ruling in the neutral band (21-79) → no automatic penalty.
         vm.prank(address(arbitration));
         trustLedger.executeRuling(id, 50);
 

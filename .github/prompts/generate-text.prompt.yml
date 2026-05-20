@@ -1,0 +1,26 @@
+# Generates short product copy from bullet points (GitHub Models example).
+name: TrustLedger Release Note Generator
+description: Turns feature bullets into a brief release note paragraph
+model: openai/gpt-4.1
+modelParameters:
+    temperature: 0.6
+    maxCompletionTokens: 256
+messages:
+    - role: system
+      content: |
+          You write clear, professional release notes for TrustLedger, a blockchain escrow dApp.
+          Use plain language. No markdown headings. Maximum three sentences.
+    - role: user
+      content: |
+          Write a release note paragraph for TrustLedger based on these bullets:
+          {{input}}
+testData:
+    - input: |
+          - Deploy ReputationRegistry on local Hardhat
+          - Add demo:stablecoin for ERC-20 escrow gas comparison
+          - New /reputation page for on-chain rating lookup
+      expected: TrustLedger now supports reputation registry deployment, stablecoin escrow demos, and a reputation lookup page.
+evaluators:
+    - name: Mentions TrustLedger
+      string:
+          contains: TrustLedger

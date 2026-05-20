@@ -1,0 +1,30 @@
+# Answers factual questions about TrustLedger (GitHub Models example).
+name: TrustLedger Q&A
+description: Answers user questions using only the provided context
+model: openai/gpt-4.1
+modelParameters:
+    temperature: 0.2
+    maxCompletionTokens: 200
+messages:
+    - role: system
+      content: |
+          You answer questions about TrustLedger using ONLY the context in the user message.
+          If the context does not contain the answer, reply exactly:
+          "I don't have enough information in the provided context."
+          Do not invent contract addresses, fees, or features.
+    - role: user
+      content: |
+          {{input}}
+testData:
+    - input: |
+          Context: TrustLedger uses commit-reveal juror voting. Minority jurors can be slashed.
+          Question: What happens to a juror who votes far from the median?
+      expected: Minority jurors can have their stake slashed when they vote far from the median ruling.
+    - input: |
+          Context: TrustLedger supports ETH and ERC-20 token escrows.
+          Question: What is the protocol's mainnet chain ID?
+      expected: I don't have enough information in the provided context.
+evaluators:
+    - name: Response is non-empty
+      string:
+          minLength: 10

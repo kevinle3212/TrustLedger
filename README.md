@@ -8,7 +8,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 
 **Live app:** [trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app) - hosted on Vercel, deployed automatically on every push to `main`.
 
-> [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Frontend (`src/`)](src/README.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts API](docs/CONTRACTS.md) &nbsp;·&nbsp; [Deployment](docs/DEPLOYMENT.md) &nbsp;·&nbsp; [Contributing](docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](SECURITY.md)
+> [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Frontend (`src/`)](src/README.md) &nbsp;·&nbsp; [Architecture](docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts API](docs/CONTRACTS.md) &nbsp;·&nbsp; [Deployment](docs/DEPLOYMENT.md) &nbsp;·&nbsp; [GitHub Models](docs/GITHUB_MODELS.md) &nbsp;·&nbsp; [Contributing](docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](SECURITY.md)
 
 ---
 
@@ -21,6 +21,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)   | Local setup, compiling, testing, linting, deploying to testnet                                                |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Vercel deployment setup - secrets, project linking, CI/CD                                                     |
 | [docs/DOCKER.md](docs/DOCKER.md)               | Docker prerequisites, services, MetaMask setup, troubleshooting                                               |
+| [docs/GITHUB_MODELS.md](docs/GITHUB_MODELS.md) | GitHub Models `.prompt.yml` files, Python SDK examples, and Actions workflow                                  |
 | [docs/PRESENTATION.md](docs/PRESENTATION.md)   | Slide-by-slide presentation notes for pitches.                                                                |
 | [docs/MISCELLANEOUS.md](docs/MISCELLANEOUS.md) | Glossary, tooling rationale, Chainlink setup, design decisions                                                |
 | [SECURITY.md](SECURITY.md)                     | Vulnerability reporting policy and severity classification                                                    |
@@ -113,25 +114,28 @@ Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are calla
 <details>
 <summary>Expand - full technology stack</summary>
 
-| Layer                          | Technology                                       |
-| ------------------------------ | ------------------------------------------------ |
-| Smart contracts                | Solidity 0.8.24                                  |
-| Contract testing (unit + fuzz) | Foundry (Forge)                                  |
-| Contract testing (integration) | Hardhat 2.x + Mocha/Chai                         |
-| TypeScript types               | TypeChain (ethers-v6)                            |
-| Chain                          | Ethereum Sepolia (testnet)                       |
-| Off-chain storage              | IPFS via Web3.Storage                            |
-| Wallet                         | MetaMask + RainbowKit                            |
-| Frontend                       | Next.js 16, React 19, wagmi v2, RainbowKit, viem |
-| Backend (planned)              | Node.js, TypeScript, SQL                         |
-| Randomness                     | Chainlink VRF v2                                 |
-| Price feed                     | Chainlink AggregatorV3 (ETH/USD)                 |
-| Reentrancy guard               | OpenZeppelin ReentrancyGuard v5                  |
-| Linting                        | Solhint, ESLint 9 (flat config), Prettier        |
-| CI/CD                          | GitHub Actions                                   |
-| Frontend hosting               | [Vercel](https://vercel.com)                     |
-| Security scans                 | Slither, TruffleHog, CodeQL, npm audit           |
-| Containerization               | Docker                                           |
+| Layer                          | Technology                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------- |
+| Smart contracts                | Solidity 0.8.24                                                                             |
+| Contract testing (unit + fuzz) | Foundry (Forge)                                                                             |
+| Contract testing (integration) | Hardhat 2.x + Mocha/Chai                                                                    |
+| TypeScript types               | TypeChain (ethers-v6)                                                                       |
+| Chain                          | Ethereum Sepolia (testnet)                                                                  |
+| Off-chain storage              | IPFS via Web3.Storage                                                                       |
+| Wallet                         | MetaMask + RainbowKit                                                                       |
+| Frontend                       | Next.js 16, React 19, wagmi v2, RainbowKit, viem                                            |
+| Backend (planned)              | Node.js, TypeScript, SQL                                                                    |
+| Randomness                     | Chainlink VRF v2                                                                            |
+| Price feed                     | Chainlink AggregatorV3 (ETH/USD)                                                            |
+| Reentrancy guard               | OpenZeppelin ReentrancyGuard v5                                                             |
+| Linting                        | Solhint, ESLint 9 (flat config), Prettier, commitlint                                       |
+| CI/CD                          | GitHub Actions                                                                              |
+| Frontend hosting               | [Vercel](https://vercel.com)                                                                |
+| Security scans                 | Slither, TruffleHog, CodeQL, npm audit                                                      |
+| Containerization               | Docker                                                                                      |
+| AI code context                | [Nexus Graph](https://github.com/costlineai/nexus-graph) (MCP symbol graph for Claude Code) |
+| Architecture diagrams          | [Excalidraw](https://excalidraw.com)                                                        |
+| Developer tooling              | [rtk](https://github.com/kevinle3212/rtk) (token-optimized Claude Code CLI proxy)           |
 
 </details>
 
@@ -624,6 +628,25 @@ See [docs/DOCKER.md](docs/DOCKER.md) for full Docker documentation including Met
 | `npm run hardhat:check-balance`  | Print deployer ETH balance on Ethereum Sepolia                  |
 | `npm run demo:good`              | Happy-path demo against a running local node                    |
 | `npm run demo:bad`               | Dispute-flow demo against a running local node                  |
+| `npm run demo:jurors`            | Juror reputation demo (slash + before/after table)              |
+| `npm run demo:stablecoin`        | ERC-20 escrow + gas comparison + reputation                     |
+| `npm run demo:run`               | Interactive menu (scenarios 1-7)                                |
+
+</details>
+
+<details>
+<summary>GitHub Models - prompts and Python examples</summary>
+
+See [docs/GITHUB_MODELS.md](docs/GITHUB_MODELS.md).
+
+| Script                         | What it runs                                                               |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| `npm run models:install`       | Install `azure-ai-inference` for `scripts/models/github_models_example.py` |
+| `npm run models:run`           | Run summarize, generate, and Q&A Python scenarios                          |
+| `npm run models:run:summarize` | Summarization example only                                                 |
+| `npm run models:eval`          | `gh models eval` on every `.github/prompts/*.prompt.yml`                   |
+
+Requires `GITHUB_TOKEN` with Models access.
 
 </details>
 
@@ -907,7 +930,9 @@ Upgrade once Hardhat 3.x reaches a stable release and TypeChain publishes a comp
 TrustLedger/
 ├── contracts/                            # Foundry project root (self-contained)
 │   ├── foundry.toml                      # Compiler version, optimizer, fuzz runs
+│   ├── foundry.lock                      # Locked Foundry dependency versions
 │   ├── remappings.txt                    # Solidity import aliases
+│   ├── .gas-snapshot                     # Forge gas usage snapshot (committed for CI diff tracking)
 │   ├── src/                              # Production contracts
 │   │   ├── TrustLedger.sol               # Core escrow engine
 │   │   ├── Arbitration.sol               # Commit-reveal dispute resolution
@@ -927,84 +952,157 @@ TrustLedger/
 │   │       └── MockPriceFeed.sol
 │   ├── test/
 │   │   ├── unit/
-│   │   │   ├── TrustLedgerTest.t.sol     # 33 Foundry unit tests
-│   │   │   ├── JurorRegistryTest.t.sol   # 22 Foundry unit tests
+│   │   │   ├── TrustLedgerTest.t.sol     # 37 Foundry unit tests
+│   │   │   ├── JurorRegistryTest.t.sol   # 29 Foundry unit tests
 │   │   │   └── ReputationRegistryTest.t.sol  # 11 Foundry unit tests
-│   │   └── fuzz/
-│   │       └── PayoutFuzz.t.sol          # 7 fuzz tests (10k runs each)
+│   │   ├── fuzz/
+│   │   │   └── PayoutFuzz.t.sol          # 7 fuzz tests (10k runs each)
+│   │   └── fork/
+│   │       └── FullLifecycleFork.t.sol   # 4 fork integration tests (requires FORK_URL)
 │   ├── script/
 │   │   └── Deploy.s.sol                  # Foundry deploy script
 │   └── lib/                              # Vendored Foundry dependencies (committed)
 │       ├── forge-std/
 │       └── openzeppelin-contracts/
 │
-├── src/                                            # Next.js 16 static dApp (frontend) - see src/README.md
+├── src/                                            # Next.js 16 dApp (frontend) - see src/README.md
 │   ├── app/
-│   │   ├── api/magic-link/                       # Magic-link JWT API routes (send + verify)
+│   │   ├── api/magic-link/
+│   │   │   ├── send/route.ts                     # POST - generate and email a magic-link JWT to a freelancer
+│   │   │   └── verify/route.ts                   # GET - validate the JWT and return the accept payload
 │   │   ├── arbitration/[id]/page.tsx             # Per-dispute commit/reveal voting UI
 │   │   ├── create/page.tsx                       # Create escrow contract form
 │   │   ├── dashboard/page.tsx                    # User's contract dashboard
 │   │   ├── freelancer/accept/page.tsx            # Magic-link freelancer accept landing page
 │   │   ├── juror/page.tsx                        # Juror portal - stake, vote, view disputes
+│   │   ├── reputation/page.tsx                   # Reputation lookup and post-contract rating UI
 │   │   ├── layout.tsx                            # Root layout with Providers + Navbar
 │   │   ├── page.tsx                              # Landing page
-│   │   └── globals.css                           # Tailwind v4 base styles + font vars
+│   │   ├── globals.css                           # Tailwind v4 base styles + font vars
+│   │   └── favicon.ico
 │   ├── components/
 │   │   ├── Navbar.tsx                            # Sticky nav with RainbowKit connect button
-│   │   └── Providers.tsx                         # WagmiProvider + RainbowKitProvider
+│   │   ├── Providers.tsx                         # WagmiProvider + RainbowKitProvider + QueryClientProvider
+│   │   └── ThemeToggle.tsx                       # Light/dark mode toggle button
 │   ├── lib/
-│   │   ├── abi.ts                                # TrustLedger / Arbitration / JurorRegistry ABIs
+│   │   ├── abi.ts                                # TrustLedger / Arbitration / JurorRegistry / ReputationRegistry ABIs
 │   │   ├── arweave.ts                            # Arweave permanent storage helper
 │   │   ├── encryption.ts                         # AES-GCM encrypt/decrypt for off-chain docs
 │   │   ├── ipfs.ts                               # IPFS upload via Web3.Storage
 │   │   ├── magicLink.ts                          # JWT sign/verify for freelancer onboarding
 │   │   ├── utils.ts                              # Address/ETH formatters, status colors
 │   │   └── wagmi.ts                              # wagmi config + contract address resolver
-│   ├── public/                                   # Static assets (favicons, SVGs)
+│   ├── public/                                   # Static assets
+│   │   ├── logo.png
+│   │   └── *.svg                                 # Next.js default SVGs (file, globe, window, next, vercel)
 │   ├── next.config.ts                            # basePath + root .env injection
+│   ├── vercel.json                               # Vercel deployment config for the frontend
+│   ├── eslint.config.mjs                         # Frontend ESLint flat config
+│   ├── postcss.config.mjs                        # PostCSS config for Tailwind v4
+│   ├── tsconfig.json                             # Frontend TypeScript config
+│   ├── tsconfig.debug.json                       # Debug TS config (trace + CPU profile)
 │   ├── package.json                              # Frontend-only dependencies
-│   └── README.md                                 # Frontend setup guide → src/README.md
+│   └── README.md                                 # Frontend setup guide -> src/README.md
 │
 ├── test/
 │   └── TrustLedger.test.ts               # 73 Hardhat/Mocha integration tests
 │
 ├── scripts/
 │   ├── deploy.ts                         # Hardhat deploy (writes artifacts/deployed-addresses.json)
-│   ├── check-balance.ts                  # Deployer balance checker
-│   └── demo/
-│       ├── demo-good.ts                  # Happy-path demo script
-│       └── demo-bad.ts                   # Dispute-flow demo script
+│   ├── check-balance.ts                  # Deployer wallet balance checker
+│   ├── docker-demo.sh                    # Docker demo launcher
+│   ├── run-demo.sh                       # Interactive scenario runner (auto-starts node + deploy)
+│   ├── demo/
+│   │   ├── demo-good.ts                  # Happy-path demo script
+│   │   ├── demo-bad.ts                   # Dispute-flow demo script
+│   │   ├── demo-jurors.ts               # Juror reputation demo
+│   │   ├── demo-scenarios.ts            # Interactive multi-scenario runner
+│   │   └── demo-stablecoin.ts           # ERC-20 stablecoin escrow demo
+│   └── models/                          # GitHub Models AI integration scripts
+│       ├── github_models_example.py      # Python SDK examples (summarize, generate, Q&A)
+│       ├── eval-prompts.sh              # Evaluates .github/prompts/*.prompt.yml via gh models eval
+│       ├── requirements.txt             # Python dependencies (openai, azure-ai-inference)
+│       └── README.md                    # GitHub Models setup and usage guide
 │
 ├── docker/
 │   ├── Dockerfile.dev                    # Dev container (Node + Foundry)
 │   ├── docker-compose.dev.yml            # Dev with live volume mount
 │   └── Dockerfile.ci                     # CI test runner (compile + both test suites)
 │
+├── docs/
+│   ├── ARCHITECTURE.md                   # System diagram, state machine, payout formulas, storage layout
+│   ├── CONTRACTS.md                      # Full public API for all four contracts
+│   ├── CONTRIBUTING.md                   # Local setup, testing, linting, deploying
+│   ├── DEPLOYMENT.md                     # Vercel deployment - secrets, project linking, CI/CD
+│   ├── DOCKER.md                         # Docker prerequisites, services, MetaMask setup
+│   ├── GITHUB_MODELS.md                  # GitHub Models prompt files, Python SDK, Actions workflow
+│   ├── Home.md                           # Documentation index (mirrored to GitHub Wiki)
+│   ├── MISCELLANEOUS.md                  # Glossary, tooling overview, design decisions
+│   ├── PRESENTATION.md                   # Slide-by-slide presentation notes
+│   └── TESTING.md                        # Test strategy, coverage, and suite descriptions
+│
+├── assets/
+│   └── TrustLedger.png                   # Project logo
+│
 ├── .github/
+│   ├── dependabot.yml                    # Dependabot version-update config
+│   ├── prompts/                          # GitHub Models .prompt.yml files
+│   │   ├── summarize-text.prompt.yml
+│   │   ├── generate-text.prompt.yml
+│   │   ├── answer-questions.prompt.yml
+│   │   └── edge-cases.prompt.yml
 │   └── workflows/
 │       ├── ci.yml                        # Lint, typecheck, Forge tests + frontend build on every push/PR
 │       ├── deploy.yml                    # Manual deploy to Ethereum Sepolia
-│       ├── frontend-deploy.yml           # Auto-deploy Next.js frontend to Vercel on push to main
 │       ├── security.yml                  # Slither, TruffleHog, npm audit (root + frontend), CodeQL
+│       ├── wiki-sync.yml                 # Auto-sync docs/Home.md to GitHub Wiki on push to main
 │       └── dependabot-automerge.yml      # Auto-merge Dependabot security/patch PRs
 │
+├── .claude/
+│   └── commands/
+│       └── cleanup-commit.md             # /cleanup-commit agent skill: lint, fix, and commit guide
+│
+├── .husky/
+│   ├── pre-commit                        # Runs lint + prettier check before every commit
+│   └── commit-msg                        # Runs commitlint to enforce Conventional Commits format
+│
+├── .vscode/
+│   ├── settings.json                     # Editor settings (Solidity, ESLint flat config, markdownlint)
+│   └── extensions.json                   # Recommended VS Code extensions for this project
+│
+├── tools/
+│   └── keep-awake.sh                     # Prevents the machine from sleeping during long local demo runs
+│
 ├── artifacts/                            # Auto-generated - do not edit or commit
-│   ├── deployed-addresses.json           # Written by deploy scripts - import in frontend
+│   ├── deployed-addresses.json           # Written by deploy scripts - imported by frontend
 │   └── typechain-types/                  # TypeScript contract wrappers
 │
+├── Dockerfile                            # Root Docker image for running tests and demos
+├── docker-compose.yml                    # Compose services: node, demo-*, test
 ├── hardhat.config.ts                     # Hardhat: compiler, networks, TypeChain, Etherscan
+├── commitlint.config.js                  # commitlint ruleset (extends @commitlint/config-conventional)
+├── eslint.config.mjs                     # ESLint 9 flat config (strictTypeChecked)
 ├── tsconfig.json                         # NodeNext ESM (src/)
 ├── tsconfig.hardhat.json                 # CommonJS (hardhat, scripts, tests)
-├── eslint.config.mjs                     # ESLint 9 flat config (strictTypeChecked)
+├── tsconfig.debug.json                   # Debug TS config (trace + CPU profile output)
 ├── .prettierrc.json                      # Prettier formatting rules
 ├── .solhint.json                         # Solhint rules
-├── package.json                          # npm scripts + dependencies
+├── .markdownlint.json                    # markdownlint rules for docs/
+├── .markdownlintignore                   # Paths excluded from markdownlint
+├── .npmrc                                # npm config (engine-strict, legacy-peer-deps)
+├── .gitattributes                        # Git line-ending and diff settings
+├── .gitmodules                           # Foundry submodule declarations (forge-std, openzeppelin)
+├── .mcp.json                             # Claude Code MCP server config (nexus-graph)
+├── .coderabbit.yaml                      # CodeRabbit AI code review config
+├── package.json                          # npm scripts + root dependencies
 ├── .env.example                          # Environment variable template - safe to commit
 ├── .env                                  # Actual secrets - NEVER commit this
 ├── .gitignore                            # Excludes .env, node_modules, build artifacts
 ├── .dockerignore                         # Excludes secrets/artifacts from Docker images
-├── .mcp.json                             # Claude Code MCP server config - wires nexus-graph as the `nexus` server
-├── .coderabbit.yaml                      # CodeRabbit AI code review config
+├── CHANGELOG.md                          # Release history
+├── CLAUDE.md                             # Claude Code project instructions and conventions
+├── README.md                             # Project overview (this file)
+├── TODO.md                               # Open tasks and roadmap items
 ├── SECURITY.md                           # Vulnerability reporting policy
 └── LICENSE                               # Apache-2.0
 ```
@@ -1019,7 +1117,7 @@ TrustLedger/
 
 ## GitHub Actions Workflows
 
-Four workflows live in `.github/workflows/`. All use least-privilege tokens and concurrency groups to cancel stale runs on new commits.
+Five workflows live in `.github/workflows/`. All use least-privilege tokens and concurrency groups to cancel stale runs on new commits.
 
 ### `ci.yml` - Continuous Integration
 
@@ -1056,6 +1154,10 @@ Requires a GitHub Environment named `ethereum-sepolia` with three secrets:
 </details>
 
 Broadcast artifacts (contract addresses, transaction receipts) are uploaded as a workflow artifact and retained for 30 days.
+
+### `github-models.yml` - GitHub Models prompt tests
+
+Runs on changes to `.github/prompts/`, `scripts/models/`, or [docs/GITHUB_MODELS.md](docs/GITHUB_MODELS.md). Uses `actions/ai-inference` and optional `gh models eval` on each `.prompt.yml`, plus the Python examples in `scripts/models/github_models_example.py`. See [docs/GITHUB_MODELS.md](docs/GITHUB_MODELS.md).
 
 ### `security.yml` - Security Scans
 

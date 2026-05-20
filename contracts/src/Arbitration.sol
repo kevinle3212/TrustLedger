@@ -185,7 +185,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @notice Emitted when a juror reveals their vote.
     /// @param disputeId    The dispute ID.
     /// @param juror        The revealing juror's address.
-    /// @param completionPct The revealed completion percentage (0–100).
+    /// @param completionPct The revealed completion percentage (0-100).
     event VoteRevealed(uint256 indexed disputeId, address indexed juror, uint256 indexed completionPct);
 
     /// @notice Emitted when a dispute is finalized with a median ruling.
@@ -354,7 +354,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             jurorCount: 0
         });
 
-        // Select a fixed committee of MIN_JURORS–BASE_MAX_JURORS jurors from the staked pool
+        // Select a fixed committee of MIN_JURORS-BASE_MAX_JURORS jurors from the staked pool
         // using verifiable randomness. Two paths:
         //   VRF path: request one random word from Chainlink; fulfillRandomWords() runs the
         //             Fisher-Yates shuffle once the coordinator delivers the word.
@@ -462,7 +462,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     /// @notice Reveal a previously committed vote. Emits {VoteRevealed}.
     /// @param disputeId    The dispute ID.
-    /// @param completionPct The completion percentage committed to (0–100).
+    /// @param completionPct The completion percentage committed to (0-100).
     /// @param salt          The random salt used when forming the commitment.
     function revealVote(uint256 disputeId, uint256 completionPct, bytes32 salt) external {
         Dispute storage d = _disputes[disputeId];

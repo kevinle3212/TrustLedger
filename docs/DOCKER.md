@@ -2,7 +2,7 @@
 
 TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` that lets you run demos, start a local chain for MetaMask, and execute the full test suite - all without installing Node.js or Foundry on your machine.
 
-> **Scope:** Docker covers the contracts and Hardhat environment only. The Next.js frontend (`src/`) does not need Docker - run it directly with `npm run dev:frontend` (from `src/`). See [`src/README.md`](../src/README.md) for frontend setup.
+> **Scope:** Docker covers the contracts and Hardhat environment only. The Next.js frontend (`src/`) does not need Docker - run it directly with `npm run dev:frontend` (from `src/`). See [`src/README.md`](../src/README.md) for frontend setup. GitHub Models prompts run via `npm run models:*` on the host or in [`.github/workflows/github-models.yml`](../.github/workflows/github-models.yml) - see [GITHUB_MODELS.md](GITHUB_MODELS.md).
 
 ---
 
@@ -150,7 +150,7 @@ On L2 networks, stablecoin escrows avoid ETH price exposure while keeping simila
 
 ### Interactive scenario runner (local only)
 
-Docker covers the four scripted demos above. For all seven interactive options (five dispute outcomes plus juror and stablecoin demos), use the runner on your local machine:
+Docker covers the four scripted demos above. For all seven interactive options (five dispute outcomes plus juror and stablecoin demos), use the runner on your local machine. After each scenario completes it loops back to the menu - press `Ctrl+C` to exit:
 
 ```bash
 # Interactive menu - type 1-7 at the prompt

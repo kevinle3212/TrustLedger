@@ -105,7 +105,7 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 			onSubmit={handleSubmit}
 			className="flex flex-col gap-2 w-full border-t border-gray-200 dark:border-white/10 pt-3 mt-1"
 		>
-			<label className="text-xs text-gray-500">Rate counterparty (1–100)</label>
+			<label className="text-xs text-gray-500">Rate counterparty (1-100)</label>
 			<div className="flex gap-2 items-center">
 				<input
 					type="number"

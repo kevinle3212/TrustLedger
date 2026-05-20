@@ -1,6 +1,6 @@
 # TrustLedger - Frontend (`src/`)
 
-> [← Back to root README](../README.md) &nbsp;·&nbsp; [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Docs](../docs/) &nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts](../docs/CONTRACTS.md) &nbsp;·&nbsp; [Security](../SECURITY.md)
+> [← Back to root README](../README.md) &nbsp;·&nbsp; [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Docs](../docs/) &nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts](../docs/CONTRACTS.md) &nbsp;·&nbsp; [GitHub Models](../docs/GITHUB_MODELS.md) &nbsp;·&nbsp; [Security](../SECURITY.md)
 
 Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum Sepolia. Hosted on [Vercel](https://vercel.com) at **[trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)**.
 
@@ -191,6 +191,8 @@ The page hot-reloads automatically as you edit files under `app/`.
 | `npm run debug:frontend:files`   | TypeScript trace + CPU profile - outputs `trace/` and `profile.cpuprofile` for compile-time debugging |
 | `npm run deploy:vercel`          | Deploy to Vercel production (`vercel --prod`) - requires a linked project (`vercel link` from `src/`) |
 
+GitHub Models scripts (`models:install`, `models:run`, `models:eval`) live in the **repo root** `package.json`, not in `src/`. See [docs/GITHUB_MODELS.md](../docs/GITHUB_MODELS.md).
+
 [↑ Back to top](#table-of-contents)
 
 ---
@@ -239,22 +241,37 @@ src/
 │   ├── freelancer/
 │   │   └── accept/page.tsx           # Magic-link landing page: freelancer reviews and accepts the contract
 │   ├── juror/page.tsx                # Juror portal: register stake, view open disputes, cast commit/reveal votes
+│   ├── reputation/page.tsx           # Reputation lookup and post-contract rating submission UI
 │   ├── globals.css                   # Tailwind v4 base styles and CSS custom properties
 │   ├── layout.tsx                    # Root layout: wraps every page with Providers and Navbar
-│   └── page.tsx                      # Landing page: hero, feature highlights, CTA buttons
+│   ├── page.tsx                      # Landing page: hero, feature highlights, CTA buttons
+│   └── favicon.ico
 │
 ├── components/
 │   ├── Navbar.tsx                    # Sticky top nav with RainbowKit ConnectButton
-│   └── Providers.tsx                 # WagmiProvider + RainbowKitProvider + QueryClientProvider
+│   ├── Providers.tsx                 # WagmiProvider + RainbowKitProvider + QueryClientProvider
+│   └── ThemeToggle.tsx               # Light/dark mode toggle button
 │
-└── lib/
-    ├── abi.ts                        # TrustLedger / Arbitration / JurorRegistry ABIs + status label map
-    ├── arweave.ts                    # Arweave upload helper - permanent on-chain storage for large artifacts
-    ├── encryption.ts                 # AES-GCM encrypt/decrypt for off-chain document privacy
-    ├── ipfs.ts                       # IPFS upload via Web3.Storage; returns CID for on-chain storage
-    ├── magicLink.ts                  # JWT sign/verify helpers for freelancer magic-link onboarding
-    ├── utils.ts                      # Address shortener, ETH formatter, status color map
-    └── wagmi.ts                      # wagmi config (chains, transports) + contract address resolver
+├── lib/
+│   ├── abi.ts                        # TrustLedger / Arbitration / JurorRegistry / ReputationRegistry ABIs + status label map
+│   ├── arweave.ts                    # Arweave upload helper - permanent on-chain storage for large artifacts
+│   ├── encryption.ts                 # AES-GCM encrypt/decrypt for off-chain document privacy
+│   ├── ipfs.ts                       # IPFS upload via Web3.Storage; returns CID for on-chain storage
+│   ├── magicLink.ts                  # JWT sign/verify helpers for freelancer magic-link onboarding
+│   ├── utils.ts                      # Address shortener, ETH formatter, status color map
+│   └── wagmi.ts                      # wagmi config (chains, transports) + contract address resolver
+│
+├── public/                           # Static assets served at the root URL
+│   ├── logo.png                      # TrustLedger project logo
+│   └── *.svg                         # Next.js default SVGs (file, globe, window, next, vercel)
+│
+├── next.config.ts                    # basePath config + root .env injection via env key mapping
+├── vercel.json                       # Vercel deployment config (rewrites, headers)
+├── eslint.config.mjs                 # Frontend ESLint 9 flat config
+├── postcss.config.mjs                # PostCSS config for Tailwind v4
+├── tsconfig.json                     # Frontend TypeScript config (bundler mode)
+├── tsconfig.debug.json               # Debug TS config for trace and CPU profile output
+└── package.json                      # Frontend-only dependencies and scripts
 ```
 
 ### Pages - `app/`
@@ -273,10 +290,11 @@ src/
 
 ### Components - `components/`
 
-| File            | Description                                                                                     |
-| --------------- | ----------------------------------------------------------------------------------------------- |
-| `Navbar.tsx`    | Sticky navigation bar with the RainbowKit `ConnectButton` and page links                        |
-| `Providers.tsx` | Tree of `WagmiProvider`, `QueryClientProvider`, and `RainbowKitProvider` - wraps the entire app |
+| File              | Description                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| `Navbar.tsx`      | Sticky navigation bar with the RainbowKit `ConnectButton` and page links                        |
+| `Providers.tsx`   | Tree of `WagmiProvider`, `QueryClientProvider`, and `RainbowKitProvider` - wraps the entire app |
+| `ThemeToggle.tsx` | Light/dark mode toggle button; reads and writes the `theme` class on `<html>`                   |
 
 ### Library - `lib/`
 

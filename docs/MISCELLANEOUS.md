@@ -35,18 +35,22 @@ Supplementary notes that don't belong in any single other document.
 
 ## Tooling Overview
 
-| Tool                  | Role                                                                                                                            |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                                   |
-| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment     |
-| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                           |
-| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                               |
-| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                                |
-| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                      |
-| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                            |
-| **Solhint**           | Solidity-specific style and security linting rules                                                                              |
-| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                                |
-| **nexus-graph**       | Indexes TypeScript/JavaScript source as a symbol graph; serves token-budgeted code context to Claude Code via MCP (`.mcp.json`) |
+| Tool                  | Role                                                                                                                                                                   |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                                                                          |
+| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment                                            |
+| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                                                                  |
+| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                                                                      |
+| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                                                                       |
+| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                                                             |
+| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                                                                   |
+| **Solhint**           | Solidity-specific style and security linting rules                                                                                                                     |
+| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                                                                       |
+| **nexus-graph**       | Indexes TypeScript/JavaScript source as a symbol graph; serves token-budgeted code context to Claude Code via MCP (`.mcp.json`)                                        |
+| **rtk**               | Token-optimized Claude Code CLI proxy (60-90% token savings on shell operations); transparently wraps commands via a session hook - run `rtk gain` to view savings     |
+| **Excalidraw**        | Hand-drawn-style diagramming tool used for architecture sketches and flow diagrams; export as SVG/PNG for embedding in docs ([excalidraw.com](https://excalidraw.com)) |
+| **Vercel**            | Frontend hosting platform; auto-deploys on push to `main` and exposes preview URLs on every PR - configured in `src/vercel.json` and `.vercel/project.json`            |
+| **RainbowKit**        | Wallet connection UI library for React - provides the connect-wallet modal, multi-wallet support, and chain-switching UI; wired via wagmi in `src/lib/wagmi.ts`        |
 
 ### Why both Hardhat and Foundry?
 
@@ -194,6 +198,15 @@ If `initPauser` is never called, pause is permanently unavailable. Every other s
 - **GitHub Actions** - workflow pinned-refresh disabled to avoid noisy background fetches.
 - **Todo Tree** - submodule directories (`contracts/lib/**`) excluded so third-party TODOs don't pollute the tree.
 - **ESLint flat config** - `eslint.useFlatConfig: true` tells the ESLint VS Code extension to use the new flat config format (`eslint.config.mjs`).
+
+---
+
+## Related docs
+
+- [Home](Home.md) - documentation index
+- [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and Actions workflow
+- [Contributing](CONTRIBUTING.md) - local setup, testing, and demo scripts
+- [Architecture](ARCHITECTURE.md) - system diagram and design decisions
 
 ---
 

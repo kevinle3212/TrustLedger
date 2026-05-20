@@ -221,7 +221,19 @@ These are not automated test suites; they exercise full flows on a local Hardhat
 | Dispute                 | `npm run demo:bad`        | Commit-reveal + ruling                                                     |
 | Juror reputation        | `npm run demo:jurors`     | Minority slash + juror reputation table                                    |
 | Stablecoin + reputation | `npm run demo:stablecoin` | ERC-20 escrow, gas comparison, `submitRating` + `ReputationRegistry` reads |
-| All scenarios           | `npm run demo:run`        | Interactive menu (options 1–7)                                             |
+| All scenarios           | `npm run demo:run`        | Interactive menu (options 1-7)                                             |
+
+---
+
+## GitHub Models prompts
+
+Prompt files under `.github/prompts/` are evaluated in CI and locally. See [GITHUB_MODELS.md](GITHUB_MODELS.md).
+
+| Script                   | Purpose                                  |
+| ------------------------ | ---------------------------------------- |
+| `npm run models:install` | Install Python SDK deps                  |
+| `npm run models:run`     | Run Python example scenarios             |
+| `npm run models:eval`    | Run `gh models eval` on all prompt files |
 
 ---
 
@@ -251,6 +263,8 @@ Four parallel jobs run on every push and PR (`.github/workflows/ci.yml`):
 | Solidity   | `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, `forge snapshot --check` |
 
 All four jobs must pass for a PR to merge.
+
+A separate workflow, [`.github/workflows/github-models.yml`](../.github/workflows/github-models.yml), runs when `.github/prompts/` or `scripts/models/` change. See [GITHUB_MODELS.md](GITHUB_MODELS.md).
 
 ---
 

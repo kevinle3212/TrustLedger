@@ -1,0 +1,29 @@
+# Edge-case inputs for error-handling checks in CI (GitHub Models example).
+name: TrustLedger Edge Case Handler
+description: Gracefully handles empty or oversized input for summarization
+model: openai/gpt-4.1
+modelParameters:
+    temperature: 0.1
+    maxCompletionTokens: 64
+messages:
+    - role: system
+      content: |
+          You summarize escrow-related text in one sentence prefixed with "Summary -".
+          If the user input is empty or only whitespace, reply exactly:
+          "Summary - No input was provided."
+          If the input is extremely long, summarize only the first clear issue mentioned.
+    - role: user
+      content: |
+          Summarize:
+          <text>
+          {{input}}
+          </text>
+testData:
+    - input: ""
+      expected: "Summary - No input was provided."
+    - input: "   "
+      expected: "Summary - No input was provided."
+evaluators:
+    - name: Empty input handled
+      string:
+          equals: "Summary - No input was provided."

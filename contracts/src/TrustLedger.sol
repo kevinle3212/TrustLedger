@@ -64,7 +64,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         // ── Slot 0 (25/32 bytes used) ─────────────────────────────────────────
         address client; // who hired the freelancer; deposited the funds
         uint16 arbitrationFeeBps; // percentage of escrow kept as juror fee (basis points)
-        uint16 holdBackBps; // percentage withheld until warranty expires (0 or 500–1500)
+        uint16 holdBackBps; // percentage withheld until warranty expires (0 or 500-1500)
         Status status; // current lifecycle state (see enum above)
 
         // ── Slot 1 (28/32 bytes used) ─────────────────────────────────────────
@@ -210,13 +210,13 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
     /// @notice Emitted when an arbitration ruling is executed and funds distributed.
     /// @param id            Contract identifier.
-    /// @param completionPct Juror-determined completion percentage (0–100).
+    /// @param completionPct Juror-determined completion percentage (0-100).
     event RulingExecuted(uint256 indexed id, uint256 indexed completionPct);
 
     /// @notice Emitted when a party submits a rating for the other party.
     /// @param id    Contract identifier.
     /// @param rater The address that submitted the rating.
-    /// @param score The rating score (1–100).
+    /// @param score The rating score (1-100).
     event RatingSubmitted(uint256 indexed id, address indexed rater, uint8 indexed score);
 
     /// @notice Emitted when a new contract is linked as an amendment of a cancelled predecessor.
@@ -253,7 +253,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @notice Arbitration fee is zero or exceeds the 50% maximum.
     error InvalidArbitrationFee();
 
-    /// @notice Hold-back BPS is outside the allowed range (0 or 500–1500).
+    /// @notice Hold-back BPS is outside the allowed range (0 or 500-1500).
     error InvalidHoldBack();
 
     /// @notice Hold-back and warranty period must both be set or both be zero.
@@ -374,7 +374,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param bufferFactor      Deadline multiplier × 1000 (e.g. 1200 = 1.2×; minimum 1100).
     /// @param acceptanceWindow  Review period after submission, in seconds (≥ 48 h).
     /// @param arbitrationFeeBps Juror fee as basis points (e.g. 1000 = 10%; max 5000).
-    /// @param holdBackBps       Warranty retention as basis points (0 = none; or 500–1500).
+    /// @param holdBackBps       Warranty retention as basis points (0 = none; or 500-1500).
     /// @param warrantyPeriod    How long warranty hold-back is locked after approval, in seconds.
     /// @param token             ERC-20 token address; use address(0) for native ETH.
     /// @param tokenAmount       Token units to escrow; must be 0 for ETH escrows.

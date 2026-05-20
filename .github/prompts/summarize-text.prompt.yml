@@ -1,0 +1,31 @@
+# Summarizes escrow-related feedback or dispute notes (GitHub Models example).
+name: TrustLedger Text Summarizer
+description: Concise summaries of client/freelancer messages for dispute review
+model: openai/gpt-4.1
+modelParameters:
+    temperature: 0.3
+    maxCompletionTokens: 128
+messages:
+    - role: system
+      content: |
+          You are a helpful assistant that summarizes support and escrow messages into
+          one or two short sentences. Do not add speculation or recommendations.
+    - role: user
+      content: |
+          Summarize the following text. Begin your reply with "Summary -":
+          <text>
+          {{input}}
+          </text>
+testData:
+    - input: |
+          The freelancer submitted work two days late. The deliverable matches the spec
+          but the client wants a partial refund because of the delay.
+      expected: Summary - The freelancer delivered late but met the spec; the client requests a partial refund for the delay.
+    - input: |
+          I accepted the contract but the dashboard still shows Pending. My wallet is
+          connected to localhost chain 31337.
+      expected: Summary - User accepted a contract but the UI still shows Pending on local chain 31337.
+evaluators:
+    - name: Output starts with Summary prefix
+      string:
+          startsWith: "Summary -"

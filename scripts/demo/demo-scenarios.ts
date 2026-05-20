@@ -162,6 +162,9 @@ async function main(): Promise<void> {
 
 	// ── Step 1: Register jurors ───────────────────────────────────────────────
 	console.log("Step 1 - Registering jurors (0.1 ETH stake each)...");
+	console.log("         Each juror locks 0.1 ETH as collateral. This 'skin in the game'");
+	console.log("         aligns incentives: honest voters earn rewards, dishonest minority");
+	console.log("         voters get their stake slashed.");
 	await tryRegister(jr, j1);
 	await tryRegister(jr, j2);
 	await tryRegister(jr, j3);
@@ -174,6 +177,11 @@ async function main(): Promise<void> {
 
 	// ── Step 2: Fast-forward past 7-day stake lock ───────────────────────────
 	console.log("Step 2 - Fast-forwarding 7 days (stake lock period)...");
+	console.log("         Jurors must hold their stake for 7 days before voting. This prevents");
+	console.log(
+		"         someone from registering, voting dishonestly, and immediately withdrawing",
+	);
+	console.log("         before the slashing penalty can be applied.");
 	await ethers.provider.send("evm_increaseTime", [7 * 24 * 3600 + 1]);
 	await ethers.provider.send("evm_mine", []);
 	console.log("  ok Jurors now eligible to vote");
@@ -181,6 +189,9 @@ async function main(): Promise<void> {
 
 	// ── Step 3: Create 1 ETH escrow ──────────────────────────────────────────
 	console.log("Step 3 - Client creates a 1 ETH escrow...");
+	console.log("         The client locks 1 ETH into the smart contract. Neither party can");
+	console.log("         touch these funds until the contract resolves - no trust required,");
+	console.log("         no middleman, no chargebacks.");
 	const createTx = await tl
 		.connect(client)
 		.createContract(
@@ -216,6 +227,9 @@ async function main(): Promise<void> {
 
 	// ── Step 4: Freelancer accepts & submits proof ───────────────────────────
 	console.log("Step 4 - Freelancer accepts and submits proof of work...");
+	console.log("         The freelancer cryptographically signs the contract on-chain, then");
+	console.log("         uploads deliverable evidence (IPFS hash). This creates an immutable,");
+	console.log("         timestamped record that neither party can alter later.");
 	const innerHash = ethers.solidityPackedKeccak256(
 		["uint256", "address"],
 		[contractId, await freelancer.getAddress()],
@@ -236,6 +250,9 @@ async function main(): Promise<void> {
 
 	// ── Step 5: Client opens dispute ─────────────────────────────────────────
 	console.log("Step 5 - Client opens a dispute...");
+	console.log("         Client challenges the work quality on-chain. This triggers the");
+	console.log("         decentralized arbitration system - jurors from the registry are");
+	console.log("         selected to adjudicate. No court, no lawyer, no delay.");
 	const disputeTx = await tl.connect(client).disputeWork(contractId);
 	const disputeReceipt = await disputeTx.wait();
 	if (disputeReceipt === null) throw new Error("disputeWork tx not mined");
@@ -256,6 +273,9 @@ async function main(): Promise<void> {
 
 	// ── Step 6: Jurors commit hidden votes ───────────────────────────────────
 	console.log("Step 6 - Jurors commit hidden votes...");
+	console.log("         Votes are hashed using a commit-reveal scheme (vote + secret salt).");
+	console.log("         No juror can see others' votes before committing, preventing collusion");
+	console.log("         and last-second vote copying.");
 	const saltA = ethers.randomBytes(32); // used by J1 and J2 (and J3 when unanimous)
 	const saltB = ethers.randomBytes(32); // used by J3 when minority
 
@@ -286,12 +306,17 @@ async function main(): Promise<void> {
 
 	// ── Step 7: Advance to reveal phase ──────────────────────────────────────
 	console.log("Step 7 - Advancing to reveal phase (all 3 committed)...");
+	console.log("         Once all jurors have committed, the reveal phase opens. The contract");
+	console.log("         enforces this state machine - no new commits accepted, only reveals.");
 	await (await arb.advanceToReveal(disputeId)).wait();
 	console.log("  ok In reveal phase");
 	console.log();
 
 	// ── Step 8: Jurors reveal votes ───────────────────────────────────────────
 	console.log("Step 8 - Jurors reveal votes...");
+	console.log("         Each juror reveals their original vote + salt. The contract verifies");
+	console.log("         it matches the earlier hash. The median of all revealed votes becomes");
+	console.log("         the final ruling - resistant to outliers and collusion.");
 	await (await arb.connect(j1).revealVote(disputeId, scenario.j1Vote, saltA)).wait();
 	await (await arb.connect(j2).revealVote(disputeId, scenario.j2Vote, saltA)).wait();
 	await (await arb.connect(j3).revealVote(disputeId, scenario.j3Vote, j3Salt)).wait();
@@ -302,6 +327,9 @@ async function main(): Promise<void> {
 
 	// ── Step 9: Fast-forward past 72-hour reveal window ───────────────────────
 	console.log("Step 9 - Fast-forwarding past 72-hour reveal window...");
+	console.log("         Jurors have 72 hours to reveal their vote after committing. Any juror");
+	console.log("         who committed but fails to reveal forfeits their reward and risks a");
+	console.log("         reputation penalty - ensuring jurors follow through.");
 	await ethers.provider.send("evm_increaseTime", [72 * 3600 + 1]);
 	await ethers.provider.send("evm_mine", []);
 	console.log("  ok Reveal window elapsed");
@@ -309,12 +337,18 @@ async function main(): Promise<void> {
 
 	// ── Step 10: Finalize dispute ─────────────────────────────────────────────
 	console.log("Step 10 - Finalizing dispute (computing median ruling)...");
+	console.log("         The contract computes the median vote on-chain - no human can alter");
+	console.log("         it. Jurors who voted far from the median (minority) are slashed.");
+	console.log("         Jurors near the median earn a share of the arbitration fee.");
 	await (await arb.finalizeDispute(disputeId)).wait();
 	console.log(`  ok Ruling finalized: ${median.toString()}% completion`);
 	console.log();
 
 	// ── Step 11: Fast-forward past 72-hour appeal window ─────────────────────
 	console.log("Step 11 - Fast-forwarding past 72-hour appeal window...");
+	console.log("         Either party has 72 hours to appeal the ruling. After this window");
+	console.log("         closes, the ruling becomes final and irreversible - funds can be");
+	console.log("         released without any party's cooperation.");
 	await ethers.provider.send("evm_increaseTime", [72 * 3600 + 1]);
 	await ethers.provider.send("evm_mine", []);
 	console.log("  ok Appeal window elapsed");
@@ -322,6 +356,9 @@ async function main(): Promise<void> {
 
 	// ── Step 12: Execute ruling ───────────────────────────────────────────────
 	console.log("Step 12 - Executing ruling and releasing funds...");
+	console.log("         The smart contract distributes escrowed funds atomically according to");
+	console.log("         the median ruling. Client gets (1 - ruling%) back; freelancer gets");
+	console.log("         ruling% minus the 15% arbitration fee split among honest jurors.");
 	const clientBalBefore = await ethers.provider.getBalance(client.address);
 	const freelancerBalBefore = await ethers.provider.getBalance(freelancer.address);
 

@@ -34,7 +34,7 @@ contract ReputationRegistry is IReputationRegistry {
 
     /// @notice Emitted each time a new rating is recorded.
     /// @param user  The wallet that was rated.
-    /// @param score The score submitted (1–100).
+    /// @param score The score submitted (1-100).
     event Rated(address indexed user, uint8 indexed score);
 
     // ─── Errors ──────────────────────────────────────────────────────────────

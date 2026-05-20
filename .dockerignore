@@ -13,7 +13,7 @@ contracts/out/
 contracts/cache/
 contracts/broadcast/
 
-# ─── Secrets — never bake into an image ───────────────────────────────────────
+# ─── Secrets - never bake into an image ───────────────────────────────────────
 .env
 .env.*
 !.env.example
@@ -33,7 +33,7 @@ coverage/
 logs/
 *.log
 
-# ─── Git internals — not needed in the image; submodule content is in contracts/lib/
+# ─── Git internals - not needed in the image; submodule content is in contracts/lib/
 .git/
 .gitmodules
 

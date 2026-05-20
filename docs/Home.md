@@ -18,6 +18,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 | [Testing](TESTING)              | Hardhat and Foundry test suites, fork tests, fuzz tests, and CI                 |
 | [Miscellaneous](MISCELLANEOUS)  | Glossary, design decisions, Chainlink setup, tooling rationale                  |
 | [Presentation](PRESENTATION)    | Slide-by-slide notes for pitches and demos                                      |
+| [GitHub Models](GITHUB_MODELS)  | `.prompt.yml` examples, Python SDK, and Actions workflow for Models testing     |
 
 ---
 
@@ -27,7 +28,7 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 2. **Freelancer accepts** - signs via ECDSA wallet binding; the contract recovers the signer on-chain and rejects any mismatch.
 3. **Freelancer submits work** - posts an IPFS hash of the deliverable on-chain as immutable proof.
 4. **Client approves or disputes** - approval releases funds; a dispute opens a commit-reveal juror vote.
-5. **Jurors vote** - staked jurors submit a hidden completion percentage (0–100), then reveal. The median becomes the ruling.
+5. **Jurors vote** - staked jurors submit a hidden completion percentage (0-100), then reveal. The median becomes the ruling.
 6. **Proportional payout** - the freelancer receives their share based on the ruling; minority jurors are slashed.
 
 ---

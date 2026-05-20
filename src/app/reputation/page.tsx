@@ -8,13 +8,13 @@ import { REPUTATION_REGISTRY_ABI } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS } from "@/lib/wagmi";
 import { formatAddress } from "@/lib/utils";
 
-/** Formats cumulative averageRating as a 0–100 score and rating count. */
+/** Formats cumulative averageRating as a 0-100 score and rating count. */
 function formatReputation(
 	numerator: bigint | undefined,
 	denominator: bigint | undefined,
 ): { score: string; count: string } {
 	if (numerator === undefined || denominator === undefined || denominator === 0n) {
-		return { score: "—", count: "0" };
+		return { score: "-", count: "0" };
 	}
 	const avg = Number(numerator) / Number(denominator);
 	return {
@@ -68,7 +68,7 @@ function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): 
 					<span className="text-gray-500">Average score</span>
 					<span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
 						{score}
-						{score !== "—" && (
+						{score !== "-" && (
 							<span className="text-sm font-normal text-gray-500"> / 100</span>
 						)}
 					</span>
@@ -79,8 +79,8 @@ function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): 
 			)}
 
 			<p className="text-xs text-gray-500">
-				Scores are submitted by contract parties after completion (1–100). Dispute
-				resolutions may apply automatic penalties. Juror stake reputation is separate — see
+				Scores are submitted by contract parties after completion (1-100). Dispute
+				resolutions may apply automatic penalties. Juror stake reputation is separate - see
 				the Juror page.
 			</p>
 		</div>

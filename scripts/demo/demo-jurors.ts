@@ -9,12 +9,18 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { ethers } from "hardhat";
 import type { LogDescription } from "ethers";
-import type { TrustLedger, Arbitration, JurorRegistry } from "../../artifacts/typechain-types";
+import type {
+	TrustLedger,
+	Arbitration,
+	JurorRegistry,
+	ReputationRegistry,
+} from "../../artifacts/typechain-types";
 
 interface DeployedAddresses {
 	TrustLedger: string;
 	Arbitration: string;
 	JurorRegistry: string;
+	ReputationRegistry?: string;
 }
 
 function loadAddresses(): DeployedAddresses {
@@ -32,6 +38,7 @@ const {
 	TrustLedger: TRUST_LEDGER,
 	Arbitration: ARBITRATION,
 	JurorRegistry: JUROR_REGISTRY,
+	ReputationRegistry: REPUTATION_REGISTRY,
 } = loadAddresses();
 
 type Signer = Awaited<ReturnType<typeof ethers.getSigners>>[number];
@@ -298,6 +305,42 @@ async function main(): Promise<void> {
 				`  stake ${ethers.formatEther(b.stake)}→${ethers.formatEther(a.stake)} ETH (${stakeSign}${ethers.formatEther(stakeDelta)})`,
 		);
 	}
+	console.log();
+
+	// ── Step 11: Client and freelancer rate each other ────────────────────────
+	if (REPUTATION_REGISTRY === undefined) {
+		console.log("Step 8 - Skipping escrow reputation (ReputationRegistry not deployed).");
+		console.log("         Re-run: npm run compile && npm run hardhat:deploy:local");
+	} else {
+		console.log("Step 8 - Client and freelancer submit post-dispute reputation ratings...");
+
+		const ratingTx1 = await tl.connect(client).submitRating(contractId, 80);
+		await ratingTx1.wait();
+		console.log("  ✓ Client rated freelancer: 80 / 100");
+
+		const ratingTx2 = await tl.connect(freelancer).submitRating(contractId, 75);
+		await ratingTx2.wait();
+		console.log("  ✓ Freelancer rated client: 75 / 100");
+		console.log();
+
+		console.log("Step 9 - Reading reputation scores from ReputationRegistry...");
+		const repRegistry = (await ethers.getContractAt(
+			"ReputationRegistry",
+			REPUTATION_REGISTRY,
+		)) as unknown as ReputationRegistry;
+
+		const [flNum, flDen] = await repRegistry.averageRating(freelancer.address);
+		const [clNum, clDen] = await repRegistry.averageRating(client.address);
+
+		const formatScore = (num: bigint, den: bigint): string =>
+			den === 0n
+				? "no ratings"
+				: `${num.toString()} / ${den.toString()} ratings = ${(Number(num) / Number(den)).toFixed(1)} avg`;
+
+		console.log(`  ✓ Freelancer reputation : ${formatScore(flNum, flDen)}`);
+		console.log(`  ✓ Client reputation     : ${formatScore(clNum, clDen)}`);
+	}
+
 	console.log();
 	console.log("=".repeat(60));
 	console.log("  Juror reputation demo complete!");

@@ -33,7 +33,7 @@ jobs:
         # Bind secrets to a GitHub Environment so you can add reviewer approval later.
         environment:
             name: ethereum-sepolia
-        # foundry.toml lives in contracts/ — all forge run: steps execute from there.
+        # foundry.toml lives in contracts/ - all forge run: steps execute from there.
         defaults:
             run:
                 working-directory: contracts

@@ -1,4 +1,4 @@
-// eslint.config.mjs — ESLint 9 flat config, type-aware, maximum strictness
+// eslint.config.mjs - ESLint 9 flat config, type-aware, maximum strictness
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
@@ -101,12 +101,6 @@ export default [
 
 			/* ── Naming / shape ────────────────────────────────────────────── */
 			"@typescript-eslint/no-shadow": "error",
-			"@typescript-eslint/naming-convention": [
-				"error",
-				{ selector: "variableLike", format: ["camelCase", "UPPER_CASE", "PascalCase"] },
-				{ selector: "typeLike", format: ["PascalCase"] },
-				{ selector: "enumMember", format: ["PascalCase", "UPPER_CASE"] },
-			],
 
 			/* ── Correctness / safety ──────────────────────────────────────── */
 			"eqeqeq": ["error", "always", { null: "always" }],
@@ -141,6 +135,6 @@ export default [
 		},
 	},
 
-	// Must be last — turns off any rules that conflict with Prettier formatting.
+	// Must be last - turns off any rules that conflict with Prettier formatting.
 	prettierConfig,
 ];

@@ -127,54 +127,60 @@ if [[ $# -ge 1 ]]; then
     exit 0
 fi
 
-# Interactive menu
-echo ""
-echo "============================================================"
-echo "  TrustLedger - Demo Scenario Runner"
-echo "============================================================"
-echo ""
-echo "  1)  Plaintiff (client) wins"
-echo "      All 3 jurors vote 0% completion -> full refund to client"
-echo ""
-echo "  2)  Defendant (freelancer) wins"
-echo "      All 3 jurors vote 100% completion -> full payment to freelancer"
-echo ""
-echo "  3)  Tie"
-echo "      All 3 jurors vote 50% completion -> split payment"
-echo ""
-echo "  4)  Arbitration ruling, in favor of client"
-echo "      J1=0%, J2=0%, J3=100% (minority) -> median 0%, J3 slashed"
-echo ""
-echo "  5)  Arbitration ruling, in favor of freelancer"
-echo "      J1=100%, J2=100%, J3=0% (minority) -> median 100%, J3 slashed"
-echo ""
-echo "  6)  Juror reputation demo"
-echo "      Register 3 jurors, run dispute, show before/after reputation & stake"
-echo ""
-echo "  7)  Stablecoin escrow demo"
-echo "      ERC-20 token escrow, gas comparison vs ETH, bidirectional reputation"
-echo ""
+print_menu() {
+    echo ""
+    echo "============================================================"
+    echo "  TrustLedger - Demo Scenario Runner"
+    echo "  (Ctrl+C to exit)"
+    echo "============================================================"
+    echo ""
+    echo "  1)  Plaintiff (client) wins"
+    echo "      All 3 jurors vote 0% completion -> full refund to client"
+    echo ""
+    echo "  2)  Defendant (freelancer) wins"
+    echo "      All 3 jurors vote 100% completion -> full payment to freelancer"
+    echo ""
+    echo "  3)  Tie"
+    echo "      All 3 jurors vote 50% completion -> split payment"
+    echo ""
+    echo "  4)  Arbitration ruling, in favor of client"
+    echo "      J1=0%, J2=0%, J3=100% (minority) -> median 0%, J3 slashed"
+    echo ""
+    echo "  5)  Arbitration ruling, in favor of freelancer"
+    echo "      J1=100%, J2=100%, J3=0% (minority) -> median 100%, J3 slashed"
+    echo ""
+    echo "  6)  Juror reputation demo"
+    echo "      Register 3 jurors, run dispute, show before/after reputation & stake"
+    echo ""
+    echo "  7)  Stablecoin escrow demo"
+    echo "      ERC-20 token escrow, gas comparison vs ETH, bidirectional reputation"
+    echo ""
+}
+
+# Interactive mode: start node once, then loop menu until Ctrl+C
+ensure_node_and_contracts
 
 while true; do
-    printf "Select scenario [1-7]: "
-    read -r SCENARIO
+    print_menu
 
-    if [[ "$SCENARIO" =~ ^[1-7]$ ]]; then
-        break
-    fi
-    echo "  Invalid input. Enter a number from 1 to 7."
+    while true; do
+        printf "Select scenario [1-7]: "
+        read -r SCENARIO
+        if [[ "$SCENARIO" =~ ^[1-7]$ ]]; then
+            break
+        fi
+        echo "  Invalid input. Enter a number from 1 to 7."
+    done
+
+    echo ""
+    case "$SCENARIO" in
+        6) run_jurors ;;
+        7) run_stablecoin ;;
+        *) run_scenario "$SCENARIO" ;;
+    esac
+
+    echo ""
+    echo "------------------------------------------------------------"
+    echo "  Scenario complete. Returning to menu..."
+    echo "------------------------------------------------------------"
 done
-
-echo ""
-ensure_node_and_contracts
-case "$SCENARIO" in
-    6) run_jurors ;;
-    7) run_stablecoin ;;
-    *) run_scenario "$SCENARIO" ;;
-esac
-
-echo ""
-echo "Node is still running at $NODE_URL (press Ctrl+C to stop)."
-if [[ -n "$NODE_PID" ]]; then
-    wait "$NODE_PID"
-fi

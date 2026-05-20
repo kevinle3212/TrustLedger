@@ -56,6 +56,12 @@
 		"demo:scenario": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-scenarios.ts --network localhost --no-compile",
 		"demo:stablecoin": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/demo/demo-stablecoin.ts --network localhost --no-compile",
 		"demo:run": "bash scripts/run-demo.sh",
+		"models:install": "python3 -m pip install -r scripts/models/requirements.txt",
+		"models:run": "python3 scripts/models/github_models_example.py --scenario all --skip-rate-limit",
+		"models:run:summarize": "python3 scripts/models/github_models_example.py --scenario summarize",
+		"models:run:generate": "python3 scripts/models/github_models_example.py --scenario generate",
+		"models:run:qa": "python3 scripts/models/github_models_example.py --scenario qa",
+		"models:eval": "bash scripts/models/eval-prompts.sh",
 		"deploy:vercel": "vercel --prod",
 		"prepare": "husky",
 		"nexus:index": "nexus-graph index --project .",
@@ -63,23 +69,23 @@
 		"nexus:viz": "nexus-graph viz --project ."
 	},
 	"devDependencies": {
-		"@costline/nexus-graph": "^0.1.1",
 		"@commitlint/cli": "^21.0.1",
 		"@commitlint/config-conventional": "^21.0.1",
+		"@costline/nexus-graph": "^0.1.1",
 		"@eslint/js": "^10.0.1",
 		"@nomicfoundation/hardhat-ethers": "^3.1.3",
 		"@nomicfoundation/hardhat-toolbox": "^5.0.0",
 		"@tsconfig/strictest": "^2.0.8",
 		"@types/node": "^25.7.0",
 		"dotenv": "^17.4.2",
-		"eslint": "^10.3.0",
+		"eslint": "^10.4.0",
 		"eslint-config-prettier": "^10.1.8",
 		"hardhat": "^2.28.6",
 		"husky": "^9.1.7",
 		"prettier": "^3.8.3",
 		"solhint": "^6.2.1",
 		"typescript": "^6.0.3",
-		"typescript-eslint": "^8.59.3"
+		"typescript-eslint": "^8.59.4"
 	},
 	"dependencies": {
 		"@openzeppelin/contracts": "^5.6.1"

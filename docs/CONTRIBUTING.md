@@ -136,7 +136,7 @@ This compiles, starts the local node in the background, waits for it to be ready
 
 #### Interactive scenario runner
 
-The easiest way to run any demo is the interactive scenario runner. It auto-starts the Hardhat node and deploys contracts if they are not already running, then lets you pick a case scenario by number:
+The easiest way to run any demo is the interactive scenario runner. It auto-starts the Hardhat node and deploys contracts if they are not already running, then prompts you to pick a case scenario by number. After each scenario completes it loops back to the menu - press `Ctrl+C` to exit. Each step also prints a plain-language explanation of what is happening on-chain and why:
 
 ```bash
 npm run demo:run
@@ -160,10 +160,10 @@ You can also pass the scenario number directly to skip the menu:
 | 3   | Tie                                        | 50%     | 50%     | 50%             | **50%**       | Split (~0.258 ETH freelancer)                                              |
 | 4   | Arbitration ruling, in favor of client     | 0%      | 0%      | 100% (minority) | **0%**        | Refund to client; J3 slashed                                               |
 | 5   | Arbitration ruling, in favor of freelancer | 100%    | 100%    | 0% (minority)   | **100%**      | Full payment; J3 slashed                                                   |
-| 6   | Juror reputation demo                      | —       | —       | —               | —             | Register 3 jurors, dispute, before/after stake & juror reputation table    |
-| 7   | Stablecoin escrow demo                     | —       | —       | —               | —             | ERC-20 escrow, ETH vs token gas comparison, `submitRating` on both parties |
+| 6   | Juror reputation demo                      | -       | -       | -               | -             | Register 3 jurors, dispute, before/after stake & juror reputation table    |
+| 7   | Stablecoin escrow demo                     | -       | -       | -               | -             | ERC-20 escrow, ETH vs token gas comparison, `submitRating` on both parties |
 
-Scenarios 1–5 run the full dispute flow: register jurors → 7-day stake lock (EVM time-travel) → create escrow → accept → submit proof → dispute → commit-reveal vote → finalize → execute ruling.
+Scenarios 1-5 run the full dispute flow: register jurors → 7-day stake lock (EVM time-travel) → create escrow → accept → submit proof → dispute → commit-reveal vote → finalize → execute ruling.
 
 Scenarios 4 and 5 demonstrate the minority slashing system: J3 deviates 100 percentage points from the median, which exceeds the `SEVERE_MINORITY_THRESHOLD` (30 pts) and triggers a 20% stake slash and -10 reputation penalty.
 
@@ -186,6 +186,22 @@ npm run demo:stablecoin
 ```
 
 All demos advance EVM time using `evm_increaseTime` to skip lock periods and voting windows, so the full flow completes in seconds.
+
+---
+
+## GitHub Models (prompts and examples)
+
+Optional: test [GitHub Models](https://github.com/marketplace/models) `.prompt.yml` files and Python examples. Full guide: [GITHUB_MODELS.md](GITHUB_MODELS.md).
+
+```bash
+export GITHUB_TOKEN=ghp_your_token   # needs Models access
+
+npm run models:install
+npm run models:run                   # Python: summarize, generate, Q&A
+npm run models:eval                  # gh models eval on .github/prompts/*.prompt.yml
+```
+
+CI runs automatically via `.github/workflows/github-models.yml` when prompt files change.
 
 ---
 

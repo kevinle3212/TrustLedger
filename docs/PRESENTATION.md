@@ -310,7 +310,7 @@ function averageRating(address user) external view
 
 ## Local Demo Scenarios
 
-Seven local demos run without a testnet or real funds. The interactive runner (`scripts/run-demo.sh`) auto-starts the Hardhat node, deploys all contracts (including `ReputationRegistry`), and runs the selected scenario using EVM time-travel to skip lock periods.
+Seven local demos run without a testnet or real funds. The interactive runner (`scripts/run-demo.sh`) auto-starts the Hardhat node, deploys all contracts (including `ReputationRegistry`), and runs the selected scenario using EVM time-travel to skip lock periods. After each scenario completes it loops back to the menu - press `Ctrl+C` to exit. Each of the 12 steps prints a plain-language explanation of what is happening on-chain and why.
 
 ```bash
 npm run demo:run           # interactive menu - type 1-7 at the prompt
@@ -326,7 +326,7 @@ npm run demo:stablecoin    # ERC-20 escrow + gas comparison + reputation (standa
 | 4   | **Arbitration ruling, in favor of client**     | J1=0%, J2=0%, J3=100% (minority)   | **0%**        | Refund to client; J3 stake slashed 20%, juror reputation -10            |
 | 5   | **Arbitration ruling, in favor of freelancer** | J1=100%, J2=100%, J3=0% (minority) | **100%**      | Full payment to freelancer; J3 stake slashed 20%, juror reputation -10  |
 | 6   | **Juror reputation demo**                      | J1/J2=70%, J3=20% (minority)       | **70%**       | Same as scenario 4/5 flow; prints before/after juror reputation table   |
-| 7   | **Stablecoin escrow demo**                     | — (happy path)                     | —             | ERC-20 escrow, ETH vs token gas benchmark, bidirectional `submitRating` |
+| 7   | **Stablecoin escrow demo**                     | - (happy path)                     | -             | ERC-20 escrow, ETH vs token gas benchmark, bidirectional `submitRating` |
 
 Scenarios 4 and 5 are the most instructive: they show the system reaching the correct majority ruling even when one juror dissents, and they demonstrate the slashing mechanism penalizing the minority juror automatically on-chain (100 pt deviation from median exceeds the `SEVERE_MINORITY_THRESHOLD` of 30).
 
@@ -522,6 +522,16 @@ npm run lint:sol             # Solhint - Solidity style and security
 npm run lint:ts              # ESLint - TypeScript
 npm run lint:prettier        # Prettier - formatting check
 ```
+
+### GitHub Models (optional)
+
+```bash
+npm run models:install
+export GITHUB_TOKEN=ghp_...
+npm run models:run
+```
+
+See [GITHUB_MODELS.md](GITHUB_MODELS.md) for `.prompt.yml` files and the Actions workflow.
 
 **Test coverage summary:**
 

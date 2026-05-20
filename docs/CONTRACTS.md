@@ -222,7 +222,7 @@ Emits `RatingSubmitted`.
 function executeRuling(uint256 id, uint256 completionPct) external
 ```
 
-Called only by `Arbitration`. Distributes escrow funds based on the juror-determined `completionPct` (0–100). Uses the proportional fee split formula. Status transitions to `RESOLVED`.
+Called only by `Arbitration`. Distributes escrow funds based on the juror-determined `completionPct` (0-100). Uses the proportional fee split formula. Status transitions to `RESOLVED`.
 
 **Automatic reputation penalties** (requires `ReputationRegistry` to be configured):
 
@@ -815,6 +815,15 @@ Returns the cumulative score sum and rating count. Compute the average as `numer
 | `OnlyTrustLedger` | Caller is not the `TRUST_LEDGER` address. |
 | `InvalidScore`    | Score is 0 or greater than 100.           |
 | `ZeroAddress`     | Constructor called with the zero address. |
+
+---
+
+## Related docs
+
+- [Home](Home.md) - documentation index
+- [Architecture](ARCHITECTURE.md) - system diagram, state machine, and payout formulas
+- [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and Actions workflow
+- [Contributing](CONTRIBUTING.md) - local setup, testing, and demo scripts
 
 ---
 

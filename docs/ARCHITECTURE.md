@@ -483,6 +483,15 @@ After each dispute finalizes, `unlockFromDispute` sets a 7-day cooldown (`JUROR_
 
 ---
 
+## Related docs
+
+- [Home](Home.md) - documentation index
+- [Contract Reference](CONTRACTS.md) - full public API for all contracts
+- [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and Actions workflow
+- [Contributing](CONTRIBUTING.md) - local setup and demo scripts
+
+---
+
 ## Security
 
 See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.

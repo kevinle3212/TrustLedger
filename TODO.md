@@ -17,22 +17,7 @@ This is a list to prepare for the version 1.0.0 release. It includes tasks that 
     - This way, users can easily access the source code and contribute to the project if they want to. And if someone were to clone this, it would automatically update the link to the source code without needing to change it manually. There is a NEXT_PUBLIC_APP_URL environment variable that might be of use, but Vercel would have to know it.
 - [x] Add indent setting inside .vscode/settings.json that follows current code style and linting rules.
 - [x] Remove `Get a free JWT at pinata.cloud → API Keys. Set NEXT_PUBLIC_PINATA_JWT in .env.local to persist it.` from the create contract page, below JWT input field, add to the documentation, and replace it with the actual steps to retrieve the JWT from Pinata.
-- [ ] Help me make a prompt.yml for GitHub for the Models section.
-    - Example:
-
-    ```python
-    import os
-    from azure.ai.inference import ChatCompletionsClient
-    from azure.ai.inference.models import SystemMessage, UserMessage
-    from azure.core.credentials import AzureKeyCredential
-
-    endpoint = "https://models.github.ai/inference"
-    model = "openai/gpt-4.1"
-    token = os.environ["GITHUB_TOKEN"]
-    ```
-
-    - This would be used to test the Models section of the website, and would be run in a GitHub Action workflow. It would test the functionality of the Models section, and would also serve as an example for users who want to use the Models section in their own projects.
-    - Add in more prompts that test different functionalities of the Models section, such as generating text, summarizing text, and answering questions. Also add in prompts that test the error handling of the Models section, such as invalid input and rate limiting.
+- [x] GitHub Models `.prompt.yml` files + CI workflow - see `.github/prompts/`, `docs/GITHUB_MODELS.md`, `scripts/models/github_models_example.py`
 
 - [ ] (Mainnet) Add in user authentication and authorization for the website, so that users can create accounts and log in to access their own data and settings.
     - This would involve setting up a database to store user information, as well as implementing a secure authentication system using JWTs or OAuth.
@@ -40,14 +25,3 @@ This is a list to prepare for the version 1.0.0 release. It includes tasks that 
     - Have this be on a separate branch, and have it be automatically deployed to GitHub pages whenever changes are made to the documentation. This would make it easier for users to access the documentation and learn how to use the project, and would also make it easier for developers to contribute to the documentation.
     - This would make it easier for users to learn how to use the project and would also serve as a reference for developers who want to contribute to the project.
     - Once a project prospectus is done, have a whitepaper be made as well. Then we will have it be on the GitHub pages as well, and link to it from the main website. This would provide more in-depth information about the project, its goals, and its technical details for users who are interested in learning more about it.
-- [ ] Local testing scripts on local to show functionality without relying on testnet and real-world data.
-    - Ensure the following 3 are working:
-        - [ ] Stable coin evaluation with cheaper gas.
-        - [ ] Live juror testing.
-        - [ ] Implementing the reputation system fully in the front end and back end, and testing it with live jurors.
-
-    - [x] Somehow have all case scenarios (1. Plaintiff wins, 2. Defendant wins, 3. Tie, 4. Arbitration Ruling, 1 in favor of the client, 1 in favor of the freelancer) work in a shell script: I can type 1 in shell to run scenario 1, 2 for scenario 2, etc. so I don't have to run multiple scripts.
-        - [ ] Add explanations into the output when running the script.
-        - [ ] Also fix after typing 1 and getting the results, have the script keep prompting me for a new option until I hit Crtl + C.
-
-- [ ] Generate a markdown skill file for agents, instructing them on how to clean up code, fix issues, lint it, and properly commit it.

@@ -1,11 +1,11 @@
 # ──────────────────────────────────────────────────────────────────────────────
-# TrustLedger — demo and local-development image
+# TrustLedger - demo and local-development image
 #
 # Bundles Node.js 22 + Foundry (forge, cast, anvil), installs all dependencies,
 # and pre-compiles contracts so the container is ready to run demos or tests
 # the moment it starts.
 #
-# Usage — via docker-compose.yml at the project root:
+# Usage - via docker-compose.yml at the project root:
 #   docker compose up demo-good   # happy path demo
 #   docker compose up demo-bad    # dispute-flow demo
 #   docker compose up node        # node only (connect MetaMask / Remix)
@@ -37,7 +37,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# ── Install Node dependencies (separate layer — cached unless package files change)
+# ── Install Node dependencies (separate layer - cached unless package files change)
 COPY package.json package-lock.json ./
 RUN npm ci
 

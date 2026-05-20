@@ -104,7 +104,7 @@ jobs:
     solidity:
         name: Solidity (forge build + test)
         runs-on: ubuntu-latest
-        # foundry.toml lives in contracts/ — all `run:` steps execute from there.
+        # foundry.toml lives in contracts/ - all `run:` steps execute from there.
         # `uses:` steps (checkout, toolchain) are unaffected by this setting.
         defaults:
             run:

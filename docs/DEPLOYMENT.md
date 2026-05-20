@@ -247,3 +247,13 @@ To revert the frontend to a previous deployment:
 3. Click **⋯ → Promote to Production**.
 
 To revert to a previous contract version, redeploy the old commit tag via `deploy.yml` with the script target pointing to the desired version.
+
+---
+
+## Other GitHub Actions workflows
+
+| Workflow                                                      | Purpose                                                                                    |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [`ci.yml`](../.github/workflows/ci.yml)                       | Lint, compile, Hardhat + Foundry tests, frontend build                                     |
+| [`github-models.yml`](../.github/workflows/github-models.yml) | GitHub Models `.prompt.yml` and Python examples - see [GITHUB_MODELS.md](GITHUB_MODELS.md) |
+| [`security.yml`](../.github/workflows/security.yml)           | Dependency and code scanning                                                               |

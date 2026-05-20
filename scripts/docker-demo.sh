@@ -9,7 +9,7 @@
 #   DEMO=jurors     juror reputation demo
 #   DEMO=stablecoin ERC-20 escrow + gas comparison + reputation
 #   DEMO=both       good then bad
-#   DEMO=node    node only — useful for connecting MetaMask or Remix IDE
+#   DEMO=node    node only - useful for connecting MetaMask or Remix IDE
 set -euo pipefail
 
 cleanup() {
