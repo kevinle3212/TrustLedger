@@ -1,0 +1,43 @@
+site_name: TrustLedger
+site_description: A decentralized escrow and dispute resolution protocol for freelance and contract agreements, built on Ethereum.
+site_url: https://kevinle3212.github.io/TrustLedger
+repo_name: kevinle3212/TrustLedger
+repo_url: https://github.com/kevinle3212/TrustLedger
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: deep purple
+    accent: purple
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Home: Home.md
+  - Architecture: ARCHITECTURE.md
+  - Contract Reference: CONTRACTS.md
+  - Contributing: CONTRIBUTING.md
+  - Deployment: DEPLOYMENT.md
+  - Docker: DOCKER.md
+  - Testing: TESTING.md
+  - GitHub Models: GITHUB_MODELS.md
+  - Miscellaneous: MISCELLANEOUS.md
+  - Presentation: PRESENTATION.md
+
+docs_dir: docs
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - tables
+  - toc:
+      permalink: true
