@@ -43,5 +43,9 @@ Thumbs.db
 .vscode/
 .claude/
 
+# ─── Next.js build output ─────────────────────────────────────────────────────
+src/.next/
+src/out/
+
 # ─── Local testing docs (not needed inside the image) ─────────────────────────
 testing/
