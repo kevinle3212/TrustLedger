@@ -38,6 +38,53 @@ The core escrow engine. Holds ETH or ERC-20 tokens between a client and a freela
 
 ---
 
+### Data Structures
+
+#### `Status` enum
+
+The escrow lifecycle state, stored on-chain as a `uint8`. See [Architecture](ARCHITECTURE.md) for the full state machine.
+
+| Value | Name        | Meaning                                                                                         |
+| ----- | ----------- | ----------------------------------------------------------------------------------------------- |
+| 0     | `PENDING`   | Contract created; freelancer has not responded yet.                                             |
+| 1     | `ACTIVE`    | Freelancer accepted; project deadline is counting down.                                         |
+| 2     | `SUBMITTED` | Freelancer submitted proof-of-work; acceptance window running.                                  |
+| 3     | `APPROVED`  | Client approved, or the acceptance window elapsed (auto-release).                               |
+| 4     | `DISPUTED`  | Client opened a dispute; awaiting arbitration.                                                  |
+| 5     | `RESOLVED`  | Arbitration finalized and the ruling was executed.                                              |
+| 6     | `CANCELLED` | Freelancer rejected, client cancelled while pending, or client reclaimed after a deadline miss. |
+
+#### `EscrowContract` struct
+
+Returned by `getContract(id)`. One per freelance agreement. Fields are ordered to minimise EVM storage slots.
+
+```solidity
+struct EscrowContract {
+    address client;             // who hired the freelancer and deposited the funds
+    uint16  arbitrationFeeBps;  // juror fee, in basis points
+    uint16  holdBackBps;        // warranty hold-back (0, or 500-1500)
+    Status  status;             // current lifecycle state (see enum above)
+    address freelancer;         // who does the work and receives payment
+    uint64  warrantyDeadline;   // set on approval: approval time + warrantyPeriod
+    uint64  projectDeadline;    // unix timestamp the project is due
+    uint64  acceptanceWindow;   // client review window after submission (>= 48h)
+    uint64  acceptanceDeadline; // set on submission: submission time + acceptanceWindow
+    uint64  warrantyPeriod;     // how long the hold-back stays locked
+    uint256 amount;             // ETH (wei) or token units held in escrow
+    uint256 holdBackAmount;     // actual amount withheld (holdBackBps x amount)
+    uint256 arbitrationId;      // dispute ID in Arbitration (set on dispute)
+    bytes32 contractHash;       // keccak256 of the off-chain agreement document
+    string  contractURI;        // IPFS link to the full document
+    bytes32 proofOfWorkHash;    // keccak256 of the deliverable (set on submission)
+    string  proofOfWorkURI;     // IPFS link to the deliverable
+    address token;              // ERC-20 token; address(0) = native ETH escrow
+    uint256 usdValueAtCreation; // ETH/USD at creation (8 decimals); 0 if unset/ERC-20
+    uint256 previousContractId; // amendment predecessor; type(uint256).max = original
+}
+```
+
+---
+
 ### Functions
 
 #### `createContract`
@@ -374,6 +421,50 @@ Manages the commit-reveal juror voting process and fee pool distribution.
 | `BPS_DENOMINATOR`            | 10_000   | Basis-point denominator.                                                     |
 | `SEVERE_MINORITY_THRESHOLD`  | 30       | Deviation above this triggers the severe slash rate instead of the standard. |
 | `SEVERE_SLASH_BPS`           | 2000     | Severe slash rate for extreme outlier votes (20%).                           |
+
+---
+
+### Data Structures
+
+#### `Phase` enum
+
+Tracks which step of the voting process a dispute is in. `COMMIT`/`REVEAL` apply to first-instance disputes; the `APPEAL_*` variants apply to re-tried disputes after an appeal.
+
+| Value | Name               | Meaning                                                         |
+| ----- | ------------------ | --------------------------------------------------------------- |
+| 0     | `COMMIT`           | Jurors submit hidden vote commitments.                          |
+| 1     | `REVEAL`           | Jurors reveal their actual votes.                               |
+| 2     | `FINALIZED`        | Median computed; appeal window open.                            |
+| 3     | `APPEALED`         | An appeal was filed; the dispute is frozen pending the outcome. |
+| 4     | `APPEAL_COMMIT`    | Appeal dispute: commit phase.                                   |
+| 5     | `APPEAL_REVEAL`    | Appeal dispute: reveal phase.                                   |
+| 6     | `APPEAL_FINALIZED` | Appeal dispute finalized; the ruling is binding.                |
+
+#### `Dispute` struct
+
+Returned by `getDispute(disputeId)`. Both first-instance and appeal disputes share the same store, distinguished by `parentDisputeId`.
+
+```solidity
+struct Dispute {
+    uint256 contractId;      // TrustLedger escrow ID this dispute belongs to
+    address client;          // copied from TrustLedger for convenience
+    Phase   phase;           // current voting phase (see enum above)
+    bool    finalized;       // true after finalizeDispute() succeeds
+    bool    appealed;        // true after appeal() is filed
+    bool    vrfFulfilled;    // true once VRF randomness arrived and jurors were pre-selected
+    uint64  phaseDeadline;   // unix timestamp when the current phase expires
+    address freelancer;      // copied from TrustLedger for convenience
+    uint256 contractAmount;  // total escrow value (reference only; not held here)
+    uint256 feePool;         // ETH held by this contract as the juror reward pool
+    uint256 ruling;          // finalized completionPct (0-100); type(uint256).max = unset
+    address appealer;        // who filed the appeal (client or freelancer)
+    uint256 appealBond;      // ETH the appealer paid as bond
+    uint256 appealDisputeId; // disputeId of the follow-up appeal dispute (max = none)
+    uint256 parentDisputeId; // disputeId of the original dispute (max = this is original)
+    uint256 maxJurors;       // max juror slots; doubles with each appeal
+    uint256 jurorCount;      // how many jurors have committed so far
+}
+```
 
 ---
 
@@ -818,10 +909,123 @@ Returns the cumulative score sum and rating count. Compute the average as `numer
 
 ---
 
+## Example Interactions
+
+Practical call sequences for the two main flows. Addresses come from `artifacts/deployed-addresses.json`. The examples use Foundry's [`cast`](https://book.getfoundry.sh/cast/) and [viem](https://viem.sh); the demo scripts in [Contributing](CONTRIBUTING.md) wrap the same calls end-to-end.
+
+!!! note "Hashes and URIs are required"
+`contractHash`/`proofOfWorkHash` must be the `keccak256` of the actual file bytes (computed off-chain before upload) and non-zero, and `contractURI`/`proofOfWorkURI` must be non-empty IPFS URIs. Zero/empty values revert with `EmptyHash` / `EmptyURI`.
+
+### Happy path (client creates → freelancer accepts → submits → client approves)
+
+```bash
+TL=0x...                       # TrustLedger address
+RPC=$SEPOLIA_RPC_URL
+FREELANCER=0x...
+HASH=$(cast keccak "$(cat agreement.pdf)")   # keccak256 of the document bytes
+
+# 1. Client creates a 0.5 ETH escrow.
+#    args: freelancer, contractHash, contractURI, estimatedDuration (7d),
+#          bufferFactor (1.1x), acceptanceWindow (48h), arbitrationFeeBps (5%),
+#          holdBackBps (10%), warrantyPeriod (14d), token (ETH=0), tokenAmount (0)
+cast send "$TL" \
+  "createContract(address,bytes32,string,uint256,uint256,uint256,uint16,uint16,uint64,address,uint256)" \
+  "$FREELANCER" "$HASH" "ipfs://<CID>" \
+  604800 1100 172800 500 1000 1209600 \
+  0x0000000000000000000000000000000000000000 0 \
+  --value 0.5ether --rpc-url "$RPC" --private-key "$CLIENT_KEY"
+# -> emits ContractCreated(id, client, freelancer, amount); first id is 1
+```
+
+The freelancer accepts with a wallet signature over `keccak256(abi.encodePacked(id, freelancerAddress))`, signed with the EIP-191 prefix (`eth_sign` / `personal_sign`). viem applies the prefix automatically when signing a `raw` hash:
+
+```ts
+import { createWalletClient, http, encodePacked, keccak256, hexToSignature } from "viem";
+
+const id = 1n;
+const innerHash = keccak256(encodePacked(["uint256", "address"], [id, freelancer]));
+const signature = await walletClient.signMessage({ message: { raw: innerHash } });
+const { v, r, s } = hexToSignature(signature);
+
+// 2. Freelancer accepts -> status ACTIVE
+await walletClient.writeContract({
+	address: TL,
+	abi,
+	functionName: "acceptContract",
+	args: [id, Number(v), r, s],
+});
+```
+
+```bash
+# 3. Freelancer submits the deliverable -> status SUBMITTED, starts the 48h acceptance window
+POW=$(cast keccak "$(cat deliverable.zip)")
+cast send "$TL" "submitProofOfWork(uint256,bytes32,string)" \
+  1 "$POW" "ipfs://<deliverable-CID>" --rpc-url "$RPC" --private-key "$FREELANCER_KEY"
+
+# 4. Client approves -> releases amount - holdBack, status APPROVED
+cast send "$TL" "approveWork(uint256)" 1 --rpc-url "$RPC" --private-key "$CLIENT_KEY"
+
+# Read the full struct at any point
+cast call "$TL" "getContract(uint256)" 1 --rpc-url "$RPC"
+```
+
+If the client never responds, the freelancer can call `claimAfterAcceptanceWindow(1)` once the 48-hour window elapses. After the warranty period, the freelancer claims the hold-back with `claimWarrantyFunds(1)`.
+
+### Dispute path (client disputes → jurors commit/reveal → ruling executes)
+
+```bash
+ARB=0x...   # Arbitration address
+
+# 1. Instead of approving, the client disputes -> forwards the fee pool to Arbitration
+cast send "$TL" "disputeWork(uint256)" 1 --rpc-url "$RPC" --private-key "$CLIENT_KEY"
+# -> WorkDisputed(id, arbitrationId); read the dispute id from the event or getContract()
+
+# 2. A staked, eligible juror commits a hidden vote.
+#    commitment = keccak256(abi.encodePacked(disputeId, juror, completionPct, salt))
+DISPUTE=1; PCT=70; SALT=0x<32-byte-random>
+COMMIT=$(cast keccak "$(cast abi-encode 'f(uint256,address,uint256,bytes32)' $DISPUTE $JUROR $PCT $SALT)")
+cast send "$ARB" "commitVote(uint256,bytes32)" $DISPUTE "$COMMIT" \
+  --rpc-url "$RPC" --private-key "$JUROR_KEY"
+
+# 3. After >= MIN_JURORS commit (or the 72h commit window passes), advance and reveal.
+cast send "$ARB" "advanceToReveal(uint256)" $DISPUTE --rpc-url "$RPC" --private-key "$JUROR_KEY"
+cast send "$ARB" "revealVote(uint256,uint256,bytes32)" $DISPUTE $PCT $SALT \
+  --rpc-url "$RPC" --private-key "$JUROR_KEY"
+
+# 4. After the reveal window: finalize (computes the median, slashes minorities),
+#    then execute once the 72h appeal window closes.
+cast send "$ARB" "finalizeDispute(uint256)" $DISPUTE --rpc-url "$RPC" --private-key "$JUROR_KEY"
+cast send "$ARB" "executeRuling(uint256)" $DISPUTE --rpc-url "$RPC" --private-key "$ANY_KEY"
+# -> TrustLedger.executeRuling distributes funds by completionPct; status RESOLVED
+
+# 5. Majority jurors claim their fee-pool share after the appeal window.
+cast send "$ARB" "claimReward(uint256)" $DISPUTE --rpc-url "$RPC" --private-key "$JUROR_KEY"
+```
+
+!!! warning "Use a fresh, secret salt per commit"
+The `salt` must stay secret until reveal and match exactly, byte-for-byte. A revealed value whose recomputed commitment differs from the stored one reverts with `InvalidCommitment`, and a juror who never reveals is slashed.
+
+### Reading events with viem
+
+```ts
+import { parseAbiItem } from "viem";
+
+const logs = await publicClient.getLogs({
+	address: TL,
+	event: parseAbiItem(
+		"event ContractCreated(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount)",
+	),
+	fromBlock: deployBlock,
+});
+```
+
+---
+
 ## Related docs
 
 - [Home](Home.md) - documentation index
 - [Architecture](ARCHITECTURE.md) - system diagram, state machine, and payout formulas
+- [FAQ](FAQ.md) - common questions about using, building, and contributing
 - [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and Actions workflow
 - [Contributing](CONTRIBUTING.md) - local setup, testing, and demo scripts
 

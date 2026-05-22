@@ -6,12 +6,13 @@ This guide covers everything needed to clone, compile, test, lint, and deploy Tr
 
 ## Prerequisites
 
-| Tool    | Version  | Install                                                     |
-| ------- | -------- | ----------------------------------------------------------- |
-| Node.js | ≥ 22.0.0 | [nodejs.org](https://nodejs.org) or `nvm install 22`        |
-| npm     | Bundled  | Included with Node.js                                       |
-| Foundry | Latest   | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
-| Git     | Any      | [git-scm.com](https://git-scm.com)                          |
+| Tool    | Version             | Install                                                                                                                                                                      |
+| ------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js | ≥ 22.0.0            | [nodejs.org](https://nodejs.org) or `nvm install 22`                                                                                                                         |
+| npm     | Bundled             | Included with Node.js                                                                                                                                                        |
+| Foundry | Latest              | `curl -L https://foundry.paradigm.xyz \| bash && foundryup`                                                                                                                  |
+| Git     | Any                 | [git-scm.com](https://git-scm.com)                                                                                                                                           |
+| Python  | ≥ 3.9 _(docs only)_ | [python.org](https://www.python.org) — only needed to preview the docs site locally (`pip install -r requirements-docs.txt`). See [Documentation Site](#documentation-site). |
 
 Verify your installation:
 
@@ -520,6 +521,66 @@ If the commit message is rejected, amend it with `git commit --amend` and try ag
 - **Solidity:** `forge fmt` for formatting; `solhint` for rules. No magic numbers - use named constants. Custom errors over `require` strings.
 - **TypeScript:** `eslint` + `prettier`. Strict mode. `node:` prefix on built-in imports.
 - **Commits:** Follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, etc.). Enforced automatically by the `commit-msg` hook.
+
+---
+
+## Documentation Site
+
+All Markdown lives in `docs/` and is the single source for two published targets, both updated automatically on every push to `main`:
+
+| Target      | URL                                               | Workflow                          |
+| ----------- | ------------------------------------------------- | --------------------------------- |
+| MkDocs site | <https://kevinle3212.github.io/TrustLedger/>      | `.github/workflows/docs.yml`      |
+| GitHub Wiki | <https://github.com/kevinle3212/TrustLedger/wiki> | `.github/workflows/wiki-sync.yml` |
+
+### Navigating the published site
+
+The MkDocs site uses the [Material](https://squidfunk.github.io/mkdocs-material/) theme. Reader-facing features:
+
+- **Search** — press `/` (or `S`) to focus the search box; it suggests completions and highlights matches on the page. Use the "share" result action to copy a deep link to a specific search.
+- **Light/dark mode** — the sun/moon toggle in the header switches palettes; it also follows your OS `prefers-color-scheme` by default.
+- **Top tabs + section sidebar** — top-level pages appear as tabs; the left sidebar expands the sections within the active page, and the right sidebar is the in-page table of contents.
+- **Edit / view this page** — the pencil and eye icons (top right of each page) jump to the source `.md` on GitHub, so readers can propose fixes directly.
+- **Copy code** — every code block has a copy button in its top-right corner.
+
+### Previewing locally
+
+```bash
+# From the repo root. Installs MkDocs + the Material theme (pinned).
+pip install -r requirements-docs.txt
+
+# Live-reloading preview at http://127.0.0.1:8000
+mkdocs serve
+
+# One-off production build into ./site (what CI publishes)
+mkdocs build
+```
+
+`mkdocs serve` rebuilds on every save, so you can preview edits before pushing. Run `mkdocs build --strict` to surface broken internal links (note: it also fails on the known external `../SECURITY.md` / `../LICENSE` links that live outside `docs/`).
+
+### Updating the docs
+
+- Edit or add files under `docs/`. Register any new page in the `nav:` block of `mkdocs.yml` so it appears in the site sidebar.
+- Put images and other assets under `docs/assets/` and reference them with a relative path (e.g. `assets/logo.png`).
+- Commit and push to `main`. The `docs.yml` workflow builds with `mkdocs gh-deploy --force` (publishes to the `gh-pages` branch), and `wiki-sync.yml` copies `docs/*.md` into the wiki.
+
+### Conventions that keep both targets working
+
+- **Cross-doc links must use the `.md` extension** — e.g. `[Architecture](ARCHITECTURE.md)`, not `[Architecture](ARCHITECTURE)`. MkDocs only rewrites links that end in `.md`; bare names resolve relative to the current page (e.g. `/Home/ARCHITECTURE`) and 404.
+- **`Home.md` is the landing page.** It stays named `Home` because that is the GitHub Wiki's landing page. `docs/index.html` is a static redirect that points the MkDocs site root (`/`) at `/Home/`; it is `*.html` so `wiki-sync` never copies it.
+- The `gh-pages` branch holds only the built static site. Vercel deployments are disabled for it via `git.deploymentEnabled` in `src/vercel.json`.
+
+### Troubleshooting
+
+| Symptom                                                              | Likely cause and fix                                                                                                                                                                   |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A page returns **404** on the live site                              | The link omitted the `.md` extension, or the page isn't in the `nav:` block of `mkdocs.yml`. Add `.md` to the link and register the page.                                              |
+| Visiting the site root **`/`** 404s                                  | `docs/index.html` (the redirect to `/Home/`) didn't publish. Confirm it exists and that GitHub Pages is serving the `gh-pages` branch at `/` (Settings → Pages).                       |
+| New page **doesn't appear** in the sidebar                           | It isn't listed under `nav:` in `mkdocs.yml`. Add it; pages outside `nav` build but are hidden.                                                                                        |
+| **`mkdocs: command not found`** locally                              | The environment isn't set up. Run `pip install -r requirements-docs.txt`.                                                                                                              |
+| Editor flags **`Unresolved tag: !!python/name:...`** in `mkdocs.yml` | Expected. Those are valid MkDocs Material emoji tags that generic YAML linters don't recognize; MkDocs parses them fine.                                                               |
+| Changes pushed but the **site didn't update**                        | `docs.yml` only triggers on changes under `docs/**`, `mkdocs.yml`, or `requirements-docs.txt`. Check the Actions tab for a failed run, or trigger it manually via _workflow_dispatch_. |
+| **Wiki** is out of date                                              | `wiki-sync.yml` only copies `*.md` (not `index.html` or assets). Confirm the page is Markdown and the workflow succeeded.                                                              |
 
 ---
 

@@ -1,27 +1,68 @@
 site_name: TrustLedger
 site_description: A decentralized escrow and dispute resolution protocol for freelance and contract agreements, built on Ethereum.
 site_url: https://kevinle3212.github.io/TrustLedger
+site_author: TrustLedger
 repo_name: kevinle3212/TrustLedger
 repo_url: https://github.com/kevinle3212/TrustLedger
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; TrustLedger
 
 theme:
     name: material
+    logo: assets/logo.png
+    favicon: assets/favicon.ico
+    icon:
+        repo: fontawesome/brands/github
+        edit: material/pencil
+        view: material/eye
     palette:
-        scheme: slate
-        primary: deep purple
-        accent: purple
+        # Light mode
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: deep purple
+          accent: purple
+          toggle:
+              icon: material/weather-night
+              name: Switch to dark mode
+        # Dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: deep purple
+          accent: purple
+          toggle:
+              icon: material/weather-sunny
+              name: Switch to light mode
+    font:
+        text: Inter
+        code: JetBrains Mono
     features:
+        # Navigation
+        - navigation.instant
+        - navigation.instant.progress
+        - navigation.tracking
         - navigation.tabs
         - navigation.sections
         - navigation.top
+        - navigation.footer
+        - toc.follow
+        # Search
         - search.highlight
+        - search.suggest
+        - search.share
+        # Content
         - content.code.copy
+        - content.code.annotate
+        - content.tabs.link
+        - content.tooltips
+        - content.action.edit
+        - content.action.view
 
 nav:
     - Home: Home.md
     - Architecture: ARCHITECTURE.md
     - Contract Reference: CONTRACTS.md
     - Contributing: CONTRIBUTING.md
+    - FAQ: FAQ.md
     - Deployment: DEPLOYMENT.md
     - Docker: DOCKER.md
     - Testing: TESTING.md
@@ -31,13 +72,39 @@ nav:
 
 docs_dir: docs
 
+extra_css:
+    - assets/extra.css
+
+extra:
+    social:
+        - icon: fontawesome/brands/github
+          link: https://github.com/kevinle3212/TrustLedger
+          name: TrustLedger on GitHub
+    generator: false
+
+plugins:
+    - search
+
 markdown_extensions:
     - pymdownx.highlight:
           anchor_linenums: true
+          line_spans: __span
+          pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
     - pymdownx.superfences
     - pymdownx.tabbed:
           alternate_style: true
+    - pymdownx.details
+    - pymdownx.tasklist:
+          custom_checkbox: true
+    - pymdownx.emoji:
+          emoji_index: !!python/name:material.extensions.emoji.twemoji
+          emoji_generator: !!python/name:material.extensions.emoji.to_svg
     - admonition
+    - attr_list
+    - md_in_html
+    - footnotes
     - tables
     - toc:
           permalink: true

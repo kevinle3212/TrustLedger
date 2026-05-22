@@ -1,3 +1,8 @@
 {
-	"ignoreCommand": "git diff --quiet HEAD~1 -- . ../artifacts/deployed-addresses.json"
+	"ignoreCommand": "git diff --quiet HEAD~1 -- . ../artifacts/deployed-addresses.json",
+	"git": {
+		"deploymentEnabled": {
+			"gh-pages": false
+		}
+	}
 }

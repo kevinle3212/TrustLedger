@@ -14,6 +14,8 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 
 ## Documentation
 
+**Browse online:** [hosted docs site](https://kevinle3212.github.io/TrustLedger/) (MkDocs Material) · [GitHub Wiki](https://github.com/kevinle3212/TrustLedger/wiki) — both auto-published from `docs/` on every push to `main`.
+
 | Document                                       | Description                                                                                                   |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)   | System diagram, state machine, payout formulas, storage layout                                                |
@@ -1254,7 +1256,7 @@ fix: prevent double-release when acceptanceDeadline and warrantyDeadline coincid
 test: add fuzz coverage for partial ruling payout conservation
 chore: bump hardhat to 2.28.6
 docs: update README with frontend integration guide
-lint: fix Solhint max-line-length warning in JurorRegistry
+style: fix Solhint max-line-length warning in JurorRegistry
 ```
 
 <details>
@@ -1267,7 +1269,7 @@ lint: fix Solhint max-line-length warning in JurorRegistry
 | `test`     | Add or update tests                             |
 | `chore`    | Dependency bumps, config changes, build tooling |
 | `docs`     | Documentation only                              |
-| `lint`     | Linting or formatting fixes                     |
+| `style`    | Linting or formatting fixes (no logic change)   |
 | `refactor` | Code restructured without behavior change       |
 
 </details>

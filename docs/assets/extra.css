@@ -1,0 +1,24 @@
+/* TrustLedger documentation theme tweaks layered on top of MkDocs Material. */
+
+/* Constrain the header logo so the wide wordmark banner stays legible. */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+	height: 1.6rem;
+	width: auto;
+}
+
+/* Slightly tighter, more readable body width on large screens. */
+.md-grid {
+	max-width: 68rem;
+}
+
+/* Give code blocks a touch more breathing room. */
+.md-typeset pre > code {
+	padding: 0.9em 1.1em;
+}
+
+/* Brand accent on the hovered/selected navigation entries. */
+.md-nav__link:focus,
+.md-nav__link:hover {
+	color: var(--md-accent-fg-color);
+}

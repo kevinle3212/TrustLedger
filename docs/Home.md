@@ -8,17 +8,18 @@ A decentralized escrow and dispute resolution protocol for freelance agreements,
 
 ## Documentation
 
-| Page                            | Description                                                                     |
-| ------------------------------- | ------------------------------------------------------------------------------- |
-| [Architecture](ARCHITECTURE)    | System diagram, contract interaction flow, state machine, and payout formulas   |
-| [Contract Reference](CONTRACTS) | Full public API - functions, events, errors, and storage for all five contracts |
-| [Contributing](CONTRIBUTING)    | Local setup, compiling, testing, linting, and deploying to testnet              |
-| [Deployment](DEPLOYMENT)        | Vercel deployment, environment variables, CI/CD pipeline                        |
-| [Docker](DOCKER)                | Docker setup, services, MetaMask configuration, and troubleshooting             |
-| [Testing](TESTING)              | Hardhat and Foundry test suites, fork tests, fuzz tests, and CI                 |
-| [Miscellaneous](MISCELLANEOUS)  | Glossary, design decisions, Chainlink setup, tooling rationale                  |
-| [Presentation](PRESENTATION)    | Slide-by-slide notes for pitches and demos                                      |
-| [GitHub Models](GITHUB_MODELS)  | `.prompt.yml` examples, Python SDK, and Actions workflow for Models testing     |
+| Page                               | Description                                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| [Architecture](ARCHITECTURE.md)    | System diagram, contract interaction flow, state machine, and payout formulas   |
+| [Contract Reference](CONTRACTS.md) | Full public API - functions, events, errors, and storage for all five contracts |
+| [Contributing](CONTRIBUTING.md)    | Local setup, compiling, testing, linting, and deploying to testnet              |
+| [FAQ](FAQ.md)                      | Common questions for clients, freelancers, jurors, and contributors             |
+| [Deployment](DEPLOYMENT.md)        | Vercel deployment, environment variables, CI/CD pipeline                        |
+| [Docker](DOCKER.md)                | Docker setup, services, MetaMask configuration, and troubleshooting             |
+| [Testing](TESTING.md)              | Hardhat and Foundry test suites, fork tests, fuzz tests, and CI                 |
+| [Miscellaneous](MISCELLANEOUS.md)  | Glossary, design decisions, Chainlink setup, tooling rationale                  |
+| [Presentation](PRESENTATION.md)    | Slide-by-slide notes for pitches and demos                                      |
+| [GitHub Models](GITHUB_MODELS.md)  | `.prompt.yml` examples, Python SDK, and Actions workflow for Models testing     |
 
 ---
 

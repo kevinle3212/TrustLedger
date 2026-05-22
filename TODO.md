@@ -15,7 +15,21 @@
 - [ ] (Mainnet) Add in user authentication and authorization for the website, so that users can create accounts and log in to access their own data and settings.
     - This would involve setting up a database to store user information, as well as implementing a secure authentication system using JWTs or OAuth.
 
+- [x] Document the GitHub Pages setup and deployment process in the README or a separate CONTRIBUTING.md file, so that future contributors can easily understand how to update the documentation site. — added "Documentation Site" section to `docs/CONTRIBUTING.md`.
+    - [x] Fix Vercel command failing on the `gh-pages` branch. — disabled via `git.deploymentEnabled.gh-pages: false` in `src/vercel.json`.
+    - [x] Fix the `/` endpoint to point to Home instead of the default GitHub Pages landing page as it gives a 404 error currently. — added `docs/index.html` meta-refresh redirect to `Home/` (not synced to the wiki since `wiki-sync` only copies `*.md`).
+    - [x] Pages are broken and all return a 404. — root cause was `Home.md` using bare links like `[Architecture](ARCHITECTURE)`; MkDocs only rewrites links ending in `.md`, so they resolved to `/Home/ARCHITECTURE`. Added `.md` to all 9 links (every other doc already used `.md`).
+
+    - [x] Add a Jekyll or MkDocs theme to the GitHub Pages site to improve the appearance and navigation of the documentation.
+        - Enhanced the existing MkDocs Material theme in `mkdocs.yml`: light/dark palette toggle, logo + favicon (`docs/assets/`), GitHub repo icon, "edit/view this page" links (`edit_uri`), expanded navigation (instant loading, tracking, footer, `toc.follow`), search (suggest/share), and content features (code annotations, linked tabs, tooltips).
+        - Added richer markdown extensions (details, tasklist, emoji, snippets, footnotes, attr_list). Pinned deps in `requirements-docs.txt` and pointed `docs.yml` at it. Small brand polish in `docs/assets/extra.css`.
+
 - [x] GitHub Pages for documentation — deployed via MkDocs Material (`mkdocs.yml` + `.github/workflows/docs.yml`).
     - Auto-deploys to `gh-pages` branch on every push to `main` that touches `docs/` or `mkdocs.yml`.
     - Site URL: <https://kevinle3212.github.io/TrustLedger>
     - Remaining: enable GitHub Pages in repo settings (Settings → Pages → Source: Deploy from branch → gh-pages / root), then link from the README and main website.
+
+- [x] Update documentation for things that are currently missing or incomplete, such as:
+    - [x] Smart contract documentation: add more detailed explanations of the smart contract functions, events, and data structures, as well as example interactions. — added the `Status`/`Phase` enums and `EscrowContract`/`Dispute` struct definitions to `docs/CONTRACTS.md`, plus an "Example Interactions" section with `cast` + viem snippets for the happy path and the dispute/juror flow (and event reads).
+    - [x] GitHub Pages documentation: add more detailed guides and tutorials for using the documentation site, as well as troubleshooting tips for common issues. — expanded the "Documentation Site" section in `docs/CONTRIBUTING.md` with navigating-the-site and local-preview tutorials and a troubleshooting table for common doc-site issues.
+    - [x] Add a FAQ.md file to address common questions and issues that users may have when using the platform and have that be referenced inside the documentation and GitHub pages. — created `docs/FAQ.md` (clients, freelancers, jurors, disputes, fees, developers, doc-site) and referenced it from the `mkdocs.yml` nav, `Home.md` index, and `CONTRACTS.md` related docs.

@@ -1,0 +1,4 @@
+# Documentation site dependencies (MkDocs + Material theme).
+# Install with: pip install -r requirements-docs.txt
+# Used locally and by .github/workflows/docs.yml to build the GitHub Pages site.
+mkdocs-material>=9.7,<10

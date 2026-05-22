@@ -35,7 +35,12 @@
 		"lint:frontend": "npm run lint:frontend:ts && npm run lint:frontend:prettier",
 		"lint:frontend:ts": "eslint app lib components",
 		"lint:frontend:prettier": "prettier --check \"app/**\" \"lib/**\" \"components/**\" \"next.config.ts\"",
-		"debug:frontend:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile"
+		"debug:frontend:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile",
+		"cache:clear": "npm run cache:clear:eslint && npm run cache:clear:prettier && npm run cache:clear:npm && npm run cache:clear:next",
+		"cache:clear:eslint": "find . -name '.eslintcache' -maxdepth 3 | grep -v node_modules | xargs rm -f",
+		"cache:clear:prettier": "find . -name '.prettiercache' -maxdepth 3 | grep -v node_modules | xargs rm -f",
+		"cache:clear:npm": "npm cache clean --force",
+		"cache:clear:next": "rm -rf .next"
 	},
 	"dependencies": {
 		"@rainbow-me/rainbowkit": "^2.2.11",
