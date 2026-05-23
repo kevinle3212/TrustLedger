@@ -1,5 +1,11 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { arbitrum, base, optimism, sepolia } from "wagmi/chains";
+import {
+	base,
+	injectedWallet,
+	metaMaskWallet,
+	walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
+import { arbitrum, base as baseChain, optimism, sepolia } from "wagmi/chains";
 
 export const TRUSTLEDGER_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"] as `0x${string}` | undefined) ??
@@ -19,12 +25,31 @@ export const REPUTATION_REGISTRY_ADDRESS: `0x${string}` =
 
 const wcProjectId = process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"];
 
+const hasWcProjectId = wcProjectId !== undefined && wcProjectId !== "";
+
 export const config = getDefaultConfig({
 	appName: "TrustLedger",
-	projectId: wcProjectId !== undefined && wcProjectId !== "" ? wcProjectId : "YOUR_PROJECT_ID",
+	projectId: hasWcProjectId ? wcProjectId : "YOUR_PROJECT_ID",
+	wallets: [
+		{
+			groupName: "Popular",
+			wallets: [
+				// Only shown when a browser extension (e.g. MetaMask) is already injected.
+				// Avoids the Safari "This page couldn't load" error caused by the metamask:// deep link
+				// that fires when the extension is absent.
+				injectedWallet,
+				// Explicit MetaMask entry — shows a QR code fallback when the extension is missing,
+				// which is the correct path for Safari + MetaMask Mobile.
+				metaMaskWallet,
+				// Universal QR-code connection; works in every browser including Safari.
+				...(hasWcProjectId ? [walletConnectWallet] : []),
+				base,
+			],
+		},
+	],
 	// Sepolia: testing and development only.
 	// Arbitrum / Base / Optimism: production L2s with gas costs proportional to typical contract values.
-	chains: [sepolia, arbitrum, base, optimism],
+	chains: [sepolia, arbitrum, baseChain, optimism],
 	ssr: true,
 });
 
