@@ -3,7 +3,15 @@
 ## Tasks and Future Improvements for Mainnet Release
 
 - [ ] Finalize the TrustLedger whitepaper and move it to `docs/TrustLedger_Whitepaper_v1.0_2026.pdf`.
-    - Once finalized, commit to `docs/` and link to it from the README, other documentation markdown files, and the GitHub pages documentation site.
+    - [ ] Once finalized, commit to `docs/` and link to it from the README, other documentation markdown files, and the GitHub pages documentation site.
+    - [ ] Use Dune Analytics to create dashboards and visualizations of on-chain data related to the platform, such as the number of contracts created, total value locked, dispute rates, juror participation, and reputation scores. This could help users better understand the activity and performance of the platform, and could also be used to identify trends and areas for improvement.
+
+- [ ] Look into privacy with zero-knowledge proofs, hiding addresses, wallets, amounts, etc. on the frontend and/or via a relayer. This is a non-goal for the initial release, but could be a valuable future improvement to enhance user privacy and security.
+
+- [ ] Implement a decrypt frontend UI for encrypted contract documents.
+    - Context: the "Encrypt before upload (AES-256-GCM)" feature uploads an encrypted JSON bundle to IPFS, so fetching the `contractURI` via a gateway returns ciphertext, not the file. There is currently no in-app way to decrypt it.
+    - `decryptFile()` already exists and is tested in `src/lib/encryption.ts` (the symmetric counterpart to `encryptFile`) but is not wired into any UI.
+    - Add a UI flow: fetch the `contractURI` from a gateway (or accept a pasted bundle), prompt for the passphrase, call `decryptFile`, and download the recovered document. The bundle is self-describing (salt/iv/iterations travel with the ciphertext), so the passphrase is the only secret needed.
 
 - [ ] Build out the `reputation/` page further (rating lookup and submission already work today).
     - Already works: address lookup, "use my wallet", and `averageRating(addr)` → score/100 + rating count with loading/error/not-deployed states. Rating submission is wired on the dashboard via `submitRating(id, score)`.

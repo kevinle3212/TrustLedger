@@ -69,6 +69,7 @@ nav:
     - GitHub Models: GITHUB_MODELS.md
     - Miscellaneous: MISCELLANEOUS.md
     - Presentation: PRESENTATION.md
+    - Demo: DEMO.md
 
 docs_dir: docs
 
