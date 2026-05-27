@@ -52,7 +52,40 @@ Supplementary notes that don't belong in any single other document.
 | **Vercel**            | Frontend hosting platform; auto-deploys on push to `main` and exposes preview URLs on every PR - configured in `src/vercel.json` and `.vercel/project.json`            |
 | **RainbowKit**        | Wallet connection UI library for React - provides the connect-wallet modal, multi-wallet support, and chain-switching UI; wired via wagmi in `src/lib/wagmi.ts`        |
 
-### Why both Hardhat and Foundry?
+### RTK — Token Proxy for Claude Code
+
+[RTK](https://www.rtk-ai.app/) is a CLI proxy that wraps shell commands run by Claude Code and strips output noise before it reaches the LLM context window. This reduces token usage on shell-heavy workflows (git, npm, forge) by 60-90%.
+
+**Install:**
+
+```bash
+brew install rtk
+```
+
+**Verify:**
+
+```bash
+rtk --version        # rtk X.Y.Z
+rtk gain             # cumulative token savings this session
+rtk gain --history   # per-command savings breakdown
+```
+
+**How it integrates:** Claude Code's session hook (in `.claude/settings.json`) transparently rewrites commands through RTK. Install it once and every subsequent Claude Code session uses it automatically — no per-project configuration required.
+
+**Useful meta-commands** (always call these directly, not through the hook):
+
+| Command              | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `rtk gain`           | Show cumulative token savings for the current session |
+| `rtk gain --history` | Show per-command savings history                      |
+| `rtk discover`       | Scan Claude Code history for missed RTK opportunities |
+| `rtk proxy <cmd>`    | Run a command through RTK manually (for debugging)    |
+
+> ⚠️ **Name collision:** `reachingforthejack/rtk` (Rust Type Kit) is an unrelated Homebrew package. Run `rtk gain` to confirm you have the correct binary — Rust Type Kit does not have this subcommand.
+
+---
+
+### Why Both Hardhat and Foundry?
 
 Hardhat is used for integration tests: ethers.js + TypeChain make it easy to simulate multi-wallet interactions, balance diffs, and event assertions in TypeScript. Foundry is used for unit and fuzz tests: Solidity-native cheatcodes (`vm.prank`, `vm.warp`, `vm.expectRevert`) are faster for lower-level invariant checks. Both toolchains share `solc 0.8.24` and `optimizer_runs = 200`.
 
@@ -202,7 +235,7 @@ If `initPauser` is never called, pause is permanently unavailable. Every other s
 
 ---
 
-## Related docs
+## Related Docs
 
 - [Home](Home.md) - documentation index
 - [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and Actions workflow

@@ -6,13 +6,14 @@ This guide covers everything needed to clone, compile, test, lint, and deploy Tr
 
 ## Prerequisites
 
-| Tool    | Version             | Install                                                                                                                                                                      |
-| ------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js | ≥ 22.0.0            | [nodejs.org](https://nodejs.org) or `nvm install 22`                                                                                                                         |
-| npm     | Bundled             | Included with Node.js                                                                                                                                                        |
-| Foundry | Latest              | `curl -L https://foundry.paradigm.xyz \| bash && foundryup`                                                                                                                  |
-| Git     | Any                 | [git-scm.com](https://git-scm.com)                                                                                                                                           |
-| Python  | ≥ 3.9 _(docs only)_ | [python.org](https://www.python.org) — only needed to preview the docs site locally (`pip install -r requirements-docs.txt`). See [Documentation Site](#documentation-site). |
+| Tool             | Version             | Install                                                                                                                                                                      |
+| ---------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js          | ≥ 22.0.0            | [nodejs.org](https://nodejs.org) or `nvm install 22`                                                                                                                         |
+| npm              | Bundled             | Included with Node.js                                                                                                                                                        |
+| Foundry          | Latest              | `curl -L https://foundry.paradigm.xyz \| bash && foundryup`                                                                                                                  |
+| Git              | Any                 | [git-scm.com](https://git-scm.com)                                                                                                                                           |
+| Python           | ≥ 3.9 _(docs only)_ | [python.org](https://www.python.org) — only needed to preview the docs site locally (`pip install -r requirements-docs.txt`). See [Documentation Site](#documentation-site). |
+| rtk _(optional)_ | Latest              | `brew install rtk` — token-optimized Claude Code CLI proxy; see [RTK Setup](#rtk--claude-code-token-proxy) below.                                                            |
 
 Verify your installation:
 
@@ -20,6 +21,7 @@ Verify your installation:
 node --version    # v22.x.x or later
 npm --version
 forge --version   # forge 0.x.x
+rtk --version     # rtk X.Y.Z (optional, only if using Claude Code)
 ```
 
 ---
@@ -339,6 +341,49 @@ npm run nexus:viz
 ```
 
 Re-run `nexus:index` after large refactors to keep the graph current. The generated database lives in `.nexus/graph.db` (gitignored).
+
+---
+
+## RTK — Claude Code Token Proxy
+
+[RTK](https://www.rtk-ai.app/) is a CLI proxy that intercepts shell commands executed by Claude Code and trims their output before it reaches the LLM context window. On a project like TrustLedger — with frequent `git`, `npm`, and `forge` operations — it typically reduces token consumption by 60-90%, cutting both cost and response latency.
+
+### Install
+
+```bash
+brew install rtk
+```
+
+> **macOS only:** RTK is available in Homebrew core — no tap required.
+> ⚠️ **Name collision:** `reachingforthejack/rtk` (Rust Type Kit) is an unrelated package. If `rtk gain` shows an unrelated tool, run `which rtk` to confirm you have the correct binary from `/opt/homebrew/bin/rtk`.
+
+### Verify
+
+```bash
+rtk --version   # should print: rtk X.Y.Z
+rtk gain        # should show token savings (0 on first run)
+```
+
+### How It Works
+
+Once `rtk` is installed, Claude Code's session hook (defined in `.claude/settings.json`) automatically routes all shell commands through the proxy. No manual configuration is required — just install and it is active the next time a Claude Code session starts.
+
+```
+git status  →  rtk git status   (Claude only sees the filtered output)
+forge test  →  rtk forge test
+npm run …   →  rtk npm run …
+```
+
+### Useful Commands
+
+| Command              | Description                                               |
+| -------------------- | --------------------------------------------------------- |
+| `rtk gain`           | Show cumulative token savings for the current session     |
+| `rtk gain --history` | Show per-command savings history                          |
+| `rtk discover`       | Analyze Claude Code history for missed RTK opportunities  |
+| `rtk proxy <cmd>`    | Run a command through RTK manually (useful for debugging) |
+
+RTK is optional — Claude Code works without it — but is strongly recommended for any contributor who uses Claude Code on this project.
 
 ---
 

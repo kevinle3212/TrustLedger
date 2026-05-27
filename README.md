@@ -116,28 +116,28 @@ Phase advances (`advanceToReveal`, `finalizeDispute`, `executeRuling`) are calla
 <details>
 <summary>Expand - full technology stack</summary>
 
-| Layer                          | Technology                                                                                  |
-| ------------------------------ | ------------------------------------------------------------------------------------------- |
-| Smart contracts                | Solidity 0.8.24                                                                             |
-| Contract testing (unit + fuzz) | Foundry (Forge)                                                                             |
-| Contract testing (integration) | Hardhat 2.x + Mocha/Chai                                                                    |
-| TypeScript types               | TypeChain (ethers-v6)                                                                       |
-| Chain                          | Ethereum Sepolia (testnet)                                                                  |
-| Off-chain storage              | IPFS via Pinata (with optional Arweave)                                                     |
-| Wallet                         | MetaMask + RainbowKit                                                                       |
-| Frontend                       | Next.js 16, React 19, wagmi v2, RainbowKit, viem                                            |
-| Backend (planned)              | Node.js, TypeScript, SQL                                                                    |
-| Randomness                     | Chainlink VRF v2                                                                            |
-| Price feed                     | Chainlink AggregatorV3 (ETH/USD)                                                            |
-| Reentrancy guard               | OpenZeppelin ReentrancyGuard v5                                                             |
-| Linting                        | Solhint, ESLint 9 (flat config), Prettier, commitlint                                       |
-| CI/CD                          | GitHub Actions                                                                              |
-| Frontend hosting               | [Vercel](https://vercel.com)                                                                |
-| Security scans                 | Slither, TruffleHog, CodeQL, npm audit                                                      |
-| Containerization               | Docker                                                                                      |
-| AI code context                | [Nexus Graph](https://github.com/costlineai/nexus-graph) (MCP symbol graph for Claude Code) |
-| Architecture diagrams          | [Excalidraw](https://excalidraw.com)                                                        |
-| Developer tooling              | [rtk](https://github.com/kevinle3212/rtk) (token-optimized Claude Code CLI proxy)           |
+| Layer                          | Technology                                                                                   |
+| ------------------------------ | -------------------------------------------------------------------------------------------- |
+| Smart contracts                | Solidity 0.8.24                                                                              |
+| Contract testing (unit + fuzz) | Foundry (Forge)                                                                              |
+| Contract testing (integration) | Hardhat 2.x + Mocha/Chai                                                                     |
+| TypeScript types               | TypeChain (ethers-v6)                                                                        |
+| Chain                          | Ethereum Sepolia (testnet)                                                                   |
+| Off-chain storage              | IPFS via Pinata (with optional Arweave)                                                      |
+| Wallet                         | MetaMask + RainbowKit                                                                        |
+| Frontend                       | Next.js 16, React 19, wagmi v2, RainbowKit, viem                                             |
+| Backend (planned)              | Node.js, TypeScript, SQL                                                                     |
+| Randomness                     | Chainlink VRF v2                                                                             |
+| Price feed                     | Chainlink AggregatorV3 (ETH/USD)                                                             |
+| Reentrancy guard               | OpenZeppelin ReentrancyGuard v5                                                              |
+| Linting                        | Solhint, ESLint 9 (flat config), Prettier, commitlint                                        |
+| CI/CD                          | GitHub Actions                                                                               |
+| Frontend hosting               | [Vercel](https://vercel.com)                                                                 |
+| Security scans                 | Slither, TruffleHog, CodeQL, npm audit                                                       |
+| Containerization               | Docker                                                                                       |
+| AI code context                | [Nexus Graph](https://github.com/costlineai/nexus-graph) (MCP symbol graph for Claude Code)  |
+| Architecture diagrams          | [Excalidraw](https://excalidraw.com)                                                         |
+| Developer tooling              | [rtk](https://www.rtk-ai.app/) (token-optimized Claude Code CLI proxy, 60-90% token savings) |
 
 </details>
 
@@ -229,17 +229,29 @@ CANCELLED
 
 ### Payout Formula (Partial Rulings)
 
-For a ruling of `pct`% on a contract with `amount` and `arbitrationFeeBps`:
+For a ruling of `pct` (a fraction from 0 to 1, e.g. 0.6 for 60%) on a contract with `amount` and `arbitrationFeeBps`:
 
 ```text
 feePool          = amount × arbitrationFeeBps / 10000
-rawPay           = (2 × pct × amount) / 300
-freelancerFee    = feePool × pct / 100
+earnedAmount     = pct × amount
+rawPay           = (2 × earnedAmount) / 3
+freelancerFee    = feePool × pct
 freelancerPay    = rawPay − freelancerFee
 clientRefund     = amount − feePool − freelancerPay
 ```
 
-`0%` → full refund to client. `100%` → full payout to freelancer. Partial rulings scale proportionally with no threshold cliffs.
+The freelancer receives **2/3 of the earned amount** (`pct × amount`) as a gross payment, then pays their proportional share of the arbitration fee. `pct = 0` → full refund to client. `pct = 1` → full payout to freelancer. Partial rulings scale proportionally with no threshold cliffs.
+
+**Worked example** — pct = 0.6, amount = 1000, arbitrationFeeBps = 1500:
+
+```text
+feePool       = 1000 × 1500 / 10000  = 150
+earnedAmount  = 0.6 × 1000           = 600
+rawPay        = (2 × 600) / 3        = 400
+freelancerFee = 150 × 0.6            = 90
+freelancerPay = 400 − 90             = 310
+clientRefund  = (1000 − 150) − 310   = 540
+```
 
 [↑ Back to top](#table-of-contents)
 
@@ -702,6 +714,41 @@ Requires `GITHUB_TOKEN` with Models access.
 | `npm run nexus:viz`    | Open a local browser visualization of the symbol graph                   |
 
 The Nexus code graph gives Claude Code token-budgeted symbol and dependency context via the MCP server defined in `.mcp.json`. Re-run `nexus:index` after large refactors to keep the graph current.
+
+</details>
+
+<details>
+<summary>RTK — Token-Optimized Claude Code CLI Proxy (Recommended)</summary>
+
+[RTK](https://www.rtk-ai.app/) is a CLI proxy that transparently wraps shell commands executed by Claude Code and strips noise from their output before it reaches the LLM context window. This typically cuts token usage on shell-heavy operations (git, npm, forge) by 60-90%, reducing both cost and latency.
+
+**Install (macOS/Linux via Homebrew):**
+
+```bash
+brew install rtk
+```
+
+**Verify:**
+
+```bash
+rtk --version   # rtk X.Y.Z
+rtk gain        # show token savings so far
+```
+
+> ⚠️ **Name collision:** If `rtk gain` fails or shows an unrelated tool, you may have `reachingforthejack/rtk` (Rust Type Kit) installed instead. Check with `which rtk`.
+
+**How it works:** Once installed, Claude Code's session hook automatically rewrites shell commands through the proxy (e.g., `git status` → `rtk git status`). No configuration required — the hook is already defined in `.claude/settings.json`.
+
+**Useful commands:**
+
+| Command              | Description                                              |
+| -------------------- | -------------------------------------------------------- |
+| `rtk gain`           | Show cumulative token savings for this session           |
+| `rtk gain --history` | Show per-command savings history                         |
+| `rtk discover`       | Analyze Claude Code history for missed RTK opportunities |
+| `rtk proxy <cmd>`    | Run a command through RTK manually (for debugging)       |
+
+RTK is optional — Claude Code works without it — but it is strongly recommended for anyone working on this project with Claude Code.
 
 </details>
 

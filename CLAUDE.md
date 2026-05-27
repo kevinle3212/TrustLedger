@@ -1,5 +1,18 @@
 # Project Instructions
 
+## RTK — Token Proxy (Recommended)
+
+Install [RTK](https://www.rtk-ai.app/) via Homebrew before starting a session:
+
+```bash
+brew install rtk
+rtk --version   # verify: rtk X.Y.Z
+```
+
+Once installed, the session hook in `.claude/settings.json` automatically routes all shell commands through RTK, reducing token consumption by 60-90% on git/npm/forge operations. Run `rtk gain` to see cumulative savings. See [MISCELLANEOUS.md](docs/MISCELLANEOUS.md#rtk--token-proxy-for-claude-code) for full usage.
+
+---
+
 ## System Instructions
 
 - Omit all conversational preambles and pleasantries. Get straight to the point. Examples:
@@ -11,14 +24,14 @@
 
 ## Directory or File Deletion
 
-- If a directory of file has heavy storage, leave the deletion to the user to avoid long timeouts. Include instructions on how to delete the directory or file, but do not delete it yourself. Examples:
+- If a directory or file has heavy storage, leave the deletion to the user to avoid long timeouts. Include instructions on how to delete the directory or file, but do not delete it yourself. Examples:
     - "The `node_modules` directory is quite large. You can delete it by running `rm -rf node_modules` in your terminal."
     - Rebuild instructions: "After deleting the `node_modules` directory, you can reinstall the dependencies by running `npm install` or `yarn install` in your terminal."
     - "The `dist` directory contains build files that can be safely deleted. You can remove it with `rm -rf dist`."
 
 ## Documentation
 
-- Whenever a feature, function, component, environment variable, or any other relevant code element is introduced, provide a brief documentation comment above it, if necessary, always take into account if it's neccessary to document it. The documentation should include:
+- Whenever a feature, function, component, environment variable, or any other relevant code element is introduced, provide a brief documentation comment above it, if necessary, always take into account if it's necessary to document it. The documentation should include:
     - A concise description of what the code element does.
     - Any important parameters or return values, if applicable.
     - An example usage, if relevant.
