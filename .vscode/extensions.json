@@ -1,6 +1,6 @@
 {
 	"recommendations": [
-		// Solidity + smart contracts
+		// Solidity + Smart Contracts
 		"NomicFoundation.hardhat-solidity",
 
 		// TypeScript / JavaScript
@@ -13,7 +13,7 @@
 		"formulahendry.auto-rename-tag",
 		"christian-kohler.path-intellisense",
 
-		// Config / environment
+		// Config / Environment
 		"mikestead.dotenv",
 
 		// Docs
@@ -23,8 +23,14 @@
 		"ms-azuretools.vscode-docker",
 		"GitHub.vscode-github-actions",
 
-		// Git / productivity
+		// Git / Productivity
 		"eamodio.gitlens",
-		"Gruntfuggly.todo-tree"
+		"Gruntfuggly.todo-tree",
+
+		// AI Coding Assistants
+		"anthropic-ai.claude-code",
+		"GitHub.copilot",
+		"GitHub.copilot-chat",
+		"openai.chatgpt"
 	]
 }
