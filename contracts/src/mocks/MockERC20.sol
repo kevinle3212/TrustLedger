@@ -12,18 +12,9 @@ pragma solidity ^0.8.24;
 contract MockERC20 {
     // ─── State ────────────────────────────────────────────────────────────────
 
-    string private constant NAME = "Mock Token";
-    string private constant SYMBOL = "MOCK";
-    uint8 private constant DECIMALS = 18;
-
-    /// @notice Human-readable token name (satisfies ERC-20 metadata interface).
-    function name() external pure returns (string memory) { return NAME; }
-
-    /// @notice Short token ticker symbol.
-    function symbol() external pure returns (string memory) { return SYMBOL; }
-
-    /// @notice Number of decimal places (matches standard ERC-20 convention).
-    function decimals() external pure returns (uint8) { return DECIMALS; }
+    string private constant _NAME = "Mock Token";
+    string private constant _SYMBOL = "MOCK";
+    uint8 private constant _DECIMALS = 18;
 
     /// @notice Running total of all minted tokens.
     uint256 public totalSupply;
@@ -68,6 +59,15 @@ contract MockERC20 {
     }
 
     // ─── ERC-20 interface ─────────────────────────────────────────────────────
+
+    /// @notice Human-readable token name (satisfies ERC-20 metadata interface).
+    function name() external pure returns (string memory) { return _NAME; }
+
+    /// @notice Short token ticker symbol.
+    function symbol() external pure returns (string memory) { return _SYMBOL; }
+
+    /// @notice Number of decimal places (matches standard ERC-20 convention).
+    function decimals() external pure returns (uint8) { return _DECIMALS; }
 
     /// @notice Approve `spender` to transfer up to `amount` on behalf of the caller.
     /// @param spender Address being approved.
