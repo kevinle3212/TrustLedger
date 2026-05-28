@@ -691,10 +691,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///
     ///         Proportional fee split (new in Part 1):
     ///           The fee pool (paid to jurors) is shared proportionally by completion percentage.
-    ///           freelancerPay = ((2 × pct × amount) / 300) − (feePool × pct / 100)
-    ///           clientRefund  = remaining − freelancerPay
-    ///           This means a freelancer at 60% completion absorbs 60% of the fee; the client
-    ///           absorbs the other 40%. Previously the fee was a flat deduction before splitting.
+    ///           Let pct be the completion fraction in [0,1] (e.g. 0.6 for 60%):
+    ///             rawPay        = (2/3) × (pct × amount)   [freelancer gets 2/3 of earned amount]
+    ///             freelancerPay = rawPay − (feePool × pct)  [minus their share of the fee]
+    ///             clientRefund  = remaining − freelancerPay
+    ///           A freelancer at 60% completion absorbs 60% of the fee; the client absorbs the other 40%.
+    ///           Previously the fee was a flat deduction before splitting.
     ///
     ///         For ERC-20 escrows: feePool was paid in ETH at dispute time, so all token
     ///         units in `amount` are distributed between the parties (no token deduction).
@@ -722,13 +724,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         } else if (completionPct == 0) {
             freelancerPay = 0; // full win for client
         } else {
-            // Proportional split: freelancer absorbs their share of the fee burden.
-            // rawPay is the freelancer's gross share before the fee adjustment.
-            // freelancerFeeBurden is the portion of feePool attributable to the freelancer's
-            // completion claim (e.g. 60% completion → freelancer bears 60% of the fee).
+            // Proportional split: freelancer gets 2/3 of their earned amount (completionPct/100 × amount),
+            // then pays their proportional share of the fee pool.
+            // completionPct is 0-100, so dividing by 300 is equivalent to (2/3) × (completionPct/100 × amount).
             uint256 rawPay = (2 * completionPct * c.amount) / 300;
             uint256 freelancerFeeBurden = (feePool * completionPct) / 100;
-            // Always non-negative: feePool ≤ 50% × amount, so 2/300 × amount ≥ feePool/100.
+            // Always non-negative: feePool ≤ 50% × amount < (2/3) × amount, so rawPay ≥ freelancerFeeBurden.
             freelancerPay = rawPay - freelancerFeeBurden;
             if (freelancerPay > remaining) freelancerPay = remaining;
         }

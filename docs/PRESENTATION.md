@@ -182,30 +182,35 @@ Without VRF: any eligible juror self-selects by calling `commitVote()` (legacy m
 
 ## Feature: Partial Completion Rulings
 
-Disputes are not binary. A freelancer who completed 70% of the work gets 70% of the payment - proportionally - not nothing.
+Disputes are not binary. A freelancer who completed 70% of the work receives a proportional payout based on 2/3 of their earned amount — not nothing.
 
 Jurors vote `completionPct` in `[0, 100]`. The median vote is the ruling. The payout formula shares the arbitration fee burden proportionally between both parties:
 
 ```text
-Payout formula (0 < p < 100):
+Payout formula (0 < p < 1, where p is a fraction e.g. 0.6 for 60%):
 
   feePool         = amount × arbitrationFeeBps / 10_000
   remaining       = amount − feePool
-  rawPay          = (2 × p × amount) / 300
-  freelancerFee   = feePool × p / 100
+  earnedAmount    = p × amount
+  rawPay          = (2 × earnedAmount) / 3
+  freelancerFee   = feePool × p
   freelancerPay   = rawPay − freelancerFee
   clientRefund    = remaining − freelancerPay
 
-Edge cases:
-  p = 0  → freelancerPay = 0 (full refund to client)
-  p = 100 → freelancerPay = remaining (full payment to freelancer)
+The freelancer receives 2/3 of the earned amount (p × amount) as a gross payment,
+then pays their proportional share of the arbitration fee.
 
-Example (p = 50, amount = 1 ETH, arbitrationFeeBps = 1500):
-  feePool       = 0.15 ETH
-  rawPay        = (2 × 50 × 1) / 300 ≈ 0.333 ETH
-  freelancerFee = 0.15 × 50 / 100    = 0.075 ETH
-  freelancerPay ≈ 0.333 − 0.075      ≈ 0.258 ETH
-  clientRefund  = 0.85 − 0.258       ≈ 0.592 ETH
+Edge cases:
+  p = 0 → freelancerPay = 0 (full refund to client)
+  p = 1 → freelancerPay = remaining (full payment to freelancer)
+
+Example (p = 0.6, amount = 1000, arbitrationFeeBps = 1500):
+  feePool       = 150
+  earnedAmount  = 0.6 × 1000 = 600
+  rawPay        = (2 × 600) / 3 = 400
+  freelancerFee = 150 × 0.6    = 90
+  freelancerPay = 400 − 90     = 310
+  clientRefund  = 850 − 310    = 540
 ```
 
 ---

@@ -122,8 +122,8 @@ contract PayoutFuzz is Test {
 
     // ─── Partial payout formula ───────────────────────────────────────────────
     // INVARIANT: for completionPct in 1-99, the proportional-fee formula
-    //   rawPay              = (2 * pct * amount) / 300
-    //   freelancerFeeBurden = (feePool * pct) / 100
+    //   rawPay              = (2 * pct * amount) / 300  [equivalent to (2/3) × (pct/100 × amount)]
+    //   freelancerFeeBurden = (feePool * pct) / 100     [freelancer bears their share of the fee]
     //   freelancerPay       = rawPay - freelancerFeeBurden  (capped at remaining)
     // always holds. This test verifies the contract's math matches the spec exactly.
     function testFuzz_PartialPayoutFormula(uint8 completionPct, uint128 amount, uint16 arbitrationFeeBps) public {

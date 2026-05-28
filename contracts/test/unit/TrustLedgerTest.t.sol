@@ -311,8 +311,9 @@ contract TrustLedgerTest is Test {
         uint256 feePool = (AMOUNT * ARB_FEE_BPS) / 10_000;
         uint256 remaining = AMOUNT - feePool;
 
-        // New proportional formula (Part 1):
-        //   rawPay              = (2 × 50 × amount) / 300
+        // Proportional formula: freelancer gets 2/3 of earned amount (pct × amount), minus their fee share.
+        // pct=50 as integer → equivalent to (2/3) × (0.5 × amount); dividing by 300 gives the same result.
+        //   rawPay              = (2 × 50 × amount) / 300  [= (2/3) × (0.5 × amount)]
         //   freelancerFeeBurden = (feePool × 50) / 100
         //   freelancerPay       = rawPay - freelancerFeeBurden
         uint256 rawPay = (2 * 50 * AMOUNT) / 300;

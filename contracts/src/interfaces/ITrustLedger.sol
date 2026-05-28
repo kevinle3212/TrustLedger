@@ -13,7 +13,8 @@ interface ITrustLedger {
     // completionPct: 0-100
     //   0   → client wins everything (freelancer did no work)
     //   100 → freelancer wins everything
-    //   1-99 → partial split using the formula: freelancerPay = (2 * pct * amount) / 300
+    //   1-99 → partial split: freelancer gets 2/3 of earned amount (pct/100 × amount) minus their fee share
+    //          implemented as: rawPay = (2 * pct * amount) / 300  [equivalent to (2/3) × (pct/100 × amount)]
 
     /// @notice Execute a juror ruling, distributing escrow funds based on completion percentage.
     /// @param contractId    The TrustLedger escrow ID.
