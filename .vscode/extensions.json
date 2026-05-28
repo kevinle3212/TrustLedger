@@ -29,7 +29,6 @@
 
 		// AI Coding Assistants
 		"anthropic-ai.claude-code",
-		"GitHub.copilot",
 		"GitHub.copilot-chat",
 		"openai.chatgpt"
 	]

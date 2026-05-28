@@ -29,6 +29,6 @@
 		"MD041": false
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
-	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**", "SECURITY.md"],
+	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**", "**/.claude/**", "**/SECURITY.md"],
 	"eslint.useFlatConfig": true
 }
