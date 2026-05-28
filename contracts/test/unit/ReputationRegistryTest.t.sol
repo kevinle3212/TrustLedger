@@ -220,7 +220,7 @@ contract ReputationRegistryTest is Test {
         registry.rate(user1, 10); // pending=1
 
         vm.prank(trustLedger);
-        registry.rate(user1, 5);  // pending=2, progress reset
+        registry.rate(user1, 5); // pending=2, progress reset
 
         // Complete first recovery (3 high scores).
         for (uint8 i = 0; i < required; ++i) {

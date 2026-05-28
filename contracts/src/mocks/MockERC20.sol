@@ -98,11 +98,17 @@ contract MockERC20 {
     }
 
     /// @notice Human-readable token name (satisfies ERC-20 metadata interface).
-    function name() external pure returns (string memory) { return _NAME; }
+    function name() external pure returns (string memory) {
+        return _NAME;
+    }
 
     /// @notice Short token ticker symbol.
-    function symbol() external pure returns (string memory) { return _SYMBOL; }
+    function symbol() external pure returns (string memory) {
+        return _SYMBOL;
+    }
 
     /// @notice Number of decimal places (matches standard ERC-20 convention).
-    function decimals() external pure returns (uint8) { return _DECIMALS; }
+    function decimals() external pure returns (uint8) {
+        return _DECIMALS;
+    }
 }
