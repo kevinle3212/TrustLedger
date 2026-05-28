@@ -664,9 +664,33 @@ export const REPUTATION_REGISTRY_ABI = [
 		type: "function",
 	},
 	{
+		inputs: [{ internalType: "address", name: "user", type: "address" }],
+		name: "recoveryStatus",
+		outputs: [
+			{ internalType: "uint256", name: "pending", type: "uint256" },
+			{ internalType: "uint256", name: "progress", type: "uint256" },
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
 		inputs: [],
 		name: "TRUST_LEDGER",
 		outputs: [{ internalType: "address", name: "", type: "address" }],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "LOW_RATING_THRESHOLD",
+		outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "RECOVERY_CONTRACTS_REQUIRED",
+		outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
 		stateMutability: "view",
 		type: "function",
 	},
@@ -677,6 +701,15 @@ export const REPUTATION_REGISTRY_ABI = [
 			{ indexed: true, internalType: "uint8", name: "score", type: "uint8" },
 		],
 		name: "Rated",
+		type: "event",
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{ indexed: true, internalType: "address", name: "user", type: "address" },
+			{ indexed: true, internalType: "uint8", name: "bonus", type: "uint8" },
+		],
+		name: "RecoveryAchieved",
 		type: "event",
 	},
 ] as const;

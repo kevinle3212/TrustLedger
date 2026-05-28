@@ -17,7 +17,13 @@ interface IReputationRegistry {
     /// @notice Returns the cumulative score and total number of ratings for a user.
     ///         Caller computes average = numerator / denominator (handle division-by-zero).
     /// @param user The address to query.
-    /// @return numerator   Sum of all scores the user has received.
-    /// @return denominator Number of ratings submitted for that user.
+    /// @return numerator   Sum of all scores the user has received (including recovery bonuses).
+    /// @return denominator Number of ratings submitted for that user (including recovery bonus entries).
     function averageRating(address user) external view returns (uint256 numerator, uint256 denominator);
+
+    /// @notice Returns the current recovery state for a user.
+    /// @param user The address to query.
+    /// @return pending  Number of low ratings not yet addressed by recovery.
+    /// @return progress Number of successful ratings received toward resolving the current period.
+    function recoveryStatus(address user) external view returns (uint256 pending, uint256 progress);
 }
