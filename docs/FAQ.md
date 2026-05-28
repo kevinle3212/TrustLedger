@@ -18,7 +18,7 @@ No. TrustLedger is pre-mainnet and targets **Ethereum Sepolia** (testnet). No co
 
 The frontend is at [trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app). The contract addresses it reads come from `artifacts/deployed-addresses.json`, written on each deploy.
 
-### Do I need an account or sign-up?
+### Do I Need an Account or Sign-Up?
 
 No. TrustLedger is wallet-based — connect a wallet (e.g. MetaMask) on Sepolia. Optional account/login is a planned mainnet feature, not part of the current protocol.
 
@@ -38,7 +38,7 @@ While the contract is still `PENDING`, you can call `cancelPending(id)` to recla
 
 Within the acceptance window you can either `approveWork(id)` or `disputeWork(id)`. Disputing forwards the arbitration fee pool to the juror panel, which rules on a completion percentage (0-100) that determines the proportional payout.
 
-### What is the warranty hold-back?
+### What Is the Warranty Hold-Back?
 
 An optional 5-15% (`holdBackBps`) of the payment withheld after approval until a warranty period elapses, giving you recourse for issues found shortly after delivery. Set `holdBackBps = 0` to disable it (then `warrantyPeriod` must also be `0`).
 
@@ -132,7 +132,7 @@ Privately — **do not** open a public GitHub issue. Follow the policy in [SECUR
 
 ---
 
-## Documentation site
+## Documentation Site
 
 ### How do I edit these docs?
 

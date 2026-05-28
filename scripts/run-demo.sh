@@ -103,8 +103,8 @@ print_usage() {
     echo "  1  Plaintiff (client) wins          - unanimous 0% ruling" >&2
     echo "  2  Defendant (freelancer) wins       - unanimous 100% ruling" >&2
     echo "  3  Tie                               - unanimous 50% ruling" >&2
-    echo "  4  Arbitration ruling, client wins   - 2 vote 0%, 1 votes 100% (minority slashed)" >&2
-    echo "  5  Arbitration ruling, freelancer wins - 2 vote 100%, 1 votes 0% (minority slashed)" >&2
+    echo "  4  Arbitration ruling, client wins   - 2 vote 0%, 1 vote 100% (minority slashed)" >&2
+    echo "  5  Arbitration ruling, freelancer wins - 2 vote 100%, 1 vote 0% (minority slashed)" >&2
     echo "  6  Juror reputation demo             - register, vote, slash, before/after table" >&2
     echo "  7  Stablecoin escrow demo            - ERC-20 escrow + gas comparison + reputation" >&2
 }

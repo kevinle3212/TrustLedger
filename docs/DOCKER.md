@@ -45,7 +45,7 @@ git clone https://github.com/kevinle3212/TrustLedger.git
 cd TrustLedger
 ```
 
-### 2. Initialize git submodules
+### 2. Initialize Git Submodules
 
 The Foundry dependencies (`forge-std` and `openzeppelin-contracts`) are tracked as git submodules in `contracts/lib/`. This step populates those directories:
 
@@ -441,7 +441,7 @@ docker run -e DEMO=good -p 9545:8545 trustledger
 
 Then set MetaMask's RPC URL to `http://127.0.0.1:9545`.
 
-### `git submodule update` fails at build time
+### `git submodule update` Fails at Build Time
 
 The image build runs `git submodule update --init --recursive` if `.git/` is present in the build context. If your clone is missing submodule content, run this on your host before building:
 

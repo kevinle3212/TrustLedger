@@ -85,7 +85,7 @@ TrustLedger is a four-contract system deployed on Ethereum. The contracts commun
 
 ## Scenario A - Happy Path
 
-### On-chain flow
+### On-Chain Flow
 
 ```text
 Client                  TrustLedger             Freelancer
@@ -110,7 +110,7 @@ Client                  TrustLedger             Freelancer
   │                         │─── ReputationRegistry.rate() ──────────►│
 ```
 
-### Frontend magic link flow (precedes on-chain acceptance)
+### Frontend Magic Link Flow (Precedes On-Chain Acceptance)
 
 The client fills in the freelancer's email on the create-contract page. After the
 `createContract` transaction confirms, the frontend extracts the contract ID from
@@ -280,24 +280,41 @@ If p == 0:
   freelancerPay = 0
   clientRefund  = remaining
 
-If 0 < p < 100:
-  rawPay          = (2 × p × amount) / 300
-  freelancerFee   = feePool × p / 100
+If 0 < p < 1:
+  earnedAmount    = p × amount
+  rawPay          = (2 × earnedAmount) / 3
+  freelancerFee   = feePool × p
   freelancerPay   = rawPay − freelancerFee
   clientRefund    = remaining − freelancerPay
 
 Invariant: freelancerPay + clientRefund == remaining (all funds distributed)
+
+The freelancer receives 2/3 of the earned amount (p × amount) as a gross payment,
+then pays their proportional share of the arbitration fee.
 ```
 
-### Example: p = 50, amount = 1 ETH, arbitrationFeeBps = 1500
+### Example: p = 0.6 (60%), amount = 1000, arbitrationFeeBps = 1500
 
 ```text
-feePool       = 1 ETH × 1500 / 10_000 = 0.15 ETH
-remaining     = 1 ETH − 0.15 ETH      = 0.85 ETH
-rawPay        = (2 × 50 × 1) / 300    ≈ 0.3333 ETH
-freelancerFee = 0.15 × 50 / 100       = 0.075 ETH
-freelancerPay ≈ 0.3333 − 0.075        ≈ 0.258 ETH
-clientRefund  = 0.85 − 0.258          ≈ 0.592 ETH
+feePool       = 1000 × 1500 / 10_000 = 150
+remaining     = 1000 − 150           = 850
+earnedAmount  = 0.6 × 1000           = 600
+rawPay        = (2 × 600) / 3        = 400
+freelancerFee = 150 × 0.6            = 90
+freelancerPay = 400 − 90             = 310
+clientRefund  = 850 − 310            = 540
+```
+
+### Example: p = 0.5 (50%), amount = 1 ETH, arbitrationFeeBps = 1500
+
+```text
+feePool       = 1 ETH × 1500 / 10_000  = 0.15 ETH
+remaining     = 1 ETH − 0.15 ETH       = 0.85 ETH
+earnedAmount  = 0.5 × 1 ETH            = 0.5 ETH
+rawPay        = (2 × 0.5) / 3          ≈ 0.3333 ETH
+freelancerFee = 0.15 × 0.5             = 0.075 ETH
+freelancerPay ≈ 0.3333 − 0.075         ≈ 0.258 ETH
+clientRefund  = 0.85 − 0.258           ≈ 0.592 ETH
 ```
 
 ### Juror slashing (tiered)
