@@ -1,5 +1,6 @@
 # ─── Editor / tool local config ──────────────────────────────────────────────
 .claude/
+.serena/
 .sixth/
 .vscode-test/
 
