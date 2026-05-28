@@ -368,7 +368,7 @@ rtk gain        # should show token savings (0 on first run)
 
 Once `rtk` is installed, Claude Code's session hook (defined in `.claude/settings.json`) automatically routes all shell commands through the proxy. No manual configuration is required — just install and it is active the next time a Claude Code session starts.
 
-```
+```text
 git status  →  rtk git status   (Claude only sees the filtered output)
 forge test  →  rtk forge test
 npm run …   →  rtk npm run …
