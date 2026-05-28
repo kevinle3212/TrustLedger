@@ -1,0 +1,1 @@
+(cd contracts && FOUNDRY_PROFILE=ci forge build && FOUNDRY_PROFILE=ci forge test)
