@@ -7,30 +7,41 @@ import { formatEther, keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress, formatDeadline, resolveDocUrl, STATUS_COLORS } from "@/lib/utils";
+import { decryptFile } from "@/lib/encryption";
 import Link from "next/link";
 
+// Snapshot of "now" taken once at page load.
+// Used for deadline comparisons in ContractCard to avoid re-renders on every second.
+// These checks are approximate — the contract enforces the real deadline on-chain.
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
 
+// Mirror of the EscrowContract struct returned by TrustLedger.getContract().
+// Status values: 0=PENDING 1=ACTIVE 2=SUBMITTED 3=APPROVED 4=DISPUTED 5=RESOLVED 6=CANCELLED
 interface EscrowContract {
 	client: `0x${string}`;
-	arbitrationFeeBps: number;
-	holdBackBps: number;
+	arbitrationFeeBps: number; // fee taken for arbitration, in basis points (100 bps = 1%)
+	holdBackBps: number; // warranty holdback portion, in basis points
 	status: number;
 	freelancer: `0x${string}`;
-	warrantyDeadline: bigint;
-	projectDeadline: bigint;
-	acceptanceWindow: bigint;
-	acceptanceDeadline: bigint;
-	warrantyPeriod: bigint;
-	amount: bigint;
-	holdBackAmount: bigint;
-	arbitrationId: bigint;
-	contractHash: `0x${string}`;
-	contractURI: string;
-	proofOfWorkHash: `0x${string}`;
-	proofOfWorkURI: string;
+	warrantyDeadline: bigint; // unix timestamp after which freelancer can claim holdback
+	projectDeadline: bigint; // unix timestamp for the buffered project deadline
+	acceptanceWindow: bigint; // seconds the client has to approve after work is submitted
+	acceptanceDeadline: bigint; // absolute unix timestamp when acceptance window closes
+	warrantyPeriod: bigint; // duration in seconds of the warranty holdback period
+	amount: bigint; // total escrowed amount in wei
+	holdBackAmount: bigint; // portion withheld for warranty (subset of amount)
+	arbitrationId: bigint; // ID in the Arbitration contract (0 if no dispute)
+	contractHash: `0x${string}`; // keccak256 of the off-chain contract document
+	contractURI: string; // IPFS or HTTPS URI to the contract document
+	proofOfWorkHash: `0x${string}`; // keccak256 of the deliverable artifact
+	proofOfWorkURI: string; // IPFS or HTTPS URI to the deliverable
 }
 
+// Generic button that calls a single-argument (contractId) function on TrustLedger.
+// Uses wagmi's two-step write pattern:
+//   1. useWriteContract() sends the tx and gets a txHash
+//   2. useWaitForTransactionReceipt() polls until the tx is mined
+// Both pending states disable the button to prevent double-submits.
 function ActionButton({
 	label,
 	contractId,
@@ -63,11 +74,16 @@ function ActionButton({
 	);
 }
 
+// Inline form for submitting a 1-100 reputation score after contract completion.
+// submitRating() is callable by both parties once the contract reaches APPROVED (3) or RESOLVED (5).
+// The registry is optional — if it isn't deployed (zero address), the form hides entirely.
 function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	const [score, setScore] = useState("80");
 	const { writeContract, data: txHash, isPending, error, reset } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
+	// Guard: REPUTATION_REGISTRY_ADDRESS is the zero address when the registry isn't deployed.
+	// Comparing to the zero address is cheaper than an extra RPC call.
 	const registryDeployed =
 		REPUTATION_REGISTRY_ADDRESS !== "0x0000000000000000000000000000000000000000";
 
@@ -134,6 +150,11 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	);
 }
 
+// Form for the freelancer to submit a proof-of-work URI (IPFS link or HTTPS URL).
+// The URI is also hashed client-side with keccak256 before being sent to the contract.
+// The contract stores both: the hash as tamper-proof evidence, the URI for retrieval.
+// keccak256(toBytes(uri)) produces a bytes32 commitment — if the URI content changes,
+// the on-chain hash no longer matches, proving the deliverable was altered after submission.
 function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	const [uri, setUri] = useState("");
 	const { writeContract, data: txHash, isPending, error } = useWriteContract();
@@ -186,6 +207,182 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 	);
 }
 
+type DecryptMode = "fetch" | "paste";
+type DecryptStatus = "idle" | "working" | "done" | "error";
+
+/// Full-width decrypt panel for AES-256-GCM encrypted IPFS documents.
+/// Rendered by ContractCard below the info grid when the user toggles decrypt open.
+/// Supports fetching the bundle from a gateway URL or accepting a pasted JSON bundle.
+function DecryptDocumentForm({
+	gatewayUrl,
+	onClose,
+}: {
+	gatewayUrl: string;
+	onClose: () => void;
+}): React.JSX.Element {
+	const [mode, setMode] = useState<DecryptMode>("fetch");
+	const [pastedBundle, setPastedBundle] = useState("");
+	const [passphrase, setPassphrase] = useState("");
+	const [filename, setFilename] = useState("decrypted-document");
+	const [status, setStatus] = useState<DecryptStatus>("idle");
+	const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+	async function handleDecrypt(): Promise<void> {
+		setStatus("working");
+		setErrorMsg(null);
+		try {
+			let buffer: ArrayBuffer;
+			if (mode === "fetch") {
+				const res = await fetch(gatewayUrl);
+				if (!res.ok)
+					throw new Error(`Gateway returned ${String(res.status)} ${res.statusText}`);
+				buffer = await res.arrayBuffer();
+			} else {
+				buffer = new TextEncoder().encode(pastedBundle.trim()).buffer;
+			}
+			const decrypted = await decryptFile(buffer, passphrase);
+			// Trigger a browser download by creating a temporary <a> element, clicking it,
+			// and immediately revoking the object URL to free memory.
+			const url = URL.createObjectURL(new Blob([decrypted]));
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = filename.trim() !== "" ? filename.trim() : "decrypted-document";
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+			setStatus("done");
+		} catch (err) {
+			// AES-GCM throws OperationError when the passphrase is wrong or ciphertext is tampered.
+			const friendly =
+				err instanceof DOMException && err.name === "OperationError"
+					? "Decryption failed — wrong passphrase or corrupted bundle."
+					: err instanceof Error
+						? err.message
+						: String(err);
+			setErrorMsg(friendly);
+			setStatus("error");
+		}
+	}
+
+	return (
+		<div className="flex flex-col gap-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4">
+			<div className="flex items-center justify-between">
+				<span className="text-xs font-medium text-gray-700 dark:text-gray-200">
+					Decrypt AES-256-GCM document
+				</span>
+				<button
+					type="button"
+					onClick={onClose}
+					className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+				>
+					✕
+				</button>
+			</div>
+
+			{/* Source mode toggle: "fetch" loads from the IPFS gateway URI; "paste" accepts a copied JSON bundle */}
+			<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1 self-start">
+				{(["fetch", "paste"] as DecryptMode[]).map((m) => (
+					<button
+						key={m}
+						type="button"
+						onClick={() => {
+							setMode(m);
+						}}
+						className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+							mode === m
+								? "bg-indigo-600 text-white"
+								: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+						}`}
+					>
+						{m === "fetch" ? "Fetch from URI" : "Paste bundle"}
+					</button>
+				))}
+			</div>
+
+			{mode === "fetch" ? (
+				<p className="text-xs text-gray-500 break-all">
+					Will fetch:{" "}
+					<span className="font-mono text-gray-600 dark:text-gray-400">{gatewayUrl}</span>
+				</p>
+			) : (
+				<textarea
+					rows={4}
+					placeholder={'{"v":1,"alg":"AES-256-GCM",…}'}
+					value={pastedBundle}
+					onChange={(e) => {
+						setPastedBundle(e.target.value);
+					}}
+					className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+				/>
+			)}
+
+			<input
+				type="password"
+				placeholder="Passphrase"
+				value={passphrase}
+				onChange={(e) => {
+					setPassphrase(e.target.value);
+				}}
+				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+			/>
+
+			<input
+				type="text"
+				placeholder="Output filename (e.g. contract.pdf)"
+				value={filename}
+				onChange={(e) => {
+					setFilename(e.target.value);
+				}}
+				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+			/>
+
+			{status === "done" ? (
+				<p className="text-xs text-green-500 dark:text-green-400">
+					✓ File downloaded.{" "}
+					<button
+						type="button"
+						onClick={() => {
+							setStatus("idle");
+							setErrorMsg(null);
+							setPassphrase("");
+						}}
+						className="underline text-gray-500 hover:text-gray-900 dark:hover:text-white"
+					>
+						Decrypt another
+					</button>
+				</p>
+			) : (
+				<button
+					type="button"
+					onClick={() => {
+						void handleDecrypt();
+					}}
+					disabled={
+						status === "working" ||
+						passphrase === "" ||
+						(mode === "paste" && pastedBundle.trim() === "")
+					}
+					className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
+				>
+					{status === "working" ? "Decrypting…" : "Decrypt & Download"}
+				</button>
+			)}
+
+			{status === "error" && errorMsg !== null && (
+				<p className="text-xs text-red-500 dark:text-red-400 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+					{errorMsg}
+				</p>
+			)}
+		</div>
+	);
+}
+
+// Renders one escrow contract with its current state and the actions available to the
+// connected wallet. Which buttons appear depends on:
+//   - the contract's status (0-6)
+//   - whether the connected address is the client or the freelancer
+//   - deadline comparisons against PAGE_LOAD_TIME_S
 function ContractCard({
 	id,
 	contract,
@@ -201,6 +398,7 @@ function ContractCard({
 	const now = PAGE_LOAD_TIME_S;
 	const docUrl = resolveDocUrl(contract.contractURI);
 	const deliverableUrl = resolveDocUrl(contract.proofOfWorkURI);
+	const [decryptOpen, setDecryptOpen] = useState(false);
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
@@ -244,14 +442,26 @@ function ContractCard({
 				{docUrl !== undefined && (
 					<>
 						<span className="text-gray-500">Document</span>
-						<a
-							href={docUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 truncate underline underline-offset-2"
-						>
-							View
-						</a>
+						<div className="flex items-center gap-2">
+							<a
+								href={docUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
+							>
+								View
+							</a>
+							<span className="text-gray-300 dark:text-gray-600 text-xs">·</span>
+							<button
+								type="button"
+								onClick={() => {
+									setDecryptOpen((o) => !o);
+								}}
+								className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
+							>
+								{decryptOpen ? "Hide decrypt" : "Decrypt"}
+							</button>
+						</div>
 					</>
 				)}
 
@@ -270,9 +480,19 @@ function ContractCard({
 				)}
 			</div>
 
-			{/* Actions */}
+			{/* Decrypt panel — full card width, shown when user toggles decrypt */}
+			{docUrl !== undefined && decryptOpen && (
+				<DecryptDocumentForm
+					gatewayUrl={docUrl}
+					onClose={() => {
+						setDecryptOpen(false);
+					}}
+				/>
+			)}
+
+			{/* Actions — each block is gated by role (isClient/isFreelancer) and status number */}
 			<div className="flex flex-wrap gap-2">
-				{/* Freelancer actions */}
+				{/* status 0 = PENDING: freelancer can accept or reject */}
 				{isFreelancer && status === 0 && (
 					<>
 						<ActionButton
@@ -287,7 +507,7 @@ function ContractCard({
 						/>
 					</>
 				)}
-				{/* Client actions */}
+				{/* status 2 = SUBMITTED: client reviews the proof-of-work */}
 				{isClient && status === 2 && (
 					<>
 						<ActionButton
@@ -298,6 +518,7 @@ function ContractCard({
 						<ActionButton label="Dispute" contractId={id} functionName="disputeWork" />
 					</>
 				)}
+				{/* status 1 = ACTIVE: client can reclaim funds if the freelancer missed the deadline */}
 				{isClient && status === 1 && now > contract.projectDeadline && (
 					<ActionButton
 						label="Reclaim (Deadline Missed)"
@@ -305,7 +526,7 @@ function ContractCard({
 						functionName="claimAfterDeadlineMiss"
 					/>
 				)}
-				{/* Auto-release after acceptance window */}
+				{/* status 2 = SUBMITTED: either party can trigger auto-release after acceptance window */}
 				{status === 2 &&
 					now > contract.acceptanceDeadline &&
 					contract.acceptanceDeadline > BigInt(0) && (
@@ -315,7 +536,7 @@ function ContractCard({
 							functionName="claimAfterAcceptanceWindow"
 						/>
 					)}
-				{/* Warranty claim */}
+				{/* status 3 = APPROVED: freelancer claims the warranty holdback after the warranty period */}
 				{isFreelancer &&
 					status === 3 &&
 					contract.holdBackAmount > BigInt(0) &&
@@ -326,13 +547,14 @@ function ContractCard({
 							functionName="claimWarrantyFunds"
 						/>
 					)}
-				{/* Submit work */}
+				{/* status 1 = ACTIVE: freelancer submits their deliverable */}
 				{isFreelancer && status === 1 && <SubmitWorkForm contractId={id} />}
 			</div>
+			{/* Rating form available after contract reaches APPROVED (3) or RESOLVED (5) */}
 			{(status === 3 || status === 5) && (isClient || isFreelancer) && (
 				<RatingForm contractId={id} />
 			)}
-			{/* Dispute link */}
+			{/* status 4 = DISPUTED: link to the arbitration panel */}
 			{status === 4 && (
 				<Link
 					href={`/arbitration/${contract.arbitrationId.toString()}`}
@@ -345,6 +567,9 @@ function ContractCard({
 	);
 }
 
+// Reads nextId from the contract to know the total count, then renders IDs in reverse
+// (newest first). Each ID is rendered as a separate SingleContract so reads are parallelised
+// by wagmi's internal query deduplication rather than one large multicall.
 function ContractList({ address }: { address: `0x${string}` }): React.JSX.Element {
 	const { data: nextId } = useReadContract({
 		address: TRUSTLEDGER_ADDRESS,
@@ -382,6 +607,9 @@ function ContractList({ address }: { address: `0x${string}` }): React.JSX.Elemen
 	);
 }
 
+// Fetches one contract by ID and filters it out if the connected wallet isn't a participant.
+// Rendering each contract individually means wagmi can cache and deduplicate reads across
+// re-renders — if the same ID is shown on two pages it hits the cache instead of the RPC.
 function SingleContract({
 	id,
 	address,
@@ -399,6 +627,8 @@ function SingleContract({
 	if (isLoading || contract === undefined) return null;
 
 	const c = contract;
+	// Only show contracts where the connected wallet is the client or the freelancer.
+	// toLowerCase() normalises checksum addresses so the comparison is case-insensitive.
 	const isParticipant =
 		c.client.toLowerCase() === address.toLowerCase() ||
 		c.freelancer.toLowerCase() === address.toLowerCase();

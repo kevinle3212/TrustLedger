@@ -1,14 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { useAccount, useReadContract } from "wagmi";
+import { useEffect, useState } from "react";
+import { useAccount, useChainId, usePublicClient, useReadContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { isAddress } from "viem";
+import { isAddress, parseAbiItem } from "viem";
 import { REPUTATION_REGISTRY_ABI } from "@/lib/abi";
-import { REPUTATION_REGISTRY_ADDRESS } from "@/lib/wagmi";
+import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress } from "@/lib/utils";
 
-/** Formats cumulative averageRating as a 0-100 score and rating count. */
+const RATED_EVENT = parseAbiItem("event Rated(address indexed user, uint8 indexed score)");
+const RATING_SUBMITTED_EVENT = parseAbiItem(
+	"event RatingSubmitted(uint256 indexed id, address indexed rater, uint8 score)",
+);
+const RECOVERY_EVENT = parseAbiItem(
+	"event RecoveryAchieved(address indexed user, uint8 indexed bonus)",
+);
+
+interface HistoryEntry {
+	type: "rating" | "recovery";
+	score: number;
+	blockNumber: bigint;
+	txHash: `0x${string}`;
+	rater: `0x${string}` | null;
+	contractId: bigint | null;
+}
+
+// averageRating() returns (numerator, denominator) rather than a pre-computed average.
+// Storing the raw sum allows the contract to apply recovery bonuses (which add synthetic
+// entries) without recomputing a running average — the caller divides to get the score.
+// denominator is also the total rating count, which we surface in the UI.
 function formatReputation(
 	numerator: bigint | undefined,
 	denominator: bigint | undefined,
@@ -16,18 +36,210 @@ function formatReputation(
 	if (numerator === undefined || denominator === undefined || denominator === 0n) {
 		return { score: "-", count: "0" };
 	}
-	const avg = Number(numerator) / Number(denominator);
 	return {
-		score: avg.toFixed(1),
+		score: (Number(numerator) / Number(denominator)).toFixed(1),
 		count: denominator.toString(),
 	};
 }
+
+// ─── Rating history feed ──────────────────────────────────────────────────────
+
+function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }): React.JSX.Element {
+	const publicClient = usePublicClient();
+	const chainId = useChainId();
+	const [entries, setEntries] = useState<HistoryEntry[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [fetchError, setFetchError] = useState<string | null>(null);
+
+	const explorerBase =
+		chainId === 42161
+			? "https://arbiscan.io"
+			: chainId === 8453
+				? "https://basescan.org"
+				: chainId === 10
+					? "https://optimistic.etherscan.io"
+					: "https://sepolia.etherscan.io";
+
+	useEffect(() => {
+		if (publicClient === undefined) return;
+
+		let cancelled = false;
+
+		async function fetchHistory(): Promise<void> {
+			if (publicClient === undefined) return;
+			setLoading(true);
+			setFetchError(null);
+			setEntries([]);
+			// Fetch Rated, RatingSubmitted, and RecoveryAchieved logs in parallel.
+			// RatingSubmitted is not filtered by address — we join it with Rated by txHash
+			// to recover the rater and contract ID for each received rating.
+			const [ratedLogs, submittedLogs, recoveryLogs] = await Promise.all([
+				publicClient.getLogs({
+					address: REPUTATION_REGISTRY_ADDRESS,
+					event: RATED_EVENT,
+					args: { user: lookupAddress },
+					fromBlock: 0n,
+					toBlock: "latest",
+				}),
+				publicClient.getLogs({
+					address: TRUSTLEDGER_ADDRESS,
+					event: RATING_SUBMITTED_EVENT,
+					fromBlock: 0n,
+					toBlock: "latest",
+				}),
+				publicClient.getLogs({
+					address: REPUTATION_REGISTRY_ADDRESS,
+					event: RECOVERY_EVENT,
+					args: { user: lookupAddress },
+					fromBlock: 0n,
+					toBlock: "latest",
+				}),
+			]);
+
+			// Build txHash → RatingSubmitted so we can enrich each Rated log.
+			const submittedByTx = new Map(submittedLogs.map((log) => [log.transactionHash, log]));
+
+			const ratingEntries: HistoryEntry[] = ratedLogs.map((log) => {
+				const submitted = submittedByTx.get(log.transactionHash);
+				return {
+					type: "rating",
+					score: log.args.score ?? 0,
+					blockNumber: log.blockNumber,
+					txHash: log.transactionHash,
+					rater: submitted?.args.rater ?? null,
+					contractId: submitted?.args.id ?? null,
+				};
+			});
+
+			const recoveryEntries: HistoryEntry[] = recoveryLogs.map((log) => ({
+				type: "recovery",
+				score: log.args.bonus ?? 0,
+				blockNumber: log.blockNumber,
+				txHash: log.transactionHash,
+				rater: null,
+				contractId: null,
+			}));
+
+			const all = [...ratingEntries, ...recoveryEntries].sort((a, b) =>
+				Number(b.blockNumber - a.blockNumber),
+			);
+
+			if (!cancelled) {
+				setEntries(all);
+				setLoading(false);
+			}
+		}
+
+		fetchHistory().catch((err: unknown) => {
+			if (!cancelled) {
+				setFetchError(
+					err instanceof Error ? err.message : "Failed to load rating history.",
+				);
+				setLoading(false);
+			}
+		});
+
+		return (): void => {
+			cancelled = true;
+		};
+	}, [lookupAddress, publicClient]);
+
+	if (loading) {
+		return (
+			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
+				<p className="text-sm text-gray-500">Loading rating history…</p>
+			</div>
+		);
+	}
+
+	if (fetchError !== null) {
+		return (
+			<div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-700 dark:text-yellow-300">
+				Could not load history: {fetchError}
+			</div>
+		);
+	}
+
+	if (entries.length === 0) {
+		return (
+			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
+				<p className="text-sm text-gray-500">No rating history found.</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3">
+			<h2 className="font-semibold text-gray-900 dark:text-white">Rating History</h2>
+			<div className="flex flex-col gap-2">
+				{entries.map((entry) => (
+					<div
+						key={entry.txHash + entry.type}
+						className="flex items-center justify-between gap-3 py-2 border-t border-gray-200 dark:border-white/10 first:border-t-0"
+					>
+						<div className="flex flex-col gap-0.5 min-w-0">
+							{entry.type === "recovery" ? (
+								<span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+									Recovery bonus +{entry.score}
+								</span>
+							) : (
+								<span
+									className={`text-sm font-semibold ${
+										entry.score >= 70
+											? "text-green-600 dark:text-green-400"
+											: entry.score >= 40
+												? "text-yellow-600 dark:text-yellow-400"
+												: "text-red-600 dark:text-red-400"
+									}`}
+								>
+									{entry.score} / 100
+								</span>
+							)}
+							<div className="flex items-center gap-2 text-xs text-gray-500 truncate">
+								{entry.rater !== null && (
+									<span>from {formatAddress(entry.rater)}</span>
+								)}
+								{entry.contractId !== null && (
+									<span className="font-mono">
+										contract #{entry.contractId.toString()}
+									</span>
+								)}
+								{entry.rater === null && entry.type === "rating" && (
+									<span className="italic">auto-penalty</span>
+								)}
+							</div>
+						</div>
+						<div className="flex items-center gap-3 shrink-0">
+							<span className="text-xs text-gray-400 font-mono">
+								block {entry.blockNumber.toString()}
+							</span>
+							<a
+								href={`${explorerBase}/tx/${entry.txHash}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
+							>
+								tx ↗
+							</a>
+						</div>
+					</div>
+				))}
+			</div>
+		</div>
+	);
+}
+
+// ─── Average score + recovery status ─────────────────────────────────────────
 
 function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): React.JSX.Element {
 	const registryDeployed =
 		REPUTATION_REGISTRY_ADDRESS !== "0x0000000000000000000000000000000000000000";
 
-	const { data, isLoading, isError } = useReadContract({
+	const {
+		data: avgData,
+		isLoading,
+		isError,
+	} = useReadContract({
 		address: REPUTATION_REGISTRY_ADDRESS,
 		abi: REPUTATION_REGISTRY_ABI,
 		functionName: "averageRating",
@@ -35,8 +247,18 @@ function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): 
 		query: { enabled: registryDeployed },
 	});
 
-	const [numerator, denominator] = data ?? [undefined, undefined];
+	const { data: recoveryData } = useReadContract({
+		address: REPUTATION_REGISTRY_ADDRESS,
+		abi: REPUTATION_REGISTRY_ABI,
+		functionName: "recoveryStatus",
+		args: [lookupAddress],
+		query: { enabled: registryDeployed },
+	});
+
+	const [numerator, denominator] = avgData ?? [undefined, undefined];
 	const { score, count } = formatReputation(numerator, denominator);
+	const [pending, progress] = recoveryData ?? [undefined, undefined];
+	const inRecovery = pending !== undefined && pending > 0n;
 
 	if (!registryDeployed) {
 		return (
@@ -75,17 +297,29 @@ function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): 
 
 					<span className="text-gray-500">Ratings received</span>
 					<span className="text-gray-900 dark:text-white">{count}</span>
+
+					{inRecovery && (
+						<>
+							<span className="text-gray-500">Recovery progress</span>
+							<span className="text-amber-600 dark:text-amber-400 text-xs font-medium">
+								{progress.toString()} / 3 toward clearing {pending.toString()} low
+								rating{pending === 1n ? "" : "s"}
+							</span>
+						</>
+					)}
 				</div>
 			)}
 
 			<p className="text-xs text-gray-500">
-				Scores are submitted by contract parties after completion (1-100). Dispute
-				resolutions may apply automatic penalties. Juror stake reputation is separate - see
-				the Juror page.
+				Scores are submitted by contract parties after completion (1–100). Dispute
+				resolutions may apply automatic penalties. Receiving 3 scores ≥ 70 after a low score
+				(≤ 30) earns a +50 recovery bonus.
 			</p>
 		</div>
 	);
 }
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ReputationPage(): React.JSX.Element {
 	const { address, isConnected } = useAccount();
@@ -166,7 +400,12 @@ export default function ReputationPage(): React.JSX.Element {
 				</div>
 			)}
 
-			{lookupAddress !== undefined && <ReputationLookup lookupAddress={lookupAddress} />}
+			{lookupAddress !== undefined && (
+				<>
+					<ReputationLookup lookupAddress={lookupAddress} />
+					<RatingHistoryFeed lookupAddress={lookupAddress} />
+				</>
+			)}
 		</div>
 	);
 }

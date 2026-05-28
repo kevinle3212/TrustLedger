@@ -298,6 +298,10 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @return      True when active, stake ≥ MIN_STAKE, and lock period has elapsed.
     function isEligible(address juror) external view returns (bool) {
         JurorInfo storage j = _jurors[juror];
+        // `x > y - 1` is used instead of `x >= y` to avoid underflow when y is 0
+        // (subtracting 1 from a uint256 of 0 would wrap around to type max).
+        // `block.timestamp + 1 > cooldown` is equivalent to `block.timestamp >= cooldown`
+        // using the same pattern, checking the cooldown period has fully elapsed.
         return j.active && j.stake > MIN_STAKE - 1 && block.timestamp > j.stakeUnlockTime - 1
             && j.reputation > MIN_REPUTATION - 1 && block.timestamp + 1 > uint256(_jurorCooldown[juror]);
     }
