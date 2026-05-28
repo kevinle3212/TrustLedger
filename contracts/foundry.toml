@@ -1,3 +1,8 @@
+# asm-keccak256: inline assembly for keccak256 trades readability and auditability
+# for a marginal gas gain — not appropriate in security-critical signature verification.
+[lint]
+exclude_lints = ["asm-keccak256"]
+
 [profile.default]
 src = "src"
 out = "out"

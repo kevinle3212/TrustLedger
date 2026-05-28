@@ -12,14 +12,18 @@ pragma solidity ^0.8.24;
 contract MockERC20 {
     // ─── State ────────────────────────────────────────────────────────────────
 
-    /// @notice Human-readable token name (not used on-chain by TrustLedger).
-    string public constant name = "Mock Token"; // solhint-disable-line const-name-snakecase
+    string private constant NAME = "Mock Token";
+    string private constant SYMBOL = "MOCK";
+    uint8 private constant DECIMALS = 18;
+
+    /// @notice Human-readable token name (satisfies ERC-20 metadata interface).
+    function name() external pure returns (string memory) { return NAME; }
 
     /// @notice Short token ticker symbol.
-    string public constant symbol = "MOCK"; // solhint-disable-line const-name-snakecase
+    function symbol() external pure returns (string memory) { return SYMBOL; }
 
     /// @notice Number of decimal places (matches standard ERC-20 convention).
-    uint8 public constant decimals = 18; // solhint-disable-line const-name-snakecase
+    function decimals() external pure returns (uint8) { return DECIMALS; }
 
     /// @notice Running total of all minted tokens.
     uint256 public totalSupply;
