@@ -73,6 +73,9 @@ contract FullLifecycleFork is Test {
 
         vm.deal(client, 100 ether);
         vm.deal(freelancer, 10 ether);
+        // The deterministic address from vm.createWallet may be a deployed contract
+        // on the live fork. Clear its bytecode so ETH transfers behave like a plain EOA.
+        vm.etch(freelancer, "");
 
         // ── Replicate Deploy.s.sol nonce-prediction logic ─────────────────────
         // TrustLedger, Arbitration, and JurorRegistry have a circular dependency
@@ -91,6 +94,9 @@ contract FullLifecycleFork is Test {
         );
 
         assertEq(address(arbitration), arbitrationAddr, "arbitration address mismatch");
+        // Zero out any pre-existing ETH at the predicted address on the live fork
+        // so balance assertions in tests are not skewed by Sepolia state.
+        vm.deal(address(arbitration), 0);
     }
 
     // ─── Signing helper ───────────────────────────────────────────────────────
