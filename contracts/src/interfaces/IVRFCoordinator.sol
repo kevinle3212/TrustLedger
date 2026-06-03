@@ -24,5 +24,7 @@ interface IVRFCoordinator {
         uint16 minimumRequestConfirmations,
         uint32 callbackGasLimit,
         uint32 numWords
-    ) external returns (uint256 requestId);
+    )
+        external
+        returns (uint256 requestId);
 }

@@ -22,7 +22,8 @@ import {IJurorRegistry} from "./interfaces/IJurorRegistry.sol";
 /// @notice Registry where anyone can stake ETH to become a juror eligible to vote in TrustLedger disputes.
 ///         Arbitration slashes minority voters and locks stake during active disputes.
 contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
-    // ─── Constants ───────────────────────────────────────────────────────────
+    // ─── Constants
+    // ───────────────────────────────────────────────────────────
     // `constant` means the value is baked into the bytecode at compile time -
     // reading it costs zero gas because it never touches storage.
 
@@ -46,7 +47,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     ///         Limits rapid re-participation and makes coordinated voting patterns harder to sustain.
     uint256 public constant JUROR_COOLDOWN = 7 days;
 
-    // ─── State ───────────────────────────────────────────────────────────────
+    // ─── State
+    // ───────────────────────────────────────────────────────────────
     // State variables are stored on-chain in the contract's storage slot.
     // Reading/writing them costs gas proportional to the data size.
 
@@ -66,7 +68,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // JUROR_COOLDOWN before committing to another. New jurors default to 0 (no cooldown).
     mapping(address juror => uint64 cooldownUntil) private _jurorCooldown;
 
-    // ─── Events ──────────────────────────────────────────────────────────────
+    // ─── Events
+    // ──────────────────────────────────────────────────────────────
     // Events are cheap logs emitted to the blockchain. Off-chain apps (front-ends,
     // indexers) listen for them to track state changes without reading storage.
     // `indexed` fields can be filtered efficiently by block explorers.
@@ -97,7 +100,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @param reputation New reputation score.
     event ReputationUpdated(address indexed juror, uint256 indexed reputation);
 
-    // ─── Errors ──────────────────────────────────────────────────────────────
+    // ─── Errors
+    // ──────────────────────────────────────────────────────────────
     // Custom errors (introduced in Solidity 0.8.4) are cheaper than require()
     // with a string message because they encode as just the 4-byte function selector.
     // They also show up by name in wallets and block explorers.
@@ -129,7 +133,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @notice Low-level ETH transfer to the recipient failed.
     error EthTransferFailed();
 
-    // ─── Modifiers ───────────────────────────────────────────────────────────
+    // ─── Modifiers
+    // ───────────────────────────────────────────────────────────
     // A modifier is a code block that wraps a function. `_;` is where the
     // function body executes. The check runs before `_;`.
 
@@ -138,7 +143,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         _;
     }
 
-    // ─── Constructor ─────────────────────────────────────────────────────────
+    // ─── Constructor
+    // ─────────────────────────────────────────────────────────
     // Runs exactly once when the contract is deployed.
 
     /// @notice Deploys JurorRegistry and binds it to the Arbitration contract.
@@ -146,11 +152,14 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     constructor(address arbitration_) {
         // Reject the zero address - a typo here would brick the contract's
         // ability to call back into Arbitration.
-        if (arbitration_ == address(0)) revert ZeroAddress();
+        if (arbitration_ == address(0)) {
+            revert ZeroAddress();
+        }
         ARBITRATION = arbitration_;
     }
 
-    // ─── Public actions ──────────────────────────────────────────────────────
+    // ─── Public actions
+    // ──────────────────────────────────────────────────────
 
     // Anyone can register as a juror by sending at least MIN_STAKE ETH.
     // `external payable` - callable only from outside the contract, accepts ETH.
@@ -158,8 +167,12 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
 
     /// @notice Register as a juror by staking ETH. Emits {Registered}.
     function register() external payable {
-        if (_jurors[msg.sender].active) revert AlreadyRegistered();
-        if (msg.value < MIN_STAKE) revert StakeBelowMinimum();
+        if (_jurors[msg.sender].active) {
+            revert AlreadyRegistered();
+        }
+        if (msg.value < MIN_STAKE) {
+            revert StakeBelowMinimum();
+        }
 
         // Write the new juror into storage. Struct literal syntax assigns every field.
         _jurors[msg.sender] = JurorInfo({
@@ -184,8 +197,12 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
 
     /// @notice Add more stake to an existing juror registration. Emits {StakeAdded}.
     function addStake() external payable {
-        if (!_jurors[msg.sender].active) revert NotRegistered();
-        if (msg.value == 0) revert StakeBelowMinimum();
+        if (!_jurors[msg.sender].active) {
+            revert NotRegistered();
+        }
+        if (msg.value == 0) {
+            revert StakeBelowMinimum();
+        }
 
         _jurors[msg.sender].stake += msg.value;
 
@@ -206,10 +223,18 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @param amount ETH to withdraw (wei).
     function unstake(uint256 amount) external nonReentrant {
         JurorInfo storage j = _jurors[msg.sender]; // `storage` = reference to on-chain data
-        if (!j.active) revert NotRegistered();
-        if (block.timestamp < j.stakeUnlockTime) revert StakeLocked();
-        if (j.activeDisputes > 0) revert HasActiveDisputes();
-        if (amount > j.stake) revert InsufficientStake();
+        if (!j.active) {
+            revert NotRegistered();
+        }
+        if (block.timestamp < j.stakeUnlockTime) {
+            revert StakeLocked();
+        }
+        if (j.activeDisputes > 0) {
+            revert HasActiveDisputes();
+        }
+        if (amount > j.stake) {
+            revert InsufficientStake();
+        }
 
         j.stake -= amount;
 
@@ -223,12 +248,15 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         // `transfer` forwards only 2300 gas (which can fail for smart contract wallets).
         // `call` forwards all available gas and returns a success boolean.
         (bool ok,) = msg.sender.call{value: amount}("");
-        if (!ok) revert EthTransferFailed();
+        if (!ok) {
+            revert EthTransferFailed();
+        }
 
         emit Unstaked(msg.sender, amount);
     }
 
-    // ─── Arbitration-only actions ─────────────────────────────────────────────
+    // ─── Arbitration-only actions
+    // ─────────────────────────────────────────────
     // These three functions are the bridge between Arbitration and JurorRegistry.
     // Only the Arbitration contract address set in the constructor can call them.
 
@@ -248,7 +276,9 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @param juror The juror's address.
     function unlockFromDispute(address juror) external onlyArbitration {
         JurorInfo storage j = _jurors[juror];
-        if (j.activeDisputes > 0) --j.activeDisputes; // guard against underflow
+        if (j.activeDisputes > 0) {
+            --j.activeDisputes; // guard against underflow
+        }
         ++j.disputesParticipated;
         // _jurorCooldown is uint64 to pack storage; block.timestamp + 7 days stays well within uint64 range.
         // forge-lint: disable-next-line(unsafe-typecast)
@@ -280,13 +310,16 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
 
         // Deactivate if slashed below minimum - prevents them from voting again
         // on another dispute until they top up their stake.
-        if (j.stake < MIN_STAKE) j.active = false;
+        if (j.stake < MIN_STAKE) {
+            j.active = false;
+        }
 
         emit Slashed(juror, slashAmt);
         emit ReputationUpdated(juror, j.reputation);
     }
 
-    // ─── View functions ───────────────────────────────────────────────────────
+    // ─── View functions
+    // ───────────────────────────────────────────────────────
     // `view` functions read from storage but never write. They're free to call
     // off-chain (no gas). On-chain calls from another contract still cost gas.
 
@@ -295,8 +328,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
 
     /// @notice Returns true if the juror is currently eligible to vote.
     /// @param juror The juror's address.
-    /// @return      True when active, stake ≥ MIN_STAKE, and lock period has elapsed.
-    function isEligible(address juror) external view returns (bool) {
+    /// @return result True when active, stake ≥ MIN_STAKE, and lock period has elapsed.
+    function isEligible(address juror) external view returns (bool result) {
         JurorInfo storage j = _jurors[juror];
         // `x > y - 1` is used instead of `x >= y` to avoid underflow when y is 0
         // (subtracting 1 from a uint256 of 0 would wrap around to type max).
@@ -311,8 +344,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
 
     /// @notice Returns the full JurorInfo struct for a given address.
     /// @param juror The juror's address.
-    /// @return      A memory copy of the JurorInfo struct.
-    function getJuror(address juror) external view returns (JurorInfo memory) {
+    /// @return result A memory copy of the JurorInfo struct.
+    function getJuror(address juror) external view returns (JurorInfo memory result) {
         // `memory` means a copy is returned, not a storage reference.
         return _jurors[juror];
     }
@@ -321,8 +354,8 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // Used off-chain to build UIs or monitor pool size.
 
     /// @notice Returns all registered juror addresses.
-    /// @return Array of every address that has ever called register().
-    function getJurorList() external view returns (address[] memory) {
+    /// @return result Array of every address that has ever called register().
+    function getJurorList() external view returns (address[] memory result) {
         return _jurorList;
     }
 
@@ -351,17 +384,21 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @notice Returns the unix timestamp after which the juror is re-eligible to vote.
     ///         Returns 0 for jurors who have never participated in a dispute.
     /// @param juror The juror's address.
-    function getCooldownUntil(address juror) external view returns (uint64) {
+    /// @return result The unix timestamp after which the juror is re-eligible (0 if never penalized).
+    function getCooldownUntil(address juror) external view returns (uint64 result) {
         return _jurorCooldown[juror];
     }
 
-    // ─── Internal access control ──────────────────────────────────────────────
+    // ─── Internal access control
+    // ──────────────────────────────────────────────
 
     // Internal function containing the actual access check.
     // Splitting modifier logic into a private function reduces contract deploy size
     // because the compiler can share one copy of the check instead of inlining it
     // at every call site.
     function _onlyArbitration() internal view {
-        if (msg.sender != ARBITRATION) revert OnlyArbitration();
+        if (msg.sender != ARBITRATION) {
+            revert OnlyArbitration();
+        }
     }
 }

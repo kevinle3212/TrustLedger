@@ -23,12 +23,13 @@ pragma solidity ^0.8.24;
 //   npm run foundry:test:fork
 
 import {Test, Vm} from "forge-std/Test.sol";
-import {TrustLedger} from "../../src/TrustLedger.sol";
-import {Arbitration} from "../../src/Arbitration.sol";
-import {JurorRegistry} from "../../src/JurorRegistry.sol";
+import {Arbitration} from "./../../src/Arbitration.sol";
+import {JurorRegistry} from "./../../src/JurorRegistry.sol";
+import {TrustLedger} from "./../../src/TrustLedger.sol";
 
 contract FullLifecycleFork is Test {
-    // ── Test constants ────────────────────────────────────────────────────────
+    // ── Test constants
+    // ────────────────────────────────────────────────────────
     uint256 public constant AMOUNT = 1 ether;
     uint256 public constant ESTIMATED_DURATION = 30 days;
     uint256 public constant BUFFER_FACTOR = 1200; // 1.2×
@@ -51,7 +52,8 @@ contract FullLifecycleFork is Test {
     Vm.Wallet internal _freelancerWallet;
     address public freelancer;
 
-    // ── setUp ─────────────────────────────────────────────────────────────────
+    // ── setUp
+    // ─────────────────────────────────────────────────────────────────
     function setUp() public {
         // Read the RPC URL from the environment; skip the entire test file when
         // it is absent so offline / CI runs are unaffected.
@@ -77,7 +79,8 @@ contract FullLifecycleFork is Test {
         // on the live fork. Clear its bytecode so ETH transfers behave like a plain EOA.
         vm.etch(freelancer, "");
 
-        // ── Replicate Deploy.s.sol nonce-prediction logic ─────────────────────
+        // ── Replicate Deploy.s.sol nonce-prediction logic
+        // ─────────────────────
         // TrustLedger, Arbitration, and JurorRegistry have a circular dependency
         // at construction time, broken by pre-computing where each contract will
         // land before any of them are deployed.  This mirrors the production
@@ -99,29 +102,34 @@ contract FullLifecycleFork is Test {
         vm.deal(address(arbitration), 0);
     }
 
-    // ─── Signing helper ───────────────────────────────────────────────────────
+    // ─── Signing helper
+    // ───────────────────────────────────────────────────────
     function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
         bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
         bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
         (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
     }
 
-    // ─── Lifecycle helpers ────────────────────────────────────────────────────
+    // ─── Lifecycle helpers
+    // ────────────────────────────────────────────────────
     function _createContract() internal returns (uint256 id) {
         vm.prank(client);
-        id = trustLedger.createContract{value: AMOUNT}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            0, // no hold-back
-            0, // no warranty
-            address(0), // native ETH escrow
+        id = trustLedger.createContract{value: AMOUNT}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 0,
+            warrantyPeriod: // no hold-back
+            0,
+            token: // no warranty
+            address(0),
+            tokenAmount: // native ETH escrow
             0
-        );
+        });
     }
 
     function _createAndAccept() internal returns (uint256 id) {
@@ -137,7 +145,8 @@ contract FullLifecycleFork is Test {
         trustLedger.submitProofOfWork(id, POW_HASH, POW_URI);
     }
 
-    // ─── Tests ────────────────────────────────────────────────────────────────
+    // ─── Tests
+    // ────────────────────────────────────────────────────────────────
 
     /// @notice Full happy path: create → accept → submit → approve → payout.
     /// Confirms the entire lifecycle works correctly against forked chain state.

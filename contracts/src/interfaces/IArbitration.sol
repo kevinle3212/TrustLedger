@@ -31,5 +31,8 @@ interface IArbitration {
         address freelancer,
         uint256 contractAmount,
         uint256 feePool
-    ) external payable returns (uint256 disputeId);
+    )
+        external
+        payable
+        returns (uint256 disputeId);
 }

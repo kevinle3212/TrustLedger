@@ -21,7 +21,8 @@ import {IReputationRegistry} from "./interfaces/IReputationRegistry.sol";
 /// @notice On-chain reputation ledger for TrustLedger participants.
 ///         Only TrustLedger may write ratings; anyone may read them.
 contract ReputationRegistry is IReputationRegistry {
-    // ─── State ───────────────────────────────────────────────────────────────
+    // ─── State
+    // ───────────────────────────────────────────────────────────────
 
     /// @notice Scores at or below this value trigger a recovery period.
     uint8 public constant LOW_RATING_THRESHOLD = 30;
@@ -56,7 +57,8 @@ contract ReputationRegistry is IReputationRegistry {
     // since the last low rating or completed recovery streak.
     mapping(address user => uint256 progress) private _recoveryProgress;
 
-    // ─── Events ──────────────────────────────────────────────────────────────
+    // ─── Events
+    // ──────────────────────────────────────────────────────────────
 
     /// @notice Emitted each time a new rating is recorded.
     /// @param user  The wallet that was rated.
@@ -69,7 +71,8 @@ contract ReputationRegistry is IReputationRegistry {
     /// @param bonus The synthetic score added to their cumulative total.
     event RecoveryAchieved(address indexed user, uint8 indexed bonus);
 
-    // ─── Errors ──────────────────────────────────────────────────────────────
+    // ─── Errors
+    // ──────────────────────────────────────────────────────────────
 
     /// @notice Only the TRUST_LEDGER contract may call rate().
     error OnlyTrustLedger();
@@ -80,16 +83,20 @@ contract ReputationRegistry is IReputationRegistry {
     /// @notice Constructor called with the zero address.
     error ZeroAddress();
 
-    // ─── Constructor ─────────────────────────────────────────────────────────
+    // ─── Constructor
+    // ─────────────────────────────────────────────────────────
 
     /// @notice Deploys ReputationRegistry and binds it to TrustLedger.
     /// @param trustLedger_ Address of the deployed TrustLedger contract.
     constructor(address trustLedger_) {
-        if (trustLedger_ == address(0)) revert ZeroAddress();
+        if (trustLedger_ == address(0)) {
+            revert ZeroAddress();
+        }
         TRUST_LEDGER = trustLedger_;
     }
 
-    // ─── TrustLedger-only write ───────────────────────────────────────────────
+    // ─── TrustLedger-only write
+    // ───────────────────────────────────────────────
 
     /// @notice Record a rating. Only TrustLedger may call this. Emits {Rated}.
     ///         If the score is low (≤ LOW_RATING_THRESHOLD) the user enters recovery mode.
@@ -100,8 +107,12 @@ contract ReputationRegistry is IReputationRegistry {
     /// @param user  The address being rated.
     /// @param score Rating in [1, 100]; 1 = terrible, 100 = perfect.
     function rate(address user, uint8 score) external {
-        if (msg.sender != TRUST_LEDGER) revert OnlyTrustLedger();
-        if (score == 0 || score > 100) revert InvalidScore();
+        if (msg.sender != TRUST_LEDGER) {
+            revert OnlyTrustLedger();
+        }
+        if (score == 0 || score > 100) {
+            revert InvalidScore();
+        }
 
         _totalRating[user] += score;
         ++_ratingCount[user];
@@ -127,7 +138,8 @@ contract ReputationRegistry is IReputationRegistry {
         }
     }
 
-    // ─── View ─────────────────────────────────────────────────────────────────
+    // ─── View
+    // ─────────────────────────────────────────────────────────────────
 
     /// @notice Returns the cumulative score sum and rating count for a user.
     ///         To get the average: average = numerator / denominator (check denominator > 0).

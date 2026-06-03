@@ -1,12 +1,17 @@
 # Contract Reference
 
-Full public API for all five TrustLedger contracts. All contracts are deployed on Ethereum Sepolia. Addresses are written to `artifacts/deployed-addresses.json` after each deploy (Hardhat `scripts/deploy.ts` includes `ReputationRegistry` and calls `initReputationRegistry`).
+Full public API for all five TrustLedger contracts. All contracts are deployed
+on Ethereum Sepolia. Addresses are written to
+`artifacts/deployed-addresses.json` after each deploy (Hardhat
+`scripts/deploy.ts` includes `ReputationRegistry` and calls
+`initReputationRegistry`).
 
 ---
 
 ## TrustLedger.sol
 
-The core escrow engine. Holds ETH or ERC-20 tokens between a client and a freelancer and enforces the contract lifecycle.
+The core escrow engine. Holds ETH or ERC-20 tokens between a client and a
+freelancer and enforces the contract lifecycle.
 
 ### Immutables
 
@@ -42,7 +47,8 @@ The core escrow engine. Holds ETH or ERC-20 tokens between a client and a freela
 
 #### `Status` enum
 
-The escrow lifecycle state, stored on-chain as a `uint8`. See [Architecture](ARCHITECTURE.md) for the full state machine.
+The escrow lifecycle state, stored on-chain as a `uint8`. See
+[Architecture](ARCHITECTURE.md) for the full state machine.
 
 | Value | Name        | Meaning                                                                                         |
 | ----- | ----------- | ----------------------------------------------------------------------------------------------- |
@@ -56,7 +62,8 @@ The escrow lifecycle state, stored on-chain as a `uint8`. See [Architecture](ARC
 
 #### `EscrowContract` struct
 
-Returned by `getContract(id)`. One per freelance agreement. Fields are ordered to minimise EVM storage slots.
+Returned by `getContract(id)`. One per freelance agreement. Fields are ordered
+to minimise EVM storage slots.
 
 ```solidity
 struct EscrowContract {
@@ -105,14 +112,23 @@ function createContract(
 ) external payable returns (uint256 id)
 ```
 
-Creates an escrow contract and locks funds. For ETH: set `token = address(0)`, `tokenAmount = 0`, send ETH as `msg.value`. For ERC-20: set `token` to the token address, `tokenAmount` to the amount, `msg.value = 0` (pre-approve the contract first).
+Creates an escrow contract and locks funds. For ETH: set `token = address(0)`,
+`tokenAmount = 0`, send ETH as `msg.value`. For ERC-20: set `token` to the token
+address, `tokenAmount` to the amount, `msg.value = 0` (pre-approve the contract
+first).
 
 `projectDeadline = block.timestamp + (estimatedDuration × bufferFactor) / 1000`
 
-Reverts with `EnforcedPause` when the contract is paused. Call `unpause()` first.
+Reverts with `EnforcedPause` when the contract is paused. Call `unpause()`
+first.
 
-`contractHash` must be the `keccak256` of the document bytes (not the URI string) and must be non-zero - the contract enforces `contractHash != bytes32(0)`. Computing the hash off-chain before uploading to IPFS ensures on-chain tamper detection covers file content, not just the pointer.
-`contractURI` must be a non-empty IPFS URI (e.g. `ipfs://<CID>`); both are required - passing a zero hash or empty URI reverts with `EmptyHash` or `EmptyURI`.
+`contractHash` must be the `keccak256` of the document bytes (not the URI
+string) and must be non-zero - the contract enforces
+`contractHash != bytes32(0)`. Computing the hash off-chain before uploading to
+IPFS ensures on-chain tamper detection covers file content, not just the
+pointer. `contractURI` must be a non-empty IPFS URI (e.g. `ipfs://<CID>`); both
+are required - passing a zero hash or empty URI reverts with `EmptyHash` or
+`EmptyURI`.
 
 Emits `ContractCreated`.
 
@@ -124,7 +140,10 @@ Emits `ContractCreated`.
 function acceptContract(uint256 id, uint8 v, bytes32 r, bytes32 s) external
 ```
 
-Freelancer accepts the contract by submitting an EIP-191 ECDSA signature over `keccak256(abi.encodePacked(id, freelancerAddress))`. The contract recovers the signer and reverts if it does not match `freelancer`. Transitions status to `ACTIVE`.
+Freelancer accepts the contract by submitting an EIP-191 ECDSA signature over
+`keccak256(abi.encodePacked(id, freelancerAddress))`. The contract recovers the
+signer and reverts if it does not match `freelancer`. Transitions status to
+`ACTIVE`.
 
 Emits `ContractAccepted`.
 
@@ -136,7 +155,8 @@ Emits `ContractAccepted`.
 function rejectContract(uint256 id) external
 ```
 
-Freelancer rejects the contract. Funds are returned to the client. Status transitions to `CANCELLED`.
+Freelancer rejects the contract. Funds are returned to the client. Status
+transitions to `CANCELLED`.
 
 Emits `ContractRejected`.
 
@@ -152,8 +172,14 @@ function submitProofOfWork(
 ) external
 ```
 
-Freelancer submits a `keccak256` hash of the deliverable and an IPFS URI. Both are enforced: `powHash` must be non-zero and `powURI` must be non-empty - passing either as zero/empty reverts with `EmptyHash` or `EmptyURI`.
-The hash must be computed from the actual file bytes before upload; this lets the client (and any future auditor) independently verify the delivered file matches what was committed on-chain. Sets `acceptanceDeadline = block.timestamp + acceptanceWindow`. Status transitions to `SUBMITTED`.
+Freelancer submits a `keccak256` hash of the deliverable and an IPFS URI. Both
+are enforced: `powHash` must be non-zero and `powURI` must be non-empty -
+passing either as zero/empty reverts with `EmptyHash` or `EmptyURI`. The hash
+must be computed from the actual file bytes before upload; this lets the client
+(and any future auditor) independently verify the delivered file matches what
+was committed on-chain. Sets
+`acceptanceDeadline = block.timestamp + acceptanceWindow`. Status transitions to
+`SUBMITTED`.
 
 Emits `ProofSubmitted`.
 
@@ -165,7 +191,9 @@ Emits `ProofSubmitted`.
 function approveWork(uint256 id) external
 ```
 
-Client approves submitted work. Releases `amount − holdBackAmount` to the freelancer. If `holdBackBps > 0`, sets `warrantyDeadline` and retains `holdBackAmount`. Status transitions to `APPROVED`.
+Client approves submitted work. Releases `amount − holdBackAmount` to the
+freelancer. If `holdBackBps > 0`, sets `warrantyDeadline` and retains
+`holdBackAmount`. Status transitions to `APPROVED`.
 
 Emits `WorkApproved` and `FundsReleased`.
 
@@ -177,7 +205,8 @@ Emits `WorkApproved` and `FundsReleased`.
 function disputeWork(uint256 id) external
 ```
 
-Client opens a dispute. Forwards `amount × arbitrationFeeBps / 10_000` ETH (the fee pool) to `Arbitration.openDispute()`. Status transitions to `DISPUTED`.
+Client opens a dispute. Forwards `amount × arbitrationFeeBps / 10_000` ETH (the
+fee pool) to `Arbitration.openDispute()`. Status transitions to `DISPUTED`.
 
 Emits `WorkDisputed`.
 
@@ -189,7 +218,8 @@ Emits `WorkDisputed`.
 function claimAfterDeadlineMiss(uint256 id) external
 ```
 
-Client reclaims funds if the freelancer misses the project deadline without submitting work. Status transitions to `CANCELLED`.
+Client reclaims funds if the freelancer misses the project deadline without
+submitting work. Status transitions to `CANCELLED`.
 
 Emits `ContractCancelled`.
 
@@ -201,7 +231,8 @@ Emits `ContractCancelled`.
 function claimAfterAcceptanceWindow(uint256 id) external
 ```
 
-Freelancer auto-claims payment if the client does not respond within the acceptance window. Status transitions to `APPROVED`.
+Freelancer auto-claims payment if the client does not respond within the
+acceptance window. Status transitions to `APPROVED`.
 
 Emits `WorkApproved` and `FundsReleased`.
 
@@ -225,7 +256,8 @@ Emits `WarrantyFundsClaimed`.
 function cancelPending(uint256 id) external
 ```
 
-Client cancels a contract that is still `PENDING` (before the freelancer responds). Funds returned to client. Status transitions to `CANCELLED`.
+Client cancels a contract that is still `PENDING` (before the freelancer
+responds). Funds returned to client. Status transitions to `CANCELLED`.
 
 Emits `ContractCancelled`.
 
@@ -237,15 +269,21 @@ Emits `ContractCancelled`.
 function linkAmendment(uint256 newId, uint256 previousId) external
 ```
 
-Links a `PENDING` replacement contract to its `CANCELLED` predecessor, establishing an on-chain amendment version history. The caller must be the client on both contracts. `previousId` must be `CANCELLED`; `newId` must be `PENDING` and not already linked.
+Links a `PENDING` replacement contract to its `CANCELLED` predecessor,
+establishing an on-chain amendment version history. The caller must be the
+client on both contracts. `previousId` must be `CANCELLED`; `newId` must be
+`PENDING` and not already linked.
 
 Amendment flow:
 
 1. `cancelPending(oldId)` - invalidates the existing contract, returns funds.
-2. `createContract(...)` - creates the replacement with updated terms and a new `contractHash`.
-3. `linkAmendment(newId, oldId)` - records the on-chain link; the `previousContractId` field on the new contract becomes `oldId`.
+2. `createContract(...)` - creates the replacement with updated terms and a new
+   `contractHash`.
+3. `linkAmendment(newId, oldId)` - records the on-chain link; the
+   `previousContractId` field on the new contract becomes `oldId`.
 
-Each cancelled contract produces a new contract ID with a distinct hash, so the full renegotiation history is permanently visible on-chain.
+Each cancelled contract produces a new contract ID with a distinct hash, so the
+full renegotiation history is permanently visible on-chain.
 
 Emits `ContractAmended`.
 
@@ -257,7 +295,10 @@ Emits `ContractAmended`.
 function submitRating(uint256 id, uint8 score) external
 ```
 
-Submits a rating (1-100) for the counterparty. Clients rate freelancers; freelancers rate clients. Each party may rate once per contract. No-ops silently if `ReputationRegistry` has not been configured. Only callable after status is `APPROVED` or `RESOLVED`.
+Submits a rating (1-100) for the counterparty. Clients rate freelancers;
+freelancers rate clients. Each party may rate once per contract. No-ops silently
+if `ReputationRegistry` has not been configured. Only callable after status is
+`APPROVED` or `RESOLVED`.
 
 Emits `RatingSubmitted`.
 
@@ -269,13 +310,20 @@ Emits `RatingSubmitted`.
 function executeRuling(uint256 id, uint256 completionPct) external
 ```
 
-Called only by `Arbitration`. Distributes escrow funds based on the juror-determined `completionPct` (0-100). Uses the proportional fee split formula. Status transitions to `RESOLVED`.
+Called only by `Arbitration`. Distributes escrow funds based on the
+juror-determined `completionPct` (0-100). Uses the proportional fee split
+formula. Status transitions to `RESOLVED`.
 
-**Automatic reputation penalties** (requires `ReputationRegistry` to be configured):
+**Automatic reputation penalties** (requires `ReputationRegistry` to be
+configured):
 
-- `completionPct >= 80`: the client is auto-rated with score 1 (dispute was frivolous). Sets `_clientRated[id]` so the client cannot also call `submitRating`.
-- `completionPct <= 20`: the freelancer is auto-rated with score 1 (work was clearly deficient). Sets `_freelancerRated[id]` similarly.
-- `20 < completionPct < 80`: no automatic penalty; either party may still call `submitRating`.
+- `completionPct >= 80`: the client is auto-rated with score 1 (dispute was
+  frivolous). Sets `_clientRated[id]` so the client cannot also call
+  `submitRating`.
+- `completionPct <= 20`: the freelancer is auto-rated with score 1 (work was
+  clearly deficient). Sets `_freelancerRated[id]` similarly.
+- `20 < completionPct < 80`: no automatic penalty; either party may still call
+  `submitRating`.
 
 Emits `RulingExecuted` and `FundsReleased`.
 
@@ -287,7 +335,8 @@ Emits `RulingExecuted` and `FundsReleased`.
 function initPriceFeed(address feed_) external
 ```
 
-One-time setter. Wires in a Chainlink `AggregatorV3Interface`. Once set, cannot be changed.
+One-time setter. Wires in a Chainlink `AggregatorV3Interface`. Once set, cannot
+be changed.
 
 ---
 
@@ -307,7 +356,9 @@ One-time setter. Wires in a `ReputationRegistry`. Once set, cannot be changed.
 function initPauser(address pauser_) external
 ```
 
-One-time setter. Designates the address authorized to call `pause()` and `unpause()`. Once set, cannot be changed. If never called, pause functionality is permanently unavailable.
+One-time setter. Designates the address authorized to call `pause()` and
+`unpause()`. Once set, cannot be changed. If never called, pause functionality
+is permanently unavailable.
 
 ---
 
@@ -317,7 +368,10 @@ One-time setter. Designates the address authorized to call `pause()` and `unpaus
 function pause() external
 ```
 
-Pauses `createContract`, blocking new escrows from being opened. All in-flight lifecycle functions (`acceptContract`, `submitProofOfWork`, `approveWork`, `disputeWork`, claim functions) remain active so that funds already in escrow can always exit. Reverts with `NotPauser` if the caller is not `pauser`.
+Pauses `createContract`, blocking new escrows from being opened. All in-flight
+lifecycle functions (`acceptContract`, `submitProofOfWork`, `approveWork`,
+`disputeWork`, claim functions) remain active so that funds already in escrow
+can always exit. Reverts with `NotPauser` if the caller is not `pauser`.
 
 Emits `Paused` (OpenZeppelin standard event).
 
@@ -329,7 +383,8 @@ Emits `Paused` (OpenZeppelin standard event).
 function unpause() external
 ```
 
-Restores `createContract` to normal operation. Reverts with `NotPauser` if the caller is not `pauser`.
+Restores `createContract` to normal operation. Reverts with `NotPauser` if the
+caller is not `pauser`.
 
 Emits `Unpaused` (OpenZeppelin standard event).
 
@@ -428,7 +483,9 @@ Manages the commit-reveal juror voting process and fee pool distribution.
 
 #### `Phase` enum
 
-Tracks which step of the voting process a dispute is in. `COMMIT`/`REVEAL` apply to first-instance disputes; the `APPEAL_*` variants apply to re-tried disputes after an appeal.
+Tracks which step of the voting process a dispute is in. `COMMIT`/`REVEAL` apply
+to first-instance disputes; the `APPEAL_*` variants apply to re-tried disputes
+after an appeal.
 
 | Value | Name               | Meaning                                                         |
 | ----- | ------------------ | --------------------------------------------------------------- |
@@ -442,7 +499,8 @@ Tracks which step of the voting process a dispute is in. `COMMIT`/`REVEAL` apply
 
 #### `Dispute` struct
 
-Returned by `getDispute(disputeId)`. Both first-instance and appeal disputes share the same store, distinguished by `parentDisputeId`.
+Returned by `getDispute(disputeId)`. Both first-instance and appeal disputes
+share the same store, distinguished by `parentDisputeId`.
 
 ```solidity
 struct Dispute {
@@ -482,7 +540,8 @@ function openDispute(
 ) external payable onlyTrustLedger returns (uint256 disputeId)
 ```
 
-Opens a new dispute. Called only by TrustLedger with the fee pool ETH as `msg.value`. Requests VRF randomness if a coordinator is configured.
+Opens a new dispute. Called only by TrustLedger with the fee pool ETH as
+`msg.value`. Requests VRF randomness if a coordinator is configured.
 
 Emits `DisputeOpened`.
 
@@ -494,7 +553,10 @@ Emits `DisputeOpened`.
 function commitVote(uint256 disputeId, bytes32 commitment) external
 ```
 
-Submits a hashed vote. `commitment = keccak256(abi.encodePacked(disputeId, msg.sender, completionPct, salt))`. In VRF mode, only pre-selected jurors may commit. In legacy mode, any eligible juror may self-select up to `maxJurors`.
+Submits a hashed vote.
+`commitment = keccak256(abi.encodePacked(disputeId, msg.sender, completionPct, salt))`.
+In VRF mode, only pre-selected jurors may commit. In legacy mode, any eligible
+juror may self-select up to `maxJurors`.
 
 Emits `VoteCommitted`.
 
@@ -506,7 +568,8 @@ Emits `VoteCommitted`.
 function revealVote(uint256 disputeId, uint256 completionPct, bytes32 salt) external
 ```
 
-Reveals a committed vote. Re-derives the commitment hash and reverts if it does not match the stored value.
+Reveals a committed vote. Re-derives the commitment hash and reverts if it does
+not match the stored value.
 
 Emits `VoteRevealed`.
 
@@ -518,7 +581,9 @@ Emits `VoteRevealed`.
 function advanceToReveal(uint256 disputeId) external
 ```
 
-Advances the dispute from `COMMIT` to `REVEAL` phase. Callable by anyone. Requires either the commit deadline to have passed or at least `MIN_JURORS` committed.
+Advances the dispute from `COMMIT` to `REVEAL` phase. Callable by anyone.
+Requires either the commit deadline to have passed or at least `MIN_JURORS`
+committed.
 
 ---
 
@@ -528,12 +593,16 @@ Advances the dispute from `COMMIT` to `REVEAL` phase. Callable by anyone. Requir
 function finalizeDispute(uint256 disputeId) external
 ```
 
-Finalizes the dispute after the reveal window closes. Computes the median ruling, classifies majority and minority jurors, slashes minorities and non-revealers, and opens the appeal window.
+Finalizes the dispute after the reveal window closes. Computes the median
+ruling, classifies majority and minority jurors, slashes minorities and
+non-revealers, and opens the appeal window.
 
-**Tiered slashing** is applied based on how far a minority vote deviates from the median:
+**Tiered slashing** is applied based on how far a minority vote deviates from
+the median:
 
 - Deviation ≤ 30 pct-points: standard slash (10% of stake).
-- Deviation > 30 pct-points: severe slash (20% of stake). Extreme outliers - characteristic of bribed or colluding jurors - are penalized more heavily.
+- Deviation > 30 pct-points: severe slash (20% of stake). Extreme outliers -
+  characteristic of bribed or colluding jurors - are penalized more heavily.
 
 Non-reveal jurors always receive the standard slash (10%).
 
@@ -547,7 +616,9 @@ Emits `DisputeFinalized`.
 function appeal(uint256 disputeId) external payable
 ```
 
-Files an appeal within the appeal window. Requires a bond of `feePool × 1.5`. Creates a new appeal dispute with double the juror panel. Original jurors are blocked from the appeal panel.
+Files an appeal within the appeal window. Requires a bond of `feePool × 1.5`.
+Creates a new appeal dispute with double the juror panel. Original jurors are
+blocked from the appeal panel.
 
 Emits `Appealed` and `AppealDisputeOpened`.
 
@@ -559,7 +630,8 @@ Emits `Appealed` and `AppealDisputeOpened`.
 function claimReward(uint256 disputeId) external
 ```
 
-Majority juror claims an equal share of the fee pool. Callable after the appeal window has closed.
+Majority juror claims an equal share of the fee pool. Callable after the appeal
+window has closed.
 
 Emits `RewardClaimed`.
 
@@ -571,7 +643,8 @@ Emits `RewardClaimed`.
 function executeRuling(uint256 disputeId) external
 ```
 
-Calls `TrustLedger.executeRuling()` with the finalized ruling. Callable by anyone after finalization and the appeal window closing.
+Calls `TrustLedger.executeRuling()` with the finalized ruling. Callable by
+anyone after finalization and the appeal window closing.
 
 ---
 
@@ -581,7 +654,8 @@ Calls `TrustLedger.executeRuling()` with the finalized ruling. Callable by anyon
 function initVrfCoordinator(address vrf_) external
 ```
 
-One-time setter. Wires in a Chainlink VRF v2 coordinator. Once set, new disputes will request randomness for juror selection.
+One-time setter. Wires in a Chainlink VRF v2 coordinator. Once set, new disputes
+will request randomness for juror selection.
 
 ---
 
@@ -591,7 +665,8 @@ One-time setter. Wires in a Chainlink VRF v2 coordinator. Once set, new disputes
 function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) external
 ```
 
-VRF coordinator callback. Uses random values to pre-select jurors from the eligible pool. Only callable by the registered VRF coordinator address.
+VRF coordinator callback. Uses random values to pre-select jurors from the
+eligible pool. Only callable by the registered VRF coordinator address.
 
 ---
 
@@ -666,7 +741,8 @@ Returns whether the juror voted in the majority for the given dispute.
 
 ## JurorRegistry.sol
 
-Tracks staked jurors, their eligibility, and reputation. Only `Arbitration` may call the lock/unlock/slash functions.
+Tracks staked jurors, their eligibility, and reputation. Only `Arbitration` may
+call the lock/unlock/slash functions.
 
 ### Constants
 
@@ -695,7 +771,9 @@ Tracks staked jurors, their eligibility, and reputation. Only `Arbitration` may 
 function register() external payable
 ```
 
-Registers the sender as a juror by staking ETH. Requires `msg.value >= MIN_STAKE`. Sets `stakeUnlockTime = block.timestamp + 7 days`. Eligibility activates after the lock period elapses.
+Registers the sender as a juror by staking ETH. Requires
+`msg.value >= MIN_STAKE`. Sets `stakeUnlockTime = block.timestamp + 7 days`.
+Eligibility activates after the lock period elapses.
 
 Emits `Registered`.
 
@@ -719,7 +797,9 @@ Emits `StakeAdded`.
 function unstake(uint256 amount) external
 ```
 
-Withdraws `amount` of ETH. Requires the lock period to have elapsed and no active disputes. Deactivates the juror if remaining stake falls below `MIN_STAKE`.
+Withdraws `amount` of ETH. Requires the lock period to have elapsed and no
+active disputes. Deactivates the juror if remaining stake falls below
+`MIN_STAKE`.
 
 Emits `Unstaked`.
 
@@ -731,7 +811,8 @@ Emits `Unstaked`.
 function lockForDispute(address juror) external
 ```
 
-Increments the juror's `activeDisputes` counter. Called only by `Arbitration` when the juror commits a vote.
+Increments the juror's `activeDisputes` counter. Called only by `Arbitration`
+when the juror commits a vote.
 
 ---
 
@@ -741,7 +822,10 @@ Increments the juror's `activeDisputes` counter. Called only by `Arbitration` wh
 function unlockFromDispute(address juror) external
 ```
 
-Decrements `activeDisputes`, increments `disputesParticipated`, and sets `_jurorCooldown[juror] = block.timestamp + JUROR_COOLDOWN`. The juror will not pass `isEligible()` until the 7-day cooldown expires. Called only by `Arbitration` at finalization.
+Decrements `activeDisputes`, increments `disputesParticipated`, and sets
+`_jurorCooldown[juror] = block.timestamp + JUROR_COOLDOWN`. The juror will not
+pass `isEligible()` until the 7-day cooldown expires. Called only by
+`Arbitration` at finalization.
 
 ---
 
@@ -751,7 +835,9 @@ Decrements `activeDisputes`, increments `disputesParticipated`, and sets `_juror
 function slash(address juror, uint256 amount) external
 ```
 
-Deducts `amount` from the juror's stake (capped at current stake). Increments `minorityVotes`. Reduces `reputation` by 10 (flooring at 0). Deactivates the juror if stake falls below `MIN_STAKE`. Called only by `Arbitration`.
+Deducts `amount` from the juror's stake (capped at current stake). Increments
+`minorityVotes`. Reduces `reputation` by 10 (flooring at 0). Deactivates the
+juror if stake falls below `MIN_STAKE`. Called only by `Arbitration`.
 
 Emits `Slashed` and `ReputationUpdated`.
 
@@ -799,7 +885,8 @@ Returns all addresses that have ever called `register()`.
 function eligibleJurorCount() external view returns (uint256 count)
 ```
 
-Counts currently eligible jurors by iterating the full registry. Applies the same four-condition check as `isEligible()`.
+Counts currently eligible jurors by iterating the full registry. Applies the
+same four-condition check as `isEligible()`.
 
 ---
 
@@ -809,7 +896,8 @@ Counts currently eligible jurors by iterating the full registry. Applies the sam
 function getCooldownUntil(address juror) external view returns (uint64)
 ```
 
-Returns the unix timestamp after which the juror is re-eligible to vote. Returns `0` for jurors who have never participated in a dispute.
+Returns the unix timestamp after which the juror is re-eligible to vote. Returns
+`0` for jurors who have never participated in a dispute.
 
 ---
 
@@ -858,7 +946,8 @@ struct JurorInfo {
 
 ## ReputationRegistry.sol
 
-Accumulates on-chain ratings for TrustLedger participants. Only `TrustLedger` may write; anyone may read.
+Accumulates on-chain ratings for TrustLedger participants. Only `TrustLedger`
+may write; anyone may read.
 
 ### Immutables
 
@@ -876,7 +965,8 @@ Accumulates on-chain ratings for TrustLedger participants. Only `TrustLedger` ma
 function rate(address user, uint8 score) external
 ```
 
-Records a rating. `score` must be in `[1, 100]`. Callable only by `TRUST_LEDGER`.
+Records a rating. `score` must be in `[1, 100]`. Callable only by
+`TRUST_LEDGER`.
 
 Emits `Rated`.
 
@@ -889,7 +979,8 @@ function averageRating(address user)
     external view returns (uint256 numerator, uint256 denominator)
 ```
 
-Returns the cumulative score sum and rating count. Compute the average as `numerator / denominator` (verify `denominator > 0` before dividing).
+Returns the cumulative score sum and rating count. Compute the average as
+`numerator / denominator` (verify `denominator > 0` before dividing).
 
 ---
 
@@ -911,10 +1002,15 @@ Returns the cumulative score sum and rating count. Compute the average as `numer
 
 ## Example Interactions
 
-Practical call sequences for the two main flows. Addresses come from `artifacts/deployed-addresses.json`. The examples use Foundry's [`cast`](https://book.getfoundry.sh/cast/) and [viem](https://viem.sh); the demo scripts in [Contributing](CONTRIBUTING.md) wrap the same calls end-to-end.
+Practical call sequences for the two main flows. Addresses come from
+`artifacts/deployed-addresses.json`. The examples use Foundry's
+[`cast`](https://book.getfoundry.sh/cast/) and [viem](https://viem.sh); the demo
+scripts in [Contributing](CONTRIBUTING.md) wrap the same calls end-to-end.
 
-!!! note "Hashes and URIs are required"
-`contractHash`/`proofOfWorkHash` must be the `keccak256` of the actual file bytes (computed off-chain before upload) and non-zero, and `contractURI`/`proofOfWorkURI` must be non-empty IPFS URIs. Zero/empty values revert with `EmptyHash` / `EmptyURI`.
+!!! note "Hashes and URIs are required" `contractHash`/`proofOfWorkHash` must be
+the `keccak256` of the actual file bytes (computed off-chain before upload) and
+non-zero, and `contractURI`/`proofOfWorkURI` must be non-empty IPFS URIs.
+Zero/empty values revert with `EmptyHash` / `EmptyURI`.
 
 ### Happy path (client creates → freelancer accepts → submits → client approves)
 
@@ -937,22 +1033,35 @@ cast send "$TL" \
 # -> emits ContractCreated(id, client, freelancer, amount); first id is 1
 ```
 
-The freelancer accepts with a wallet signature over `keccak256(abi.encodePacked(id, freelancerAddress))`, signed with the EIP-191 prefix (`eth_sign` / `personal_sign`). viem applies the prefix automatically when signing a `raw` hash:
+The freelancer accepts with a wallet signature over
+`keccak256(abi.encodePacked(id, freelancerAddress))`, signed with the EIP-191
+prefix (`eth_sign` / `personal_sign`). viem applies the prefix automatically
+when signing a `raw` hash:
 
 ```ts
-import { createWalletClient, http, encodePacked, keccak256, hexToSignature } from "viem";
+import {
+  createWalletClient,
+  http,
+  encodePacked,
+  keccak256,
+  hexToSignature,
+} from "viem";
 
 const id = 1n;
-const innerHash = keccak256(encodePacked(["uint256", "address"], [id, freelancer]));
-const signature = await walletClient.signMessage({ message: { raw: innerHash } });
+const innerHash = keccak256(
+  encodePacked(["uint256", "address"], [id, freelancer]),
+);
+const signature = await walletClient.signMessage({
+  message: { raw: innerHash },
+});
 const { v, r, s } = hexToSignature(signature);
 
 // 2. Freelancer accepts -> status ACTIVE
 await walletClient.writeContract({
-	address: TL,
-	abi,
-	functionName: "acceptContract",
-	args: [id, Number(v), r, s],
+  address: TL,
+  abi,
+  functionName: "acceptContract",
+  args: [id, Number(v), r, s],
 });
 ```
 
@@ -969,7 +1078,10 @@ cast send "$TL" "approveWork(uint256)" 1 --rpc-url "$RPC" --private-key "$CLIENT
 cast call "$TL" "getContract(uint256)" 1 --rpc-url "$RPC"
 ```
 
-If the client never responds, the freelancer can call `claimAfterAcceptanceWindow(1)` once the 48-hour window elapses. After the warranty period, the freelancer claims the hold-back with `claimWarrantyFunds(1)`.
+If the client never responds, the freelancer can call
+`claimAfterAcceptanceWindow(1)` once the 48-hour window elapses. After the
+warranty period, the freelancer claims the hold-back with
+`claimWarrantyFunds(1)`.
 
 ### Dispute path (client disputes → jurors commit/reveal → ruling executes)
 
@@ -1002,8 +1114,10 @@ cast send "$ARB" "executeRuling(uint256)" $DISPUTE --rpc-url "$RPC" --private-ke
 cast send "$ARB" "claimReward(uint256)" $DISPUTE --rpc-url "$RPC" --private-key "$JUROR_KEY"
 ```
 
-!!! warning "Use a fresh, secret salt per commit"
-The `salt` must stay secret until reveal and match exactly, byte-for-byte. A revealed value whose recomputed commitment differs from the stored one reverts with `InvalidCommitment`, and a juror who never reveals is slashed.
+!!! warning "Use a fresh, secret salt per commit" The `salt` must stay secret
+until reveal and match exactly, byte-for-byte. A revealed value whose recomputed
+commitment differs from the stored one reverts with `InvalidCommitment`, and a
+juror who never reveals is slashed.
 
 ### Reading events with viem
 
@@ -1011,11 +1125,11 @@ The `salt` must stay secret until reveal and match exactly, byte-for-byte. A rev
 import { parseAbiItem } from "viem";
 
 const logs = await publicClient.getLogs({
-	address: TL,
-	event: parseAbiItem(
-		"event ContractCreated(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount)",
-	),
-	fromBlock: deployBlock,
+  address: TL,
+  event: parseAbiItem(
+    "event ContractCreated(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount)",
+  ),
+  fromBlock: deployBlock,
 });
 ```
 
@@ -1024,26 +1138,32 @@ const logs = await publicClient.getLogs({
 ## Related docs
 
 - [Home](Home.md) - documentation index
-- [Architecture](ARCHITECTURE.md) - system diagram, state machine, and payout formulas
+- [Architecture](ARCHITECTURE.md) - system diagram, state machine, and payout
+  formulas
 - [FAQ](FAQ.md) - common questions about using, building, and contributing
-- [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and Actions workflow
+- [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and
+  Actions workflow
 - [Contributing](CONTRIBUTING.md) - local setup, testing, and demo scripts
 
 ---
 
 ## Security
 
-See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy,
+in-scope contracts, severity classification, and response timeline.
 
-**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+**Do not open public GitHub issues for security vulnerabilities.** Report
+privately via the contact in `SECURITY.md`.
 
-TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The
+codebase targets Ethereum Sepolia (testnet) and is under active development.
 
 ---
 
 ## License
 
-This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE)
+for full terms.
 
 ---
 

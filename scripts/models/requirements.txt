@@ -1,2 +1,7 @@
-azure-ai-inference>=1.0.0b1
-azure-core>=1.30.0
+# GitHub Models AI integration dependencies.
+# Install with: pip install -r scripts/models/requirements.txt
+# Used by scripts/models/github_models.py and .github/workflows/github-models.yml
+# to call the GitHub Models inference endpoint (https://models.github.ai/inference)
+# via the Azure AI Inference SDK. Requires GITHUB_TOKEN with models access.
+azure-ai-inference>=1.0.0b1  # Azure AI Inference SDK — ChatCompletionsClient, message types
+azure-core>=1.30.0            # Azure SDK core — AzureKeyCredential, HttpResponseError

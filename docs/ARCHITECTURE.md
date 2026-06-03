@@ -1,6 +1,8 @@
 # Architecture
 
-TrustLedger is a four-contract system deployed on Ethereum. The contracts communicate through well-defined interfaces with no owner or admin role - every state transition is enforced by the EVM.
+TrustLedger is a four-contract system deployed on Ethereum. The contracts
+communicate through well-defined interfaces with no owner or admin role - every
+state transition is enforced by the EVM.
 
 ---
 
@@ -112,9 +114,10 @@ Client                  TrustLedger             Freelancer
 
 ### Frontend Magic Link Flow (Precedes On-Chain Acceptance)
 
-The client fills in the freelancer's email on the create-contract page. After the
-`createContract` transaction confirms, the frontend extracts the contract ID from
-the `ContractCreated` event log and calls the Next.js API to send a signed magic link.
+The client fills in the freelancer's email on the create-contract page. After
+the `createContract` transaction confirms, the frontend extracts the contract ID
+from the `ContractCreated` event log and calls the Next.js API to send a signed
+magic link.
 
 ```text
 Client browser          Next.js API             Email            Freelancer browser
@@ -148,10 +151,10 @@ Client browser          Next.js API             Email            Freelancer brow
   │                         │   project deadline timer starts              │
 ```
 
-The magic link is single-use by design: the contract's status machine (`PENDING → ACTIVE`) is
-irreversible on-chain, so a replayed token will simply find the contract in a non-PENDING state
-and the `acceptContract` call will revert with `InvalidStatus`. No server-side token revocation
-store is required.
+The magic link is single-use by design: the contract's status machine
+(`PENDING → ACTIVE`) is irreversible on-chain, so a replayed token will simply
+find the contract in a non-PENDING state and the `acceptContract` call will
+revert with `InvalidStatus`. No server-side token revocation store is required.
 
 ---
 
@@ -234,7 +237,10 @@ Client              TrustLedger          Arbitration          JurorRegistry
 
 ## Deploy Order and CREATE Address Resolution
 
-The three primary contracts have a circular dependency: `TrustLedger` needs `Arbitration`'s address, and `Arbitration` needs both `TrustLedger`'s and `JurorRegistry`'s addresses. This is resolved using EVM's deterministic `CREATE` opcode.
+The three primary contracts have a circular dependency: `TrustLedger` needs
+`Arbitration`'s address, and `Arbitration` needs both `TrustLedger`'s and
+`JurorRegistry`'s addresses. This is resolved using EVM's deterministic `CREATE`
+opcode.
 
 ```text
 Formula:
@@ -354,7 +360,8 @@ Appeal juror panel: maxJurors × 2 (5 → 10 → 20 for successive appeals)
 
 ## Juror Selection: Chainlink VRF and RANDAO Fallback
 
-When a dispute is opened, jurors are selected using verifiable randomness. Two paths exist depending on whether a VRF coordinator has been wired in:
+When a dispute is opened, jurors are selected using verifiable randomness. Two
+paths exist depending on whether a VRF coordinator has been wired in:
 
 ```text
 openDispute()
@@ -412,13 +419,16 @@ commitVote() in legacy mode (vrfFulfilled == false):
 | Cost              | VRF subscription fee          | Zero extra gas                         |
 | Requirement       | `initVrfCoordinator()` called | Default; no setup needed               |
 
-RANDAO is the default. For production deployments where the juror pool is large enough that a single withheld block could meaningfully shift selection, wire in Chainlink VRF via `Arbitration.initVrfCoordinator()`.
+RANDAO is the default. For production deployments where the juror pool is large
+enough that a single withheld block could meaningfully shift selection, wire in
+Chainlink VRF via `Arbitration.initVrfCoordinator()`.
 
 ---
 
 ## Storage Layout
 
-EVM storage slots are 32 bytes each. Field ordering in structs is packed to minimize the number of slots used (and therefore gas costs).
+EVM storage slots are 32 bytes each. Field ordering in structs is packed to
+minimize the number of slots used (and therefore gas costs).
 
 ### `EscrowContract` (TrustLedger)
 
@@ -470,7 +480,10 @@ Two distinct on-chain reputation systems surface in the Next.js app:
 | `/dashboard`  | `TrustLedger`        | `submitRating` form on `APPROVED` / `RESOLVED` contracts                          |
 | `/juror`      | `JurorRegistry`      | Juror stake reputation (100 → −10 per minority vote); unrelated to escrow ratings |
 
-Local dev: deploy with `npm run hardhat:deploy:local` so `artifacts/deployed-addresses.json` includes `ReputationRegistry`; `next.config.ts` injects `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` at build time.
+Local dev: deploy with `npm run hardhat:deploy:local` so
+`artifacts/deployed-addresses.json` includes `ReputationRegistry`;
+`next.config.ts` injects `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` at build
+time.
 
 ---
 
@@ -480,23 +493,41 @@ The following mechanisms address the protocol's stated threat model directly.
 
 ### Dishonest client disputing valid work
 
-When `executeRuling` settles at `completionPct >= 80`, `TrustLedger` automatically calls `ReputationRegistry.rate(client, 1)`, permanently recording a low-score rating. The `_clientRated` flag is also set, preventing the client from submitting a self-serving rating via `submitRating`.
+When `executeRuling` settles at `completionPct >= 80`, `TrustLedger`
+automatically calls `ReputationRegistry.rate(client, 1)`, permanently recording
+a low-score rating. The `_clientRated` flag is also set, preventing the client
+from submitting a self-serving rating via `submitRating`.
 
 ### Freelancer submitting low-quality work
 
-When `executeRuling` settles at `completionPct <= 20`, the same mechanism applies to the freelancer: `ReputationRegistry.rate(freelancer, 1)` is called automatically and `_freelancerRated` is set. Reputation scores are public and visible to future clients before they hire.
+When `executeRuling` settles at `completionPct <= 20`, the same mechanism
+applies to the freelancer: `ReputationRegistry.rate(freelancer, 1)` is called
+automatically and `_freelancerRated` is set. Reputation scores are public and
+visible to future clients before they hire.
 
 ### Juror bribery
 
-Bribery attempts typically require jurors to vote at extreme values (e.g., 0 or 100) rather than near the true median. Any minority vote deviating more than 30 pct-points from the median incurs a **20% slash** instead of the standard 10%. This doubles the economic cost of an extreme vote, making bribery only worthwhile when the bribe exceeds 20% of the juror's stake.
+Bribery attempts typically require jurors to vote at extreme values (e.g., 0
+or 100) rather than near the true median. Any minority vote deviating more than
+30 pct-points from the median incurs a **20% slash** instead of the standard
+10%. This doubles the economic cost of an extreme vote, making bribery only
+worthwhile when the bribe exceeds 20% of the juror's stake.
 
 ### Juror collusion
 
-After each dispute finalizes, `unlockFromDispute` sets a 7-day cooldown (`JUROR_COOLDOWN`) on the juror. `isEligible()` rejects jurors in cooldown, so the same group cannot coordinate on back-to-back disputes. Combined with random VRF/RANDAO selection, this makes sustained multi-dispute coordination impractical.
+After each dispute finalizes, `unlockFromDispute` sets a 7-day cooldown
+(`JUROR_COOLDOWN`) on the juror. `isEligible()` rejects jurors in cooldown, so
+the same group cannot coordinate on back-to-back disputes. Combined with random
+VRF/RANDAO selection, this makes sustained multi-dispute coordination
+impractical.
 
 ### Sybil attacks (fake juror identities)
 
-`isEligible()` now enforces a minimum reputation of 20 (`MIN_REPUTATION`). A freshly registered Sybil account starts at reputation 100 but drops by 10 per minority vote. After 8 slashed votes the account falls below the threshold and is permanently excluded until the operator tops up reputation - which requires genuinely honest participation.
+`isEligible()` now enforces a minimum reputation of 20 (`MIN_REPUTATION`). A
+freshly registered Sybil account starts at reputation 100 but drops by 10 per
+minority vote. After 8 slashed votes the account falls below the threshold and
+is permanently excluded until the operator tops up reputation - which requires
+genuinely honest participation.
 
 ---
 
@@ -504,24 +535,31 @@ After each dispute finalizes, `unlockFromDispute` sets a 7-day cooldown (`JUROR_
 
 - [Home](Home.md) - documentation index
 - [Contract Reference](CONTRACTS.md) - full public API for all contracts
-- [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and Actions workflow
+- [GitHub Models](GITHUB_MODELS.md) - `.prompt.yml` examples, Python SDK, and
+  Actions workflow
 - [Contributing](CONTRIBUTING.md) - local setup and demo scripts
 
 ---
 
 ## Security
 
-See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy,
+in-scope contracts, severity classification, and response timeline.
 
-**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+**Do not open public GitHub issues for security vulnerabilities.** Report
+privately via the contact in `SECURITY.md`.
 
-TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) for development; production deployments target Arbitrum, Base, or Optimism to keep gas costs proportional to typical contract values.
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The
+codebase targets Ethereum Sepolia (testnet) for development; production
+deployments target Arbitrum, Base, or Optimism to keep gas costs proportional to
+typical contract values.
 
 ---
 
 ## License
 
-This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE)
+for full terms.
 
 ---
 

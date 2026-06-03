@@ -31,7 +31,8 @@ contract JurorRegistryTest is Test {
         vm.deal(stranger, 1 ether);
     }
 
-    // ─── Registration ─────────────────────────────────────────────────────────
+    // ─── Registration
+    // ─────────────────────────────────────────────────────────
 
     function test_Register_SufficientStake() public {
         vm.prank(juror1);
@@ -74,7 +75,8 @@ contract JurorRegistryTest is Test {
         assertEq(list[1], juror2);
     }
 
-    // ─── Stake Lock ───────────────────────────────────────────────────────────
+    // ─── Stake Lock
+    // ───────────────────────────────────────────────────────────
 
     function test_Unstake_LockedReverts() public {
         vm.prank(juror1);
@@ -90,7 +92,7 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
 
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
 
         uint256 before = juror1.balance;
         vm.prank(juror1);
@@ -104,7 +106,7 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: bigStake}(); // register with 10× minimum
 
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
 
         // Withdraw enough to drop below MIN_STAKE. The contract should deactivate the juror.
         uint256 toWithdraw = bigStake - MIN_STAKE + 1; // 1 wei over the threshold
@@ -122,21 +124,22 @@ contract JurorRegistryTest is Test {
         vm.prank(arbSim);
         registry.lockForDispute(juror1);
 
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
 
         vm.expectRevert(JurorRegistry.HasActiveDisputes.selector);
         vm.prank(juror1);
         registry.unstake(MIN_STAKE);
     }
 
-    // ─── Add Stake ────────────────────────────────────────────────────────────
+    // ─── Add Stake
+    // ────────────────────────────────────────────────────────────
 
     function test_AddStake_ResetsLockPeriod() public {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
 
         // Fast-forward past the initial lock period → juror becomes eligible.
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
         assertTrue(registry.isEligible(juror1));
 
         // Adding stake resets the lock clock.
@@ -150,7 +153,8 @@ contract JurorRegistryTest is Test {
         assertEq(j.stake, 2 * MIN_STAKE, "stake total mismatch");
     }
 
-    // ─── Eligibility ─────────────────────────────────────────────────────────
+    // ─── Eligibility
+    // ─────────────────────────────────────────────────────────
 
     function test_Eligibility_InitiallyFalse() public {
         vm.prank(juror1);
@@ -165,7 +169,7 @@ contract JurorRegistryTest is Test {
         registry.register{value: MIN_STAKE}();
 
         // Exactly at the lock expiry → now eligible.
-        vm.warp(block.timestamp + LOCK_PERIOD);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD);
         assertTrue(registry.isEligible(juror1), "should be eligible after lock period");
     }
 
@@ -173,7 +177,7 @@ contract JurorRegistryTest is Test {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
 
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
         assertTrue(registry.isEligible(juror1));
 
         // Unstake everything → stake drops to 0 → deactivated → not eligible.
@@ -183,7 +187,8 @@ contract JurorRegistryTest is Test {
         assertFalse(registry.isEligible(juror1));
     }
 
-    // ─── Slash ────────────────────────────────────────────────────────────────
+    // ─── Slash
+    // ────────────────────────────────────────────────────────────────
 
     function test_Slash_ReducesStakeAndMinorityVotes() public {
         vm.prank(juror1);
@@ -219,7 +224,8 @@ contract JurorRegistryTest is Test {
         registry.slash(juror1, 0.1 ether);
     }
 
-    // ─── Lock / Unlock for Dispute ────────────────────────────────────────────
+    // ─── Lock / Unlock for Dispute
+    // ────────────────────────────────────────────
 
     function test_LockForDispute_IncreasesActiveDisputes() public {
         vm.prank(juror1);
@@ -260,7 +266,8 @@ contract JurorRegistryTest is Test {
         registry.unlockFromDispute(juror1);
     }
 
-    // ─── EligibleJurorCount ───────────────────────────────────────────────────
+    // ─── EligibleJurorCount
+    // ───────────────────────────────────────────────────
 
     function test_EligibleJurorCount() public {
         assertEq(registry.eligibleJurorCount(), 0); // no jurors yet
@@ -272,11 +279,12 @@ contract JurorRegistryTest is Test {
 
         assertEq(registry.eligibleJurorCount(), 0); // both still in lock period
 
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
         assertEq(registry.eligibleJurorCount(), 2); // both eligible after lock expires
     }
 
-    // ─── Post-dispute cooldown ────────────────────────────────────────────────
+    // ─── Post-dispute cooldown
+    // ────────────────────────────────────────────────
 
     function test_GetCooldownUntil_ZeroForNewJuror() public {
         vm.prank(juror1);
@@ -291,7 +299,7 @@ contract JurorRegistryTest is Test {
         vm.prank(arbSim);
         registry.lockForDispute(juror1);
 
-        uint64 unlockTs = uint64(block.timestamp);
+        uint64 unlockTs = uint64(vm.getBlockTimestamp());
         vm.prank(arbSim);
         registry.unlockFromDispute(juror1);
 
@@ -305,7 +313,7 @@ contract JurorRegistryTest is Test {
     function test_Eligibility_FalseWhileInCooldown() public {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
         assertTrue(registry.isEligible(juror1), "should be eligible before any dispute");
 
         vm.prank(arbSim);
@@ -319,7 +327,7 @@ contract JurorRegistryTest is Test {
     function test_Eligibility_TrueAfterCooldownExpires() public {
         vm.prank(juror1);
         registry.register{value: MIN_STAKE}();
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
 
         vm.prank(arbSim);
         registry.lockForDispute(juror1);
@@ -327,7 +335,7 @@ contract JurorRegistryTest is Test {
         registry.unlockFromDispute(juror1);
 
         // Warp to the exact cooldown expiry stored in the contract - avoids any
-        // IR-optimizer constant-folding issue with block.timestamp + COOLDOWN_PERIOD.
+        // IR-optimizer constant-folding issue with vm.getBlockTimestamp() + COOLDOWN_PERIOD.
         vm.warp(uint256(registry.getCooldownUntil(juror1)));
         assertTrue(registry.isEligible(juror1), "should be eligible after cooldown expires");
     }
@@ -337,7 +345,7 @@ contract JurorRegistryTest is Test {
         registry.register{value: MIN_STAKE}();
         vm.prank(juror2);
         registry.register{value: MIN_STAKE}();
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
         assertEq(registry.eligibleJurorCount(), 2);
 
         // Put juror1 in cooldown.
@@ -349,12 +357,13 @@ contract JurorRegistryTest is Test {
         assertEq(registry.eligibleJurorCount(), 1, "only juror2 should be eligible");
     }
 
-    // ─── Reputation minimum ───────────────────────────────────────────────────
+    // ─── Reputation minimum
+    // ───────────────────────────────────────────────────
 
     function test_Eligibility_FalseIfBelowMinReputation() public {
         vm.prank(juror1);
         registry.register{value: 1 ether}(); // 100× minimum so slashing won't deactivate
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
         assertTrue(registry.isEligible(juror1));
 
         // Slash 9 times with amount=0: reputation decays 10 per slash (100 → 10) without
@@ -374,7 +383,7 @@ contract JurorRegistryTest is Test {
         registry.register{value: 1 ether}();
         vm.prank(juror2);
         registry.register{value: MIN_STAKE}();
-        vm.warp(block.timestamp + LOCK_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + LOCK_PERIOD + 1);
         assertEq(registry.eligibleJurorCount(), 2);
 
         // Slash juror1's reputation below the minimum.
@@ -386,7 +395,8 @@ contract JurorRegistryTest is Test {
         assertEq(registry.eligibleJurorCount(), 1, "only juror2 should be eligible");
     }
 
-    // ─── Not Registered ───────────────────────────────────────────────────────
+    // ─── Not Registered
+    // ───────────────────────────────────────────────────────
 
     function test_Unstake_NotRegistered_Reverts() public {
         vm.expectRevert(JurorRegistry.NotRegistered.selector);
@@ -400,7 +410,8 @@ contract JurorRegistryTest is Test {
         registry.addStake{value: 0.01 ether}();
     }
 
-    // ─── Constructor ──────────────────────────────────────────────────────────
+    // ─── Constructor
+    // ──────────────────────────────────────────────────────────
 
     function test_Constructor_ZeroAddress_Reverts() public {
         // `new Contract(args)` inside a test deploys a fresh instance.
@@ -409,7 +420,8 @@ contract JurorRegistryTest is Test {
         new JurorRegistry(address(0));
     }
 
-    // ─── Internal helper ──────────────────────────────────────────────────────
+    // ─── Internal helper
+    // ──────────────────────────────────────────────────────
     // The JurorInfo struct lives in IJurorRegistry. We define a local mirror struct
     // here because Solidity can't easily unpack a struct returned from an interface
     // into individual fields in a single call. This wrapper just copies all fields.
@@ -424,7 +436,7 @@ contract JurorRegistryTest is Test {
         uint256 activeDisputes;
     }
 
-    function _getJuror(address juror) internal view returns (IJurorInfo memory) {
+    function _getJuror(address juror) internal view returns (IJurorInfo memory result) {
         JurorRegistry.JurorInfo memory j = registry.getJuror(juror);
         // Manually copy each field - Solidity can't implicitly convert between two
         // structs with identical fields defined in different scopes.

@@ -1,8 +1,15 @@
 # TrustLedger - Frontend (`src/`)
 
-> [← Back to root README](../README.md) &nbsp;·&nbsp; [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Docs](../docs/) &nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts](../docs/CONTRACTS.md) &nbsp;·&nbsp; [GitHub Models](../docs/GITHUB_MODELS.md) &nbsp;·&nbsp; [Security](../SECURITY.md)
+> [← Back to root README](../README.md) &nbsp;·&nbsp;
+> [Live App](https://trustledger-zeta.vercel.app) &nbsp;·&nbsp; [Docs](../docs/)
+> &nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp;
+> [Contracts](../docs/CONTRACTS.md) &nbsp;·&nbsp;
+> [GitHub Models](../docs/GITHUB_MODELS.md) &nbsp;·&nbsp;
+> [Security](../SECURITY.md)
 
-Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum Sepolia. Hosted on [Vercel](https://vercel.com) at **[trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)**.
+Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum
+Sepolia. Hosted on [Vercel](https://vercel.com) at
+**[trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)**.
 
 ---
 
@@ -13,9 +20,9 @@ Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum
 - [Environment Variables](#environment-variables)
 - [Development Server](#development-server)
 - [File Layout](#file-layout)
-    - [Pages - `app/`](#pages---app)
-    - [Components - `components/`](#components---components)
-    - [Library - `lib/`](#library---lib)
+  - [Pages - `app/`](#pages---app)
+  - [Components - `components/`](#components---components)
+  - [Library - `lib/`](#library---lib)
 - [Scripts](#scripts)
 - [CI/CD](#cicd)
 - [Contract Artifacts](#contract-artifacts)
@@ -32,7 +39,8 @@ Next.js 16 dApp for interacting with the TrustLedger smart contracts on Ethereum
 
 ### Node.js
 
-Node.js is the JavaScript runtime that powers the development server. Version 22 or later is required.
+Node.js is the JavaScript runtime that powers the development server. Version 22
+or later is required.
 
 #### macOS / Linux - recommended via nvm (Node Version Manager)
 
@@ -49,7 +57,9 @@ node --version    # should print v22.x.x or later
 
 #### Windows
 
-Download the LTS installer from [nodejs.org](https://nodejs.org). Run it and accept all defaults. After it finishes, open a new Command Prompt or PowerShell and verify:
+Download the LTS installer from [nodejs.org](https://nodejs.org). Run it and
+accept all defaults. After it finishes, open a new Command Prompt or PowerShell
+and verify:
 
 ```bash
 node --version
@@ -57,9 +67,13 @@ node --version
 
 ### Contracts (for local development)
 
-If you want to connect the frontend to your own local blockchain (instead of Ethereum Sepolia), you need to compile and deploy the contracts first. That setup happens from the **repo root** (`TrustLedger/`), not from `src/`. See [README.md](../README.md#setup) for the step-by-step guide.
+If you want to connect the frontend to your own local blockchain (instead of
+Ethereum Sepolia), you need to compile and deploy the contracts first. That
+setup happens from the **repo root** (`TrustLedger/`), not from `src/`. See
+[README.md](../README.md#setup) for the step-by-step guide.
 
-For Ethereum Sepolia (the public testnet), the deployed contract address is already in `artifacts/deployed-addresses.json` - no local setup needed.
+For Ethereum Sepolia (the public testnet), the deployed contract address is
+already in `artifacts/deployed-addresses.json` - no local setup needed.
 
 ---
 
@@ -72,13 +86,17 @@ cd src
 npm install
 ```
 
-`npm install` reads `src/package.json` and downloads all the frontend dependencies (Next.js, wagmi, RainbowKit, Tailwind CSS, etc.) into a local `node_modules/` folder. This takes about 30-60 seconds. You should see a summary like `added 754 packages` when it finishes.
+`npm install` reads `src/package.json` and downloads all the frontend
+dependencies (Next.js, wagmi, RainbowKit, Tailwind CSS, etc.) into a local
+`node_modules/` folder. This takes about 30-60 seconds. You should see a summary
+like `added 754 packages` when it finishes.
 
 ---
 
 ## Environment Variables
 
-All frontend environment variables live in the **root `.env`** file (at `TrustLedger/.env`), not inside `src/`. You do not need a `src/.env.local` file.
+All frontend environment variables live in the **root `.env`** file (at
+`TrustLedger/.env`), not inside `src/`. You do not need a `src/.env.local` file.
 
 If you haven't copied the example file yet, do this from the repo root:
 
@@ -99,19 +117,24 @@ Then open `.env` in any text editor and fill in the values below.
 <details>
 <summary>How to get a WalletConnect Project ID</summary>
 
-WalletConnect is the protocol that lets MetaMask, Coinbase Wallet, and other wallets connect to the site. You need a free project ID to use it.
+WalletConnect is the protocol that lets MetaMask, Coinbase Wallet, and other
+wallets connect to the site. You need a free project ID to use it.
 
-1. Go to [cloud.walletconnect.com](https://cloud.walletconnect.com) and sign in or create a free account.
+1. Go to [cloud.walletconnect.com](https://cloud.walletconnect.com) and sign in
+   or create a free account.
 2. Click **Create Project**.
-3. Give it any name (e.g. "TrustLedger"), choose type **App**, and click **Create**.
-4. Your **Project ID** is shown on the project dashboard - it looks like a long string of letters and numbers.
+3. Give it any name (e.g. "TrustLedger"), choose type **App**, and click
+   **Create**.
+4. Your **Project ID** is shown on the project dashboard - it looks like a long
+   string of letters and numbers.
 5. Open your root `.env` file and paste it in:
 
-    ```text
-    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id-here
-    ```
+   ```text
+   NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id-here
+   ```
 
-> Without this ID, the wallet connect button will appear but may not work correctly in all browsers.
+> Without this ID, the wallet connect button will appear but may not work
+> correctly in all browsers.
 
 </details>
 
@@ -123,17 +146,21 @@ WalletConnect is the protocol that lets MetaMask, Coinbase Wallet, and other wal
 
 ### Option A - Connect to Ethereum Sepolia (no local chain needed)
 
-If `artifacts/deployed-addresses.json` already contains a Sepolia address (it does after the last deploy), you can run the frontend and connect MetaMask to Sepolia directly:
+If `artifacts/deployed-addresses.json` already contains a Sepolia address (it
+does after the last deploy), you can run the frontend and connect MetaMask to
+Sepolia directly:
 
-1. Fill in `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` in the root `.env` (see above).
+1. Fill in `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` in the root `.env` (see
+   above).
 2. From `src/`, start the dev server:
 
-    ```bash
-    npm run dev:frontend
-    ```
+   ```bash
+   npm run dev:frontend
+   ```
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser.
-4. In MetaMask, switch your network to **Ethereum Sepolia** and connect your wallet.
+4. In MetaMask, switch your network to **Ethereum Sepolia** and connect your
+   wallet.
 
 ### Option B - Connect to a local Hardhat chain
 
@@ -145,7 +172,8 @@ Run the frontend against a local blockchain where test ETH is free and instant.
 npm run node
 ```
 
-You will see 20 test accounts with their private keys printed. Keep this terminal running.
+You will see 20 test accounts with their private keys printed. Keep this
+terminal running.
 
 **Terminal 2** - Compile and deploy contracts from the repo root:
 
@@ -153,7 +181,8 @@ You will see 20 test accounts with their private keys printed. Keep this termina
 npm run compile && npm run hardhat:deploy:local
 ```
 
-This writes the deployed addresses to `artifacts/deployed-addresses.json`. The frontend reads this file automatically - no env var copy needed.
+This writes the deployed addresses to `artifacts/deployed-addresses.json`. The
+frontend reads this file automatically - no env var copy needed.
 
 **Terminal 3** - Start the frontend from `src/`:
 
@@ -161,7 +190,8 @@ This writes the deployed addresses to `artifacts/deployed-addresses.json`. The f
 npm run dev:frontend
 ```
 
-Open [http://localhost:3000](http://localhost:3000). To interact with contracts, add the local Hardhat network to MetaMask:
+Open [http://localhost:3000](http://localhost:3000). To interact with contracts,
+add the local Hardhat network to MetaMask:
 
 | Field           | Value                   |
 | --------------- | ----------------------- |
@@ -170,7 +200,8 @@ Open [http://localhost:3000](http://localhost:3000). To interact with contracts,
 | Chain ID        | `31337`                 |
 | Currency symbol | `ETH`                   |
 
-Then import a test account by copying any private key from the Terminal 1 output into MetaMask.
+Then import a test account by copying any private key from the Terminal 1 output
+into MetaMask.
 
 The page hot-reloads automatically as you edit files under `app/`.
 
@@ -191,7 +222,9 @@ The page hot-reloads automatically as you edit files under `app/`.
 | `npm run debug:frontend:files`   | TypeScript trace + CPU profile - outputs `trace/` and `profile.cpuprofile` for compile-time debugging |
 | `npm run deploy:vercel`          | Deploy to Vercel production (`vercel --prod`) - requires a linked project (`vercel link` from `src/`) |
 
-GitHub Models scripts (`models:install`, `models:run`, `models:eval`) live in the **repo root** `package.json`, not in `src/`. See [docs/GITHUB_MODELS.md](../docs/GITHUB_MODELS.md).
+GitHub Models scripts (`models:install`, `models:run`, `models:eval`) live in
+the **repo root** `package.json`, not in `src/`. See
+[docs/GITHUB_MODELS.md](../docs/GITHUB_MODELS.md).
 
 [↑ Back to top](#table-of-contents)
 
@@ -201,7 +234,8 @@ GitHub Models scripts (`models:install`, `models:run`, `models:eval`) live in th
 
 ### `ci.yml` - Continuous Integration
 
-Runs on every push and pull request to `main`. The `frontend` job covers this package.
+Runs on every push and pull request to `main`. The `frontend` job covers this
+package.
 
 | Step                 | What it does                                |
 | -------------------- | ------------------------------------------- |
@@ -211,15 +245,19 @@ Runs on every push and pull request to `main`. The `frontend` job covers this pa
 
 ### `frontend-deploy.yml` - Vercel Deploy
 
-Triggers on push to `main` when `src/**`, `artifacts/deployed-addresses.json`, or the workflow file itself changes.
+Triggers on push to `main` when `src/**`, `artifacts/deployed-addresses.json`,
+or the workflow file itself changes.
 
-Pulls Vercel environment settings, builds with `vercel build --prod`, and deploys the prebuilt output via `vercel deploy --prebuilt --prod`.
+Pulls Vercel environment settings, builds with `vercel build --prod`, and
+deploys the prebuilt output via `vercel deploy --prebuilt --prod`.
 
-Requires `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` as repository secrets. See [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) for setup instructions.
+Requires `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` as repository
+secrets. See [docs/DEPLOYMENT.md](../docs/DEPLOYMENT.md) for setup instructions.
 
 ### `security.yml` - Dependency Audit
 
-The `frontend-dependencies` job runs `npm audit --omit=dev --audit-level=high` against `src/package-lock.json` separately from the root audit.
+The `frontend-dependencies` job runs `npm audit --omit=dev --audit-level=high`
+against `src/package-lock.json` separately from the root audit.
 
 [↑ Back to top](#table-of-contents)
 
@@ -322,7 +360,9 @@ After `npm run compile` from the repo root:
 | TypeChain typed wrappers | `artifacts/typechain-types/`                     |
 | Deployed addresses       | `artifacts/deployed-addresses.json`              |
 
-The frontend imports ABIs and the resolved address via `src/lib/abi.ts` and `src/lib/wagmi.ts`. The address is injected by `next.config.ts` at build time - no runtime fetch needed.
+The frontend imports ABIs and the resolved address via `src/lib/abi.ts` and
+`src/lib/wagmi.ts`. The address is injected by `next.config.ts` at build time -
+no runtime fetch needed.
 
 [↑ Back to top](#table-of-contents)
 
@@ -340,17 +380,17 @@ import { config } from "@/lib/wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-	const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(() => new QueryClient());
 
-	return (
-		<WagmiProvider config={config}>
-			<QueryClientProvider client={queryClient}>
-				<RainbowKitProvider theme={darkTheme({ accentColor: "#6366f1" })}>
-					{children}
-				</RainbowKitProvider>
-			</QueryClientProvider>
-		</WagmiProvider>
-	);
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider theme={darkTheme({ accentColor: "#6366f1" })}>
+          {children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
 }
 ```
 
@@ -363,19 +403,19 @@ import { TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 
 // Read escrow state
 const { data: escrow } = useReadContract({
-	address: TRUSTLEDGER_ADDRESS,
-	abi: TRUSTLEDGER_ABI,
-	functionName: "getContract",
-	args: [contractId],
+  address: TRUSTLEDGER_ADDRESS,
+  abi: TRUSTLEDGER_ABI,
+  functionName: "getContract",
+  args: [contractId],
 });
 
 // Write a transaction
 const { writeContract } = useWriteContract();
 writeContract({
-	address: TRUSTLEDGER_ADDRESS,
-	abi: TRUSTLEDGER_ABI,
-	functionName: "approveWork",
-	args: [contractId],
+  address: TRUSTLEDGER_ADDRESS,
+  abi: TRUSTLEDGER_ABI,
+  functionName: "approveWork",
+  args: [contractId],
 });
 ```
 
@@ -437,7 +477,8 @@ writeContract({
 
 </details>
 
-> Full event reference with indexed parameters → [docs/CONTRACTS.md](../docs/CONTRACTS.md)
+> Full event reference with indexed parameters →
+> [docs/CONTRACTS.md](../docs/CONTRACTS.md)
 
 [↑ Back to top](#table-of-contents)
 
@@ -445,17 +486,21 @@ writeContract({
 
 ## Security
 
-See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy,
+in-scope contracts, severity classification, and response timeline.
 
-**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+**Do not open public GitHub issues for security vulnerabilities.** Report
+privately via the contact in `SECURITY.md`.
 
-TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The
+codebase targets Ethereum Sepolia (testnet) and is under active development.
 
 ---
 
 ## License
 
-This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE)
+for full terms.
 
 ---
 
@@ -466,4 +511,8 @@ This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE)
 
 ---
 
-[↑ Back to top](#table-of-contents) &nbsp;·&nbsp; [← Root README](../README.md) &nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp; [Contracts API](../docs/CONTRACTS.md) &nbsp;·&nbsp; [Deployment](../docs/DEPLOYMENT.md) &nbsp;·&nbsp; [Contributing](../docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](../SECURITY.md)
+[↑ Back to top](#table-of-contents) &nbsp;·&nbsp; [← Root README](../README.md)
+&nbsp;·&nbsp; [Architecture](../docs/ARCHITECTURE.md) &nbsp;·&nbsp;
+[Contracts API](../docs/CONTRACTS.md) &nbsp;·&nbsp;
+[Deployment](../docs/DEPLOYMENT.md) &nbsp;·&nbsp;
+[Contributing](../docs/CONTRIBUTING.md) &nbsp;·&nbsp; [Security](../SECURITY.md)

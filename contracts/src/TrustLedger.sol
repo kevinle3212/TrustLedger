@@ -7,9 +7,9 @@ pragma solidity ^0.8.24;
 
 import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {AggregatorV3Interface} from "./interfaces/AggregatorV3Interface.sol";
 import {IArbitration} from "./interfaces/IArbitration.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
-import {AggregatorV3Interface} from "./interfaces/AggregatorV3Interface.sol";
 import {IReputationRegistry} from "./interfaces/IReputationRegistry.sol";
 
 // TrustLedger is the core escrow contract. It holds ETH (or ERC-20 tokens) between
@@ -33,7 +33,8 @@ import {IReputationRegistry} from "./interfaces/IReputationRegistry.sol";
 /// @notice Decentralized escrow contract for freelance agreements on Ethereum.
 ///         Funds are released on client approval, acceptance-window expiry, or an arbitration ruling.
 contract TrustLedger is ReentrancyGuard, Pausable {
-    // ─── Types ────────────────────────────────────────────────────────────────
+    // ─── Types
+    // ────────────────────────────────────────────────────────────────
 
     // An enum defines a finite set of named states. Under the hood Solidity stores
     // it as a uint8 (0, 1, 2 …). Using an enum instead of raw numbers makes the
@@ -61,47 +62,56 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // Slot 11: uint256 - USD value at creation from price feed
     // Slot 12: uint256 - previous contract ID (type(uint256).max = no predecessor)
     struct EscrowContract {
-        // ── Slot 0 (25/32 bytes used) ─────────────────────────────────────────
+        // ── Slot 0 (25/32 bytes used)
+        // ─────────────────────────────────────────
         address client; // who hired the freelancer; deposited the funds
         uint16 arbitrationFeeBps; // percentage of escrow kept as juror fee (basis points)
         uint16 holdBackBps; // percentage withheld until warranty expires (0 or 500-1500)
         Status status; // current lifecycle state (see enum above)
 
-        // ── Slot 1 (28/32 bytes used) ─────────────────────────────────────────
+        // ── Slot 1 (28/32 bytes used)
+        // ─────────────────────────────────────────
         address freelancer; // who does the work; receives payment
         uint64 warrantyDeadline; // set on approval: approval time + warrantyPeriod
 
-        // ── Slot 2 (32/32 bytes used) ─────────────────────────────────────────
+        // ── Slot 2 (32/32 bytes used)
+        // ─────────────────────────────────────────
         uint64 projectDeadline; // unix timestamp when the project is due
         uint64 acceptanceWindow; // how long the client has to review submitted work (≥ 48h)
         uint64 acceptanceDeadline; // set when proof is submitted: submission time + acceptanceWindow
         uint64 warrantyPeriod; // how long the warranty hold-back is locked
 
-        // ── Slots 3-5 ─────────────────────────────────────────────────────────
+        // ── Slots 3-5
+        // ─────────────────────────────────────────────────────────
         uint256 amount; // ETH (wei) or token units held in escrow
         uint256 holdBackAmount; // actual amount held back (computed from holdBackBps × amount)
         uint256 arbitrationId; // dispute ID in the Arbitration contract (set on dispute)
 
-        // ── Slots 6-9 (dynamic) ───────────────────────────────────────────────
+        // ── Slots 6-9 (dynamic)
+        // ───────────────────────────────────────────────
         bytes32 contractHash; // keccak256 of the off-chain contract document
         string contractURI; // IPFS link to the full document
         bytes32 proofOfWorkHash; // keccak256 of the deliverable; set when freelancer submits
         string proofOfWorkURI; // IPFS link to the deliverable
 
-        // ── Slot 10 (20/32 bytes used) ────────────────────────────────────────
+        // ── Slot 10 (20/32 bytes used)
+        // ────────────────────────────────────────
         address token; // ERC-20 token contract; address(0) = native ETH escrow
 
-        // ── Slot 11 ───────────────────────────────────────────────────────────
+        // ── Slot 11
+        // ───────────────────────────────────────────────────────────
         // ETH/USD at creation (8 Chainlink decimals); 0 if feed not set or ERC-20 escrow.
         uint256 usdValueAtCreation;
 
-        // ── Slot 12 ───────────────────────────────────────────────────────────
+        // ── Slot 12
+        // ───────────────────────────────────────────────────────────
         // Links this contract to a cancelled predecessor for amendment version history.
         // type(uint256).max = no predecessor (this is an original contract).
         uint256 previousContractId;
     }
 
-    // ─── Constants ────────────────────────────────────────────────────────────
+    // ─── Constants
+    // ────────────────────────────────────────────────────────────
 
     /// @notice Minimum time the client has to review submitted work (48 hours).
     uint256 public constant MIN_ACCEPTANCE_WINDOW = 48 hours;
@@ -129,7 +139,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         A completionPct ≤ 20 means the freelancer delivered clearly deficient work.
     uint256 public constant POOR_WORK_THRESHOLD = 20;
 
-    // ─── State ───────────────────────────────────────────────────────────────
+    // ─── State
+    // ───────────────────────────────────────────────────────────────
 
     // `immutable` is set once in the constructor and can never be changed.
     // SCREAMING_SNAKE_CASE is required by the `immutable-vars-naming` solhint rule.
@@ -160,7 +171,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     mapping(uint256 id => bool rated) private _clientRated;
     mapping(uint256 id => bool rated) private _freelancerRated;
 
-    // ─── Events ──────────────────────────────────────────────────────────────
+    // ─── Events
+    // ──────────────────────────────────────────────────────────────
 
     /// @notice Emitted when a new escrow contract is created.
     /// @param id         Contract identifier.
@@ -224,7 +236,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param previousId The cancelled contract ID being superseded.
     event ContractAmended(uint256 indexed newId, uint256 indexed previousId);
 
-    // ─── Errors ──────────────────────────────────────────────────────────────
+    // ─── Errors
+    // ──────────────────────────────────────────────────────────────
 
     /// @notice Caller is not the expected party for this action.
     error Unauthorized();
@@ -307,16 +320,20 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @notice The referenced previous contract is not CANCELLED, or the caller is not its client.
     error InvalidPreviousContract();
 
-    // ─── Constructor ─────────────────────────────────────────────────────────
+    // ─── Constructor
+    // ─────────────────────────────────────────────────────────
 
     /// @notice Deploys TrustLedger and binds it to an Arbitration contract.
     /// @param arbitration_ Address of the deployed Arbitration contract.
     constructor(address arbitration_) {
-        if (arbitration_ == address(0)) revert ZeroAddress();
+        if (arbitration_ == address(0)) {
+            revert ZeroAddress();
+        }
         ARBITRATION = IArbitration(arbitration_);
     }
 
-    // ─── One-time setters ─────────────────────────────────────────────────────
+    // ─── One-time setters
+    // ─────────────────────────────────────────────────────
     // These allow optional modules to be wired in after deployment without
     // introducing an owner/admin role. Each address can be set exactly once.
 
@@ -324,8 +341,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         Once set it cannot be changed. If never called, usdValueAtCreation = 0.
     /// @param feed_ Address of the AggregatorV3Interface price feed contract.
     function initPriceFeed(address feed_) external {
-        if (address(priceFeed) != address(0)) revert AlreadySet();
-        if (feed_ == address(0)) revert ZeroAddress();
+        if (address(priceFeed) != address(0)) {
+            revert AlreadySet();
+        }
+        if (feed_ == address(0)) {
+            revert ZeroAddress();
+        }
         priceFeed = AggregatorV3Interface(feed_);
     }
 
@@ -333,8 +354,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         Once set it cannot be changed. If never called, submitRating() is a no-op.
     /// @param registry_ Address of the ReputationRegistry contract.
     function initReputationRegistry(address registry_) external {
-        if (address(reputationRegistry) != address(0)) revert AlreadySet();
-        if (registry_ == address(0)) revert ZeroAddress();
+        if (address(reputationRegistry) != address(0)) {
+            revert AlreadySet();
+        }
+        if (registry_ == address(0)) {
+            revert ZeroAddress();
+        }
         reputationRegistry = IReputationRegistry(registry_);
     }
 
@@ -342,8 +367,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         Once set it cannot be changed. If never called, pause() and unpause() always revert.
     /// @param pauser_ Address authorized to pause and unpause new contract creation.
     function initPauser(address pauser_) external {
-        if (pauser != address(0)) revert AlreadySet();
-        if (pauser_ == address(0)) revert ZeroAddress();
+        if (pauser != address(0)) {
+            revert AlreadySet();
+        }
+        if (pauser_ == address(0)) {
+            revert ZeroAddress();
+        }
         pauser = pauser_;
     }
 
@@ -351,17 +380,22 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         All in-flight lifecycle functions (accept, submit, approve, dispute, claim) remain active
     ///         so that funds already in escrow can always exit.
     function pause() external {
-        if (msg.sender != pauser) revert NotPauser();
+        if (msg.sender != pauser) {
+            revert NotPauser();
+        }
         _pause();
     }
 
     /// @notice Unpause createContract, re-enabling new escrow creation.
     function unpause() external {
-        if (msg.sender != pauser) revert NotPauser();
+        if (msg.sender != pauser) {
+            revert NotPauser();
+        }
         _unpause();
     }
 
-    // ─── Client: create ───────────────────────────────────────────────────────
+    // ─── Client: create
+    // ───────────────────────────────────────────────────────
 
     /// @notice Create an escrow contract and lock funds. Emits {ContractCreated}.
     ///         For ETH escrow: set token = address(0), tokenAmount = 0, and send ETH as msg.value.
@@ -391,19 +425,28 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         uint64 warrantyPeriod,
         address token,
         uint256 tokenAmount
-    ) external payable whenNotPaused returns (uint256 id) {
-        if (contractHash == bytes32(0)) revert EmptyHash();
-        if (bytes(contractURI).length == 0) revert EmptyURI();
-        _validateCreateParams(
-            freelancer,
-            bufferFactor,
-            acceptanceWindow,
-            arbitrationFeeBps,
-            holdBackBps,
-            warrantyPeriod,
-            token,
-            tokenAmount
-        );
+    )
+        external
+        payable
+        whenNotPaused
+        returns (uint256 id)
+    {
+        if (contractHash == bytes32(0)) {
+            revert EmptyHash();
+        }
+        if (bytes(contractURI).length == 0) {
+            revert EmptyURI();
+        }
+        _validateCreateParams({
+            freelancer: freelancer,
+            bufferFactor: bufferFactor,
+            acceptanceWindow: acceptanceWindow,
+            arbitrationFeeBps: arbitrationFeeBps,
+            holdBackBps: holdBackBps,
+            warrantyPeriod: warrantyPeriod,
+            token: token,
+            tokenAmount: tokenAmount
+        });
 
         id = nextId;
         ++nextId;
@@ -412,38 +455,45 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         uint256 deadline = block.timestamp + (estimatedDuration * bufferFactor) / 1000;
         uint256 usdValue = token == address(0) ? _queryUsdValue(msg.value) : 0;
 
-        _storeEscrow(
-            id,
-            freelancer,
-            contractHash,
-            contractURI,
-            deadline,
-            acceptanceWindow,
-            arbitrationFeeBps,
-            holdBackBps,
-            warrantyPeriod,
-            token,
-            escrowAmount,
-            usdValue
-        );
+        _storeEscrow({
+            id: id,
+            freelancer: freelancer,
+            contractHash: contractHash,
+            contractURI: contractURI,
+            deadline: deadline,
+            acceptanceWindow: acceptanceWindow,
+            arbitrationFeeBps: arbitrationFeeBps,
+            holdBackBps: holdBackBps,
+            warrantyPeriod: warrantyPeriod,
+            token: token,
+            escrowAmount: escrowAmount,
+            usdValue: usdValue
+        });
 
         if (token != address(0)) {
             bool ok = IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
-            if (!ok) revert TokenTransferFailed();
+            if (!ok) {
+                revert TokenTransferFailed();
+            }
         }
 
         emit ContractCreated(id, msg.sender, freelancer, escrowAmount);
     }
 
-    // ─── Client: cancel pending ───────────────────────────────────────────────
+    // ─── Client: cancel pending
+    // ───────────────────────────────────────────────
 
     /// @notice Client cancels a PENDING contract before the freelancer responds.
     ///         Returns all escrowed funds to the client. Emits {ContractCancelled}.
     /// @param id The escrow contract ID.
     function cancelPending(uint256 id) external nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.client) revert Unauthorized();
-        if (c.status != Status.PENDING) revert InvalidStatus(c.status);
+        if (msg.sender != c.client) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.PENDING) {
+            revert InvalidStatus(c.status);
+        }
 
         c.status = Status.CANCELLED;
 
@@ -455,7 +505,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit ContractCancelled(id);
     }
 
-    // ─── Client: amendment linking ────────────────────────────────────────────
+    // ─── Client: amendment linking
+    // ────────────────────────────────────────────
 
     /// @notice Links a PENDING replacement contract to its CANCELLED predecessor,
     ///         establishing an on-chain amendment version history. Emits {ContractAmended}.
@@ -474,25 +525,42 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     function linkAmendment(uint256 newId, uint256 previousId) external {
         EscrowContract storage oldC = _contracts[previousId];
         EscrowContract storage newC = _contracts[newId];
-        if (msg.sender != oldC.client) revert InvalidPreviousContract();
-        if (msg.sender != newC.client) revert Unauthorized();
-        if (oldC.status != Status.CANCELLED) revert InvalidPreviousContract();
-        if (newC.status != Status.PENDING) revert InvalidStatus(newC.status);
-        if (newC.previousContractId != type(uint256).max) revert AlreadySet();
+        if (msg.sender != oldC.client) {
+            revert InvalidPreviousContract();
+        }
+        if (msg.sender != newC.client) {
+            revert Unauthorized();
+        }
+        if (oldC.status != Status.CANCELLED) {
+            revert InvalidPreviousContract();
+        }
+        if (newC.status != Status.PENDING) {
+            revert InvalidStatus(newC.status);
+        }
+        if (newC.previousContractId != type(uint256).max) {
+            revert AlreadySet();
+        }
 
         newC.previousContractId = previousId;
         emit ContractAmended(newId, previousId);
     }
 
-    // ─── Client: approve / dispute ────────────────────────────────────────────
+    // ─── Client: approve / dispute
+    // ────────────────────────────────────────────
 
     /// @notice Client approves submitted work and releases funds. Emits {WorkApproved} and {FundsReleased}.
     /// @param id The escrow contract ID.
     function approveWork(uint256 id) external nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.client) revert Unauthorized();
-        if (c.status != Status.SUBMITTED) revert InvalidStatus(c.status);
-        if (block.timestamp > c.acceptanceDeadline) revert WindowElapsed();
+        if (msg.sender != c.client) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.SUBMITTED) {
+            revert InvalidStatus(c.status);
+        }
+        if (block.timestamp > c.acceptanceDeadline) {
+            revert WindowElapsed();
+        }
 
         c.status = Status.APPROVED;
         _releaseToFreelancer(id, c);
@@ -506,18 +574,28 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param id The escrow contract ID.
     function disputeWork(uint256 id) external payable nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.client) revert Unauthorized();
-        if (c.status != Status.SUBMITTED) revert InvalidStatus(c.status);
-        if (block.timestamp > c.acceptanceDeadline) revert WindowElapsed();
+        if (msg.sender != c.client) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.SUBMITTED) {
+            revert InvalidStatus(c.status);
+        }
+        if (block.timestamp > c.acceptanceDeadline) {
+            revert WindowElapsed();
+        }
 
         uint256 feePool;
         if (c.token == address(0)) {
             // ETH escrow: fee pool is carved out of the held ETH.
-            if (msg.value != 0) revert InvalidTokenParams(); // no ETH should accompany ETH-escrow disputes
+            if (msg.value != 0) {
+                revert InvalidTokenParams(); // no ETH should accompany ETH-escrow disputes
+            }
             feePool = (c.amount * c.arbitrationFeeBps) / BPS_DENOMINATOR;
         } else {
             // ERC-20 escrow: client sends ETH separately to fund jurors.
-            if (msg.value == 0) revert InsufficientFunds();
+            if (msg.value == 0) {
+                revert InsufficientFunds();
+            }
             feePool = msg.value;
         }
 
@@ -530,15 +608,22 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit WorkDisputed(id, arbId);
     }
 
-    // ─── Client: reclaim after deadline miss ──────────────────────────────────
+    // ─── Client: reclaim after deadline miss
+    // ──────────────────────────────────
 
     /// @notice Client reclaims escrow after freelancer missed the project deadline. Emits {ContractCancelled}.
     /// @param id The escrow contract ID.
     function claimAfterDeadlineMiss(uint256 id) external nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.client) revert Unauthorized();
-        if (c.status != Status.ACTIVE) revert InvalidStatus(c.status);
-        if (block.timestamp < uint256(c.projectDeadline) + 1) revert DeadlineNotElapsed();
+        if (msg.sender != c.client) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.ACTIVE) {
+            revert InvalidStatus(c.status);
+        }
+        if (block.timestamp < uint256(c.projectDeadline) + 1) {
+            revert DeadlineNotElapsed();
+        }
 
         c.status = Status.CANCELLED;
         uint256 amount = c.amount;
@@ -548,7 +633,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit ContractCancelled(id);
     }
 
-    // ─── Freelancer: accept / reject ──────────────────────────────────────────
+    // ─── Freelancer: accept / reject
+    // ──────────────────────────────────────────
 
     /// @notice Freelancer accepts the contract by providing a wallet signature. Emits {ContractAccepted}.
     ///         The signature must be: eth_sign(keccak256(abi.encodePacked(id, freelancerAddress))).
@@ -559,24 +645,38 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param s  Signature s component.
     function acceptContract(uint256 id, uint8 v, bytes32 r, bytes32 s) external {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.freelancer) revert Unauthorized();
-        if (c.status != Status.PENDING) revert InvalidStatus(c.status);
-        if (block.timestamp > c.projectDeadline) revert DeadlineElapsed();
+        if (msg.sender != c.freelancer) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.PENDING) {
+            revert InvalidStatus(c.status);
+        }
+        if (block.timestamp > c.projectDeadline) {
+            revert DeadlineElapsed();
+        }
 
         // Reconstruct the message the freelancer should have signed.
         // innerHash binds the signature to this specific contract ID and freelancer address,
         // preventing replay across different contracts or different wallets.
+        // Rationale: keep the high-level keccak256 over an inline-assembly variant. This is
+        // security-critical EIP-191 signature verification; Solidity-level hashing is far more
+        // auditable and the marginal gas saving is not worth the assembly risk here.
+        // forge-lint: disable-next-line(asm-keccak256)
         bytes32 innerHash = keccak256(abi.encodePacked(id, c.freelancer));
 
         // EIP-191 prefix makes this compatible with eth_sign / personal_sign in wallets.
         // The "\x19Ethereum Signed Message:\n32" prefix prevents signed data from being
         // misused as a raw transaction.
+        // Rationale: see above — auditability of signature hashing outweighs the gas micro-opt.
+        // forge-lint: disable-next-line(asm-keccak256)
         bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
 
         // ecrecover returns the address of the private key holder who signed ethSignedHash.
         // If the sig is invalid, ecrecover returns address(0).
         address signer = ecrecover(ethSignedHash, v, r, s);
-        if (signer != c.freelancer) revert InvalidSignature();
+        if (signer != c.freelancer) {
+            revert InvalidSignature();
+        }
 
         c.status = Status.ACTIVE;
         emit ContractAccepted(id);
@@ -586,8 +686,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param id The escrow contract ID.
     function rejectContract(uint256 id) external nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.freelancer) revert Unauthorized();
-        if (c.status != Status.PENDING) revert InvalidStatus(c.status);
+        if (msg.sender != c.freelancer) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.PENDING) {
+            revert InvalidStatus(c.status);
+        }
 
         c.status = Status.CANCELLED;
         uint256 amount = c.amount;
@@ -597,7 +701,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit ContractRejected(id);
     }
 
-    // ─── Freelancer: submit proof of work ────────────────────────────────────
+    // ─── Freelancer: submit proof of work
+    // ────────────────────────────────────
 
     /// @notice Freelancer submits proof of work, starting the acceptance window. Emits {ProofSubmitted}.
     /// @param id      The escrow contract ID.
@@ -605,11 +710,21 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param powURI  IPFS URI pointing to the deliverable.
     function submitProofOfWork(uint256 id, bytes32 powHash, string calldata powURI) external {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.freelancer) revert Unauthorized();
-        if (c.status != Status.ACTIVE) revert InvalidStatus(c.status);
-        if (block.timestamp > c.projectDeadline) revert DeadlineElapsed();
-        if (powHash == bytes32(0)) revert EmptyHash();
-        if (bytes(powURI).length == 0) revert EmptyURI();
+        if (msg.sender != c.freelancer) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.ACTIVE) {
+            revert InvalidStatus(c.status);
+        }
+        if (block.timestamp > c.projectDeadline) {
+            revert DeadlineElapsed();
+        }
+        if (powHash == bytes32(0)) {
+            revert EmptyHash();
+        }
+        if (bytes(powURI).length == 0) {
+            revert EmptyURI();
+        }
 
         c.proofOfWorkHash = powHash;
         c.proofOfWorkURI = powURI;
@@ -619,16 +734,23 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit ProofSubmitted(id, powHash, powURI);
     }
 
-    // ─── Freelancer: claim after acceptance window ────────────────────────────
+    // ─── Freelancer: claim after acceptance window
+    // ────────────────────────────
 
     /// @notice Freelancer claims payment after the acceptance window elapses.
     ///         Emits {WorkApproved} and {FundsReleased}.
     /// @param id The escrow contract ID.
     function claimAfterAcceptanceWindow(uint256 id) external nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.freelancer) revert Unauthorized();
-        if (c.status != Status.SUBMITTED) revert InvalidStatus(c.status);
-        if (block.timestamp < uint256(c.acceptanceDeadline) + 1) revert WindowNotElapsed();
+        if (msg.sender != c.freelancer) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.SUBMITTED) {
+            revert InvalidStatus(c.status);
+        }
+        if (block.timestamp < uint256(c.acceptanceDeadline) + 1) {
+            revert WindowNotElapsed();
+        }
 
         c.status = Status.APPROVED;
         _releaseToFreelancer(id, c);
@@ -636,17 +758,26 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit WorkApproved(id);
     }
 
-    // ─── Freelancer: claim warranty hold-back ─────────────────────────────────
+    // ─── Freelancer: claim warranty hold-back
+    // ─────────────────────────────────
 
     /// @notice Freelancer claims the warranty hold-back after the warranty period expires.
     ///         Emits {WarrantyFundsClaimed}.
     /// @param id The escrow contract ID.
     function claimWarrantyFunds(uint256 id) external nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.freelancer) revert Unauthorized();
-        if (c.status != Status.APPROVED) revert InvalidStatus(c.status);
-        if (c.holdBackAmount == 0) revert InvalidHoldBack();
-        if (block.timestamp < uint256(c.warrantyDeadline) + 1) revert WindowNotElapsed();
+        if (msg.sender != c.freelancer) {
+            revert Unauthorized();
+        }
+        if (c.status != Status.APPROVED) {
+            revert InvalidStatus(c.status);
+        }
+        if (c.holdBackAmount == 0) {
+            revert InvalidHoldBack();
+        }
+        if (block.timestamp < uint256(c.warrantyDeadline) + 1) {
+            revert WindowNotElapsed();
+        }
 
         uint256 amount = c.holdBackAmount;
         c.holdBackAmount = 0;
@@ -655,7 +786,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit WarrantyFundsClaimed(id, c.freelancer, amount);
     }
 
-    // ─── Bidirectional rating ─────────────────────────────────────────────────
+    // ─── Bidirectional rating
+    // ─────────────────────────────────────────────────
 
     /// @notice Submit a rating for the counterparty after the contract finishes.
     ///         Clients rate freelancers; freelancers rate clients. Each may rate once.
@@ -663,18 +795,28 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param id    The escrow contract ID.
     /// @param score Rating in [1, 100] (1 = poor, 100 = excellent).
     function submitRating(uint256 id, uint8 score) external {
-        if (address(reputationRegistry) == address(0)) return; // registry not yet configured
+        if (address(reputationRegistry) == address(0)) {
+            return; // registry not yet configured
+        }
 
         EscrowContract storage c = _contracts[id];
-        if (c.status != Status.APPROVED && c.status != Status.RESOLVED) revert ContractNotFinished();
-        if (score == 0 || score > 100) revert RatingOutOfRange();
+        if (c.status != Status.APPROVED && c.status != Status.RESOLVED) {
+            revert ContractNotFinished();
+        }
+        if (score == 0 || score > 100) {
+            revert RatingOutOfRange();
+        }
 
         if (msg.sender == c.client) {
-            if (_clientRated[id]) revert RatingAlreadySubmitted();
+            if (_clientRated[id]) {
+                revert RatingAlreadySubmitted();
+            }
             _clientRated[id] = true;
             reputationRegistry.rate(c.freelancer, score); // client rates freelancer
         } else if (msg.sender == c.freelancer) {
-            if (_freelancerRated[id]) revert RatingAlreadySubmitted();
+            if (_freelancerRated[id]) {
+                revert RatingAlreadySubmitted();
+            }
             _freelancerRated[id] = true;
             reputationRegistry.rate(c.client, score); // freelancer rates client
         } else {
@@ -684,7 +826,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit RatingSubmitted(id, msg.sender, score);
     }
 
-    // ─── Arbitration callback ─────────────────────────────────────────────────
+    // ─── Arbitration callback
+    // ─────────────────────────────────────────────────
 
     /// @notice Execute a juror ruling and distribute escrow funds. Called only by Arbitration.
     ///         Emits {RulingExecuted}.
@@ -704,11 +847,17 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param id            The escrow contract ID.
     /// @param completionPct Juror-determined completion percentage (0 = client wins, 100 = freelancer wins).
     function executeRuling(uint256 id, uint256 completionPct) external nonReentrant {
-        if (msg.sender != address(ARBITRATION)) revert Unauthorized();
-        if (completionPct > 100) revert CompletionPctOutOfRange();
+        if (msg.sender != address(ARBITRATION)) {
+            revert Unauthorized();
+        }
+        if (completionPct > 100) {
+            revert CompletionPctOutOfRange();
+        }
 
         EscrowContract storage c = _contracts[id];
-        if (c.status != Status.DISPUTED) revert InvalidStatus(c.status);
+        if (c.status != Status.DISPUTED) {
+            revert InvalidStatus(c.status);
+        }
 
         c.status = Status.RESOLVED;
 
@@ -731,7 +880,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
             uint256 freelancerFeeBurden = (feePool * completionPct) / 100;
             // Always non-negative: feePool ≤ 50% × amount < (2/3) × amount, so rawPay ≥ freelancerFeeBurden.
             freelancerPay = rawPay - freelancerFeeBurden;
-            if (freelancerPay > remaining) freelancerPay = remaining;
+            if (freelancerPay > remaining) {
+                freelancerPay = remaining;
+            }
         }
 
         uint256 clientRefund = remaining - freelancerPay;
@@ -760,16 +911,18 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         }
     }
 
-    // ─── View ─────────────────────────────────────────────────────────────────
+    // ─── View
+    // ─────────────────────────────────────────────────────────────────
 
     /// @notice Returns the full state of an escrow contract.
     /// @param id The escrow contract ID.
-    /// @return   A memory copy of the EscrowContract struct.
-    function getContract(uint256 id) external view returns (EscrowContract memory) {
+    /// @return result A memory copy of the EscrowContract struct.
+    function getContract(uint256 id) external view returns (EscrowContract memory result) {
         return _contracts[id];
     }
 
-    // ─── Internal ─────────────────────────────────────────────────────────────
+    // ─── Internal
+    // ─────────────────────────────────────────────────────────────
 
     // Validation helper extracted from createContract to keep the function under the line limit.
     function _validateCreateParams(
@@ -781,23 +934,50 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         uint64 warrantyPeriod,
         address token,
         uint256 tokenAmount
-    ) internal view {
-        if (freelancer == address(0)) revert ZeroAddress();
-        if (freelancer == msg.sender) revert SelfContract();
-        if (bufferFactor < MIN_BUFFER_FACTOR) revert InvalidBufferFactor();
-        if (acceptanceWindow < MIN_ACCEPTANCE_WINDOW) revert InvalidAcceptanceWindow();
-        if (arbitrationFeeBps == 0 || arbitrationFeeBps > MAX_ARBITRATION_FEE_BPS) revert InvalidArbitrationFee();
+    )
+        internal
+        view
+    {
+        if (freelancer == address(0)) {
+            revert ZeroAddress();
+        }
+        if (freelancer == msg.sender) {
+            revert SelfContract();
+        }
+        if (bufferFactor < MIN_BUFFER_FACTOR) {
+            revert InvalidBufferFactor();
+        }
+        if (acceptanceWindow < MIN_ACCEPTANCE_WINDOW) {
+            revert InvalidAcceptanceWindow();
+        }
+        if (arbitrationFeeBps == 0 || arbitrationFeeBps > MAX_ARBITRATION_FEE_BPS) {
+            revert InvalidArbitrationFee();
+        }
         bool hbOutOfRange = holdBackBps < MIN_HOLD_BACK_BPS || holdBackBps > MAX_HOLD_BACK_BPS;
-        if (holdBackBps != 0 && hbOutOfRange) revert InvalidHoldBack();
-        if (holdBackBps != 0 && warrantyPeriod == 0) revert InvalidWarrantyPeriod();
-        if (holdBackBps == 0 && warrantyPeriod != 0) revert InvalidWarrantyPeriod();
+        if (holdBackBps != 0 && hbOutOfRange) {
+            revert InvalidHoldBack();
+        }
+        if (holdBackBps != 0 && warrantyPeriod == 0) {
+            revert InvalidWarrantyPeriod();
+        }
+        if (holdBackBps == 0 && warrantyPeriod != 0) {
+            revert InvalidWarrantyPeriod();
+        }
         // Exactly one of ETH or ERC-20 must be funded; the other must be zero.
         if (token == address(0)) {
-            if (msg.value == 0) revert InsufficientFunds(); // ETH escrow needs ETH
-            if (tokenAmount != 0) revert InvalidTokenParams(); // must not specify token amount for ETH escrow
+            if (msg.value == 0) {
+                revert InsufficientFunds(); // ETH escrow needs ETH
+            }
+            if (tokenAmount != 0) {
+                revert InvalidTokenParams(); // must not specify token amount for ETH escrow
+            }
         } else {
-            if (msg.value != 0) revert InvalidTokenParams(); // must not send ETH for token escrow
-            if (tokenAmount == 0) revert InsufficientFunds(); // token escrow needs tokens
+            if (msg.value != 0) {
+                revert InvalidTokenParams(); // must not send ETH for token escrow
+            }
+            if (tokenAmount == 0) {
+                revert InsufficientFunds(); // token escrow needs tokens
+            }
         }
     }
 
@@ -815,7 +995,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         address token,
         uint256 escrowAmount,
         uint256 usdValue
-    ) internal {
+    )
+        internal
+    {
         // forge-lint: disable-next-line(unsafe-typecast)
         uint64 dl = uint64(deadline);
         // forge-lint: disable-next-line(unsafe-typecast)
@@ -870,22 +1052,30 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     function _sendFunds(EscrowContract storage c, address to, uint256 amount) internal {
         if (c.token == address(0)) {
             (bool ok,) = to.call{value: amount}("");
-            if (!ok) revert EthTransferFailed();
+            if (!ok) {
+                revert EthTransferFailed();
+            }
         } else {
             bool ok = IERC20(c.token).transfer(to, amount);
-            if (!ok) revert TokenTransferFailed();
+            if (!ok) {
+                revert TokenTransferFailed();
+            }
         }
     }
 
     // Queries the Chainlink ETH/USD price feed and returns the USD value of `ethAmount`.
     // Returns 0 if the feed is not configured or returns an invalid (≤ 0) price.
     // Result is in 8 decimal places (same as Chainlink USD feeds): $1 = 1e8.
-    function _queryUsdValue(uint256 ethAmount) internal view returns (uint256) {
-        if (address(priceFeed) == address(0)) return 0;
+    function _queryUsdValue(uint256 ethAmount) internal view returns (uint256 result) {
+        if (address(priceFeed) == address(0)) {
+            return 0;
+        }
         // slither-disable-next-line unused-return
         (, int256 price,, uint256 updatedAt,) = priceFeed.latestRoundData();
         // Reject stale or invalid prices (updatedAt == 0 means the round is not complete).
-        if (price < 1 || updatedAt == 0) return 0;
+        if (price < 1 || updatedAt == 0) {
+            return 0;
+        }
         // ethAmount is in wei (1 ETH = 1e18). price is in 8 decimals. Dividing by 1e18 gives USD.
         // The `price < 1` guard above guarantees price is positive, so the int256->uint256 cast cannot wrap.
         // forge-lint: disable-next-line(unsafe-typecast)

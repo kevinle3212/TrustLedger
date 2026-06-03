@@ -6,9 +6,9 @@ Reusable assets for demoing TrustLedger live.
 
 `demo/sample-contract.pdf` is a dummy freelance service agreement you can upload
 as the **Contract Document** when creating an escrow. On creation, TrustLedger
-stores the file's `keccak256` hash on-chain (`contractHash`) and pins the file to
-IPFS (`contractURI`). Any later edit to the file changes the hash and fails the
-on-chain match — demonstrating on-chain proof of agreement.
+stores the file's `keccak256` hash on-chain (`contractHash`) and pins the file
+to IPFS (`contractURI`). Any later edit to the file changes the hash and fails
+the on-chain match — demonstrating on-chain proof of agreement.
 
 - Fictional parties and values; **not a legally binding contract**.
 - Terms mirror the protocol: 1.00 ETH escrow, 5% arbitration fee, 10%/30-day

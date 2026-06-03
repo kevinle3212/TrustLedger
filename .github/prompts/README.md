@@ -1,8 +1,10 @@
 # GitHub Models prompts
 
-`.prompt.yml` files for [GitHub Models](https://github.com/marketplace/models). Open in the Models playground or run via CI.
+`.prompt.yml` files for [GitHub Models](https://github.com/marketplace/models).
+Open in the Models playground or run via CI.
 
-See [docs/GITHUB_MODELS.md](../../docs/GITHUB_MODELS.md) for setup, Python examples, and workflow details.
+See [docs/GITHUB_MODELS.md](../../docs/GITHUB_MODELS.md) for setup, Python
+examples, and workflow details.
 
 | Prompt file                   | Capability tested                  |
 | ----------------------------- | ---------------------------------- |
