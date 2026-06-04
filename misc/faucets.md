@@ -18,7 +18,8 @@ Quick reference for getting test ETH on Ethereum Sepolia (chain ID 11155111).
 
 ## Useful RPC endpoints (public, no key required)
 
-These are rate-limited and unsuitable for scripts — use Alchemy/Infura for `SEPOLIA_RPC_URL`.
+These are rate-limited and unsuitable for scripts — use Alchemy/Infura for
+`SEPOLIA_RPC_URL`.
 
 ```text
 https://rpc.sepolia.org

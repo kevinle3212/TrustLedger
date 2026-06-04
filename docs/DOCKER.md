@@ -1,8 +1,15 @@
 # Docker Guide
 
-TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` that lets you run demos, start a local chain for MetaMask, and execute the full test suite - all without installing Node.js or Foundry on your machine.
+TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml`
+that lets you run demos, start a local chain for MetaMask, and execute the full
+test suite - all without installing Node.js or Foundry on your machine.
 
-> **Scope:** Docker covers the contracts and Hardhat environment only. The Next.js frontend (`src/`) does not need Docker - run it directly with `npm run dev:frontend` (from `src/`). See [`src/README.md`](../src/README.md) for frontend setup. GitHub Models prompts run via `npm run models:*` on the host or in [`.github/workflows/github-models.yml`](../.github/workflows/github-models.yml) - see [GITHUB_MODELS.md](GITHUB_MODELS.md).
+> **Scope:** Docker covers the contracts and Hardhat environment only. The
+> Next.js frontend (`src/`) does not need Docker - run it directly with
+> `npm run dev:frontend` (from `src/`). See [`src/README.md`](../src/README.md)
+> for frontend setup. GitHub Models prompts run via `npm run models:*` on the
+> host or in [`github-models.yml`](../.github/workflows/github-models.yml) - see
+> [GITHUB_MODELS.md](GITHUB_MODELS.md).
 
 ---
 
@@ -25,7 +32,8 @@ TrustLedger ships with a multi-stage Docker image and a `docker-compose.yml` tha
 | Docker Desktop | ≥ 4.x   | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) |
 | Git            | Any     | [git-scm.com](https://git-scm.com)                                                    |
 
-Docker Desktop includes both the Docker daemon and the `docker compose` CLI. No separate `docker-compose` (v1) install is needed.
+Docker Desktop includes both the Docker daemon and the `docker compose` CLI. No
+separate `docker-compose` (v1) install is needed.
 
 Verify your installation:
 
@@ -47,7 +55,8 @@ cd TrustLedger
 
 ### 2. Initialize Git Submodules
 
-The Foundry dependencies (`forge-std` and `openzeppelin-contracts`) are tracked as git submodules in `contracts/lib/`. This step populates those directories:
+The Foundry dependencies (`forge-std` and `openzeppelin-contracts`) are tracked
+as git submodules in `contracts/lib/`. This step populates those directories:
 
 ```bash
 git submodule update --init --recursive
@@ -63,19 +72,23 @@ docker compose build
 
 This takes approximately 2-3 minutes the first time. It:
 
-1. Pulls `node:22-bookworm-slim` (Node.js runtime) and `ghcr.io/foundry-rs/foundry` (Forge, Cast, Anvil binaries).
+1. Pulls `node:22-bookworm-slim` (Node.js runtime) and
+   `ghcr.io/foundry-rs/foundry` (Forge, Cast, Anvil binaries).
 2. Copies the Foundry binaries into the Node image.
 3. Runs `npm ci` to install all Node dependencies.
 4. Runs `npm run compile` (Hardhat compile + TypeChain type generation).
 5. Runs `forge build` (Foundry compile + cache).
 
-Subsequent builds are fast because Docker caches each layer. A layer is only rebuilt when its inputs change (e.g., a new package in `package.json` or a contract source edit).
+Subsequent builds are fast because Docker caches each layer. A layer is only
+rebuilt when its inputs change (e.g., a new package in `package.json` or a
+contract source edit).
 
 ---
 
 ## Services
 
-Four services are defined in `docker-compose.yml`. All of them use the same image.
+Four services are defined in `docker-compose.yml`. All of them use the same
+image.
 
 ### `demo-good` - Happy path demo
 
@@ -83,14 +96,16 @@ Four services are defined in `docker-compose.yml`. All of them use the same imag
 docker compose up demo-good
 ```
 
-Starts the Hardhat node, deploys all three contracts, then runs the happy-path demo:
+Starts the Hardhat node, deploys all three contracts, then runs the happy-path
+demo:
 
 1. Client deposits 1 ETH into escrow.
 2. Freelancer signs acceptance (ECDSA wallet binding).
 3. Freelancer submits proof of work (IPFS hash).
 4. Client approves → **1 ETH released to freelancer.**
 
-After the demo completes, the node stays running at `http://localhost:8545` so you can inspect chain state. Press `Ctrl+C` to stop.
+After the demo completes, the node stays running at `http://localhost:8545` so
+you can inspect chain state. Press `Ctrl+C` to stop.
 
 ### `demo-bad` - Dispute flow demo
 
@@ -113,7 +128,8 @@ Starts the node, deploys, then runs the dispute-flow demo:
 11. 72-hour appeal window elapses (EVM time-travel).
 12. Ruling executed → **~0.258 ETH released to freelancer.**
 
-The entire flow completes in seconds because `evm_increaseTime` is used to skip lock and voting windows.
+The entire flow completes in seconds because `evm_increaseTime` is used to skip
+lock and voting windows.
 
 ### `demo-jurors` - Juror reputation system demo
 
@@ -121,16 +137,19 @@ The entire flow completes in seconds because `evm_increaseTime` is used to skip 
 docker compose up demo-jurors
 ```
 
-Starts the node, deploys, then demonstrates the juror reputation and slashing system:
+Starts the node, deploys, then demonstrates the juror reputation and slashing
+system:
 
 1. Three jurors register with different stakes (0.1, 0.2, 0.3 ETH).
 2. Baseline reputation table printed (all start at 100).
 3. 7-day stake lock elapses (EVM time-travel) - all 3 become eligible.
 4. Client creates a 1 ETH escrow; freelancer accepts and submits proof.
-5. Client disputes; J1 and J2 commit **70%** (majority), J3 commits **20%** (minority).
+5. Client disputes; J1 and J2 commit **70%** (majority), J3 commits **20%**
+   (minority).
 6. Reveal phase: all votes revealed.
 7. Dispute finalized - median ruling is 70%.
-8. J3's deviation (50 pct-points from median) exceeds the severe threshold → **20% stake slash, −10 reputation**.
+8. J3's deviation (50 pct-points from median) exceeds the severe threshold →
+   **20% stake slash, −10 reputation**.
 9. Final reputation table printed with before/after diff for each juror.
 
 ### `demo-stablecoin` - ERC-20 escrow and reputation demo
@@ -139,18 +158,23 @@ Starts the node, deploys, then demonstrates the juror reputation and slashing sy
 docker compose up demo-stablecoin
 ```
 
-Starts the node, deploys (including `ReputationRegistry`), then runs `scripts/demo/demo-stablecoin.ts`:
+Starts the node, deploys (including `ReputationRegistry`), then runs
+`scripts/demo/demo-stablecoin.ts`:
 
 1. Deploys a `MockERC20` stablecoin and mints tokens to the client.
 2. Gas benchmark: `createContract` with ETH vs ERC-20 escrow.
 3. Full happy path on token escrow (accept → submit → approve).
 4. Both parties call `submitRating`; scores read back from `ReputationRegistry`.
 
-On L2 networks, stablecoin escrows avoid ETH price exposure while keeping similar per-tx gas costs.
+On L2 networks, stablecoin escrows avoid ETH price exposure while keeping
+similar per-tx gas costs.
 
 ### Interactive scenario runner (local only)
 
-Docker covers the four scripted demos above. For all seven interactive options (five dispute outcomes plus juror and stablecoin demos), use the runner on your local machine. After each scenario completes it loops back to the menu - press `Ctrl+C` to exit:
+Docker covers the four scripted demos above. For all seven interactive options
+(five dispute outcomes plus juror and stablecoin demos), use the runner on your
+local machine. After each scenario completes it loops back to the menu - press
+`Ctrl+C` to exit:
 
 ```bash
 # Interactive menu - type 1-7 at the prompt
@@ -166,7 +190,9 @@ npm run demo:run
 ./scripts/run-demo.sh 7   # Stablecoin escrow demo (same flow as demo-stablecoin)
 ```
 
-The runner auto-starts the Hardhat node and deploys contracts if they are not already running. See [CONTRIBUTING.md](./CONTRIBUTING.md#case-scenarios) for the full scenario table.
+The runner auto-starts the Hardhat node and deploys contracts if they are not
+already running. See [CONTRIBUTING.md](./CONTRIBUTING.md#case-scenarios) for the
+full scenario table.
 
 ### `node` - Local chain only
 
@@ -174,9 +200,12 @@ The runner auto-starts the Hardhat node and deploys contracts if they are not al
 docker compose up node
 ```
 
-Starts the Hardhat node and keeps it running at `http://localhost:8545` (chain ID 31337). No contracts are deployed. Use this service when you want to deploy and interact manually via MetaMask, Remix IDE, or your own scripts.
+Starts the Hardhat node and keeps it running at `http://localhost:8545` (chain
+ID 31337). No contracts are deployed. Use this service when you want to deploy
+and interact manually via MetaMask, Remix IDE, or your own scripts.
 
-Hardhat prints 20 pre-funded test accounts and their private keys on startup. Each account starts with 10,000 ETH - no faucet needed.
+Hardhat prints 20 pre-funded test accounts and their private keys on startup.
+Each account starts with 10,000 ETH - no faucet needed.
 
 ### `test` - Full test suite
 
@@ -192,13 +221,16 @@ Runs all tests inside the container and exits when done:
 - 11 Foundry unit tests (`ReputationRegistryTest`)
 - 7 Foundry fuzz tests (`PayoutFuzz`, 10,000 runs each)
 
-Fork integration tests (`FullLifecycleFork`) are skipped inside Docker because no `FORK_URL` is set in the default environment. To run them, pass the variable explicitly:
+Fork integration tests (`FullLifecycleFork`) are skipped inside Docker because
+no `FORK_URL` is set in the default environment. To run them, pass the variable
+explicitly:
 
 ```bash
 docker compose run -e FORK_URL=<your-rpc-url> test bash -c "cd contracts && forge test --match-contract FullLifecycleFork -vvv"
 ```
 
-Note: `docker compose run` (not `up`) is used here because `test` is a one-shot job that should exit when finished, not restart.
+Note: `docker compose run` (not `up`) is used here because `test` is a one-shot
+job that should exit when finished, not restart.
 
 ---
 
@@ -249,7 +281,9 @@ docker compose run test bash -c "cd contracts && forge test --gas-report"
 
 #### `TrustLedger.test.ts` - Hardhat integration tests (146 tests)
 
-End-to-end TypeScript tests that deploy all contracts to a live Hardhat node and drive them through full lifecycle flows using ethers.js and TypeChain-generated types. Balance diffs are verified at each payout step.
+End-to-end TypeScript tests that deploy all contracts to a live Hardhat node and
+drive them through full lifecycle flows using ethers.js and TypeChain-generated
+types. Balance diffs are verified at each payout step.
 
 | Group                  | What it covers                                                                                     |
 | ---------------------- | -------------------------------------------------------------------------------------------------- |
@@ -272,7 +306,8 @@ End-to-end TypeScript tests that deploy all contracts to a live Hardhat node and
 
 #### `TrustLedgerTest.t.sol` - Foundry unit tests (33 tests)
 
-Solidity-native tests targeting `TrustLedger.sol` using Foundry `vm` cheatcodes for time travel, address pranking, and revert matching.
+Solidity-native tests targeting `TrustLedger.sol` using Foundry `vm` cheatcodes
+for time travel, address pranking, and revert matching.
 
 | Group              | What it covers                                                                                                         |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
@@ -286,7 +321,8 @@ Solidity-native tests targeting `TrustLedger.sol` using Foundry `vm` cheatcodes 
 
 #### `JurorRegistryTest.t.sol` - Foundry unit tests (22 tests)
 
-Tests `JurorRegistry.sol` - the staking and eligibility contract that manages the juror pool.
+Tests `JurorRegistry.sol` - the staking and eligibility contract that manages
+the juror pool.
 
 | Group         | What it covers                                                                                         |
 | ------------- | ------------------------------------------------------------------------------------------------------ |
@@ -300,7 +336,8 @@ Tests `JurorRegistry.sol` - the staking and eligibility contract that manages th
 
 #### `ReputationRegistryTest.t.sol` - Foundry unit tests (11 tests)
 
-Tests `ReputationRegistry.sol` - the on-chain rating system for clients and freelancers.
+Tests `ReputationRegistry.sol` - the on-chain rating system for clients and
+freelancers.
 
 | Group          | What it covers                                                                     |
 | -------------- | ---------------------------------------------------------------------------------- |
@@ -311,7 +348,8 @@ Tests `ReputationRegistry.sol` - the on-chain rating system for clients and free
 
 #### `PayoutFuzz.t.sol` - Foundry fuzz tests (7 tests, 10,000 runs each)
 
-Property-based tests that send random inputs across the full `uint` range into the payout math to prove invariants hold universally.
+Property-based tests that send random inputs across the full `uint` range into
+the payout math to prove invariants hold universally.
 
 | Test                                     | Property verified                                                    |
 | ---------------------------------------- | -------------------------------------------------------------------- |
@@ -337,7 +375,8 @@ docker compose run test bash -c "echo 'bad message' | npx commitlint; echo exit 
 
 ## Connecting MetaMask to the Docker Node
 
-When `demo-good`, `demo-bad`, `demo-jurors`, or `node` is running, the chain is accessible from your host machine at `http://localhost:8545`.
+When `demo-good`, `demo-bad`, `demo-jurors`, or `node` is running, the chain is
+accessible from your host machine at `http://localhost:8545`.
 
 ### Add the network to MetaMask
 
@@ -350,7 +389,9 @@ When `demo-good`, `demo-bad`, `demo-jurors`, or `node` is running, the chain is 
 
 ### Import a test account
 
-When the container starts, Hardhat prints all 20 test accounts with their private keys. Copy any private key and import it into MetaMask. These are ephemeral dev keys - **never use them on mainnet or with real funds.**
+When the container starts, Hardhat prints all 20 test accounts with their
+private keys. Copy any private key and import it into MetaMask. These are
+ephemeral dev keys - **never use them on mainnet or with real funds.**
 
 | Role       | Account index |
 | ---------- | ------------- |
@@ -364,14 +405,16 @@ When the container starts, Hardhat prints all 20 test accounts with their privat
 
 ## Rebuilding After Changes
 
-If you edit contract source files or `package.json`, rebuild the image before running:
+If you edit contract source files or `package.json`, rebuild the image before
+running:
 
 ```bash
 docker compose build
 docker compose up demo-good
 ```
 
-To force a full rebuild without the layer cache (useful if a dependency update is not being picked up):
+To force a full rebuild without the layer cache (useful if a dependency update
+is not being picked up):
 
 ```bash
 docker compose build --no-cache
@@ -400,7 +443,8 @@ docker run -e DEMO=node -p 8545:8545 trustledger
 docker run -e DEMO=both -p 8545:8545 trustledger
 ```
 
-The `DEMO` environment variable controls what the container does after the node starts. Valid values: `good`, `bad`, `both`, `node`.
+The `DEMO` environment variable controls what the container does after the node
+starts. Valid values: `good`, `bad`, `both`, `node`.
 
 ---
 
@@ -425,7 +469,8 @@ Stage 2 - trustledger
   ENTRYPOINT ["bash", "scripts/docker-demo.sh"]
 ```
 
-Copying Foundry binaries from the official image avoids running the `foundryup` shell script, making the build reproducible and faster.
+Copying Foundry binaries from the official image avoids running the `foundryup`
+shell script, making the build reproducible and faster.
 
 ---
 
@@ -433,7 +478,8 @@ Copying Foundry binaries from the official image avoids running the `foundryup` 
 
 ### Port 8545 already in use
 
-Another process (e.g., a local `npm run node`) is using port 8545. Either stop that process or run the container on a different host port:
+Another process (e.g., a local `npm run node`) is using port 8545. Either stop
+that process or run the container on a different host port:
 
 ```bash
 docker run -e DEMO=good -p 9545:8545 trustledger
@@ -443,7 +489,9 @@ Then set MetaMask's RPC URL to `http://127.0.0.1:9545`.
 
 ### `git submodule update` Fails at Build Time
 
-The image build runs `git submodule update --init --recursive` if `.git/` is present in the build context. If your clone is missing submodule content, run this on your host before building:
+The image build runs `git submodule update --init --recursive` if `.git/` is
+present in the build context. If your clone is missing submodule content, run
+this on your host before building:
 
 ```bash
 git submodule update --init --recursive
@@ -454,32 +502,38 @@ docker compose build
 
 Check the output for an error before the node started. Common causes:
 
-- `npm run compile` failed - check that `contracts/lib/` is populated (submodule issue).
+- `npm run compile` failed - check that `contracts/lib/` is populated (submodule
+  issue).
 - Missing `artifacts/` - the compile step was skipped. Rebuild the image.
 
 ### `DEMO` value not recognized
 
-If you see `Unknown DEMO='...'`, the environment variable was set incorrectly. Valid values are `good`, `bad`, `both`, and `node` (lowercase).
+If you see `Unknown DEMO='...'`, the environment variable was set incorrectly.
+Valid values are `good`, `bad`, `both`, and `node` (lowercase).
 
 ---
 
 ## Security
 
-See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy,
+in-scope contracts, severity classification, and response timeline.
 
-**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+**Do not open public GitHub issues for security vulnerabilities.** Report
+privately via the contact in `SECURITY.md`.
 
-TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The
+codebase targets Ethereum Sepolia (testnet) and is under active development.
 
 ---
 
 ## License
 
-This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE)
+for full terms.
 
 ---
 
 ## Authors
 
-- Kevin Le
-- Kellen Snider
+- [Kevin Le](https://www.linkedin.com/in/lekevin1/)
+- [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)

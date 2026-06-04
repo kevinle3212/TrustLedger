@@ -16,13 +16,15 @@ pragma solidity ^0.8.24;
 ///         Returns a configurable int256 price from latestRoundData() so tests
 ///         can verify ETH/USD locking behaviour in TrustLedger.createContract().
 contract MockPriceFeed {
-    // ─── State ────────────────────────────────────────────────────────────────
+    // ─── State
+    // ────────────────────────────────────────────────────────────────
 
     // The price returned by latestRoundData(). Stored as int256 to match the
     // Chainlink interface (negative prices indicate stale/invalid data in prod).
     int256 private _price;
 
-    // ─── Constructor ──────────────────────────────────────────────────────────
+    // ─── Constructor
+    // ──────────────────────────────────────────────────────────
 
     /// @notice Deploy the mock feed with an initial price.
     /// @param initialPrice ETH/USD price in 8-decimal Chainlink format (e.g. 300000000000 = $3 000).
@@ -30,7 +32,8 @@ contract MockPriceFeed {
         _price = initialPrice;
     }
 
-    // ─── Test helper ──────────────────────────────────────────────────────────
+    // ─── Test helper
+    // ──────────────────────────────────────────────────────────
 
     /// @notice Override the price returned by latestRoundData(). Call from tests
     ///         to simulate different market conditions (e.g. zero/negative price).
@@ -39,7 +42,8 @@ contract MockPriceFeed {
         _price = price;
     }
 
-    // ─── AggregatorV3Interface ────────────────────────────────────────────────
+    // ─── AggregatorV3Interface
+    // ────────────────────────────────────────────────
 
     /// @notice Returns the configured price alongside stub round metadata.
     ///         The returned timestamps equal block.timestamp so freshness checks pass.

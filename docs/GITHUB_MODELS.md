@@ -1,6 +1,9 @@
 # GitHub Models — prompts and CI
 
-TrustLedger includes [GitHub Models](https://github.com/marketplace/models) `.prompt.yml` files for the Models playground, local evaluation, and GitHub Actions. They double as copy-paste examples for Python, JavaScript, and workflow integrations.
+TrustLedger includes [GitHub Models](https://github.com/marketplace/models)
+`.prompt.yml` files for the Models playground, local evaluation, and GitHub
+Actions. They double as copy-paste examples for Python, JavaScript, and workflow
+integrations.
 
 ## Files
 
@@ -10,7 +13,7 @@ TrustLedger includes [GitHub Models](https://github.com/marketplace/models) `.pr
 | `.github/prompts/generate-text.prompt.yml`    | Generate release-note style copy                       |
 | `.github/prompts/answer-questions.prompt.yml` | Q&A grounded in provided context                       |
 | `.github/prompts/edge-cases.prompt.yml`       | Empty input handling                                   |
-| `scripts/models/github_models_example.py`     | Python SDK examples (summarize, generate, Q&A, errors) |
+| `scripts/models/github_models.py`             | Python SDK examples (summarize, generate, Q&A, errors) |
 | `.github/workflows/github-models.yml`         | CI workflow                                            |
 
 ## npm scripts (repo root)
@@ -28,10 +31,13 @@ Requires `GITHUB_TOKEN` in the environment for Python scripts.
 
 ## Prerequisites
 
-- GitHub account with access to [GitHub Models](https://github.com/marketplace/models)
+- GitHub account with access to
+  [GitHub Models](https://github.com/marketplace/models)
 - `GITHUB_TOKEN` with `models: read` (workflow sets this automatically)
-- Python 3.12+ for `npm run models:*` (install deps via `npm run models:install`)
-- Optional: [GitHub CLI](https://cli.github.com/) with Models support for `npm run models:eval`
+- Python 3.12+ for `npm run models:*` (install deps via
+  `npm run models:install`)
+- Optional: [GitHub CLI](https://cli.github.com/) with Models support for
+  `npm run models:eval`
 
 ## Playground (UI)
 
@@ -54,15 +60,16 @@ gh models generate .github/prompts/summarize-text.prompt.yml
 
 ## Python example (Azure AI Inference SDK)
 
-> **Note**: `azure-ai-inference` is still in preview (`1.0.0b*`). `requirements.txt` pins `>=1.0.0b1` — there is no stable `1.0.0` release yet.
+> **Note**: `azure-ai-inference` is still in preview (`1.0.0b*`).
+> `requirements.txt` pins `>=1.0.0b1` — there is no stable `1.0.0` release yet.
 
 Same endpoint as the Models docs; uses `GITHUB_TOKEN`:
 
 ```bash
 pip install -r scripts/models/requirements.txt
 export GITHUB_TOKEN=ghp_your_token_here
-python scripts/models/github_models_example.py --scenario summarize
-python scripts/models/github_models_example.py --scenario all --skip-rate-limit
+python scripts/models/github_models.py --scenario summarize
+python scripts/models/github_models.py --scenario all --skip-rate-limit
 ```
 
 Minimal inline example:
@@ -95,13 +102,16 @@ print(response.choices[0].message.content)
 
 ## GitHub Actions
 
-Workflow: [`.github/workflows/github-models.yml`](../.github/workflows/github-models.yml)
+Workflow:
+[`.github/workflows/github-models.yml`](../.github/workflows/github-models.yml)
 
-- **prompt-files** — `actions/ai-inference@v1` runs each `.prompt.yml` with sample `input`.
+- **prompt-files** — `actions/ai-inference@v1` runs each `.prompt.yml` with
+  sample `input`.
 - **evaluate-prompts** — `gh models eval` when the CLI supports it.
-- **python-examples** — runs `github_models_example.py` (happy paths).
+- **python-examples** — runs `github_models.py` (happy paths).
 - **error-handling** — invalid model id must fail.
-- **rate-limit-probe** — optional burst on `workflow_dispatch` (may see HTTP 429).
+- **rate-limit-probe** — optional burst on `workflow_dispatch` (may see HTTP
+  429).
 
 Run manually: **Actions → GitHub Models prompts → Run workflow**.
 
@@ -139,6 +149,8 @@ steps:
 - [Home](Home.md) — documentation index
 - [CONTRIBUTING.md](CONTRIBUTING.md) — local setup including `npm run models:*`
 - [TESTING.md](TESTING.md) — CI and manual testing
-- [Evaluating AI models](https://docs.github.com/en/github-models/use-github-models/evaluating-ai-models) (GitHub Docs)
-- [Storing prompts in repositories](https://docs.github.com/en/github-models/use-github-models/storing-prompts-in-github-repositories) (GitHub Docs)
+- [Evaluating AI models](https://docs.github.com/en/github-models/use-github-models/evaluating-ai-models)
+  (GitHub Docs)
+- [Storing prompts in repositories](https://docs.github.com/en/github-models/use-github-models/storing-prompts-in-github-repositories)
+  (GitHub Docs)
 - [actions/ai-inference](https://github.com/actions/ai-inference)

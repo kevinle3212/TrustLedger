@@ -9,13 +9,14 @@ pragma solidity ^0.8.24;
 // solhint-disable ordering
 
 import {Test, Vm} from "forge-std/Test.sol";
-import {TrustLedger} from "../../src/TrustLedger.sol";
-import {Arbitration} from "../../src/Arbitration.sol";
-import {JurorRegistry} from "../../src/JurorRegistry.sol";
-import {ReputationRegistry} from "../../src/ReputationRegistry.sol";
+import {Arbitration} from "./../../src/Arbitration.sol";
+import {JurorRegistry} from "./../../src/JurorRegistry.sol";
+import {ReputationRegistry} from "./../../src/ReputationRegistry.sol";
+import {TrustLedger} from "./../../src/TrustLedger.sol";
 
 contract TrustLedgerTest is Test {
-    // ── Test constants ────────────────────────────────────────────────────────
+    // ── Test constants
+    // ────────────────────────────────────────────────────────
     uint256 public constant AMOUNT = 1 ether;
     uint256 public constant ESTIMATED_DURATION = 30 days;
     uint256 public constant BUFFER_FACTOR = 1200; // 1.2× buffer
@@ -42,7 +43,8 @@ contract TrustLedgerTest is Test {
 
     address public stranger = makeAddr("stranger");
 
-    // ── setUp ─────────────────────────────────────────────────────────────────
+    // ── setUp
+    // ─────────────────────────────────────────────────────────────────
     function setUp() public {
         _freelancerWallet = vm.createWallet("freelancer");
         freelancer = _freelancerWallet.addr;
@@ -62,7 +64,8 @@ contract TrustLedgerTest is Test {
         assertEq(address(arbitration), arbitrationAddr, "address mismatch");
     }
 
-    // ─── Signing helper ───────────────────────────────────────────────────────
+    // ─── Signing helper
+    // ───────────────────────────────────────────────────────
     // Computes the EIP-191 signed hash and signs it with the freelancer's private key.
     // This mirrors the on-chain ecrecover call inside acceptContract().
     function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
@@ -71,24 +74,26 @@ contract TrustLedgerTest is Test {
         (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
     }
 
-    // ─── Lifecycle helpers ────────────────────────────────────────────────────
+    // ─── Lifecycle helpers
+    // ────────────────────────────────────────────────────
 
     // Creates a contract with configurable hold-back and warranty.
     function _createContract(uint16 holdBackBps, uint64 warrantyPeriod) internal returns (uint256 id) {
         vm.prank(client);
-        id = trustLedger.createContract{value: AMOUNT}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            holdBackBps,
-            warrantyPeriod,
-            address(0), // ETH escrow
+        id = trustLedger.createContract{value: AMOUNT}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: holdBackBps,
+            warrantyPeriod: warrantyPeriod,
+            token: address(0),
+            tokenAmount: // ETH escrow
             0 // no token amount
-        );
+        });
     }
 
     // Creates a simple ETH contract with no hold-back.
@@ -111,7 +116,8 @@ contract TrustLedgerTest is Test {
         trustLedger.submitProofOfWork(id, POW_HASH, POW_URI);
     }
 
-    // ─── Happy Path ───────────────────────────────────────────────────────────
+    // ─── Happy Path
+    // ───────────────────────────────────────────────────────────
 
     function test_HappyPath_CreateAcceptSubmitApprove() public {
         uint256 id = _createAcceptAndSubmit();
@@ -156,7 +162,7 @@ contract TrustLedgerTest is Test {
         vm.prank(freelancer);
         trustLedger.claimWarrantyFunds(id);
 
-        vm.warp(block.timestamp + WARRANTY_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + WARRANTY_PERIOD + 1);
 
         uint256 freelancerBefore2 = freelancer.balance;
         vm.prank(freelancer);
@@ -164,7 +170,8 @@ contract TrustLedgerTest is Test {
         assertEq(freelancer.balance, freelancerBefore2 + holdBack, "warranty claim mismatch");
     }
 
-    // ─── Cancel Pending ───────────────────────────────────────────────────────
+    // ─── Cancel Pending
+    // ───────────────────────────────────────────────────────
 
     function test_CancelPending_RefundsClient() public {
         uint256 id = _createSimpleContract();
@@ -192,7 +199,8 @@ contract TrustLedgerTest is Test {
         trustLedger.cancelPending(id);
     }
 
-    // ─── Rejection ────────────────────────────────────────────────────────────
+    // ─── Rejection
+    // ────────────────────────────────────────────────────────────
 
     function test_Rejection_RefundsClient() public {
         uint256 id = _createSimpleContract();
@@ -207,7 +215,8 @@ contract TrustLedgerTest is Test {
         assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED));
     }
 
-    // ─── Deadline Miss ────────────────────────────────────────────────────────
+    // ─── Deadline Miss
+    // ────────────────────────────────────────────────────────
 
     function test_DeadlineMiss_ClientReclaims() public {
         uint256 id = _createAndAccept();
@@ -229,7 +238,8 @@ contract TrustLedgerTest is Test {
         assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED));
     }
 
-    // ─── Acceptance Window Auto-Release ───────────────────────────────────────
+    // ─── Acceptance Window Auto-Release
+    // ───────────────────────────────────────
 
     function test_AcceptanceWindowAutoRelease() public {
         uint256 id = _createAcceptAndSubmit();
@@ -249,7 +259,8 @@ contract TrustLedgerTest is Test {
         assertEq(freelancer.balance, freelancerBefore + AMOUNT, "auto-release mismatch");
     }
 
-    // ─── Dispute Opening ──────────────────────────────────────────────────────
+    // ─── Dispute Opening
+    // ──────────────────────────────────────────────────────
 
     function test_DisputeOpening_FeePoolSentToArbitration() public {
         uint256 id = _createAcceptAndSubmit();
@@ -265,7 +276,8 @@ contract TrustLedgerTest is Test {
         assertEq(uint8(c.status), uint8(TrustLedger.Status.DISPUTED));
     }
 
-    // ─── ExecuteRuling ────────────────────────────────────────────────────────
+    // ─── ExecuteRuling
+    // ────────────────────────────────────────────────────────
 
     function test_ExecuteRuling_0pct_ClientWins() public {
         uint256 id = _createAcceptAndSubmit();
@@ -354,150 +366,151 @@ contract TrustLedgerTest is Test {
         assertEq(freelancerGot + clientGot, remaining, "payout conservation failed");
     }
 
-    // ─── Revert Conditions ────────────────────────────────────────────────────
+    // ─── Revert Conditions
+    // ────────────────────────────────────────────────────
 
     function test_Revert_CreateContract_ZeroAddress() public {
         vm.expectRevert(TrustLedger.ZeroAddress.selector);
         vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}(
-            address(0),
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            0,
-            0,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: AMOUNT}({
+            freelancer: address(0),
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_CreateContract_SelfContract() public {
         vm.expectRevert(TrustLedger.SelfContract.selector);
         vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}(
-            client,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            0,
-            0,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: AMOUNT}({
+            freelancer: client,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_CreateContract_ZeroValue() public {
         vm.expectRevert(TrustLedger.InsufficientFunds.selector);
         vm.prank(client);
-        trustLedger.createContract{value: 0}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            0,
-            0,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: 0}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_CreateContract_InvalidBufferFactor() public {
         vm.expectRevert(TrustLedger.InvalidBufferFactor.selector);
         vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            1000,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            0,
-            0,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: AMOUNT}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: 1000,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_CreateContract_InvalidAcceptanceWindow() public {
         vm.expectRevert(TrustLedger.InvalidAcceptanceWindow.selector);
         vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            1 hours,
-            ARB_FEE_BPS,
-            0,
-            0,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: AMOUNT}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: 1 hours,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_CreateContract_InvalidArbitrationFee() public {
         vm.expectRevert(TrustLedger.InvalidArbitrationFee.selector);
         vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            0,
-            0,
-            0,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: AMOUNT}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: 0,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_CreateContract_InvalidHoldBack() public {
         vm.expectRevert(TrustLedger.InvalidHoldBack.selector);
         vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            100,
-            7 days,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: AMOUNT}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 100,
+            warrantyPeriod: 7 days,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_CreateContract_HoldBackWithoutWarranty() public {
         vm.expectRevert(TrustLedger.InvalidWarrantyPeriod.selector);
         vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}(
-            freelancer,
-            CONTRACT_HASH,
-            CONTRACT_URI,
-            ESTIMATED_DURATION,
-            BUFFER_FACTOR,
-            ACCEPTANCE_WINDOW,
-            ARB_FEE_BPS,
-            1000,
-            0,
-            address(0),
-            0
-        );
+        trustLedger.createContract{value: AMOUNT}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: CONTRACT_URI,
+            estimatedDuration: ESTIMATED_DURATION,
+            bufferFactor: BUFFER_FACTOR,
+            acceptanceWindow: ACCEPTANCE_WINDOW,
+            arbitrationFeeBps: ARB_FEE_BPS,
+            holdBackBps: 1000,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
     }
 
     function test_Revert_AcceptContract_WrongCaller() public {
@@ -594,7 +607,8 @@ contract TrustLedgerTest is Test {
         trustLedger.claimWarrantyFunds(id);
     }
 
-    // ─── Rating ───────────────────────────────────────────────────────────────
+    // ─── Rating
+    // ───────────────────────────────────────────────────────────────
 
     function test_SubmitRating_NoOp_WhenRegistryNotSet() public {
         // reputationRegistry is address(0) → submitRating silently returns.
@@ -607,10 +621,11 @@ contract TrustLedgerTest is Test {
         trustLedger.submitRating(id, 80);
     }
 
-    // ─── Auto reputation penalties ────────────────────────────────────────────
+    // ─── Auto reputation penalties
+    // ────────────────────────────────────────────
 
     // Helper: deploy and wire a ReputationRegistry into trustLedger.
-    function _deployRepRegistry() internal returns (ReputationRegistry) {
+    function _deployRepRegistry() internal returns (ReputationRegistry result) {
         ReputationRegistry r = new ReputationRegistry(address(trustLedger));
         trustLedger.initReputationRegistry(address(r));
         return r;
@@ -681,7 +696,8 @@ contract TrustLedgerTest is Test {
         trustLedger.submitRating(id, 100);
     }
 
-    // ─── Next ID increments ───────────────────────────────────────────────────
+    // ─── Next ID increments
+    // ───────────────────────────────────────────────────
 
     function test_NextId_Increments() public {
         assertEq(trustLedger.nextId(), 0);

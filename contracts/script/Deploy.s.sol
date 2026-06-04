@@ -8,9 +8,9 @@ pragma solidity ^0.8.24;
 // deployment scripts. It provides `vm` cheat codes (envUint, startBroadcast, etc.)
 // and `console` for logging during the run.
 import {Script, console} from "forge-std/Script.sol";
-import {JurorRegistry} from "../src/JurorRegistry.sol";
-import {Arbitration} from "../src/Arbitration.sol";
-import {TrustLedger} from "../src/TrustLedger.sol";
+import {Arbitration} from "./../src/Arbitration.sol";
+import {JurorRegistry} from "./../src/JurorRegistry.sol";
+import {TrustLedger} from "./../src/TrustLedger.sol";
 
 // Any Foundry script is a contract that extends Script.
 // Run via npm: npm run foundry:deploy:sepolia
@@ -25,14 +25,16 @@ contract Deploy is Script {
 
     /// @notice Entry point - Foundry calls this function when executing the script.
     function run() external {
-        // ── Broadcast: sign and send real transactions ─────────────────────────
+        // ── Broadcast: sign and send real transactions
+        // ─────────────────────────
         // vm.startBroadcast() with no arguments uses the --private-key / --account
         // passed on the CLI. Everything between startBroadcast and stopBroadcast is
         // sent as a real on-chain transaction. Without --broadcast on the CLI, this
         // is a dry-run simulation only.
         vm.startBroadcast();
 
-        // ── Circular dependency problem ────────────────────────────────────────
+        // ── Circular dependency problem
+        // ────────────────────────────────────────
         // TrustLedger needs Arbitration's address (immutable in constructor).
         // Arbitration needs TrustLedger's address (immutable in constructor).
         // JurorRegistry needs Arbitration's address.
@@ -57,7 +59,8 @@ contract Deploy is Script {
         address arbitrationAddr = vm.computeCreateAddress(deployer, nonce + 2);
         address trustLedgerAddr = vm.computeCreateAddress(deployer, nonce + 1);
 
-        // ── Deploy in the exact nonce order we pre-computed ─────────────────────
+        // ── Deploy in the exact nonce order we pre-computed
+        // ─────────────────────
         // `new JurorRegistry(arbitrationAddr)` compiles to a CREATE opcode.
         // We pass the precomputed arbitrationAddr even though Arbitration doesn't
         // exist yet - JurorRegistry just stores it and never calls it during deploy.
@@ -75,10 +78,15 @@ contract Deploy is Script {
         // ── Sanity checks: verify the addresses match our predictions ───────────
         // If the nonce was different than expected (e.g. a prior failed tx incremented it),
         // the addresses would be wrong and the contracts would be broken.
-        if (address(arbitration) != arbitrationAddr) revert AddressMismatch();
-        if (address(trustLedger) != trustLedgerAddr) revert AddressMismatch();
+        if (address(arbitration) != arbitrationAddr) {
+            revert AddressMismatch();
+        }
+        if (address(trustLedger) != trustLedgerAddr) {
+            revert AddressMismatch();
+        }
 
-        // ── Log deployed addresses ─────────────────────────────────────────────
+        // ── Log deployed addresses
+        // ─────────────────────────────────────────────
         // console.log writes to stdout during the script run. Not included in the
         // on-chain transaction - purely for operator convenience.
         console.log("JurorRegistry:", address(jurorRegistry));

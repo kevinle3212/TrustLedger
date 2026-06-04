@@ -24,7 +24,8 @@ interface IVRFFulfiller {
 ///         Implements the requestRandomWords() signature so Arbitration can call it,
 ///         then lets tests drive fulfillment manually via fulfillWithWords().
 contract MockVRFCoordinator {
-    // ─── State ────────────────────────────────────────────────────────────────
+    // ─── State
+    // ────────────────────────────────────────────────────────────────
 
     // Monotonically increasing request ID counter - starts at 1 so 0 is never a valid ID.
     uint256 private _nextRequestId = 1;
@@ -32,7 +33,8 @@ contract MockVRFCoordinator {
     // Retained so tests can assert that a request was made and retrieve its ID.
     uint256 private _lastRequestId;
 
-    // ─── IVRFCoordinator interface ────────────────────────────────────────────
+    // ─── IVRFCoordinator interface
+    // ────────────────────────────────────────────
 
     /// @notice Record a VRF randomness request and return a unique request ID.
     ///         Ignores all coordinator-specific parameters - they are only present
@@ -54,7 +56,8 @@ contract MockVRFCoordinator {
         _lastRequestId = requestId;
     }
 
-    // ─── Test helper ──────────────────────────────────────────────────────────
+    // ─── Test helper
+    // ──────────────────────────────────────────────────────────
 
     /// @notice Manually deliver random words to `target.fulfillRandomWords()`.
     ///         Call this from a test after requestRandomWords() has been triggered
@@ -68,8 +71,8 @@ contract MockVRFCoordinator {
 
     /// @notice Returns the request ID assigned to the most recent randomness request.
     ///         Allows tests to retrieve the ID after calling disputeWork() → openDispute().
-    /// @return The last request ID issued by requestRandomWords().
-    function lastRequestId() external view returns (uint256) {
+    /// @return result The last request ID issued by requestRandomWords().
+    function lastRequestId() external view returns (uint256 result) {
         return _lastRequestId;
     }
 }

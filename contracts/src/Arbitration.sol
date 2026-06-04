@@ -6,8 +6,8 @@ pragma solidity ^0.8.24;
 
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IArbitration} from "./interfaces/IArbitration.sol";
-import {ITrustLedger} from "./interfaces/ITrustLedger.sol";
 import {IJurorRegistry} from "./interfaces/IJurorRegistry.sol";
+import {ITrustLedger} from "./interfaces/ITrustLedger.sol";
 import {IVRFCoordinator} from "./interfaces/IVRFCoordinator.sol";
 
 // Arbitration manages the commit-reveal voting process for disputed escrow contracts.
@@ -31,7 +31,8 @@ import {IVRFCoordinator} from "./interfaces/IVRFCoordinator.sol";
 /// @notice Commit-reveal juror voting system for TrustLedger disputes.
 ///         Jurors stake ETH, vote on completion percentage, and earn fees for majority votes.
 contract Arbitration is IArbitration, ReentrancyGuard {
-    // ─── Types ────────────────────────────────────────────────────────────────
+    // ─── Types
+    // ────────────────────────────────────────────────────────────────
 
     // The phase enum tracks which step of the voting process a dispute is in.
     // COMMIT / REVEAL are for original disputes; APPEAL_COMMIT / APPEAL_REVEAL
@@ -60,10 +61,12 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     // Slot 6: appealer(20) + … (12 bytes spare)
     // Slots 7-11: five uint256 fields
     struct Dispute {
-        // ── Slot 0 ────────────────────────────────────────────────────────────
+        // ── Slot 0
+        // ────────────────────────────────────────────────────────────
         uint256 contractId; // TrustLedger escrow ID this dispute belongs to
 
-        // ── Slot 1 (32/32 bytes) ──────────────────────────────────────────────
+        // ── Slot 1 (32/32 bytes)
+        // ──────────────────────────────────────────────
         address client; // copied from TrustLedger for convenience
         Phase phase; // current voting phase
         bool finalized; // true after finalizeDispute() succeeds
@@ -71,18 +74,22 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         bool vrfFulfilled; // true once VRF randomness arrived and jurors were pre-selected
         uint64 phaseDeadline; // unix timestamp when the current phase expires
 
-        // ── Slot 2 (20/32 bytes) ──────────────────────────────────────────────
+        // ── Slot 2 (20/32 bytes)
+        // ──────────────────────────────────────────────
         address freelancer; // copied from TrustLedger for convenience
 
-        // ── Slots 3-5 ─────────────────────────────────────────────────────────
+        // ── Slots 3-5
+        // ─────────────────────────────────────────────────────────
         uint256 contractAmount; // total escrow value (for reference, not held here)
         uint256 feePool; // ETH held by this contract as juror reward pool
         uint256 ruling; // finalized completionPct (0-100); type(uint256).max = not set
 
-        // ── Slot 6 (20/32 bytes) ──────────────────────────────────────────────
+        // ── Slot 6 (20/32 bytes)
+        // ──────────────────────────────────────────────
         address appealer; // who filed the appeal (client or freelancer)
 
-        // ── Slots 7-11 ────────────────────────────────────────────────────────
+        // ── Slots 7-11
+        // ────────────────────────────────────────────────────────
         uint256 appealBond; // ETH the appealer paid as bond
         uint256 appealDisputeId; // disputeId of the follow-up appeal dispute (max = none)
         uint256 parentDisputeId; // disputeId of the original dispute (max = this is original)
@@ -90,7 +97,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         uint256 jurorCount; // how many jurors have committed so far
     }
 
-    // ─── Constants ────────────────────────────────────────────────────────────
+    // ─── Constants
+    // ────────────────────────────────────────────────────────────
 
     /// @notice Duration of the commit phase in seconds (72 hours).
     uint256 public constant COMMIT_DURATION = 72 hours;
@@ -126,7 +134,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @notice Severe minority slash in basis points (20%).
     uint256 public constant SEVERE_SLASH_BPS = 2000;
 
-    // ─── State ───────────────────────────────────────────────────────────────
+    // ─── State
+    // ───────────────────────────────────────────────────────────────
 
     /// @notice The TrustLedger escrow contract that opens disputes and receives rulings.
     ITrustLedger public immutable TRUST_LEDGER;
@@ -166,7 +175,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     // Maps VRF requestId → disputeId so fulfillRandomWords() knows which dispute to update.
     mapping(uint256 requestId => uint256 disputeId) private _pendingVrfRequest;
 
-    // ─── Events ──────────────────────────────────────────────────────────────
+    // ─── Events
+    // ──────────────────────────────────────────────────────────────
 
     /// @notice Emitted when a new dispute is opened by TrustLedger.
     /// @param disputeId  The new dispute ID.
@@ -215,7 +225,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param amount    ETH rewarded.
     event RewardClaimed(uint256 indexed disputeId, address indexed juror, uint256 indexed amount);
 
-    // ─── Errors ──────────────────────────────────────────────────────────────
+    // ─── Errors
+    // ──────────────────────────────────────────────────────────────
 
     /// @notice Caller is not the TrustLedger contract.
     error OnlyTrustLedger();
@@ -292,25 +303,30 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @notice One-time setter has already been called.
     error AlreadySet();
 
-    // ─── Modifiers ────────────────────────────────────────────────────────────
+    // ─── Modifiers
+    // ────────────────────────────────────────────────────────────
 
     modifier onlyTrustLedger() {
         _onlyTrustLedger(); // extracted into a function to save bytecode at each call site
         _;
     }
 
-    // ─── Constructor ─────────────────────────────────────────────────────────
+    // ─── Constructor
+    // ─────────────────────────────────────────────────────────
 
     /// @notice Deploys Arbitration and binds it to TrustLedger and JurorRegistry.
     /// @param trustLedger_    Address of the TrustLedger contract.
     /// @param jurorRegistry_  Address of the JurorRegistry contract.
     constructor(address trustLedger_, address jurorRegistry_) {
-        if (trustLedger_ == address(0) || jurorRegistry_ == address(0)) revert ZeroAddress();
+        if (trustLedger_ == address(0) || jurorRegistry_ == address(0)) {
+            revert ZeroAddress();
+        }
         TRUST_LEDGER = ITrustLedger(trustLedger_);
         JUROR_REGISTRY = IJurorRegistry(jurorRegistry_);
     }
 
-    // ─── TrustLedger-called ───────────────────────────────────────────────────
+    // ─── TrustLedger-called
+    // ───────────────────────────────────────────────────
 
     // TrustLedger calls this when a client opens a dispute. The fee pool ETH
     // arrives as msg.value and is held by Arbitration until jurors claim rewards.
@@ -329,7 +345,12 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         address freelancer,
         uint256 contractAmount,
         uint256 feePool
-    ) external payable onlyTrustLedger returns (uint256 disputeId) {
+    )
+        external
+        payable
+        onlyTrustLedger
+        returns (uint256 disputeId)
+    {
         disputeId = nextDisputeId; // capture current ID, then advance the counter
         ++nextDisputeId;
 
@@ -378,18 +399,24 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         emit DisputeOpened(disputeId, contractId, client, freelancer);
     }
 
-    // ─── VRF one-time setup ────────────────────────────────────────────────────
+    // ─── VRF one-time setup
+    // ────────────────────────────────────────────────────
 
     /// @notice Wire in the Chainlink VRF coordinator (optional). Once set it cannot change.
     ///         After this call, new disputes will request randomness for juror selection.
     /// @param vrf_ Address of the deployed Chainlink VRF v2 coordinator.
     function initVrfCoordinator(address vrf_) external {
-        if (vrfCoordinator != address(0)) revert AlreadySet();
-        if (vrf_ == address(0)) revert ZeroAddress();
+        if (vrfCoordinator != address(0)) {
+            revert AlreadySet();
+        }
+        if (vrf_ == address(0)) {
+            revert ZeroAddress();
+        }
         vrfCoordinator = vrf_;
     }
 
-    // ─── VRF callback ──────────────────────────────────────────────────────────
+    // ─── VRF callback
+    // ──────────────────────────────────────────────────────────
 
     /// @notice Chainlink VRF coordinator calls this with the requested random word.
     ///         Uses randomWords[0] as the seed for a Fisher-Yates committee selection.
@@ -398,13 +425,16 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param requestId   The VRF request ID returned by requestRandomWords().
     /// @param randomWords Array of random uint256 values (only index 0 is used as seed).
     function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) external {
-        if (msg.sender != vrfCoordinator) revert Unauthorized();
+        if (msg.sender != vrfCoordinator) {
+            revert Unauthorized();
+        }
         uint256 disputeId = _pendingVrfRequest[requestId];
         delete _pendingVrfRequest[requestId];
         _selectJurorsFromSeed(disputeId, randomWords[0]);
     }
 
-    // ─── Juror actions ────────────────────────────────────────────────────────
+    // ─── Juror actions
+    // ────────────────────────────────────────────────────────
 
     // Step 1 of the commit-reveal scheme: juror submits a hash of their vote.
     // They don't reveal the actual number yet - this prevents jurors from copying
@@ -420,26 +450,48 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         Dispute storage d = _disputes[disputeId];
 
         // Valid in COMMIT or APPEAL_COMMIT (same logic applies to appeal disputes)
-        if (d.phase != Phase.COMMIT && d.phase != Phase.APPEAL_COMMIT) revert NotInCommitPhase();
-        if (block.timestamp > d.phaseDeadline) revert PhaseEnded();
+        if (d.phase != Phase.COMMIT && d.phase != Phase.APPEAL_COMMIT) {
+            revert NotInCommitPhase();
+        }
+        if (block.timestamp > d.phaseDeadline) {
+            revert PhaseEnded();
+        }
 
         if (d.vrfFulfilled) {
-            // ── VRF mode ───────────────────────────────────────────────────────
+            // ── VRF mode
+            // ───────────────────────────────────────────────────────
             // Jurors were pre-selected by fulfillRandomWords(). Only they may commit.
             // _committed == true means "pre-selected"; _commitments == bytes32(0) means
             // the juror hasn't submitted their vote hash yet.
-            if (_isOriginalJuror[disputeId][msg.sender]) revert ExcludedJuror();
-            if (!_committed[disputeId][msg.sender]) revert NotEligible(); // not VRF-selected
-            if (_commitments[disputeId][msg.sender] != bytes32(0)) revert AlreadyCommitted();
+            if (_isOriginalJuror[disputeId][msg.sender]) {
+                revert ExcludedJuror();
+            }
+            if (!_committed[disputeId][msg.sender]) {
+                revert NotEligible(); // not VRF-selected
+            }
+            if (_commitments[disputeId][msg.sender] != bytes32(0)) {
+                revert AlreadyCommitted();
+            }
             // _jurors and jurorCount were already set by fulfillRandomWords(); don't add again.
         } else {
-            // ── Legacy (self-select) mode ──────────────────────────────────────
+            // ── Legacy (self-select) mode
+            // ──────────────────────────────────────
             // Any eligible juror may claim a slot up to maxJurors.
-            if (d.jurorCount + 1 > d.maxJurors) revert JurorSlotsFilled();
-            if (_committed[disputeId][msg.sender]) revert AlreadyCommitted();
-            if (!JUROR_REGISTRY.isEligible(msg.sender)) revert NotEligible();
-            if (msg.sender == d.client || msg.sender == d.freelancer) revert ExcludedJuror();
-            if (_isOriginalJuror[disputeId][msg.sender]) revert ExcludedJuror();
+            if (d.jurorCount + 1 > d.maxJurors) {
+                revert JurorSlotsFilled();
+            }
+            if (_committed[disputeId][msg.sender]) {
+                revert AlreadyCommitted();
+            }
+            if (!JUROR_REGISTRY.isEligible(msg.sender)) {
+                revert NotEligible();
+            }
+            if (msg.sender == d.client || msg.sender == d.freelancer) {
+                revert ExcludedJuror();
+            }
+            if (_isOriginalJuror[disputeId][msg.sender]) {
+                revert ExcludedJuror();
+            }
 
             _committed[disputeId][msg.sender] = true;
             _jurors[disputeId].push(msg.sender);
@@ -466,17 +518,29 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param salt          The random salt used when forming the commitment.
     function revealVote(uint256 disputeId, uint256 completionPct, bytes32 salt) external {
         Dispute storage d = _disputes[disputeId];
-        if (d.phase != Phase.REVEAL && d.phase != Phase.APPEAL_REVEAL) revert NotInRevealPhase();
-        if (block.timestamp > d.phaseDeadline) revert PhaseEnded();
-        if (!_committed[disputeId][msg.sender]) revert NotAJuror();
-        if (_revealed[disputeId][msg.sender]) revert AlreadyRevealed();
-        if (completionPct > 100) revert CompletionPctOutOfRange();
+        if (d.phase != Phase.REVEAL && d.phase != Phase.APPEAL_REVEAL) {
+            revert NotInRevealPhase();
+        }
+        if (block.timestamp > d.phaseDeadline) {
+            revert PhaseEnded();
+        }
+        if (!_committed[disputeId][msg.sender]) {
+            revert NotAJuror();
+        }
+        if (_revealed[disputeId][msg.sender]) {
+            revert AlreadyRevealed();
+        }
+        if (completionPct > 100) {
+            revert CompletionPctOutOfRange();
+        }
 
         // Reconstruct the commitment and verify it matches what was stored.
         // If the juror tries to reveal a different number than they committed to, this fails.
         // forge-lint: disable-next-line(asm-keccak256)
         bytes32 expected = keccak256(abi.encodePacked(disputeId, msg.sender, completionPct, salt));
-        if (expected != _commitments[disputeId][msg.sender]) revert InvalidCommitment();
+        if (expected != _commitments[disputeId][msg.sender]) {
+            revert InvalidCommitment();
+        }
 
         _votes[disputeId][msg.sender] = completionPct;
         _revealed[disputeId][msg.sender] = true;
@@ -484,7 +548,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         emit VoteRevealed(disputeId, msg.sender, completionPct);
     }
 
-    // ─── Phase transitions ────────────────────────────────────────────────────
+    // ─── Phase transitions
+    // ────────────────────────────────────────────────────
 
     // Advances from COMMIT → REVEAL (or APPEAL_COMMIT → APPEAL_REVEAL).
     // Anyone can call this - it's permissionless. The condition is:
@@ -497,12 +562,16 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     function advanceToReveal(uint256 disputeId) external {
         Dispute storage d = _disputes[disputeId];
         bool isCommit = d.phase == Phase.COMMIT || d.phase == Phase.APPEAL_COMMIT;
-        if (!isCommit) revert NotInCommitPhase();
+        if (!isCommit) {
+            revert NotInCommitPhase();
+        }
 
         // Must wait for deadline OR have at least MIN_JURORS committed.
         // `&&` means BOTH conditions must be true to revert (i.e. revert if deadline
         // hasn't passed AND we don't have enough jurors yet).
-        if (block.timestamp < uint256(d.phaseDeadline) + 1 && d.jurorCount < MIN_JURORS) revert PhaseNotEnded();
+        if (block.timestamp < uint256(d.phaseDeadline) + 1 && d.jurorCount < MIN_JURORS) {
+            revert PhaseNotEnded();
+        }
 
         // Transition to the corresponding reveal phase using a ternary expression.
         d.phase = d.phase == Phase.COMMIT ? Phase.REVEAL : Phase.APPEAL_REVEAL;
@@ -520,8 +589,12 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     function finalizeDispute(uint256 disputeId) external nonReentrant {
         Dispute storage d = _disputes[disputeId];
         bool isReveal = d.phase == Phase.REVEAL || d.phase == Phase.APPEAL_REVEAL;
-        if (!isReveal) revert NotInRevealPhase();
-        if (block.timestamp < uint256(d.phaseDeadline) + 1) revert PhaseNotEnded();
+        if (!isReveal) {
+            revert NotInRevealPhase();
+        }
+        if (block.timestamp < uint256(d.phaseDeadline) + 1) {
+            revert PhaseNotEnded();
+        }
 
         address[] storage jurors = _jurors[disputeId];
         uint256 jurorLen = jurors.length;
@@ -544,7 +617,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         }
     }
 
-    // ─── Appeal ───────────────────────────────────────────────────────────────
+    // ─── Appeal
+    // ───────────────────────────────────────────────────────────────
 
     // Either party (client or freelancer) can appeal the ruling within the appeal window.
     // They must pay a bond of 1.5× the original fee pool as a skin-in-the-game deposit.
@@ -554,15 +628,25 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param disputeId The dispute ID to appeal.
     function appeal(uint256 disputeId) external payable nonReentrant {
         Dispute storage d = _disputes[disputeId];
-        if (!d.finalized) revert DisputeNotFinalized();
-        if (d.appealed) revert AlreadyAppealed(); // can only appeal once
-        if (block.timestamp > d.phaseDeadline) revert AppealWindowElapsed();
-        if (msg.sender != d.client && msg.sender != d.freelancer) revert NotParty(); // only parties can appeal
+        if (!d.finalized) {
+            revert DisputeNotFinalized();
+        }
+        if (d.appealed) {
+            revert AlreadyAppealed(); // can only appeal once
+        }
+        if (block.timestamp > d.phaseDeadline) {
+            revert AppealWindowElapsed();
+        }
+        if (msg.sender != d.client && msg.sender != d.freelancer) {
+            revert NotParty(); // only parties can appeal
+        }
 
         // Require a bond of 1.5× the original fee pool.
         // This deters frivolous appeals - if you lose, you lose 1.5× what the jurors cost.
         uint256 required = (d.feePool * APPEAL_BOND_MULTIPLIER_BPS) / BPS_DENOMINATOR;
-        if (msg.value < required) revert InsufficientAppealBond();
+        if (msg.value < required) {
+            revert InsufficientAppealBond();
+        }
 
         d.appealed = true;
         d.appealer = msg.sender;
@@ -612,7 +696,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         emit AppealDisputeOpened(appealId, disputeId);
     }
 
-    // ─── Reward claim ─────────────────────────────────────────────────────────
+    // ─── Reward claim
+    // ─────────────────────────────────────────────────────────
 
     // Majority jurors (who voted within ±20 pct-points of the median) can claim
     // an equal share of the fee pool after the appeal window has passed.
@@ -622,20 +707,33 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param disputeId The dispute ID.
     function claimReward(uint256 disputeId) external nonReentrant {
         Dispute storage d = _disputes[disputeId];
-        if (!d.finalized) revert DisputeNotFinalized();
+        if (!d.finalized) {
+            revert DisputeNotFinalized();
+        }
         // If appealed, must wait until the appeal window closes to prevent premature claims.
-        if (d.appealed && block.timestamp < uint256(d.phaseDeadline) + 1) revert AppealWindowNotElapsed();
-        if (!_committed[disputeId][msg.sender]) revert NotAJuror();
-        if (_rewardClaimed[disputeId][msg.sender]) revert RewardAlreadyClaimed();
-        if (!_isMajority[disputeId][msg.sender]) revert NotMajority(); // losers get nothing
+        if (d.appealed && block.timestamp < uint256(d.phaseDeadline) + 1) {
+            revert AppealWindowNotElapsed();
+        }
+        if (!_committed[disputeId][msg.sender]) {
+            revert NotAJuror();
+        }
+        if (_rewardClaimed[disputeId][msg.sender]) {
+            revert RewardAlreadyClaimed();
+        }
+        if (!_isMajority[disputeId][msg.sender]) {
+            revert NotMajority(); // losers get nothing
+        }
 
         _rewardClaimed[disputeId][msg.sender] = true;
 
         // Count how many majority jurors there are so we can split evenly.
         address[] storage jurors = _jurors[disputeId];
         uint256 majorityCount = 0;
-        for (uint256 i = 0; i < jurors.length; ++i) {
-            if (_isMajority[disputeId][jurors[i]]) ++majorityCount;
+        uint256 jurorCount = jurors.length;
+        for (uint256 i = 0; i < jurorCount; ++i) {
+            if (_isMajority[disputeId][jurors[i]]) {
+                ++majorityCount;
+            }
         }
 
         // Each majority juror gets an equal share. Integer division means a tiny
@@ -643,12 +741,15 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         uint256 share = d.feePool / majorityCount;
 
         (bool ok,) = msg.sender.call{value: share}("");
-        if (!ok) revert EthTransferFailed();
+        if (!ok) {
+            revert EthTransferFailed();
+        }
 
         emit RewardClaimed(disputeId, msg.sender, share);
     }
 
-    // ─── Post-finalization ruling execution ───────────────────────────────────
+    // ─── Post-finalization ruling execution
+    // ───────────────────────────────────
 
     // After finalization and the appeal window has passed (with no appeal filed),
     // anyone can trigger the ruling execution back in TrustLedger.
@@ -659,9 +760,15 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param disputeId The dispute ID.
     function executeRuling(uint256 disputeId) external nonReentrant {
         Dispute storage d = _disputes[disputeId];
-        if (!d.finalized) revert DisputeNotFinalized();
-        if (d.appealed) revert AlreadyAppealed(); // can't execute while under appeal
-        if (block.timestamp < uint256(d.phaseDeadline) + 1) revert AppealWindowNotElapsed(); // appeal window still open
+        if (!d.finalized) {
+            revert DisputeNotFinalized();
+        }
+        if (d.appealed) {
+            revert AlreadyAppealed(); // can't execute while under appeal
+        }
+        if (block.timestamp < uint256(d.phaseDeadline) + 1) {
+            revert AppealWindowNotElapsed(); // appeal window still open
+        }
 
         // Appeal disputes are resolved via _resolveAppeal(), not here.
         if (d.parentDisputeId != type(uint256).max) {
@@ -672,31 +779,33 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         TRUST_LEDGER.executeRuling(d.contractId, d.ruling);
     }
 
-    // ─── View functions ───────────────────────────────────────────────────────
+    // ─── View functions
+    // ───────────────────────────────────────────────────────
 
     /// @notice Returns the full Dispute struct for a given dispute ID.
     /// @param disputeId The dispute ID.
-    /// @return          A memory copy of the Dispute struct.
-    function getDispute(uint256 disputeId) external view returns (Dispute memory) {
+    /// @return result A memory copy of the Dispute struct.
+    function getDispute(uint256 disputeId) external view returns (Dispute memory result) {
         return _disputes[disputeId];
     }
 
     /// @notice Returns the list of juror addresses that committed to a dispute.
     /// @param disputeId The dispute ID.
-    /// @return          Array of juror addresses.
-    function getJurors(uint256 disputeId) external view returns (address[] memory) {
+    /// @return result Array of juror addresses.
+    function getJurors(uint256 disputeId) external view returns (address[] memory result) {
         return _jurors[disputeId];
     }
 
     /// @notice Returns whether a juror voted in the majority for a given dispute.
     /// @param disputeId The dispute ID.
     /// @param juror     The juror's address.
-    /// @return          True if the juror is in the majority.
-    function isMajority(uint256 disputeId, address juror) external view returns (bool) {
+    /// @return result True if the juror is in the majority.
+    function isMajority(uint256 disputeId, address juror) external view returns (bool result) {
         return _isMajority[disputeId][juror];
     }
 
-    // ─── Internal ─────────────────────────────────────────────────────────────
+    // ─── Internal
+    // ─────────────────────────────────────────────────────────────
 
     // Partial Fisher-Yates shuffle over the full juror registry. At each position i,
     // a random index j ∈ [i, n-1] is chosen and swapped to position i; the candidate
@@ -716,10 +825,18 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             pool[j] = tmp;
 
             address candidate = pool[i];
-            if (candidate == d.client || candidate == d.freelancer) continue;
-            if (_committed[disputeId][candidate]) continue;
-            if (_isOriginalJuror[disputeId][candidate]) continue;
-            if (!JUROR_REGISTRY.isEligible(candidate)) continue;
+            if (candidate == d.client || candidate == d.freelancer) {
+                continue;
+            }
+            if (_committed[disputeId][candidate]) {
+                continue;
+            }
+            if (_isOriginalJuror[disputeId][candidate]) {
+                continue;
+            }
+            if (!JUROR_REGISTRY.isEligible(candidate)) {
+                continue;
+            }
 
             _committed[disputeId][candidate] = true;
             _jurors[disputeId].push(candidate);
@@ -731,7 +848,12 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     }
 
     // Unlocks all jurors, classifies majority/minority, slashes losers, and returns total slashed.
-    function _slashAndClassify(uint256 disputeId, address[] storage jurors, uint256 jurorLen, uint256 ruling)
+    function _slashAndClassify(
+        uint256 disputeId,
+        address[] storage jurors,
+        uint256 jurorLen,
+        uint256 ruling
+    )
         internal
         returns (uint256 slashAmount)
     {
@@ -766,7 +888,8 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     // Marks all jurors from originalDisputeId as ineligible to vote in the appeal dispute.
     function _markOriginalJurors(uint256 appealId, address[] storage origJurors) internal {
-        for (uint256 i = 0; i < origJurors.length; ++i) {
+        uint256 origJurorCount = origJurors.length;
+        for (uint256 i = 0; i < origJurorCount; ++i) {
             _isOriginalJuror[appealId][origJurors[i]] = true;
         }
     }
@@ -788,7 +911,9 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         if (newRuling != orig.ruling) {
             // Appeal changed the ruling: the appealer was right, return their bond.
             (bool ok,) = appealer.call{value: bond}("");
-            if (!ok) revert EthTransferFailed();
+            if (!ok) {
+                revert EthTransferFailed();
+            }
         }
         // If ruling matched, bond is already in the appeal's feePool (forfeited automatically).
 
@@ -796,7 +921,11 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     }
 
     // Collects revealed votes into a compact array for median computation.
-    function _collectRevealedVotes(uint256 disputeId, address[] storage jurors, uint256 jurorLen)
+    function _collectRevealedVotes(
+        uint256 disputeId,
+        address[] storage jurors,
+        uint256 jurorLen
+    )
         internal
         view
         returns (uint256[] memory revealedVotes, uint256 revealedCount)
@@ -812,12 +941,14 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     // Revert if called by anyone other than the TrustLedger contract.
     function _onlyTrustLedger() internal view {
-        if (msg.sender != address(TRUST_LEDGER)) revert OnlyTrustLedger();
+        if (msg.sender != address(TRUST_LEDGER)) {
+            revert OnlyTrustLedger();
+        }
     }
 
     // Computes the median of an array segment [arr[0] .. arr[len-1]] using insertion sort.
     // Insertion sort is O(n²) but acceptable here because arrays are small (3-10 jurors).
-    function _median(uint256[] memory arr, uint256 len) internal pure returns (uint256) {
+    function _median(uint256[] memory arr, uint256 len) internal pure returns (uint256 result) {
         for (uint256 i = 1; i < len; ++i) {
             uint256 key = arr[i];
             uint256 j = i;

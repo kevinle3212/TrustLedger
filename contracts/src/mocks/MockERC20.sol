@@ -10,7 +10,8 @@ pragma solidity ^0.8.24;
 /// @notice Test-only ERC-20 token. Provides mint, transfer, approve, and transferFrom.
 ///         Implements the same interface surface as IERC20 that TrustLedger calls.
 contract MockERC20 {
-    // ─── State ────────────────────────────────────────────────────────────────
+    // ─── State
+    // ────────────────────────────────────────────────────────────────
 
     string private constant _NAME = "Mock Token";
     string private constant _SYMBOL = "MOCK";
@@ -25,7 +26,8 @@ contract MockERC20 {
     /// @notice Spend allowances: owner → spender → approved amount.
     mapping(address owner => mapping(address spender => uint256 amount)) public allowance;
 
-    // ─── Events ───────────────────────────────────────────────────────────────
+    // ─── Events
+    // ───────────────────────────────────────────────────────────────
 
     /// @notice Emitted on every token transfer, including mints (from = address(0)).
     /// @param from   Source address; address(0) for mints.
@@ -39,7 +41,8 @@ contract MockERC20 {
     /// @param value   Approved spend amount.
     event Approval(address indexed owner, address indexed spender, uint256 indexed value);
 
-    // ─── Custom Errors ────────────────────────────────────────────────────────
+    // ─── Custom Errors
+    // ────────────────────────────────────────────────────────
 
     /// @notice Sender does not hold enough tokens for the requested transfer.
     error InsufficientBalance();
@@ -47,7 +50,8 @@ contract MockERC20 {
     /// @notice Spender has not been approved for the requested amount.
     error InsufficientAllowance();
 
-    // ─── Test-only helper ─────────────────────────────────────────────────────
+    // ─── Test-only helper
+    // ─────────────────────────────────────────────────────
 
     /// @notice Create tokens out of thin air and credit them to `to`. Test-only.
     /// @param to     Recipient address.
@@ -58,13 +62,14 @@ contract MockERC20 {
         emit Transfer(address(0), to, amount);
     }
 
-    // ─── ERC-20 interface ─────────────────────────────────────────────────────
+    // ─── ERC-20 interface
+    // ─────────────────────────────────────────────────────
 
     /// @notice Approve `spender` to transfer up to `amount` on behalf of the caller.
     /// @param spender Address being approved.
     /// @param amount  Maximum tokens the spender may transfer.
-    /// @return        Always true (reverts on failure).
-    function approve(address spender, uint256 amount) external returns (bool) {
+    /// @return result Always true (reverts on failure).
+    function approve(address spender, uint256 amount) external returns (bool result) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
@@ -73,9 +78,11 @@ contract MockERC20 {
     /// @notice Transfer `amount` tokens from the caller to `to`.
     /// @param to     Destination address.
     /// @param amount Number of tokens to send.
-    /// @return       Always true (reverts on failure).
-    function transfer(address to, uint256 amount) external returns (bool) {
-        if (balanceOf[msg.sender] < amount) revert InsufficientBalance();
+    /// @return result Always true (reverts on failure).
+    function transfer(address to, uint256 amount) external returns (bool result) {
+        if (balanceOf[msg.sender] < amount) {
+            revert InsufficientBalance();
+        }
         balanceOf[msg.sender] -= amount;
         balanceOf[to] += amount;
         emit Transfer(msg.sender, to, amount);
@@ -86,10 +93,14 @@ contract MockERC20 {
     /// @param from   Source address (must have pre-approved the caller).
     /// @param to     Destination address.
     /// @param amount Number of tokens to move.
-    /// @return       Always true (reverts on failure).
-    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
-        if (balanceOf[from] < amount) revert InsufficientBalance();
-        if (allowance[from][msg.sender] < amount) revert InsufficientAllowance();
+    /// @return result Always true (reverts on failure).
+    function transferFrom(address from, address to, uint256 amount) external returns (bool result) {
+        if (balanceOf[from] < amount) {
+            revert InsufficientBalance();
+        }
+        if (allowance[from][msg.sender] < amount) {
+            revert InsufficientAllowance();
+        }
         allowance[from][msg.sender] -= amount;
         balanceOf[from] -= amount;
         balanceOf[to] += amount;
@@ -98,17 +109,20 @@ contract MockERC20 {
     }
 
     /// @notice Human-readable token name (satisfies ERC-20 metadata interface).
-    function name() external pure returns (string memory) {
+    /// @return result The token name.
+    function name() external pure returns (string memory result) {
         return _NAME;
     }
 
     /// @notice Short token ticker symbol.
-    function symbol() external pure returns (string memory) {
+    /// @return result The token ticker symbol.
+    function symbol() external pure returns (string memory result) {
         return _SYMBOL;
     }
 
     /// @notice Number of decimal places (matches standard ERC-20 convention).
-    function decimals() external pure returns (uint8) {
+    /// @return result The number of decimal places.
+    function decimals() external pure returns (uint8 result) {
         return _DECIMALS;
     }
 }

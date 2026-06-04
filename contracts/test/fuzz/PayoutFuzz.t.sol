@@ -16,9 +16,9 @@ pragma solidity ^0.8.24;
 //   - Hold-back amounts stay within their declared percentage bounds.
 
 import {Test, Vm} from "forge-std/Test.sol";
-import {TrustLedger} from "../../src/TrustLedger.sol";
-import {Arbitration} from "../../src/Arbitration.sol";
-import {JurorRegistry} from "../../src/JurorRegistry.sol";
+import {Arbitration} from "./../../src/Arbitration.sol";
+import {JurorRegistry} from "./../../src/JurorRegistry.sol";
+import {TrustLedger} from "./../../src/TrustLedger.sol";
 
 contract PayoutFuzz is Test {
     bytes32 public constant CONTRACT_HASH = keccak256("contract");
@@ -62,19 +62,19 @@ contract PayoutFuzz is Test {
     /// Creates a contract, accepts it, and submits proof of work with no hold-back.
     function _createSubmitted(uint128 amount, uint16 arbitrationFeeBps) internal returns (uint256 id) {
         vm.prank(client);
-        id = trustLedger.createContract{value: amount}(
-            freelancer,
-            CONTRACT_HASH,
-            "ipfs://contract",
-            30 days,
-            1200,
-            48 hours,
-            arbitrationFeeBps,
-            0,
-            0,
-            address(0),
-            0
-        );
+        id = trustLedger.createContract{value: amount}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: "ipfs://contract",
+            estimatedDuration: 30 days,
+            bufferFactor: 1200,
+            acceptanceWindow: 48 hours,
+            arbitrationFeeBps: arbitrationFeeBps,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
         (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
         trustLedger.acceptContract(id, v, r, s);
@@ -82,7 +82,8 @@ contract PayoutFuzz is Test {
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
     }
 
-    // ─── Payout conservation invariant ───────────────────────────────────────
+    // ─── Payout conservation invariant
+    // ───────────────────────────────────────
     // INVARIANT: for any valid (completionPct, amount, arbitrationFeeBps),
     //   freelancerPay + clientRefund == amount - feePool
     // This means no ETH is lost or created by the ruling - it's a zero-sum split.
@@ -120,7 +121,8 @@ contract PayoutFuzz is Test {
         assertLe(clientGot, remaining, "client overpaid");
     }
 
-    // ─── Partial payout formula ───────────────────────────────────────────────
+    // ─── Partial payout formula
+    // ───────────────────────────────────────────────
     // INVARIANT: for completionPct in 1-99, the proportional-fee formula
     //   rawPay              = (2 * pct * amount) / 300  [equivalent to (2/3) × (pct/100 × amount)]
     //   freelancerFeeBurden = (feePool * pct) / 100     [freelancer bears their share of the fee]
@@ -147,15 +149,18 @@ contract PayoutFuzz is Test {
         uint256 rawPay = (2 * uint256(completionPct) * uint256(amount)) / 300;
         uint256 freelancerFeeBurden = (feePool * uint256(completionPct)) / 100;
         uint256 expected = rawPay - freelancerFeeBurden;
-        if (expected > remaining) expected = remaining;
+        if (expected > remaining) {
+            expected = remaining;
+        }
 
         assertEq(freelancerGot, expected, "partial payout formula mismatch");
     }
 
-    // ─── Buffer factor deadline invariant ────────────────────────────────────
+    // ─── Buffer factor deadline invariant
+    // ────────────────────────────────────
     // INVARIANT: for any (estimatedDuration, bufferFactor) in valid ranges,
-    //   projectDeadline > block.timestamp AND
-    //   projectDeadline == block.timestamp + (estimatedDuration × bufferFactor) / 1000
+    //   projectDeadline > vm.getBlockTimestamp() AND
+    //   projectDeadline == vm.getBlockTimestamp() + (estimatedDuration × bufferFactor) / 1000
     function testFuzz_BufferFactorDeadline(
         uint32 estimatedDuration, // uint32 = max ~136 years in seconds (reasonable)
         uint32 bufferFactor
@@ -165,22 +170,22 @@ contract PayoutFuzz is Test {
         vm.assume(estimatedDuration > 0 && estimatedDuration <= 365 days);
         vm.assume(bufferFactor >= 1100 && bufferFactor <= 10_000);
 
-        uint256 ts = block.timestamp;
+        uint256 ts = vm.getBlockTimestamp();
 
         vm.prank(client);
-        uint256 id = trustLedger.createContract{value: 1 ether}(
-            freelancer,
-            CONTRACT_HASH,
-            "ipfs://contract",
-            estimatedDuration,
-            bufferFactor,
-            48 hours,
-            100,
-            0,
-            0,
-            address(0),
-            0
-        );
+        uint256 id = trustLedger.createContract{value: 1 ether}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: "ipfs://contract",
+            estimatedDuration: estimatedDuration,
+            bufferFactor: bufferFactor,
+            acceptanceWindow: 48 hours,
+            arbitrationFeeBps: 100,
+            holdBackBps: 0,
+            warrantyPeriod: 0,
+            token: address(0),
+            tokenAmount: 0
+        });
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
 
@@ -190,7 +195,8 @@ contract PayoutFuzz is Test {
         assertEq(c.projectDeadline, expectedDeadline, "deadline formula mismatch");
     }
 
-    // ─── Hold-back invariant ──────────────────────────────────────────────────
+    // ─── Hold-back invariant
+    // ──────────────────────────────────────────────────
     // INVARIANT: for any holdBackBps in [500, 1500],
     //   holdBackAmount is always between 5% and 15% of the original amount.
     function testFuzz_HoldBackBounds(
@@ -207,19 +213,19 @@ contract PayoutFuzz is Test {
         uint16 holdBackBps = uint16(500 + (uint256(holdBackBpsRaw) % 1001));
 
         vm.prank(client);
-        uint256 id = trustLedger.createContract{value: amount}(
-            freelancer,
-            CONTRACT_HASH,
-            "ipfs://contract",
-            30 days,
-            1200,
-            48 hours,
-            100,
-            holdBackBps,
-            7 days,
-            address(0),
-            0
-        );
+        uint256 id = trustLedger.createContract{value: amount}({
+            freelancer: freelancer,
+            contractHash: CONTRACT_HASH,
+            contractURI: "ipfs://contract",
+            estimatedDuration: 30 days,
+            bufferFactor: 1200,
+            acceptanceWindow: 48 hours,
+            arbitrationFeeBps: 100,
+            holdBackBps: holdBackBps,
+            warrantyPeriod: 7 days,
+            token: address(0),
+            tokenAmount: 0
+        });
 
         (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.prank(freelancer);
@@ -238,7 +244,8 @@ contract PayoutFuzz is Test {
         assertGe(c.holdBackAmount, minHoldBack, "hold-back below 5%");
     }
 
-    // ─── Fee pool bounds invariant ────────────────────────────────────────────
+    // ─── Fee pool bounds invariant
+    // ────────────────────────────────────────────
     // INVARIANT: for any (amount, arbitrationFeeBps) in valid ranges,
     //   feePool <= amount (the fee never exceeds the escrow).
     function testFuzz_FeePoolBounds(uint128 amount, uint16 arbitrationFeeBps) public pure {
@@ -252,7 +259,8 @@ contract PayoutFuzz is Test {
         assertGe(uint256(amount), feePool, "fee pool exceeds amount");
     }
 
-    // ─── Zero / full payout edge cases ───────────────────────────────────────
+    // ─── Zero / full payout edge cases
+    // ───────────────────────────────────────
 
     // At 0% completion, the freelancer should get nothing regardless of amount or fee.
     function testFuzz_ZeroPct_FreelancerGetsNothing(uint128 amount, uint16 arbitrationFeeBps) public {

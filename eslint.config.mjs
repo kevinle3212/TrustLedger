@@ -119,6 +119,47 @@ export default [
 		},
 	},
 
+	// ── Absolute-max additions (flag stale disables + remaining type-aware rules) ──
+	{
+		linterOptions: {
+			// A disable comment that no longer suppresses anything is itself an error.
+			reportUnusedDisableDirectives: "error",
+		},
+		rules: {
+			"@typescript-eslint/no-unnecessary-type-parameters": "error",
+			"@typescript-eslint/no-unnecessary-template-expression": "error",
+			"@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
+			"@typescript-eslint/no-unnecessary-type-arguments": "error",
+			"@typescript-eslint/no-deprecated": "error",
+			"@typescript-eslint/prefer-nullish-coalescing": "error",
+			"@typescript-eslint/prefer-optional-chain": "error",
+			"@typescript-eslint/prefer-find": "error",
+			"@typescript-eslint/prefer-includes": "error",
+			"@typescript-eslint/prefer-reduce-type-parameter": "error",
+			"@typescript-eslint/prefer-string-starts-ends-with": "error",
+			"@typescript-eslint/require-array-sort-compare": "error",
+			"@typescript-eslint/method-signature-style": ["error", "property"],
+			"@typescript-eslint/no-import-type-side-effects": "error",
+			"@typescript-eslint/no-unused-vars": [
+				"error",
+				{
+					args: "all",
+					argsIgnorePattern: "^_",
+					varsIgnorePattern: "^_",
+					caughtErrors: "all",
+					ignoreRestSiblings: false,
+				},
+			],
+			"@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+			"no-else-return": ["error", { allowElseIf: false }],
+			"no-lonely-if": "error",
+			"prefer-arrow-callback": "error",
+			"radix": ["error", "always"],
+			"yoda": ["error", "never"],
+			"no-console": "error",
+		},
+	},
+
 	// ── Per-file overrides ────────────────────────────────────────────────────
 	{
 		// Mocha/Chai callbacks are anonymous and use property-getter assertions
@@ -128,6 +169,9 @@ export default [
 			"@typescript-eslint/explicit-function-return-type": "off",
 			"@typescript-eslint/explicit-module-boundary-types": "off",
 			"@typescript-eslint/no-unused-expressions": "off",
+			// Mocha relies on `function () {}` callbacks for its `this` context
+			// (this.timeout(), this.skip()); arrow callbacks would break that.
+			"prefer-arrow-callback": "off",
 		},
 	},
 	{

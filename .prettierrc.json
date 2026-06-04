@@ -14,5 +14,16 @@
 	"proseWrap": "preserve",
 	"htmlWhitespaceSensitivity": "css",
 	"experimentalTernaries": false,
-	"singleAttributePerLine": false
+	"singleAttributePerLine": false,
+	"overrides": [
+		{
+			"files": ["*.md", "*.markdown"],
+			"options": {
+				"useTabs": false,
+				"tabWidth": 4,
+				"proseWrap": "always",
+				"printWidth": 80
+			}
+		}
+	]
 }

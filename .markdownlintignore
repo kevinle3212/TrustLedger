@@ -14,7 +14,15 @@ dist/
 ## Node Dependencies
 
 node_modules/
+src/node_modules/
 
 ## Vercel Build Cache
 
 .vercel/
+
+## Internal / Generated
+
+.claude/
+.sixth/
+site/
+testing/

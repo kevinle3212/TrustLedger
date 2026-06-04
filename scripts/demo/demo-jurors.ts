@@ -52,12 +52,7 @@ interface JurorSnapshot {
 	disputesParticipated: bigint;
 }
 
-async function snapshot(
-	jr: JurorRegistry,
-	label: string,
-	addr: string,
-	tag: string,
-): Promise<JurorSnapshot> {
+async function snapshot(jr: JurorRegistry, addr: string, tag: string): Promise<JurorSnapshot> {
 	const j = await jr.getJuror(addr);
 	return {
 		label: tag,
@@ -136,9 +131,9 @@ async function main(): Promise<void> {
 
 	// ── Step 2: Capture baseline snapshot ────────────────────────────────────
 	const before: JurorSnapshot[] = [
-		await snapshot(jr, "before", j1.address, "J1 (before)"),
-		await snapshot(jr, "before", j2.address, "J2 (before)"),
-		await snapshot(jr, "before", j3.address, "J3 (before)"),
+		await snapshot(jr, j1.address, "J1 (before)"),
+		await snapshot(jr, j2.address, "J2 (before)"),
+		await snapshot(jr, j3.address, "J3 (before)"),
 	];
 
 	console.log("Baseline reputation:");
@@ -278,9 +273,9 @@ async function main(): Promise<void> {
 
 	// ── Step 9: After snapshot + diff ─────────────────────────────────────────
 	const after: JurorSnapshot[] = [
-		await snapshot(jr, "after", j1.address, "J1 (after) "),
-		await snapshot(jr, "after", j2.address, "J2 (after) "),
-		await snapshot(jr, "after", j3.address, "J3 (after) "),
+		await snapshot(jr, j1.address, "J1 (after) "),
+		await snapshot(jr, j2.address, "J2 (after) "),
+		await snapshot(jr, j3.address, "J3 (after) "),
 	];
 
 	console.log("Final reputation (after ruling):");

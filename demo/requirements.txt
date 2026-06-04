@@ -1,1 +1,6 @@
-reportlab==4.4.10
+# Demo PDF generation dependencies.
+# Install with: pip install -r demo/requirements.txt
+# Used by demo/generate_contract.py to produce sample-contract.pdf — a dummy
+# freelance service agreement for TrustLedger demos. The PDF is uploaded to IPFS
+# and its keccak256 hash is stored on-chain as contractHash.
+reportlab==4.4.10  # PDF layout and rendering engine

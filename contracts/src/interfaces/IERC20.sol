@@ -18,14 +18,14 @@ interface IERC20 {
     /// @param from   Address whose tokens are pulled.
     /// @param to     Recipient address.
     /// @param amount Token units to transfer.
-    /// @return       True if the transfer succeeded.
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+    /// @return result True if the transfer succeeded.
+    function transferFrom(address from, address to, uint256 amount) external returns (bool result);
 
     // Send tokens held by this contract to a recipient (payout to client or freelancer).
 
     /// @notice Transfer tokens from the calling contract to `to`.
     /// @param to     Recipient address.
     /// @param amount Token units to transfer.
-    /// @return       True if the transfer succeeded.
-    function transfer(address to, uint256 amount) external returns (bool);
+    /// @return result True if the transfer succeeded.
+    function transfer(address to, uint256 amount) external returns (bool result);
 }

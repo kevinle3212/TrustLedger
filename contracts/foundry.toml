@@ -1,7 +1,26 @@
-# asm-keccak256: inline assembly for keccak256 trades readability and auditability
-# for a marginal gas gain — not appropriate in security-critical signature verification.
+# Lint configuration — maximum strictness.
+# No lints are excluded: every forge-lint rule (gas, security, style, including
+# asm-keccak256) is reported. `severity` restricts the run to high/med/low/info/gas
+# so nothing is silently dropped.
 [lint]
-exclude_lints = ["asm-keccak256"]
+exclude_lints = []
+severity = ["high", "med", "low", "info", "gas"]
+
+# Formatter configuration — explicit, strict, and deterministic so `forge fmt --check`
+# is the single source of truth for Solidity style (solhint owns rule/lint concerns only).
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = false        # `import {X}` — Foundry canonical, not `{ X }`
+int_types = "long"             # always `uint256`, never `uint`
+multiline_func_header = "all"  # one parameter per line on multiline headers
+quote_style = "double"
+number_underscore = "thousands"
+hex_underscore = "remove"
+single_line_statement_blocks = "multi"
+override_spacing = false
+wrap_comments = true           # reflow comments to line_length
+sort_imports = false           # import ordering is enforced by solhint (imports-order)
 
 [profile.default]
 src = "src"
@@ -13,6 +32,7 @@ solc_version = "0.8.24"
 optimizer = true
 optimizer_runs = 200
 via_ir = true
+deny = "warnings"              # treat every solc compiler warning as a hard error
 
 [profile.default.fuzz]
 runs = 10000

@@ -21,7 +21,8 @@ contract ReputationRegistryTest is Test {
         registry = new ReputationRegistry(trustLedger);
     }
 
-    // ─── Constructor ──────────────────────────────────────────────────────────
+    // ─── Constructor
+    // ──────────────────────────────────────────────────────────
 
     function test_Constructor_ZeroAddress_Reverts() public {
         vm.expectRevert(ReputationRegistry.ZeroAddress.selector);
@@ -32,7 +33,8 @@ contract ReputationRegistryTest is Test {
         assertEq(registry.TRUST_LEDGER(), trustLedger, "immutable mismatch");
     }
 
-    // ─── Rate ─────────────────────────────────────────────────────────────────
+    // ─── Rate
+    // ─────────────────────────────────────────────────────────────────
 
     function test_Rate_RecordsScore() public {
         vm.prank(trustLedger);
@@ -94,7 +96,8 @@ contract ReputationRegistryTest is Test {
         registry.rate(user1, 90);
     }
 
-    // ─── AverageRating ────────────────────────────────────────────────────────
+    // ─── AverageRating
+    // ────────────────────────────────────────────────────────
 
     function test_AverageRating_UnratedUser_ReturnsZero() public view {
         (uint256 num, uint256 den) = registry.averageRating(user1);
@@ -117,7 +120,8 @@ contract ReputationRegistryTest is Test {
         assertEq(den2, 1);
     }
 
-    // ─── Recovery ─────────────────────────────────────────────────────────────
+    // ─── Recovery
+    // ─────────────────────────────────────────────────────────────
 
     function test_Recovery_LowScore_EntersPendingRecovery() public {
         vm.prank(trustLedger);

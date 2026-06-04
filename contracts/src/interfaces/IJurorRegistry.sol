@@ -10,7 +10,8 @@ pragma solidity ^0.8.24;
 /// @author Kevin Le, Kellen Snider
 /// @notice Minimal interface for Arbitration to interact with the juror staking registry.
 interface IJurorRegistry {
-    // ─── Shared data type ─────────────────────────────────────────────────────
+    // ─── Shared data type
+    // ─────────────────────────────────────────────────────
     // Structs defined in interfaces are importable by any contract that imports
     // the interface, avoiding duplication across the codebase.
     // Fields ordered for tight storage packing: addr(20)+active(1) share one slot.
@@ -56,21 +57,21 @@ interface IJurorRegistry {
 
     /// @notice Check if a juror is eligible to commit a vote.
     /// @param juror The juror address to check.
-    /// @return True if the juror is active, sufficiently staked, and past the lock period.
-    function isEligible(address juror) external view returns (bool);
+    /// @return result True if the juror is active, sufficiently staked, and past the lock period.
+    function isEligible(address juror) external view returns (bool result);
 
     // Returns the full JurorInfo struct for inspection (used during slashing to
     // read the current stake before computing the slash amount).
 
     /// @notice Return the full JurorInfo struct for a given juror.
     /// @param juror The juror address to look up.
-    /// @return      The juror's current info.
-    function getJuror(address juror) external view returns (JurorInfo memory);
+    /// @return result The juror's current info.
+    function getJuror(address juror) external view returns (JurorInfo memory result);
 
     // Returns the flat list of all registered juror addresses.
     // Used by Arbitration's VRF fulfillment to sample a random subset as jurors.
 
     /// @notice Return every address that has ever called register().
-    /// @return Array of all registered juror wallet addresses.
-    function getJurorList() external view returns (address[] memory);
+    /// @return result Array of all registered juror wallet addresses.
+    function getJurorList() external view returns (address[] memory result);
 }

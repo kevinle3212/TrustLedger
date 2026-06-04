@@ -2,19 +2,27 @@
 
 TrustLedger has two independently deployable pieces:
 
-- **Contracts** - Solidity contracts deployed to Ethereum Sepolia via Foundry and a GitHub Actions workflow (`deploy.yml`).
-- **Frontend** - Next.js app deployed to [Vercel](https://vercel.com) via Vercel's Git integration (automatic on every push to `main` that touches `src/` or `artifacts/deployed-addresses.json`).
+- **Contracts** - Solidity contracts deployed to Ethereum Sepolia via Foundry
+  and a GitHub Actions workflow (`deploy.yml`).
+- **Frontend** - Next.js app deployed to [Vercel](https://vercel.com) via
+  Vercel's Git integration (automatic on every push to `main` that touches
+  `src/` or `artifacts/deployed-addresses.json`).
 
-**Production URL:** [https://trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)
+**Production URL:**
+[https://trustledger-zeta.vercel.app](https://trustledger-zeta.vercel.app)
 
-The two pipelines are linked: after a successful contract deploy, `deploy.yml` automatically updates the contract address env vars in Vercel and triggers a frontend redeploy via the Vercel CLI. You never need to manually sync an address.
+The two pipelines are linked: after a successful contract deploy, `deploy.yml`
+automatically updates the contract address env vars in Vercel and triggers a
+frontend redeploy via the Vercel CLI. You never need to manually sync an
+address.
 
 ---
 
 ## Prerequisites
 
 - A Vercel account (free Hobby tier works)
-- The [Vercel CLI](https://vercel.com/docs/cli) installed locally: `npm install -g vercel`
+- The [Vercel CLI](https://vercel.com/docs/cli) installed locally:
+  `npm install -g vercel`
 - A funded Ethereum Sepolia wallet (see `.env.example` for faucet links)
 - Write access to the GitHub repository (to add secrets and environments)
 
@@ -31,7 +39,8 @@ cd src
 vercel link
 ```
 
-Follow the prompts to log in and connect to your Vercel team/account. This writes `src/.vercel/project.json` - **do not commit it**.
+Follow the prompts to log in and connect to your Vercel team/account. This
+writes `src/.vercel/project.json` - **do not commit it**.
 
 ### 2. Retrieve the Vercel project IDs
 
@@ -50,7 +59,8 @@ Note the `orgId` and `projectId` values.
 
 ### 4. Create the `ethereum-sepolia` GitHub Environment
 
-`deploy.yml` runs inside a GitHub Environment for approval gates and scoped secrets.
+`deploy.yml` runs inside a GitHub Environment for approval gates and scoped
+secrets.
 
 1. Go to **GitHub repo → Settings → Environments → New environment**.
 2. Name it exactly `ethereum-sepolia`.
@@ -67,7 +77,9 @@ Note the `orgId` and `projectId` values.
 
 ### 5. Set Vercel environment variables
 
-The frontend reads its configuration entirely from Vercel environment variables - there is no `.env` file on Vercel's build servers. The table below lists every variable, whether it is required, and where to get the value.
+The frontend reads its configuration entirely from Vercel environment
+variables - there is no `.env` file on Vercel's build servers. The table below
+lists every variable, whether it is required, and where to get the value.
 
 #### Required variables
 
@@ -94,8 +106,12 @@ These must be set before the frontend will work correctly in production.
 | `NEXT_BASE_PATH`         | Production/Preview | Leave unset to serve from root `/`; only needed for sub-path hosting                                                          |
 
 > **Why contract address env vars must be set in Vercel:**
-> `artifacts/deployed-addresses.json` is gitignored and never reaches the CI checkout. Vercel's build has no access to it. Env vars are the only mechanism the frontend uses to know deployed addresses.
-> `deploy.yml` keeps the three core contracts in sync automatically after every Forge deploy; set `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` manually until the Forge script deploys `ReputationRegistry` too.
+> `artifacts/deployed-addresses.json` is gitignored and never reaches the CI
+> checkout. Vercel's build has no access to it. Env vars are the only mechanism
+> the frontend uses to know deployed addresses. `deploy.yml` keeps the three
+> core contracts in sync automatically after every Forge deploy; set
+> `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` manually until the Forge script
+> deploys `ReputationRegistry` too.
 
 #### Method A - Vercel dashboard (recommended for first-time setup)
 
@@ -103,13 +119,15 @@ These must be set before the frontend will work correctly in production.
 2. For each variable in the table above, click **Add** and fill in:
     - **Key** - the variable name (e.g. `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`)
     - **Value** - the value
-    - **Environments** - check **Production** and **Preview** (and **Development** if you want `vercel dev` to pick it up)
+    - **Environments** - check **Production** and **Preview** (and
+      **Development** if you want `vercel dev` to pick it up)
 3. Click **Save**.
 4. Trigger a redeploy to apply the new values: **Deployments → ⋯ → Redeploy**.
 
 #### Method B - Vercel CLI
 
-Run all of the following from the **repo root** (not `src/`). Each command prompts for the value interactively.
+Run all of the following from the **repo root** (not `src/`). Each command
+prompts for the value interactively.
 
 ```bash
 # Required - WalletConnect
@@ -146,31 +164,40 @@ echo "https://new-url.vercel.app" | vercel env add NEXT_PUBLIC_APP_URL productio
 
 ### Obtaining a Pinata JWT
 
-`NEXT_PUBLIC_PINATA_JWT` powers the **Upload File** tab on the contract creation page (IPFS pinning via Pinata).
+`NEXT_PUBLIC_PINATA_JWT` powers the **Upload File** tab on the contract creation
+page (IPFS pinning via Pinata).
 
-1. Go to [app.pinata.cloud](https://app.pinata.cloud) and sign in (or create a free account).
+1. Go to [app.pinata.cloud](https://app.pinata.cloud) and sign in (or create a
+   free account).
 2. In the left sidebar, click **API Keys**.
 3. Click **+ New Key**.
-4. Under **Key Permissions**, select **Files** scope (sufficient for pinning; no admin access needed).
+4. Under **Key Permissions**, select **Files** scope (sufficient for pinning; no
+   admin access needed).
 5. Give the key a name (e.g. `trustledger-frontend`) and click **Create Key**.
 6. Copy the **JWT** from the dialog - it is only shown once.
 7. Paste it into your environment:
     - **Local dev**: add `NEXT_PUBLIC_PINATA_JWT=<jwt>` to the root `.env` file.
-    - **Vercel**: run `vercel env add NEXT_PUBLIC_PINATA_JWT production` and `vercel env add NEXT_PUBLIC_PINATA_JWT preview`, pasting the JWT when prompted.
+    - **Vercel**: run `vercel env add NEXT_PUBLIC_PINATA_JWT production` and
+      `vercel env add NEXT_PUBLIC_PINATA_JWT preview`, pasting the JWT when
+      prompted.
 
-> **Note:** A Files-scoped JWT can only pin new content - it cannot delete pins or access account settings. It is safe to embed in a public Next.js bundle (`NEXT_PUBLIC_` prefix).
+> **Note:** A Files-scoped JWT can only pin new content - it cannot delete pins
+> or access account settings. It is safe to embed in a public Next.js bundle
+> (`NEXT_PUBLIC_` prefix).
 
 ---
 
 ## Contract Deployment
 
-Contracts are deployed via the manually-triggered `deploy.yml` workflow on GitHub Actions.
+Contracts are deployed via the manually-triggered `deploy.yml` workflow on
+GitHub Actions.
 
 ### Via GitHub Actions (recommended)
 
 1. Go to **GitHub repo → Actions → Deploy (Ethereum Sepolia)**.
 2. Click **Run workflow**.
-3. Set the script target (default: `script/Deploy.s.sol:Deploy`) and whether to verify on Etherscan.
+3. Set the script target (default: `script/Deploy.s.sol:Deploy`) and whether to
+   verify on Etherscan.
 4. Click **Run workflow**.
 
 The workflow:
@@ -183,7 +210,8 @@ The workflow:
 
 ### Via local CLI (manual)
 
-Requires a `.env` file with `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, and `ETHERSCAN_API_KEY`.
+Requires a `.env` file with `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, and
+`ETHERSCAN_API_KEY`.
 
 ```bash
 # Foundry - dry run (no broadcast)
@@ -196,7 +224,8 @@ npm run start:deploy:foundry
 npm run start:deploy:hardhat
 ```
 
-After a local deploy, update the contract address env vars in Vercel and trigger a frontend redeploy:
+After a local deploy, update the contract address env vars in Vercel and trigger
+a frontend redeploy:
 
 ```bash
 vercel env rm NEXT_PUBLIC_TRUSTLEDGER_ADDRESS production
@@ -211,9 +240,14 @@ vercel deploy --prod
 
 ### Automatic (Git integration)
 
-Vercel's Git integration deploys to production automatically on every push to `main`. The `ignoreCommand` in `src/vercel.json` skips the build if neither `src/` nor `artifacts/deployed-addresses.json` changed - so contract-only or docs-only pushes don't trigger a frontend build.
+Vercel's Git integration deploys to production automatically on every push to
+`main`. The `ignoreCommand` in `src/vercel.json` skips the build if neither
+`src/` nor `artifacts/deployed-addresses.json` changed - so contract-only or
+docs-only pushes don't trigger a frontend build.
 
-`deploy.yml` also triggers a frontend redeploy via `vercel deploy --prod` after updating contract addresses, bypassing the `ignoreCommand` (CLI-triggered deploys always proceed).
+`deploy.yml` also triggers a frontend redeploy via `vercel deploy --prod` after
+updating contract addresses, bypassing the `ignoreCommand` (CLI-triggered
+deploys always proceed).
 
 ### Manual
 
@@ -229,13 +263,23 @@ vercel --prod
 npm run deploy:vercel
 ```
 
-> **`.env.local`** is auto-generated by `vercel pull` - never create it manually. This project uses the root `.env` file for local frontend dev (read by `parseRootEnv()` in `next.config.ts`), so pulling env vars into `.env.local` is optional and only needed for `vercel dev`.
+> **`.env.local`** is auto-generated by `vercel pull` (or `vercel env pull`) -
+> never create it manually. This project uses the root `.env` file for local
+> frontend dev (read by `parseRootEnv()` in `next.config.ts`), so pulling env
+> vars into `.env.local` is optional and only needed for `vercel dev`.
+>
+> See **`.env.local.example`** for an annotated reference of what the generated
+> file contains (the Vercel-injected `VERCEL_OIDC_TOKEN`, `NEXT_PUBLIC_*`
+> frontend vars, and the deployed contract addresses).
 
 ---
 
 ## Preview Deployments
 
-Vercel creates a preview URL for every pull request when the [Vercel GitHub Integration](https://vercel.com/docs/deployments/git/vercel-for-github) is installed. Enable it from the Vercel dashboard. Preview deployments use the `Preview` env vars set in step 6 above.
+Vercel creates a preview URL for every pull request when the
+[Vercel GitHub Integration](https://vercel.com/docs/deployments/git/vercel-for-github)
+is installed. Enable it from the Vercel dashboard. Preview deployments use the
+`Preview` env vars set in step 6 above.
 
 ---
 
@@ -247,7 +291,8 @@ To revert the frontend to a previous deployment:
 2. Find the deployment you want to restore.
 3. Click **⋯ → Promote to Production**.
 
-To revert to a previous contract version, redeploy the old commit tag via `deploy.yml` with the script target pointing to the desired version.
+To revert to a previous contract version, redeploy the old commit tag via
+`deploy.yml` with the script target pointing to the desired version.
 
 ---
 

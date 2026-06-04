@@ -1,6 +1,7 @@
 # Contributing and Local Development
 
-This guide covers everything needed to clone, compile, test, lint, and deploy TrustLedger locally.
+This guide covers everything needed to clone, compile, test, lint, and deploy
+TrustLedger locally.
 
 ---
 
@@ -36,7 +37,8 @@ cd TrustLedger
 npm install
 ```
 
-No `forge install` is needed - Foundry dependencies (`forge-std`, `openzeppelin-contracts`) are committed directly to `contracts/lib/`.
+No `forge install` is needed - Foundry dependencies (`forge-std`,
+`openzeppelin-contracts`) are committed directly to `contracts/lib/`.
 
 ---
 
@@ -67,7 +69,9 @@ cp .env.example .env
 npm run compile
 ```
 
-This runs `hardhat compile`, which reads sources from `contracts/src/`, outputs ABIs and bytecode to `artifacts/`, and generates TypeScript wrappers under `artifacts/typechain-types/`.
+This runs `hardhat compile`, which reads sources from `contracts/src/`, outputs
+ABIs and bytecode to `artifacts/`, and generates TypeScript wrappers under
+`artifacts/typechain-types/`.
 
 Foundry also compiles independently:
 
@@ -84,7 +88,9 @@ Both compilers use the same settings: `solc 0.8.24`, `optimizer_runs = 200`.
 
 ### Option A - Docker (no local toolchain required)
 
-If you have [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed, this is the fastest path. Node.js and Foundry do not need to be installed on your machine.
+If you have [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+installed, this is the fastest path. Node.js and Foundry do not need to be
+installed on your machine.
 
 ```bash
 git clone https://github.com/kevinle3212/TrustLedger.git
@@ -101,9 +107,13 @@ docker compose up node            # chain only - connect MetaMask to http://loca
 docker compose run test       # full Hardhat + Foundry test suite
 ```
 
-For the interactive case-scenario runner (7 outcomes including juror and stablecoin demos), use the local toolchain instead - see [Option B](#option-b---local-toolchain) below.
+For the interactive case-scenario runner (7 outcomes including juror and
+stablecoin demos), use the local toolchain instead - see
+[Option B](#option-b---local-toolchain) below.
 
-The `node` service exposes the chain at `http://localhost:8545` (chain ID 31337). Private keys for all 20 test accounts are printed on startup - import any of them into MetaMask to interact manually.
+The `node` service exposes the chain at `http://localhost:8545` (chain ID
+31337). Private keys for all 20 test accounts are printed on startup - import
+any of them into MetaMask to interact manually.
 
 ---
 
@@ -115,7 +125,8 @@ The `node` service exposes the chain at `http://localhost:8545` (chain ID 31337)
 npm run node
 ```
 
-This starts a local EVM node at `http://127.0.0.1:8545` (chain ID 31337) and prints 20 funded test accounts with their private keys. Keep this terminal open.
+This starts a local EVM node at `http://127.0.0.1:8545` (chain ID 31337) and
+prints 20 funded test accounts with their private keys. Keep this terminal open.
 
 ### 2. Deploy contracts
 
@@ -125,7 +136,11 @@ In a second terminal:
 npm run hardhat:deploy:local
 ```
 
-This deploys `JurorRegistry`, `TrustLedger`, `Arbitration`, and `ReputationRegistry` (wired via `initReputationRegistry`) in the correct order and writes their addresses to `artifacts/deployed-addresses.json`. The address file is consumed automatically by the demo scripts and the frontend (`next.config.ts`).
+This deploys `JurorRegistry`, `TrustLedger`, `Arbitration`, and
+`ReputationRegistry` (wired via `initReputationRegistry`) in the correct order
+and writes their addresses to `artifacts/deployed-addresses.json`. The address
+file is consumed automatically by the demo scripts and the frontend
+(`next.config.ts`).
 
 **Or do both steps in a single command:**
 
@@ -133,13 +148,19 @@ This deploys `JurorRegistry`, `TrustLedger`, `Arbitration`, and `ReputationRegis
 npm run start:deploy:local
 ```
 
-This compiles, starts the local node in the background, waits for it to be ready, then deploys. The node keeps running after the deploy - stop it with `pkill -f "hardhat node"` when done.
+This compiles, starts the local node in the background, waits for it to be
+ready, then deploys. The node keeps running after the deploy - stop it with
+`pkill -f "hardhat node"` when done.
 
 ### 3. Run the demo scripts
 
 #### Interactive scenario runner
 
-The easiest way to run any demo is the interactive scenario runner. It auto-starts the Hardhat node and deploys contracts if they are not already running, then prompts you to pick a case scenario by number. After each scenario completes it loops back to the menu - press `Ctrl+C` to exit. Each step also prints a plain-language explanation of what is happening on-chain and why:
+The easiest way to run any demo is the interactive scenario runner. It
+auto-starts the Hardhat node and deploys contracts if they are not already
+running, then prompts you to pick a case scenario by number. After each scenario
+completes it loops back to the menu - press `Ctrl+C` to exit. Each step also
+prints a plain-language explanation of what is happening on-chain and why:
 
 ```bash
 npm run demo:run
@@ -166,13 +187,18 @@ You can also pass the scenario number directly to skip the menu:
 | 6   | Juror reputation demo                      | -       | -       | -               | -             | Register 3 jurors, dispute, before/after stake & juror reputation table    |
 | 7   | Stablecoin escrow demo                     | -       | -       | -               | -             | ERC-20 escrow, ETH vs token gas comparison, `submitRating` on both parties |
 
-Scenarios 1-5 run the full dispute flow: register jurors → 7-day stake lock (EVM time-travel) → create escrow → accept → submit proof → dispute → commit-reveal vote → finalize → execute ruling.
+Scenarios 1-5 run the full dispute flow: register jurors → 7-day stake lock (EVM
+time-travel) → create escrow → accept → submit proof → dispute → commit-reveal
+vote → finalize → execute ruling.
 
-Scenarios 4 and 5 demonstrate the minority slashing system: J3 deviates 100 percentage points from the median, which exceeds the `SEVERE_MINORITY_THRESHOLD` (30 pts) and triggers a 20% stake slash and -10 reputation penalty.
+Scenarios 4 and 5 demonstrate the minority slashing system: J3 deviates 100
+percentage points from the median, which exceeds the `SEVERE_MINORITY_THRESHOLD`
+(30 pts) and triggers a 20% stake slash and -10 reputation penalty.
 
 #### Individual demo scripts
 
-The original scripts are still available if you want to run a specific flow directly (requires the node and contracts to already be running):
+The original scripts are still available if you want to run a specific flow
+directly (requires the node and contracts to already be running):
 
 ```bash
 # Happy path: create → accept → submit → approve → full payout
@@ -188,13 +214,16 @@ npm run demo:jurors
 npm run demo:stablecoin
 ```
 
-All demos advance EVM time using `evm_increaseTime` to skip lock periods and voting windows, so the full flow completes in seconds.
+All demos advance EVM time using `evm_increaseTime` to skip lock periods and
+voting windows, so the full flow completes in seconds.
 
 ---
 
 ## GitHub Models (prompts and examples)
 
-Optional: test [GitHub Models](https://github.com/marketplace/models) `.prompt.yml` files and Python examples. Full guide: [GITHUB_MODELS.md](GITHUB_MODELS.md).
+Optional: test [GitHub Models](https://github.com/marketplace/models)
+`.prompt.yml` files and Python examples. Full guide:
+[GITHUB_MODELS.md](GITHUB_MODELS.md).
 
 ```bash
 export GITHUB_TOKEN=ghp_your_token   # needs Models access
@@ -204,13 +233,15 @@ npm run models:run                   # Python: summarize, generate, Q&A
 npm run models:eval                  # gh models eval on .github/prompts/*.prompt.yml
 ```
 
-CI runs automatically via `.github/workflows/github-models.yml` when prompt files change.
+CI runs automatically via `.github/workflows/github-models.yml` when prompt
+files change.
 
 ---
 
 ## Hardhat Tests
 
-The Hardhat test suite covers the full contract surface in TypeScript using Mocha, Chai, and ethers.js v6 with TypeChain-generated types.
+The Hardhat test suite covers the full contract surface in TypeScript using
+Mocha, Chai, and ethers.js v6 with TypeChain-generated types.
 
 ```bash
 # Compile (required before first test run or after contract changes)
@@ -325,9 +356,13 @@ cd contracts && forge fmt
 
 ## Nexus Code Graph (AI Context)
 
-`nexus-graph` indexes the TypeScript and JavaScript source into a SQLite symbol graph and serves it to Claude Code as an MCP server. This gives Claude token-budgeted context about functions, classes, and their dependencies without reading every file.
+`nexus-graph` indexes the TypeScript and JavaScript source into a SQLite symbol
+graph and serves it to Claude Code as an MCP server. This gives Claude
+token-budgeted context about functions, classes, and their dependencies without
+reading every file.
 
-The MCP server is configured in `.mcp.json` at the repo root. Claude Code picks it up automatically on session start.
+The MCP server is configured in `.mcp.json` at the repo root. Claude Code picks
+it up automatically on session start.
 
 ```bash
 # Build or refresh the symbol graph (run from repo root)
@@ -340,13 +375,18 @@ npm run nexus:server
 npm run nexus:viz
 ```
 
-Re-run `nexus:index` after large refactors to keep the graph current. The generated database lives in `.nexus/graph.db` (gitignored).
+Re-run `nexus:index` after large refactors to keep the graph current. The
+generated database lives in `.nexus/graph.db` (gitignored).
 
 ---
 
 ## RTK — Claude Code Token Proxy
 
-[RTK](https://www.rtk-ai.app/) is a CLI proxy that intercepts shell commands executed by Claude Code and trims their output before it reaches the LLM context window. On a project like TrustLedger — with frequent `git`, `npm`, and `forge` operations — it typically reduces token consumption by 60-90%, cutting both cost and response latency.
+[RTK](https://www.rtk-ai.app/) is a CLI proxy that intercepts shell commands
+executed by Claude Code and trims their output before it reaches the LLM context
+window. On a project like TrustLedger — with frequent `git`, `npm`, and `forge`
+operations — it typically reduces token consumption by 60-90%, cutting both cost
+and response latency.
 
 ### Install
 
@@ -354,8 +394,10 @@ Re-run `nexus:index` after large refactors to keep the graph current. The genera
 brew install rtk
 ```
 
-> **macOS only:** RTK is available in Homebrew core — no tap required.
-> ⚠️ **Name collision:** `reachingforthejack/rtk` (Rust Type Kit) is an unrelated package. If `rtk gain` shows an unrelated tool, run `which rtk` to confirm you have the correct binary from `/opt/homebrew/bin/rtk`.
+> **macOS only:** RTK is available in Homebrew core — no tap required. ⚠️ **Name
+> collision:** `reachingforthejack/rtk` (Rust Type Kit) is an unrelated package.
+> If `rtk gain` shows an unrelated tool, run `which rtk` to confirm you have the
+> correct binary from `/opt/homebrew/bin/rtk`.
 
 ### Verify
 
@@ -366,7 +408,10 @@ rtk gain        # should show token savings (0 on first run)
 
 ### How It Works
 
-Once `rtk` is installed, Claude Code's session hook (defined in `.claude/settings.json`) automatically routes all shell commands through the proxy. No manual configuration is required — just install and it is active the next time a Claude Code session starts.
+Once `rtk` is installed, Claude Code's session hook (defined in
+`.claude/settings.json`) automatically routes all shell commands through the
+proxy. No manual configuration is required — just install and it is active the
+next time a Claude Code session starts.
 
 ```text
 git status  →  rtk git status   (Claude only sees the filtered output)
@@ -383,13 +428,15 @@ npm run …   →  rtk npm run …
 | `rtk discover`       | Analyze Claude Code history for missed RTK opportunities  |
 | `rtk proxy <cmd>`    | Run a command through RTK manually (useful for debugging) |
 
-RTK is optional — Claude Code works without it — but is strongly recommended for any contributor who uses Claude Code on this project.
+RTK is optional — Claude Code works without it — but is strongly recommended for
+any contributor who uses Claude Code on this project.
 
 ---
 
 ## Frontend Development
 
-The `src/` directory is a standalone Next.js 16 package. It has its own `package.json` and `node_modules` - it is not part of the root npm workspace.
+The `src/` directory is a standalone Next.js 16 package. It has its own
+`package.json` and `node_modules` - it is not part of the root npm workspace.
 
 ### Install
 
@@ -400,7 +447,8 @@ npm install
 
 ### Environment variables
 
-All frontend env vars are read from the root `.env` file by `next.config.ts` - no `src/.env.local` is needed.
+All frontend env vars are read from the root `.env` file by `next.config.ts` -
+no `src/.env.local` is needed.
 
 | Variable                                  | Description                                                                                                                                                                        |
 | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -419,7 +467,8 @@ All frontend env vars are read from the root `.env` file by `next.config.ts` - n
 
 ### Running the dev server
 
-Start the contracts node and compile first (if interacting with the local chain):
+Start the contracts node and compile first (if interacting with the local
+chain):
 
 ```bash
 # repo root - terminal 1
@@ -454,13 +503,15 @@ npm run lint:frontend:prettier  # Prettier only
 npm run build:frontend    # static export to src/out/
 ```
 
-The build is also verified automatically in the `frontend` CI job on every push and pull request.
+The build is also verified automatically in the `frontend` CI job on every push
+and pull request.
 
 ---
 
 ## Deploying to Ethereum Sepolia
 
-Requires `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, and `ETHERSCAN_API_KEY` in `.env`.
+Requires `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, and `ETHERSCAN_API_KEY` in
+`.env`.
 
 ### Hardhat
 
@@ -489,8 +540,8 @@ npm run foundry:deploy:sepolia:dry-run
 npm run foundry:deploy:sepolia
 ```
 
-The scripts load `.env` automatically and use the named `sepolia` network configured in
-`contracts/foundry.toml` (`[rpc_endpoints]` + `[etherscan]`).
+The scripts load `.env` automatically and use the named `sepolia` network
+configured in `contracts/foundry.toml` (`[rpc_endpoints]` + `[etherscan]`).
 
 ### Foundry (manual)
 
@@ -512,11 +563,12 @@ forge script script/Deploy.s.sol \
   -vvvv
 ```
 
-After either deploy, addresses are printed to the console. The Hardhat script also writes them to
-`artifacts/deployed-addresses.json`. Foundry saves broadcast receipts to
-`contracts/broadcast/Deploy.s.sol/11155111/`.
+After either deploy, addresses are printed to the console. The Hardhat script
+also writes them to `artifacts/deployed-addresses.json`. Foundry saves broadcast
+receipts to `contracts/broadcast/Deploy.s.sol/11155111/`.
 
-To get Ethereum Sepolia test ETH, use a Sepolia faucet (Alchemy, Infura, or Google).
+To get Ethereum Sepolia test ETH, use a Sepolia faucet (Alchemy, Infura, or
+Google).
 
 ---
 
@@ -532,21 +584,27 @@ Prints the balance of the configured deployer wallet on the connected network.
 
 ## Git Hooks
 
-Two hooks are enforced automatically via [Husky](https://typicode.github.io/husky/) on every commit.
+Two hooks are enforced automatically via
+[Husky](https://typicode.github.io/husky/) on every commit.
 
 ### pre-commit - linting and formatting
 
-Runs `npm run lint` (ESLint + Solhint) and `npm run lint:prettier` (Prettier format check) before the commit is recorded. If any error is found the commit is aborted. Fix the errors and re-run `git commit`.
+Runs `npm run lint` (ESLint + Solhint) and `npm run lint:prettier` (Prettier
+format check) before the commit is recorded. If any error is found the commit is
+aborted. Fix the errors and re-run `git commit`.
 
 ### commit-msg - conventional commits
 
-Runs [commitlint](https://commitlint.js.org/) against the commit message using the `@commitlint/config-conventional` ruleset. The message must follow the pattern:
+Runs [commitlint](https://commitlint.js.org/) against the commit message using
+the `@commitlint/config-conventional` ruleset. The message must follow the
+pattern:
 
 ```text
 <type>(<optional scope>): <description>
 ```
 
-Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `build`, `ci`, `perf`, `revert`.
+Valid types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`,
+`build`, `ci`, `perf`, `revert`.
 
 Examples of valid messages:
 
@@ -557,21 +615,27 @@ docs: update deploy order in ARCHITECTURE.md
 chore: bump hardhat to 2.28.6
 ```
 
-If the commit message is rejected, amend it with `git commit --amend` and try again.
+If the commit message is rejected, amend it with `git commit --amend` and try
+again.
 
 ---
 
 ## Code Style
 
-- **Solidity:** `forge fmt` for formatting; `solhint` for rules. No magic numbers - use named constants. Custom errors over `require` strings.
-- **TypeScript:** `eslint` + `prettier`. Strict mode. `node:` prefix on built-in imports.
-- **Commits:** Follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, etc.). Enforced automatically by the `commit-msg` hook.
+- **Solidity:** `forge fmt` for formatting; `solhint` for rules. No magic
+  numbers - use named constants. Custom errors over `require` strings.
+- **TypeScript:** `eslint` + `prettier`. Strict mode. `node:` prefix on built-in
+  imports.
+- **Commits:** Follow
+  [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`,
+  `docs:`, `chore:`, etc.). Enforced automatically by the `commit-msg` hook.
 
 ---
 
 ## Documentation Site
 
-All Markdown lives in `docs/` and is the single source for two published targets, both updated automatically on every push to `main`:
+All Markdown lives in `docs/` and is the single source for two published
+targets, both updated automatically on every push to `main`:
 
 | Target      | URL                                               | Workflow                          |
 | ----------- | ------------------------------------------------- | --------------------------------- |
@@ -580,12 +644,20 @@ All Markdown lives in `docs/` and is the single source for two published targets
 
 ### Navigating the published site
 
-The MkDocs site uses the [Material](https://squidfunk.github.io/mkdocs-material/) theme. Reader-facing features:
+The MkDocs site uses the
+[Material](https://squidfunk.github.io/mkdocs-material/) theme. Reader-facing
+features:
 
-- **Search** — press `/` (or `S`) to focus the search box; it suggests completions and highlights matches on the page. Use the "share" result action to copy a deep link to a specific search.
-- **Light/dark mode** — the sun/moon toggle in the header switches palettes; it also follows your OS `prefers-color-scheme` by default.
-- **Top tabs + section sidebar** — top-level pages appear as tabs; the left sidebar expands the sections within the active page, and the right sidebar is the in-page table of contents.
-- **Edit / view this page** — the pencil and eye icons (top right of each page) jump to the source `.md` on GitHub, so readers can propose fixes directly.
+- **Search** — press `/` (or `S`) to focus the search box; it suggests
+  completions and highlights matches on the page. Use the "share" result action
+  to copy a deep link to a specific search.
+- **Light/dark mode** — the sun/moon toggle in the header switches palettes; it
+  also follows your OS `prefers-color-scheme` by default.
+- **Top tabs + section sidebar** — top-level pages appear as tabs; the left
+  sidebar expands the sections within the active page, and the right sidebar is
+  the in-page table of contents.
+- **Edit / view this page** — the pencil and eye icons (top right of each page)
+  jump to the source `.md` on GitHub, so readers can propose fixes directly.
 - **Copy code** — every code block has a copy button in its top-right corner.
 
 ### Previewing locally
@@ -601,19 +673,33 @@ mkdocs serve
 mkdocs build
 ```
 
-`mkdocs serve` rebuilds on every save, so you can preview edits before pushing. Run `mkdocs build --strict` to surface broken internal links (note: it also fails on the known external `../SECURITY.md` / `../LICENSE` links that live outside `docs/`).
+`mkdocs serve` rebuilds on every save, so you can preview edits before pushing.
+Run `mkdocs build --strict` to surface broken internal links (note: it also
+fails on the known external `../SECURITY.md` / `../LICENSE` links that live
+outside `docs/`).
 
 ### Updating the docs
 
-- Edit or add files under `docs/`. Register any new page in the `nav:` block of `mkdocs.yml` so it appears in the site sidebar.
-- Put images and other assets under `docs/assets/` and reference them with a relative path (e.g. `assets/logo.png`).
-- Commit and push to `main`. The `docs.yml` workflow builds with `mkdocs gh-deploy --force` (publishes to the `gh-pages` branch), and `wiki-sync.yml` copies `docs/*.md` into the wiki.
+- Edit or add files under `docs/`. Register any new page in the `nav:` block of
+  `mkdocs.yml` so it appears in the site sidebar.
+- Put images and other assets under `docs/assets/` and reference them with a
+  relative path (e.g. `assets/logo.png`).
+- Commit and push to `main`. The `docs.yml` workflow builds with
+  `mkdocs gh-deploy --force` (publishes to the `gh-pages` branch), and
+  `wiki-sync.yml` copies `docs/*.md` into the wiki.
 
 ### Conventions that keep both targets working
 
-- **Cross-doc links must use the `.md` extension** — e.g. `[Architecture](ARCHITECTURE.md)`, not `[Architecture](ARCHITECTURE)`. MkDocs only rewrites links that end in `.md`; bare names resolve relative to the current page (e.g. `/Home/ARCHITECTURE`) and 404.
-- **`Home.md` is the landing page.** It stays named `Home` because that is the GitHub Wiki's landing page. `docs/index.html` is a static redirect that points the MkDocs site root (`/`) at `/Home/`; it is `*.html` so `wiki-sync` never copies it.
-- The `gh-pages` branch holds only the built static site. Vercel deployments are disabled for it via `git.deploymentEnabled` in `src/vercel.json`.
+- **Cross-doc links must use the `.md` extension** — e.g.
+  `[Architecture](ARCHITECTURE.md)`, not `[Architecture](ARCHITECTURE)`. MkDocs
+  only rewrites links that end in `.md`; bare names resolve relative to the
+  current page (e.g. `/Home/ARCHITECTURE`) and 404.
+- **`Home.md` is the landing page.** It stays named `Home` because that is the
+  GitHub Wiki's landing page. `docs/index.html` is a static redirect that points
+  the MkDocs site root (`/`) at `/Home/`; it is `*.html` so `wiki-sync` never
+  copies it.
+- The `gh-pages` branch holds only the built static site. Vercel deployments are
+  disabled for it via `git.deploymentEnabled` in `src/vercel.json`.
 
 ### Troubleshooting
 
@@ -633,32 +719,39 @@ mkdocs build
 ## Opening a Pull Request
 
 1. Fork the repository and create a branch: `git checkout -b feat/your-feature`.
-2. Make changes and ensure all tests pass: `npm run hardhat:test` and `cd contracts && forge test`.
+2. Make changes and ensure all tests pass: `npm run hardhat:test` and
+   `cd contracts && forge test`.
 3. Run linters: `npm run lint && npm run lint:prettier`.
 4. Push and open a pull request against `main`.
-5. CodeRabbit will automatically review the PR. Address any comments before requesting a human review.
+5. CodeRabbit will automatically review the PR. Address any comments before
+   requesting a human review.
 
-For security-related findings, do not open a public PR. Instead, follow the process in [SECURITY.md](../SECURITY.md).
+For security-related findings, do not open a public PR. Instead, follow the
+process in [SECURITY.md](../SECURITY.md).
 
 ---
 
 ## Security
 
-See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy, in-scope contracts, severity classification, and response timeline.
+See [SECURITY.md](../SECURITY.md) for the full vulnerability reporting policy,
+in-scope contracts, severity classification, and response timeline.
 
-**Do not open public GitHub issues for security vulnerabilities.** Report privately via the contact in `SECURITY.md`.
+**Do not open public GitHub issues for security vulnerabilities.** Report
+privately via the contact in `SECURITY.md`.
 
-TrustLedger is currently pre-mainnet. No contracts hold real user funds. The codebase targets Ethereum Sepolia (testnet) and is under active development.
+TrustLedger is currently pre-mainnet. No contracts hold real user funds. The
+codebase targets Ethereum Sepolia (testnet) and is under active development.
 
 ---
 
 ## License
 
-This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE) for full terms.
+This project is licensed under the Apache License 2.0. See [LICENSE](../LICENSE)
+for full terms.
 
 ---
 
 ## Authors
 
-- Kevin Le
-- Kellen Snider
+- [Kevin Le](https://www.linkedin.com/in/lekevin1/)
+- [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)

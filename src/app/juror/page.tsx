@@ -124,7 +124,7 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 
 				<span className="text-gray-500">Pool Size</span>
 				<span className="text-gray-900 dark:text-white">
-					{poolCount?.toString() ?? "-"} eligible jurors
+					{poolCount?.toString() ?? "-"} Eligible Jurors
 				</span>
 			</div>
 

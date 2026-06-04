@@ -106,7 +106,7 @@ jobs:
             - name: Run happy-path scenarios
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: python scripts/models/github_models_example.py --scenario all --skip-rate-limit
+              run: python scripts/models/github_models.py --scenario all --skip-rate-limit
 
     error-handling:
         name: Error handling (invalid model)
@@ -124,7 +124,7 @@ jobs:
             - name: Expect invalid model to fail
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: python scripts/models/github_models_example.py --scenario invalid_model
+              run: python scripts/models/github_models.py --scenario invalid_model
 
             - name: Invalid prompt-file should fail
               id: bad_inference
@@ -160,4 +160,4 @@ jobs:
               continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: python scripts/models/github_models_example.py --scenario rate_limit
+              run: python scripts/models/github_models.py --scenario rate_limit
