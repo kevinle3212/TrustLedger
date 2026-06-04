@@ -49,6 +49,14 @@ mainnet launch deliverables.
     - Record in `NOTES.md` any packages or code that could not be updated
       because of deprecation or lack of maintenance, so future contributors are
       aware of the technical debt.
+    - Revisit the 28 remaining low-severity `npm audit` findings once this
+      upgrade lands. They all trace to the unpatched `elliptic <=6.6.1` advisory
+      pulled in transitively by the Hardhat 2 / ethers-v5 dev toolchain (no
+      patched `elliptic` exists, so it cannot be overridden). Migrating to
+      Hardhat 3.x / `@nomicfoundation/hardhat-toolbox` 7.x removes ethers-v5 and
+      `elliptic` from the tree and should clear them; re-run `npm audit`
+      afterward to confirm. The high (`undici`) and moderate (`bn.js`) findings
+      were already patched via `overrides` in `package.json`.
 
 - [ ] Set up a CI/CD pipeline (GitHub Actions) that runs linting, the full test
       suite, and a production build on every pull request, to catch regressions
