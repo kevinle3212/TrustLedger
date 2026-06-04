@@ -11,6 +11,27 @@
 - Output code blocks immediately.
 - Avoid long paragraphs. Explain logic using short, bulleted fragments only.
 
+## Branching and Committing
+
+- Never commit a feature, fix, or other change directly to the `main` branch.
+  Always create a dedicated branch first and commit the work there. Use a
+  descriptive, conventional branch name, for example:
+    - `feat/add-rating-history-feed`
+    - `fix/safari-wallet-connect`
+    - `chore/bump-eslint`
+- Before merging that branch into `main`, make sure everything passes on the
+  branch itself:
+    - Tests (Foundry `forge test`, Hardhat tests, and any others).
+    - Linters and formatters (`npm run lint`, `prettier --check .`,
+      `forge fmt --check`, `forge lint`).
+    - Builds (`forge build`, the frontend `next build`, and any other build
+      step).
+- Only merge into `main` once the branch is green. Prefer opening a pull request
+  so CI runs, and confirm the required checks pass before merging.
+- Merge safely: keep `main` deployable at all times. If a change cannot be made
+  green without breaking the codebase, do not force it onto `main` — explain the
+  problem and the options instead.
+
 ## Directory or File Deletion
 
 - If a directory or file has heavy storage, leave the deletion to the user to
