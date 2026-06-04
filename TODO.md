@@ -62,6 +62,17 @@ mainnet launch deliverables.
       suite, and a production build on every pull request, to catch regressions
       before they reach `main`.
 
+- [ ] Wire `mypy` into the lint pipeline so the Python scripts are type-checked
+      in CI, not just locally. `mypy` is currently installed in the local pyenv
+      but is not enforced by the repo.
+    - Add a `models:typecheck` (or `lint:py`) npm script that runs `mypy` over
+      the Python sources (for example `utils/` and `scripts/models/`), and add a
+      matching GitHub Actions step so pull requests are gated on it.
+    - Ensure the CI job installs the type stubs first (for example
+      `pip install -r utils/requirements.txt`, which pins `types-reportlab`) so
+      `mypy` can resolve third-party imports without "library stubs not
+      installed" errors.
+
 ## Phase 2 — Code Organization and Architecture
 
 - [ ] Add a `types/` directory for shared TypeScript types and interfaces that
