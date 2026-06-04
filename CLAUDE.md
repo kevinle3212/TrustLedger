@@ -54,6 +54,32 @@
     - A concise description of what the code element does.
     - Any important parameters or return values, if applicable.
     - An example usage, if relevant.
+- Beyond inline code comments, keep all project documentation in sync with every
+  change that is committed to GitHub. Before opening a pull request, review
+  whether the change affects any documentation and update it in the same branch
+  so the docs never drift from the code. This applies to, but is not limited to:
+    - Workflows and CI/CD: when a GitHub Actions workflow, job, or required
+      check is added, removed, or modified, update any documentation that
+      references it (for example, the `README.md` badges and the contribution or
+      CI sections).
+    - Features, components, and functions: when behavior, public APIs, props, or
+      return values change, update the corresponding sections of `README.md`,
+      the `docs/` directory, and any usage examples.
+    - Environment variables: when an environment variable is added, renamed,
+      removed, or has its meaning changed, update `.env.example` (and any other
+      `*.example` env templates) along with any prose that documents
+      configuration.
+    - Dependencies and tooling: when dependencies, scripts, or version
+      requirements change, update install/setup instructions, `SECURITY.md`, and
+      any notes on technical debt (for example, `NOTES.md`).
+    - Scripts and commands: when an `npm` script, Foundry command, or other
+      developer command is added or changed, update the documented command
+      reference so contributors can copy and paste it without errors.
+- For every documentation change, always perform a final review pass to ensure
+  correct capitalization, grammar, punctuation, syntax, and overall clarity.
+  Prefer short, unambiguous sentences, keep terminology consistent with the rest
+  of the codebase, and make sure code blocks, file paths, and identifiers are
+  formatted correctly (for example, wrapped in backticks).
 
 ## Dependabot Alerts, Code Scanning, Vulnerabilities, and Pull Requests
 
