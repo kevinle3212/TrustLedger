@@ -1,22 +1,40 @@
-"""Generates a dummy freelance service agreement PDF for TrustLedger demos.
+"""Generate a dummy freelance service agreement PDF for TrustLedger demos.
 
 The output PDF is meant to be uploaded as the "Contract Document" when creating
 an escrow on TrustLedger. Its keccak256 hash is stored on-chain (contractHash)
 and the file itself is pinned to IPFS (contractURI). Any later edit to the file
 changes the hash and fails the on-chain match.
 
+Functions:
+    build_styles(): Define and return the custom paragraph styles for the PDF.
+    main(): Build the sample agreement PDF and write it to disk.
+
+Libraries/Packages:
+    reportlab: PDF generation library; used here to lay out the contract document
+        with custom paragraph styles, tables, and spacing.
+    os: Standard library module; used to build the output path in an
+        operating-system-independent way.
+
 Usage:
     python3 utils/generate_contract.py
+
 Output:
     utils/sample-contract.pdf
 """
 
-from reportlab.lib.pagesizes import LETTER
-from reportlab.lib.units import inch
-from reportlab.lib.enums import TA_JUSTIFY
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.colors import HexColor
-from reportlab.platypus import (
+# reportlab ships without type stubs, so static type checkers (mypy, Pylance)
+# cannot resolve these imports from source. The "# type: ignore" comments
+# suppress the resulting "missing stubs" / "could not be resolved" warnings.
+from reportlab.lib.pagesizes import LETTER  # type: ignore
+from reportlab.lib.units import inch  # type: ignore
+from reportlab.lib.enums import TA_JUSTIFY  # type: ignore
+from reportlab.lib.styles import (  # type: ignore
+    StyleSheet1,
+    getSampleStyleSheet,
+    ParagraphStyle,
+)
+from reportlab.lib.colors import HexColor  # type: ignore
+from reportlab.platypus import (  # type: ignore
     SimpleDocTemplate,
     Paragraph,
     Spacer,
@@ -33,7 +51,21 @@ GRAY = HexColor("#555F6B")
 OUT_PATH = os.path.join(os.path.dirname(__file__), "sample-contract.pdf")
 
 
-def build_styles():
+def build_styles() -> StyleSheet1:
+    """Define and return the custom paragraph styles used in the PDF.
+
+    The returned stylesheet extends ReportLab's default sample styles with the
+    following named styles:
+        - DocTitle: Large, bold, accent-colored title for the document header.
+        - Sub: Small, gray text for subtitles and disclaimers.
+        - Section: Bold, accent-colored headings for each contract section.
+        - Body2: Justified body text for the main content of each section.
+        - SigLabel: Small, gray text for the signature-block labels.
+
+    Returns:
+        StyleSheet1: A ReportLab stylesheet keyed by style name, containing the
+            default styles plus the custom styles listed above.
+    """
     styles = getSampleStyleSheet()
     styles.add(
         ParagraphStyle(
@@ -88,7 +120,17 @@ def build_styles():
     return styles
 
 
-def main():
+def main() -> None:
+    """Build the sample freelance service agreement PDF and write it to disk.
+
+    The content is entirely fictional and intended for demonstration only, but
+    its structure and key terms mirror common freelance-contract practice and
+    are tailored to showcase TrustLedger's escrow and arbitration features. The
+    file is written to OUT_PATH (utils/sample-contract.pdf).
+
+    Returns:
+        None. The function writes the generated PDF to OUT_PATH as a side effect.
+    """
     doc = SimpleDocTemplate(
         OUT_PATH,
         pagesize=LETTER,
