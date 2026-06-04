@@ -265,6 +265,54 @@ check_python() {
     fi
 }
 
+# --- rtk (optional: token-optimized CLI proxy for Claude Code) ----------------
+# rtk transparently rewrites routine dev commands (git, npm, etc.) through a
+# token-optimized proxy, cutting 60-90% of tokens on those operations. Nothing
+# in the project build or test suite depends on it, so it is always optional.
+# NOTE: a different crate named "rtk" (Rust Type Kit) shares the name on
+# crates.io, so we verify presence rather than auto-installing the wrong tool.
+check_rtk() {
+    heading "rtk (optional — token-optimized CLI proxy)"
+    if has rtk && rtk gain >/dev/null 2>&1; then
+        ok "rtk $(rtk --version 2>/dev/null | awk '{print $2}')"
+        return
+    fi
+    if has rtk; then
+        warn_step "rtk present but 'rtk gain' failed" "A different 'rtk' (Rust Type Kit) may be on PATH. Install the token proxy and confirm 'rtk gain' works."
+        return
+    fi
+    warn "rtk is not installed (optional)."
+    manual_step "Install rtk (token-optimized CLI proxy) and verify with 'rtk --version' and 'rtk gain'. Skip if you do not use Claude Code's rtk hook."
+}
+
+# --- serena (optional: symbolic code MCP server for AI agents) ----------------
+# serena is a language-server-backed MCP server that gives AI agents symbolic
+# code navigation. It is run on demand via 'uvx' (from Astral's uv), so the only
+# prerequisite to bootstrap is uv/uvx; serena itself is fetched when invoked.
+check_serena() {
+    heading "serena (optional — symbolic code MCP server)"
+    if has uvx || has uv; then
+        ok "uv/uvx present — serena can be run via 'uvx'."
+        return
+    fi
+    warn "uv/uvx is not installed (needed to run serena)."
+    [[ "$SKIP_INSTALL" -eq 1 ]] && {
+        warn_step "uv/uvx missing (optional)" "Install uv from https://docs.astral.sh/uv/ to run serena via 'uvx'."
+        return
+    }
+    if [[ "$OS" != "windows" ]] && ask "Install uv (required to run serena via uvx)?"; then
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        # uv installs to ~/.local/bin; add it to PATH for this run.
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+    if has uvx || has uv; then
+        ok "uv installed — serena can be run via 'uvx'."
+        manual_step "Run serena's MCP server with: uvx --from git+https://github.com/oraios/serena serena start-mcp-server (or wire it into .mcp.json)."
+    else
+        warn_step "uv/uvx missing (optional)" "Install uv from https://docs.astral.sh/uv/ (e.g. 'curl -LsSf https://astral.sh/uv/install.sh | sh'), then run serena via 'uvx'."
+    fi
+}
+
 # =============================================================================
 # Project dependency installation.
 # =============================================================================
@@ -411,6 +459,8 @@ main() {
     check_node
     check_foundry
     check_python
+    check_rtk
+    check_serena
     install_npm_deps
     install_contracts
     setup_env_files

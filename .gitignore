@@ -36,7 +36,6 @@ trace/
 .env.*
 !.env.example
 !.env.local.example
-contracts/.env
 
 # ─── Package manager caches ───────────────────────────────────────────────────
 .npm

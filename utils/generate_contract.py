@@ -6,14 +6,14 @@ and the file itself is pinned to IPFS (contractURI). Any later edit to the file
 changes the hash and fails the on-chain match.
 
 Usage:
-    python3 demo/generate_contract.py
+    python3 utils/generate_contract.py
 Output:
-    demo/sample-contract.pdf
+    utils/sample-contract.pdf
 """
 
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+from reportlab.lib.enums import TA_JUSTIFY
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.colors import HexColor
 from reportlab.platypus import (
