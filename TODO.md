@@ -72,6 +72,19 @@ mainnet launch deliverables.
       `pip install -r utils/requirements.txt`, which pins `types-reportlab`) so
       `mypy` can resolve third-party imports without "library stubs not
       installed" errors.
+    - When selecting the interpreter in CI via `actions/setup-python` with
+      `python-version-file: .python-version`, use a recent version of the action
+      (older ones do not parse the comment lines in `.python-version`) or pass
+      `python-version: '3.14.2'` directly to avoid the comments tripping it up.
+
+- [ ] Make the pinned Python version discoverable alongside the Node pin.
+    - Document the `.python-version` (3.14.2) requirement in `README.md` next to
+      the Node/engines guidance, and mention `pyenv install 3.14.2` plus
+      `pip install -r utils/requirements.txt` in the setup instructions so new
+      contributors land on the same interpreter and stubs.
+    - Document the `.nvmrc` file the same way for the `.python-version` file if
+      it hasn't been already, so it's clear to contributors how to set up their
+      Node environment as well.
 
 ## Phase 2 — Code Organization and Architecture
 
@@ -428,6 +441,14 @@ mainnet launch deliverables.
       document how Dune was used to generate data, visualizations, and insights
       during the whitepaper research phase, so future contributors understand
       the data-driven approach to platform design and improvement.
+    - Ensure that everything in this project up to this point, any
+      configurations, files, codebase, features, things to note, and other
+      relevant information has been documented inside the respective docs files
+      in the `docs/` directory, so that the documentation is comprehensive and
+      serves as a reliable reference for users and contributors. Ensure that it
+      is also inside the whitepaper PDF itself, so that the whitepaper is a
+      standalone document that fully explains the platform, its design
+      decisions, and its implementation details.
 
 ## Completed
 
