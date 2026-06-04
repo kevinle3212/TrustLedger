@@ -71,8 +71,11 @@ jobs:
             - name: TypeScript typecheck
               run: npx tsc -p tsconfig.hardhat.json --noEmit
 
-            - name: ESLint + Solhint
-              run: npm run lint
+            # Foundry is not installed in this job, so skip lint:forge (forge
+            # fmt/lint is owned by the Solidity job). Run only the node-based
+            # linters here: ESLint, Solhint, and markdownlint.
+            - name: ESLint + Solhint + markdownlint
+              run: npm run lint:ts && npm run lint:sol && npm run lint:md
 
             - name: Prettier check
               run: npx prettier --check .
@@ -115,10 +118,14 @@ jobs:
               with:
                   submodules: recursive
 
+            # Pin to a specific release rather than `stable`. `stable` floats:
+            # a newer forge added a `block-timestamp` lint that runs on build and
+            # aborts on warnings, breaking CI while local toolchains lagged behind.
+            # Pinning keeps CI deterministic and aligned with the local version.
             - name: Install Foundry
               uses: foundry-rs/foundry-toolchain@v1
               with:
-                  version: stable
+                  version: v1.5.1
                   github-token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Show Forge version
