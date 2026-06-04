@@ -1,0 +1,22 @@
+# .node-version — pins the Node.js version for this repository.
+#
+# WHAT THIS FILE IS FOR
+#   This is the companion to .nvmrc for version managers that read
+#   `.node-version` instead of (or in addition to) `.nvmrc` — for example
+#   nodenv, asdf (asdf-nodejs), fnm, and Volta. Keeping both files lets every
+#   contributor land on the same Node runtime regardless of which manager they
+#   use. The version below MUST stay identical to the one in .nvmrc.
+#
+# WHEN TO CHANGE THE VERSION
+#   - Only when the project intentionally adopts a new Node release (a
+#     dependency requires it, or to pick up an LTS/security update).
+#   - Update this file AND .nvmrc together, then keep both in sync with CI
+#     (actions/setup-node `node-version`) and the `engines.node` range in
+#     package.json, so local, CI, and editor all agree.
+#   - After switching, reinstall dependencies in the new runtime:
+#         npm ci
+#
+# NOTE: nvm, fnm, and Volta strip these comment lines. Some readers (notably
+# older nodenv/asdf) expect a bare version with no comments — if your manager
+# fails to parse this file, reduce it to just the single version line below.
+22.22.3

@@ -80,6 +80,44 @@ jobs:
             - name: Prettier check
               run: npx prettier --check .
 
+    python:
+        name: Python (mypy)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - name: Install Node dependencies
+              run: npm ci
+
+            # `.python-version` pins 3.14.2. setup-python@v6 parses the comment
+            # lines in that file; older releases do not, so keep this pinned to a
+            # recent major. Falls back to the literal version if the file changes.
+            - name: Setup Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version-file: .python-version
+                  cache: pip
+
+            # Install mypy plus the type stubs the sources need. types-reportlab
+            # is pinned in utils/requirements.txt; the Azure AI Inference SDK
+            # ships no stubs and is ignored in mypy.ini, so its runtime package
+            # is not required just to type-check.
+            - name: Install mypy and type stubs
+              run: |
+                  python -m pip install --upgrade pip
+                  python -m pip install mypy==2.1.0
+                  python -m pip install -r utils/requirements.txt
+
+            - name: Type-check Python sources
+              run: npm run lint:py
+
     hardhat:
         name: Hardhat (compile + test)
         runs-on: ubuntu-latest

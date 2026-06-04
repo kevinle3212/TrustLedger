@@ -7,8 +7,16 @@ mainnet launch deliverables.
 
 ## Phase 1 — Development Environment and Tooling
 
-- [ ] Add a `.nvmrc` file to pin the Node.js version for the project so that all
-      contributors use the same version and avoid compatibility issues.
+- [x] Add a `.nvmrc` file to pin the Node.js version for the project so that all
+      contributors use the same version and avoid compatibility issues. — Added
+      `.nvmrc` pinning Node **22.22.3** (latest LTS "Jod", matching the CI
+      `node-version: 22` and the `engines.node` floor). It mirrors the commented
+      `.python-version` format; nvm (>=0.40) strips the `#` comment header and
+      reads the single version line, so `nvm use` selects it automatically. A
+      companion `.node-version` (same `22.22.3` pin) was added for managers that
+      read that file instead (nodenv, asdf, fnm, Volta); both are excluded from
+      markdownlint via `.markdownlintignore` and mapped to plaintext in
+      `.vscode/settings.json`.
     - This is a small but important step toward consistent development
       environments. With the version pinned in `.nvmrc`, contributors can switch
       to the correct version with `nvm use`, which helps prevent problems caused
@@ -58,13 +66,33 @@ mainnet launch deliverables.
       afterward to confirm. The high (`undici`) and moderate (`bn.js`) findings
       were already patched via `overrides` in `package.json`.
 
-- [ ] Set up a CI/CD pipeline (GitHub Actions) that runs linting, the full test
+- [x] Set up a CI/CD pipeline (GitHub Actions) that runs linting, the full test
       suite, and a production build on every pull request, to catch regressions
-      before they reach `main`.
+      before they reach `main`. — `.github/workflows/ci.yml` runs on every
+      `push`/`pull_request` to `main` with five jobs: **Frontend** (typecheck +
+      ESLint/Prettier + `next build` production build), **TypeScript** (ESLint +
+      Solhint + markdownlint + Prettier + `tsc`), **Python** (`mypy` via
+      `lint:py`), **Hardhat** (compile + 146 Mocha tests), and **Solidity**
+      (`forge fmt --check` + `forge build --sizes` + `forge test`). Linting, the
+      full test suite, and the production build are therefore all gated per PR.
 
-- [ ] Wire `mypy` into the lint pipeline so the Python scripts are type-checked
+- [x] Wire `mypy` into the lint pipeline so the Python scripts are type-checked
       in CI, not just locally. `mypy` is currently installed in the local pyenv
-      but is not enforced by the repo.
+      but is not enforced by the repo. — Added a `lint:py` npm script
+      (`mypy utils/generate_contract.py scripts/models/github_models.py`), a
+      root `mypy.ini`, and a `Python (mypy)` CI job in
+      `.github/workflows/ci.yml` that installs `mypy` plus `types-reportlab` via
+      `utils/requirements.txt`. The config is maximally strict (`strict = True`
+      plus every extra check: `warn_unreachable`, `strict_equality`,
+      `disallow_any_unimported`, `disallow_any_explicit`, `extra_checks`, etc.).
+      Rather than relax `disallow_any_unimported` for the stub-less
+      `azure-ai-inference` SDK, its used surface is typed by hand-written stubs
+      under `stubs/azure/**` (`mypy_path = stubs`). Fixed the resulting real
+      type issues: `SCENARIOS` got a precise `Callable` value type;
+      `parse_json_response` returns `dict[str, object]` with an `isinstance`
+      guard; the sample dicts are typed (a `Rating` / `ReputationSample`
+      `TypedDict` pair for the iterated reputation data); and the dispute `pct`
+      is type-narrowed before `int()`.
     - Add a `models:typecheck` (or `lint:py`) npm script that runs `mypy` over
       the Python sources (for example `utils/` and `scripts/models/`), and add a
       matching GitHub Actions step so pull requests are gated on it.
@@ -77,7 +105,16 @@ mainnet launch deliverables.
       (older ones do not parse the comment lines in `.python-version`) or pass
       `python-version: '3.14.2'` directly to avoid the comments tripping it up.
 
-- [ ] Make the pinned Python version discoverable alongside the Node pin.
+- [x] Make the pinned Python version discoverable alongside the Node pin. —
+      Added a "Python (Optional, Version 3.14.2)" prerequisite to `README.md`
+      (`pyenv install 3.14.2` + `pip install -r utils/requirements.txt`),
+      referenced it from the prerequisites intro, and documented the `lint:py`
+      script and the `Python` CI job in the command and CI tables. The Node
+      `.nvmrc` (the counterpart to `.python-version`) is now cross-documented
+      the same way: the Node prerequisite calls out the **22.22.3** pin and the
+      no-argument `nvm install` / `nvm use` flow, and `.nvmrc`,
+      `.python-version`, `mypy.ini`, and `stubs/` were added to the
+      project-structure tree.
     - Document the `.python-version` (3.14.2) requirement in `README.md` next to
       the Node/engines guidance, and mention `pyenv install 3.14.2` plus
       `pip install -r utils/requirements.txt` in the setup instructions so new

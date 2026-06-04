@@ -342,7 +342,9 @@ clientRefund  = (1000 − 150) − 310   = 540
 ### Prerequisites
 
 You need three tools installed before anything else. Check if you already have
-them, then install any that are missing.
+them, then install any that are missing. A fourth tool, Python, is optional and
+only needed for the demo PDF generator and the GitHub Models scripts — see
+[Python (Optional, Version 3.14.2)](#4-python-optional-version-3142).
 
 #### 1. Node.js (Version 22 or Later)
 
@@ -372,6 +374,15 @@ version or `command not found`, install it:
     nvm use 22
     node --version   # should now print v22.x.x
     ```
+
+    The exact version is pinned to **22.22.3** in [`.nvmrc`](.nvmrc) (the same
+    way Python is pinned in [`.python-version`](.python-version)). After cloning
+    the repo, run `nvm install` then `nvm use` from the project root with no
+    arguments — `nvm` reads `.nvmrc` and selects the pinned version
+    automatically, matching CI and the `engines.node` floor in `package.json`.
+    The same version is mirrored in [`.node-version`](.node-version) for
+    managers that read that file instead (for example `nodenv`, `asdf`, `fnm`,
+    and `Volta`); keep the two files in sync if you ever bump Node.
 
 - **Windows:** Download and run the installer from
   [nodejs.org](https://nodejs.org/). Select the version labeled **22.x.x LTS**.
@@ -431,6 +442,42 @@ git --version
 
 If it says `git version 2.x.x` you're good. Otherwise download from
 [git-scm.com](https://git-scm.com) and run the installer.
+
+#### 4. Python (Optional, Version 3.14.2)
+
+Python is only needed if you run the demo PDF generator
+(`utils/generate_contract.py`) or the GitHub Models AI scripts
+(`scripts/models/github_models.py`). The core Hardhat, Foundry, and frontend
+workflows do not require it. The interpreter version is pinned to **3.14.2** in
+[`.python-version`](.python-version), the same way Node is pinned to 22, so
+local development, the editor, and the `Python (mypy)` CI job all type-check
+against one interpreter.
+
+**Check if you have it:**
+
+```bash
+python3 --version
+```
+
+If it prints `Python 3.14.2`, skip ahead. Otherwise install that exact version
+with [pyenv](https://github.com/pyenv/pyenv) so it does not clash with any
+system Python:
+
+```bash
+pyenv install 3.14.2     # install the pinned interpreter
+```
+
+`pyenv` reads `.python-version` automatically inside this repo, so once 3.14.2
+is installed, `python3` resolves to it whenever you are in the project
+directory. Then install the Python dependencies and type stubs:
+
+```bash
+pip install -r utils/requirements.txt   # reportlab + types-reportlab stubs
+```
+
+> The `types-reportlab` stubs let `mypy` (and editors such as VS Code/Pylance)
+> resolve the `reportlab` imports. Type-check the Python sources at any time
+> with `npm run lint:py`; the same check runs in CI.
 
 ---
 
@@ -829,6 +876,7 @@ Requires `GITHUB_TOKEN` with Models access.
 | `npm run lint:ts`       | ESLint only                                     |
 | `npm run lint:sol`      | Solhint only                                    |
 | `npm run lint:prettier` | Prettier format check (read-only)               |
+| `npm run lint:py`       | `mypy` type-check of the Python sources         |
 | `npm run lint:frontend` | ESLint + Prettier check for the `src/` frontend |
 
 </details>
@@ -1251,6 +1299,13 @@ TrustLedger/
 │       ├── requirements.txt             # Python dependencies (openai, azure-ai-inference)
 │       └── README.md                    # GitHub Models setup and usage guide
 │
+├── utils/
+│   ├── generate_contract.py             # Demo PDF generator (reportlab)
+│   └── requirements.txt                 # reportlab + types-reportlab (mypy stubs)
+│
+├── stubs/                               # Hand-written type stubs for mypy (lint:py)
+│   └── azure/                           # Typed slice of the untyped azure-ai-inference SDK
+│
 ├── docker/
 │   ├── Dockerfile.dev                    # Dev container (Node + Foundry)
 │   ├── docker-compose.dev.yml            # Dev with live volume mount
@@ -1313,11 +1368,15 @@ TrustLedger/
 ├── tsconfig.json                         # NodeNext ESM (src/)
 ├── tsconfig.hardhat.json                 # CommonJS (hardhat, scripts, tests)
 ├── tsconfig.debug.json                   # Debug TS config (trace + CPU profile output)
+├── mypy.ini                              # Strict mypy config for the Python sources (lint:py)
 ├── .prettierrc.json                      # Prettier formatting rules
 ├── .solhint.json                         # Solhint rules
 ├── .markdownlint.json                    # markdownlint rules for docs/
 ├── .markdownlintignore                   # Paths excluded from markdownlint
 ├── .npmrc                                # npm config (engine-strict, legacy-peer-deps)
+├── .nvmrc                                # Pins the Node.js version (22.22.3) for nvm
+├── .node-version                         # Same Node pin for nodenv/asdf/fnm/Volta
+├── .python-version                       # Pins the Python interpreter (3.14.2) for pyenv
 ├── .gitattributes                        # Git line-ending and diff settings
 ├── .gitmodules                           # Foundry submodule declarations (forge-std, openzeppelin)
 ├── .mcp.json                             # Claude Code MCP server config (nexus-graph)
@@ -1361,6 +1420,8 @@ Runs on every push and pull request to `main`.
 | -------------- | ------------------------------------------------------------------------------------------------- |
 | **Frontend**   | `npm ci` (in `src/`), TypeScript typecheck, ESLint + Prettier, `next build`                       |
 | **TypeScript** | `npm ci`, `tsc --noEmit`, ESLint + Solhint, Prettier format check                                 |
+| **Python**     | `actions/setup-python` (3.14.2 via `.python-version`), install `mypy` + stubs, `npm run lint:py`  |
+| **Hardhat**    | `npm ci`, `npm run compile` (TypeChain), `npm run hardhat:test`                                   |
 | **Solidity**   | Foundry install, `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, gas snapshot diff |
 
 The Solidity job sets `working-directory: contracts` so all `forge` commands run
