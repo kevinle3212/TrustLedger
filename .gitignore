@@ -89,6 +89,9 @@ venv/
 # ─── MkDocs ──────────────────────────────────────────────────────────────────
 site/
 
+# ─── Private notes (the public NOTES.md is committed; *.local.md is not) ───────
+NOTES.local.md
+
 # ─── Miscellaneous ───────────────────────────────────────────────────────────
 .idea/
 assets/presentation/

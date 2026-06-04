@@ -1,0 +1,56 @@
+# .vercelignore — files and directories that must NOT be uploaded to Vercel.
+#
+# Vercel only needs the Next.js frontend in src/. Everything else in this repo
+# (smart contracts, build output, local config, docs, tooling) is irrelevant to
+# the deployment and is excluded here to keep uploads small and free of secrets.
+
+# ─── Smart contracts and chain tooling (not part of the frontend) ─────────────
+contracts/
+artifacts/
+hardhat-cache/
+typechain-types/
+scripts/
+test/
+testing/
+tools/
+utils/
+stubs/
+
+# ─── Local environment files - never upload secrets ───────────────────────────
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# ─── Build output (Vercel builds fresh on its own runners) ────────────────────
+dist/
+*.tsbuildinfo
+src/.next/
+src/out/
+coverage/
+
+# ─── Debug / profiling output ─────────────────────────────────────────────────
+*.cpuprofile
+*.log
+logs/
+trace/
+
+# ─── Containers (Vercel does not use the Docker setup) ────────────────────────
+docker/
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# ─── Documentation site and project docs ──────────────────────────────────────
+docs/
+site/
+assets/
+mkdocs.yml
+requirements-docs.txt
+
+# ─── Editor, agent, and OS generated files ────────────────────────────────────
+.vscode/
+.claude/
+.serena/
+.DS_Store
+Thumbs.db

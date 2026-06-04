@@ -49,6 +49,7 @@
 		"node_modules",
 		"dist",
 		"src/**",
+		"types/**",
 		"scripts/**",
 		"test/**",
 		"hardhat.config.ts",

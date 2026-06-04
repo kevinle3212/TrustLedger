@@ -164,7 +164,10 @@ jobs:
               uses: foundry-rs/foundry-toolchain@v1
               with:
                   version: v1.5.1
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+              env:
+                  # Avoid foundryup 403 from api.github.com rate limit on shared runner IPs.
+                  # foundry-toolchain has no `github-token` input; it reads GITHUB_TOKEN.
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Show Forge version
               run: forge --version

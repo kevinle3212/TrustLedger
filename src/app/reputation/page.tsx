@@ -7,6 +7,7 @@ import { isAddress, parseAbiItem } from "viem";
 import { REPUTATION_REGISTRY_ABI } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress } from "@/lib/utils";
+import type { ReputationHistoryEntry as HistoryEntry } from "@/types";
 
 const RATED_EVENT = parseAbiItem("event Rated(address indexed user, uint8 indexed score)");
 const RATING_SUBMITTED_EVENT = parseAbiItem(
@@ -16,14 +17,8 @@ const RECOVERY_EVENT = parseAbiItem(
 	"event RecoveryAchieved(address indexed user, uint8 indexed bonus)",
 );
 
-interface HistoryEntry {
-	type: "rating" | "recovery";
-	score: number;
-	blockNumber: bigint;
-	txHash: `0x${string}`;
-	rater: `0x${string}` | null;
-	contractId: bigint | null;
-}
+// The reputation history feed entry shape is modelled by the shared
+// `ReputationHistoryEntry` type (imported above as `HistoryEntry`) from `@/types`.
 
 // averageRating() returns (numerator, denominator) rather than a pre-computed average.
 // Storing the raw sum allows the contract to apply recovery bonuses (which add synthetic

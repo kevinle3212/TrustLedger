@@ -27,6 +27,22 @@ machines, CI, and editors — runs the same runtime:
   [Documentation Site](#documentation-site) and the Python type-check step
   (`npm run lint:py`).
 
+> **Note:** These files contain a single bare version line and no comments. Most
+> version managers (`nvm`, `fnm`, `Volta`) strip comments, but older readers
+> (`nodenv`, `asdf`, `pyenv`) expect a bare version, so keep each file to
+> exactly one version line.
+
+When bumping a pinned version:
+
+- **Node.js** — install the new release (`nvm install <version>`), then update
+  **both** `.nvmrc` and `.node-version` to match. Keep them in sync with the CI
+  `node-version` (`actions/setup-node`) and the `engines.node` range in
+  `package.json`, then reinstall dependencies with `npm ci`.
+- **Python** — install the new interpreter (`pyenv install <version>`), update
+  `.python-version`, keep it in sync with CI (`actions/setup-python`) and the
+  interpreter VS Code selects, then reinstall the docs/type-check deps with
+  `pip install -r utils/requirements.txt`.
+
 Verify your installation:
 
 ```bash

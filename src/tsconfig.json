@@ -40,14 +40,22 @@
 		/* ── Build perf ─────────────────────────────────────────────────────── */
 		"incremental": true,
 
-		/* ── Next.js plugin + path alias ────────────────────────────────────── */
+		/* ── Next.js plugin + path aliases ──────────────────────────────────── */
+		/* `@/types/*` resolves to the repo-root `types/` directory of shared,
+		   framework-agnostic types (the more specific pattern wins over `@/*`);
+		   `@/*` resolves to files inside `src/`. */
 		"plugins": [{ "name": "next" }],
-		"paths": { "@/*": ["./*"] }
+		"paths": {
+			"@/types": ["../types/index.ts"],
+			"@/types/*": ["../types/*"],
+			"@/*": ["./*"]
+		}
 	},
 	"include": [
 		"next-env.d.ts",
 		"**/*.ts",
 		"**/*.tsx",
+		"../types/**/*.ts",
 		".next/types/**/*.ts",
 		".next/dev/types/**/*.ts"
 	],

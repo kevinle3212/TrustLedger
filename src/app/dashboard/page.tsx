@@ -8,6 +8,7 @@ import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress, formatDeadline, resolveDocUrl, STATUS_COLORS } from "@/lib/utils";
 import { decryptFile } from "@/lib/encryption";
+import type { Contract } from "@/types";
 import Link from "next/link";
 
 // Snapshot of "now" taken once at page load.
@@ -15,27 +16,9 @@ import Link from "next/link";
 // These checks are approximate — the contract enforces the real deadline on-chain.
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
 
-// Mirror of the EscrowContract struct returned by TrustLedger.getContract().
+// The EscrowContract struct returned by TrustLedger.getContract() is modelled
+// by the shared `Contract` type imported from `@/types`.
 // Status values: 0=PENDING 1=ACTIVE 2=SUBMITTED 3=APPROVED 4=DISPUTED 5=RESOLVED 6=CANCELLED
-interface EscrowContract {
-	client: `0x${string}`;
-	arbitrationFeeBps: number; // fee taken for arbitration, in basis points (100 bps = 1%)
-	holdBackBps: number; // warranty holdback portion, in basis points
-	status: number;
-	freelancer: `0x${string}`;
-	warrantyDeadline: bigint; // unix timestamp after which freelancer can claim holdback
-	projectDeadline: bigint; // unix timestamp for the buffered project deadline
-	acceptanceWindow: bigint; // seconds the client has to approve after work is submitted
-	acceptanceDeadline: bigint; // absolute unix timestamp when acceptance window closes
-	warrantyPeriod: bigint; // duration in seconds of the warranty holdback period
-	amount: bigint; // total escrowed amount in wei
-	holdBackAmount: bigint; // portion withheld for warranty (subset of amount)
-	arbitrationId: bigint; // ID in the Arbitration contract (0 if no dispute)
-	contractHash: `0x${string}`; // keccak256 of the off-chain contract document
-	contractURI: string; // IPFS or HTTPS URI to the contract document
-	proofOfWorkHash: `0x${string}`; // keccak256 of the deliverable artifact
-	proofOfWorkURI: string; // IPFS or HTTPS URI to the deliverable
-}
 
 // Generic button that calls a single-argument (contractId) function on TrustLedger.
 // Uses wagmi's two-step write pattern:
@@ -389,7 +372,7 @@ function ContractCard({
 	address,
 }: {
 	id: bigint;
-	contract: EscrowContract;
+	contract: Contract;
 	address: `0x${string}`;
 }): React.JSX.Element {
 	const status = contract.status;
