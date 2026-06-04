@@ -48,6 +48,7 @@
 		"lint:md": "markdownlint-cli2 \"**/*.md\" \"#contracts/lib\" \"#contracts/out\" \"#contracts/cache\" \"#artifacts\" \"#dist\" \"#node_modules\" \"#src/node_modules\" \"#.vercel\" \"#.claude\" \"#.sixth\" \"#site\" \"#testing\"",
 		"lint:ts": "eslint 'test/**/*.ts' 'scripts/**/*.ts' 'hardhat.config.ts'",
 		"lint:prettier": "prettier --check .",
+		"lint:py": "mypy utils/generate_contract.py scripts/models/github_models.py",
 		"debug:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile",
 		"foundry:gas": "cd contracts && forge test --gas-report",
 		"foundry:build": "cd contracts && forge build",

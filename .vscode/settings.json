@@ -25,6 +25,8 @@
 		"editor.detectIndentation": false
 	},
 	"files.associations": {
+		".nvmrc": "plaintext",
+		".node-version": "plaintext",
 		".python-version": "plaintext",
 		".markdownlintignore": "ignore",
 		"LICENSE": "plaintext"

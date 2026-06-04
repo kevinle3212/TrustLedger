@@ -28,7 +28,11 @@ site/
 testing/
 
 ## Non-Markdown Files With Hash Comments
-# pyenv reads this file; its `#` comment lines are misparsed as Markdown
-# headings, so exclude it from markdownlint (CLI and the VS Code extension).
+# These version-pin files use `#` comment headers that markdownlint would
+# misparse as Markdown headings, so exclude them from markdownlint (CLI and the
+# VS Code extension). pyenv reads .python-version; nvm/fnm/nodenv read the Node
+# pins.
 
 .python-version
+.nvmrc
+.node-version

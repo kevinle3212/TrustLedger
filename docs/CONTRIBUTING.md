@@ -16,6 +16,17 @@ TrustLedger locally.
 | Python           | ≥ 3.9 _(docs only)_ | [python.org](https://www.python.org) — only needed to preview the docs site locally (`pip install -r requirements-docs.txt`). See [Documentation Site](#documentation-site). |
 | rtk _(optional)_ | Latest              | `brew install rtk` — token-optimized Claude Code CLI proxy; see [RTK Setup](#rtk--claude-code-token-proxy) below.                                                            |
 
+The exact tool versions are pinned in the repository root so everyone — local
+machines, CI, and editors — runs the same runtime:
+
+- **Node.js** is pinned to `22.22.3` in both `.nvmrc` (read by `nvm` and `fnm`)
+  and `.node-version` (read by `nodenv`, `asdf`, `fnm`, and `Volta`). Run
+  `nvm use` (no argument) from the project root to switch automatically. Keep
+  the two files in sync if you bump Node.
+- **Python** is pinned to `3.14.2` in `.python-version` (read by `pyenv`); see
+  [Documentation Site](#documentation-site) and the Python type-check step
+  (`npm run lint:py`).
+
 Verify your installation:
 
 ```bash

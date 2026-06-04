@@ -35,6 +35,8 @@ import pathlib
 import subprocess
 import sys
 import time
+from collections.abc import Callable
+from typing import TypedDict
 
 from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage
@@ -77,22 +79,25 @@ def complete(
     return choice.message.content.strip()
 
 
-def parse_json_response(raw: str, scenario: str) -> dict:
+def parse_json_response(raw: str, scenario: str) -> dict[str, object]:
     """Strip markdown code fences and parse JSON; raises SystemExit on failure."""
     text = raw.strip()
     if text.startswith("```"):
         lines = text.splitlines()
         text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
     try:
-        return json.loads(text)
+        parsed: object = json.loads(text)
     except json.JSONDecodeError as exc:
         raise SystemExit(f"{scenario}: invalid JSON response — {exc}\n\nRaw:\n{raw}") from exc
+    if not isinstance(parsed, dict):
+        raise SystemExit(f"{scenario}: expected a JSON object, got {type(parsed).__name__}")
+    return parsed
 
 
 # ─── Sample data ──────────────────────────────────────────────────────────────
 
 # Mirrors the EscrowContract Solidity struct (TrustLedger.sol).
-SAMPLE_CONTRACT: dict = {
+SAMPLE_CONTRACT: dict[str, object] = {
     "id": 42,
     "client": "0xdEaD00000000000000000000000000000000bEEF",
     "freelancer": "0x1337000000000000000000000000000000C0dE",
@@ -117,7 +122,7 @@ SAMPLE_CONTRACT: dict = {
 }
 
 # Mirrors the Dispute struct + commit-reveal context (Arbitration.sol).
-SAMPLE_DISPUTE: dict = {
+SAMPLE_DISPUTE: dict[str, object] = {
     "contract_id": 17,
     "description": (
         "Perform a security audit of a yield farming Solidity protocol "
@@ -146,7 +151,26 @@ SAMPLE_DISPUTE: dict = {
 }
 
 # Rating history for ReputationRegistry sample address.
-SAMPLE_REPUTATION: dict = {
+class Rating(TypedDict):
+    """A single on-chain rating entry in an address's reputation history."""
+
+    score: int
+    role: str
+    contract_id: int
+    date: str
+
+
+class ReputationSample(TypedDict):
+    """Aggregated reputation profile for a sample address (mirrors the read model)."""
+
+    address: str
+    average_score: int
+    total_ratings: int
+    in_recovery_mode: bool
+    ratings: list[Rating]
+
+
+SAMPLE_REPUTATION: ReputationSample = {
     "address": "0x1337000000000000000000000000000000C0dE",
     "average_score": 79,
     "total_ratings": 8,
@@ -297,6 +321,8 @@ def scenario_dispute(c: ChatCompletionsClient, model: str) -> None:
     if missing:
         raise SystemExit(f"dispute: JSON missing keys: {missing}")
     pct = data["suggested_completion_pct"]
+    if not isinstance(pct, (int, float, str)):
+        raise SystemExit(f"dispute: suggested_completion_pct {pct!r} is not a number")
     if not (0 <= int(pct) <= 100):
         raise SystemExit(f"dispute: suggested_completion_pct {pct!r} out of range 0-100")
 
@@ -399,7 +425,7 @@ def scenario_rate_limit_probe(c: ChatCompletionsClient, model: str, *, burst: in
 
 # ─── Scenario registry ────────────────────────────────────────────────────────
 
-SCENARIOS: dict[str, object] = {
+SCENARIOS: dict[str, Callable[[ChatCompletionsClient, str], None]] = {
     "summarize":     scenario_summarize,
     "generate":      scenario_generate,
     "qa":            scenario_qa,
