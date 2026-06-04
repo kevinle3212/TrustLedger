@@ -22,20 +22,21 @@ Output:
     utils/sample-contract.pdf
 """
 
-# reportlab ships without type stubs, so static type checkers (mypy, Pylance)
-# cannot resolve these imports from source. The "# type: ignore" comments
-# suppress the resulting "missing stubs" / "could not be resolved" warnings.
-from reportlab.lib.pagesizes import LETTER  # type: ignore
-from reportlab.lib.units import inch  # type: ignore
-from reportlab.lib.enums import TA_JUSTIFY  # type: ignore
-from reportlab.lib.styles import (  # type: ignore
+# Type stubs for reportlab are provided by the "types-reportlab" package
+# (install with `mypy --install-types`, or `pip install -r utils/requirements.txt`),
+# so static type checkers can resolve these imports without suppression.
+from reportlab.lib.pagesizes import LETTER
+from reportlab.lib.units import inch
+from reportlab.lib.enums import TA_JUSTIFY
+from reportlab.lib.styles import (
     StyleSheet1,
     getSampleStyleSheet,
     ParagraphStyle,
 )
-from reportlab.lib.colors import HexColor  # type: ignore
-from reportlab.platypus import (  # type: ignore
+from reportlab.lib.colors import HexColor
+from reportlab.platypus import (
     SimpleDocTemplate,
+    Flowable,
     Paragraph,
     Spacer,
     Table,
@@ -142,7 +143,10 @@ def main() -> None:
         author="TrustLedger Demo",
     )
     s = build_styles()
-    flow = []
+    # Flowable is the common base class for every element added below
+    # (Paragraph, Spacer, Table, HRFlowable), and is what SimpleDocTemplate.build
+    # expects, so the list is typed accordingly.
+    flow: list[Flowable] = []
 
     flow.append(Paragraph("FREELANCE SERVICE AGREEMENT", s["DocTitle"]))
     flow.append(
