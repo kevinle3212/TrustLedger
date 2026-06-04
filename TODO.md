@@ -22,17 +22,29 @@ mainnet launch deliverables.
       to the correct version with `nvm use`, which helps prevent problems caused
       by version mismatches.
 
-- [ ] Add a `.vercelignore` file to exclude files and directories that should
+- [x] Add a `.vercelignore` file to exclude files and directories that should
       not be deployed to Vercel, such as the `contracts/` directory and local
-      configuration files.
+      configuration files. — Added a root `.vercelignore`. The Vercel deployment
+      only needs the Next.js frontend in `src/`, so the file excludes the
+      smart-contract and chain tooling (`contracts/`, `artifacts/`,
+      `hardhat-cache/`, `scripts/`, `test/`, `tools/`, `utils/`, `stubs/`),
+      local environment files (`.env`, `.env.*`, while re-including the
+      `*.example` templates), build output (`dist/`, `src/.next/`, `coverage/`),
+      Docker, docs/site assets, and editor/agent/OS files.
     - This keeps deployments clean and prevents sensitive or unnecessary files
       from being uploaded to production. The `.vercelignore` file should exclude
       the `contracts/` directory, local environment files (for example
       `.env.local`), and any other files the frontend deployment does not need.
 
-- [ ] Add a `NOTES.local.md` (private, git-ignored) and a `NOTES.md` (public) to
+- [x] Add a `NOTES.local.md` (private, git-ignored) and a `NOTES.md` (public) to
       track ongoing thoughts, ideas, and research that are not yet ready for
-      formal documentation but are still valuable to the development process.
+      formal documentation but are still valuable to the development process. —
+      Added both as templates (no real content yet). `NOTES.md` is committed
+      with headings for research/ideas, decisions, technical debt, and open
+      questions, plus conventions for adding entries. `NOTES.local.md` is the
+      private scratch counterpart and is git-ignored via a new `NOTES.local.md`
+      rule in `.gitignore`; its template points to the public `NOTES.md` for the
+      shared notes and the promotion workflow.
     - `NOTES.local.md` is a private space for jotting down ideas, research
       findings, and other rough notes, without worrying about polish or
       completeness.
@@ -125,9 +137,19 @@ mainnet launch deliverables.
 
 ## Phase 2 — Code Organization and Architecture
 
-- [ ] Add a `types/` directory for shared TypeScript types and interfaces that
+- [x] Add a `types/` directory for shared TypeScript types and interfaces that
       can be imported across the frontend and backend, ensuring type safety and
-      consistency.
+      consistency. — Added a root `types/` directory with `common.ts`
+      (`Address`/`Hex`/`Bytes32` aliases), `contract.ts` (`Contract` +
+      `ContractStatus` mirroring `EscrowContract`), `dispute.ts` (`Dispute` +
+      `DisputePhase` mirroring the `Dispute` struct), `rating.ts` (`Rating`,
+      `ReputationSummary`, `ReputationHistoryEntry`), and an `index.ts` barrel.
+      Wired a `@/types` / `@/types/*` path alias in `src/tsconfig.json` (the
+      repo-root `types/` is also added to `include`) and adopted the shared
+      types in the frontend: `dashboard/page.tsx` now imports `Contract` and
+      `reputation/page.tsx` imports `ReputationHistoryEntry`, replacing their
+      local interface copies. `tsc`, ESLint, Prettier, and `next build` all
+      pass.
     - Create a `types/` directory at the project root and define shared types
       such as `Contract`, `Dispute`, and `Rating` in separate files (for example
       `types/contract.ts` and `types/dispute.ts`).

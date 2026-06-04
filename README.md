@@ -1279,6 +1279,13 @@ TrustLedger/
 │   ├── package.json                              # Frontend-only dependencies
 │   └── README.md                                 # Frontend setup guide -> src/README.md
 │
+├── types/                                # Shared TS types (imported via @/types in the frontend)
+│   ├── common.ts                         # Address / Hex / Bytes32 primitive aliases
+│   ├── contract.ts                       # Contract + ContractStatus (mirrors EscrowContract)
+│   ├── dispute.ts                        # Dispute + DisputePhase (mirrors the Dispute struct)
+│   ├── rating.ts                         # Rating, ReputationSummary, ReputationHistoryEntry
+│   └── index.ts                          # Barrel re-export
+│
 ├── test/
 │   └── TrustLedger.test.ts               # 146 Hardhat/Mocha integration tests
 │
