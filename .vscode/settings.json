@@ -24,15 +24,16 @@
 		"editor.insertSpaces": false,
 		"editor.detectIndentation": false
 	},
-	"markdownlint.config": {
-		"MD010": false,
-		"MD041": false
+	"files.associations": {
+		".python-version": "plaintext",
+		"LICENSE": "plaintext"
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**", "**/.claude/**", "**/SECURITY.md"],
 	"eslint.useFlatConfig": true,
 	"python.analysis.typeCheckingMode": "basic",
 	"python.analysis.diagnosticSeverityOverrides": {
-		"reportMissingModuleSource": "none"
-	}
+		"reportMissingModuleSource": "information"
+	},
+	"python-envs.defaultEnvManager": "ms-python.python:pyenv"
 }
