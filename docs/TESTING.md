@@ -161,21 +161,21 @@ block offline development or CI. To run them:
 1. Set `FORK_URL` in `.env` to any Sepolia (or mainnet) RPC endpoint. You can
    reuse `SEPOLIA_RPC_URL`:
 
-   ```bash
-   FORK_URL=https://eth-sepolia.g.alchemy.com/v2/<your-key>
-   ```
+    ```bash
+    FORK_URL=https://eth-sepolia.g.alchemy.com/v2/<your-key>
+    ```
 
 2. Run the fork suite:
 
-   ```bash
-   npm run foundry:test:fork
-   ```
+    ```bash
+    npm run foundry:test:fork
+    ```
 
-   Or run all tests (including fork) under the staging profile:
+    Or run all tests (including fork) under the staging profile:
 
-   ```bash
-   npm run foundry:test:staging
-   ```
+    ```bash
+    npm run foundry:test:staging
+    ```
 
 Optionally set `FORK_BLOCK_NUMBER` to pin to a specific block for reproducible
 results. Omit it to fork from the latest block.
@@ -224,11 +224,11 @@ results. Omit it to fork from the latest block.
 1. Add files to `contracts/test/fork/` with a `.t.sol` suffix.
 2. Start every `setUp()` with the skip guard:
 
-   ```solidity
-   string memory rpcUrl = vm.envOr("SEPOLIA_RPC_URL", string(""));
-   vm.skip(bytes(rpcUrl).length == 0);
-   vm.createSelectFork(rpcUrl);
-   ```
+    ```solidity
+    string memory rpcUrl = vm.envOr("SEPOLIA_RPC_URL", string(""));
+    vm.skip(bytes(rpcUrl).length == 0);
+    vm.createSelectFork(rpcUrl);
+    ```
 
 3. Name functions `test_Fork_<Scenario>_<Outcome>`.
 4. Fork tests should verify behaviour that differs between a blank EVM and a

@@ -117,10 +117,10 @@ These must be set before the frontend will work correctly in production.
 
 1. Go to **Vercel Dashboard → Your Project → Settings → Environment Variables**.
 2. For each variable in the table above, click **Add** and fill in:
-   - **Key** - the variable name (e.g. `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`)
-   - **Value** - the value
-   - **Environments** - check **Production** and **Preview** (and
-     **Development** if you want `vercel dev` to pick it up)
+    - **Key** - the variable name (e.g. `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`)
+    - **Value** - the value
+    - **Environments** - check **Production** and **Preview** (and
+      **Development** if you want `vercel dev` to pick it up)
 3. Click **Save**.
 4. Trigger a redeploy to apply the new values: **Deployments → ⋯ → Redeploy**.
 
@@ -176,10 +176,10 @@ page (IPFS pinning via Pinata).
 5. Give the key a name (e.g. `trustledger-frontend`) and click **Create Key**.
 6. Copy the **JWT** from the dialog - it is only shown once.
 7. Paste it into your environment:
-   - **Local dev**: add `NEXT_PUBLIC_PINATA_JWT=<jwt>` to the root `.env` file.
-   - **Vercel**: run `vercel env add NEXT_PUBLIC_PINATA_JWT production` and
-     `vercel env add NEXT_PUBLIC_PINATA_JWT preview`, pasting the JWT when
-     prompted.
+    - **Local dev**: add `NEXT_PUBLIC_PINATA_JWT=<jwt>` to the root `.env` file.
+    - **Vercel**: run `vercel env add NEXT_PUBLIC_PINATA_JWT production` and
+      `vercel env add NEXT_PUBLIC_PINATA_JWT preview`, pasting the JWT when
+      prompted.
 
 > **Note:** A Files-scoped JWT can only pin new content - it cannot delete pins
 > or access account settings. It is safe to embed in a public Next.js bundle

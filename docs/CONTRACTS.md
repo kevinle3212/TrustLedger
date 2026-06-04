@@ -1040,28 +1040,28 @@ when signing a `raw` hash:
 
 ```ts
 import {
-  createWalletClient,
-  http,
-  encodePacked,
-  keccak256,
-  hexToSignature,
+    createWalletClient,
+    http,
+    encodePacked,
+    keccak256,
+    hexToSignature,
 } from "viem";
 
 const id = 1n;
 const innerHash = keccak256(
-  encodePacked(["uint256", "address"], [id, freelancer]),
+    encodePacked(["uint256", "address"], [id, freelancer]),
 );
 const signature = await walletClient.signMessage({
-  message: { raw: innerHash },
+    message: { raw: innerHash },
 });
 const { v, r, s } = hexToSignature(signature);
 
 // 2. Freelancer accepts -> status ACTIVE
 await walletClient.writeContract({
-  address: TL,
-  abi,
-  functionName: "acceptContract",
-  args: [id, Number(v), r, s],
+    address: TL,
+    abi,
+    functionName: "acceptContract",
+    args: [id, Number(v), r, s],
 });
 ```
 
@@ -1125,11 +1125,11 @@ juror who never reveals is slashed.
 import { parseAbiItem } from "viem";
 
 const logs = await publicClient.getLogs({
-  address: TL,
-  event: parseAbiItem(
-    "event ContractCreated(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount)",
-  ),
-  fromBlock: deployBlock,
+    address: TL,
+    event: parseAbiItem(
+        "event ContractCreated(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount)",
+    ),
+    fromBlock: deployBlock,
 });
 ```
 
@@ -1169,5 +1169,5 @@ for full terms.
 
 ## Authors
 
-- Kevin Le
-- Kellen Snider
+- [Kevin Le](https://www.linkedin.com/in/lekevin1/)
+- [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)

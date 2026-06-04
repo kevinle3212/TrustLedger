@@ -1,0 +1,9 @@
+# TruffleHog path-exclusion regexes (matched against file paths).
+# Defense-in-depth: even if the scan falls back to filesystem mode, these
+# untracked/gitignored paths must never be read. They hold live local
+# credentials and build output, not committed source.
+(^|/)\.env$
+(^|/)\.env\..*
+(^|/)\.next/
+(^|/)node_modules/
+(^|/)contracts/lib/

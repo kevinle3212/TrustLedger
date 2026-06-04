@@ -20,9 +20,9 @@ Sepolia. Hosted on [Vercel](https://vercel.com) at
 - [Environment Variables](#environment-variables)
 - [Development Server](#development-server)
 - [File Layout](#file-layout)
-  - [Pages - `app/`](#pages---app)
-  - [Components - `components/`](#components---components)
-  - [Library - `lib/`](#library---lib)
+    - [Pages - `app/`](#pages---app)
+    - [Components - `components/`](#components---components)
+    - [Library - `lib/`](#library---lib)
 - [Scripts](#scripts)
 - [CI/CD](#cicd)
 - [Contract Artifacts](#contract-artifacts)
@@ -129,9 +129,9 @@ wallets connect to the site. You need a free project ID to use it.
    string of letters and numbers.
 5. Open your root `.env` file and paste it in:
 
-   ```text
-   NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id-here
-   ```
+    ```text
+    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id-here
+    ```
 
 > Without this ID, the wallet connect button will appear but may not work
 > correctly in all browsers.
@@ -154,9 +154,9 @@ Sepolia directly:
    above).
 2. From `src/`, start the dev server:
 
-   ```bash
-   npm run dev:frontend
-   ```
+    ```bash
+    npm run dev:frontend
+    ```
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 4. In MetaMask, switch your network to **Ethereum Sepolia** and connect your
@@ -380,17 +380,19 @@ import { config } from "@/lib/wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+    const [queryClient] = useState(() => new QueryClient());
 
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={darkTheme({ accentColor: "#6366f1" })}>
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
+    return (
+        <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+                <RainbowKitProvider
+                    theme={darkTheme({ accentColor: "#6366f1" })}
+                >
+                    {children}
+                </RainbowKitProvider>
+            </QueryClientProvider>
+        </WagmiProvider>
+    );
 }
 ```
 
@@ -403,19 +405,19 @@ import { TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 
 // Read escrow state
 const { data: escrow } = useReadContract({
-  address: TRUSTLEDGER_ADDRESS,
-  abi: TRUSTLEDGER_ABI,
-  functionName: "getContract",
-  args: [contractId],
+    address: TRUSTLEDGER_ADDRESS,
+    abi: TRUSTLEDGER_ABI,
+    functionName: "getContract",
+    args: [contractId],
 });
 
 // Write a transaction
 const { writeContract } = useWriteContract();
 writeContract({
-  address: TRUSTLEDGER_ADDRESS,
-  abi: TRUSTLEDGER_ABI,
-  functionName: "approveWork",
-  args: [contractId],
+    address: TRUSTLEDGER_ADDRESS,
+    abi: TRUSTLEDGER_ABI,
+    functionName: "approveWork",
+    args: [contractId],
 });
 ```
 
@@ -506,8 +508,8 @@ for full terms.
 
 ## Authors
 
-- Kevin Le
-- Kellen Snider
+- [Kevin Le](https://www.linkedin.com/in/lekevin1/)
+- [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
 ---
 

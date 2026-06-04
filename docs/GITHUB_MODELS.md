@@ -119,20 +119,20 @@ Run manually: **Actions → GitHub Models prompts → Run workflow**.
 
 ```yaml
 permissions:
-  models: read
+    models: read
 
 steps:
-  - uses: actions/checkout@v6
-  - uses: actions/ai-inference@v1
-    with:
-      prompt-file: .github/prompts/summarize-text.prompt.yml
-      # Pass template variables as a single-line quoted YAML scalar.
-      # Multi-line block scalars or unquoted values containing ":" break
-      # the YAML parser inside the action.
-      input: 'input: "Client disputes late delivery on contract #42."'
-      endpoint: https://models.github.ai/inference
-      model: openai/gpt-4.1
-      token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v6
+    - uses: actions/ai-inference@v1
+      with:
+          prompt-file: .github/prompts/summarize-text.prompt.yml
+          # Pass template variables as a single-line quoted YAML scalar.
+          # Multi-line block scalars or unquoted values containing ":" break
+          # the YAML parser inside the action.
+          input: 'input: "Client disputes late delivery on contract #42."'
+          endpoint: https://models.github.ai/inference
+          model: openai/gpt-4.1
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Error handling covered

@@ -361,17 +361,17 @@ version or `command not found`, install it:
 
 - **macOS / Linux (recommended - use nvm so you can switch versions easily):**
 
-  ```bash
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
-  ```
+    ```bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    ```
 
-  Close and reopen your terminal, then run:
+    Close and reopen your terminal, then run:
 
-  ```bash
-  nvm install 22
-  nvm use 22
-  node --version   # should now print v22.x.x
-  ```
+    ```bash
+    nvm install 22
+    nvm use 22
+    node --version   # should now print v22.x.x
+    ```
 
 - **Windows:** Download and run the installer from
   [nodejs.org](https://nodejs.org/). Select the version labeled **22.x.x LTS**.
@@ -521,9 +521,9 @@ Sepolia network. You get one for free from either Alchemy or Infura.
    `https://eth-sepolia.g.alchemy.com/v2/abc123yourkey`
 5. In your `.env` file, set:
 
-   ```text
-   SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/abc123yourkey
-   ```
+    ```text
+    SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/abc123yourkey
+    ```
 
 **Infura:**
 
@@ -533,9 +533,9 @@ Sepolia network. You get one for free from either Alchemy or Infura.
    like: `https://sepolia.infura.io/v3/abc123yourkey`
 4. In your `.env` file, set:
 
-   ```text
-   SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/abc123yourkey
-   ```
+    ```text
+    SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/abc123yourkey
+    ```
 
 #### Creating a Deployer Wallet
 
@@ -583,12 +583,12 @@ and has no real-world value** - it only works on the Sepolia test network.
 
 1. Copy your deployer wallet address (the `0x…` string).
 2. Paste it into any of these faucets and click **Send** / **Request**:
-   - [Alchemy Faucet](https://www.alchemy.com/faucets/ethereum-sepolia)
-     _(requires Alchemy account)_
-   - [Infura Faucet](https://www.infura.io/faucet/sepolia) _(requires Infura
-     account)_
-   - [Google Faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia)
-     _(requires Google account)_
+    - [Alchemy Faucet](https://www.alchemy.com/faucets/ethereum-sepolia)
+      _(requires Alchemy account)_
+    - [Infura Faucet](https://www.infura.io/faucet/sepolia) _(requires Infura
+      account)_
+    - [Google Faucet](https://cloud.google.com/application/web3/faucet/ethereum/sepolia)
+      _(requires Google account)_
 3. Wait about 30 seconds. You need at least **0.05 ETH** to cover deployment
    gas.
 
@@ -610,9 +610,9 @@ verify it. This is optional but strongly recommended for any public deployment.
 3. Click **Add** → give it a name → click **Create New API Key**.
 4. Copy the key and add it to `.env`:
 
-   ```text
-   ETHERSCAN_API_KEY=ABCDEF1234567890...
-   ```
+    ```text
+    ETHERSCAN_API_KEY=ABCDEF1234567890...
+    ```
 
 ---
 
@@ -1074,11 +1074,11 @@ pre-computed ECDSA signature:
 
 ```ts
 const inner = ethers.solidityPackedKeccak256(
-  ["uint256", "address"],
-  [contractId, freelancerAddress],
+    ["uint256", "address"],
+    [contractId, freelancerAddress],
 );
 const sig = ethers.Signature.from(
-  await wallet.signMessage(ethers.getBytes(inner)),
+    await wallet.signMessage(ethers.getBytes(inner)),
 );
 // Call: trustLedger.acceptContract(contractId, sig.v, sig.r, sig.s)
 ```
@@ -1582,8 +1582,8 @@ for full terms.
 
 ## Authors
 
-- Kevin Le
-- Kellen Snider
+- [Kevin Le](https://www.linkedin.com/in/lekevin1/)
+- [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
 ---
 
