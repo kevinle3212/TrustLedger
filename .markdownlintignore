@@ -26,3 +26,9 @@ src/node_modules/
 .sixth/
 site/
 testing/
+
+## Non-Markdown Files With Hash Comments
+# pyenv reads this file; its `#` comment lines are misparsed as Markdown
+# headings, so exclude it from markdownlint (CLI and the VS Code extension).
+
+.python-version
