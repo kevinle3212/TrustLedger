@@ -26,6 +26,7 @@
 	},
 	"files.associations": {
 		".python-version": "plaintext",
+		".markdownlintignore": "ignore",
 		"LICENSE": "plaintext"
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
