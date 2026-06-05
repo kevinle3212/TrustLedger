@@ -28,6 +28,18 @@ const hasWcProjectId = wcProjectId !== undefined && wcProjectId !== "";
 // NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID for the connect modal to actually pair.
 const projectId = hasWcProjectId ? wcProjectId : "YOUR_PROJECT_ID";
 
+// Relay-based wallets (Tangem, Phantom, MetaMask-mobile via QR, WalletConnect)
+// silently fail to pair without a real project ID - especially on mobile, where
+// there is no injected provider to fall back to. Warn loudly in the browser so
+// the cause isn't a mystery during a mobile Tangem connect attempt.
+if (!hasWcProjectId && typeof window !== "undefined") {
+	console.warn(
+		"[TrustLedger] NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID is not set - WalletConnect relay " +
+			"wallets (Tangem, Phantom, mobile MetaMask) will not connect. Get a project ID at " +
+			"https://dashboard.reown.com and set the env var.",
+	);
+}
+
 // Sepolia: testing and development only.
 // Arbitrum / Base / Optimism: production L2s with gas costs proportional to typical contract values.
 const networks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, arbitrum, base, optimism];
@@ -35,11 +47,16 @@ const networks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, arbitrum, base, 
 // Brand accent shared with the rest of the UI (indigo-500).
 const ACCENT_COLOR = "#6366f1";
 
-// Origin advertised to wallets during pairing. Falls back to the production URL
-// during SSR/build where `window` is undefined.
+// Origin advertised to wallets during pairing. WalletConnect/AppKit requires
+// this to match the actual page origin or mobile wallets (Tangem, etc.) reject
+// the session. On the client we always use the real origin; during SSR/build we
+// fall back to the configured site URL. NEXT_PUBLIC_SITE_URL is preferred;
+// NEXT_PUBLIC_APP_URL is accepted as an alias so a single deployment URL var works.
+const configuredAppUrl = process.env["NEXT_PUBLIC_SITE_URL"] ?? process.env["NEXT_PUBLIC_APP_URL"];
 const appUrl =
-	process.env["NEXT_PUBLIC_SITE_URL"] ??
-	(typeof window !== "undefined" ? window.location.origin : "https://trustledger.vercel.app");
+	typeof window !== "undefined"
+		? window.location.origin
+		: (configuredAppUrl ?? "https://trustledger.vercel.app");
 
 // The wagmi adapter builds the wagmi config AppKit drives. `ssr: true` mirrors
 // the previous getDefaultConfig setup so Next.js server rendering stays correct.

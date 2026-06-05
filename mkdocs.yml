@@ -62,6 +62,7 @@ nav:
     - Architecture: ARCHITECTURE.md
     - Contract Reference: CONTRACTS.md
     - Contributing: CONTRIBUTING.md
+    - Wallets: WALLETS.md
     - FAQ: FAQ.md
     - Deployment: DEPLOYMENT.md
     - Docker: DOCKER.md

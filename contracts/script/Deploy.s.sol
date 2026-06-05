@@ -10,6 +10,7 @@ pragma solidity ^0.8.24;
 import {Script, console} from "forge-std/Script.sol";
 import {Arbitration} from "./../src/Arbitration.sol";
 import {JurorRegistry} from "./../src/JurorRegistry.sol";
+import {ReputationRegistry} from "./../src/ReputationRegistry.sol";
 import {TrustLedger} from "./../src/TrustLedger.sol";
 
 // Any Foundry script is a contract that extends Script.
@@ -18,7 +19,8 @@ import {TrustLedger} from "./../src/TrustLedger.sol";
 
 /// @title Deploy
 /// @author Kevin Le, Kellen Snider
-/// @notice Foundry deployment script for JurorRegistry, TrustLedger, and Arbitration.
+/// @notice Foundry deployment script for JurorRegistry, TrustLedger, Arbitration,
+///         and ReputationRegistry.
 contract Deploy is Script {
     /// @notice Reverts when a deployed contract lands at an unexpected address.
     error AddressMismatch();
@@ -92,6 +94,16 @@ contract Deploy is Script {
         console.log("JurorRegistry:", address(jurorRegistry));
         console.log("TrustLedger:  ", address(trustLedger));
         console.log("Arbitration:  ", address(arbitration));
+
+        // ── Deploy ReputationRegistry and wire it into TrustLedger ──────────────
+        // Deployed last (nonce N+3) so the nonce+1/nonce+2 predictions above are
+        // unaffected. ReputationRegistry stores TrustLedger as an immutable; in
+        // turn TrustLedger.initReputationRegistry() makes submitRating() live.
+        // initReputationRegistry is permissionless set-once (no owner role), so
+        // the deployer can call it here during the broadcast.
+        ReputationRegistry reputationRegistry = new ReputationRegistry(address(trustLedger));
+        trustLedger.initReputationRegistry(address(reputationRegistry));
+        console.log("ReputationRegistry:", address(reputationRegistry));
 
         // Stop signing/broadcasting transactions.
         vm.stopBroadcast();

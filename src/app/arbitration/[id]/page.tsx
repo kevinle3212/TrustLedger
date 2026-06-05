@@ -189,11 +189,22 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 
 	const [pct, setPct] = useState(Number(storedPct));
 	const [salt, setSalt] = useState(storedSalt);
+	const [saltTouched, setSaltTouched] = useState(false);
 	const { writeContract, data: txHash, isPending, error } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
+	// revealVote takes a bytes32 salt: exactly 0x followed by 64 hex characters.
+	const saltError =
+		salt.trim() === ""
+			? "Salt is required."
+			: !/^0x[0-9a-fA-F]{64}$/.test(salt.trim())
+				? "Salt must be a 0x-prefixed 32-byte hex string (66 characters)."
+				: undefined;
+
 	function handleReveal(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
+		setSaltTouched(true);
+		if (saltError !== undefined) return;
 		writeContract({
 			address: ARBITRATION_ADDRESS,
 			abi: ARBITRATION_ABI,
@@ -238,9 +249,20 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 					onChange={(e) => {
 						setSalt(e.target.value);
 					}}
+					onBlur={() => {
+						setSaltTouched(true);
+					}}
 					placeholder="0x…"
-					className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs font-mono text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+					aria-invalid={saltTouched && saltError !== undefined}
+					className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-xs font-mono text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 ${
+						saltTouched && saltError !== undefined
+							? "border-red-500 dark:border-red-500 focus:ring-red-500"
+							: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+					}`}
 				/>
+				{saltTouched && saltError !== undefined && (
+					<p className="text-xs text-red-500 dark:text-red-400">{saltError}</p>
+				)}
 			</div>
 			{error !== null && (
 				<p className="text-xs text-red-500 dark:text-red-400">
@@ -249,7 +271,7 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 			)}
 			<button
 				type="submit"
-				disabled={isPending || isConfirming || salt === ""}
+				disabled={isPending || isConfirming || saltError !== undefined}
 				className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-semibold self-start transition-colors"
 			>
 				{isPending || isConfirming ? "Revealing…" : "Reveal Vote"}

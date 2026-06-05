@@ -7,6 +7,7 @@ import { formatEther, keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress, formatDeadline, resolveDocUrl, STATUS_COLORS } from "@/lib/utils";
+import { validateRequired, validateRequiredUri, validateScore } from "@/lib/validation";
 import { decryptFile } from "@/lib/encryption";
 import type { Contract } from "@/types";
 import Link from "next/link";
@@ -62,6 +63,7 @@ function ActionButton({
 // The registry is optional — if it isn't deployed (zero address), the form hides entirely.
 function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	const [score, setScore] = useState("80");
+	const [touched, setTouched] = useState(false);
 	const { writeContract, data: txHash, isPending, error, reset } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
@@ -70,10 +72,13 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	const registryDeployed =
 		REPUTATION_REGISTRY_ADDRESS !== "0x0000000000000000000000000000000000000000";
 
+	const scoreError = validateScore(score);
+
 	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
+		setTouched(true);
 		const parsed = Number(score);
-		if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) return;
+		if (scoreError !== undefined || !Number.isInteger(parsed)) return;
 		writeContract({
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
@@ -114,16 +119,27 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 					onChange={(e) => {
 						setScore(e.target.value);
 					}}
-					className="w-20 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+					onBlur={() => {
+						setTouched(true);
+					}}
+					aria-invalid={touched && scoreError !== undefined}
+					className={`w-20 rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
+						touched && scoreError !== undefined
+							? "border-red-500 dark:border-red-500 focus:ring-red-500"
+							: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+					}`}
 				/>
 				<button
 					type="submit"
-					disabled={isPending || isConfirming}
+					disabled={isPending || isConfirming || scoreError !== undefined}
 					className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-medium transition-colors"
 				>
 					{isPending || isConfirming ? "…" : "Submit rating"}
 				</button>
 			</div>
+			{touched && scoreError !== undefined && (
+				<p className="text-xs text-red-500 dark:text-red-400">{scoreError}</p>
+			)}
 			{error !== null && (
 				<p className="text-xs text-red-500 dark:text-red-400">
 					{(error as { shortMessage?: string }).shortMessage ?? error.message}
@@ -140,13 +156,17 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 // the on-chain hash no longer matches, proving the deliverable was altered after submission.
 function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	const [uri, setUri] = useState("");
+	const [touched, setTouched] = useState(false);
 	const { writeContract, data: txHash, isPending, error } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
+	const uriError = validateRequiredUri(uri);
+
 	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
+		setTouched(true);
 		const trimmed = uri.trim();
-		if (trimmed === "") return;
+		if (uriError !== undefined) return;
 		writeContract({
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
@@ -171,9 +191,20 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 				onChange={(e) => {
 					setUri(e.target.value);
 				}}
+				onBlur={() => {
+					setTouched(true);
+				}}
 				required
-				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+				aria-invalid={touched && uriError !== undefined}
+				className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition ${
+					touched && uriError !== undefined
+						? "border-red-500 dark:border-red-500 focus:ring-red-500"
+						: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+				}`}
 			/>
+			{touched && uriError !== undefined && (
+				<p className="text-xs text-red-500 dark:text-red-400">{uriError}</p>
+			)}
 			{error !== null && (
 				<p className="text-xs text-red-500 dark:text-red-400">
 					{(error as { shortMessage?: string }).shortMessage ?? error.message}
@@ -181,7 +212,7 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 			)}
 			<button
 				type="submit"
-				disabled={isPending || isConfirming || uri.trim() === ""}
+				disabled={isPending || isConfirming || uriError !== undefined}
 				className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
 			>
 				{isPending || isConfirming ? "Submitting…" : "Submit Work"}
@@ -209,6 +240,12 @@ function DecryptDocumentForm({
 	const [filename, setFilename] = useState("decrypted-document");
 	const [status, setStatus] = useState<DecryptStatus>("idle");
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
+	const [passphraseTouched, setPassphraseTouched] = useState(false);
+	const [bundleTouched, setBundleTouched] = useState(false);
+
+	const passphraseError = validateRequired(passphrase, "Passphrase");
+	const bundleError =
+		mode === "paste" ? validateRequired(pastedBundle, "Encrypted bundle") : undefined;
 
 	async function handleDecrypt(): Promise<void> {
 		setStatus("working");
@@ -289,26 +326,52 @@ function DecryptDocumentForm({
 					<span className="font-mono text-gray-600 dark:text-gray-400">{gatewayUrl}</span>
 				</p>
 			) : (
-				<textarea
-					rows={4}
-					placeholder={'{"v":1,"alg":"AES-256-GCM",…}'}
-					value={pastedBundle}
-					onChange={(e) => {
-						setPastedBundle(e.target.value);
-					}}
-					className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-				/>
+				<div className="flex flex-col gap-1">
+					<textarea
+						rows={4}
+						placeholder={'{"v":1,"alg":"AES-256-GCM",…}'}
+						value={pastedBundle}
+						onChange={(e) => {
+							setPastedBundle(e.target.value);
+						}}
+						onBlur={() => {
+							setBundleTouched(true);
+						}}
+						aria-invalid={bundleTouched && bundleError !== undefined}
+						className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-mono focus:outline-none focus:ring-2 resize-none ${
+							bundleTouched && bundleError !== undefined
+								? "border-red-500 dark:border-red-500 focus:ring-red-500"
+								: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+						}`}
+					/>
+					{bundleTouched && bundleError !== undefined && (
+						<p className="text-xs text-red-500 dark:text-red-400">{bundleError}</p>
+					)}
+				</div>
 			)}
 
-			<input
-				type="password"
-				placeholder="Passphrase"
-				value={passphrase}
-				onChange={(e) => {
-					setPassphrase(e.target.value);
-				}}
-				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-			/>
+			<div className="flex flex-col gap-1">
+				<input
+					type="password"
+					placeholder="Passphrase"
+					value={passphrase}
+					onChange={(e) => {
+						setPassphrase(e.target.value);
+					}}
+					onBlur={() => {
+						setPassphraseTouched(true);
+					}}
+					aria-invalid={passphraseTouched && passphraseError !== undefined}
+					className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 ${
+						passphraseTouched && passphraseError !== undefined
+							? "border-red-500 dark:border-red-500 focus:ring-red-500"
+							: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+					}`}
+				/>
+				{passphraseTouched && passphraseError !== undefined && (
+					<p className="text-xs text-red-500 dark:text-red-400">{passphraseError}</p>
+				)}
+			</div>
 
 			<input
 				type="text"

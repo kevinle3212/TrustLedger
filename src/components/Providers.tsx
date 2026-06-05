@@ -6,6 +6,7 @@ import { ThemeProvider, useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { config } from "@/lib/wagmi";
+import { useInactivityLogout } from "@/lib/useInactivityLogout";
 
 /**
  * Keeps the AppKit modal's light/dark mode in sync with next-themes.
@@ -24,6 +25,15 @@ function AppKitThemeSync(): null {
 	return null;
 }
 
+/**
+ * Drives the app-wide inactivity auto-logout. Renders nothing; lives inside
+ * `<WagmiProvider>` so the wagmi hooks it relies on are available.
+ */
+function InactivityWatcher(): null {
+	useInactivityLogout();
+	return null;
+}
+
 export function Providers({ children }: { children: React.ReactNode }): React.JSX.Element {
 	const [queryClient] = useState(() => new QueryClient());
 
@@ -37,6 +47,7 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 			<WagmiProvider config={config}>
 				<QueryClientProvider client={queryClient}>
 					<AppKitThemeSync />
+					<InactivityWatcher />
 					{children}
 				</QueryClientProvider>
 			</WagmiProvider>

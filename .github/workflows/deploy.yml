@@ -104,12 +104,15 @@ jobs:
                   TL=$(jq -r '.transactions[] | select(.contractName == "TrustLedger") | .contractAddress' "$BROADCAST")
                   ARB=$(jq -r '.transactions[] | select(.contractName == "Arbitration") | .contractAddress' "$BROADCAST")
                   JR=$(jq -r '.transactions[] | select(.contractName == "JurorRegistry") | .contractAddress' "$BROADCAST")
+                  REP=$(jq -r '.transactions[] | select(.contractName == "ReputationRegistry") | .contractAddress' "$BROADCAST")
                   echo "trustledger=$TL" >> "$GITHUB_OUTPUT"
                   echo "arbitration=$ARB" >> "$GITHUB_OUTPUT"
                   echo "juror_registry=$JR" >> "$GITHUB_OUTPUT"
+                  echo "reputation_registry=$REP" >> "$GITHUB_OUTPUT"
                   echo "Deployed TrustLedger: $TL"
                   echo "Deployed Arbitration: $ARB"
                   echo "Deployed JurorRegistry: $JR"
+                  echo "Deployed ReputationRegistry: $REP"
 
             # Upsert all three contract addresses in Vercel so the next frontend
             # build picks up the new addresses without any manual env var editing.
@@ -148,6 +151,7 @@ jobs:
                   upsert_env "NEXT_PUBLIC_TRUSTLEDGER_ADDRESS" "${{ steps.addresses.outputs.trustledger }}"
                   upsert_env "NEXT_PUBLIC_ARBITRATION_ADDRESS" "${{ steps.addresses.outputs.arbitration }}"
                   upsert_env "NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS" "${{ steps.addresses.outputs.juror_registry }}"
+                  upsert_env "NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS" "${{ steps.addresses.outputs.reputation_registry }}"
               env:
                   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
                   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
