@@ -43,7 +43,10 @@ function MoonIcon(): React.JSX.Element {
 export function ThemeToggle(): React.JSX.Element {
 	const { resolvedTheme, setTheme } = useTheme();
 
-	// resolvedTheme is undefined during SSR - render placeholder to avoid hydration mismatch
+	// resolvedTheme is undefined on the server and on the first client render
+	// (before next-themes mounts), so both render this same-size placeholder -
+	// keeping markup identical across hydration (avoids React #418) without a
+	// setState-in-effect mounted flag.
 	if (resolvedTheme === undefined) return <div className="w-9 h-9" />;
 
 	const isDark = resolvedTheme === "dark";

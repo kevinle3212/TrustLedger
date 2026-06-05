@@ -6,6 +6,12 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ethers } from "hardhat";
 import type { TrustLedger as TrustLedgerContract } from "../artifacts/typechain-types";
+import { syncFrontendEnv } from "./sync-frontend-env";
+
+// Hardhat's built-in local node chain ID. Only on a local chain do we mirror the
+// deployed addresses into src/.env.local; live deploys feed Vercel via the
+// GitHub Actions workflow instead.
+const HARDHAT_LOCAL_CHAIN_ID = 31337n;
 
 async function main(): Promise<void> {
 	// ethers.getSigners() returns all accounts configured in hardhat.config.ts for the
@@ -104,6 +110,14 @@ async function main(): Promise<void> {
 	mkdirSync(outDir, { recursive: true });
 	writeFileSync(resolve(outDir, "deployed-addresses.json"), JSON.stringify(addresses, null, 2));
 	console.log("\nAddresses written to artifacts/deployed-addresses.json");
+
+	// On the local node, mirror the addresses into src/.env.local so the Next.js
+	// dev server resolves the contracts (incl. ReputationRegistry) without a
+	// manual copy step. Skipped on live networks (Vercel is updated by CI).
+	const chainId = (await ethers.provider.getNetwork()).chainId;
+	if (chainId === HARDHAT_LOCAL_CHAIN_ID) {
+		syncFrontendEnv();
+	}
 }
 
 // Standard Node.js async error handling pattern.

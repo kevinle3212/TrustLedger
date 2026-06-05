@@ -7,6 +7,7 @@ import { isAddress, parseAbiItem } from "viem";
 import { REPUTATION_REGISTRY_ABI } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { formatAddress } from "@/lib/utils";
+import { validateEthAddress } from "@/lib/validation";
 import type { ReputationHistoryEntry as HistoryEntry } from "@/types";
 
 const RATED_EVENT = parseAbiItem("event Rated(address indexed user, uint8 indexed score)");
@@ -325,11 +326,14 @@ export default function ReputationPage(): React.JSX.Element {
 	function handleLookup(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
 		const trimmed = input.trim();
-		if (!isAddress(trimmed)) {
-			setInputError("Enter a valid Ethereum address (0x…).");
+		const error = validateEthAddress(trimmed);
+		if (error !== undefined) {
+			setInputError(error);
 			setLookupAddress(undefined);
 			return;
 		}
+		// validateEthAddress guarantees a valid address here; narrow the type.
+		if (!isAddress(trimmed)) return;
 		setInputError(undefined);
 		setLookupAddress(trimmed);
 	}
@@ -364,7 +368,12 @@ export default function ReputationPage(): React.JSX.Element {
 					onChange={(e) => {
 						setInput(e.target.value);
 					}}
-					className="rounded-lg bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+					aria-invalid={inputError !== undefined}
+					className={`rounded-lg bg-white dark:bg-white/5 border px-3 py-2 text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
+						inputError !== undefined
+							? "border-red-500 dark:border-red-500 focus:ring-red-500"
+							: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+					}`}
 				/>
 				{inputError !== undefined && (
 					<p className="text-xs text-red-500 dark:text-red-400">{inputError}</p>

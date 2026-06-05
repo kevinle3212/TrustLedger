@@ -7,6 +7,17 @@ import { formatEther, parseEther } from "viem";
 import { JUROR_REGISTRY_ABI } from "@/lib/abi";
 import { JUROR_REGISTRY_ADDRESS } from "@/lib/wagmi";
 import { formatAddress } from "@/lib/utils";
+import { validateEthAmount } from "@/lib/validation";
+
+// Minimum stake to register or top up, in ETH (mirrors the JurorRegistry contract).
+const MIN_STAKE_ETH = 0.01;
+
+/** Validates a juror stake amount: a positive ETH value of at least `minEth`. */
+function validateStake(value: string, minEth: number, maxEth?: number): string | undefined {
+	const base = validateEthAmount(value, maxEth);
+	if (base !== undefined) return base;
+	return Number(value) < minEth ? `Minimum is ${minEth.toString()} ETH.` : undefined;
+}
 
 const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 
@@ -153,11 +164,16 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 
 function RegisterForm(): React.JSX.Element {
 	const [ethAmount, setEthAmount] = useState("0.01");
+	const [touched, setTouched] = useState(false);
 	const { writeContract, data: txHash, isPending, error, reset } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
+	const amountError = validateStake(ethAmount, MIN_STAKE_ETH);
+
 	function handleRegister(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
+		setTouched(true);
+		if (amountError !== undefined) return;
 		let value: bigint;
 		try {
 			value = parseEther(ethAmount);
@@ -207,10 +223,21 @@ function RegisterForm(): React.JSX.Element {
 						onChange={(e) => {
 							setEthAmount(e.target.value);
 						}}
-						className="w-36 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+						onBlur={() => {
+							setTouched(true);
+						}}
+						aria-invalid={touched && amountError !== undefined}
+						className={`w-36 rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
+							touched && amountError !== undefined
+								? "border-red-500 dark:border-red-500 focus:ring-red-500"
+								: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+						}`}
 					/>
 					<span className="text-sm text-gray-500 dark:text-gray-400">ETH</span>
 				</div>
+				{touched && amountError !== undefined && (
+					<p className="text-xs text-red-500 dark:text-red-400">{amountError}</p>
+				)}
 				{error !== null && (
 					<p className="text-xs text-red-500 dark:text-red-400">
 						{(error as { shortMessage?: string }).shortMessage ?? error.message}
@@ -218,7 +245,7 @@ function RegisterForm(): React.JSX.Element {
 				)}
 				<button
 					type="submit"
-					disabled={isPending || isConfirming}
+					disabled={isPending || isConfirming || amountError !== undefined}
 					className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors self-start"
 				>
 					{isPending || isConfirming ? "Registering…" : "Register"}
@@ -231,12 +258,14 @@ function RegisterForm(): React.JSX.Element {
 function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.Element {
 	const [addAmount, setAddAmount] = useState("0.01");
 	const [unstakeAmount, setUnstakeAmount] = useState("");
+	const [addTouched, setAddTouched] = useState(false);
+	const [unstakeTouched, setUnstakeTouched] = useState(false);
 
 	const {
 		writeContract: writeAdd,
 		data: addHash,
 		isPending: addPending,
-		error: addError,
+		error: writeAddError,
 	} = useWriteContract();
 	const { isLoading: addConfirming } = useWaitForTransactionReceipt({ hash: addHash });
 
@@ -244,7 +273,7 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 		writeContract: writeUnstake,
 		data: unstakeHash,
 		isPending: unstakePending,
-		error: unstakeError,
+		error: writeUnstakeError,
 	} = useWriteContract();
 	const { isLoading: unstakeConfirming } = useWaitForTransactionReceipt({ hash: unstakeHash });
 
@@ -256,10 +285,17 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 	});
 
 	const isRegistered = juror?.active === true || (juror?.stake ?? 0n) > 0n;
+
+	const maxUnstakeEth = juror !== undefined ? Number(formatEther(juror.stake)) : undefined;
+	const addError = validateStake(addAmount, 0.001);
+	const unstakeError = validateStake(unstakeAmount, 0.001, maxUnstakeEth);
+
 	if (!isRegistered) return <></>;
 
 	function handleAdd(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
+		setAddTouched(true);
+		if (addError !== undefined) return;
 		let value: bigint;
 		try {
 			value = parseEther(addAmount);
@@ -276,6 +312,8 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 
 	function handleUnstake(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
+		setUnstakeTouched(true);
+		if (unstakeError !== undefined) return;
 		let amount: bigint;
 		try {
 			amount = parseEther(unstakeAmount);
@@ -305,20 +343,32 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 						onChange={(e) => {
 							setAddAmount(e.target.value);
 						}}
-						className="w-36 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+						onBlur={() => {
+							setAddTouched(true);
+						}}
+						aria-invalid={addTouched && addError !== undefined}
+						className={`w-36 rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
+							addTouched && addError !== undefined
+								? "border-red-500 dark:border-red-500 focus:ring-red-500"
+								: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+						}`}
 					/>
 					<span className="text-sm text-gray-500 dark:text-gray-400">ETH</span>
 					<button
 						type="submit"
-						disabled={addPending || addConfirming}
+						disabled={addPending || addConfirming || addError !== undefined}
 						className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-medium transition-colors"
 					>
 						{addPending || addConfirming ? "…" : "Add"}
 					</button>
 				</div>
-				{addError !== null && (
+				{addTouched && addError !== undefined && (
+					<p className="text-xs text-red-500 dark:text-red-400">{addError}</p>
+				)}
+				{writeAddError !== null && (
 					<p className="text-xs text-red-500 dark:text-red-400">
-						{(addError as { shortMessage?: string }).shortMessage ?? addError.message}
+						{(writeAddError as { shortMessage?: string }).shortMessage ??
+							writeAddError.message}
 					</p>
 				)}
 			</form>
@@ -337,22 +387,33 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 						onChange={(e) => {
 							setUnstakeAmount(e.target.value);
 						}}
+						onBlur={() => {
+							setUnstakeTouched(true);
+						}}
 						placeholder="0.01"
-						className="w-36 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+						aria-invalid={unstakeTouched && unstakeError !== undefined}
+						className={`w-36 rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 ${
+							unstakeTouched && unstakeError !== undefined
+								? "border-red-500 dark:border-red-500 focus:ring-red-500"
+								: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+						}`}
 					/>
 					<span className="text-sm text-gray-500 dark:text-gray-400">ETH</span>
 					<button
 						type="submit"
-						disabled={unstakePending || unstakeConfirming}
+						disabled={unstakePending || unstakeConfirming || unstakeError !== undefined}
 						className="px-3 py-1.5 text-xs rounded-lg bg-red-700 hover:bg-red-600 disabled:opacity-40 text-white font-medium transition-colors"
 					>
 						{unstakePending || unstakeConfirming ? "…" : "Unstake"}
 					</button>
 				</div>
-				{unstakeError !== null && (
+				{unstakeTouched && unstakeError !== undefined && (
+					<p className="text-xs text-red-500 dark:text-red-400">{unstakeError}</p>
+				)}
+				{writeUnstakeError !== null && (
 					<p className="text-xs text-red-500 dark:text-red-400">
-						{(unstakeError as { shortMessage?: string }).shortMessage ??
-							unstakeError.message}
+						{(writeUnstakeError as { shortMessage?: string }).shortMessage ??
+							writeUnstakeError.message}
 					</p>
 				)}
 			</form>

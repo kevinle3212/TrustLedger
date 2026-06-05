@@ -711,8 +711,14 @@ You should see output like:
 JurorRegistry deployed to: 0x...
 TrustLedger   deployed to: 0x...
 Arbitration   deployed to: 0x...
+ReputationRegistry: 0x...
 Deployed addresses written to artifacts/deployed-addresses.json
 ```
+
+On the local node, the deploy also mirrors the four contract addresses into
+`src/.env.local` (via `scripts/sync-frontend-env.ts`) so the Next.js dev server
+resolves them - including `ReputationRegistry`, which powers the Reputation
+page. Re-run the sync standalone any time with `npm run sync:frontend:env`.
 
 **Run the demo scripts (optional):**
 
@@ -742,9 +748,11 @@ Make sure your `.env` has `SEPOLIA_RPC_URL`, `DEPLOYER_PUBLIC_ADDRESS`,
 npm run hardhat:deploy:sepolia
 ```
 
-The console prints all three contract addresses and writes them to
-`artifacts/deployed-addresses.json`. The frontend reads this file
-automatically - no manual copy step needed.
+The console prints all contract addresses and writes them to
+`artifacts/deployed-addresses.json`. For production, the GitHub Actions deploy
+workflow (`.github/workflows/deploy.yml`) upserts the `NEXT_PUBLIC_*_ADDRESS`
+vars - including `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` - into Vercel, so the
+frontend picks them up on the next build with no manual copy step.
 
 To also verify the source code on Etherscan (requires `ETHERSCAN_API_KEY` in
 `.env`):
@@ -814,6 +822,7 @@ MetaMask connection and troubleshooting.
 | `npm run hardhat:gas`            | Run tests with per-function gas usage table                     |
 | `npm run node`                   | Local chain on `localhost:8545` with 20 pre-funded accounts     |
 | `npm run hardhat:deploy:local`   | Deploy to local node, write `artifacts/deployed-addresses.json` |
+| `npm run sync:frontend:env`      | Sync deployed addresses into `src/.env.local`                   |
 | `npm run hardhat:deploy:sepolia` | Deploy to Ethereum Sepolia                                      |
 | `npm run hardhat:check-balance`  | Print deployer ETH balance on Ethereum Sepolia                  |
 | `npm run demo:good`              | Happy-path demo against a running local node                    |
@@ -1259,17 +1268,21 @@ TrustLedger/
 │   │   ├── globals.css                           # Tailwind v4 base styles + font vars
 │   │   └── favicon.ico
 │   ├── components/
-│   │   ├── ConnectButton.tsx                     # Wallet connect button (opens the Reown AppKit modal)
+│   │   ├── ConnectButton.tsx                     # Wallet control: connect, copy address, reconnect hint
+│   │   ├── Field.tsx                             # Shared form primitives with inline validation errors
 │   │   ├── Navbar.tsx                            # Sticky nav with the wallet connect button
-│   │   ├── Providers.tsx                         # WagmiProvider + QueryClientProvider + AppKit theme sync
+│   │   ├── Providers.tsx                         # WagmiProvider + QueryClientProvider + AppKit theme sync + inactivity logout
 │   │   └── ThemeToggle.tsx                       # Light/dark mode toggle button
 │   ├── lib/
 │   │   ├── abi.ts                                # TrustLedger / Arbitration / JurorRegistry / ReputationRegistry ABIs
 │   │   ├── arweave.ts                            # Arweave permanent storage helper
 │   │   ├── encryption.ts                         # AES-GCM encrypt/decrypt for off-chain docs
 │   │   ├── ipfs.ts                               # IPFS upload via Pinata's pinning API
+│   │   ├── lastWallet.ts                         # Remembers the last-used connector label (localStorage)
 │   │   ├── magicLink.ts                          # JWT sign/verify for freelancer onboarding
+│   │   ├── useInactivityLogout.ts               # 10-min inactivity auto-disconnect hook
 │   │   ├── utils.ts                              # Address/ETH formatters, status colors
+│   │   ├── validation.ts                         # Reusable form-field validators
 │   │   └── wagmi.ts                              # wagmi config + contract address resolver
 │   ├── services/                                 # External-service integrations (server-only)
 │   │   ├── email.ts                             # Resend wrapper + shared HTML email shell
@@ -1299,6 +1312,7 @@ TrustLedger/
 │
 ├── scripts/
 │   ├── deploy.ts                         # Hardhat deploy (writes artifacts/deployed-addresses.json)
+│   ├── sync-frontend-env.ts             # Mirrors deployed addresses into src/.env.local
 │   ├── check-balance.ts                  # Deployer wallet balance checker
 │   ├── docker-demo.sh                    # Docker demo launcher
 │   ├── run-demo.sh                       # Interactive scenario runner (auto-starts node + deploy)

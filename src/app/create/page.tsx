@@ -9,49 +9,22 @@ import {
 	useWaitForTransactionReceipt,
 } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
+import { Field, Input, Select } from "@/components/Field";
 import { parseEther, keccak256, toBytes, parseEventLogs } from "viem";
 import { TRUSTLEDGER_ABI } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
 import { daysToSeconds } from "@/lib/utils";
+import {
+	validateContractUri,
+	validateEmail,
+	validateEthAddress,
+	validateEthAmount,
+	validateNumberInRange,
+	validateRequired,
+} from "@/lib/validation";
 import { uploadToPinata } from "@/lib/ipfs";
 import { encryptFile } from "@/lib/encryption";
 import type { ArweaveJWK } from "@/lib/arweave";
-
-function Field({
-	label,
-	hint,
-	children,
-}: {
-	label: string;
-	hint?: string;
-	children: React.ReactNode;
-}): React.JSX.Element {
-	return (
-		<div className="flex flex-col gap-1.5">
-			<label className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</label>
-			{children}
-			{hint !== undefined && <p className="text-xs text-gray-500">{hint}</p>}
-		</div>
-	);
-}
-
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>): React.JSX.Element {
-	return (
-		<input
-			{...props}
-			className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-		/>
-	);
-}
-
-function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>): React.JSX.Element {
-	return (
-		<select
-			{...props}
-			className="rounded-lg bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-		/>
-	);
-}
 
 type DocMode = "upload" | "manual";
 type UploadStatus = "idle" | "working" | "done" | "error";
@@ -107,6 +80,55 @@ export default function CreatePage(): React.JSX.Element {
 		setForm((f) => ({ ...f, [key]: value }));
 	}
 
+	// ── Field validation ────────────────────────────────────────────────────────
+	// Each field's error is computed from current state; it is only surfaced once
+	// the field has been blurred (touched) or the user has attempted to submit, so
+	// the form doesn't shout at the user before they've typed.
+	const [touched, setTouched] = useState<Partial<Record<string, boolean>>>({});
+	const [submitAttempted, setSubmitAttempted] = useState(false);
+
+	function markTouched(key: string): void {
+		setTouched((t) => ({ ...t, [key]: true }));
+	}
+
+	const fieldErrors = useMemo(
+		() => ({
+			freelancer: validateEthAddress(form.freelancer),
+			freelancerEmail: validateEmail(form.freelancerEmail),
+			amountEth: validateEthAmount(form.amountEth),
+			contractURI: docMode === "manual" ? validateContractUri(form.contractURI) : undefined,
+			estimatedDurationDays: validateNumberInRange(form.estimatedDurationDays, 1, 3650, {
+				integer: true,
+				unit: "days",
+			}),
+			bufferFactor: validateNumberInRange(form.bufferFactor, 1000, 100000, { integer: true }),
+			acceptanceWindowDays: validateNumberInRange(form.acceptanceWindowDays, 2, 3650, {
+				integer: true,
+				unit: "days",
+			}),
+			arbitrationFeePct: validateNumberInRange(form.arbitrationFeePct, 0, 50),
+			warrantyPeriodDays:
+				form.holdBack === "none"
+					? undefined
+					: validateNumberInRange(form.warrantyPeriodDays, 1, 3650, {
+							integer: true,
+							unit: "days",
+						}),
+			pinataJwt:
+				docMode === "upload" && selectedFile !== null
+					? validateRequired(pinataJwt, "Pinata JWT")
+					: undefined,
+			passphrase: encryptEnabled ? validateRequired(passphrase, "Passphrase") : undefined,
+		}),
+		[form, docMode, selectedFile, pinataJwt, encryptEnabled, passphrase],
+	);
+
+	function showError(key: keyof typeof fieldErrors): string | undefined {
+		return touched[key] === true || submitAttempted ? fieldErrors[key] : undefined;
+	}
+
+	const hasBlockingErrors = Object.values(fieldErrors).some((e) => e !== undefined);
+
 	// Pre-compute tx args whenever the form changes - fed into useSimulateContract so the
 	// transaction is validated on-chain before MetaMask opens. This prevents the "gas limit
 	// too high" symptom caused by gas estimation failing on a reverting transaction.
@@ -149,6 +171,8 @@ export default function CreatePage(): React.JSX.Element {
 
 	function handleSubmit(e: React.SyntheticEvent): void {
 		e.preventDefault();
+		setSubmitAttempted(true);
+		if (hasBlockingErrors) return;
 		if (simData?.request !== undefined) {
 			writeContract(simData.request);
 		}
@@ -348,6 +372,7 @@ export default function CreatePage(): React.JSX.Element {
 					<Field
 						label="Freelancer Address"
 						hint="The wallet that will receive payment on completion."
+						error={showError("freelancer")}
 					>
 						<Input
 							type="text"
@@ -356,6 +381,10 @@ export default function CreatePage(): React.JSX.Element {
 							onChange={(e) => {
 								set("freelancer", e.target.value);
 							}}
+							onBlur={() => {
+								markTouched("freelancer");
+							}}
+							error={showError("freelancer") !== undefined}
 							required
 							pattern="^0x[0-9a-fA-F]{40}$"
 						/>
@@ -364,6 +393,7 @@ export default function CreatePage(): React.JSX.Element {
 					<Field
 						label="Freelancer Email"
 						hint="A signed magic link will be sent here so the freelancer can accept via the web."
+						error={showError("freelancerEmail")}
 					>
 						<Input
 							type="email"
@@ -372,10 +402,18 @@ export default function CreatePage(): React.JSX.Element {
 							onChange={(e) => {
 								set("freelancerEmail", e.target.value);
 							}}
+							onBlur={() => {
+								markTouched("freelancerEmail");
+							}}
+							error={showError("freelancerEmail") !== undefined}
 						/>
 					</Field>
 
-					<Field label="Escrow Amount (ETH)" hint="Total ETH to lock in escrow.">
+					<Field
+						label="Escrow Amount (ETH)"
+						hint="Total ETH to lock in escrow."
+						error={showError("amountEth")}
+					>
 						<Input
 							type="number"
 							placeholder="0.5"
@@ -385,6 +423,10 @@ export default function CreatePage(): React.JSX.Element {
 							onChange={(e) => {
 								set("amountEth", e.target.value);
 							}}
+							onBlur={() => {
+								markTouched("amountEth");
+							}}
+							error={showError("amountEth") !== undefined}
 							required
 						/>
 					</Field>
@@ -461,6 +503,7 @@ export default function CreatePage(): React.JSX.Element {
 								<Field
 									label="Passphrase"
 									hint="Share this with the other party via a separate secure channel. You cannot decrypt without it."
+									error={showError("passphrase")}
 								>
 									<Input
 										type="password"
@@ -469,6 +512,10 @@ export default function CreatePage(): React.JSX.Element {
 										onChange={(e) => {
 											setPassphrase(e.target.value);
 										}}
+										onBlur={() => {
+											markTouched("passphrase");
+										}}
+										error={showError("passphrase") !== undefined}
 									/>
 								</Field>
 							)}
@@ -476,7 +523,11 @@ export default function CreatePage(): React.JSX.Element {
 							{/* Pinata JWT - shown if not baked in via env */}
 							{(process.env["NEXT_PUBLIC_PINATA_JWT"] === undefined ||
 								process.env["NEXT_PUBLIC_PINATA_JWT"] === "") && (
-								<Field label="Pinata JWT">
+								<Field
+									label="Pinata JWT"
+									hint="Required to upload the document to IPFS."
+									error={showError("pinataJwt")}
+								>
 									<Input
 										type="password"
 										placeholder="eyJhbGciOiJIUzI1NiIs…"
@@ -484,6 +535,10 @@ export default function CreatePage(): React.JSX.Element {
 										onChange={(e) => {
 											setPinataJwt(e.target.value);
 										}}
+										onBlur={() => {
+											markTouched("pinataJwt");
+										}}
+										error={showError("pinataJwt") !== undefined}
 									/>
 								</Field>
 							)}
@@ -586,6 +641,7 @@ export default function CreatePage(): React.JSX.Element {
 						<Field
 							label="Contract Document URI"
 							hint="IPFS link or URL to the off-chain agreement. A hash of this is stored on-chain."
+							error={showError("contractURI")}
 						>
 							<Input
 								type="text"
@@ -594,6 +650,10 @@ export default function CreatePage(): React.JSX.Element {
 								onChange={(e) => {
 									set("contractURI", e.target.value);
 								}}
+								onBlur={() => {
+									markTouched("contractURI");
+								}}
+								error={showError("contractURI") !== undefined}
 							/>
 						</Field>
 					)}
@@ -607,6 +667,7 @@ export default function CreatePage(): React.JSX.Element {
 						<Field
 							label="Estimated Duration (days)"
 							hint="How long the project should take."
+							error={showError("estimatedDurationDays")}
 						>
 							<Input
 								type="number"
@@ -615,6 +676,10 @@ export default function CreatePage(): React.JSX.Element {
 								onChange={(e) => {
 									set("estimatedDurationDays", e.target.value);
 								}}
+								onBlur={() => {
+									markTouched("estimatedDurationDays");
+								}}
+								error={showError("estimatedDurationDays") !== undefined}
 								required
 							/>
 						</Field>
@@ -622,6 +687,7 @@ export default function CreatePage(): React.JSX.Element {
 						<Field
 							label="Buffer Factor"
 							hint="Project deadline = duration × buffer / 1000. E.g. 1200 = 1.2× buffer."
+							error={showError("bufferFactor")}
 						>
 							<Input
 								type="number"
@@ -631,6 +697,10 @@ export default function CreatePage(): React.JSX.Element {
 								onChange={(e) => {
 									set("bufferFactor", e.target.value);
 								}}
+								onBlur={() => {
+									markTouched("bufferFactor");
+								}}
+								error={showError("bufferFactor") !== undefined}
 								required
 							/>
 						</Field>
@@ -639,6 +709,7 @@ export default function CreatePage(): React.JSX.Element {
 					<Field
 						label="Acceptance Window (days)"
 						hint="How long you have to review submitted work. Minimum 2 days."
+						error={showError("acceptanceWindowDays")}
 					>
 						<Input
 							type="number"
@@ -647,6 +718,10 @@ export default function CreatePage(): React.JSX.Element {
 							onChange={(e) => {
 								set("acceptanceWindowDays", e.target.value);
 							}}
+							onBlur={() => {
+								markTouched("acceptanceWindowDays");
+							}}
+							error={showError("acceptanceWindowDays") !== undefined}
 							required
 						/>
 					</Field>
@@ -661,6 +736,7 @@ export default function CreatePage(): React.JSX.Element {
 					<Field
 						label="Arbitration Fee (%)"
 						hint="Percentage of escrow set aside for jurors if a dispute is opened (0-50%)."
+						error={showError("arbitrationFeePct")}
 					>
 						<Input
 							type="number"
@@ -671,6 +747,10 @@ export default function CreatePage(): React.JSX.Element {
 							onChange={(e) => {
 								set("arbitrationFeePct", e.target.value);
 							}}
+							onBlur={() => {
+								markTouched("arbitrationFeePct");
+							}}
+							error={showError("arbitrationFeePct") !== undefined}
 							required
 						/>
 					</Field>
@@ -696,6 +776,7 @@ export default function CreatePage(): React.JSX.Element {
 						<Field
 							label="Warranty Period (days)"
 							hint="How long the hold-back is locked after work is approved."
+							error={showError("warrantyPeriodDays")}
 						>
 							<Input
 								type="number"
@@ -704,6 +785,10 @@ export default function CreatePage(): React.JSX.Element {
 								onChange={(e) => {
 									set("warrantyPeriodDays", e.target.value);
 								}}
+								onBlur={() => {
+									markTouched("warrantyPeriodDays");
+								}}
+								error={showError("warrantyPeriodDays") !== undefined}
 								required
 							/>
 						</Field>
@@ -766,6 +851,7 @@ export default function CreatePage(): React.JSX.Element {
 					disabled={
 						isPending ||
 						isConfirming ||
+						hasBlockingErrors ||
 						(txArgs !== null && simData?.request === undefined && simError === null)
 					}
 					className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"

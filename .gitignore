@@ -67,6 +67,9 @@ Thumbs.db
 *.pem
 
 # ─── Next.js (src/) ───────────────────────────────────────────────────────────
+# /.next is the repo-root symlink `vercel-build` points at src/.next so Vercel
+# finds the output; src/.next/ is the actual Next.js build directory.
+/.next
 src/.next/
 src/out/
 src/build/
