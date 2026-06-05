@@ -8,7 +8,7 @@ import {
 	useSimulateContract,
 	useWaitForTransactionReceipt,
 } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from "@/components/ConnectButton";
 import { parseEther, keccak256, toBytes, parseEventLogs } from "viem";
 import { TRUSTLEDGER_ABI } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";

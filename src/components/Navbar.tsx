@@ -1,6 +1,6 @@
 "use client";
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from "@/components/ConnectButton";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -80,7 +80,7 @@ export function Navbar(): React.JSX.Element {
 						</a>
 					)}
 					<ThemeToggle />
-					<ConnectButton chainStatus="icon" showBalance={false} />
+					<ConnectButton />
 				</div>
 			</div>
 		</header>

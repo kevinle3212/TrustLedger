@@ -186,8 +186,8 @@ payouts.
 | TypeScript types               | TypeChain (ethers-v6)                                                                        |
 | Chain                          | Ethereum Sepolia (testnet)                                                                   |
 | Off-chain storage              | IPFS via Pinata (with optional Arweave)                                                      |
-| Wallet                         | MetaMask + RainbowKit                                                                        |
-| Frontend                       | Next.js 16, React 19, wagmi v2, RainbowKit, viem                                             |
+| Wallet                         | Reown AppKit — Coinbase, MetaMask, Phantom, Tangem, WalletConnect, and injected wallets      |
+| Frontend                       | Next.js 16, React 19, wagmi v2, Reown AppKit, viem                                           |
 | Backend (planned)              | Node.js, TypeScript, SQL                                                                     |
 | Randomness                     | Chainlink VRF v2                                                                             |
 | Price feed                     | Chainlink AggregatorV3 (ETH/USD)                                                             |
@@ -1256,8 +1256,9 @@ TrustLedger/
 │   │   ├── globals.css                           # Tailwind v4 base styles + font vars
 │   │   └── favicon.ico
 │   ├── components/
-│   │   ├── Navbar.tsx                            # Sticky nav with RainbowKit connect button
-│   │   ├── Providers.tsx                         # WagmiProvider + RainbowKitProvider + QueryClientProvider
+│   │   ├── ConnectButton.tsx                     # Wallet connect button (opens the Reown AppKit modal)
+│   │   ├── Navbar.tsx                            # Sticky nav with the wallet connect button
+│   │   ├── Providers.tsx                         # WagmiProvider + QueryClientProvider + AppKit theme sync
 │   │   └── ThemeToggle.tsx                       # Light/dark mode toggle button
 │   ├── lib/
 │   │   ├── abi.ts                                # TrustLedger / Arbitration / JurorRegistry / ReputationRegistry ABIs

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from "@/components/ConnectButton";
 import { encodePacked, formatEther, keccak256 } from "viem";
 import { ARBITRATION_ABI } from "@/lib/abi";
 import { ARBITRATION_ADDRESS } from "@/lib/wagmi";

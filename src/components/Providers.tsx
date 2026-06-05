@@ -1,23 +1,27 @@
 "use client";
 
-import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
+import { useAppKitTheme } from "@reown/appkit/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { config } from "@/lib/wagmi";
-import "@rainbow-me/rainbowkit/styles.css";
 
-const ACCENT = "#6366f1";
-
-/** Reads resolved theme and passes matching RainbowKit theme down. */
-function RainbowKitThemeWrapper({ children }: { children: React.ReactNode }): React.JSX.Element {
+/**
+ * Keeps the AppKit modal's light/dark mode in sync with next-themes.
+ *
+ * AppKit is a singleton (created in `@/lib/wagmi`), so this renders nothing and
+ * only pushes the resolved theme into AppKit whenever it changes.
+ */
+function AppKitThemeSync(): null {
 	const { resolvedTheme } = useTheme();
-	const rkTheme =
-		resolvedTheme === "light"
-			? lightTheme({ accentColor: ACCENT })
-			: darkTheme({ accentColor: ACCENT });
-	return <RainbowKitProvider theme={rkTheme}>{children}</RainbowKitProvider>;
+	const { setThemeMode } = useAppKitTheme();
+
+	useEffect(() => {
+		setThemeMode(resolvedTheme === "light" ? "light" : "dark");
+	}, [resolvedTheme, setThemeMode]);
+
+	return null;
 }
 
 export function Providers({ children }: { children: React.ReactNode }): React.JSX.Element {
@@ -32,7 +36,8 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 		>
 			<WagmiProvider config={config}>
 				<QueryClientProvider client={queryClient}>
-					<RainbowKitThemeWrapper>{children}</RainbowKitThemeWrapper>
+					<AppKitThemeSync />
+					{children}
 				</QueryClientProvider>
 			</WagmiProvider>
 		</ThemeProvider>

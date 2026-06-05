@@ -448,7 +448,7 @@ Step 12  Execute ruling (funds released; minority jurors slashed if applicable)
 | Solidity testing    | Foundry (`forge test`)                    | Native Solidity, fast, 10k fuzz runs per suite                |
 | TS testing          | Hardhat 2.x + Mocha + Chai + ethers.js v6 | Full integration tests with TypeChain types                   |
 | TypeScript          | TypeScript 6 / Node.js 22+                | Strict types, ESM + CJS dual config                           |
-| Frontend            | Next.js 16 + RainbowKit + wagmi + viem    | Wallet connection, dashboard, juror portal, reputation lookup |
+| Frontend            | Next.js 16 + Reown AppKit + wagmi + viem  | Wallet connection, dashboard, juror portal, reputation lookup |
 | CI/CD               | GitHub Actions                            | Lint, compile, test on every pull request                     |
 | Code review         | CodeRabbit                                | AI-assisted PR review with Solidity awareness                 |
 
@@ -651,7 +651,7 @@ workflow.
 | 4        | Chainlink VRF v2 subscription (funded + consumer) | Needs sub ID                                   |
 | 5        | External security audit                           | Not started                                    |
 | 6        | Formal verification (Certora / Echidna)           | Not started                                    |
-| 7        | Frontend (Next.js + RainbowKit + wagmi)           | In progress (`/reputation`, dashboard ratings) |
+| 7        | Frontend (Next.js + Reown AppKit + wagmi)         | In progress (`/reputation`, dashboard ratings) |
 | 8        | IPFS upload service                               | Planned                                        |
 | 9        | Gas optimization pass                             | Not started                                    |
 | 10       | Emergency pause / kill switch                     | Not started                                    |

@@ -109,7 +109,7 @@ checks. Both toolchains share `solc 0.8.24` and `optimizer_runs = 200`.
 - **Affected:** All versions of `ws` before 8.17.1 allow a remote attacker to
   cause a DoS by sending a specially crafted HTTP request.
 - **Fix:** Both `package.json` and `src/package.json` pin `ws` to `8.20.1` via
-  npm `overrides`. This forces every transitive dependent (RainbowKit, wagmi,
+  npm `overrides`. This forces every transitive dependent (Reown AppKit, wagmi,
   Hardhat) to resolve to the patched version.
 - **Status:** Suppressed. `npm audit` exits clean.
 
