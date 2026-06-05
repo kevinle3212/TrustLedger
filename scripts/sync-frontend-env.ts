@@ -10,8 +10,22 @@
 // Run directly:    npx hardhat run scripts/sync-frontend-env.ts  (or via tsx/ts-node)
 // Run from deploy: imported and called by scripts/deploy.ts for local networks.
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+
+/**
+ * Reads a UTF-8 file, returning `null` if it does not exist. Uses a try/catch on
+ * the read itself (rather than a separate existsSync check) to avoid a
+ * time-of-check-to-time-of-use race between the existence check and the read.
+ */
+function readFileOrNull(path: string): string | null {
+	try {
+		return readFileSync(path, "utf8");
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException).code === "ENOENT") return null;
+		throw err;
+	}
+}
 
 /** Maps the deployed-addresses.json keys to their NEXT_PUBLIC_* env var names. */
 const ENV_KEY_BY_CONTRACT: Record<string, string> = {
@@ -39,16 +53,17 @@ function upsertEnvLine(body: string, key: string, value: string): string {
  */
 export function syncFrontendEnv(): void {
 	const addressesPath = resolve(__dirname, "../artifacts/deployed-addresses.json");
-	if (!existsSync(addressesPath)) {
+	const addressesJson = readFileOrNull(addressesPath);
+	if (addressesJson === null) {
 		console.warn(
 			"sync-frontend-env: artifacts/deployed-addresses.json not found - run a deploy first.",
 		);
 		return;
 	}
 
-	const addresses = JSON.parse(readFileSync(addressesPath, "utf8")) as Record<string, string>;
+	const addresses = JSON.parse(addressesJson) as Record<string, string>;
 	const envPath = resolve(__dirname, "../src/.env.local");
-	let body = existsSync(envPath) ? readFileSync(envPath, "utf8") : "";
+	let body = readFileOrNull(envPath) ?? "";
 
 	for (const [contract, envKey] of Object.entries(ENV_KEY_BY_CONTRACT)) {
 		const value = addresses[contract];
