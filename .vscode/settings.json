@@ -26,6 +26,7 @@
 	},
 	"files.associations": {
 		".markdownlintignore": "ignore",
+		".vercelignore": "ignore",
 		"LICENSE": "plaintext"
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
