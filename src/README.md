@@ -298,7 +298,8 @@ src/
 │   ├── ipfs.ts                       # IPFS upload via Pinata's pinning API; returns CID for on-chain storage
 │   ├── magicLink.ts                  # JWT sign/verify helpers for freelancer magic-link onboarding
 │   ├── utils.ts                      # Address shortener, ETH formatter, status color map
-│   └── wagmi.ts                      # wagmi config (chains, transports) + contract address resolver
+│   ├── wagmi.ts                      # wagmi config + AppKit modal (chains, address resolver, featured wallets)
+│   └── walletIds.ts                  # WalletConnect registry IDs for the AppKit featured-wallet list
 │
 ├── public/                           # Static assets served at the root URL
 │   ├── logo.png                      # TrustLedger project logo
@@ -338,15 +339,16 @@ src/
 
 ### Library - `lib/`
 
-| File            | Description                                                                                                                                |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `abi.ts`        | Contract ABIs including `REPUTATION_REGISTRY_ABI`; `STATUS_LABELS` for human-readable contract status strings                              |
-| `arweave.ts`    | Uploads files to Arweave for permanent, immutable storage; returns the transaction ID as a URI                                             |
-| `encryption.ts` | AES-GCM helpers: `encrypt(data, key)` → ciphertext, `decrypt(ciphertext, key)` → plaintext                                                 |
-| `ipfs.ts`       | Uploads a `File` or `Blob` to IPFS via Pinata (`uploadToPinata`); returns the IPFS CID used as `contractURI` or `proofOfWorkURI`           |
-| `magicLink.ts`  | `signMagicLink(contractId, freelancerAddress)` / `verifyMagicLink(token)` - JWT helpers for the accept flow                                |
-| `utils.ts`      | `shortenAddress`, `formatEth`, `statusColor` - formatting helpers used across pages                                                        |
-| `wagmi.ts`      | Exports `config` and contract addresses (`TRUSTLEDGER_ADDRESS`, `REPUTATION_REGISTRY_ADDRESS`, etc.) from env or `deployed-addresses.json` |
+| File            | Description                                                                                                                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `abi.ts`        | Contract ABIs including `REPUTATION_REGISTRY_ABI`; `STATUS_LABELS` for human-readable contract status strings                                                                                                            |
+| `arweave.ts`    | Uploads files to Arweave for permanent, immutable storage; returns the transaction ID as a URI                                                                                                                           |
+| `encryption.ts` | AES-GCM helpers: `encrypt(data, key)` → ciphertext, `decrypt(ciphertext, key)` → plaintext                                                                                                                               |
+| `ipfs.ts`       | Uploads a `File` or `Blob` to IPFS via Pinata (`uploadToPinata`); returns the IPFS CID used as `contractURI` or `proofOfWorkURI`                                                                                         |
+| `magicLink.ts`  | `signMagicLink(contractId, freelancerAddress)` / `verifyMagicLink(token)` - JWT helpers for the accept flow                                                                                                              |
+| `utils.ts`      | `shortenAddress`, `formatEth`, `statusColor` - formatting helpers used across pages                                                                                                                                      |
+| `wagmi.ts`      | Exports `config` (built by the Reown AppKit wagmi adapter), creates the AppKit modal, and resolves contract addresses (`TRUSTLEDGER_ADDRESS`, `REPUTATION_REGISTRY_ADDRESS`, etc.) from env or `deployed-addresses.json` |
+| `walletIds.ts`  | `WALLET_IDS` map of WalletConnect registry IDs and the ordered `FEATURED_WALLET_IDS` list for the AppKit modal (Base, MetaMask, Phantom, Tangem first, then Coinbase, Solflare, Robinhood, Cold, Brave, SoulSwap, …)     |
 
 [↑ Back to top](#table-of-contents)
 

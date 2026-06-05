@@ -1,6 +1,7 @@
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { arbitrum, type AppKitNetwork, base, optimism, sepolia } from "@reown/appkit/networks";
 import { createAppKit, type CreateAppKit } from "@reown/appkit/react";
+import { FEATURED_WALLET_IDS } from "./walletIds";
 
 export const TRUSTLEDGER_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"] as `0x${string}` | undefined) ??
@@ -39,17 +40,6 @@ const ACCENT_COLOR = "#6366f1";
 const appUrl =
 	process.env["NEXT_PUBLIC_SITE_URL"] ??
 	(typeof window !== "undefined" ? window.location.origin : "https://trustledger.vercel.app");
-
-// Verified WalletConnect Explorer IDs, surfaced first in the connect modal.
-// These are the wallets we explicitly support; AppKit still lists every other
-// registry wallet under "All Wallets".
-const FEATURED_WALLET_IDS = [
-	"d0ca99ff52b99abc48743dad0f7fc891e041be73574f7fac4afe5d4bb83845c8", // Coinbase Wallet
-	"c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96", // MetaMask
-	"a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393", // Phantom
-	"21030f20fba1a77115858ee3a8bc5841c739ab4537441316e2f4b1d0a8d218af", // Tangem
-	"fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa", // Base Account
-];
 
 // The wagmi adapter builds the wagmi config AppKit drives. `ssr: true` mirrors
 // the previous getDefaultConfig setup so Next.js server rendering stays correct.

@@ -487,6 +487,41 @@ time.
 
 ---
 
+## Wallet Connection (Reown AppKit)
+
+The frontend connects wallets through [Reown AppKit](https://reown.com/appkit)
+(`@reown/appkit` + `@reown/appkit-adapter-wagmi`) rather than RainbowKit. AppKit
+pulls the full WalletConnect wallet registry, which keeps Coinbase Wallet
+first-class (RainbowKit deprecated its connector) and adds wallets RainbowKit
+does not ship (for example Tangem). Two `src/lib` modules drive it:
+
+| File               | Responsibility                                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `lib/wagmi.ts`     | Builds the wagmi `config` via the AppKit adapter and calls `createAppKit({ … })`, passing `featuredWalletIds`.         |
+| `lib/walletIds.ts` | `WALLET_IDS` — a named map of WalletConnect registry IDs — and the ordered `FEATURED_WALLET_IDS` array consumed above. |
+
+`featuredWalletIds` only controls which wallets are **pinned** to the top of the
+modal and in what order; every other registry wallet still appears under "All
+Wallets". The featured order is:
+
+1. **Primary (shown first):** Base, MetaMask, Phantom, Tangem.
+2. **Additional popular wallets:** Coinbase, Solflare, Robinhood, Cold Wallet,
+   Brave, SoulSwap, Trust, OKX, Rainbow, Zerion.
+
+Each ID is the wallet's WalletConnect/Reown registry ID, looked up via the
+explorer API (`https://explorer-api.walletconnect.com/v3/wallets`) and browsable
+at
+[walletguide.walletconnect.network](https://walletguide.walletconnect.network).
+To add or reorder a wallet, edit `WALLET_IDS` and `FEATURED_WALLET_IDS` in
+`lib/walletIds.ts` — no change to `lib/wagmi.ts` is required.
+
+Wallets that pair over the WalletConnect relay (MetaMask QR, Phantom, Tangem,
+WalletConnect itself) need a real `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`;
+injected and Coinbase work without it, which keeps desktop and iOS Safari
+connections reliable.
+
+---
+
 ## Threat Mitigations
 
 The following mechanisms address the protocol's stated threat model directly.
