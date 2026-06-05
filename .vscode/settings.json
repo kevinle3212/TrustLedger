@@ -36,5 +36,6 @@
 	"python.analysis.diagnosticSeverityOverrides": {
 		"reportMissingModuleSource": "information"
 	},
-	"python-envs.defaultEnvManager": "ms-python.python:pyenv"
+	"python-envs.defaultEnvManager": "ms-python.python:pyenv",
+	"pylint.ignorePatterns": ["**/*.pyi"]
 }

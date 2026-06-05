@@ -101,6 +101,14 @@ export default [
 			"@typescript-eslint/naming-convention": [
 				"error",
 				{ selector: "variableLike", format: ["camelCase", "UPPER_CASE", "PascalCase"] },
+				// Intentionally-unused bindings (e.g. a skipped callback/handler arg) may
+				// carry a leading underscore, matching no-unused-vars' argsIgnorePattern.
+				{
+					selector: "variableLike",
+					modifiers: ["unused"],
+					format: ["camelCase", "UPPER_CASE", "PascalCase"],
+					leadingUnderscore: "allow",
+				},
 				{ selector: "typeLike", format: ["PascalCase"] },
 				{ selector: "enumMember", format: ["PascalCase", "UPPER_CASE"] },
 			],

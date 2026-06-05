@@ -174,7 +174,14 @@ mainnet launch deliverables.
 
 - [ ] Add a `services/` directory for external service integrations — such as
       IPFS pinning, email notifications, and AI summarization — to keep the code
-      organized and modular.
+      organized and modular. — **Partially done:** added `src/services/email.ts`
+      (a Resend wrapper with a shared HTML email shell) and
+      `src/services/notifications.ts` (lifecycle-email templates plus the pure
+      `findDeadlineReminders` deadline scanner) as part of the
+      email-notification work below. Placed under `src/services/` (not the repo
+      root) so the Next.js API routes import them via the existing
+      `@/services/*` path alias. `services/ipfs.ts` and `services/aiSummary.ts`
+      are still pending.
     - Create a `services/` directory at the project root and define a module per
       integration (for example `services/ipfs.ts`, `services/email.ts`, and
       `services/aiSummary.ts`).
@@ -183,9 +190,20 @@ mainnet launch deliverables.
       summaries. This keeps the codebase clean and makes integrations easier to
       manage and update.
 
-- [ ] If needed, add a `middleware.ts` file (and API routes) to handle
+- [x] If needed, add a `middleware.ts` file (and API routes) to handle
       server-side logic such as fetching contract data, handling authentication,
-      or processing payments.
+      or processing payments. — Added `src/proxy.ts` (Next.js 16 renamed the
+      `middleware.ts` convention to `proxy.ts`; the function is exported as
+      `proxy`) that applies baseline security headers (`X-Content-Type-Options`,
+      `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS,
+      `X-DNS-Prefetch-Control`) to every response and best-effort per-IP rate
+      limiting to `/api/*`. A strict CSP is intentionally deferred to the Phase
+      3 security task because Reown AppKit/WalletConnect need per-deploy tuning.
+      Added API routes alongside it: `GET /api/contract/[id]` (server-side
+      aggregation that reads `getContract()` on-chain and returns a JSON-safe,
+      gateway-resolved shape), `POST /api/notifications` (auth-gated lifecycle
+      emails), and `GET /api/cron/deadline-reminders` (scheduled in
+      `src/vercel.json`). `tsc`, ESLint, Prettier, and `next build` all pass.
     - Set up API routes that interact with both the blockchain and the frontend,
       enabling more complex interactions that are not well suited to client-side
       logic.
@@ -280,6 +298,24 @@ mainnet launch deliverables.
       the contract description, key terms (amount and deadlines), and current
       status (for example "In Progress, 40% completed, no disputes") from the
       on-chain data and any relevant off-chain metadata.
+    - Research and compare free or free-tier AI providers before committing to
+      one, and document the trade-offs (rate limits, context window, data-
+      retention/privacy terms, and whether a card is required) in `NOTES.md`.
+      Candidates to evaluate:
+        - **Google Gemini API** — generous free tier (e.g. Gemini 2.x Flash)
+          with a simple REST/SDK and no card required to start.
+        - **Groq** — free tier serving open models (Llama, etc.) at very low
+          latency; good for fast, cheap summaries.
+        - **OpenRouter** — single API key fronting many models, including
+          several `:free` variants, useful for provider fallback.
+        - **Cloudflare Workers AI** — free daily allotment of open models that
+          pairs well if any edge/Workers backend is added.
+        - **Mistral (La Plateforme)** and **Together AI** — additional free-tier
+          options worth benchmarking on summary quality and cost. Prefer routing
+          through one abstraction (mirroring `src/services/email.ts`) so the
+          provider can be swapped without touching call sites — e.g. a
+          `src/services/aiSummary.ts` module — and keep the key server-side
+          only.
     - Display the summary prominently on each contract card in the dashboard,
       giving users an easy-to-digest overview without clicking into each
       contract.
@@ -356,7 +392,18 @@ mainnet launch deliverables.
       address. Profiles should surface on the reputation and dashboard pages.
     - **Notifications:** Send email or in-app notifications for key contract
       lifecycle events — new contract offers, submitted work, approval or
-      dispute outcomes, and rating submissions.
+      dispute outcomes, and rating submissions. — **Email layer scaffolded:**
+      `src/services/notifications.ts` renders every lifecycle email (offer, work
+      submitted, approval, dispute opened/resolved, rating, deadline reminder)
+      via the shared `src/services/email.ts` shell; `POST /api/notifications`
+      (bearer-gated with `NOTIFICATIONS_SECRET`) sends one on demand; and
+      `GET /api/cron/deadline-reminders` (daily Vercel Cron in
+      `src/vercel.json`, gated with `CRON_SECRET`) reads open contracts on-chain
+      via viem and emails the relevant party when a project, acceptance, or
+      warranty deadline is within 48h. **Still pending:** recipient resolution
+      is a stopgap that reads an address→email map from the
+      `NOTIFICATION_EMAILS` env var; replace it with the off-chain account
+      database below, and add the in-app channel.
     - **In-app messaging:** Allow clients and freelancers to communicate within
       the platform without exposing personal contact information. Messages
       should be end-to-end encrypted so only the two parties can read them. Use
@@ -378,6 +425,28 @@ mainnet launch deliverables.
       tracking email performance.
     - Implement the new provider in the authentication flow so users reliably
       receive their magic links and authenticate without issues.
+
+- [ ] Survey and document useful free / free-tier external APIs the platform can
+      adopt to stay zero- or low-cost through development and early launch, then
+      record the chosen providers and their limits in `NOTES.md` and
+      `.env.example`.
+    - **Email / transactional:** currently Resend (3,000/month, 100/day free);
+      benchmark against SendGrid, Mailgun, Postmark, and Brevo for
+      deliverability and free-tier headroom (ties into the magic-link provider
+      item above).
+    - **AI summarization / moderation:** see the free-tier AI research under the
+      Phase 4 AI-summary item (Gemini, Groq, OpenRouter, Cloudflare Workers AI,
+      Mistral, Together AI).
+    - **RPC / node access:** Alchemy, Infura, and the public/free endpoints for
+      Sepolia and the production L2s — compare request quotas and archive
+      access.
+    - **IPFS / storage pinning:** Pinata (already used), web3.storage, and
+      Filebase free tiers for document and deliverable pinning.
+    - **Price / oracle feeds:** CoinGecko and Chainlink free feeds for the
+      stablecoin/exchange-rate work in the oracle item below.
+    - For each category, note rate limits, whether a credit card is required,
+      data-retention/privacy terms, and the upgrade path, so the team can pick
+      deliberately and avoid surprise paywalls near mainnet.
 
 - [ ] Add an oracle service to fetch off-chain data relevant to contracts, such
       as exchange rates for stablecoin payments or external data feeds that
@@ -447,6 +516,34 @@ mainnet launch deliverables.
       informed decisions on the platform.
 
 ## Phase 7 — Testing, Quality, and Accessibility
+
+- [ ] Perform a thorough security sweep of the entire frontend and backend and
+      patch any vulnerabilities found, then document the findings and fixes in
+      `SECURITY.md` and `NOTES.md`.
+    - **Frontend:** audit for XSS (including `dangerouslySetInnerHTML` and the
+      email HTML built in `src/services/email.ts`), unsafe `target="_blank"`
+      links missing `rel="noopener noreferrer"`, secrets accidentally exposed to
+      the client bundle (only `NEXT_PUBLIC_*` may reach the browser),
+      unvalidated URL/IPFS inputs, and clickjacking; finish hardening with the
+      strict CSP deferred from the `src/proxy.ts` work and the Phase 3 security
+      task.
+    - **Backend / API routes:** verify input validation at every boundary, that
+      `/api/notifications` and `/api/cron/deadline-reminders` enforce their
+      bearer secrets (`NOTIFICATIONS_SECRET` / `CRON_SECRET`) with constant-time
+      comparison, that no route leaks internal errors or PII, that rate limiting
+      and request-size limits hold up, and that SSRF is not possible via
+      user-supplied URIs fetched server-side.
+    - **Auth / tokens:** review the magic-link HMAC flow and any future JWT/EIP-
+      712 sign-in for replay, expiry, and signature-validation correctness.
+    - **Dependencies & secrets:** run `npm audit` (root and `src/`), `gh`
+      Dependabot/code-scanning alerts, and a secret scan (e.g. `gitleaks`);
+      upgrade or override vulnerable packages and rotate any exposed keys.
+    - **Smart contracts:** re-run `forge test`, `slither`/static analysis, and
+      review access control, reentrancy, and arithmetic on the escrow,
+      arbitration, juror, and reputation contracts before mainnet.
+    - Prefer automated gates where possible (CI security job, `npm audit` in CI)
+      so regressions are caught on every pull request rather than only in
+      sweeps.
 
 - [ ] Run a full project sweep (excluding build output directories such as
       `artifacts/`, `hardhat-cache/`, `contracts/out/`, `contracts/cache/`,
