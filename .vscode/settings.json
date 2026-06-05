@@ -37,5 +37,10 @@
 		"reportMissingModuleSource": "information"
 	},
 	"python-envs.defaultEnvManager": "ms-python.python:pyenv",
-	"pylint.ignorePatterns": ["**/*.pyi"]
+	"pylint.ignorePatterns": ["**/*.pyi"],
+	"yaml.customTags": [
+		"tag:yaml.org,2002:python/name:material.extensions.emoji.twemoji",
+		"tag:yaml.org,2002:python/name:material.extensions.emoji.to_svg",
+		"tag:yaml.org,2002:python/name:pymdownx.superfences.fence_code_format"
+	]
 }
