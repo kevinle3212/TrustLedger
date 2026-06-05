@@ -198,8 +198,25 @@ mainnet launch deliverables.
 
 ## Phase 3 — Wallet and Browser Compatibility
 
-- [ ] Fix Base (works on Safari), Browser Wallet, MetaMask, and WalletConnect
-      integration and compatibility, since they cause issues on Safari.
+- [x] Fix Base (works on Safari), Browser Wallet, MetaMask, and WalletConnect
+      integration and compatibility, since they cause issues on Safari. —
+      Replaced RainbowKit with **Reown AppKit** (`@reown/appkit` +
+      `@reown/appkit-adapter-wagmi`) in `src/lib/wagmi.ts`, which fixes Safari's
+      two failure modes (broken `metamask://` deep links and a WalletConnect
+      relay that errored against RainbowKit's placeholder project ID) and
+      removes the deprecated RainbowKit Coinbase connector. The connect modal
+      now features Coinbase Wallet (no longer deprecated), MetaMask, Phantom,
+      and Tangem by their verified WalletConnect-registry IDs, plus the Base
+      Account passkey smart wallet and every other registry/injected wallet. A
+      custom `src/components/ConnectButton.tsx` (AppKit
+      `useAppKit`/`useAppKitAccount` hooks) replaces RainbowKit's
+      `<ConnectButton>` across the navbar and all six pages; `Providers.tsx`
+      drops `RainbowKitProvider` and syncs AppKit's light/dark theme with
+      `next-themes`. The relay-dependent wallets still require
+      `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` (documented in `.env.example`);
+      injected and Coinbase work without it. `tsc`, ESLint, Prettier, and
+      `next build` all pass; real-device QA on iOS Safari is still recommended
+      before mainnet.
     - Resolve these issues for compatibility across all browsers and wallets,
       but prioritize Safari, since it is the most common browser on iOS and has
       the most wallet-integration problems. This ensures the platform is
@@ -216,9 +233,9 @@ mainnet launch deliverables.
       styling pipeline and adopt it consistently if it improves maintainability
       over the current approach, otherwise document why it is intentionally
       unused.
-    - Performance: trim client bundle size, lazy-load wallet/RainbowKit code,
-      adopt Next.js streaming/Server Components where possible, optimize fonts
-      and images, and target strong Core Web Vitals (LCP, CLS, INP).
+    - Performance: trim client bundle size, lazy-load wallet/AppKit code, adopt
+      Next.js streaming/Server Components where possible, optimize fonts and
+      images, and target strong Core Web Vitals (LCP, CLS, INP).
     - Security: add a strict Content-Security-Policy and security headers, audit
       `dangerouslySetInnerHTML`/external links, keep dependencies patched, and
       ensure no secrets reach the client bundle.

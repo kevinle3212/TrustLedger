@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from "@/components/ConnectButton";
 import { formatEther, keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";

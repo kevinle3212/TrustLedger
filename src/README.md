@@ -87,7 +87,7 @@ npm install
 ```
 
 `npm install` reads `src/package.json` and downloads all the frontend
-dependencies (Next.js, wagmi, RainbowKit, Tailwind CSS, etc.) into a local
+dependencies (Next.js, wagmi, Reown AppKit, Tailwind CSS, etc.) into a local
 `node_modules/` folder. This takes about 30-60 seconds. You should see a summary
 like `added 754 packages` when it finishes.
 
@@ -286,8 +286,9 @@ src/
 │   └── favicon.ico
 │
 ├── components/
-│   ├── Navbar.tsx                    # Sticky top nav with RainbowKit ConnectButton
-│   ├── Providers.tsx                 # WagmiProvider + RainbowKitProvider + QueryClientProvider
+│   ├── ConnectButton.tsx            # Wallet connect button (opens the Reown AppKit modal)
+│   ├── Navbar.tsx                    # Sticky top nav with the wallet connect button
+│   ├── Providers.tsx                 # WagmiProvider + QueryClientProvider + AppKit theme sync
 │   └── ThemeToggle.tsx               # Light/dark mode toggle button
 │
 ├── lib/
@@ -328,11 +329,12 @@ src/
 
 ### Components - `components/`
 
-| File              | Description                                                                                     |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| `Navbar.tsx`      | Sticky navigation bar with the RainbowKit `ConnectButton` and page links                        |
-| `Providers.tsx`   | Tree of `WagmiProvider`, `QueryClientProvider`, and `RainbowKitProvider` - wraps the entire app |
-| `ThemeToggle.tsx` | Light/dark mode toggle button; reads and writes the `theme` class on `<html>`                   |
+| File                | Description                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------ |
+| `ConnectButton.tsx` | Wallet connect button; opens the Reown AppKit modal (Coinbase, MetaMask, Phantom, Tangem, …)     |
+| `Navbar.tsx`        | Sticky navigation bar with the wallet `ConnectButton` and page links                             |
+| `Providers.tsx`     | Tree of `WagmiProvider` and `QueryClientProvider`, plus AppKit theme sync - wraps the entire app |
+| `ThemeToggle.tsx`   | Light/dark mode toggle button; reads and writes the `theme` class on `<html>`                    |
 
 ### Library - `lib/`
 
@@ -370,14 +372,17 @@ no runtime fetch needed.
 
 ## wagmi Integration
 
-**App setup with RainbowKit** (`src/components/Providers.tsx`):
+**App setup with Reown AppKit** (`src/components/Providers.tsx`):
+
+The AppKit modal is created once as an import side effect in `@/lib/wagmi`
+(`createAppKit({ ... })`), so the provider tree only needs wagmi and React
+Query. The modal itself is a web component injected into `document.body` — no
+extra provider wraps the children.
 
 ```tsx
-import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { config } from "@/lib/wagmi";
-import "@rainbow-me/rainbowkit/styles.css";
+import { config } from "@/lib/wagmi"; // importing this runs createAppKit()
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
@@ -385,11 +390,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider
-                    theme={darkTheme({ accentColor: "#6366f1" })}
-                >
-                    {children}
-                </RainbowKitProvider>
+                {children}
             </QueryClientProvider>
         </WagmiProvider>
     );

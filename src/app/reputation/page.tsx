@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAccount, useChainId, usePublicClient, useReadContract } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from "@/components/ConnectButton";
 import { isAddress, parseAbiItem } from "viem";
 import { REPUTATION_REGISTRY_ABI } from "@/lib/abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
