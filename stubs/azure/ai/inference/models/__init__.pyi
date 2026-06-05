@@ -14,7 +14,6 @@ class _ChatRequestMessage:
     Used only as the common supertype for :class:`SystemMessage` and
     :class:`UserMessage`; it carries no public attributes of its own.
     """
-    ...
 
 class SystemMessage(_ChatRequestMessage):
     """A system-role message that sets context or instructions for the model.

@@ -114,6 +114,13 @@ Then open `.env` in any text editor and fill in the values below.
 | `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` | No (auto-detected)         | Deployed `ReputationRegistry` address. Same resolution as above. Required for `/reputation` and dashboard rating forms.   |
 | `NEXT_BASE_PATH`                          | No                         | URL prefix. Leave empty (`NEXT_BASE_PATH=`) to serve from the root path `/`. The root `.env` already sets this correctly. |
 
+> The email features (magic-link onboarding and contract notifications) use a
+> separate group of server-side variables — `MAGIC_LINK_SECRET`,
+> `RESEND_API_KEY`, `RESEND_FROM`, `NEXT_PUBLIC_APP_URL`, and (for notifications
+> and the deadline cron) `NOTIFICATIONS_SECRET`, `CRON_SECRET`, and
+> `NOTIFICATION_EMAILS`. All are documented inline in `.env.example`. They are
+> optional for running the dApp UI, but required for sending email.
+
 <details>
 <summary>How to get a WalletConnect Project ID</summary>
 
@@ -269,9 +276,14 @@ against `src/package-lock.json` separately from the root audit.
 src/
 ├── app/                              # Next.js App Router pages
 │   ├── api/
-│   │   └── magic-link/
-│   │       ├── send/route.ts         # POST - generate & email a magic-link JWT to a freelancer
-│   │       └── verify/route.ts       # GET  - validate the JWT and return the pre-signed accept payload
+│   │   ├── magic-link/
+│   │   │   ├── send/route.ts         # POST - generate & email a magic-link JWT to a freelancer
+│   │   │   └── verify/route.ts       # GET  - validate the JWT and return the pre-signed accept payload
+│   │   ├── notifications/route.ts    # POST - send a lifecycle email (bearer NOTIFICATIONS_SECRET)
+│   │   ├── cron/
+│   │   │   └── deadline-reminders/route.ts  # GET - daily cron: email parties about approaching deadlines
+│   │   └── contract/
+│   │       └── [id]/route.ts         # GET  - server-side aggregation of one on-chain contract
 │   ├── arbitration/
 │   │   └── [id]/page.tsx             # Dispute detail: commit/reveal voting UI for jurors and parties
 │   ├── create/page.tsx               # Create-contract form: escrow amount, deadlines, IPFS upload
@@ -301,12 +313,17 @@ src/
 │   ├── wagmi.ts                      # wagmi config + AppKit modal (chains, address resolver, featured wallets)
 │   └── walletIds.ts                  # WalletConnect registry IDs for the AppKit featured-wallet list
 │
+├── services/                         # External-service integrations (server-only)
+│   ├── email.ts                      # Resend wrapper + shared HTML email shell
+│   └── notifications.ts              # Lifecycle email templates + pure deadline scanner
+│
 ├── public/                           # Static assets served at the root URL
 │   ├── logo.png                      # TrustLedger project logo
 │   └── *.svg                         # Next.js default SVGs (file, globe, window, next, vercel)
 │
+├── proxy.ts                          # Security headers + per-IP API rate limiting (Next 16 proxy)
 ├── next.config.ts                    # basePath config + root .env injection via env key mapping
-├── vercel.json                       # Vercel deployment config (rewrites, headers)
+├── vercel.json                       # Vercel config: frontend + daily deadline-reminder cron
 ├── eslint.config.mjs                 # Frontend ESLint 9 flat config
 ├── postcss.config.mjs                # PostCSS config for Tailwind v4
 ├── tsconfig.json                     # Frontend TypeScript config (bundler mode)
@@ -316,17 +333,20 @@ src/
 
 ### Pages - `app/`
 
-| Page                             | Route                        | Description                                                                            |
-| -------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------- |
-| `page.tsx`                       | `/`                          | Landing page                                                                           |
-| `create/page.tsx`                | `/create`                    | Create escrow contract - IPFS upload, deadlines, token selection                       |
-| `dashboard/page.tsx`             | `/dashboard`                 | Lists all contracts for the connected wallet                                           |
-| `freelancer/accept/page.tsx`     | `/freelancer/accept`         | Magic-link accept flow - verifies JWT, renders contract details, triggers ECDSA accept |
-| `arbitration/[id]/page.tsx`      | `/arbitration/:id`           | Per-dispute view - commit phase, reveal phase, ruling display                          |
-| `juror/page.tsx`                 | `/juror`                     | Juror portal - stake registration, eligibility, stake management                       |
-| `reputation/page.tsx`            | `/reputation`                | Look up cumulative escrow ratings (`ReputationRegistry.averageRating`)                 |
-| `api/magic-link/send/route.ts`   | `POST /api/magic-link/send`  | Generates a signed JWT and returns the magic link for the client to email              |
-| `api/magic-link/verify/route.ts` | `GET /api/magic-link/verify` | Verifies the JWT and returns the contract payload                                      |
+| Page                                   | Route                              | Description                                                                                                                             |
+| -------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `page.tsx`                             | `/`                                | Landing page                                                                                                                            |
+| `create/page.tsx`                      | `/create`                          | Create escrow contract - IPFS upload, deadlines, token selection                                                                        |
+| `dashboard/page.tsx`                   | `/dashboard`                       | Lists all contracts for the connected wallet                                                                                            |
+| `freelancer/accept/page.tsx`           | `/freelancer/accept`               | Magic-link accept flow - verifies JWT, renders contract details, triggers ECDSA accept                                                  |
+| `arbitration/[id]/page.tsx`            | `/arbitration/:id`                 | Per-dispute view - commit phase, reveal phase, ruling display                                                                           |
+| `juror/page.tsx`                       | `/juror`                           | Juror portal - stake registration, eligibility, stake management                                                                        |
+| `reputation/page.tsx`                  | `/reputation`                      | Look up cumulative escrow ratings (`ReputationRegistry.averageRating`)                                                                  |
+| `api/magic-link/send/route.ts`         | `POST /api/magic-link/send`        | Generates a signed JWT and returns the magic link for the client to email                                                               |
+| `api/magic-link/verify/route.ts`       | `GET /api/magic-link/verify`       | Verifies the JWT and returns the contract payload                                                                                       |
+| `api/notifications/route.ts`           | `POST /api/notifications`          | Sends one lifecycle email (offer, work, approval, dispute, rating, deadline). Requires `Authorization: Bearer NOTIFICATIONS_SECRET`     |
+| `api/cron/deadline-reminders/route.ts` | `GET /api/cron/deadline-reminders` | Daily Vercel Cron: scans on-chain contracts and emails parties about deadlines within 48h. Requires `Authorization: Bearer CRON_SECRET` |
+| `api/contract/[id]/route.ts`           | `GET /api/contract/:id`            | Server-side read of one contract via `getContract()`, returned as JSON-safe, gateway-resolved data                                      |
 
 ### Components - `components/`
 

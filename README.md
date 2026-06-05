@@ -1245,6 +1245,9 @@ TrustLedger/
 │   │   ├── api/magic-link/
 │   │   │   ├── send/route.ts                     # POST - generate and email a magic-link JWT to a freelancer
 │   │   │   └── verify/route.ts                   # GET - validate the JWT and return the accept payload
+│   │   ├── api/notifications/route.ts            # POST - send a lifecycle email (bearer NOTIFICATIONS_SECRET)
+│   │   ├── api/cron/deadline-reminders/route.ts  # GET - daily cron: email parties about approaching deadlines
+│   │   ├── api/contract/[id]/route.ts            # GET - server-side aggregation of one on-chain contract
 │   │   ├── arbitration/[id]/page.tsx             # Per-dispute commit/reveal voting UI
 │   │   ├── create/page.tsx                       # Create escrow contract form
 │   │   ├── dashboard/page.tsx                    # User's contract dashboard
@@ -1268,11 +1271,15 @@ TrustLedger/
 │   │   ├── magicLink.ts                          # JWT sign/verify for freelancer onboarding
 │   │   ├── utils.ts                              # Address/ETH formatters, status colors
 │   │   └── wagmi.ts                              # wagmi config + contract address resolver
+│   ├── services/                                 # External-service integrations (server-only)
+│   │   ├── email.ts                             # Resend wrapper + shared HTML email shell
+│   │   └── notifications.ts                     # Lifecycle email templates + deadline scanner
 │   ├── public/                                   # Static assets
 │   │   ├── logo.png
 │   │   └── *.svg                                 # Next.js default SVGs (file, globe, window, next, vercel)
+│   ├── proxy.ts                                  # Security headers + API rate limiting (Next 16 proxy)
 │   ├── next.config.ts                            # basePath + root .env injection
-│   ├── vercel.json                               # Vercel deployment config for the frontend
+│   ├── vercel.json                               # Vercel config: frontend + deadline-reminder cron
 │   ├── eslint.config.mjs                         # Frontend ESLint flat config
 │   ├── postcss.config.mjs                        # PostCSS config for Tailwind v4
 │   ├── tsconfig.json                             # Frontend TypeScript config

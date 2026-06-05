@@ -61,4 +61,3 @@ class ChatCompletionsClient:
         Returns:
             The :class:`ChatCompletions` response containing the choices.
         """
-        ...

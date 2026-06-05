@@ -1,13 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import { signMagicToken } from "@/lib/magicLink";
+import { emailShell, sendEmail } from "@/services/email";
 
 const EXPIRY_SECONDS = 72 * 60 * 60; // 72 hours
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
 	const secret = process.env["MAGIC_LINK_SECRET"];
 	const apiKey = process.env["RESEND_API_KEY"];
-	const from = process.env["RESEND_FROM"] ?? "TrustLedger <noreply@trustledger.app>";
 	const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
 
 	if (secret === undefined || secret === "")
@@ -40,41 +39,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
 	const link = `${appUrl}/freelancer/accept?token=${encodeURIComponent(token)}`;
 
-	const resend = new Resend(apiKey);
-	const { error } = await resend.emails.send({
-		from,
+	const result = await sendEmail({
 		to: freelancerEmail,
 		subject: `You have a new contract to review - TrustLedger #${contractId}`,
 		html: buildEmail(link, contractId),
 	});
 
-	if (error !== null) {
-		return NextResponse.json({ error: error.message }, { status: 502 });
+	if (!result.ok) {
+		return NextResponse.json({ error: result.error }, { status: 502 });
 	}
 
 	return NextResponse.json({ ok: true });
 }
 
+// Magic-link email body, rendered with the shared TrustLedger email shell. The
+// single-use, wallet-bound caveat is the only copy specific to this flow.
 function buildEmail(link: string, contractId: string): string {
-	return `
-<!DOCTYPE html>
-<html>
-<body style="font-family:sans-serif;background:#0f0f14;color:#e5e7eb;padding:40px 0;margin:0">
-  <div style="max-width:480px;margin:0 auto;background:#1a1a2e;border-radius:16px;padding:40px;border:1px solid rgba(255,255,255,0.08)">
-    <h1 style="margin:0 0 8px;font-size:22px;color:#fff">New Escrow Contract</h1>
-    <p style="margin:0 0 24px;color:#9ca3af;font-size:14px">Contract #${contractId} is awaiting your review and acceptance.</p>
-    <p style="margin:0 0 32px;color:#d1d5db;font-size:14px">
-      Click the button below to review the contract details and connect your wallet to accept.
-      This link expires in 72 hours and is single-use.
-    </p>
-    <a href="${link}" style="display:inline-block;background:#4f46e5;color:#fff;font-weight:600;font-size:14px;padding:12px 28px;border-radius:10px;text-decoration:none">
-      Review &amp; Accept Contract
-    </a>
-    <p style="margin:32px 0 0;color:#6b7280;font-size:12px">
-      If you were not expecting this email, you can ignore it.
-      Do not share this link - it is tied to your wallet address.
-    </p>
-  </div>
-</body>
-</html>`;
+	return emailShell(
+		"New Escrow Contract",
+		`Contract <strong>#${contractId}</strong> is awaiting your review and acceptance.<br /><br />
+		 Click the button below to review the contract details and connect your wallet to accept.
+		 This link expires in 72 hours and is single-use.`,
+		{ label: "Review &amp; Accept Contract", href: link },
+		"If you were not expecting this email, you can ignore it. Do not share this link — it is tied to your wallet address.",
+	);
 }
