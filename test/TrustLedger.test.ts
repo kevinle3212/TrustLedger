@@ -9,7 +9,7 @@
 //   - Impersonating an address requires hardhat_impersonateAccount
 //   - BigInt (not number) for all on-chain integers (ethers v6 returns BigInt)
 //   - `expect` from Chai replaces assertEq / assertTrue
-//   - acceptContract now requires an ECDSA signature from the freelancer wallet
+//   - the freelancer proposes (proposeContract); the client accepts by funding the escrow
 
 import { expect } from "chai";
 import { ethers } from "hardhat";
@@ -96,8 +96,9 @@ describe("TrustLedger", function () {
 
 	// ─── Helper Functions ────────────────────────────────────────────────────
 
-	// Creates an escrow contract with optional overrides.
-	// Passes address(0) and 0 for the new token/tokenAmount params (ETH escrow).
+	// Freelancer proposes an escrow contract with optional overrides. No funds move yet;
+	// the contract sits PENDING until the client accepts. Passes address(0) for the token
+	// param (ETH escrow); the escrow amount is a parameter the client will lock on acceptance.
 	async function createContract(opts?: {
 		holdBackBps?: number;
 		warrantyPeriod?: bigint;
@@ -107,8 +108,8 @@ describe("TrustLedger", function () {
 		const warranty = opts?.warrantyPeriod ?? 0n;
 		const amount = opts?.amount ?? AMOUNT;
 
-		const tx = await trustLedger.connect(client).createContract(
-			await freelancer.getAddress(),
+		const tx = await trustLedger.connect(freelancer).proposeContract(
+			await client.getAddress(),
 			CONTRACT_HASH,
 			"ipfs://QmContract",
 			ESTIMATED_DURATION,
@@ -118,8 +119,7 @@ describe("TrustLedger", function () {
 			holdBack,
 			warranty,
 			ethers.ZeroAddress, // token = address(0) → ETH escrow
-			0n, // tokenAmount = 0 for ETH escrows
-			{ value: amount },
+			amount, // escrow amount the client will lock
 		);
 
 		const receipt = await tx.wait();
@@ -132,34 +132,16 @@ describe("TrustLedger", function () {
 					return null;
 				}
 			})
-			.find((e) => e?.name === "ContractCreated");
+			.find((e) => e?.name === "ContractProposed");
 
 		return event?.args[0] as bigint;
 	}
 
-	// Signs an EIP-191 acceptance message for the given contract ID.
-	// Must match the on-chain ecrecover call in acceptContract().
-	async function signAccept(id: bigint): Promise<{ v: number; r: string; s: string }> {
-		const freelancerAddr = await freelancer.getAddress();
-
-		// innerHash = keccak256(abi.encodePacked(id, freelancerAddress))
-		const innerHash = ethers.solidityPackedKeccak256(
-			["uint256", "address"],
-			[id, freelancerAddr],
-		);
-
-		// eth_sign adds the EIP-191 prefix before signing.
-		// ethers.Signer.signMessage applies "\x19Ethereum Signed Message:\n32" automatically.
-		const sig = await freelancer.signMessage(ethers.getBytes(innerHash));
-		const { v, r, s } = ethers.Signature.from(sig);
-		return { v, r, s };
-	}
-
-	// Creates a contract AND has the freelancer sign and call acceptContract.
+	// Proposes a contract AND has the client accept it, funding the escrow.
 	async function createAndAccept(opts?: Parameters<typeof createContract>[0]) {
 		const id = await createContract(opts);
-		const { v, r, s } = await signAccept(id);
-		await trustLedger.connect(freelancer).acceptContract(id, v, r, s);
+		const amount = opts?.amount ?? AMOUNT;
+		await trustLedger.connect(client).acceptContract(id, { value: amount });
 		return id;
 	}
 
@@ -215,17 +197,20 @@ describe("TrustLedger", function () {
 			expect(c.token).to.equal(ethers.ZeroAddress); // ETH escrow
 		});
 
-		it("should allow freelancer to accept with valid signature", async function () {
+		it("should allow client to accept by funding the escrow", async function () {
 			const id = await createContract();
-			const { v, r, s } = await signAccept(id);
 
 			// `emit` checks that the transaction emitted ContractAccepted(id).
-			await expect(trustLedger.connect(freelancer).acceptContract(id, v, r, s))
+			await expect(trustLedger.connect(client).acceptContract(id, { value: AMOUNT }))
 				.to.emit(trustLedger, "ContractAccepted")
 				.withArgs(id);
 
 			const c = await trustLedger.getContract(id);
 			expect(c.status).to.equal(STATUS.ACTIVE);
+			// Funds are now held by the escrow contract.
+			expect(await ethers.provider.getBalance(await trustLedger.getAddress())).to.equal(
+				AMOUNT,
+			);
 		});
 
 		it("should allow freelancer to submit proof of work", async function () {
@@ -256,21 +241,21 @@ describe("TrustLedger", function () {
 		});
 	});
 
-	// ─── Cancel Pending ───────────────────────────────────────────────────────
+	// ─── Cancel Proposal ────────────────────────────────────────────────────────
 
-	describe("Cancel Pending", function () {
-		it("should refund client when they cancel a pending contract", async function () {
+	describe("Cancel Proposal", function () {
+		it("should let the freelancer withdraw a pending proposal without moving funds", async function () {
 			const id = await createContract();
 			const clientAddr = await client.getAddress();
 			const balBefore = await ethers.provider.getBalance(clientAddr);
 
-			const tx = await trustLedger.connect(client).cancelPending(id);
-			const receipt = await tx.wait();
-			if (receipt === null) throw new Error("transaction not mined");
-			const gasUsed = receipt.gasUsed * receipt.gasPrice;
+			await expect(trustLedger.connect(freelancer).cancelProposal(id))
+				.to.emit(trustLedger, "ContractCancelled")
+				.withArgs(id);
 
+			// No funds were ever held, so the client's balance is unchanged.
 			const balAfter = await ethers.provider.getBalance(clientAddr);
-			expect(balAfter - balBefore + gasUsed).to.equal(AMOUNT);
+			expect(balAfter).to.equal(balBefore);
 
 			const c = await trustLedger.getContract(id);
 			expect(c.status).to.equal(STATUS.CANCELLED);
@@ -280,22 +265,26 @@ describe("TrustLedger", function () {
 	// ─── Rejection ────────────────────────────────────────────────────────────
 
 	describe("Rejection", function () {
-		it("should refund client when freelancer rejects", async function () {
+		it("should let the client reject a proposal without moving funds", async function () {
 			const id = await createContract();
 			const clientAddr = await client.getAddress();
 			const balBefore = await ethers.provider.getBalance(clientAddr);
 
-			await expect(trustLedger.connect(freelancer).rejectContract(id))
-				.to.emit(trustLedger, "ContractRejected")
-				.withArgs(id);
+			const tx = await trustLedger.connect(client).rejectContract(id);
+			const receipt = await tx.wait();
+			if (receipt === null) throw new Error("transaction not mined");
+			const gasUsed = receipt.gasUsed * receipt.gasPrice;
 
+			await expect(tx).to.emit(trustLedger, "ContractRejected").withArgs(id);
+
+			// No escrow was held; the only balance delta is the rejection gas.
 			const balAfter = await ethers.provider.getBalance(clientAddr);
-			expect(balAfter - balBefore).to.equal(AMOUNT);
+			expect(balBefore - balAfter).to.equal(gasUsed);
 		});
 
 		it("should set status to CANCELLED after rejection", async function () {
 			const id = await createContract();
-			await trustLedger.connect(freelancer).rejectContract(id);
+			await trustLedger.connect(client).rejectContract(id);
 			const c = await trustLedger.getContract(id);
 			expect(c.status).to.equal(STATUS.CANCELLED);
 		});
@@ -523,11 +512,11 @@ describe("TrustLedger", function () {
 	// ─── Revert Cases ────────────────────────────────────────────────────────
 
 	describe("Revert Cases", function () {
-		it("should revert createContract with zero address freelancer", async function () {
+		it("should revert proposeContract with zero address client", async function () {
 			await expect(
 				trustLedger
-					.connect(client)
-					.createContract(
+					.connect(freelancer)
+					.proposeContract(
 						ethers.ZeroAddress,
 						CONTRACT_HASH,
 						"ipfs://",
@@ -538,17 +527,36 @@ describe("TrustLedger", function () {
 						0,
 						0,
 						ethers.ZeroAddress,
-						0n,
-						{ value: AMOUNT },
+						AMOUNT,
 					),
 			).to.be.revertedWithCustomError(trustLedger, "ZeroAddress");
 		});
 
-		it("should revert createContract with self as freelancer", async function () {
+		it("should revert proposeContract with self as client", async function () {
 			await expect(
 				trustLedger
-					.connect(client)
-					.createContract(
+					.connect(freelancer)
+					.proposeContract(
+						await freelancer.getAddress(),
+						CONTRACT_HASH,
+						"ipfs://",
+						ESTIMATED_DURATION,
+						BUFFER_FACTOR,
+						ACCEPTANCE_WINDOW,
+						ARB_FEE_BPS,
+						0,
+						0,
+						ethers.ZeroAddress,
+						AMOUNT,
+					),
+			).to.be.revertedWithCustomError(trustLedger, "SelfContract");
+		});
+
+		it("should revert proposeContract with 0 amount", async function () {
+			await expect(
+				trustLedger
+					.connect(freelancer)
+					.proposeContract(
 						await client.getAddress(),
 						CONTRACT_HASH,
 						"ipfs://",
@@ -560,49 +568,24 @@ describe("TrustLedger", function () {
 						0,
 						ethers.ZeroAddress,
 						0n,
-						{ value: AMOUNT },
-					),
-			).to.be.revertedWithCustomError(trustLedger, "SelfContract");
-		});
-
-		it("should revert createContract with 0 value", async function () {
-			await expect(
-				trustLedger
-					.connect(client)
-					.createContract(
-						await freelancer.getAddress(),
-						CONTRACT_HASH,
-						"ipfs://",
-						ESTIMATED_DURATION,
-						BUFFER_FACTOR,
-						ACCEPTANCE_WINDOW,
-						ARB_FEE_BPS,
-						0,
-						0,
-						ethers.ZeroAddress,
-						0n,
-						{ value: 0 },
 					),
 			).to.be.revertedWithCustomError(trustLedger, "InsufficientFunds");
 		});
 
-		it("should revert acceptContract when not freelancer", async function () {
+		it("should revert acceptContract when not client", async function () {
 			const id = await createContract();
-			const { v, r, s } = await signAccept(id);
-			// Caller is stranger (not the freelancer) → Unauthorized.
+			// Caller is stranger (not the client) → Unauthorized.
 			await expect(
-				trustLedger.connect(stranger).acceptContract(id, v, r, s),
+				trustLedger.connect(stranger).acceptContract(id, { value: AMOUNT }),
 			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
 		});
 
-		it("should revert acceptContract with bad signature", async function () {
+		it("should revert acceptContract with wrong value", async function () {
 			const id = await createContract();
-			// Sign with a wrong address - ecrecover will return a different address.
-			const wrongSig = await stranger.signMessage(ethers.toUtf8Bytes("wrong message"));
-			const { v, r, s } = ethers.Signature.from(wrongSig);
+			// Funding with less than the proposed amount is rejected.
 			await expect(
-				trustLedger.connect(freelancer).acceptContract(id, v, r, s),
-			).to.be.revertedWithCustomError(trustLedger, "InvalidSignature");
+				trustLedger.connect(client).acceptContract(id, { value: AMOUNT - 1n }),
+			).to.be.revertedWithCustomError(trustLedger, "InsufficientFunds");
 		});
 
 		it("should revert approveWork when not client", async function () {
@@ -664,9 +647,9 @@ describe("TrustLedger", function () {
 		it("should revert invalid buffer factor", async function () {
 			await expect(
 				trustLedger
-					.connect(client)
-					.createContract(
-						await freelancer.getAddress(),
+					.connect(freelancer)
+					.proposeContract(
+						await client.getAddress(),
 						CONTRACT_HASH,
 						"ipfs://",
 						ESTIMATED_DURATION,
@@ -676,8 +659,7 @@ describe("TrustLedger", function () {
 						0,
 						0,
 						ethers.ZeroAddress,
-						0n,
-						{ value: AMOUNT },
+						AMOUNT,
 					),
 			).to.be.revertedWithCustomError(trustLedger, "InvalidBufferFactor");
 		});
@@ -685,9 +667,9 @@ describe("TrustLedger", function () {
 		it("should revert invalid acceptance window", async function () {
 			await expect(
 				trustLedger
-					.connect(client)
-					.createContract(
-						await freelancer.getAddress(),
+					.connect(freelancer)
+					.proposeContract(
+						await client.getAddress(),
 						CONTRACT_HASH,
 						"ipfs://",
 						ESTIMATED_DURATION,
@@ -697,8 +679,7 @@ describe("TrustLedger", function () {
 						0,
 						0,
 						ethers.ZeroAddress,
-						0n,
-						{ value: AMOUNT },
+						AMOUNT,
 					),
 			).to.be.revertedWithCustomError(trustLedger, "InvalidAcceptanceWindow");
 		});
@@ -736,6 +717,7 @@ describe("TrustLedger", function () {
 			await token.connect(client).approve(await trustLedger.getAddress(), TOKEN_AMOUNT * 10n);
 		});
 
+		// Freelancer proposes a token escrow (no tokens move yet).
 		async function createERC20Contract(opts?: {
 			holdBackBps?: number;
 			warrantyPeriod?: bigint;
@@ -744,9 +726,9 @@ describe("TrustLedger", function () {
 			const warranty = opts?.warrantyPeriod ?? 0n;
 
 			const tx = await trustLedger
-				.connect(client)
-				.createContract(
-					await freelancer.getAddress(),
+				.connect(freelancer)
+				.proposeContract(
+					await client.getAddress(),
 					CONTRACT_HASH,
 					"ipfs://QmContract",
 					ESTIMATED_DURATION,
@@ -757,7 +739,6 @@ describe("TrustLedger", function () {
 					warranty,
 					await token.getAddress(),
 					TOKEN_AMOUNT,
-					{ value: 0n },
 				);
 			const receipt = await tx.wait();
 			const event = receipt?.logs
@@ -768,26 +749,33 @@ describe("TrustLedger", function () {
 						return null;
 					}
 				})
-				.find((e) => e?.name === "ContractCreated");
+				.find((e) => e?.name === "ContractProposed");
 			return event?.args[0] as bigint;
 		}
 
-		it("should pull tokens from client on createContract", async function () {
+		// Client accepts a token escrow, pulling TOKEN_AMOUNT via transferFrom (no ETH value).
+		async function acceptERC20(id: bigint) {
+			await trustLedger.connect(client).acceptContract(id);
+		}
+
+		it("should pull tokens from client on acceptContract", async function () {
 			const contractAddr = await trustLedger.getAddress();
 			const before = await token.balanceOf(contractAddr);
 
-			await createERC20Contract();
+			const id = await createERC20Contract();
+			// Tokens are only pulled when the client accepts and funds.
+			expect((await token.balanceOf(contractAddr)) - before).to.equal(0n);
+			await acceptERC20(id);
 
 			expect((await token.balanceOf(contractAddr)) - before).to.equal(TOKEN_AMOUNT);
-			const c = await trustLedger.getContract(0n);
+			const c = await trustLedger.getContract(id);
 			expect(c.token).to.equal(await token.getAddress());
 			expect(c.amount).to.equal(TOKEN_AMOUNT);
 		});
 
 		it("should pay freelancer in tokens on approval", async function () {
 			const id = await createERC20Contract();
-			const { v, r, s } = await signAccept(id);
-			await trustLedger.connect(freelancer).acceptContract(id, v, r, s);
+			await acceptERC20(id);
 			await trustLedger.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://QmPoW");
 
 			const freelancerAddr = await freelancer.getAddress();
@@ -796,20 +784,20 @@ describe("TrustLedger", function () {
 			expect((await token.balanceOf(freelancerAddr)) - before).to.equal(TOKEN_AMOUNT);
 		});
 
-		it("should refund tokens to client on rejection", async function () {
+		it("should not move tokens when the client rejects an unfunded proposal", async function () {
 			const id = await createERC20Contract();
 			const clientAddr = await client.getAddress();
 			const before = await token.balanceOf(clientAddr);
-			await trustLedger.connect(freelancer).rejectContract(id);
-			expect((await token.balanceOf(clientAddr)) - before).to.equal(TOKEN_AMOUNT);
+			await trustLedger.connect(client).rejectContract(id);
+			expect(await token.balanceOf(clientAddr)).to.equal(before);
 		});
 
-		it("should refund tokens to client on cancelPending", async function () {
+		it("should not move tokens when the freelancer withdraws a proposal", async function () {
 			const id = await createERC20Contract();
 			const clientAddr = await client.getAddress();
 			const before = await token.balanceOf(clientAddr);
-			await trustLedger.connect(client).cancelPending(id);
-			expect((await token.balanceOf(clientAddr)) - before).to.equal(TOKEN_AMOUNT);
+			await trustLedger.connect(freelancer).cancelProposal(id);
+			expect(await token.balanceOf(clientAddr)).to.equal(before);
 		});
 
 		it("should hold back tokens correctly on approval with warranty", async function () {
@@ -817,8 +805,7 @@ describe("TrustLedger", function () {
 				holdBackBps: 1000,
 				warrantyPeriod: 7n * 24n * 3600n,
 			});
-			const { v, r, s } = await signAccept(id);
-			await trustLedger.connect(freelancer).acceptContract(id, v, r, s);
+			await acceptERC20(id);
 			await trustLedger.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://QmPoW");
 
 			const freelancerAddr = await freelancer.getAddress();
@@ -841,8 +828,7 @@ describe("TrustLedger", function () {
 
 		it("should require ETH fee pool for ERC-20 escrow dispute", async function () {
 			const id = await createERC20Contract();
-			const { v, r, s } = await signAccept(id);
-			await trustLedger.connect(freelancer).acceptContract(id, v, r, s);
+			await acceptERC20(id);
 			await trustLedger.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://QmPoW");
 
 			// No ETH → revert InsufficientFunds
@@ -860,8 +846,7 @@ describe("TrustLedger", function () {
 
 		it("should distribute tokens on ruling for ERC-20 escrow", async function () {
 			const id = await createERC20Contract();
-			const { v, r, s } = await signAccept(id);
-			await trustLedger.connect(freelancer).acceptContract(id, v, r, s);
+			await acceptERC20(id);
 			await trustLedger.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://QmPoW");
 
 			const feePool = ethers.parseEther("0.1");
@@ -875,24 +860,11 @@ describe("TrustLedger", function () {
 			expect((await token.balanceOf(freelancerAddr)) - before).to.equal(TOKEN_AMOUNT);
 		});
 
-		it("should revert createContract when ETH sent with token escrow", async function () {
+		it("should revert acceptContract when ETH sent with token escrow", async function () {
+			const id = await createERC20Contract();
+			// A token escrow is funded via transferFrom; sending ETH on accept is rejected.
 			await expect(
-				trustLedger
-					.connect(client)
-					.createContract(
-						await freelancer.getAddress(),
-						CONTRACT_HASH,
-						"ipfs://",
-						ESTIMATED_DURATION,
-						BUFFER_FACTOR,
-						ACCEPTANCE_WINDOW,
-						ARB_FEE_BPS,
-						0,
-						0,
-						await token.getAddress(),
-						TOKEN_AMOUNT,
-						{ value: ethers.parseEther("1") },
-					),
+				trustLedger.connect(client).acceptContract(id, { value: ethers.parseEther("1") }),
 			).to.be.revertedWithCustomError(trustLedger, "InvalidTokenParams");
 		});
 	});
@@ -915,7 +887,8 @@ describe("TrustLedger", function () {
 		});
 
 		it("should record usdValueAtCreation when price feed is set", async function () {
-			const id = await createContract();
+			// The USD value is locked when the client accepts and funds the escrow.
+			const id = await createAndAccept();
 			const c = await trustLedger.getContract(id);
 			// usdValueAtCreation = (1 ETH × 3000e8) / 1e18 = 3000e8 / 1e10 = 300000
 			const expected = (AMOUNT * ETH_PRICE_USD) / 10n ** 18n;
@@ -924,7 +897,7 @@ describe("TrustLedger", function () {
 
 		it("should store usdValueAtCreation = 0 when price feed returns ≤ 0", async function () {
 			await priceFeed.setPrice(0);
-			const id = await createContract();
+			const id = await createAndAccept();
 			const c = await trustLedger.getContract(id);
 			expect(c.usdValueAtCreation).to.equal(0n);
 		});
@@ -1552,9 +1525,9 @@ describe("TrustLedger", function () {
 			const tl2 = (await TLF.deploy(arb2Addr)) as unknown as TrustLedger;
 
 			const tx2 = await tl2
-				.connect(client)
-				.createContract(
-					await freelancer.getAddress(),
+				.connect(freelancer)
+				.proposeContract(
+					await client.getAddress(),
 					CONTRACT_HASH,
 					"ipfs://",
 					ESTIMATED_DURATION,
@@ -1564,8 +1537,7 @@ describe("TrustLedger", function () {
 					0,
 					0,
 					ethers.ZeroAddress,
-					0n,
-					{ value: AMOUNT },
+					AMOUNT,
 				);
 			const receipt2 = await tx2.wait();
 			const ev = receipt2?.logs
@@ -1576,12 +1548,10 @@ describe("TrustLedger", function () {
 						return null;
 					}
 				})
-				.find((e) => e?.name === "ContractCreated");
+				.find((e) => e?.name === "ContractProposed");
 			const id = ev?.args[0] as bigint;
 
-			const { v, r, s } = await signAccept(id);
-
-			await tl2.connect(freelancer).acceptContract(id, v, r, s);
+			await tl2.connect(client).acceptContract(id, { value: AMOUNT });
 			await tl2.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://QmPoW");
 			await tl2.connect(client).approveWork(id);
 
@@ -1616,8 +1586,7 @@ describe("TrustLedger", function () {
 			arbFeeBps?: number;
 			holdBackBps?: number;
 			warranty?: bigint;
-			tokenAmount?: bigint;
-			value?: bigint;
+			amount?: bigint;
 		}) {
 			const o = {
 				hash: CONTRACT_HASH,
@@ -1625,14 +1594,13 @@ describe("TrustLedger", function () {
 				arbFeeBps: ARB_FEE_BPS,
 				holdBackBps: 0,
 				warranty: 0n,
-				tokenAmount: 0n,
-				value: AMOUNT,
+				amount: AMOUNT,
 				...overrides,
 			};
 			return await trustLedger
-				.connect(client)
-				.createContract(
-					await freelancer.getAddress(),
+				.connect(freelancer)
+				.proposeContract(
+					await client.getAddress(),
 					o.hash,
 					o.uri,
 					ESTIMATED_DURATION,
@@ -1642,8 +1610,7 @@ describe("TrustLedger", function () {
 					o.holdBackBps,
 					o.warranty,
 					ethers.ZeroAddress,
-					o.tokenAmount,
-					{ value: o.value },
+					o.amount,
 				);
 		}
 
@@ -1699,10 +1666,10 @@ describe("TrustLedger", function () {
 			).to.be.revertedWithCustomError(trustLedger, "InvalidWarrantyPeriod");
 		});
 
-		it("should revert ETH escrow createContract when tokenAmount is non-zero", async function () {
-			await expect(createWith({ tokenAmount: 100n })).to.be.revertedWithCustomError(
+		it("should revert proposeContract with zero amount", async function () {
+			await expect(createWith({ amount: 0n })).to.be.revertedWithCustomError(
 				trustLedger,
-				"InvalidTokenParams",
+				"InsufficientFunds",
 			);
 		});
 
@@ -1736,7 +1703,7 @@ describe("TrustLedger", function () {
 	// ─── State Guards ─────────────────────────────────────────────────────────
 
 	describe("State Guards", function () {
-		it("should revert rejectContract when caller is not freelancer", async function () {
+		it("should revert rejectContract when caller is not client", async function () {
 			const id = await createContract();
 			await expect(
 				trustLedger.connect(stranger).rejectContract(id),
@@ -1746,21 +1713,21 @@ describe("TrustLedger", function () {
 		it("should revert rejectContract when status is not PENDING", async function () {
 			const id = await createAndAccept(); // ACTIVE
 			await expect(
-				trustLedger.connect(freelancer).rejectContract(id),
+				trustLedger.connect(client).rejectContract(id),
 			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
 		});
 
-		it("should revert cancelPending when caller is not client", async function () {
+		it("should revert cancelProposal when caller is not freelancer", async function () {
 			const id = await createContract();
 			await expect(
-				trustLedger.connect(stranger).cancelPending(id),
+				trustLedger.connect(stranger).cancelProposal(id),
 			).to.be.revertedWithCustomError(trustLedger, "Unauthorized");
 		});
 
-		it("should revert cancelPending when status is not PENDING", async function () {
+		it("should revert cancelProposal when status is not PENDING", async function () {
 			const id = await createAndAccept(); // ACTIVE
 			await expect(
-				trustLedger.connect(client).cancelPending(id),
+				trustLedger.connect(freelancer).cancelProposal(id),
 			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
 		});
 
@@ -1778,17 +1745,18 @@ describe("TrustLedger", function () {
 			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
 		});
 
-		it("should revert acceptContract when project deadline has elapsed", async function () {
+		it("should start the project deadline only once the client accepts", async function () {
 			const id = await createContract();
-			const c = await trustLedger.getContract(id);
-			await ethers.provider.send("evm_setNextBlockTimestamp", [
-				Number(c.projectDeadline) + 1,
-			]);
-			await ethers.provider.send("evm_mine", []);
-			const { v, r, s } = await signAccept(id);
-			await expect(
-				trustLedger.connect(freelancer).acceptContract(id, v, r, s),
-			).to.be.revertedWithCustomError(trustLedger, "DeadlineElapsed");
+			// While PENDING, projectDeadline holds the relative buffered duration, not a timestamp.
+			const proposed = await trustLedger.getContract(id);
+			const expectedDuration = (ESTIMATED_DURATION * BUFFER_FACTOR) / 1000n;
+			expect(proposed.projectDeadline).to.equal(expectedDuration);
+
+			await trustLedger.connect(client).acceptContract(id, { value: AMOUNT });
+			const accepted = await trustLedger.getContract(id);
+			// After acceptance it becomes an absolute, future timestamp.
+			const nowTs = BigInt((await ethers.provider.getBlock("latest"))?.timestamp ?? 0);
+			expect(accepted.projectDeadline).to.be.gt(nowTs);
 		});
 
 		it("should revert disputeWork when caller is not client", async function () {
@@ -2020,10 +1988,10 @@ describe("TrustLedger", function () {
 	describe("Amendment Flow", function () {
 		it("should link amendment and emit ContractAmended", async function () {
 			const oldId = await createContract();
-			await trustLedger.connect(client).cancelPending(oldId);
+			await trustLedger.connect(freelancer).cancelProposal(oldId);
 			const newId = await createContract();
 
-			await expect(trustLedger.connect(client).linkAmendment(newId, oldId))
+			await expect(trustLedger.connect(freelancer).linkAmendment(newId, oldId))
 				.to.emit(trustLedger, "ContractAmended")
 				.withArgs(newId, oldId);
 
@@ -2031,9 +1999,9 @@ describe("TrustLedger", function () {
 			expect(c.previousContractId).to.equal(oldId);
 		});
 
-		it("should revert linkAmendment when caller is not client of old contract", async function () {
+		it("should revert linkAmendment when caller is not freelancer of old contract", async function () {
 			const oldId = await createContract();
-			await trustLedger.connect(client).cancelPending(oldId);
+			await trustLedger.connect(freelancer).cancelProposal(oldId);
 			const newId = await createContract();
 			await expect(
 				trustLedger.connect(stranger).linkAmendment(newId, oldId),
@@ -2044,29 +2012,29 @@ describe("TrustLedger", function () {
 			const oldId = await createContract(); // still PENDING
 			const newId = await createContract();
 			await expect(
-				trustLedger.connect(client).linkAmendment(newId, oldId),
+				trustLedger.connect(freelancer).linkAmendment(newId, oldId),
 			).to.be.revertedWithCustomError(trustLedger, "InvalidPreviousContract");
 		});
 
 		it("should revert linkAmendment when new contract is not PENDING", async function () {
 			const oldId = await createContract();
-			await trustLedger.connect(client).cancelPending(oldId);
+			await trustLedger.connect(freelancer).cancelProposal(oldId);
 			const newId = await createAndAccept(); // ACTIVE
 			await expect(
-				trustLedger.connect(client).linkAmendment(newId, oldId),
+				trustLedger.connect(freelancer).linkAmendment(newId, oldId),
 			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
 		});
 
 		it("should revert linkAmendment when already linked", async function () {
 			const oldId = await createContract();
-			await trustLedger.connect(client).cancelPending(oldId);
+			await trustLedger.connect(freelancer).cancelProposal(oldId);
 			const newId = await createContract();
-			await trustLedger.connect(client).linkAmendment(newId, oldId);
+			await trustLedger.connect(freelancer).linkAmendment(newId, oldId);
 
 			const anotherId = await createContract();
-			await trustLedger.connect(client).cancelPending(anotherId);
+			await trustLedger.connect(freelancer).cancelProposal(anotherId);
 			await expect(
-				trustLedger.connect(client).linkAmendment(newId, anotherId),
+				trustLedger.connect(freelancer).linkAmendment(newId, anotherId),
 			).to.be.revertedWithCustomError(trustLedger, "AlreadySet");
 		});
 	});
@@ -2329,9 +2297,9 @@ describe("TrustLedger", function () {
 			await ethers.provider.send("evm_mine", []);
 
 			const tx2 = await tl2
-				.connect(client)
-				.createContract(
-					await freelancer.getAddress(),
+				.connect(freelancer)
+				.proposeContract(
+					await client.getAddress(),
 					CONTRACT_HASH,
 					"ipfs://QmC",
 					ESTIMATED_DURATION,
@@ -2341,8 +2309,7 @@ describe("TrustLedger", function () {
 					0,
 					0,
 					ethers.ZeroAddress,
-					0n,
-					{ value: AMOUNT },
+					AMOUNT,
 				);
 			const rcpt2 = await tx2.wait();
 			const cid = rcpt2?.logs
@@ -2353,10 +2320,9 @@ describe("TrustLedger", function () {
 						return null;
 					}
 				})
-				.find((e) => e?.name === "ContractCreated")?.args[0] as bigint;
+				.find((e) => e?.name === "ContractProposed")?.args[0] as bigint;
 
-			const { v, r, s } = await signAccept(cid);
-			await tl2.connect(freelancer).acceptContract(cid, v, r, s);
+			await tl2.connect(client).acceptContract(cid, { value: AMOUNT });
 			await tl2.connect(freelancer).submitProofOfWork(cid, POW_HASH, "ipfs://QmP");
 			await tl2.connect(client).disputeWork(cid);
 

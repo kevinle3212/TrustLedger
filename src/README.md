@@ -336,9 +336,9 @@ src/
 | Page                                   | Route                              | Description                                                                                                                             |
 | -------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `page.tsx`                             | `/`                                | Landing page                                                                                                                            |
-| `create/page.tsx`                      | `/create`                          | Create escrow contract - IPFS upload, deadlines, token selection                                                                        |
+| `create/page.tsx`                      | `/create`                          | Propose escrow contract (freelancer) - IPFS upload, deadlines, token selection                                                          |
 | `dashboard/page.tsx`                   | `/dashboard`                       | Lists all contracts for the connected wallet                                                                                            |
-| `freelancer/accept/page.tsx`           | `/freelancer/accept`               | Magic-link accept flow - verifies JWT, renders contract details, triggers ECDSA accept                                                  |
+| `client/accept/page.tsx`               | `/client/accept`                   | Magic-link client flow - verifies token, decrypt-to-view, accept (funds escrow) or reject                                               |
 | `arbitration/[id]/page.tsx`            | `/arbitration/:id`                 | Per-dispute view - commit phase, reveal phase, ruling display                                                                           |
 | `juror/page.tsx`                       | `/juror`                           | Juror portal - stake registration, eligibility, stake management                                                                        |
 | `reputation/page.tsx`                  | `/reputation`                      | Look up cumulative escrow ratings (`ReputationRegistry.averageRating`)                                                                  |
@@ -365,7 +365,7 @@ src/
 | `arweave.ts`    | Uploads files to Arweave for permanent, immutable storage; returns the transaction ID as a URI                                                                                                                           |
 | `encryption.ts` | AES-GCM helpers: `encrypt(data, key)` → ciphertext, `decrypt(ciphertext, key)` → plaintext                                                                                                                               |
 | `ipfs.ts`       | Uploads a `File` or `Blob` to IPFS via Pinata (`uploadToPinata`); returns the IPFS CID used as `contractURI` or `proofOfWorkURI`                                                                                         |
-| `magicLink.ts`  | `signMagicLink(contractId, freelancerAddress)` / `verifyMagicLink(token)` - JWT helpers for the accept flow                                                                                                              |
+| `magicLink.ts`  | `signMagicToken({contractId, clientEmail, clientAddress, …})` / `verifyMagicToken(token)` - HMAC token helpers for the client accept flow                                                                                |
 | `utils.ts`      | `shortenAddress`, `formatEth`, `statusColor` - formatting helpers used across pages                                                                                                                                      |
 | `wagmi.ts`      | Exports `config` (built by the Reown AppKit wagmi adapter), creates the AppKit modal, and resolves contract addresses (`TRUSTLEDGER_ADDRESS`, `REPUTATION_REGISTRY_ADDRESS`, etc.) from env or `deployed-addresses.json` |
 | `walletIds.ts`  | `WALLET_IDS` map of WalletConnect registry IDs and the ordered `FEATURED_WALLET_IDS` list for the AppKit modal (Base, MetaMask, Phantom, Tangem first, then Coinbase, Solflare, Robinhood, Cold, Brave, SoulSwap, …)     |
@@ -481,9 +481,9 @@ writeContract({
 
 | Event                                                      | Contract      | When                            |
 | ---------------------------------------------------------- | ------------- | ------------------------------- |
-| `ContractCreated(id, client, freelancer, amount)`          | TrustLedger   | New escrow created              |
-| `ContractAccepted(id)`                                     | TrustLedger   | Freelancer accepted             |
-| `ContractRejected(id)`                                     | TrustLedger   | Freelancer rejected             |
+| `ContractProposed(id, client, freelancer, amount)`         | TrustLedger   | Freelancer proposed a contract  |
+| `ContractAccepted(id)`                                     | TrustLedger   | Client accepted & funded escrow |
+| `ContractRejected(id)`                                     | TrustLedger   | Client rejected the proposal    |
 | `ProofSubmitted(id, hash, uri)`                            | TrustLedger   | Proof of work uploaded          |
 | `WorkApproved(id)`                                         | TrustLedger   | Client approved                 |
 | `WorkDisputed(id, arbitrationId)`                          | TrustLedger   | Dispute opened                  |

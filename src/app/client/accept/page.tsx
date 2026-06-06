@@ -8,15 +8,17 @@ import {
 	useReadContract,
 	useWriteContract,
 	useWaitForTransactionReceipt,
-	useSignMessage,
 } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
-import { keccak256, encodePacked, parseSignature } from "viem";
+import { DecryptDocumentForm } from "@/components/DecryptDocumentForm";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
 import { formatEth, resolveDocUrl } from "@/lib/utils";
 import type { MagicLinkPayload } from "@/lib/magicLink";
 
+// The client lands here from the magic-link email. They review the freelancer's
+// proposal, securely view the (optionally encrypted) IPFS contract document, then
+// either accept — funding the escrow in the same transaction — or reject it.
 function AcceptPageInner(): React.JSX.Element {
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token") ?? "";
@@ -26,6 +28,7 @@ function AcceptPageInner(): React.JSX.Element {
 		token === "" ? "No token provided." : null,
 	);
 	const [tokenLoading, setTokenLoading] = useState(token !== "");
+	const [decryptOpen, setDecryptOpen] = useState(false);
 
 	useEffect(() => {
 		if (token === "") return;
@@ -62,42 +65,40 @@ function AcceptPageInner(): React.JSX.Element {
 	});
 
 	const {
-		signMessage,
-		data: signature,
-		isPending: isSigning,
-		error: signError,
-	} = useSignMessage();
-	const {
 		writeContract,
 		data: txHash,
 		isPending: isSending,
 		error: writeError,
 	} = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+	// Tracks which action the in-flight transaction represents so the success screen
+	// can show the right copy.
+	const [action, setAction] = useState<"accept" | "reject" | null>(null);
 
 	const explorerTxUrl = txHash !== undefined ? getExplorerTxUrl(chainId, txHash) : null;
 
-	function handleSign(): void {
-		if (payload === null) return;
-		const message = keccak256(
-			encodePacked(
-				["uint256", "address"],
-				[BigInt(payload.contractId), payload.freelancerAddress as `0x${string}`],
-			),
-		);
-		signMessage({ message: { raw: message } });
-	}
-
-	useEffect(() => {
-		if (signature === undefined || payload === null) return;
-		const { v, r, s } = parseSignature(signature);
+	function handleAccept(): void {
+		if (payload === null || contract === undefined) return;
+		setAction("accept");
 		writeContract({
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
 			functionName: "acceptContract",
-			args: [BigInt(payload.contractId), Number(v), r, s],
+			args: [BigInt(payload.contractId)],
+			value: contract.amount, // fund the escrow with exactly the proposed amount
 		});
-	}, [signature, payload, writeContract]);
+	}
+
+	function handleReject(): void {
+		if (payload === null) return;
+		setAction("reject");
+		writeContract({
+			address: TRUSTLEDGER_ADDRESS,
+			abi: TRUSTLEDGER_ABI,
+			functionName: "rejectContract",
+			args: [BigInt(payload.contractId)],
+		});
+	}
 
 	// - Loading states -
 	if (tokenLoading)
@@ -126,9 +127,9 @@ function AcceptPageInner(): React.JSX.Element {
 				<p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
 					Connect the wallet at{" "}
 					<span className="font-mono text-indigo-600 dark:text-indigo-400">
-						{payload?.freelancerAddress}
+						{payload?.clientAddress}
 					</span>{" "}
-					to accept contract #{payload?.contractId}.
+					to review contract #{payload?.contractId}.
 				</p>
 				<ConnectButton />
 			</PageShell>
@@ -136,7 +137,7 @@ function AcceptPageInner(): React.JSX.Element {
 	}
 
 	// Wallet address mismatch
-	const expectedAddress = payload?.freelancerAddress.toLowerCase();
+	const expectedAddress = payload?.clientAddress.toLowerCase();
 	if (address?.toLowerCase() !== expectedAddress) {
 		return (
 			<PageShell>
@@ -147,7 +148,7 @@ function AcceptPageInner(): React.JSX.Element {
 					<p className="text-gray-500 dark:text-gray-400 text-sm">
 						This link is for{" "}
 						<span className="font-mono text-yellow-600 dark:text-yellow-300">
-							{payload?.freelancerAddress}
+							{payload?.clientAddress}
 						</span>
 						. Please switch to that account.
 					</p>
@@ -170,11 +171,14 @@ function AcceptPageInner(): React.JSX.Element {
 	const statusLabel = STATUS_LABELS[contract.status] ?? "Unknown";
 
 	if (isSuccess) {
+		const accepted = action === "accept";
 		return (
 			<PageShell>
-				<div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
+				<div
+					className={`w-16 h-16 rounded-full ${accepted ? "bg-green-500/10" : "bg-gray-500/10"} flex items-center justify-center mx-auto mb-4`}
+				>
 					<svg
-						className="w-8 h-8 text-green-500 dark:text-green-400"
+						className={`w-8 h-8 ${accepted ? "text-green-500 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"
@@ -183,13 +187,17 @@ function AcceptPageInner(): React.JSX.Element {
 							strokeLinecap="round"
 							strokeLinejoin="round"
 							strokeWidth={2}
-							d="M5 13l4 4L19 7"
+							d={accepted ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"}
 						/>
 					</svg>
 				</div>
-				<h2 className="text-2xl font-bold text-center mb-2">Contract Accepted!</h2>
+				<h2 className="text-2xl font-bold text-center mb-2">
+					{accepted ? "Contract Accepted!" : "Proposal Rejected"}
+				</h2>
 				<p className="text-gray-500 dark:text-gray-400 text-sm text-center mb-4">
-					The project deadline timer has started.
+					{accepted
+						? "The escrow is funded and the project deadline timer has started."
+						: "The proposal has been declined. No funds were transferred."}
 				</p>
 				{txHash !== undefined && explorerTxUrl !== null && (
 					<a
@@ -205,14 +213,16 @@ function AcceptPageInner(): React.JSX.Element {
 		);
 	}
 
-	const canAccept = contract.status === 0; // PENDING
+	const canRespond = contract.status === 0; // PENDING
 	const docUrl = resolveDocUrl(contract.contractURI);
+	const busy = isSending || isConfirming;
 
 	return (
 		<PageShell>
 			<h1 className="text-2xl font-bold mb-1">Contract #{payload?.contractId}</h1>
 			<p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-				Review the terms below before accepting.
+				Review the terms and document below. Accepting locks {formatEth(contract.amount)} in
+				escrow.
 			</p>
 
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3 text-sm mb-6">
@@ -224,7 +234,7 @@ function AcceptPageInner(): React.JSX.Element {
 					label="Deadline"
 					value={
 						contract.projectDeadline > 0n
-							? new Date(Number(contract.projectDeadline) * 1000).toLocaleDateString()
+							? `~${String(Math.round(Number(contract.projectDeadline) / 86400))} days after acceptance`
 							: "Set on acceptance"
 					}
 				/>
@@ -235,46 +245,76 @@ function AcceptPageInner(): React.JSX.Element {
 					<Row
 						label="Document"
 						value={
-							<a
-								href={docUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2 truncate"
-							>
-								{contract.contractURI}
-							</a>
+							<span className="flex items-center justify-end gap-2">
+								<a
+									href={docUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
+								>
+									View
+								</a>
+								<span className="text-gray-300 dark:text-gray-600 text-xs">·</span>
+								<button
+									type="button"
+									onClick={() => {
+										setDecryptOpen((o) => !o);
+									}}
+									className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
+								>
+									{decryptOpen ? "Hide decrypt" : "Decrypt"}
+								</button>
+							</span>
 						}
 					/>
 				)}
 			</div>
 
-			{!canAccept && (
-				<div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400 mb-4">
-					Contract is not in PENDING state (current: {statusLabel}). It may already be
-					accepted or cancelled.
+			{/* Decrypt-and-view panel for AES-256-GCM encrypted documents. */}
+			{docUrl !== undefined && decryptOpen && (
+				<div className="mb-6">
+					<DecryptDocumentForm
+						gatewayUrl={docUrl}
+						onClose={() => {
+							setDecryptOpen(false);
+						}}
+					/>
 				</div>
 			)}
 
-			{(signError ?? writeError) !== null && (
+			{!canRespond && (
+				<div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400 mb-4">
+					Contract is not awaiting acceptance (current: {statusLabel}). It may already be
+					accepted, rejected, or withdrawn.
+				</div>
+			)}
+
+			{writeError !== null && (
 				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
-					{((signError ?? writeError) as { shortMessage?: string } | null)
-						?.shortMessage ?? (signError ?? writeError)?.message}
+					{(writeError as { shortMessage?: string }).shortMessage ?? writeError.message}
 				</p>
 			)}
 
-			<button
-				onClick={handleSign}
-				disabled={!canAccept || isSigning || isSending || isConfirming}
-				className="w-full px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
-			>
-				{isSigning
-					? "Sign in wallet…"
-					: isSending
-						? "Waiting for wallet…"
-						: isConfirming
+			<div className="flex gap-3">
+				<button
+					onClick={handleAccept}
+					disabled={!canRespond || busy}
+					className="flex-1 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+				>
+					{busy && action === "accept"
+						? isConfirming
 							? "Confirming on-chain…"
-							: "Accept Contract"}
-			</button>
+							: "Waiting for wallet…"
+						: `Accept & Fund (${formatEth(contract.amount)})`}
+				</button>
+				<button
+					onClick={handleReject}
+					disabled={!canRespond || busy}
+					className="px-6 py-3 rounded-xl border border-gray-300 dark:border-white/15 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 font-semibold transition-colors"
+				>
+					{busy && action === "reject" ? "Rejecting…" : "Reject"}
+				</button>
+			</div>
 		</PageShell>
 	);
 }

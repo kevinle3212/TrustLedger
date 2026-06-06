@@ -39,10 +39,10 @@ async function main(): Promise<void> {
 
 	const tl = (await ethers.getContractAt("TrustLedger", TRUST_LEDGER)) as unknown as TrustLedger;
 
-	// ── Step 1: Client creates a 1 ETH escrow ─────────────────────────────────
-	console.log("Step 1 - Client creates a 1 ETH escrow...");
-	const createTx = await tl.connect(client).createContract(
-		await freelancer.getAddress(),
+	// ── Step 1: Freelancer proposes a 1 ETH escrow ────────────────────────────
+	console.log("Step 1 - Freelancer proposes a 1 ETH escrow...");
+	const createTx = await tl.connect(freelancer).proposeContract(
+		await client.getAddress(),
 		ethers.keccak256(ethers.toUtf8Bytes("contract-v1")),
 		"ipfs://QmDemo",
 		30 * 24 * 3600, // 30-day estimated duration
@@ -52,11 +52,10 @@ async function main(): Promise<void> {
 		0,
 		0, // no hold-back
 		ethers.ZeroAddress,
-		0n,
-		{ value: ethers.parseEther("1") },
+		ethers.parseEther("1"), // escrow amount the client will lock
 	);
 	const createReceipt = await createTx.wait();
-	if (createReceipt === null) throw new Error("createContract tx not mined");
+	if (createReceipt === null) throw new Error("proposeContract tx not mined");
 
 	const createEvent = createReceipt.logs
 		.map((log): LogDescription | null => {
@@ -66,22 +65,19 @@ async function main(): Promise<void> {
 				return null;
 			}
 		})
-		.find((e): e is LogDescription => e !== null && e.name === "ContractCreated");
-	if (createEvent === undefined) throw new Error("ContractCreated event not found");
+		.find((e): e is LogDescription => e !== null && e.name === "ContractProposed");
+	if (createEvent === undefined) throw new Error("ContractProposed event not found");
 	const contractId = createEvent.args[0] as bigint;
 
 	console.log(`  ✓ Contract ID : ${contractId.toString()}`);
 	console.log(`  ✓ Tx hash     : ${createTx.hash}`);
 	console.log();
 
-	// ── Step 2: Freelancer accepts with ECDSA wallet binding ──────────────────
-	console.log("Step 2 - Freelancer signs & accepts...");
-	const innerHash = ethers.solidityPackedKeccak256(
-		["uint256", "address"],
-		[contractId, await freelancer.getAddress()],
-	);
-	const sig = ethers.Signature.from(await freelancer.signMessage(ethers.getBytes(innerHash)));
-	const acceptTx = await tl.connect(freelancer).acceptContract(contractId, sig.v, sig.r, sig.s);
+	// ── Step 2: Client accepts, funding the escrow ────────────────────────────
+	console.log("Step 2 - Client accepts & funds the escrow...");
+	const acceptTx = await tl
+		.connect(client)
+		.acceptContract(contractId, { value: ethers.parseEther("1") });
 	await acceptTx.wait();
 	console.log(`  ✓ Tx hash     : ${acceptTx.hash}`);
 	console.log();

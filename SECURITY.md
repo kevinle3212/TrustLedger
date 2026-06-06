@@ -62,7 +62,7 @@ risk.
 | Logic bugs            | Incorrect payout math, fee calculation errors, state machine violations             |
 | Access control        | Functions callable by unauthorized addresses                                        |
 | Reentrancy            | ETH or token transfers before state updates                                         |
-| Signature issues      | Replay attacks, malformed ECDSA validation in `acceptContract()`                    |
+| Escrow funding        | Value mismatch, mis-funding, or unauthorized acceptance in `acceptContract()`       |
 | Arbitration integrity | Vote manipulation, juror slashing errors, appeal window bypass                      |
 
 ### Out of Scope

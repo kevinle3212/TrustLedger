@@ -187,15 +187,15 @@ async function main(): Promise<void> {
 	console.log("  ok Jurors now eligible to vote");
 	console.log();
 
-	// ── Step 3: Create 1 ETH escrow ──────────────────────────────────────────
-	console.log("Step 3 - Client creates a 1 ETH escrow...");
-	console.log("         The client locks 1 ETH into the smart contract. Neither party can");
-	console.log("         touch these funds until the contract resolves - no trust required,");
+	// ── Step 3: Propose 1 ETH escrow ─────────────────────────────────────────
+	console.log("Step 3 - Freelancer proposes a 1 ETH escrow...");
+	console.log("         The freelancer drafts the terms on-chain. No funds move yet - the");
+	console.log("         client locks the 1 ETH when they accept. No trust required,");
 	console.log("         no middleman, no chargebacks.");
 	const createTx = await tl
-		.connect(client)
-		.createContract(
-			await freelancer.getAddress(),
+		.connect(freelancer)
+		.proposeContract(
+			await client.getAddress(),
 			ethers.keccak256(ethers.toUtf8Bytes(`scenario-${scenarioNum.toString()}-contract`)),
 			"ipfs://QmDemo",
 			30 * 24 * 3600,
@@ -205,11 +205,10 @@ async function main(): Promise<void> {
 			0,
 			0,
 			ethers.ZeroAddress,
-			0n,
-			{ value: ethers.parseEther("1") },
+			ethers.parseEther("1"),
 		);
 	const createReceipt = await createTx.wait();
-	if (createReceipt === null) throw new Error("createContract tx not mined");
+	if (createReceipt === null) throw new Error("proposeContract tx not mined");
 
 	const createEvent = createReceipt.logs
 		.map((log): LogDescription | null => {
@@ -219,23 +218,20 @@ async function main(): Promise<void> {
 				return null;
 			}
 		})
-		.find((e): e is LogDescription => e !== null && e.name === "ContractCreated");
-	if (createEvent === undefined) throw new Error("ContractCreated event not found");
+		.find((e): e is LogDescription => e !== null && e.name === "ContractProposed");
+	if (createEvent === undefined) throw new Error("ContractProposed event not found");
 	const contractId = createEvent.args[0] as bigint;
 	console.log(`  ok Contract ID : ${contractId.toString()}`);
 	console.log();
 
-	// ── Step 4: Freelancer accepts & submits proof ───────────────────────────
-	console.log("Step 4 - Freelancer accepts and submits proof of work...");
-	console.log("         The freelancer cryptographically signs the contract on-chain, then");
-	console.log("         uploads deliverable evidence (IPFS hash). This creates an immutable,");
-	console.log("         timestamped record that neither party can alter later.");
-	const innerHash = ethers.solidityPackedKeccak256(
-		["uint256", "address"],
-		[contractId, await freelancer.getAddress()],
-	);
-	const sig = ethers.Signature.from(await freelancer.signMessage(ethers.getBytes(innerHash)));
-	await (await tl.connect(freelancer).acceptContract(contractId, sig.v, sig.r, sig.s)).wait();
+	// ── Step 4: Client accepts (funds escrow) & freelancer submits proof ──────
+	console.log("Step 4 - Client funds escrow; freelancer submits proof of work...");
+	console.log("         The client locks 1 ETH into the smart contract by accepting. The");
+	console.log("         freelancer then uploads deliverable evidence (IPFS hash), creating an");
+	console.log("         immutable, timestamped record that neither party can alter later.");
+	await (
+		await tl.connect(client).acceptContract(contractId, { value: ethers.parseEther("1") })
+	).wait();
 	await (
 		await tl
 			.connect(freelancer)

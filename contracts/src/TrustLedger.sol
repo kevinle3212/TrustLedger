@@ -14,16 +14,16 @@ import {IReputationRegistry} from "./interfaces/IReputationRegistry.sol";
 
 // TrustLedger is the core escrow contract. It holds ETH (or ERC-20 tokens) between
 // a client and a freelancer and enforces a lifecycle of states that protect both parties:
-//   Client deposits → Freelancer accepts (with wallet signature) → Freelancer submits work →
+//   Freelancer proposes → Client accepts & funds escrow → Freelancer submits work →
 //   Client approves (or disputes) → Funds released (or arbitrated)
 //
 // New in Part 1:
 //   - Proportional fee split: fee burden shared by completion percentage, not flat deduction.
 //   - Bidirectional reputation: both parties rate each other post-completion via ReputationRegistry.
-//   - Contract amendment: client can cancel a PENDING contract and redeploy with new terms.
-//   - Wallet binding: acceptContract requires an ECDSA signature proving key ownership.
+//   - Contract amendment: freelancer can cancel a PENDING proposal and re-propose with new terms.
+//   - Accept-to-fund: the freelancer proposes unfunded terms; the client's funding tx is its consent.
 //   - Stablecoin support: optional ERC-20 token escrow alongside native ETH.
-//   - Chainlink price feed: ETH/USD rate locked at creation for informational USD tracking.
+//   - Chainlink price feed: ETH/USD rate locked at acceptance for informational USD tracking.
 //
 // `is ReentrancyGuard` mixes in OpenZeppelin's nonReentrant modifier so that
 // functions sending ETH or tokens cannot be called recursively by a malicious contract.
@@ -40,8 +40,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // it as a uint8 (0, 1, 2 …). Using an enum instead of raw numbers makes the
     // code self-documenting and prevents typos.
     enum Status {
-        PENDING, // 0 - Contract created; freelancer hasn't responded yet
-        ACTIVE, // 1 - Freelancer accepted; project deadline is counting down
+        PENDING, // 0 - Freelancer proposed terms; client hasn't funded/responded yet
+        ACTIVE, // 1 - Client accepted and funded escrow; project deadline is counting down
         SUBMITTED, // 2 - Freelancer submitted proof-of-work; acceptance window running
         APPROVED, // 3 - Client approved OR acceptance window elapsed (auto-release)
         DISPUTED, // 4 - Client opened a dispute; awaiting arbitration
@@ -174,18 +174,18 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // ─── Events
     // ──────────────────────────────────────────────────────────────
 
-    /// @notice Emitted when a new escrow contract is created.
+    /// @notice Emitted when a freelancer proposes a new (unfunded) escrow contract.
     /// @param id         Contract identifier.
-    /// @param client     Address that deposited funds.
-    /// @param freelancer Address hired to complete the work.
-    /// @param amount     Funds locked in escrow (ETH wei or token units).
-    event ContractCreated(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount);
+    /// @param client     Address expected to review and fund the escrow on acceptance.
+    /// @param freelancer Address that proposed the terms and will complete the work.
+    /// @param amount     Funds the client will lock in escrow on acceptance (ETH wei or token units).
+    event ContractProposed(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount);
 
-    /// @notice Emitted when the freelancer accepts the contract.
+    /// @notice Emitted when the client accepts the proposal and funds the escrow.
     /// @param id Contract identifier.
     event ContractAccepted(uint256 indexed id);
 
-    /// @notice Emitted when the freelancer rejects the contract.
+    /// @notice Emitted when the client rejects the freelancer's proposal.
     /// @param id Contract identifier.
     event ContractRejected(uint256 indexed id);
 
@@ -275,10 +275,10 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @notice No funds were sent with the transaction.
     error InsufficientFunds();
 
-    /// @notice The freelancer address cannot be the zero address.
+    /// @notice A required address (client or freelancer) cannot be the zero address.
     error ZeroAddress();
 
-    /// @notice The client cannot hire themselves.
+    /// @notice The freelancer cannot propose a contract to themselves as the client.
     error SelfContract();
 
     /// @notice completionPct is greater than 100.
@@ -292,9 +292,6 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
     /// @notice Mismatch between token address and funding params (ETH vs token).
     error InvalidTokenParams();
-
-    /// @notice ECDSA signature does not recover to the expected freelancer address.
-    error InvalidSignature();
 
     /// @notice Rating score must be between 1 and 100 inclusive.
     error RatingOutOfRange();
@@ -376,7 +373,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         pauser = pauser_;
     }
 
-    /// @notice Pause createContract, blocking new escrows from being opened.
+    /// @notice Pause proposeContract, blocking new escrows from being proposed.
     ///         All in-flight lifecycle functions (accept, submit, approve, dispute, claim) remain active
     ///         so that funds already in escrow can always exit.
     function pause() external {
@@ -386,7 +383,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         _pause();
     }
 
-    /// @notice Unpause createContract, re-enabling new escrow creation.
+    /// @notice Unpause proposeContract, re-enabling new escrow proposals.
     function unpause() external {
         if (msg.sender != pauser) {
             revert NotPauser();
@@ -394,14 +391,14 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         _unpause();
     }
 
-    // ─── Client: create
+    // ─── Freelancer: propose
     // ───────────────────────────────────────────────────────
 
-    /// @notice Create an escrow contract and lock funds. Emits {ContractCreated}.
-    ///         For ETH escrow: set token = address(0), tokenAmount = 0, and send ETH as msg.value.
-    ///         For ERC-20 escrow: set token = token address, tokenAmount = amount, msg.value = 0.
-    ///         The client must have pre-approved this contract for tokenAmount before calling.
-    /// @param freelancer        Address of the hired freelancer.
+    /// @notice Propose an escrow contract. The caller is the freelancer; no funds move
+    ///         until the named client accepts via {acceptContract}. Emits {ContractProposed}.
+    ///         For ETH escrow:    set token = address(0) and amount = the wei the client will lock.
+    ///         For ERC-20 escrow: set token = token address and amount = the token units to lock.
+    /// @param client            Address expected to review and fund the escrow.
     /// @param contractHash      keccak256 of the off-chain contract document.
     /// @param contractURI       IPFS URI pointing to the contract document.
     /// @param estimatedDuration How long the project should take, in seconds.
@@ -411,10 +408,10 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param holdBackBps       Warranty retention as basis points (0 = none; or 500-1500).
     /// @param warrantyPeriod    How long warranty hold-back is locked after approval, in seconds.
     /// @param token             ERC-20 token address; use address(0) for native ETH.
-    /// @param tokenAmount       Token units to escrow; must be 0 for ETH escrows.
-    /// @return id               The ID of the newly created escrow contract.
-    function createContract(
-        address freelancer,
+    /// @param amount            Escrow amount the client will lock on acceptance (wei or token units).
+    /// @return id               The ID of the newly proposed escrow contract.
+    function proposeContract(
+        address client,
         bytes32 contractHash,
         string calldata contractURI,
         uint256 estimatedDuration,
@@ -424,10 +421,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         uint16 holdBackBps,
         uint64 warrantyPeriod,
         address token,
-        uint256 tokenAmount
+        uint256 amount
     )
         external
-        payable
         whenNotPaused
         returns (uint256 id)
     {
@@ -437,58 +433,52 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         if (bytes(contractURI).length == 0) {
             revert EmptyURI();
         }
-        _validateCreateParams({
-            freelancer: freelancer,
+        _validateProposeParams({
+            client: client,
             bufferFactor: bufferFactor,
             acceptanceWindow: acceptanceWindow,
             arbitrationFeeBps: arbitrationFeeBps,
             holdBackBps: holdBackBps,
             warrantyPeriod: warrantyPeriod,
-            token: token,
-            tokenAmount: tokenAmount
+            amount: amount
         });
 
         id = nextId;
         ++nextId;
 
-        uint256 escrowAmount = token == address(0) ? msg.value : tokenAmount;
-        uint256 deadline = block.timestamp + (estimatedDuration * bufferFactor) / 1000;
-        uint256 usdValue = token == address(0) ? _queryUsdValue(msg.value) : 0;
+        // No funds are held while PENDING, so the project deadline cannot start counting
+        // from proposal time (an arbitrary client delay would eat the freelancer's working
+        // window). Store the buffered duration (seconds) in projectDeadline now; acceptContract
+        // converts it to an absolute timestamp = block.timestamp + duration when the client funds.
+        uint256 bufferedDuration = (estimatedDuration * bufferFactor) / 1000;
 
         _storeEscrow({
             id: id,
-            freelancer: freelancer,
+            client: client,
             contractHash: contractHash,
             contractURI: contractURI,
-            deadline: deadline,
+            deadline: bufferedDuration,
             acceptanceWindow: acceptanceWindow,
             arbitrationFeeBps: arbitrationFeeBps,
             holdBackBps: holdBackBps,
             warrantyPeriod: warrantyPeriod,
             token: token,
-            escrowAmount: escrowAmount,
-            usdValue: usdValue
+            escrowAmount: amount,
+            usdValue: 0 // computed at acceptance, when the ETH value is actually locked
         });
 
-        if (token != address(0)) {
-            bool ok = IERC20(token).transferFrom(msg.sender, address(this), tokenAmount);
-            if (!ok) {
-                revert TokenTransferFailed();
-            }
-        }
-
-        emit ContractCreated(id, msg.sender, freelancer, escrowAmount);
+        emit ContractProposed(id, client, msg.sender, amount);
     }
 
-    // ─── Client: cancel pending
+    // ─── Freelancer: withdraw proposal
     // ───────────────────────────────────────────────
 
-    /// @notice Client cancels a PENDING contract before the freelancer responds.
-    ///         Returns all escrowed funds to the client. Emits {ContractCancelled}.
+    /// @notice Freelancer withdraws their own PENDING proposal before the client funds it.
+    ///         No funds are held while PENDING, so nothing is transferred. Emits {ContractCancelled}.
     /// @param id The escrow contract ID.
-    function cancelPending(uint256 id) external nonReentrant {
+    function cancelProposal(uint256 id) external {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.client) {
+        if (msg.sender != c.freelancer) {
             revert Unauthorized();
         }
         if (c.status != Status.PENDING) {
@@ -496,39 +486,33 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         }
 
         c.status = Status.CANCELLED;
-
-        // Zero out amount before sending - checks-effects-interactions pattern.
-        uint256 amount = c.amount;
-        c.amount = 0;
-
-        _sendFunds(c, c.client, amount);
         emit ContractCancelled(id);
     }
 
-    // ─── Client: amendment linking
+    // ─── Freelancer: amendment linking
     // ────────────────────────────────────────────
 
-    /// @notice Links a PENDING replacement contract to its CANCELLED predecessor,
+    /// @notice Links a PENDING replacement proposal to its CANCELLED predecessor,
     ///         establishing an on-chain amendment version history. Emits {ContractAmended}.
     ///
     ///         Amendment flow:
-    ///           1. Client calls cancelPending(oldId)  → oldId becomes CANCELLED.
-    ///           2. Client calls createContract(...)   → newId is PENDING.
-    ///           3. Client calls linkAmendment(newId, oldId) → on-chain link recorded.
+    ///           1. Freelancer calls cancelProposal(oldId)  → oldId becomes CANCELLED.
+    ///           2. Freelancer calls proposeContract(...)   → newId is PENDING.
+    ///           3. Freelancer calls linkAmendment(newId, oldId) → on-chain link recorded.
     ///
     ///         Constraints:
-    ///           - Caller must be the client on both contracts.
+    ///           - Caller must be the freelancer on both contracts.
     ///           - oldId must be CANCELLED; newId must be PENDING.
     ///           - newId must not already have a predecessor (each contract links to at most one).
     /// @param newId      The replacement contract ID.
-    /// @param previousId The cancelled contract ID being superseded.
+    /// @param previousId the cancelled contract ID being superseded.
     function linkAmendment(uint256 newId, uint256 previousId) external {
         EscrowContract storage oldC = _contracts[previousId];
         EscrowContract storage newC = _contracts[newId];
-        if (msg.sender != oldC.client) {
+        if (msg.sender != oldC.freelancer) {
             revert InvalidPreviousContract();
         }
-        if (msg.sender != newC.client) {
+        if (msg.sender != newC.freelancer) {
             revert Unauthorized();
         }
         if (oldC.status != Status.CANCELLED) {
@@ -633,60 +617,55 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         emit ContractCancelled(id);
     }
 
-    // ─── Freelancer: accept / reject
+    // ─── Client: accept / reject
     // ──────────────────────────────────────────
 
-    /// @notice Freelancer accepts the contract by providing a wallet signature. Emits {ContractAccepted}.
-    ///         The signature must be: eth_sign(keccak256(abi.encodePacked(id, freelancerAddress))).
-    ///         This proves the freelancer controls the private key for the address on the contract.
+    /// @notice Client accepts the freelancer's proposal and funds the escrow. Emits {ContractAccepted}.
+    ///         The funding transaction itself is the client's consent — no separate signature is needed,
+    ///         and the freelancer already proved authorship by sending {proposeContract}.
+    ///         For ETH escrow:    send msg.value == the proposed amount.
+    ///         For ERC-20 escrow: send no ETH; the client must have pre-approved this contract for the
+    ///                            proposed amount, which is pulled via transferFrom.
     /// @param id The escrow contract ID.
-    /// @param v  Signature recovery byte (27 or 28).
-    /// @param r  Signature r component.
-    /// @param s  Signature s component.
-    function acceptContract(uint256 id, uint8 v, bytes32 r, bytes32 s) external {
+    function acceptContract(uint256 id) external payable nonReentrant {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.freelancer) {
+        if (msg.sender != c.client) {
             revert Unauthorized();
         }
         if (c.status != Status.PENDING) {
             revert InvalidStatus(c.status);
         }
-        if (block.timestamp > c.projectDeadline) {
-            revert DeadlineElapsed();
+
+        // Fund the escrow. The proposed amount lives in c.amount; the client must lock exactly that.
+        if (c.token == address(0)) {
+            if (msg.value != c.amount) {
+                revert InsufficientFunds();
+            }
+        } else {
+            if (msg.value != 0) {
+                revert InvalidTokenParams(); // no ETH should accompany a token escrow
+            }
+            bool ok = IERC20(c.token).transferFrom(msg.sender, address(this), c.amount);
+            if (!ok) {
+                revert TokenTransferFailed();
+            }
         }
 
-        // Reconstruct the message the freelancer should have signed.
-        // innerHash binds the signature to this specific contract ID and freelancer address,
-        // preventing replay across different contracts or different wallets.
-        // Rationale: keep the high-level keccak256 over an inline-assembly variant. This is
-        // security-critical EIP-191 signature verification; Solidity-level hashing is far more
-        // auditable and the marginal gas saving is not worth the assembly risk here.
-        // forge-lint: disable-next-line(asm-keccak256)
-        bytes32 innerHash = keccak256(abi.encodePacked(id, c.freelancer));
-
-        // EIP-191 prefix makes this compatible with eth_sign / personal_sign in wallets.
-        // The "\x19Ethereum Signed Message:\n32" prefix prevents signed data from being
-        // misused as a raw transaction.
-        // Rationale: see above — auditability of signature hashing outweighs the gas micro-opt.
-        // forge-lint: disable-next-line(asm-keccak256)
-        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
-
-        // ecrecover returns the address of the private key holder who signed ethSignedHash.
-        // If the sig is invalid, ecrecover returns address(0).
-        address signer = ecrecover(ethSignedHash, v, r, s);
-        if (signer != c.freelancer) {
-            revert InvalidSignature();
-        }
-
+        // The project deadline counts from acceptance. proposeContract stashed the buffered duration
+        // (seconds) in projectDeadline; convert it to an absolute timestamp now that work can begin.
+        // forge-lint: disable-next-line(unsafe-typecast)
+        c.projectDeadline = uint64(block.timestamp + uint256(c.projectDeadline));
+        c.usdValueAtCreation = c.token == address(0) ? _queryUsdValue(msg.value) : 0;
         c.status = Status.ACTIVE;
         emit ContractAccepted(id);
     }
 
-    /// @notice Freelancer rejects the contract and returns funds to the client. Emits {ContractRejected}.
+    /// @notice Client rejects the freelancer's proposal. No funds are held while PENDING, so nothing
+    ///         is transferred. Emits {ContractRejected}.
     /// @param id The escrow contract ID.
-    function rejectContract(uint256 id) external nonReentrant {
+    function rejectContract(uint256 id) external {
         EscrowContract storage c = _contracts[id];
-        if (msg.sender != c.freelancer) {
+        if (msg.sender != c.client) {
             revert Unauthorized();
         }
         if (c.status != Status.PENDING) {
@@ -694,10 +673,6 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         }
 
         c.status = Status.CANCELLED;
-        uint256 amount = c.amount;
-        c.amount = 0;
-
-        _sendFunds(c, c.client, amount);
         emit ContractRejected(id);
     }
 
@@ -924,25 +899,27 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // ─── Internal
     // ─────────────────────────────────────────────────────────────
 
-    // Validation helper extracted from createContract to keep the function under the line limit.
-    function _validateCreateParams(
-        address freelancer,
+    // Validation helper extracted from proposeContract to keep the function under the line limit.
+    function _validateProposeParams(
+        address client,
         uint256 bufferFactor,
         uint256 acceptanceWindow,
         uint16 arbitrationFeeBps,
         uint16 holdBackBps,
         uint64 warrantyPeriod,
-        address token,
-        uint256 tokenAmount
+        uint256 amount
     )
         internal
         view
     {
-        if (freelancer == address(0)) {
+        if (client == address(0)) {
             revert ZeroAddress();
         }
-        if (freelancer == msg.sender) {
+        if (client == msg.sender) {
             revert SelfContract();
+        }
+        if (amount == 0) {
+            revert InsufficientFunds(); // a proposal must name a non-zero escrow amount
         }
         if (bufferFactor < MIN_BUFFER_FACTOR) {
             revert InvalidBufferFactor();
@@ -963,28 +940,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         if (holdBackBps == 0 && warrantyPeriod != 0) {
             revert InvalidWarrantyPeriod();
         }
-        // Exactly one of ETH or ERC-20 must be funded; the other must be zero.
-        if (token == address(0)) {
-            if (msg.value == 0) {
-                revert InsufficientFunds(); // ETH escrow needs ETH
-            }
-            if (tokenAmount != 0) {
-                revert InvalidTokenParams(); // must not specify token amount for ETH escrow
-            }
-        } else {
-            if (msg.value != 0) {
-                revert InvalidTokenParams(); // must not send ETH for token escrow
-            }
-            if (tokenAmount == 0) {
-                revert InsufficientFunds(); // token escrow needs tokens
-            }
-        }
     }
 
-    // Struct-initialisation helper extracted from createContract to keep the function under the line limit.
+    // Struct-initialisation helper extracted from proposeContract to keep the function under the line limit.
     function _storeEscrow(
         uint256 id,
-        address freelancer,
+        address client,
         bytes32 contractHash,
         string calldata contractURI,
         uint256 deadline,
@@ -1003,8 +964,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         // forge-lint: disable-next-line(unsafe-typecast)
         uint64 aw = uint64(acceptanceWindow);
         _contracts[id] = EscrowContract({
-            client: msg.sender,
-            freelancer: freelancer,
+            client: client,
+            freelancer: msg.sender,
             contractHash: contractHash,
             contractURI: contractURI,
             projectDeadline: dl,

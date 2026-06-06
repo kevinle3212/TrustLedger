@@ -47,7 +47,7 @@ staked jurors votes on a completion percentage, and funds split accordingly.
            ▼
   ┌─────────────────────────────────────────────────────┐
   │                   TrustLedger.sol                   │
-  │  createContract()  acceptContract()  approveWork()  │
+  │  proposeContract()  acceptContract()  approveWork() │
   │  submitProofOfWork()  disputeWork()  executeRuling()│
   └────────────┬───────────────────────────────┬────────┘
                │ openDispute() / executeRuling()│ submitRating()
@@ -145,24 +145,22 @@ string  proofOfWorkURI;   // ipfs://Qm...
 
 ---
 
-## Feature: ECDSA Wallet Binding
+## Feature: Accept-to-Fund Handshake
 
-A freelancer cannot be enrolled in a contract without explicit cryptographic
-consent from their private key. A third party cannot accept on their behalf.
-
-The contract requires `ecrecover` to return the freelancer's address before
-advancing to `ACTIVE`. The signed message is
-`keccak256(contractId, freelancerAddress)`, which binds the signature to one
-specific contract. The EIP-191 prefix prevents replay attacks and malformed
-transaction reuse.
+The freelancer proposes the terms; the client commits by funding the escrow.
+Neither party is bound until both have acted, and no funds are ever held before
+mutual consent. The funding transaction itself is the client's on-chain consent,
+so no separate signature is needed - and only the named client can fund it.
 
 ```solidity
-bytes32 innerHash = keccak256(abi.encodePacked(id, c.freelancer));
-bytes32 ethSignedHash = keccak256(
-    abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash)
-);
-address signer = ecrecover(ethSignedHash, v, r, s);
-if (signer != c.freelancer) revert InvalidSignature();
+function acceptContract(uint256 id) external payable nonReentrant {
+    EscrowContract storage c = _contracts[id];
+    if (msg.sender != c.client) revert Unauthorized();
+    if (c.status != Status.PENDING) revert InvalidStatus(c.status);
+    if (c.token == address(0) && msg.value != c.amount) revert InsufficientFunds();
+    // ... pulls ERC-20 via transferFrom for token escrows ...
+    c.status = Status.ACTIVE; // escrow funded; deadline starts
+}
 ```
 
 ---
@@ -355,9 +353,9 @@ parties can always prove what the agreed dollar value was, regardless of what
 ETH does afterward.
 
 `TrustLedger.initPriceFeed()` wires in a `AggregatorV3Interface` once. In
-`createContract()`, `_queryUsdValue()` calls `priceFeed.latestRoundData()` and
-stores the result in `usdValueAtCreation`. Units are Chainlink's standard 8
-decimal places (`$1 = 1e8`).
+`acceptContract()`, `_queryUsdValue()` calls `priceFeed.latestRoundData()` and
+stores the result in `usdValueAtCreation` when the escrow is funded. Units are
+Chainlink's standard 8 decimal places (`$1 = 1e8`).
 
 ---
 
@@ -421,8 +419,8 @@ Each scenario runs the same 12-step flow:
 ```text
 Step  1  Register jurors (0.1 ETH stake each)
 Step  2  Fast-forward 7 days (stake lock period, EVM time-travel)
-Step  3  Client creates 1 ETH escrow
-Step  4  Freelancer accepts (ECDSA wallet binding) + submits proof of work
+Step  3  Freelancer proposes 1 ETH escrow
+Step  4  Client accepts (funds escrow); freelancer submits proof of work
 Step  5  Client opens dispute
 Step  6  Jurors commit hidden votes (commit-reveal)
 Step  7  Advance to reveal phase (all 3 committed)
@@ -523,7 +521,7 @@ Both toolchains are available as npm scripts - no need to call `forge` or
 | ------------------------------ | ------------------------- | ----------------- | -------------------- | ------------------- |
 | Decentralized                  | ✅ Fully                  | ✅ Fully          | ❌ Centralized       | ❌ Centralized      |
 | Partial-completion payouts     | ✅ Median % ruling        | ❌ Binary verdict | ❌ Manual            | ❌ Manual           |
-| ECDSA wallet binding           | ✅ On-chain ecrecover     | ❌ No             | ❌ No                | ❌ No               |
+| Accept-to-fund handshake       | ✅ Client funds on accept | ❌ No             | ❌ No                | ❌ No               |
 | Verifiable random juror select | ✅ Chainlink VRF          | ❌ Token-weighted | ❌ No                | ❌ No               |
 | Proportional fee split         | ✅ Shared by %            | ❌ Loser pays     | ❌ Flat platform fee | ❌ 20% always       |
 | Warranty hold-back             | ✅ 5-15% configurable     | ❌ No             | ❌ No                | ❌ No               |
@@ -534,8 +532,9 @@ Both toolchains are available as npm scripts - no need to call `forge` or
 | Open source                    | ✅ Apache-2.0             | ✅ MIT            | ❌ Proprietary       | ❌ Proprietary      |
 
 **The key differentiator:** TrustLedger is the only protocol with
-partial-completion rulings, proportional fee sharing, ECDSA wallet binding, and
-a warranty hold-back mechanism combined in one permissionless smart contract.
+partial-completion rulings, proportional fee sharing, an accept-to-fund
+handshake, and a warranty hold-back mechanism combined in one permissionless
+smart contract.
 
 ---
 

@@ -72,14 +72,15 @@ a hash of the deliverable and its IPFS URI are stored the same way. Neither
 party can alter what was agreed to or what was delivered after the fact. Any
 tampering is immediately detectable by recomputing the hash.
 
-### ECDSA Wallet Binding on Acceptance
+### Accept-to-Fund Handshake
 
-The freelancer does not accept a contract by calling a function alone - they
-must submit an EIP-191 signature over
-`keccak256(contractId, freelancerAddress)`. The contract recovers the signer
-on-chain via `ecrecover` and rejects any mismatch. This prevents a third party
-from accepting a contract on a freelancer's behalf without their private-key
-authorization.
+The freelancer proposes the terms with `proposeContract` (no funds move), and
+the named client accepts by calling `acceptContract` with `msg.value` equal to
+the agreed amount - the funding transaction itself is the client's on-chain
+consent, and the freelancer already proved authorship by sending the proposal.
+The contract enforces that only the named client can accept and that the exact
+amount is locked, so no separate signature is required and funds are never held
+before both parties have committed.
 
 ### Commit-Reveal Voting Prevents Herding
 
@@ -1115,34 +1116,30 @@ off-chain:
 
 #### IPFS Uploads Before On-Chain Calls
 
-Before calling `createContract()`, upload the agreement document to IPFS and
+Before calling `proposeContract()`, upload the agreement document to IPFS and
 pass the resulting CID as `contractURI`. Before calling `submitProofOfWork()`,
 upload the deliverable and pass the CID as `proofOfWorkURI`. The Solidity
 contract stores the CID and a `keccak256` hash of the file - the backend must
 hash the file before upload and pass both values.
 
-#### Magic-Link Freelancer Onboarding
+#### Magic-Link Client Onboarding
 
-The client submits the contract via the website and a signed magic link is
-emailed to the freelancer. The backend generates a single-use JWT containing the
-`contractId`, emails it to the freelancer's address, and the frontend uses the
-link to pre-fill the `acceptContract()` call. The on-chain acceptance requires a
-pre-computed ECDSA signature:
+The freelancer proposes the contract via the website and a signed magic link is
+emailed to the client. The backend generates a single-use token containing the
+`contractId`, emails it to the client's address, and the frontend uses the link
+to pre-fill the `acceptContract()` call. Acceptance funds the escrow in one
+transaction - no signature is needed, just the ETH value (or a prior ERC-20
+approval):
 
 ```ts
-const inner = ethers.solidityPackedKeccak256(
-    ["uint256", "address"],
-    [contractId, freelancerAddress],
-);
-const sig = ethers.Signature.from(
-    await wallet.signMessage(ethers.getBytes(inner)),
-);
-// Call: trustLedger.acceptContract(contractId, sig.v, sig.r, sig.s)
+// Call: trustLedger.acceptContract(contractId, { value: amount })
+// ERC-20 escrow: token.approve(trustLedger, amount) first, then
+//                trustLedger.acceptContract(contractId)
 ```
 
 #### Deadline Notifications
 
-Subscribe to `ContractCreated` and `ContractAccepted` events. For each active
+Subscribe to `ContractProposed` and `ContractAccepted` events. For each active
 contract, compare `projectDeadline` (stored in the `EscrowContract` struct via
 `getContract(id)`) against the current block time. Send deadline warnings
 starting 5 days out in 24-hour increments.
@@ -1260,7 +1257,7 @@ TrustLedger/
 │   │   ├── arbitration/[id]/page.tsx             # Per-dispute commit/reveal voting UI
 │   │   ├── create/page.tsx                       # Create escrow contract form
 │   │   ├── dashboard/page.tsx                    # User's contract dashboard
-│   │   ├── freelancer/accept/page.tsx            # Magic-link freelancer accept landing page
+│   │   ├── client/accept/page.tsx                # Magic-link client review/accept landing page
 │   │   ├── juror/page.tsx                        # Juror portal - stake, vote, view disputes
 │   │   ├── reputation/page.tsx                   # Reputation lookup and post-contract rating UI
 │   │   ├── layout.tsx                            # Root layout with Providers + Navbar

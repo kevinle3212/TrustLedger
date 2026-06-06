@@ -22,7 +22,7 @@ pragma solidity ^0.8.24;
 //
 //   npm run foundry:test:fork
 
-import {Test, Vm} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {Arbitration} from "./../../src/Arbitration.sol";
 import {JurorRegistry} from "./../../src/JurorRegistry.sol";
 import {TrustLedger} from "./../../src/TrustLedger.sol";
@@ -46,11 +46,7 @@ contract FullLifecycleFork is Test {
     JurorRegistry public jurorRegistry;
 
     address public client = makeAddr("client");
-
-    // The freelancer wallet holds a private key so the ECDSA acceptance
-    // signature can be reproduced in tests (mirrors the unit test pattern).
-    Vm.Wallet internal _freelancerWallet;
-    address public freelancer;
+    address public freelancer = makeAddr("freelancer");
 
     // ── setUp
     // ─────────────────────────────────────────────────────────────────
@@ -70,13 +66,10 @@ contract FullLifecycleFork is Test {
             vm.createSelectFork(rpcUrl, blockNumber);
         }
 
-        _freelancerWallet = vm.createWallet("freelancer");
-        freelancer = _freelancerWallet.addr;
-
         vm.deal(client, 100 ether);
         vm.deal(freelancer, 10 ether);
-        // The deterministic address from vm.createWallet may be a deployed contract
-        // on the live fork. Clear its bytecode so ETH transfers behave like a plain EOA.
+        // The deterministic makeAddr may collide with a deployed contract on the live
+        // fork. Clear its bytecode so ETH transfers behave like a plain EOA.
         vm.etch(freelancer, "");
 
         // ── Replicate Deploy.s.sol nonce-prediction logic
@@ -102,41 +95,29 @@ contract FullLifecycleFork is Test {
         vm.deal(address(arbitration), 0);
     }
 
-    // ─── Signing helper
-    // ───────────────────────────────────────────────────────
-    function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
-        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
-        (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
-    }
-
     // ─── Lifecycle helpers
     // ────────────────────────────────────────────────────
     function _createContract() internal returns (uint256 id) {
-        vm.prank(client);
-        id = trustLedger.createContract{value: AMOUNT}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        id = trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
             bufferFactor: BUFFER_FACTOR,
             acceptanceWindow: ACCEPTANCE_WINDOW,
             arbitrationFeeBps: ARB_FEE_BPS,
-            holdBackBps: 0,
-            warrantyPeriod: // no hold-back
-            0,
-            token: // no warranty
-            address(0),
-            tokenAmount: // native ETH escrow
-            0
+            holdBackBps: 0, // no hold-back
+            warrantyPeriod: 0, // no warranty
+            token: address(0), // native ETH escrow
+            amount: AMOUNT
         });
     }
 
     function _createAndAccept() internal returns (uint256 id) {
         id = _createContract();
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
+        vm.prank(client);
+        trustLedger.acceptContract{value: AMOUNT}(id);
     }
 
     function _createAcceptAndSubmit() internal returns (uint256 id) {
@@ -211,18 +192,18 @@ contract FullLifecycleFork is Test {
         assertEq(freelancer.balance, freelancerBefore + remaining, "freelancer should receive full remaining");
     }
 
-    /// @notice Cancellation refunds the client on a fork, verifying no state
-    /// from the forked chain interferes with the escrow accounting.
-    function test_Fork_CancelPending_RefundsClient() public {
+    /// @notice Freelancer withdrawing a proposal on a fork moves it to CANCELLED
+    /// without touching balances (no funds are held until the client accepts).
+    function test_Fork_CancelProposal_ByFreelancer() public {
         uint256 id = _createContract();
 
         uint256 clientBefore = client.balance;
 
-        vm.prank(client);
-        trustLedger.cancelPending(id);
+        vm.prank(freelancer);
+        trustLedger.cancelProposal(id);
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED), "status should be CANCELLED");
-        assertEq(client.balance, clientBefore + AMOUNT, "client should be fully refunded");
+        assertEq(client.balance, clientBefore, "client balance should be unchanged");
     }
 }

@@ -7,8 +7,8 @@
 
 export interface MagicLinkPayload {
 	contractId: string;
-	freelancerEmail: string;
-	freelancerAddress: string;
+	clientEmail: string;
+	clientAddress: string;
 	nonce: string; // random UUID included so two tokens for the same contract are never identical
 	exp: number; // unix seconds — checked in verifyMagicToken
 }

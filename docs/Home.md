@@ -28,10 +28,11 @@ voting.
 
 ## How It Works
 
-1. **Client creates a contract** - locks ETH into escrow, specifies the
-   freelancer wallet and off-chain agreement (IPFS hash stored on-chain).
-2. **Freelancer accepts** - signs via ECDSA wallet binding; the contract
-   recovers the signer on-chain and rejects any mismatch.
+1. **Freelancer proposes a contract** - specifies the client wallet, the escrow
+   amount, and the off-chain agreement (IPFS hash stored on-chain). No funds
+   move yet.
+2. **Client accepts** - reviews the terms and funds the escrow in the same
+   transaction; the funding transaction is the client's on-chain consent.
 3. **Freelancer submits work** - posts an IPFS hash of the deliverable on-chain
    as immutable proof.
 4. **Client approves or disputes** - approval releases funds; a dispute opens a
@@ -47,8 +48,8 @@ voting.
 
 - **Immutable proof of agreement and deliverable** - keccak256 hashes stored
   on-chain, tampering is immediately detectable
-- **ECDSA wallet binding** - freelancers accept contracts with their private key
-  via EIP-191 signatures
+- **Accept-to-fund handshake** - the freelancer proposes terms and the client
+  commits by funding the escrow; no funds are held before mutual consent
 - **Commit-reveal voting** - votes are hidden during the commit phase to prevent
   herding
 - **Chainlink VRF juror selection** - verifiable randomness selects jurors at

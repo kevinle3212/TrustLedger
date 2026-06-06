@@ -42,7 +42,11 @@ function fromHex(hex: string): Uint8Array<ArrayBuffer> {
 // intentionally runs many hash iterations to make brute-force guessing expensive.
 // A unique random salt ensures two encryptions with the same passphrase produce
 // different keys, preventing precomputed rainbow-table attacks.
-async function deriveKey(passphrase: string, salt: Uint8Array<ArrayBuffer>): Promise<CryptoKey> {
+async function deriveKey(
+	passphrase: string,
+	salt: Uint8Array<ArrayBuffer>,
+	iterations: number = ITERATIONS,
+): Promise<CryptoKey> {
 	// Step 1: import the passphrase as raw key material (not a usable key yet).
 	const raw = await crypto.subtle.importKey(
 		"raw",
@@ -52,8 +56,11 @@ async function deriveKey(passphrase: string, salt: Uint8Array<ArrayBuffer>): Pro
 		["deriveKey"],
 	);
 	// Step 2: stretch it into a proper AES-256 key via PBKDF2-SHA256.
+	// The iteration count must match what was used at encryption time; on decrypt it
+	// comes from the bundle's `iter` field so future bundles can raise it without
+	// breaking older ones.
 	return await crypto.subtle.deriveKey(
-		{ name: "PBKDF2", salt, iterations: ITERATIONS, hash: "SHA-256" },
+		{ name: "PBKDF2", salt, iterations, hash: "SHA-256" },
 		raw,
 		{ name: "AES-GCM", length: 256 },
 		false, // not extractable — key stays inside the crypto engine
@@ -104,7 +111,7 @@ export async function decryptFile(data: ArrayBuffer, passphrase: string): Promis
 	const iv = fromHex(bundle.iv);
 	// Wrap in new Uint8Array() to ensure Uint8Array<ArrayBuffer> for Web Crypto.
 	const ct = new Uint8Array(Uint8Array.from(atob(bundle.ct), (c) => c.charCodeAt(0)));
-	const key = await deriveKey(passphrase, salt);
+	const key = await deriveKey(passphrase, salt, bundle.iter);
 	// If the passphrase is wrong or the ciphertext was tampered, GCM authentication fails
 	// and subtle.decrypt throws a DOMException("OperationError") — caught by the UI above.
 	return await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct);
