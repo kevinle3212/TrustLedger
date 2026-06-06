@@ -28,7 +28,7 @@ const config: HardhatUserConfig = {
 				// higher = smaller per-call gas, larger deploy size
 			},
 			// viaIR compiles through Yul IR, which avoids "stack too deep" errors
-			// that arise when a function has many local variables (e.g. createContract).
+			// that arise when a function has many local variables (e.g. proposeContract).
 			viaIR: true,
 		},
 	},

@@ -8,7 +8,7 @@ pragma solidity ^0.8.24;
 // solhint-disable gas-small-strings
 // solhint-disable ordering
 
-import {Test, Vm} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {Arbitration} from "./../../src/Arbitration.sol";
 import {JurorRegistry} from "./../../src/JurorRegistry.sol";
 import {ReputationRegistry} from "./../../src/ReputationRegistry.sol";
@@ -35,20 +35,13 @@ contract TrustLedgerTest is Test {
     JurorRegistry public jurorRegistry;
 
     address public client = makeAddr("client");
-
-    // The freelancer needs a private key (for ECDSA signing in acceptContract).
-    // vm.createWallet gives us both the address and the key.
-    Vm.Wallet internal _freelancerWallet;
-    address public freelancer;
+    address public freelancer = makeAddr("freelancer");
 
     address public stranger = makeAddr("stranger");
 
     // ── setUp
     // ─────────────────────────────────────────────────────────────────
     function setUp() public {
-        _freelancerWallet = vm.createWallet("freelancer");
-        freelancer = _freelancerWallet.addr;
-
         vm.deal(client, 100 ether);
         vm.deal(freelancer, 10 ether);
         vm.deal(stranger, 10 ether);
@@ -64,24 +57,15 @@ contract TrustLedgerTest is Test {
         assertEq(address(arbitration), arbitrationAddr, "address mismatch");
     }
 
-    // ─── Signing helper
-    // ───────────────────────────────────────────────────────
-    // Computes the EIP-191 signed hash and signs it with the freelancer's private key.
-    // This mirrors the on-chain ecrecover call inside acceptContract().
-    function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
-        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
-        (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
-    }
-
     // ─── Lifecycle helpers
     // ────────────────────────────────────────────────────
 
-    // Creates a contract with configurable hold-back and warranty.
+    // Freelancer proposes a contract with configurable hold-back and warranty.
+    // No funds move yet; the contract sits PENDING until the client accepts.
     function _createContract(uint16 holdBackBps, uint64 warrantyPeriod) internal returns (uint256 id) {
-        vm.prank(client);
-        id = trustLedger.createContract{value: AMOUNT}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        id = trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -91,22 +75,20 @@ contract TrustLedgerTest is Test {
             holdBackBps: holdBackBps,
             warrantyPeriod: warrantyPeriod,
             token: address(0),
-            tokenAmount: // ETH escrow
-            0 // no token amount
+            amount: AMOUNT
         });
     }
 
-    // Creates a simple ETH contract with no hold-back.
+    // Proposes a simple ETH contract with no hold-back.
     function _createSimpleContract() internal returns (uint256 id) {
         return _createContract(0, 0);
     }
 
-    // Creates and has the freelancer accept (signs + calls acceptContract).
+    // Proposes and has the client accept by funding the escrow.
     function _createAndAccept() internal returns (uint256 id) {
         id = _createSimpleContract();
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
+        vm.prank(client);
+        trustLedger.acceptContract{value: AMOUNT}(id);
     }
 
     // Creates, accepts, and submits proof of work.
@@ -139,9 +121,8 @@ contract TrustLedgerTest is Test {
     function test_HappyPath_WithHoldBack() public {
         uint256 id = _createContract(HOLD_BACK_BPS, WARRANTY_PERIOD);
 
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
+        vm.prank(client);
+        trustLedger.acceptContract{value: AMOUNT}(id);
 
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, POW_URI);
@@ -170,46 +151,48 @@ contract TrustLedgerTest is Test {
         assertEq(freelancer.balance, freelancerBefore2 + holdBack, "warranty claim mismatch");
     }
 
-    // ─── Cancel Pending
+    // ─── Cancel Proposal
     // ───────────────────────────────────────────────────────
 
-    function test_CancelPending_RefundsClient() public {
+    function test_CancelProposal_ByFreelancer() public {
         uint256 id = _createSimpleContract();
         uint256 clientBefore = client.balance;
 
-        vm.prank(client);
-        trustLedger.cancelPending(id);
+        vm.prank(freelancer);
+        trustLedger.cancelProposal(id);
 
-        assertEq(client.balance, clientBefore + AMOUNT, "cancel refund mismatch");
+        // No funds are held while PENDING, so no balances change.
+        assertEq(client.balance, clientBefore, "client balance should be unchanged");
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED));
     }
 
-    function test_CancelPending_OnlyClient_Reverts() public {
+    function test_CancelProposal_OnlyFreelancer_Reverts() public {
         uint256 id = _createSimpleContract();
         vm.expectRevert(TrustLedger.Unauthorized.selector);
         vm.prank(stranger);
-        trustLedger.cancelPending(id);
+        trustLedger.cancelProposal(id);
     }
 
-    function test_CancelPending_WrongStatus_Reverts() public {
+    function test_CancelProposal_WrongStatus_Reverts() public {
         uint256 id = _createAndAccept(); // already ACTIVE
         vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.ACTIVE));
-        vm.prank(client);
-        trustLedger.cancelPending(id);
+        vm.prank(freelancer);
+        trustLedger.cancelProposal(id);
     }
 
     // ─── Rejection
     // ────────────────────────────────────────────────────────────
 
-    function test_Rejection_RefundsClient() public {
+    function test_Rejection_ByClient() public {
         uint256 id = _createSimpleContract();
         uint256 clientBefore = client.balance;
 
-        vm.prank(freelancer);
+        vm.prank(client);
         trustLedger.rejectContract(id);
 
-        assertEq(client.balance, clientBefore + AMOUNT, "refund mismatch");
+        // No funds are held while PENDING, so nothing is refunded.
+        assertEq(client.balance, clientBefore, "client balance should be unchanged");
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED));
@@ -369,11 +352,11 @@ contract TrustLedgerTest is Test {
     // ─── Revert Conditions
     // ────────────────────────────────────────────────────
 
-    function test_Revert_CreateContract_ZeroAddress() public {
+    function test_Revert_ProposeContract_ZeroAddress() public {
         vm.expectRevert(TrustLedger.ZeroAddress.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}({
-            freelancer: address(0),
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: address(0),
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -383,15 +366,15 @@ contract TrustLedgerTest is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: AMOUNT
         });
     }
 
-    function test_Revert_CreateContract_SelfContract() public {
+    function test_Revert_ProposeContract_SelfContract() public {
         vm.expectRevert(TrustLedger.SelfContract.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}({
-            freelancer: client,
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: freelancer,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -401,15 +384,15 @@ contract TrustLedgerTest is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: AMOUNT
         });
     }
 
-    function test_Revert_CreateContract_ZeroValue() public {
+    function test_Revert_ProposeContract_ZeroAmount() public {
         vm.expectRevert(TrustLedger.InsufficientFunds.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: 0}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -419,15 +402,15 @@ contract TrustLedgerTest is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: 0
         });
     }
 
-    function test_Revert_CreateContract_InvalidBufferFactor() public {
+    function test_Revert_ProposeContract_InvalidBufferFactor() public {
         vm.expectRevert(TrustLedger.InvalidBufferFactor.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -437,15 +420,15 @@ contract TrustLedgerTest is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: AMOUNT
         });
     }
 
-    function test_Revert_CreateContract_InvalidAcceptanceWindow() public {
+    function test_Revert_ProposeContract_InvalidAcceptanceWindow() public {
         vm.expectRevert(TrustLedger.InvalidAcceptanceWindow.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -455,15 +438,15 @@ contract TrustLedgerTest is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: AMOUNT
         });
     }
 
-    function test_Revert_CreateContract_InvalidArbitrationFee() public {
+    function test_Revert_ProposeContract_InvalidArbitrationFee() public {
         vm.expectRevert(TrustLedger.InvalidArbitrationFee.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -473,15 +456,15 @@ contract TrustLedgerTest is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: AMOUNT
         });
     }
 
-    function test_Revert_CreateContract_InvalidHoldBack() public {
+    function test_Revert_ProposeContract_InvalidHoldBack() public {
         vm.expectRevert(TrustLedger.InvalidHoldBack.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -491,15 +474,15 @@ contract TrustLedgerTest is Test {
             holdBackBps: 100,
             warrantyPeriod: 7 days,
             token: address(0),
-            tokenAmount: 0
+            amount: AMOUNT
         });
     }
 
-    function test_Revert_CreateContract_HoldBackWithoutWarranty() public {
+    function test_Revert_ProposeContract_HoldBackWithoutWarranty() public {
         vm.expectRevert(TrustLedger.InvalidWarrantyPeriod.selector);
-        vm.prank(client);
-        trustLedger.createContract{value: AMOUNT}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
@@ -509,37 +492,31 @@ contract TrustLedgerTest is Test {
             holdBackBps: 1000,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: AMOUNT
         });
     }
 
     function test_Revert_AcceptContract_WrongCaller() public {
         uint256 id = _createSimpleContract();
-        // Signature is valid (signed by freelancer) but msg.sender is stranger → Unauthorized.
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
+        // Only the named client may accept and fund; a stranger is rejected.
         vm.expectRevert(TrustLedger.Unauthorized.selector);
         vm.prank(stranger);
-        trustLedger.acceptContract(id, v, r, s);
+        trustLedger.acceptContract{value: AMOUNT}(id);
     }
 
-    function test_Revert_AcceptContract_BadSignature() public {
+    function test_Revert_AcceptContract_WrongValue() public {
         uint256 id = _createSimpleContract();
-        // Sign with the wrong private key → ecrecover returns a different address → InvalidSignature.
-        Vm.Wallet memory wrongWallet = vm.createWallet("stranger");
-        bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
-        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(wrongWallet.privateKey, ethSignedHash);
-        vm.expectRevert(TrustLedger.InvalidSignature.selector);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
+        // Client must fund exactly the proposed amount; underfunding reverts.
+        vm.expectRevert(TrustLedger.InsufficientFunds.selector);
+        vm.prank(client);
+        trustLedger.acceptContract{value: AMOUNT - 1}(id);
     }
 
     function test_Revert_AcceptContract_WrongStatus() public {
         uint256 id = _createAndAccept(); // now ACTIVE
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
         vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.ACTIVE));
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
+        vm.prank(client);
+        trustLedger.acceptContract{value: AMOUNT}(id);
     }
 
     function test_Revert_ApproveWork_WrongCaller() public {

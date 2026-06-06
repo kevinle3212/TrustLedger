@@ -19,9 +19,9 @@ state transition is enforced by the EVM.
   ┌──────────────────────────────────────────────────────────────────────┐
   │                        TrustLedger.sol                               │
   │                                                                      │
-  │  createContract()    ← client locks ETH or ERC-20  [whenNotPaused]  │
-  │  acceptContract()    ← freelancer signs with ECDSA (ecrecover)       │
-  │  rejectContract()    ← freelancer declines; client refunded          │
+  │  proposeContract()   ← freelancer drafts terms     [whenNotPaused]  │
+  │  acceptContract()    ← client locks ETH or ERC-20 (funds escrow)     │
+  │  rejectContract()    ← client declines; no funds held                │
   │  submitProofOfWork() ← freelancer submits IPFS hash                  │
   │  approveWork()       ← client approves; funds released               │
   │  disputeWork()       ← client disputes; fee pool forwarded ──────────┼──►
@@ -90,22 +90,22 @@ state transition is enforced by the EVM.
 ### On-Chain Flow
 
 ```text
-Client                  TrustLedger             Freelancer
+Freelancer              TrustLedger             Client
   │                         │                       │
-  │── createContract() ─────►│ (ETH locked)          │
-  │                         │─── ContractCreated ───►│
+  │── proposeContract() ────►│ (no funds yet)        │
+  │                         │─── ContractProposed ──►│
   │                         │                       │
-  │                         │◄── acceptContract(v,r,s) (ECDSA sig) ──│
-  │                         │  ecrecover verifies signer             │
+  │                         │◄── acceptContract(){value} (escrow funded) ──│
+  │                         │  client funds; deadline starts               │
   │                         │─── ContractAccepted ──►│
   │                         │                       │
-  │                         │◄── submitProofOfWork(hash, uri) ────────│
+  │── submitProofOfWork(hash, uri) ─►│              │
   │                         │  acceptanceDeadline set                │
   │                         │─── ProofSubmitted ────►│
   │                         │                       │
-  │── approveWork() ────────►│                       │
-  │                         │── FundsReleased ───────────────────────►│
-  │                         │  (amount - holdBack)                   │
+  │                         │◄────────── approveWork() ──────────────│
+  │◄── FundsReleased ───────│                       │
+  │   (amount - holdBack)   │                       │
   │                         │                       │
   │── submitRating(score) ──►│─── ReputationRegistry.rate() ──────────►│
   │                         │◄─ submitRating(score) ──────────────────│
@@ -114,47 +114,45 @@ Client                  TrustLedger             Freelancer
 
 ### Frontend Magic Link Flow (Precedes On-Chain Acceptance)
 
-The client fills in the freelancer's email on the create-contract page. After
-the `createContract` transaction confirms, the frontend extracts the contract ID
-from the `ContractCreated` event log and calls the Next.js API to send a signed
-magic link.
+The freelancer fills in the client's email on the propose-contract page. After
+the `proposeContract` transaction confirms, the frontend extracts the contract
+ID from the `ContractProposed` event log and calls the Next.js API to send a
+signed magic link to the client.
 
 ```text
-Client browser          Next.js API             Email            Freelancer browser
+Freelancer browser      Next.js API             Email            Client browser
   │                         │                      │                       │
-  │── createContract() tx ──►│ (on-chain)           │                       │
+  │── proposeContract() tx ─►│ (on-chain)           │                       │
   │   (confirms; id parsed) │                      │                       │
   │                         │                      │                       │
   │─ POST /api/magic-link/send ─────────────────────────────────────────   │
-  │   {contractId, freelancerEmail, freelancerAddress}                      │
+  │   {contractId, clientEmail, clientAddress}                              │
   │                         │                      │                       │
   │                         │ signMagicToken()      │                       │
   │                         │ (HMAC-SHA256, 72h exp)│                       │
   │                         │─── Resend email ─────►│─── link in inbox ────►│
   │◄── {ok: true} ──────────│                      │                       │
   │                         │                      │                       │
-  │                         │                      │   /freelancer/accept?token=…
+  │                         │                      │      /client/accept?token=…
   │                         │◄── GET /api/magic-link/verify?token=… ───────│
   │                         │    (HMAC + expiry check)                      │
   │                         │─── {ok, payload} ────────────────────────────►│
   │                         │                      │                       │
-  │                         │   (reads getContract on-chain)               │
+  │                         │   (reads getContract; inline decrypt-to-view)│
   │                         │                      │                       │
-  │                         │   (wallet connect prompt; must match freelancerAddress)
+  │                         │   (wallet connect prompt; must match clientAddress)
   │                         │                      │                       │
-  │                         │   signMessage(keccak256(id, freelancerAddress))
-  │                         │◄──────────────────────────────── sig (v, r, s)│
-  │                         │                      │                       │
-  │                         │◄─ acceptContract(id, v, r, s) ───────────────│
-  │                         │   (ecrecover verifies signer on-chain)       │
+  │                         │◄─ acceptContract(id){value} ─────────────────│
+  │                         │   (funds escrow; or rejectContract(id))      │
   │                         │─── ContractAccepted ─────────────────────────►│
   │                         │   project deadline timer starts              │
 ```
 
 The magic link is single-use by design: the contract's status machine
-(`PENDING → ACTIVE`) is irreversible on-chain, so a replayed token will simply
-find the contract in a non-PENDING state and the `acceptContract` call will
-revert with `InvalidStatus`. No server-side token revocation store is required.
+(`PENDING → ACTIVE`/`CANCELLED`) is irreversible on-chain, so a replayed token
+will simply find the contract in a non-PENDING state and the `acceptContract`
+call will revert with `InvalidStatus`. No server-side token revocation store is
+required.
 
 ---
 
@@ -450,12 +448,12 @@ minimize the number of slots used (and therefore gas costs).
 
 ### `TrustLedger` contract-level state (outside `EscrowContract`)
 
-| Variable             | Type                    | Description                                                 |
-| -------------------- | ----------------------- | ----------------------------------------------------------- |
-| `nextId`             | `uint256`               | Auto-incrementing escrow ID counter.                        |
-| `priceFeed`          | `AggregatorV3Interface` | Optional Chainlink ETH/USD feed.                            |
-| `reputationRegistry` | `IReputationRegistry`   | Optional reputation registry.                               |
-| `pauser`             | `address`               | Optional address allowed to pause/unpause `createContract`. |
+| Variable             | Type                    | Description                                                  |
+| -------------------- | ----------------------- | ------------------------------------------------------------ |
+| `nextId`             | `uint256`               | Auto-incrementing escrow ID counter.                         |
+| `priceFeed`          | `AggregatorV3Interface` | Optional Chainlink ETH/USD feed.                             |
+| `reputationRegistry` | `IReputationRegistry`   | Optional reputation registry.                                |
+| `pauser`             | `address`               | Optional address allowed to pause/unpause `proposeContract`. |
 
 ### `Dispute` (Arbitration)
 

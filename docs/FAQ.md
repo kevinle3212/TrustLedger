@@ -38,17 +38,21 @@ protocol.
 
 ## For clients
 
-### How do I hire a freelancer?
+### How do I engage a client?
 
-Call `createContract(...)` (or use the dashboard), which locks your funds and
-records the freelancer address, the off-chain agreement's `keccak256` hash, and
-an IPFS URI. See the [happy-path example](CONTRACTS.md#example-interactions).
+As a freelancer, call `proposeContract(...)` (or use the dashboard) to draft the
+terms: the client address, the off-chain agreement's `keccak256` hash, an IPFS
+URI, and the escrow amount. No funds move until the client accepts and funds the
+escrow with `acceptContract(...)`. See the
+[happy-path example](CONTRACTS.md#example-interactions).
 
-### What happens if the freelancer never responds?
+### What happens if the client never funds the proposal?
 
-While the contract is still `PENDING`, you can call `cancelPending(id)` to
-reclaim your funds. If the freelancer accepted but then misses the project
-deadline without submitting work, call `claimAfterDeadlineMiss(id)`.
+While the contract is still `PENDING`, the freelancer can call
+`cancelProposal(id)` to withdraw it (no funds are held), and the client may
+`rejectContract(id)`. If the client funded the escrow but the freelancer then
+misses the project deadline without submitting work, the client calls
+`claimAfterDeadlineMiss(id)`.
 
 ### What if I'm not happy with the delivered work?
 

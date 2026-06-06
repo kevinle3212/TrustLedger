@@ -14,33 +14,33 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	if (apiKey === undefined || apiKey === "")
 		return NextResponse.json({ error: "RESEND_API_KEY not set" }, { status: 500 });
 
-	let body: { contractId?: unknown; freelancerEmail?: unknown; freelancerAddress?: unknown };
+	let body: { contractId?: unknown; clientEmail?: unknown; clientAddress?: unknown };
 	try {
 		body = (await req.json()) as typeof body;
 	} catch {
 		return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
 	}
 
-	const { contractId, freelancerEmail, freelancerAddress } = body;
+	const { contractId, clientEmail, clientAddress } = body;
 	if (typeof contractId !== "string" || contractId === "")
 		return NextResponse.json({ error: "contractId required" }, { status: 400 });
-	if (typeof freelancerEmail !== "string" || !freelancerEmail.includes("@"))
-		return NextResponse.json({ error: "valid freelancerEmail required" }, { status: 400 });
-	if (typeof freelancerAddress !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(freelancerAddress))
-		return NextResponse.json({ error: "valid freelancerAddress required" }, { status: 400 });
+	if (typeof clientEmail !== "string" || !clientEmail.includes("@"))
+		return NextResponse.json({ error: "valid clientEmail required" }, { status: 400 });
+	if (typeof clientAddress !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(clientAddress))
+		return NextResponse.json({ error: "valid clientAddress required" }, { status: 400 });
 
 	const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString("hex");
 	const exp = Math.floor(Date.now() / 1000) + EXPIRY_SECONDS;
 
 	const token = await signMagicToken(
-		{ contractId, freelancerEmail, freelancerAddress, nonce, exp },
+		{ contractId, clientEmail, clientAddress, nonce, exp },
 		secret,
 	);
 
-	const link = `${appUrl}/freelancer/accept?token=${encodeURIComponent(token)}`;
+	const link = `${appUrl}/client/accept?token=${encodeURIComponent(token)}`;
 
 	const result = await sendEmail({
-		to: freelancerEmail,
+		to: clientEmail,
 		subject: `You have a new contract to review - TrustLedger #${contractId}`,
 		html: buildEmail(link, contractId),
 	});
@@ -56,11 +56,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 // single-use, wallet-bound caveat is the only copy specific to this flow.
 function buildEmail(link: string, contractId: string): string {
 	return emailShell(
-		"New Escrow Contract",
-		`Contract <strong>#${contractId}</strong> is awaiting your review and acceptance.<br /><br />
-		 Click the button below to review the contract details and connect your wallet to accept.
-		 This link expires in 72 hours and is single-use.`,
-		{ label: "Review &amp; Accept Contract", href: link },
+		"New Escrow Contract Proposal",
+		`A freelancer has proposed contract <strong>#${contractId}</strong> and it is awaiting your review.<br /><br />
+		 Click the button below to review the terms, securely view the contract document, and connect
+		 your wallet to accept (locking the escrow) or reject. This link expires in 72 hours.`,
+		{ label: "Review Proposal", href: link },
 		"If you were not expecting this email, you can ignore it. Do not share this link — it is tied to your wallet address.",
 	);
 }

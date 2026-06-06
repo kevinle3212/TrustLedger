@@ -151,9 +151,9 @@ async function main(): Promise<void> {
 	// ── Step 4: Create escrow + dispute ───────────────────────────────────────
 	console.log("Step 3 - Creating contract and opening dispute...");
 	const createTx = await tl
-		.connect(client)
-		.createContract(
-			await freelancer.getAddress(),
+		.connect(freelancer)
+		.proposeContract(
+			await client.getAddress(),
 			ethers.keccak256(ethers.toUtf8Bytes("juror-demo-contract")),
 			"ipfs://QmJurorDemo",
 			30 * 24 * 3600,
@@ -163,11 +163,10 @@ async function main(): Promise<void> {
 			0,
 			0,
 			ethers.ZeroAddress,
-			0n,
-			{ value: ethers.parseEther("1") },
+			ethers.parseEther("1"),
 		);
 	const createReceipt = await createTx.wait();
-	if (createReceipt === null) throw new Error("createContract not mined");
+	if (createReceipt === null) throw new Error("proposeContract not mined");
 	const contractId = createReceipt.logs
 		.map((l): LogDescription | null => {
 			try {
@@ -176,17 +175,14 @@ async function main(): Promise<void> {
 				return null;
 			}
 		})
-		.find((e): e is LogDescription => e !== null && e.name === "ContractCreated")?.args[0] as
+		.find((e): e is LogDescription => e !== null && e.name === "ContractProposed")?.args[0] as
 		| bigint
 		| undefined;
-	if (contractId === undefined) throw new Error("ContractCreated not found");
+	if (contractId === undefined) throw new Error("ContractProposed not found");
 
-	const innerHash = ethers.solidityPackedKeccak256(
-		["uint256", "address"],
-		[contractId, await freelancer.getAddress()],
-	);
-	const sig = ethers.Signature.from(await freelancer.signMessage(ethers.getBytes(innerHash)));
-	await (await tl.connect(freelancer).acceptContract(contractId, sig.v, sig.r, sig.s)).wait();
+	await (
+		await tl.connect(client).acceptContract(contractId, { value: ethers.parseEther("1") })
+	).wait();
 	await (
 		await tl
 			.connect(freelancer)

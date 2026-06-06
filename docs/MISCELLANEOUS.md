@@ -156,7 +156,7 @@ set, a JWT input field is shown in the UI at runtime.
 After upload the IPFS URI is auto-filled into the form, and `contractHash` is
 computed from the uploaded bytes - not the URI string - so on-chain tamper
 detection covers actual file content. Both the hash and the URI are **required
-by the contract**: `createContract` reverts with `EmptyHash` if
+by the contract**: `proposeContract` reverts with `EmptyHash` if
 `contractHash == bytes32(0)` and `EmptyURI` if `contractURI` is empty. The same
 enforcement applies to `submitProofOfWork` - `powHash` and `powURI` must both be
 provided. The UI computes the hash client-side before the Pinata upload so the
@@ -181,36 +181,36 @@ upload and can be noted alongside the IPFS URI.
 
 ---
 
-### Magic Link (Freelancer Email Onboarding)
+### Magic Link (Client Email Onboarding)
 
-When a client creates a contract and provides the freelancer's email address,
+When a freelancer proposes a contract and provides the client's email address,
 the frontend automatically sends a signed magic link after the transaction
-confirms. The link lets the freelancer review the contract and accept it through
-a browser without needing prior wallet setup.
+confirms. The link lets the client review the contract, securely view the
+(optionally encrypted) document, and accept or reject it through a browser.
 
 **Flow:**
 
-1. Client fills in `Freelancer Email` on the create-contract page.
-2. After `createContract` confirms on-chain, the frontend parses the
-   `ContractCreated` event log to extract the contract ID, then calls
+1. Freelancer fills in `Client Email` on the propose-contract page.
+2. After `proposeContract` confirms on-chain, the frontend parses the
+   `ContractProposed` event log to extract the contract ID, then calls
    `POST /api/magic-link/send`.
-3. The API generates an HMAC-SHA256 token (payload: `contractId`,
-   `freelancerEmail`, `freelancerAddress`, `nonce`, 72-hour expiry) and sends an
-   HTML email via Resend.
-4. Freelancer opens `/freelancer/accept?token=…` in their browser.
+3. The API generates an HMAC-SHA256 token (payload: `contractId`, `clientEmail`,
+   `clientAddress`, `nonce`, 72-hour expiry) and sends an HTML email via Resend.
+4. Client opens `/client/accept?token=…` in their browser.
 5. The page calls `GET /api/magic-link/verify` to validate the HMAC signature
    and expiry server-side.
 6. The page reads the contract from chain via `getContract`, shows the terms,
-   and prompts wallet connection.
-7. The connected wallet must match `freelancerAddress` encoded in the token -
+   and offers an inline AES-256-GCM decrypt panel to view encrypted documents
+   before deciding, then prompts wallet connection.
+7. The connected wallet must match `clientAddress` encoded in the token -
    mismatches are blocked.
-8. The freelancer signs
-   `keccak256(abi.encodePacked(contractId, freelancerAddress))` via
-   `signMessage` (EIP-191 personal sign).
-9. The page extracts `v, r, s` from the signature and calls
-   `acceptContract(id, v, r, s)` on-chain.
-10. The contract transitions `PENDING → ACTIVE`; the project deadline timer
-    starts.
+8. To accept, the client calls `acceptContract(id)` with `value` equal to the
+   proposed amount (ERC-20 escrows pre-approve instead); the funding transaction
+   is the client's consent, so no separate signature is required. To decline,
+   the client calls `rejectContract(id)`.
+9. On acceptance the contract transitions `PENDING → ACTIVE`, the escrow is
+   funded, and the project deadline timer starts; on rejection it moves to
+   `CANCELLED` with no funds moved.
 
 **Single-use guarantee:** The token carries no server-side revocation state.
 Idempotency comes entirely from the contract's irreversible status machine - a
@@ -292,21 +292,21 @@ where the freelance market has the most liquidity and lowest gas costs at launch
 time. Foundry deploy scripts accept `--rpc-url` as a parameter, so switching
 chains requires only changing the network flag.
 
-**Contract amendment via invalidation and replacement.** When a client needs to
-renegotiate terms before the freelancer has accepted, the amendment flow is:
-`cancelPending(oldId)` → `createContract(...)` → `linkAmendment(newId, oldId)`.
-This produces a permanent on-chain version chain: each contract stores
-`previousContractId` pointing to its cancelled predecessor (`type(uint256).max`
-= original). The amendment history is fully reconstructable from events
-(`ContractCancelled` + `ContractAmended`) without any trusted intermediary.
-Amendments are only possible while the contract is `PENDING` - once a freelancer
-accepts (`ACTIVE`), renegotiation requires mutual off-chain agreement and a new
-contract from scratch.
+**Contract amendment via invalidation and replacement.** When a freelancer needs
+to revise terms before the client has funded, the amendment flow is:
+`cancelProposal(oldId)` → `proposeContract(...)` →
+`linkAmendment(newId, oldId)`. This produces a permanent on-chain version chain:
+each contract stores `previousContractId` pointing to its cancelled predecessor
+(`type(uint256).max` = original). The amendment history is fully reconstructable
+from events (`ContractCancelled` + `ContractAmended`) without any trusted
+intermediary. Amendments are only possible while the contract is `PENDING` -
+once the client accepts (`ACTIVE`), renegotiation requires mutual off-chain
+agreement and a new contract from scratch.
 
 **Minimal privileged role - pauser only.** There is no `owner` or `admin` role
 in any contract. The only privilege is the optional `pauser` address on
-`TrustLedger`, set once via `initPauser()`. It can pause `createContract` to
-block new deposits during an incident, but cannot touch funds already in
+`TrustLedger`, set once via `initPauser()`. It can pause `proposeContract` to
+block new proposals during an incident, but cannot touch funds already in
 escrow - all lifecycle exits remain open. If `initPauser` is never called, pause
 is permanently unavailable. Every other state transition is fully on-chain and
 permissionless from the participants' perspective.

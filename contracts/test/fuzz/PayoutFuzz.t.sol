@@ -15,7 +15,7 @@ pragma solidity ^0.8.24;
 //   - Deadlines are always in the future.
 //   - Hold-back amounts stay within their declared percentage bounds.
 
-import {Test, Vm} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {Arbitration} from "./../../src/Arbitration.sol";
 import {JurorRegistry} from "./../../src/JurorRegistry.sol";
 import {TrustLedger} from "./../../src/TrustLedger.sol";
@@ -29,16 +29,9 @@ contract PayoutFuzz is Test {
     JurorRegistry public jurorRegistry;
 
     address public client = makeAddr("client");
-
-    // The freelancer wallet is created via vm.createWallet to obtain the private key
-    // needed for signing the ECDSA acceptance in acceptContract().
-    Vm.Wallet internal _freelancerWallet;
-    address public freelancer;
+    address public freelancer = makeAddr("freelancer");
 
     function setUp() public {
-        _freelancerWallet = vm.createWallet("freelancer");
-        freelancer = _freelancerWallet.addr;
-
         // Give the client enough ETH for even the largest fuzz inputs.
         // type(uint128).max ≈ 3.4 × 10^38 wei. Uint128 is used as the fuzz input
         // type because uint256 amounts could overflow intermediate calculations.
@@ -53,17 +46,11 @@ contract PayoutFuzz is Test {
         arbitration = new Arbitration(address(trustLedger), address(jurorRegistry));
     }
 
-    function _signAccept(uint256 id) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        bytes32 innerHash = keccak256(abi.encodePacked(id, freelancer));
-        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", innerHash));
-        (v, r, s) = vm.sign(_freelancerWallet.privateKey, ethSignedHash);
-    }
-
-    /// Creates a contract, accepts it, and submits proof of work with no hold-back.
+    /// Proposes a contract, has the client accept and fund it, and submits proof of work with no hold-back.
     function _createSubmitted(uint128 amount, uint16 arbitrationFeeBps) internal returns (uint256 id) {
-        vm.prank(client);
-        id = trustLedger.createContract{value: amount}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        id = trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: "ipfs://contract",
             estimatedDuration: 30 days,
@@ -73,11 +60,10 @@ contract PayoutFuzz is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: amount
         });
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
+        vm.prank(client);
+        trustLedger.acceptContract{value: amount}(id);
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
     }
@@ -172,9 +158,9 @@ contract PayoutFuzz is Test {
 
         uint256 ts = vm.getBlockTimestamp();
 
-        vm.prank(client);
-        uint256 id = trustLedger.createContract{value: 1 ether}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        uint256 id = trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: "ipfs://contract",
             estimatedDuration: estimatedDuration,
@@ -184,8 +170,13 @@ contract PayoutFuzz is Test {
             holdBackBps: 0,
             warrantyPeriod: 0,
             token: address(0),
-            tokenAmount: 0
+            amount: 1 ether
         });
+
+        // The deadline only becomes absolute once the client accepts (same block here, so ts is
+        // unchanged). Before acceptance projectDeadline holds the relative buffered duration.
+        vm.prank(client);
+        trustLedger.acceptContract{value: 1 ether}(id);
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
 
@@ -212,9 +203,9 @@ contract PayoutFuzz is Test {
         // cause many rejected runs and slow down the fuzzer).
         uint16 holdBackBps = uint16(500 + (uint256(holdBackBpsRaw) % 1001));
 
-        vm.prank(client);
-        uint256 id = trustLedger.createContract{value: amount}({
-            freelancer: freelancer,
+        vm.prank(freelancer);
+        uint256 id = trustLedger.proposeContract({
+            client: client,
             contractHash: CONTRACT_HASH,
             contractURI: "ipfs://contract",
             estimatedDuration: 30 days,
@@ -224,12 +215,11 @@ contract PayoutFuzz is Test {
             holdBackBps: holdBackBps,
             warrantyPeriod: 7 days,
             token: address(0),
-            tokenAmount: 0
+            amount: amount
         });
 
-        (uint8 v, bytes32 r, bytes32 s) = _signAccept(id);
-        vm.prank(freelancer);
-        trustLedger.acceptContract(id, v, r, s);
+        vm.prank(client);
+        trustLedger.acceptContract{value: amount}(id);
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, "ipfs://pow");
         vm.prank(client);

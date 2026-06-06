@@ -21,12 +21,12 @@ freelancer and enforces the contract lifecycle.
 
 ### State
 
-| Name                 | Type                    | Description                                                                   |
-| -------------------- | ----------------------- | ----------------------------------------------------------------------------- |
-| `nextId`             | `uint256`               | Auto-incrementing escrow contract ID counter.                                 |
-| `priceFeed`          | `AggregatorV3Interface` | Optional Chainlink ETH/USD feed; zero if unset.                               |
-| `reputationRegistry` | `IReputationRegistry`   | Optional reputation registry; zero if unset.                                  |
-| `pauser`             | `address`               | Optional address authorized to pause/unpause `createContract`; zero if unset. |
+| Name                 | Type                    | Description                                                                    |
+| -------------------- | ----------------------- | ------------------------------------------------------------------------------ |
+| `nextId`             | `uint256`               | Auto-incrementing escrow contract ID counter.                                  |
+| `priceFeed`          | `AggregatorV3Interface` | Optional Chainlink ETH/USD feed; zero if unset.                                |
+| `reputationRegistry` | `IReputationRegistry`   | Optional reputation registry; zero if unset.                                   |
+| `pauser`             | `address`               | Optional address authorized to pause/unpause `proposeContract`; zero if unset. |
 
 ### Constants
 
@@ -50,15 +50,15 @@ freelancer and enforces the contract lifecycle.
 The escrow lifecycle state, stored on-chain as a `uint8`. See
 [Architecture](ARCHITECTURE.md) for the full state machine.
 
-| Value | Name        | Meaning                                                                                         |
-| ----- | ----------- | ----------------------------------------------------------------------------------------------- |
-| 0     | `PENDING`   | Contract created; freelancer has not responded yet.                                             |
-| 1     | `ACTIVE`    | Freelancer accepted; project deadline is counting down.                                         |
-| 2     | `SUBMITTED` | Freelancer submitted proof-of-work; acceptance window running.                                  |
-| 3     | `APPROVED`  | Client approved, or the acceptance window elapsed (auto-release).                               |
-| 4     | `DISPUTED`  | Client opened a dispute; awaiting arbitration.                                                  |
-| 5     | `RESOLVED`  | Arbitration finalized and the ruling was executed.                                              |
-| 6     | `CANCELLED` | Freelancer rejected, client cancelled while pending, or client reclaimed after a deadline miss. |
+| Value | Name        | Meaning                                                                                       |
+| ----- | ----------- | --------------------------------------------------------------------------------------------- |
+| 0     | `PENDING`   | Freelancer proposed terms; client has not funded/responded yet.                               |
+| 1     | `ACTIVE`    | Client accepted and funded the escrow; project deadline is counting down.                     |
+| 2     | `SUBMITTED` | Freelancer submitted proof-of-work; acceptance window running.                                |
+| 3     | `APPROVED`  | Client approved, or the acceptance window elapsed (auto-release).                             |
+| 4     | `DISPUTED`  | Client opened a dispute; awaiting arbitration.                                                |
+| 5     | `RESOLVED`  | Arbitration finalized and the ruling was executed.                                            |
+| 6     | `CANCELLED` | Client rejected, freelancer withdrew the proposal, or client reclaimed after a deadline miss. |
 
 #### `EscrowContract` struct
 
@@ -94,11 +94,11 @@ struct EscrowContract {
 
 ### Functions
 
-#### `createContract`
+#### `proposeContract`
 
 ```solidity
-function createContract(
-    address freelancer,
+function proposeContract(
+    address client,
     bytes32 contractHash,
     string calldata contractURI,
     uint256 estimatedDuration,
@@ -108,16 +108,20 @@ function createContract(
     uint16  holdBackBps,
     uint64  warrantyPeriod,
     address token,
-    uint256 tokenAmount
-) external payable returns (uint256 id)
+    uint256 amount
+) external returns (uint256 id)
 ```
 
-Creates an escrow contract and locks funds. For ETH: set `token = address(0)`,
-`tokenAmount = 0`, send ETH as `msg.value`. For ERC-20: set `token` to the token
-address, `tokenAmount` to the amount, `msg.value = 0` (pre-approve the contract
-first).
+The freelancer (caller) proposes an escrow contract. **No funds move yet** - the
+named `client` locks the escrow when they accept. For ETH escrow set
+`token = address(0)`; for ERC-20 set `token` to the token address. `amount` is
+the escrow the client will lock on acceptance (wei or token units) and must be
+non-zero. The function is non-payable.
 
-`projectDeadline = block.timestamp + (estimatedDuration × bufferFactor) / 1000`
+The project deadline counts from acceptance, not proposal: `proposeContract`
+stores the buffered duration `(estimatedDuration × bufferFactor) / 1000`, and
+`acceptContract` converts it to an absolute
+`projectDeadline = block.timestamp + bufferedDuration` when the client funds.
 
 Reverts with `EnforcedPause` when the contract is paused. Call `unpause()`
 first.
@@ -130,20 +134,24 @@ pointer. `contractURI` must be a non-empty IPFS URI (e.g. `ipfs://<CID>`); both
 are required - passing a zero hash or empty URI reverts with `EmptyHash` or
 `EmptyURI`.
 
-Emits `ContractCreated`.
+Emits `ContractProposed`.
 
 ---
 
 #### `acceptContract`
 
 ```solidity
-function acceptContract(uint256 id, uint8 v, bytes32 r, bytes32 s) external
+function acceptContract(uint256 id) external payable
 ```
 
-Freelancer accepts the contract by submitting an EIP-191 ECDSA signature over
-`keccak256(abi.encodePacked(id, freelancerAddress))`. The contract recovers the
-signer and reverts if it does not match `freelancer`. Transitions status to
-`ACTIVE`.
+The client (caller) accepts the freelancer's proposal and funds the escrow in
+the same transaction - the funding transaction is the client's consent, so no
+separate signature is required. For ETH escrow send `msg.value == amount`; for
+ERC-20 send no ETH and pre-approve the contract for `amount`, which is pulled
+via `transferFrom`. Reverts with `Unauthorized` if the caller is not the client,
+`InsufficientFunds` if `msg.value` does not equal the proposed amount, or
+`InvalidTokenParams` if ETH is sent with a token escrow. Transitions status to
+`ACTIVE` and starts the project deadline.
 
 Emits `ContractAccepted`.
 
@@ -155,8 +163,8 @@ Emits `ContractAccepted`.
 function rejectContract(uint256 id) external
 ```
 
-Freelancer rejects the contract. Funds are returned to the client. Status
-transitions to `CANCELLED`.
+The client rejects the freelancer's proposal. No funds are held while `PENDING`,
+so nothing is transferred. Status transitions to `CANCELLED`.
 
 Emits `ContractRejected`.
 
@@ -250,14 +258,15 @@ Emits `WarrantyFundsClaimed`.
 
 ---
 
-#### `cancelPending`
+#### `cancelProposal`
 
 ```solidity
-function cancelPending(uint256 id) external
+function cancelProposal(uint256 id) external
 ```
 
-Client cancels a contract that is still `PENDING` (before the freelancer
-responds). Funds returned to client. Status transitions to `CANCELLED`.
+The freelancer withdraws their own `PENDING` proposal (before the client funds
+it). No funds are held, so nothing is transferred. Status transitions to
+`CANCELLED`.
 
 Emits `ContractCancelled`.
 
@@ -269,15 +278,15 @@ Emits `ContractCancelled`.
 function linkAmendment(uint256 newId, uint256 previousId) external
 ```
 
-Links a `PENDING` replacement contract to its `CANCELLED` predecessor,
+Links a `PENDING` replacement proposal to its `CANCELLED` predecessor,
 establishing an on-chain amendment version history. The caller must be the
-client on both contracts. `previousId` must be `CANCELLED`; `newId` must be
+freelancer on both contracts. `previousId` must be `CANCELLED`; `newId` must be
 `PENDING` and not already linked.
 
 Amendment flow:
 
-1. `cancelPending(oldId)` - invalidates the existing contract, returns funds.
-2. `createContract(...)` - creates the replacement with updated terms and a new
+1. `cancelProposal(oldId)` - withdraws the existing proposal.
+2. `proposeContract(...)` - creates the replacement with updated terms and a new
    `contractHash`.
 3. `linkAmendment(newId, oldId)` - records the on-chain link; the
    `previousContractId` field on the new contract becomes `oldId`.
@@ -368,10 +377,11 @@ is permanently unavailable.
 function pause() external
 ```
 
-Pauses `createContract`, blocking new escrows from being opened. All in-flight
-lifecycle functions (`acceptContract`, `submitProofOfWork`, `approveWork`,
-`disputeWork`, claim functions) remain active so that funds already in escrow
-can always exit. Reverts with `NotPauser` if the caller is not `pauser`.
+Pauses `proposeContract`, blocking new escrows from being proposed. All
+in-flight lifecycle functions (`acceptContract`, `submitProofOfWork`,
+`approveWork`, `disputeWork`, claim functions) remain active so that funds
+already in escrow can always exit. Reverts with `NotPauser` if the caller is not
+`pauser`.
 
 Emits `Paused` (OpenZeppelin standard event).
 
@@ -383,7 +393,7 @@ Emits `Paused` (OpenZeppelin standard event).
 function unpause() external
 ```
 
-Restores `createContract` to normal operation. Reverts with `NotPauser` if the
+Restores `proposeContract` to normal operation. Reverts with `NotPauser` if the
 caller is not `pauser`.
 
 Emits `Unpaused` (OpenZeppelin standard event).
@@ -404,7 +414,7 @@ Returns the full `EscrowContract` struct for a given escrow ID.
 
 | Event                  | Parameters                             |
 | ---------------------- | -------------------------------------- |
-| `ContractCreated`      | `id`, `client`, `freelancer`, `amount` |
+| `ContractProposed`     | `id`, `client`, `freelancer`, `amount` |
 | `ContractAccepted`     | `id`                                   |
 | `ContractRejected`     | `id`                                   |
 | `ProofSubmitted`       | `id`, `powHash`, `powURI`              |
@@ -419,34 +429,33 @@ Returns the full `EscrowContract` struct for a given escrow ID.
 
 ### Errors
 
-| Error                     | Trigger                                                              |
-| ------------------------- | -------------------------------------------------------------------- |
-| `Unauthorized`            | Caller is not the expected party for this action.                    |
-| `InvalidStatus`           | Contract is not in the required state.                               |
-| `DeadlineNotElapsed`      | Project deadline has not passed yet.                                 |
-| `DeadlineElapsed`         | Project deadline has already passed.                                 |
-| `WindowNotElapsed`        | Acceptance or warranty window has not expired.                       |
-| `WindowElapsed`           | Acceptance window has already closed.                                |
-| `InvalidBufferFactor`     | Buffer factor is below the minimum of 1.1×.                          |
-| `InvalidAcceptanceWindow` | Acceptance window is below 48 hours.                                 |
-| `InvalidArbitrationFee`   | Fee is zero or exceeds 50%.                                          |
-| `InvalidHoldBack`         | Hold-back is outside the allowed range.                              |
-| `InvalidWarrantyPeriod`   | Hold-back and warranty period must both be set or both be zero.      |
-| `InsufficientFunds`       | No ETH sent for ETH escrow, or no token amount for ERC-20 escrow.    |
-| `ZeroAddress`             | Freelancer address is the zero address.                              |
-| `SelfContract`            | Client cannot hire themselves.                                       |
-| `EthTransferFailed`       | Low-level ETH transfer returned false.                               |
-| `TokenTransferFailed`     | ERC-20 transfer returned false.                                      |
-| `InvalidTokenParams`      | Mismatch between token field and funding (e.g. ETH sent with token). |
-| `InvalidSignature`        | ECDSA recovery does not match the freelancer's address.              |
-| `RatingOutOfRange`        | Score is outside 1-100.                                              |
-| `RatingAlreadySubmitted`  | This party has already rated for this contract.                      |
-| `ContractNotFinished`     | Contract has not reached `APPROVED` or `RESOLVED`.                   |
-| `AlreadySet`              | One-time setter was already called.                                  |
-| `NotPauser`               | Caller is not the designated pauser address.                         |
-| `EmptyHash`               | `contractHash` or `proofOfWorkHash` is `bytes32(0)`.                 |
-| `EmptyURI`                | `contractURI` or `proofOfWorkURI` is an empty string.                |
-| `InvalidPreviousContract` | `previousId` is not `CANCELLED`, or caller is not its client.        |
+| Error                     | Trigger                                                                  |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `Unauthorized`            | Caller is not the expected party for this action.                        |
+| `InvalidStatus`           | Contract is not in the required state.                                   |
+| `DeadlineNotElapsed`      | Project deadline has not passed yet.                                     |
+| `DeadlineElapsed`         | Project deadline has already passed.                                     |
+| `WindowNotElapsed`        | Acceptance or warranty window has not expired.                           |
+| `WindowElapsed`           | Acceptance window has already closed.                                    |
+| `InvalidBufferFactor`     | Buffer factor is below the minimum of 1.1×.                              |
+| `InvalidAcceptanceWindow` | Acceptance window is below 48 hours.                                     |
+| `InvalidArbitrationFee`   | Fee is zero or exceeds 50%.                                              |
+| `InvalidHoldBack`         | Hold-back is outside the allowed range.                                  |
+| `InvalidWarrantyPeriod`   | Hold-back and warranty period must both be set or both be zero.          |
+| `InsufficientFunds`       | Proposed amount is zero, or `msg.value` ≠ the proposed amount on accept. |
+| `ZeroAddress`             | Client address is the zero address.                                      |
+| `SelfContract`            | Freelancer cannot propose a contract to themselves as client.            |
+| `EthTransferFailed`       | Low-level ETH transfer returned false.                                   |
+| `TokenTransferFailed`     | ERC-20 transfer returned false.                                          |
+| `InvalidTokenParams`      | Mismatch between token field and funding (e.g. ETH sent with token).     |
+| `RatingOutOfRange`        | Score is outside 1-100.                                                  |
+| `RatingAlreadySubmitted`  | This party has already rated for this contract.                          |
+| `ContractNotFinished`     | Contract has not reached `APPROVED` or `RESOLVED`.                       |
+| `AlreadySet`              | One-time setter was already called.                                      |
+| `NotPauser`               | Caller is not the designated pauser address.                             |
+| `EmptyHash`               | `contractHash` or `proofOfWorkHash` is `bytes32(0)`.                     |
+| `EmptyURI`                | `contractURI` or `proofOfWorkURI` is an empty string.                    |
+| `InvalidPreviousContract` | `previousId` is not `CANCELLED`, or caller is not its freelancer.        |
 
 ---
 
@@ -1012,56 +1021,42 @@ the `keccak256` of the actual file bytes (computed off-chain before upload) and
 non-zero, and `contractURI`/`proofOfWorkURI` must be non-empty IPFS URIs.
 Zero/empty values revert with `EmptyHash` / `EmptyURI`.
 
-### Happy path (client creates → freelancer accepts → submits → client approves)
+### Happy path (propose → accept & fund → submit → approve)
 
 ```bash
 TL=0x...                       # TrustLedger address
 RPC=$SEPOLIA_RPC_URL
-FREELANCER=0x...
+CLIENT=0x...
 HASH=$(cast keccak "$(cat agreement.pdf)")   # keccak256 of the document bytes
 
-# 1. Client creates a 0.5 ETH escrow.
-#    args: freelancer, contractHash, contractURI, estimatedDuration (7d),
+# 1. Freelancer proposes a 0.5 ETH escrow (no funds move yet).
+#    args: client, contractHash, contractURI, estimatedDuration (7d),
 #          bufferFactor (1.1x), acceptanceWindow (48h), arbitrationFeeBps (5%),
-#          holdBackBps (10%), warrantyPeriod (14d), token (ETH=0), tokenAmount (0)
+#          holdBackBps (10%), warrantyPeriod (14d), token (ETH=0), amount (0.5e18)
 cast send "$TL" \
-  "createContract(address,bytes32,string,uint256,uint256,uint256,uint16,uint16,uint64,address,uint256)" \
-  "$FREELANCER" "$HASH" "ipfs://<CID>" \
+  "proposeContract(address,bytes32,string,uint256,uint256,uint256,uint16,uint16,uint64,address,uint256)" \
+  "$CLIENT" "$HASH" "ipfs://<CID>" \
   604800 1100 172800 500 1000 1209600 \
-  0x0000000000000000000000000000000000000000 0 \
-  --value 0.5ether --rpc-url "$RPC" --private-key "$CLIENT_KEY"
-# -> emits ContractCreated(id, client, freelancer, amount); first id is 1
+  0x0000000000000000000000000000000000000000 500000000000000000 \
+  --rpc-url "$RPC" --private-key "$FREELANCER_KEY"
+# -> emits ContractProposed(id, client, freelancer, amount); first id is 1
 ```
 
-The freelancer accepts with a wallet signature over
-`keccak256(abi.encodePacked(id, freelancerAddress))`, signed with the EIP-191
-prefix (`eth_sign` / `personal_sign`). viem applies the prefix automatically
-when signing a `raw` hash:
+The client accepts by funding the escrow in the same transaction - the funding
+transaction itself is consent, so no signature is needed:
 
 ```ts
-import {
-    createWalletClient,
-    http,
-    encodePacked,
-    keccak256,
-    hexToSignature,
-} from "viem";
+import { createWalletClient, http, parseEther } from "viem";
 
 const id = 1n;
-const innerHash = keccak256(
-    encodePacked(["uint256", "address"], [id, freelancer]),
-);
-const signature = await walletClient.signMessage({
-    message: { raw: innerHash },
-});
-const { v, r, s } = hexToSignature(signature);
 
-// 2. Freelancer accepts -> status ACTIVE
+// 2. Client accepts -> escrow funded, status ACTIVE
 await walletClient.writeContract({
     address: TL,
     abi,
     functionName: "acceptContract",
-    args: [id, Number(v), r, s],
+    args: [id],
+    value: parseEther("0.5"),
 });
 ```
 
@@ -1127,7 +1122,7 @@ import { parseAbiItem } from "viem";
 const logs = await publicClient.getLogs({
     address: TL,
     event: parseAbiItem(
-        "event ContractCreated(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount)",
+        "event ContractProposed(uint256 indexed id, address indexed client, address indexed freelancer, uint256 amount)",
     ),
     fromBlock: deployBlock,
 });

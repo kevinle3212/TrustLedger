@@ -62,11 +62,11 @@ async function main(): Promise<void> {
 	console.log();
 
 	// ── Step 3: Gas benchmark - ETH escrow ───────────────────────────────────
-	console.log("Step 3 - Gas benchmark: ETH escrow createContract...");
+	console.log("Step 3 - Gas benchmark: ETH escrow proposeContract...");
 	const ethCreateTx = await tl
-		.connect(client)
-		.createContract(
-			await freelancer.getAddress(),
+		.connect(freelancer)
+		.proposeContract(
+			await client.getAddress(),
 			ethers.keccak256(ethers.toUtf8Bytes("eth-benchmark")),
 			"ipfs://QmEthBenchmark",
 			30 * 24 * 3600,
@@ -76,11 +76,10 @@ async function main(): Promise<void> {
 			0,
 			0,
 			ethers.ZeroAddress,
-			0n,
-			{ value: ethers.parseEther("1") },
+			ethers.parseEther("1"),
 		);
 	const ethReceipt = await ethCreateTx.wait();
-	if (ethReceipt === null) throw new Error("ETH createContract not mined");
+	if (ethReceipt === null) throw new Error("ETH proposeContract not mined");
 	const ethGasUsed = ethReceipt.gasUsed;
 	const ethContractId = ethReceipt.logs
 		.map((l): LogDescription | null => {
@@ -90,23 +89,22 @@ async function main(): Promise<void> {
 				return null;
 			}
 		})
-		.find((e): e is LogDescription => e !== null && e.name === "ContractCreated")?.args[0] as
+		.find((e): e is LogDescription => e !== null && e.name === "ContractProposed")?.args[0] as
 		| bigint
 		| undefined;
-	if (ethContractId === undefined) throw new Error("ContractCreated not found");
+	if (ethContractId === undefined) throw new Error("ContractProposed not found");
 	console.log(`  ok ETH escrow gas : ${ethGasUsed.toString()}`);
 
-	// Cancel the ETH benchmark contract to recover funds
-	await (await tl.connect(client).cancelPending(ethContractId)).wait();
-	console.log(`  ok ETH benchmark contract cancelled (funds returned)`);
+	// Withdraw the ETH benchmark proposal (no funds were held, so nothing to refund)
+	await (await tl.connect(freelancer).cancelProposal(ethContractId)).wait();
+	console.log(`  ok ETH benchmark proposal withdrawn`);
 	console.log();
 
 	// ── Step 4: Gas benchmark - ERC-20 escrow ────────────────────────────────
-	console.log("Step 4 - Gas benchmark: ERC-20 escrow createContract...");
-	await (await token.connect(client).approve(TRUST_LEDGER, ESCROW_AMOUNT)).wait();
+	console.log("Step 4 - Gas benchmark: ERC-20 escrow proposeContract...");
 
-	const erc20CreateTx = await tl.connect(client).createContract(
-		await freelancer.getAddress(),
+	const erc20CreateTx = await tl.connect(freelancer).proposeContract(
+		await client.getAddress(),
 		ethers.keccak256(ethers.toUtf8Bytes("stablecoin-escrow-v1")),
 		"ipfs://QmStablecoinDemo",
 		30 * 24 * 3600,
@@ -116,11 +114,10 @@ async function main(): Promise<void> {
 		0,
 		0,
 		tokenAddress,
-		ESCROW_AMOUNT,
-		// No msg.value - tokens are pulled via transferFrom
+		ESCROW_AMOUNT, // tokens are pulled from the client on acceptContract
 	);
 	const erc20Receipt = await erc20CreateTx.wait();
-	if (erc20Receipt === null) throw new Error("ERC-20 createContract not mined");
+	if (erc20Receipt === null) throw new Error("ERC-20 proposeContract not mined");
 	const erc20GasUsed = erc20Receipt.gasUsed;
 	const contractId = erc20Receipt.logs
 		.map((l): LogDescription | null => {
@@ -130,20 +127,16 @@ async function main(): Promise<void> {
 				return null;
 			}
 		})
-		.find((e): e is LogDescription => e !== null && e.name === "ContractCreated")?.args[0] as
+		.find((e): e is LogDescription => e !== null && e.name === "ContractProposed")?.args[0] as
 		| bigint
 		| undefined;
-	if (contractId === undefined) throw new Error("ContractCreated not found");
-
-	const clientBalanceAfterCreate = await token.balanceOf(client.address);
-	const contractTokenBalance = await token.balanceOf(TRUST_LEDGER);
+	if (contractId === undefined) throw new Error("ContractProposed not found");
 
 	console.log(`  ok ERC-20 escrow gas : ${erc20GasUsed.toString()}`);
 	console.log(`  ok Contract ID       : ${contractId.toString()}`);
 	console.log(
-		`  ok Client balance    : ${ethers.formatUnits(clientBalanceAfterCreate, 18)} MOCK (was 2000, locked 1000)`,
+		`  ok ${ethers.formatUnits(ESCROW_AMOUNT, 18)} MOCK will lock when the client accepts`,
 	);
-	console.log(`  ok Locked in escrow  : ${ethers.formatUnits(contractTokenBalance, 18)} MOCK`);
 	console.log();
 
 	// ── Gas comparison summary ────────────────────────────────────────────────
@@ -157,14 +150,17 @@ async function main(): Promise<void> {
 	console.log(`          price exposure while keeping gas costs the same as ETH escrows.`);
 	console.log();
 
-	// ── Step 5: Freelancer accepts ────────────────────────────────────────────
-	console.log("Step 5 - Freelancer accepts the contract...");
-	const innerHash = ethers.solidityPackedKeccak256(
-		["uint256", "address"],
-		[contractId, await freelancer.getAddress()],
+	// ── Step 5: Client accepts, funding the escrow with tokens ────────────────
+	console.log("Step 5 - Client approves tokens and accepts the contract...");
+	await (await token.connect(client).approve(TRUST_LEDGER, ESCROW_AMOUNT)).wait();
+	await (await tl.connect(client).acceptContract(contractId)).wait();
+
+	const clientBalanceAfterAccept = await token.balanceOf(client.address);
+	const contractTokenBalance = await token.balanceOf(TRUST_LEDGER);
+	console.log(
+		`  ok Client balance    : ${ethers.formatUnits(clientBalanceAfterAccept, 18)} MOCK (locked ${ethers.formatUnits(ESCROW_AMOUNT, 18)})`,
 	);
-	const sig = ethers.Signature.from(await freelancer.signMessage(ethers.getBytes(innerHash)));
-	await (await tl.connect(freelancer).acceptContract(contractId, sig.v, sig.r, sig.s)).wait();
+	console.log(`  ok Locked in escrow  : ${ethers.formatUnits(contractTokenBalance, 18)} MOCK`);
 	console.log("  ok Accepted");
 	console.log();
 

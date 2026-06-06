@@ -99,8 +99,8 @@ docker compose up demo-good
 Starts the Hardhat node, deploys all three contracts, then runs the happy-path
 demo:
 
-1. Client deposits 1 ETH into escrow.
-2. Freelancer signs acceptance (ECDSA wallet binding).
+1. Freelancer proposes a 1 ETH escrow.
+2. Client accepts, depositing 1 ETH into escrow.
 3. Freelancer submits proof of work (IPFS hash).
 4. Client approves → **1 ETH released to freelancer.**
 
@@ -162,7 +162,7 @@ Starts the node, deploys (including `ReputationRegistry`), then runs
 `scripts/demo/demo-stablecoin.ts`:
 
 1. Deploys a `MockERC20` stablecoin and mints tokens to the client.
-2. Gas benchmark: `createContract` with ETH vs ERC-20 escrow.
+2. Gas benchmark: `proposeContract` with ETH vs ERC-20 escrow.
 3. Full happy path on token escrow (accept → submit → approve).
 4. Both parties call `submitRating`; scores read back from `ReputationRegistry`.
 
@@ -288,15 +288,15 @@ types. Balance diffs are verified at each payout step.
 | Group                  | What it covers                                                                                     |
 | ---------------------- | -------------------------------------------------------------------------------------------------- |
 | Deployment             | Contract addresses and immutable references wired correctly                                        |
-| Happy path             | Create → accept (ECDSA signature) → submit proof of work → approve → full ETH payout               |
-| Cancel pending         | Client cancels before freelancer accepts; full refund verified by balance diff                     |
-| Rejection              | Freelancer rejects; client refunded; status set to `CANCELLED`                                     |
+| Happy path             | Propose → accept (client funds escrow) → submit proof of work → approve → full ETH payout          |
+| Cancel proposal        | Freelancer withdraws proposal before funding; no funds held; status set to `CANCELLED`             |
+| Rejection              | Client rejects proposal; no funds held; status set to `CANCELLED`                                  |
 | Deadline miss          | Client reclaims escrow after project deadline passes                                               |
 | Acceptance window      | Freelancer auto-claims release after acceptance window elapses via `evm_increaseTime`              |
 | Hold-back and warranty | Partial payout on approval; warranty clock; full release after period                              |
 | Dispute flow           | Fee pool transferred to `Arbitration`; status set to `DISPUTED`; dispute opened on-chain           |
 | `executeRuling`        | 0%, 100%, and 50% split payouts each verified by balance diff                                      |
-| Revert cases           | Invalid inputs: zero address, self-contract, bad signature, wrong caller, wrong status             |
+| Revert cases           | Invalid inputs: zero address, self-contract, zero/wrong amount, wrong caller, wrong status         |
 | ERC-20 escrow          | Full lifecycle (create, approve, reject, cancel, warranty, dispute, ruling) with token not ETH     |
 | Chainlink price feed   | USD value stored on creation; zero when price feed returns ≤ 0; double-init reverts                |
 | VRF mock               | VRF randomness requested on dispute open; jurors pre-selected; non-VRF commits rejected            |
@@ -309,15 +309,15 @@ types. Balance diffs are verified at each payout step.
 Solidity-native tests targeting `TrustLedger.sol` using Foundry `vm` cheatcodes
 for time travel, address pranking, and revert matching.
 
-| Group              | What it covers                                                                                                         |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| Happy path         | Create/accept/submit/approve with and without hold-back                                                                |
-| Cancel / reject    | Refund paths and status transitions                                                                                    |
-| Deadline / window  | Client reclaim and auto-release flows                                                                                  |
-| Dispute and ruling | Fee pool routing; 0%, 50%, and 100% payout splits                                                                      |
-| Payout math        | Fuzz over `completionPct`: client + freelancer receipts always equal escrowed total                                    |
-| Revert guards      | All invalid-input paths across `createContract`, `acceptContract`, `approveWork`, `executeRuling`, `submitProofOfWork` |
-| Ancillary          | Rating no-op when registry unset; `nextId` increments after each creation                                              |
+| Group              | What it covers                                                                                                          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Happy path         | Create/accept/submit/approve with and without hold-back                                                                 |
+| Cancel / reject    | Refund paths and status transitions                                                                                     |
+| Deadline / window  | Client reclaim and auto-release flows                                                                                   |
+| Dispute and ruling | Fee pool routing; 0%, 50%, and 100% payout splits                                                                       |
+| Payout math        | Fuzz over `completionPct`: client + freelancer receipts always equal escrowed total                                     |
+| Revert guards      | All invalid-input paths across `proposeContract`, `acceptContract`, `approveWork`, `executeRuling`, `submitProofOfWork` |
+| Ancillary          | Rating no-op when registry unset; `nextId` increments after each creation                                               |
 
 #### `JurorRegistryTest.t.sol` - Foundry unit tests (22 tests)
 

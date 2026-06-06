@@ -1,103 +1,314 @@
 export const TRUSTLEDGER_ABI = [
 	{
-		inputs: [{ internalType: "address", name: "arbitration_", type: "address" }],
+		inputs: [
+			{
+				internalType: "address",
+				name: "arbitration_",
+				type: "address",
+			},
+		],
 		stateMutability: "nonpayable",
 		type: "constructor",
 	},
-	{ inputs: [], name: "AlreadySet", type: "error" },
-	{ inputs: [], name: "CompletionPctOutOfRange", type: "error" },
-	{ inputs: [], name: "ContractNotFinished", type: "error" },
-	{ inputs: [], name: "DeadlineElapsed", type: "error" },
-	{ inputs: [], name: "DeadlineNotElapsed", type: "error" },
-	{ inputs: [], name: "EmptyHash", type: "error" },
-	{ inputs: [], name: "EmptyURI", type: "error" },
-	{ inputs: [], name: "EnforcedPause", type: "error" },
-	{ inputs: [], name: "EthTransferFailed", type: "error" },
-	{ inputs: [], name: "ExpectedPause", type: "error" },
-	{ inputs: [], name: "InsufficientFunds", type: "error" },
-	{ inputs: [], name: "InvalidAcceptanceWindow", type: "error" },
-	{ inputs: [], name: "InvalidArbitrationFee", type: "error" },
-	{ inputs: [], name: "InvalidBufferFactor", type: "error" },
-	{ inputs: [], name: "InvalidHoldBack", type: "error" },
-	{ inputs: [], name: "InvalidPreviousContract", type: "error" },
-	{ inputs: [], name: "InvalidSignature", type: "error" },
 	{
-		inputs: [{ internalType: "enum TrustLedger.Status", name: "current", type: "uint8" }],
+		inputs: [],
+		name: "AlreadySet",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "CompletionPctOutOfRange",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ContractNotFinished",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "DeadlineElapsed",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "DeadlineNotElapsed",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "EmptyHash",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "EmptyURI",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "EnforcedPause",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "EthTransferFailed",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ExpectedPause",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InsufficientFunds",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidAcceptanceWindow",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidArbitrationFee",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidBufferFactor",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidHoldBack",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidPreviousContract",
+		type: "error",
+	},
+	{
+		inputs: [
+			{
+				internalType: "enum TrustLedger.Status",
+				name: "current",
+				type: "uint8",
+			},
+		],
 		name: "InvalidStatus",
 		type: "error",
 	},
-	{ inputs: [], name: "InvalidTokenParams", type: "error" },
-	{ inputs: [], name: "InvalidWarrantyPeriod", type: "error" },
-	{ inputs: [], name: "NotPauser", type: "error" },
-	{ inputs: [], name: "RatingAlreadySubmitted", type: "error" },
-	{ inputs: [], name: "RatingOutOfRange", type: "error" },
-	{ inputs: [], name: "ReentrancyGuardReentrantCall", type: "error" },
-	{ inputs: [], name: "SelfContract", type: "error" },
-	{ inputs: [], name: "TokenTransferFailed", type: "error" },
-	{ inputs: [], name: "Unauthorized", type: "error" },
-	{ inputs: [], name: "WindowElapsed", type: "error" },
-	{ inputs: [], name: "WindowNotElapsed", type: "error" },
-	{ inputs: [], name: "ZeroAddress", type: "error" },
+	{
+		inputs: [],
+		name: "InvalidTokenParams",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidWarrantyPeriod",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "NotPauser",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "RatingAlreadySubmitted",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "RatingOutOfRange",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ReentrancyGuardReentrantCall",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "SelfContract",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "TokenTransferFailed",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "Unauthorized",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "WindowElapsed",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "WindowNotElapsed",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ZeroAddress",
+		type: "error",
+	},
 	{
 		anonymous: false,
-		inputs: [{ indexed: true, internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "ContractAccepted",
 		type: "event",
 	},
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "newId", type: "uint256" },
-			{ indexed: true, internalType: "uint256", name: "previousId", type: "uint256" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "newId",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "previousId",
+				type: "uint256",
+			},
 		],
 		name: "ContractAmended",
 		type: "event",
 	},
 	{
 		anonymous: false,
-		inputs: [{ indexed: true, internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "ContractCancelled",
 		type: "event",
 	},
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "id", type: "uint256" },
-			{ indexed: true, internalType: "address", name: "client", type: "address" },
-			{ indexed: true, internalType: "address", name: "freelancer", type: "address" },
-			{ indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "client",
+				type: "address",
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "freelancer",
+				type: "address",
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "amount",
+				type: "uint256",
+			},
 		],
-		name: "ContractCreated",
+		name: "ContractProposed",
 		type: "event",
 	},
 	{
 		anonymous: false,
-		inputs: [{ indexed: true, internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "ContractRejected",
 		type: "event",
 	},
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "id", type: "uint256" },
-			{ indexed: true, internalType: "address", name: "to", type: "address" },
-			{ indexed: true, internalType: "uint256", name: "amount", type: "uint256" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "to",
+				type: "address",
+			},
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "amount",
+				type: "uint256",
+			},
 		],
 		name: "FundsReleased",
 		type: "event",
 	},
 	{
 		anonymous: false,
-		inputs: [{ indexed: false, internalType: "address", name: "account", type: "address" }],
+		inputs: [
+			{
+				indexed: false,
+				internalType: "address",
+				name: "account",
+				type: "address",
+			},
+		],
 		name: "Paused",
 		type: "event",
 	},
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "id", type: "uint256" },
-			{ indexed: true, internalType: "bytes32", name: "powHash", type: "bytes32" },
-			{ indexed: false, internalType: "string", name: "powURI", type: "string" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "bytes32",
+				name: "powHash",
+				type: "bytes32",
+			},
+			{
+				indexed: false,
+				internalType: "string",
+				name: "powURI",
+				type: "string",
+			},
 		],
 		name: "ProofSubmitted",
 		type: "event",
@@ -105,9 +316,24 @@ export const TRUSTLEDGER_ABI = [
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "id", type: "uint256" },
-			{ indexed: true, internalType: "address", name: "rater", type: "address" },
-			{ indexed: false, internalType: "uint8", name: "score", type: "uint8" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "rater",
+				type: "address",
+			},
+			{
+				indexed: true,
+				internalType: "uint8",
+				name: "score",
+				type: "uint8",
+			},
 		],
 		name: "RatingSubmitted",
 		type: "event",
@@ -115,39 +341,88 @@ export const TRUSTLEDGER_ABI = [
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "id", type: "uint256" },
-			{ indexed: true, internalType: "uint256", name: "completionPct", type: "uint256" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "completionPct",
+				type: "uint256",
+			},
 		],
 		name: "RulingExecuted",
 		type: "event",
 	},
 	{
 		anonymous: false,
-		inputs: [{ indexed: false, internalType: "address", name: "account", type: "address" }],
+		inputs: [
+			{
+				indexed: false,
+				internalType: "address",
+				name: "account",
+				type: "address",
+			},
+		],
 		name: "Unpaused",
 		type: "event",
 	},
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "id", type: "uint256" },
-			{ indexed: true, internalType: "address", name: "freelancer", type: "address" },
-			{ indexed: true, internalType: "uint256", name: "amount", type: "uint256" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "freelancer",
+				type: "address",
+			},
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "amount",
+				type: "uint256",
+			},
 		],
 		name: "WarrantyFundsClaimed",
 		type: "event",
 	},
 	{
 		anonymous: false,
-		inputs: [{ indexed: true, internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "WorkApproved",
 		type: "event",
 	},
 	{
 		anonymous: false,
 		inputs: [
-			{ indexed: true, internalType: "uint256", name: "id", type: "uint256" },
-			{ indexed: true, internalType: "uint256", name: "arbitrationId", type: "uint256" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "arbitrationId",
+				type: "uint256",
+			},
 		],
 		name: "WorkDisputed",
 		type: "event",
@@ -155,94 +430,193 @@ export const TRUSTLEDGER_ABI = [
 	{
 		inputs: [],
 		name: "ARBITRATION",
-		outputs: [{ internalType: "contract IArbitration", name: "", type: "address" }],
+		outputs: [
+			{
+				internalType: "contract IArbitration",
+				name: "",
+				type: "address",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "BPS_DENOMINATOR",
-		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "FRIVOLOUS_DISPUTE_THRESHOLD",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "MAX_ARBITRATION_FEE_BPS",
-		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "MAX_HOLD_BACK_BPS",
-		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "MIN_ACCEPTANCE_WINDOW",
-		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "MIN_BUFFER_FACTOR",
-		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "MIN_HOLD_BACK_BPS",
-		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [],
+		name: "POOR_WORK_THRESHOLD",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [
-			{ internalType: "uint256", name: "id", type: "uint256" },
-			{ internalType: "uint8", name: "v", type: "uint8" },
-			{ internalType: "bytes32", name: "r", type: "bytes32" },
-			{ internalType: "bytes32", name: "s", type: "bytes32" },
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
 		],
 		name: "acceptContract",
 		outputs: [],
-		stateMutability: "nonpayable",
+		stateMutability: "payable",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "approveWork",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
-		name: "cancelPending",
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
+		name: "cancelProposal",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "claimAfterAcceptanceWindow",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "claimAfterDeadlineMiss",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "claimWarrantyFunds",
 		outputs: [],
 		stateMutability: "nonpayable",
@@ -250,25 +624,12 @@ export const TRUSTLEDGER_ABI = [
 	},
 	{
 		inputs: [
-			{ internalType: "address", name: "freelancer", type: "address" },
-			{ internalType: "bytes32", name: "contractHash", type: "bytes32" },
-			{ internalType: "string", name: "contractURI", type: "string" },
-			{ internalType: "uint256", name: "estimatedDuration", type: "uint256" },
-			{ internalType: "uint256", name: "bufferFactor", type: "uint256" },
-			{ internalType: "uint256", name: "acceptanceWindow", type: "uint256" },
-			{ internalType: "uint16", name: "arbitrationFeeBps", type: "uint16" },
-			{ internalType: "uint16", name: "holdBackBps", type: "uint16" },
-			{ internalType: "uint64", name: "warrantyPeriod", type: "uint64" },
-			{ internalType: "address", name: "token", type: "address" },
-			{ internalType: "uint256", name: "tokenAmount", type: "uint256" },
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
 		],
-		name: "createContract",
-		outputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
-		stateMutability: "payable",
-		type: "function",
-	},
-	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
 		name: "disputeWork",
 		outputs: [],
 		stateMutability: "payable",
@@ -276,8 +637,16 @@ export const TRUSTLEDGER_ABI = [
 	},
 	{
 		inputs: [
-			{ internalType: "uint256", name: "id", type: "uint256" },
-			{ internalType: "uint256", name: "completionPct", type: "uint256" },
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				internalType: "uint256",
+				name: "completionPct",
+				type: "uint256",
+			},
 		],
 		name: "executeRuling",
 		outputs: [],
@@ -285,34 +654,120 @@ export const TRUSTLEDGER_ABI = [
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "getContract",
 		outputs: [
 			{
 				components: [
-					{ internalType: "address", name: "client", type: "address" },
-					{ internalType: "uint16", name: "arbitrationFeeBps", type: "uint16" },
-					{ internalType: "uint16", name: "holdBackBps", type: "uint16" },
-					{ internalType: "enum TrustLedger.Status", name: "status", type: "uint8" },
-					{ internalType: "address", name: "freelancer", type: "address" },
-					{ internalType: "uint64", name: "warrantyDeadline", type: "uint64" },
-					{ internalType: "uint64", name: "projectDeadline", type: "uint64" },
-					{ internalType: "uint64", name: "acceptanceWindow", type: "uint64" },
-					{ internalType: "uint64", name: "acceptanceDeadline", type: "uint64" },
-					{ internalType: "uint64", name: "warrantyPeriod", type: "uint64" },
-					{ internalType: "uint256", name: "amount", type: "uint256" },
-					{ internalType: "uint256", name: "holdBackAmount", type: "uint256" },
-					{ internalType: "uint256", name: "arbitrationId", type: "uint256" },
-					{ internalType: "bytes32", name: "contractHash", type: "bytes32" },
-					{ internalType: "string", name: "contractURI", type: "string" },
-					{ internalType: "bytes32", name: "proofOfWorkHash", type: "bytes32" },
-					{ internalType: "string", name: "proofOfWorkURI", type: "string" },
-					{ internalType: "address", name: "token", type: "address" },
-					{ internalType: "uint256", name: "usdValueAtCreation", type: "uint256" },
-					{ internalType: "uint256", name: "previousContractId", type: "uint256" },
+					{
+						internalType: "address",
+						name: "client",
+						type: "address",
+					},
+					{
+						internalType: "uint16",
+						name: "arbitrationFeeBps",
+						type: "uint16",
+					},
+					{
+						internalType: "uint16",
+						name: "holdBackBps",
+						type: "uint16",
+					},
+					{
+						internalType: "enum TrustLedger.Status",
+						name: "status",
+						type: "uint8",
+					},
+					{
+						internalType: "address",
+						name: "freelancer",
+						type: "address",
+					},
+					{
+						internalType: "uint64",
+						name: "warrantyDeadline",
+						type: "uint64",
+					},
+					{
+						internalType: "uint64",
+						name: "projectDeadline",
+						type: "uint64",
+					},
+					{
+						internalType: "uint64",
+						name: "acceptanceWindow",
+						type: "uint64",
+					},
+					{
+						internalType: "uint64",
+						name: "acceptanceDeadline",
+						type: "uint64",
+					},
+					{
+						internalType: "uint64",
+						name: "warrantyPeriod",
+						type: "uint64",
+					},
+					{
+						internalType: "uint256",
+						name: "amount",
+						type: "uint256",
+					},
+					{
+						internalType: "uint256",
+						name: "holdBackAmount",
+						type: "uint256",
+					},
+					{
+						internalType: "uint256",
+						name: "arbitrationId",
+						type: "uint256",
+					},
+					{
+						internalType: "bytes32",
+						name: "contractHash",
+						type: "bytes32",
+					},
+					{
+						internalType: "string",
+						name: "contractURI",
+						type: "string",
+					},
+					{
+						internalType: "bytes32",
+						name: "proofOfWorkHash",
+						type: "bytes32",
+					},
+					{
+						internalType: "string",
+						name: "proofOfWorkURI",
+						type: "string",
+					},
+					{
+						internalType: "address",
+						name: "token",
+						type: "address",
+					},
+					{
+						internalType: "uint256",
+						name: "usdValueAtCreation",
+						type: "uint256",
+					},
+					{
+						internalType: "uint256",
+						name: "previousContractId",
+						type: "uint256",
+					},
 				],
 				internalType: "struct TrustLedger.EscrowContract",
-				name: "",
+				name: "result",
 				type: "tuple",
 			},
 		],
@@ -320,21 +775,39 @@ export const TRUSTLEDGER_ABI = [
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "address", name: "pauser_", type: "address" }],
+		inputs: [
+			{
+				internalType: "address",
+				name: "pauser_",
+				type: "address",
+			},
+		],
 		name: "initPauser",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "address", name: "feed_", type: "address" }],
+		inputs: [
+			{
+				internalType: "address",
+				name: "feed_",
+				type: "address",
+			},
+		],
 		name: "initPriceFeed",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "address", name: "registry_", type: "address" }],
+		inputs: [
+			{
+				internalType: "address",
+				name: "registry_",
+				type: "address",
+			},
+		],
 		name: "initReputationRegistry",
 		outputs: [],
 		stateMutability: "nonpayable",
@@ -342,8 +815,16 @@ export const TRUSTLEDGER_ABI = [
 	},
 	{
 		inputs: [
-			{ internalType: "uint256", name: "newId", type: "uint256" },
-			{ internalType: "uint256", name: "previousId", type: "uint256" },
+			{
+				internalType: "uint256",
+				name: "newId",
+				type: "uint256",
+			},
+			{
+				internalType: "uint256",
+				name: "previousId",
+				type: "uint256",
+			},
 		],
 		name: "linkAmendment",
 		outputs: [],
@@ -353,7 +834,13 @@ export const TRUSTLEDGER_ABI = [
 	{
 		inputs: [],
 		name: "nextId",
-		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "",
+				type: "uint256",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
@@ -367,26 +854,119 @@ export const TRUSTLEDGER_ABI = [
 	{
 		inputs: [],
 		name: "paused",
-		outputs: [{ internalType: "bool", name: "", type: "bool" }],
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "pauser",
-		outputs: [{ internalType: "address", name: "", type: "address" }],
+		outputs: [
+			{
+				internalType: "address",
+				name: "",
+				type: "address",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [],
 		name: "priceFeed",
-		outputs: [{ internalType: "contract AggregatorV3Interface", name: "", type: "address" }],
+		outputs: [
+			{
+				internalType: "contract AggregatorV3Interface",
+				name: "",
+				type: "address",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
-		inputs: [{ internalType: "uint256", name: "id", type: "uint256" }],
+		inputs: [
+			{
+				internalType: "address",
+				name: "client",
+				type: "address",
+			},
+			{
+				internalType: "bytes32",
+				name: "contractHash",
+				type: "bytes32",
+			},
+			{
+				internalType: "string",
+				name: "contractURI",
+				type: "string",
+			},
+			{
+				internalType: "uint256",
+				name: "estimatedDuration",
+				type: "uint256",
+			},
+			{
+				internalType: "uint256",
+				name: "bufferFactor",
+				type: "uint256",
+			},
+			{
+				internalType: "uint256",
+				name: "acceptanceWindow",
+				type: "uint256",
+			},
+			{
+				internalType: "uint16",
+				name: "arbitrationFeeBps",
+				type: "uint16",
+			},
+			{
+				internalType: "uint16",
+				name: "holdBackBps",
+				type: "uint16",
+			},
+			{
+				internalType: "uint64",
+				name: "warrantyPeriod",
+				type: "uint64",
+			},
+			{
+				internalType: "address",
+				name: "token",
+				type: "address",
+			},
+			{
+				internalType: "uint256",
+				name: "amount",
+				type: "uint256",
+			},
+		],
+		name: "proposeContract",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "rejectContract",
 		outputs: [],
 		stateMutability: "nonpayable",
@@ -395,15 +975,33 @@ export const TRUSTLEDGER_ABI = [
 	{
 		inputs: [],
 		name: "reputationRegistry",
-		outputs: [{ internalType: "contract IReputationRegistry", name: "", type: "address" }],
+		outputs: [
+			{
+				internalType: "contract IReputationRegistry",
+				name: "",
+				type: "address",
+			},
+		],
 		stateMutability: "view",
 		type: "function",
 	},
 	{
 		inputs: [
-			{ internalType: "uint256", name: "id", type: "uint256" },
-			{ internalType: "bytes32", name: "powHash", type: "bytes32" },
-			{ internalType: "string", name: "powURI", type: "string" },
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				internalType: "bytes32",
+				name: "powHash",
+				type: "bytes32",
+			},
+			{
+				internalType: "string",
+				name: "powURI",
+				type: "string",
+			},
 		],
 		name: "submitProofOfWork",
 		outputs: [],
@@ -412,8 +1010,16 @@ export const TRUSTLEDGER_ABI = [
 	},
 	{
 		inputs: [
-			{ internalType: "uint256", name: "id", type: "uint256" },
-			{ internalType: "uint8", name: "score", type: "uint8" },
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+			{
+				internalType: "uint8",
+				name: "score",
+				type: "uint8",
+			},
 		],
 		name: "submitRating",
 		outputs: [],

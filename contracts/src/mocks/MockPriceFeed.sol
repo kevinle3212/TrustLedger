@@ -14,7 +14,7 @@ pragma solidity ^0.8.24;
 /// @author Kevin Le, Kellen Snider
 /// @notice Test-only Chainlink AggregatorV3Interface substitute.
 ///         Returns a configurable int256 price from latestRoundData() so tests
-///         can verify ETH/USD locking behaviour in TrustLedger.createContract().
+///         can verify ETH/USD locking behaviour in TrustLedger.acceptContract().
 contract MockPriceFeed {
     // ─── State
     // ────────────────────────────────────────────────────────────────

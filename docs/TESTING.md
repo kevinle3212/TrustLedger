@@ -68,7 +68,10 @@ flows as the Foundry unit tests but exercised via the TypeScript API.
 
 - `deployContracts()` - deploys all five contracts fresh; called in
   `beforeEach`.
-- `createContract(opts?)` - creates a contract and returns its `contractId`.
+- `createContract(opts?)` - the freelancer proposes a contract and returns its
+  `contractId` (no funds locked yet).
+- `createAndAccept(opts?)` - proposes, then the client accepts and funds the
+  escrow.
 - `createAcceptAndSubmit(opts?)` - runs the full happy path up to SUBMITTED
   status.
 - `impersonate(addr)` - wraps `hardhat_impersonateAccount` + `ethers.getSigner`.
@@ -81,8 +84,8 @@ flows as the Foundry unit tests but exercised via the TypeScript API.
 - Time is manipulated with `hardhat_mine` / `evm_increaseTime` JSON-RPC calls
   instead of `vm.warp()`.
 - All on-chain integers are `BigInt` (ethers v6); never mix with `number`.
-- `acceptContract` requires a real ECDSA signature computed with
-  `wallet.signMessage`.
+- `acceptContract` is called by the client with `{ value: amount }` to fund the
+  escrow (ERC-20 escrows approve first); no signature is involved.
 - `expect(...).to.emit(...)` replaces `assertEq` / `assertTrue`.
 
 ### Running a single test
