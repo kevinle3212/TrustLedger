@@ -263,6 +263,33 @@ mainnet launch deliverables.
 
 ## Phase 4 — Core Contract Lifecycle Features
 
+- [ ] Support dual-role accounts so a single wallet can operate as both a client
+      and a freelancer, with a persistent role toggle in the UI.
+    - Add a role-switching control (for example a toggle or dropdown in the
+      navbar) that sets the active role to `client` or `freelancer`. Store the
+      preference in `localStorage` and propagate it via a React context so all
+      pages respond without a full reload.
+    - Filter the dashboard, contract creation flow, and notifications to the
+      active role. A wallet that has contracts as both parties should see the
+      correct subset for each view.
+    - No smart-contract changes are required — the contracts already track both
+      parties by address. This is purely a frontend routing and state concern.
+
+- [ ] Add USDC as a supported payment currency alongside ETH.
+    - The escrow contract currently operates in the native chain token (ETH).
+      Add an ERC-20 payment path: accept a `tokenAddress` (address(0) for ETH, a
+      USDC contract address otherwise) and use `IERC20.transferFrom` /
+      `IERC20.transfer` in fund, release, and refund flows.
+    - Validate the token address on-chain against an allowlist (ETH + approved
+      stablecoins) to prevent arbitrary ERC-20 abuse.
+    - Update the contract-creation UI to let the client choose ETH or USDC, and
+      surface the currency on every contract card and detail page.
+    - Add `approve` UX before funding: the client must approve the escrow
+      contract to spend their USDC before `fundContract()` succeeds.
+    - Document the USDC contract addresses for each supported network in
+      `.env.example` (e.g. `NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA`,
+      `NEXT_PUBLIC_USDC_ADDRESS_BASE`).
+
 - [ ] Allow clients and freelancers to create a contract within the platform,
       see live edits, and update the contract terms before deployment.
     - Build a contract creation and editing interface where users enter the
@@ -459,6 +486,22 @@ mainnet launch deliverables.
       or dispute resolution, such as delivery confirmations or work-completion
       status from third-party platforms, to help automate parts of the contract
       lifecycle.
+
+- [ ] Evaluate and implement SOL (Solana) support as a second chain.
+    - **Decision gate first:** determine whether SOL means (a) deploying an
+      equivalent Anchor program on Solana so users on Solana can use TrustLedger
+      natively, or (b) accepting SOL as a payment token on an EVM chain via a
+      bridge (e.g. Wormhole). Document the chosen approach and its trade-offs in
+      `NOTES.md` before writing any code.
+    - If option (a): implement the escrow, reputation, and arbitration programs
+      in Anchor, wire a Solana wallet adapter (e.g. `@solana/wallet-adapter`)
+      into the frontend, and add chain-switching logic so the UI routes to the
+      correct program depending on the connected wallet's chain.
+    - If option (b): integrate a bridge SDK, add SOL to the currency selector
+      alongside ETH and USDC, and validate lock/unlock flows end-to-end on
+      testnet before mainnet.
+    - Either path requires updating `README.md`, `.env.example`, and the docs
+      with new network addresses, setup steps, and any new tooling requirements.
 
 - [ ] Add backend services in additional languages such as Rust or Python, to
       allow more flexibility and performance for complex logic or integrations
