@@ -5,6 +5,7 @@
 .md-header__button.md-logo svg {
 	height: 1.6rem;
 	width: auto;
+	border-radius: 4px;
 }
 
 /* Slightly tighter, more readable body width on large screens. */

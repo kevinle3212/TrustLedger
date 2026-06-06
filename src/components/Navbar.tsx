@@ -47,7 +47,7 @@ export function Navbar(): React.JSX.Element {
 							alt="TrustLedger logo"
 							width={28}
 							height={28}
-							className="rounded-sm"
+							className="rounded"
 							style={{ height: "auto" }}
 						/>
 						TrustLedger
