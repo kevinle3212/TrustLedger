@@ -138,7 +138,7 @@ contract TrustLedgerClientProposeTest is Test {
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.ACTIVE));
         // projectDeadline should now be an absolute timestamp (> current block).
-        assertGt(c.projectDeadline, block.timestamp);
+        assertGt(c.projectDeadline, vm.getBlockTimestamp());
         // Funds remain in escrow.
         assertEq(address(trustLedger).balance, AMOUNT);
     }
@@ -172,7 +172,7 @@ contract TrustLedgerClientProposeTest is Test {
         assertEq(freelancer.balance, freelancerBefore + immediatePayment);
 
         // Advance past warranty and claim.
-        vm.warp(block.timestamp + WARRANTY_PERIOD + 1);
+        vm.warp(vm.getBlockTimestamp() + WARRANTY_PERIOD + 1);
         vm.prank(freelancer);
         trustLedger.claimWarrantyFunds(id);
         assertEq(freelancer.balance, freelancerBefore + AMOUNT);

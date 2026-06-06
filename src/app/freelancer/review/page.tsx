@@ -42,7 +42,7 @@ function Row({
 		<div className="flex items-start justify-between gap-4">
 			<span className="text-gray-500 shrink-0">{label}</span>
 			<span
-				className={`text-gray-900 dark:text-white text-right break-all ${mono ? "font-mono text-xs" : ""}`}
+				className={`text-gray-900 dark:text-white text-right break-all ${mono === true ? "font-mono text-xs" : ""}`}
 			>
 				{value}
 			</span>
