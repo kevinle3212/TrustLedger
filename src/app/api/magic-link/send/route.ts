@@ -14,14 +14,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	if (apiKey === undefined || apiKey === "")
 		return NextResponse.json({ error: "RESEND_API_KEY not set" }, { status: 500 });
 
-	let body: { contractId?: unknown; clientEmail?: unknown; clientAddress?: unknown };
+	let body: {
+		contractId?: unknown;
+		clientEmail?: unknown;
+		clientAddress?: unknown;
+		// Optional: set when the client proposes and needs to notify the freelancer.
+		role?: unknown;
+	};
 	try {
 		body = (await req.json()) as typeof body;
 	} catch {
 		return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
 	}
 
-	const { contractId, clientEmail, clientAddress } = body;
+	const { contractId, clientEmail, clientAddress, role } = body;
 	if (typeof contractId !== "string" || contractId === "")
 		return NextResponse.json({ error: "contractId required" }, { status: 400 });
 	if (typeof clientEmail !== "string" || !clientEmail.includes("@"))
@@ -29,19 +35,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	if (typeof clientAddress !== "string" || !/^0x[0-9a-fA-F]{40}$/.test(clientAddress))
 		return NextResponse.json({ error: "valid clientAddress required" }, { status: 400 });
 
+	// role defaults to "client" (freelancer-proposed flow). Pass "freelancer" when the
+	// client proposes and needs to notify the freelancer to review.
+	const resolvedRole: "client" | "freelancer" = role === "freelancer" ? "freelancer" : "client";
+
 	const nonce = Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString("hex");
 	const exp = Math.floor(Date.now() / 1000) + EXPIRY_SECONDS;
 
 	const token = await signMagicToken(
-		{ contractId, clientEmail, clientAddress, nonce, exp },
+		{ contractId, clientEmail, clientAddress, role: resolvedRole, nonce, exp },
 		secret,
 	);
 
-	const link = `${appUrl}/client/accept?token=${encodeURIComponent(token)}`;
+	// Route the recipient to the appropriate review page based on their role.
+	const reviewPath = resolvedRole === "freelancer" ? "/freelancer/review" : "/client/accept";
+	const link = `${appUrl}${reviewPath}?token=${encodeURIComponent(token)}`;
 
+	const isFreelancerRecipient = resolvedRole === "freelancer";
 	const result = await sendEmail({
 		to: clientEmail,
-		subject: `You have a new contract to review - TrustLedger #${contractId}`,
+		subject: isFreelancerRecipient
+			? `You have a new contract offer to review - TrustLedger #${contractId}`
+			: `You have a new contract to review - TrustLedger #${contractId}`,
 		html: buildEmail(link, contractId),
 	});
 

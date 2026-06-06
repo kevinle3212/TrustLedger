@@ -39,6 +39,11 @@ export default function CreatePage(): React.JSX.Element {
 		data: receipt,
 	} = useWaitForTransactionReceipt({ hash: txHash });
 
+	// "freelancer" = current user is the freelancer proposing unfunded terms (existing flow).
+	// "client"     = current user is the client proposing + funding immediately.
+	const [proposerRole, setProposerRole] = useState<"freelancer" | "client">("freelancer");
+	const isClientProposing = proposerRole === "client";
+
 	const [form, setForm] = useState({
 		client: "",
 		clientEmail: "",
@@ -143,27 +148,38 @@ export default function CreatePage(): React.JSX.Element {
 		}
 		const trimmedURI = form.contractURI.trim();
 		const contractURI = trimmedURI !== "" ? trimmedURI : "ipfs://";
-		// Freelancer proposes unfunded terms; the escrow amount is a parameter the client will
-		// lock on acceptance, so no ETH (value) is sent with this transaction.
+		const parsedAmount = parseEther(form.amountEth);
+		const sharedArgs = [
+			fileHash ?? keccak256(toBytes(contractURI)),
+			contractURI,
+			daysToSeconds(Number(form.estimatedDurationDays)),
+			BigInt(form.bufferFactor),
+			daysToSeconds(Number(form.acceptanceWindowDays)),
+			Math.round(Number(form.arbitrationFeePct) * 100),
+			form.holdBack === "none" ? 0 : Number(form.holdBack) * 100,
+			form.holdBack === "none" ? 0n : BigInt(Number(form.warrantyPeriodDays) * 86400),
+			"0x0000000000000000000000000000000000000000" as const,
+			parsedAmount,
+		] as const;
+
+		if (isClientProposing) {
+			// Client proposes and immediately locks ETH in escrow.
+			return {
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: "proposeContractByClient" as const,
+				args: [form.client as `0x${string}`, ...sharedArgs] as const,
+				value: parsedAmount,
+			};
+		}
+		// Freelancer proposes unfunded terms; no ETH sent with this transaction.
 		return {
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
 			functionName: "proposeContract" as const,
-			args: [
-				form.client as `0x${string}`,
-				fileHash ?? keccak256(toBytes(contractURI)),
-				contractURI,
-				daysToSeconds(Number(form.estimatedDurationDays)),
-				BigInt(form.bufferFactor),
-				daysToSeconds(Number(form.acceptanceWindowDays)),
-				Math.round(Number(form.arbitrationFeePct) * 100),
-				form.holdBack === "none" ? 0 : Number(form.holdBack) * 100,
-				form.holdBack === "none" ? 0n : BigInt(Number(form.warrantyPeriodDays) * 86400),
-				"0x0000000000000000000000000000000000000000",
-				parseEther(form.amountEth),
-			] as const,
+			args: [form.client as `0x${string}`, ...sharedArgs] as const,
 		};
-	}, [form, fileHash]);
+	}, [form, fileHash, isClientProposing]);
 
 	const { data: simData, error: simError } = useSimulateContract({
 		...txArgs,
@@ -182,12 +198,14 @@ export default function CreatePage(): React.JSX.Element {
 	useEffect(() => {
 		if (!isSuccess || form.clientEmail === "") return;
 
+		// Parse the correct event based on which flow was used.
+		const eventName = isClientProposing ? "ContractProposedByClient" : "ContractProposed";
 		const logs = parseEventLogs({
 			abi: TRUSTLEDGER_ABI,
-			eventName: "ContractProposed",
+			eventName,
 			logs: receipt.logs,
 		});
-		const contractId = logs[0]?.args.id;
+		const contractId = (logs[0] as { args?: { id?: bigint } } | undefined)?.args?.id;
 		if (contractId === undefined) return;
 
 		fetch("/api/magic-link/send", {
@@ -197,6 +215,8 @@ export default function CreatePage(): React.JSX.Element {
 				contractId: contractId.toString(),
 				clientEmail: form.clientEmail,
 				clientAddress: form.client,
+				// "freelancer" role routes the link to /freelancer/review
+				role: isClientProposing ? "freelancer" : "client",
 			}),
 		})
 			.then((r) => {
@@ -205,7 +225,7 @@ export default function CreatePage(): React.JSX.Element {
 			.catch(() => {
 				setMagicLinkStatus("error");
 			});
-	}, [isSuccess, receipt, form.clientEmail, form.client]);
+	}, [isSuccess, receipt, form.clientEmail, form.client, isClientProposing]);
 
 	async function handleUploadToIPFS(): Promise<void> {
 		if (selectedFile === null) return;
@@ -310,9 +330,13 @@ export default function CreatePage(): React.JSX.Element {
 						/>
 					</svg>
 				</div>
-				<h2 className="text-2xl font-bold">Contract Proposed!</h2>
+				<h2 className="text-2xl font-bold">
+					{isClientProposing ? "Contract Offer Created!" : "Contract Proposed!"}
+				</h2>
 				<p className="text-gray-500 dark:text-gray-400 text-sm">
 					Transaction confirmed in block {receipt.blockNumber.toString()}.
+					{isClientProposing &&
+						" ETH is now locked in escrow awaiting freelancer acceptance."}
 				</p>
 				<a
 					href={getExplorerTxUrl(chainId, txHash ?? "")}
@@ -331,7 +355,8 @@ export default function CreatePage(): React.JSX.Element {
 						)}
 						{magicLinkStatus === "sent" && (
 							<span className="text-green-500 dark:text-green-400">
-								Magic link sent to {form.clientEmail}
+								{isClientProposing ? "Review link" : "Magic link"} sent to{" "}
+								{form.clientEmail}
 							</span>
 						)}
 						{magicLinkStatus === "error" && (
@@ -356,12 +381,42 @@ export default function CreatePage(): React.JSX.Element {
 	return (
 		<div className="max-w-2xl mx-auto px-6 py-12">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold">Propose Escrow Contract</h1>
+				<h1 className="text-3xl font-bold">
+					{isClientProposing ? "Create Contract Offer" : "Propose Escrow Contract"}
+				</h1>
 				<p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
-					You propose the terms; the client reviews and locks the ETH in escrow on
-					acceptance. Funds are released once you deliver and the client approves - or a
-					dispute is resolved.
+					{isClientProposing
+						? "You propose the terms and lock the ETH in escrow immediately. The freelancer reviews and accepts before work begins."
+						: "You propose the terms; the client reviews and locks the ETH in escrow on acceptance. Funds are released once you deliver and the client approves - or a dispute is resolved."}
 				</p>
+			</div>
+
+			{/* Role toggle */}
+			<div className="mb-6 flex items-center gap-3">
+				<span className="text-sm text-gray-500 dark:text-gray-400">I am the:</span>
+				<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1">
+					{(["freelancer", "client"] as const).map((r) => (
+						<button
+							key={r}
+							type="button"
+							onClick={() => {
+								setProposerRole(r);
+							}}
+							className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors capitalize ${
+								proposerRole === r
+									? "bg-indigo-600 text-white"
+									: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+							}`}
+						>
+							{r}
+						</button>
+					))}
+				</div>
+				{isClientProposing && (
+					<span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
+						ETH locked on submit
+					</span>
+				)}
 			</div>
 
 			<form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -372,8 +427,12 @@ export default function CreatePage(): React.JSX.Element {
 					</h2>
 
 					<Field
-						label="Client Address"
-						hint="The wallet that will review, fund, and approve this contract."
+						label={isClientProposing ? "Freelancer Address" : "Client Address"}
+						hint={
+							isClientProposing
+								? "The wallet that will review, accept, and deliver the work."
+								: "The wallet that will review, fund, and approve this contract."
+						}
 						error={showError("client")}
 					>
 						<Input
@@ -393,8 +452,12 @@ export default function CreatePage(): React.JSX.Element {
 					</Field>
 
 					<Field
-						label="Client Email"
-						hint="A signed magic link will be sent here so the client can review and accept via the web."
+						label={isClientProposing ? "Freelancer Email" : "Client Email"}
+						hint={
+							isClientProposing
+								? "A signed magic link will be sent here so the freelancer can review and accept via the web."
+								: "A signed magic link will be sent here so the client can review and accept via the web."
+						}
 						error={showError("clientEmail")}
 					>
 						<Input
@@ -413,7 +476,11 @@ export default function CreatePage(): React.JSX.Element {
 
 					<Field
 						label="Escrow Amount (ETH)"
-						hint="Total ETH the client will lock in escrow on acceptance."
+						hint={
+							isClientProposing
+								? "Total ETH you will lock in escrow immediately on submit."
+								: "Total ETH the client will lock in escrow on acceptance."
+						}
 						error={showError("amountEth")}
 					>
 						<Input
@@ -862,7 +929,9 @@ export default function CreatePage(): React.JSX.Element {
 						? "Waiting for wallet…"
 						: isConfirming
 							? "Confirming on-chain…"
-							: "Propose Escrow Contract"}
+							: isClientProposing
+								? "Create Contract Offer & Lock ETH"
+								: "Propose Escrow Contract"}
 				</button>
 			</form>
 		</div>

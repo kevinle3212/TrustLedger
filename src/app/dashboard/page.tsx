@@ -258,6 +258,12 @@ function ContractCard({
 							? `Freelancer: ${formatAddress(contract.freelancer)}`
 							: `Client: ${formatAddress(contract.client)}`}
 					</h3>
+					{/* Initiator badge so both parties know who created the proposal */}
+					<span className="text-xs text-gray-400 dark:text-gray-500">
+						{contract.proposedByClient
+							? "Client proposed · pre-funded"
+							: "Freelancer proposed"}
+					</span>
 				</div>
 				<span
 					className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_COLORS[status] ?? ""}`}
@@ -339,8 +345,8 @@ function ContractCard({
 
 			{/* Actions — each block is gated by role (isClient/isFreelancer) and status number */}
 			<div className="flex flex-wrap gap-2">
-				{/* status 0 = PENDING: client accepts (funding the escrow) or rejects the proposal */}
-				{isClient && status === 0 && (
+				{/* status 0 = PENDING: freelancer-proposed → client accepts (funding) or rejects */}
+				{isClient && status === 0 && !contract.proposedByClient && (
 					<>
 						<ActionButton
 							label="Accept & Fund"
@@ -355,12 +361,35 @@ function ContractCard({
 						/>
 					</>
 				)}
-				{/* status 0 = PENDING: freelancer can withdraw their own proposal */}
-				{isFreelancer && status === 0 && (
+				{/* status 0 = PENDING: client-proposed → freelancer accepts or rejects */}
+				{isFreelancer && status === 0 && contract.proposedByClient && (
+					<>
+						<ActionButton
+							label="Accept Offer"
+							contractId={id}
+							functionName="acceptContractByFreelancer"
+						/>
+						<ActionButton
+							label="Reject Offer"
+							contractId={id}
+							functionName="rejectContractByFreelancer"
+						/>
+					</>
+				)}
+				{/* status 0 = PENDING: freelancer can withdraw their own unfunded proposal */}
+				{isFreelancer && status === 0 && !contract.proposedByClient && (
 					<ActionButton
 						label="Withdraw Proposal"
 						contractId={id}
 						functionName="cancelProposal"
+					/>
+				)}
+				{/* status 0 = PENDING: client can withdraw their own pre-funded proposal */}
+				{isClient && status === 0 && contract.proposedByClient && (
+					<ActionButton
+						label="Withdraw Offer"
+						contractId={id}
+						functionName="withdrawClientProposal"
 					/>
 				)}
 				{/* status 2 = SUBMITTED: client reviews the proof-of-work */}

@@ -8,7 +8,10 @@
 export interface MagicLinkPayload {
 	contractId: string;
 	clientEmail: string;
+	/** Wallet expected to respond. For client-proposed contracts this is the freelancer's address. */
 	clientAddress: string;
+	/** Role of the recipient. "client" = reviewing a freelancer proposal; "freelancer" = reviewing a client proposal. */
+	role?: "client" | "freelancer";
 	nonce: string; // random UUID included so two tokens for the same contract are never identical
 	exp: number; // unix seconds — checked in verifyMagicToken
 }

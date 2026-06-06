@@ -246,6 +246,37 @@ export const TRUSTLEDGER_ABI = [
 				name: "id",
 				type: "uint256",
 			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "client",
+				type: "address",
+			},
+			{
+				indexed: true,
+				internalType: "address",
+				name: "freelancer",
+				type: "address",
+			},
+			{
+				indexed: false,
+				internalType: "uint256",
+				name: "amount",
+				type: "uint256",
+			},
+		],
+		name: "ContractProposedByClient",
+		type: "event",
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
 		],
 		name: "ContractRejected",
 		type: "event",
@@ -765,6 +796,11 @@ export const TRUSTLEDGER_ABI = [
 						name: "previousContractId",
 						type: "uint256",
 					},
+					{
+						internalType: "bool",
+						name: "proposedByClient",
+						type: "bool",
+					},
 				],
 				internalType: "struct TrustLedger.EscrowContract",
 				name: "result",
@@ -968,6 +1004,114 @@ export const TRUSTLEDGER_ABI = [
 			},
 		],
 		name: "rejectContract",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "freelancer",
+				type: "address",
+			},
+			{
+				internalType: "bytes32",
+				name: "contractHash",
+				type: "bytes32",
+			},
+			{
+				internalType: "string",
+				name: "contractURI",
+				type: "string",
+			},
+			{
+				internalType: "uint256",
+				name: "estimatedDuration",
+				type: "uint256",
+			},
+			{
+				internalType: "uint256",
+				name: "bufferFactor",
+				type: "uint256",
+			},
+			{
+				internalType: "uint256",
+				name: "acceptanceWindow",
+				type: "uint256",
+			},
+			{
+				internalType: "uint16",
+				name: "arbitrationFeeBps",
+				type: "uint16",
+			},
+			{
+				internalType: "uint16",
+				name: "holdBackBps",
+				type: "uint16",
+			},
+			{
+				internalType: "uint64",
+				name: "warrantyPeriod",
+				type: "uint64",
+			},
+			{
+				internalType: "address",
+				name: "token",
+				type: "address",
+			},
+			{
+				internalType: "uint256",
+				name: "amount",
+				type: "uint256",
+			},
+		],
+		name: "proposeContractByClient",
+		outputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
+		stateMutability: "payable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
+		name: "acceptContractByFreelancer",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
+		name: "rejectContractByFreelancer",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
+		name: "withdrawClientProposal",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",

@@ -98,4 +98,6 @@ export interface Contract {
 	usdValueAtCreation: bigint;
 	/** Cancelled predecessor linked for amendment history (`uint256` max = none). */
 	previousContractId: bigint;
+	/** True when the client initiated and pre-funded this contract; false for freelancer-proposed. */
+	proposedByClient: boolean;
 }
