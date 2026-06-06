@@ -181,17 +181,35 @@ export default function CreatePage(): React.JSX.Element {
 		};
 	}, [form, fileHash, isClientProposing]);
 
-	const { data: simData, error: simError } = useSimulateContract({
-		...txArgs,
-		query: { enabled: txArgs !== null },
+	// wagmi's overloaded types can't handle a union of two different functionName
+	// shapes in a single call, so we use two hooks — only one is enabled at a time.
+	const clientTxArgs = txArgs?.functionName === "proposeContractByClient" ? txArgs : null;
+	const freelancerTxArgs = txArgs?.functionName === "proposeContract" ? txArgs : null;
+
+	const { data: clientSimData, error: clientSimError } = useSimulateContract({
+		address: TRUSTLEDGER_ADDRESS,
+		abi: TRUSTLEDGER_ABI,
+		functionName: "proposeContractByClient",
+		args: clientTxArgs?.args,
+		value: clientTxArgs?.value,
+		query: { enabled: clientTxArgs !== null },
 	});
+	const { data: freelancerSimData, error: freelancerSimError } = useSimulateContract({
+		address: TRUSTLEDGER_ADDRESS,
+		abi: TRUSTLEDGER_ABI,
+		functionName: "proposeContract",
+		args: freelancerTxArgs?.args,
+		query: { enabled: freelancerTxArgs !== null },
+	});
+	const simData = clientSimData ?? freelancerSimData;
+	const simError = clientSimError ?? freelancerSimError;
 
 	function handleSubmit(e: React.SyntheticEvent): void {
 		e.preventDefault();
 		setSubmitAttempted(true);
 		if (hasBlockingErrors) return;
 		if (simData?.request !== undefined) {
-			writeContract(simData.request);
+			writeContract(simData.request as Parameters<typeof writeContract>[0]);
 		}
 	}
 
