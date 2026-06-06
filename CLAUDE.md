@@ -80,6 +80,15 @@
   introduced (run tests, check for errors/warnings). Report any post-merge issue
   with a clear explanation and resolution steps.
 
+## Token-Efficient Development
+
+- Batch related work; complete a logical unit before reporting.
+- Reuse existing architecture and patterns — check what's already there before
+  adding new abstractions.
+- Only explain the non-obvious: hidden constraints, subtle invariants, or
+  decisions that will confuse a future reader without context.
+- Reference existing instructions rather than restating them inline.
+
 ## Checking off TODO.md
 
 - When a TODO item is completed, check it off (`- [ ]` → `- [x]`) promptly so
