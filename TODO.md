@@ -310,8 +310,8 @@ mainnet launch deliverables.
       funding to the client's acceptance call. Verify the matching warning is
       shown to the freelancer on that flow and that its copy is consistent with
       the updated client-side language.
-    - Update the frontend `create/page.tsx` (around line 435) to reflect the
-      new flow: remove `value: parsedAmount` from the `proposeContractByClient`
+    - Update the frontend `create/page.tsx` (around line 435) to reflect the new
+      flow: remove `value: parsedAmount` from the `proposeContractByClient`
       wagmi args and wire the fund step into the post-acceptance callback.
     - Re-run `forge test` and the Hardhat suite after any contract change;
       update ABI exports and any test fixtures that assert on locked balances.
