@@ -2,38 +2,38 @@
 
 interface Props {
 	amount: string;
-	isUsdc: boolean;
+	/** Payment token type. */
+	token: "eth" | "usdc";
 	estimatedDurationDays: string;
 	bufferFactor: string;
 	holdBack: "none" | "5" | "10" | "15";
 	simError: Error | null;
-	/** Non-null when tx args are ready and a simulation is running or has completed. */
-	txArgsReady: boolean;
+	/** Simulation pipeline stage. */
+	simStatus: "idle" | "loading" | "ready";
 	writeError: Error | null;
-	isPending: boolean;
-	isConfirming: boolean;
+	/** Wallet/chain transaction lifecycle stage. */
+	txStatus: "idle" | "pending" | "confirming";
 	hasBlockingErrors: boolean;
-	/** True when the simulation has resolved a valid request object. */
-	simDataReady: boolean;
-	isClientProposing: boolean;
+	/** Proposer's role in the contract. */
+	proposerRole: "freelancer" | "client";
 }
 
 /** Summary card, simulation/write errors, and the submit button. */
 export function SubmitSummary({
 	amount,
-	isUsdc,
+	token,
 	estimatedDurationDays,
 	bufferFactor,
 	holdBack,
 	simError,
-	txArgsReady,
+	simStatus,
 	writeError,
-	isPending,
-	isConfirming,
+	txStatus,
 	hasBlockingErrors,
-	simDataReady,
-	isClientProposing,
+	proposerRole,
 }: Props): React.JSX.Element {
+	const isUsdc = token === "usdc";
+	const isClientProposing = proposerRole === "client";
 	return (
 		<>
 			{amount !== "" && (
@@ -76,7 +76,7 @@ export function SubmitSummary({
 			)}
 
 			{/* Simulation error - shown before MetaMask opens, surfaces revert reason. */}
-			{simError !== null && txArgsReady && (
+			{simError !== null && simStatus !== "idle" && (
 				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
 					{(simError as { shortMessage?: string }).shortMessage ?? simError.message}
 				</p>
@@ -91,16 +91,15 @@ export function SubmitSummary({
 			<button
 				type="submit"
 				disabled={
-					isPending ||
-					isConfirming ||
+					txStatus !== "idle" ||
 					hasBlockingErrors ||
-					(txArgsReady && !simDataReady && simError === null)
+					(simStatus === "loading" && simError === null)
 				}
 				className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
 			>
-				{isPending
+				{txStatus === "pending"
 					? "Waiting for wallet…"
-					: isConfirming
+					: txStatus === "confirming"
 						? "Confirming on-chain…"
 						: isClientProposing
 							? `Create Contract Offer (${isUsdc ? "USDC" : "ETH"})`

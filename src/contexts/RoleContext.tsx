@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, use, useMemo, useState } from "react";
+import { createContext, startTransition, use, useEffect, useMemo, useState } from "react";
 
 type Role = "client" | "freelancer";
 
@@ -17,11 +17,19 @@ const RoleContext = createContext<{
 
 /** Persists the active role (client / freelancer) in localStorage. */
 export function RoleProvider({ children }: { children: React.ReactNode }): React.JSX.Element {
-	const [role, setRoleState] = useState<Role>(() => {
-		if (typeof window === "undefined") return "freelancer";
+	// Start with the safe default on both server and client so SSR and hydration
+	// produce identical markup (avoids React error #418). After hydration, the
+	// effect below reads localStorage and updates to the stored value.
+	const [role, setRoleState] = useState<Role>("freelancer");
+
+	useEffect(() => {
 		const stored = localStorage.getItem(STORAGE_KEY);
-		return stored === "client" || stored === "freelancer" ? stored : "freelancer";
-	});
+		if (stored === "client" || stored === "freelancer") {
+			startTransition(() => {
+				setRoleState(stored);
+			});
+		}
+	}, []);
 
 	const value = useMemo(() => {
 		function setRole(r: Role): void {

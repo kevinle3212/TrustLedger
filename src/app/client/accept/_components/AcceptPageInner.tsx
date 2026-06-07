@@ -205,7 +205,15 @@ export function AcceptPageInner({ initialPayload, tokenError }: Props): React.JS
 
 	const statusLabel = contract !== undefined ? (STATUS_LABELS[contract.status] ?? "Unknown") : "";
 	const canRespond = contract?.status === 0; // PENDING
-	const busy = isSending || isConfirming || isApproveSending || isApproveConfirming;
+	const txStatus = isApproveSending
+		? ("approve-sending" as const)
+		: isApproveConfirming
+			? ("approve-confirming" as const)
+			: isConfirming
+				? ("confirming" as const)
+				: isSending
+					? ("sending" as const)
+					: ("idle" as const);
 	const formattedAmount =
 		contract !== undefined ? formatTokenAmount(contract.amount, contract.token) : "";
 
@@ -244,11 +252,8 @@ export function AcceptPageInner({ initialPayload, tokenError }: Props): React.JS
 				)}
 
 				<AcceptRejectActions
-					busy={busy}
+					txStatus={txStatus}
 					action={action}
-					isApproveSending={isApproveSending}
-					isApproveConfirming={isApproveConfirming}
-					isConfirming={isConfirming}
 					canRespond={canRespond}
 					isToken={isToken}
 					formattedAmount={formattedAmount}

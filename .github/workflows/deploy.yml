@@ -61,7 +61,7 @@ jobs:
             - name: Deploy (with Etherscan verification)
               if: github.event.inputs.verify == 'true'
               run: |
-                  forge script ${{ github.event.inputs.script }} \
+                  forge script "$DEPLOY_SCRIPT" \
                     --rpc-url "$SEPOLIA_RPC_URL" \
                     --private-key "$DEPLOYER_PRIVATE_KEY" \
                     --broadcast \
@@ -70,6 +70,7 @@ jobs:
                     --chain 11155111 \
                     -vvvv
               env:
+                  DEPLOY_SCRIPT: ${{ github.event.inputs.script }}
                   SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
                   DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
                   ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
@@ -77,12 +78,13 @@ jobs:
             - name: Deploy (no verification)
               if: github.event.inputs.verify != 'true'
               run: |
-                  forge script ${{ github.event.inputs.script }} \
+                  forge script "$DEPLOY_SCRIPT" \
                     --rpc-url "$SEPOLIA_RPC_URL" \
                     --private-key "$DEPLOYER_PRIVATE_KEY" \
                     --broadcast \
                     -vvvv
               env:
+                  DEPLOY_SCRIPT: ${{ github.event.inputs.script }}
                   SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
                   DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
 

@@ -38,7 +38,10 @@ const ENV_KEY_BY_CONTRACT: Record<string, string> = {
 /** Upserts `key=value` into the `.env` file body, preserving all other lines. */
 function upsertEnvLine(body: string, key: string, value: string): string {
 	const line = `${key}=${value}`;
-	const pattern = new RegExp(`^${key}=.*$`, "m");
+	// Keys are env-var names (alphanumeric + underscore only); escaping prevents
+	// any accidental regex metacharacter from breaking the pattern.
+	const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const pattern = new RegExp(`^${escapedKey}=.*$`, "m");
 	if (pattern.test(body)) {
 		return body.replace(pattern, line);
 	}

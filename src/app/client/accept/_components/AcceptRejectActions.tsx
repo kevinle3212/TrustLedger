@@ -1,11 +1,9 @@
 "use client";
 
 interface Props {
-	busy: boolean;
+	/** Wallet/chain transaction lifecycle stage. */
+	txStatus: "idle" | "sending" | "approve-sending" | "approve-confirming" | "confirming";
 	action: "accept" | "reject" | null;
-	isApproveSending: boolean;
-	isApproveConfirming: boolean;
-	isConfirming: boolean;
 	canRespond: boolean;
 	isToken: boolean;
 	formattedAmount: string;
@@ -17,11 +15,8 @@ interface Props {
 
 /** Accept/Reject button pair with USDC-aware loading states and inline error display. */
 export function AcceptRejectActions({
-	busy,
+	txStatus,
 	action,
-	isApproveSending,
-	isApproveConfirming,
-	isConfirming,
 	canRespond,
 	isToken,
 	formattedAmount,
@@ -30,6 +25,7 @@ export function AcceptRejectActions({
 	approveError,
 	writeError,
 }: Props): React.JSX.Element {
+	const busy = txStatus !== "idle";
 	return (
 		<>
 			{!canRespond && (
@@ -59,9 +55,9 @@ export function AcceptRejectActions({
 					className="flex-1 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
 				>
 					{busy && action === "accept"
-						? isApproveSending || isApproveConfirming
+						? txStatus === "approve-sending" || txStatus === "approve-confirming"
 							? "Approving USDC…"
-							: isConfirming
+							: txStatus === "confirming"
 								? "Confirming on-chain…"
 								: "Waiting for wallet…"
 						: isToken
