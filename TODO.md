@@ -290,6 +290,32 @@ mainnet launch deliverables.
       `.env.example` (e.g. `NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA`,
       `NEXT_PUBLIC_USDC_ADDRESS_BASE`).
 
+- [x] Fix the currency-lock warning and logic on the Create Contract page so
+      funds are not locked until the counterparty accepts, in both proposal
+      directions.
+    - **Warning message (client view):** The yellow badge currently reads "ETH
+      locked on submit". Change it to "BEWARE: The proposed currency is locked
+      on submit AND freelancer agreement!" so the copy accurately reflects that
+      funds move the moment the client submits the transaction.
+    - **Logic fix (client-proposed flow):** `proposeContractByClient` in
+      `TrustLedger.sol` takes `msg.value` immediately (line ~616), locking ETH
+      at proposal time before the freelancer has agreed. Refactor so the client
+      proposal is unfunded (no `payable` / no `msg.value` transfer); add a
+      separate `fundContractByClient` step that the contract triggers (or the
+      client calls) only when `acceptContractByFreelancer` is invoked. Update
+      `withdrawClientProposal` accordingly since there will be no funds to
+      return while the contract is still PENDING.
+    - **Logic fix (freelancer-proposed flow, vice versa):** The freelancer-
+      proposed path (`proposeContract` + `acceptContract`) already defers
+      funding to the client's acceptance call. Verify the matching warning is
+      shown to the freelancer on that flow and that its copy is consistent with
+      the updated client-side language.
+    - Update the frontend `create/page.tsx` (around line 435) to reflect the new
+      flow: remove `value: parsedAmount` from the `proposeContractByClient`
+      wagmi args and wire the fund step into the post-acceptance callback.
+    - Re-run `forge test` and the Hardhat suite after any contract change;
+      update ABI exports and any test fixtures that assert on locked balances.
+
 - [ ] Allow clients and freelancers to create a contract within the platform,
       see live edits, and update the contract terms before deployment.
     - Build a contract creation and editing interface where users enter the

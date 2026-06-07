@@ -164,6 +164,8 @@ export default [
 	{
 		// Mocha/Chai callbacks are anonymous and use property-getter assertions
 		// (e.g. `.to.be.properAddress`) that strict rules flag as violations.
+		// Hardhat/ethers contract interactions return untyped `any` from typechain,
+		// so the unsafe-* rules cannot be satisfied without full typechain codegen.
 		files: ["test/**/*.ts"],
 		rules: {
 			"@typescript-eslint/explicit-function-return-type": "off",
@@ -172,13 +174,31 @@ export default [
 			// Mocha relies on `function () {}` callbacks for its `this` context
 			// (this.timeout(), this.skip()); arrow callbacks would break that.
 			"prefer-arrow-callback": "off",
+			// Hardhat ethers contract proxies are dynamically typed at runtime.
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
+			"@typescript-eslint/no-unsafe-argument": "off",
+			"@typescript-eslint/restrict-template-expressions": "off",
+			"@typescript-eslint/restrict-plus-operands": "off",
+			"@typescript-eslint/no-unnecessary-type-assertion": "off",
 		},
 	},
 	{
-		// Deployment scripts intentionally use console.log for progress output.
+		// Deployment and demo scripts use console.log for progress output and
+		// call Hardhat/ethers contract methods that are dynamically typed.
 		files: ["scripts/**/*.ts"],
 		rules: {
 			"no-console": "off",
+			"@typescript-eslint/no-unsafe-assignment": "off",
+			"@typescript-eslint/no-unsafe-call": "off",
+			"@typescript-eslint/no-unsafe-member-access": "off",
+			"@typescript-eslint/no-unsafe-return": "off",
+			"@typescript-eslint/no-unsafe-argument": "off",
+			"@typescript-eslint/restrict-template-expressions": "off",
+			"@typescript-eslint/restrict-plus-operands": "off",
+			"@typescript-eslint/no-unnecessary-type-assertion": "off",
 		},
 	},
 

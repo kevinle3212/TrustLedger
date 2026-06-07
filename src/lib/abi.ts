@@ -278,6 +278,19 @@ export const TRUSTLEDGER_ABI = [
 				type: "uint256",
 			},
 		],
+		name: "ContractFundedByClient",
+		type: "event",
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
 		name: "ContractRejected",
 		type: "event",
 	},
@@ -801,6 +814,11 @@ export const TRUSTLEDGER_ABI = [
 						name: "proposedByClient",
 						type: "bool",
 					},
+					{
+						internalType: "bool",
+						name: "freelancerAccepted",
+						type: "bool",
+					},
 				],
 				internalType: "struct TrustLedger.EscrowContract",
 				name: "result",
@@ -1074,7 +1092,7 @@ export const TRUSTLEDGER_ABI = [
 				type: "uint256",
 			},
 		],
-		stateMutability: "payable",
+		stateMutability: "nonpayable",
 		type: "function",
 	},
 	{
@@ -1088,6 +1106,19 @@ export const TRUSTLEDGER_ABI = [
 		name: "acceptContractByFreelancer",
 		outputs: [],
 		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "uint256",
+				name: "id",
+				type: "uint256",
+			},
+		],
+		name: "fundContractByClient",
+		outputs: [],
+		stateMutability: "payable",
 		type: "function",
 	},
 	{

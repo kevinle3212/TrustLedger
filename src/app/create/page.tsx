@@ -163,13 +163,13 @@ export default function CreatePage(): React.JSX.Element {
 		] as const;
 
 		if (isClientProposing) {
-			// Client proposes and immediately locks ETH in escrow.
+			// Client proposes unfunded terms; funds are locked only after the freelancer accepts
+			// and the client calls fundContractByClient.
 			return {
 				address: TRUSTLEDGER_ADDRESS,
 				abi: TRUSTLEDGER_ABI,
 				functionName: "proposeContractByClient" as const,
 				args: [form.client as `0x${string}`, ...sharedArgs] as const,
-				value: parsedAmount,
 			};
 		}
 		// Freelancer proposes unfunded terms; no ETH sent with this transaction.
@@ -191,7 +191,6 @@ export default function CreatePage(): React.JSX.Element {
 		abi: TRUSTLEDGER_ABI,
 		functionName: "proposeContractByClient",
 		args: clientTxArgs?.args,
-		value: clientTxArgs?.value,
 		query: { enabled: clientTxArgs !== null },
 	});
 	const { data: freelancerSimData, error: freelancerSimError } = useSimulateContract({
@@ -354,7 +353,7 @@ export default function CreatePage(): React.JSX.Element {
 				<p className="text-gray-500 dark:text-gray-400 text-sm">
 					Transaction confirmed in block {receipt.blockNumber.toString()}.
 					{isClientProposing &&
-						" ETH is now locked in escrow awaiting freelancer acceptance."}
+						" The freelancer will review and accept. You will then be prompted to fund the escrow to start the project."}
 				</p>
 				<a
 					href={getExplorerTxUrl(chainId, txHash ?? "")}
@@ -404,7 +403,7 @@ export default function CreatePage(): React.JSX.Element {
 				</h1>
 				<p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
 					{isClientProposing
-						? "You propose the terms and lock the ETH in escrow immediately. The freelancer reviews and accepts before work begins."
+						? "You propose the terms. The freelancer reviews and accepts, then you fund the escrow to start the project."
 						: "You propose the terms; the client reviews and locks the ETH in escrow on acceptance. Funds are released once you deliver and the client approves - or a dispute is resolved."}
 				</p>
 			</div>
@@ -432,7 +431,7 @@ export default function CreatePage(): React.JSX.Element {
 				</div>
 				{isClientProposing && (
 					<span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
-						ETH locked on submit
+						BEWARE: The proposed currency is locked on submit AND freelancer agreement!
 					</span>
 				)}
 			</div>
@@ -496,7 +495,7 @@ export default function CreatePage(): React.JSX.Element {
 						label="Escrow Amount (ETH)"
 						hint={
 							isClientProposing
-								? "Total ETH you will lock in escrow immediately on submit."
+								? "Total ETH you agree to lock in escrow once the freelancer accepts."
 								: "Total ETH the client will lock in escrow on acceptance."
 						}
 						error={showError("amountEth")}
