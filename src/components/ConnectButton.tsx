@@ -117,9 +117,10 @@ export function ConnectButton(): React.JSX.Element {
 				<button
 					type="button"
 					onClick={openModal}
+					aria-label={`Connected as ${address}. Click to open wallet options.`}
 					className="inline-flex items-center min-h-[44px] px-4 py-2 text-sm font-medium font-mono transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
 				>
-					{formatAddress(address)}
+					<span aria-hidden="true">{formatAddress(address)}</span>
 				</button>
 				<button
 					type="button"
