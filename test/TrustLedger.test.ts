@@ -712,7 +712,8 @@ describe("TrustLedger", function () {
 			token = (await MockERC20Factory.deploy()) as unknown as MockERC20;
 			await token.waitForDeployment();
 
-			// Mint tokens to client and approve TrustLedger
+			// Whitelist the mock token, then mint to client and approve TrustLedger
+			await trustLedger.connect(client).addAllowedToken(await token.getAddress());
 			await token.mint(await client.getAddress(), TOKEN_AMOUNT * 10n);
 			await token.connect(client).approve(await trustLedger.getAddress(), TOKEN_AMOUNT * 10n);
 		});

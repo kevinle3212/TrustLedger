@@ -1,3 +1,6 @@
+# ─── Deprecated / phased-out assets ──────────────────────────────────────────
+**/deprecated/
+
 # ─── Editor / tool local config ──────────────────────────────────────────────
 .claude/
 .serena/

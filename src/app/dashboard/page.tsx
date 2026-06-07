@@ -1,17 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useEffect, useRef, useState } from "react";
+import {
+	useAccount,
+	useChainId,
+	useReadContract,
+	useWriteContract,
+	useWaitForTransactionReceipt,
+} from "wagmi";
 import { useRole } from "@/contexts/RoleContext";
 import { ConnectButton } from "@/components/ConnectButton";
 import { DecryptDocumentForm } from "@/components/DecryptDocumentForm";
-import { formatEther, keccak256, toBytes } from "viem";
+import { keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
+import { ERC20_ABI } from "@/lib/erc20Abi";
 import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
-import { formatAddress, formatDeadline, resolveDocUrl, STATUS_COLORS } from "@/lib/utils";
+import {
+	formatAddress,
+	formatDeadline,
+	formatTokenAmount,
+	resolveDocUrl,
+	STATUS_COLORS,
+} from "@/lib/utils";
 import { validateRequiredUri, validateScore } from "@/lib/validation";
 import type { Contract } from "@/types";
 import Link from "next/link";
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 // Snapshot of "now" taken once at page load.
 // Used for deadline comparisons in ContractCard to avoid re-renders on every second.
@@ -59,6 +74,111 @@ function ActionButton({
 			className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
 		>
 			{isPending || isConfirming ? "…" : label}
+		</button>
+	);
+}
+
+// Button that handles the two-step approve → fund flow for ERC-20 (USDC) escrow contracts.
+// Step 1: approve the TrustLedger contract to spend the token amount.
+// Step 2: call the funding function (acceptContract or fundContractByClient) after approval confirms.
+function TokenFundButton({
+	label,
+	contractId,
+	functionName,
+	tokenAddress,
+	amount,
+	userAddress,
+	disabled,
+}: {
+	label: string;
+	contractId: bigint;
+	functionName: string;
+	tokenAddress: `0x${string}`;
+	amount: bigint;
+	userAddress: `0x${string}`;
+	disabled?: boolean;
+}): React.JSX.Element {
+	// Ref instead of state: avoids calling setState inside a useEffect (cascading renders).
+	const stepRef = useRef<"idle" | "approving">("idle");
+
+	const {
+		writeContract: writeApprove,
+		data: approveTxHash,
+		isPending: approveIsPending,
+	} = useWriteContract();
+	const { isLoading: approveConfirming, isSuccess: approveSuccess } =
+		useWaitForTransactionReceipt({ hash: approveTxHash });
+
+	const {
+		writeContract: writeFund,
+		data: fundTxHash,
+		isPending: fundIsPending,
+	} = useWriteContract();
+	const { isLoading: fundConfirming, isSuccess: fundSuccess } = useWaitForTransactionReceipt({
+		hash: fundTxHash,
+	});
+
+	const { data: allowance } = useReadContract({
+		address: tokenAddress,
+		abi: ERC20_ABI,
+		functionName: "allowance",
+		args: [userAddress, TRUSTLEDGER_ADDRESS],
+	});
+
+	// After approve confirms, auto-trigger the fund tx.
+	useEffect(() => {
+		if (approveSuccess && stepRef.current === "approving") {
+			stepRef.current = "idle";
+			writeFund({
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: functionName as never,
+				args: [contractId],
+			});
+		}
+	}, [approveSuccess, contractId, functionName, writeFund]);
+
+	if (fundSuccess) {
+		return (
+			<span className="text-xs text-green-500 dark:text-green-400 px-3 py-1.5">Funded!</span>
+		);
+	}
+
+	const busy = approveIsPending || approveConfirming || fundIsPending || fundConfirming;
+
+	function handleClick(): void {
+		const hasAllowance = allowance !== undefined && allowance >= amount;
+		if (hasAllowance) {
+			writeFund({
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: functionName as never,
+				args: [contractId],
+			});
+		} else {
+			stepRef.current = "approving";
+			writeApprove({
+				address: tokenAddress,
+				abi: ERC20_ABI,
+				functionName: "approve",
+				args: [TRUSTLEDGER_ADDRESS, amount],
+			});
+		}
+	}
+
+	const buttonLabel = busy
+		? approveIsPending || approveConfirming
+			? "Approving…"
+			: "Funding…"
+		: label;
+
+	return (
+		<button
+			disabled={(disabled ?? false) || busy}
+			onClick={handleClick}
+			className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
+		>
+			{buttonLabel}
 		</button>
 	);
 }
@@ -240,6 +360,7 @@ function ContractCard({
 	contract: Contract;
 	address: `0x${string}`;
 }): React.JSX.Element {
+	const chainId = useChainId();
 	const status = contract.status;
 	const isClient = contract.client.toLowerCase() === address.toLowerCase();
 	const isFreelancer = contract.freelancer.toLowerCase() === address.toLowerCase();
@@ -247,6 +368,9 @@ function ContractCard({
 	const docUrl = resolveDocUrl(contract.contractURI);
 	const deliverableUrl = resolveDocUrl(contract.proofOfWorkURI);
 	const [decryptOpen, setDecryptOpen] = useState(false);
+	const isToken = contract.token !== ZERO_ADDRESS;
+	const formattedAmount = formatTokenAmount(contract.amount, contract.token);
+	void chainId; // used implicitly via TokenFundButton
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
@@ -275,9 +399,7 @@ function ContractCard({
 
 			<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
 				<span className="text-gray-500">Amount</span>
-				<span className="text-gray-900 dark:text-white font-medium">
-					{formatEther(contract.amount)} ETH
-				</span>
+				<span className="text-gray-900 dark:text-white font-medium">{formattedAmount}</span>
 
 				<span className="text-gray-500">Deadline</span>
 				<span className="text-gray-900 dark:text-white">
@@ -349,12 +471,23 @@ function ContractCard({
 				{/* status 0 = PENDING: freelancer-proposed → client accepts (funding) or rejects */}
 				{isClient && status === 0 && !contract.proposedByClient && (
 					<>
-						<ActionButton
-							label="Accept & Fund"
-							contractId={id}
-							functionName="acceptContract"
-							value={contract.amount}
-						/>
+						{isToken ? (
+							<TokenFundButton
+								label="Approve & Fund (USDC)"
+								contractId={id}
+								functionName="acceptContract"
+								tokenAddress={contract.token}
+								amount={contract.amount}
+								userAddress={address}
+							/>
+						) : (
+							<ActionButton
+								label="Accept & Fund"
+								contractId={id}
+								functionName="acceptContract"
+								value={contract.amount}
+							/>
+						)}
 						<ActionButton
 							label="Reject"
 							contractId={id}
@@ -362,6 +495,28 @@ function ContractCard({
 						/>
 					</>
 				)}
+				{/* status 0 = PENDING: client-proposed, freelancer accepted → client funds */}
+				{isClient &&
+					status === 0 &&
+					contract.proposedByClient &&
+					contract.freelancerAccepted &&
+					(isToken ? (
+						<TokenFundButton
+							label="Approve & Fund (USDC)"
+							contractId={id}
+							functionName="fundContractByClient"
+							tokenAddress={contract.token}
+							amount={contract.amount}
+							userAddress={address}
+						/>
+					) : (
+						<ActionButton
+							label="Fund Contract"
+							contractId={id}
+							functionName="fundContractByClient"
+							value={contract.amount}
+						/>
+					))}
 				{/* status 0 = PENDING: client-proposed → freelancer accepts or rejects */}
 				{isFreelancer && status === 0 && contract.proposedByClient && (
 					<>
@@ -385,14 +540,17 @@ function ContractCard({
 						functionName="cancelProposal"
 					/>
 				)}
-				{/* status 0 = PENDING: client can withdraw their own pre-funded proposal */}
-				{isClient && status === 0 && contract.proposedByClient && (
-					<ActionButton
-						label="Withdraw Offer"
-						contractId={id}
-						functionName="withdrawClientProposal"
-					/>
-				)}
+				{/* status 0 = PENDING: client can withdraw their own unfunded proposal (before freelancer accepts or after) */}
+				{isClient &&
+					status === 0 &&
+					contract.proposedByClient &&
+					!contract.freelancerAccepted && (
+						<ActionButton
+							label="Withdraw Offer"
+							contractId={id}
+							functionName="withdrawClientProposal"
+						/>
+					)}
 				{/* status 2 = SUBMITTED: client reviews the proof-of-work */}
 				{isClient && status === 2 && (
 					<>

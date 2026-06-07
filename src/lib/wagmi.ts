@@ -19,6 +19,34 @@ export const REPUTATION_REGISTRY_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
 	"0x0000000000000000000000000000000000000000";
 
+// Native USDC addresses per supported chain. Sepolia uses Circle's testnet USDC.
+// Override NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA for a custom mock deployment.
+export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
+	11155111:
+		(process.env["NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA"] as `0x${string}` | undefined) ??
+		"0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // Circle testnet USDC
+	42161:
+		(process.env["NEXT_PUBLIC_USDC_ADDRESS_ARBITRUM"] as `0x${string}` | undefined) ??
+		"0xaf88d065e77c8cC2239327C5EDb3A432268e5831", // native USDC on Arbitrum One
+	8453:
+		(process.env["NEXT_PUBLIC_USDC_ADDRESS_BASE"] as `0x${string}` | undefined) ??
+		"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // native USDC on Base
+	10:
+		(process.env["NEXT_PUBLIC_USDC_ADDRESS_OPTIMISM"] as `0x${string}` | undefined) ??
+		"0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85", // native USDC on OP Mainnet
+};
+
+/** Returns true when `tokenAddress` is the USDC contract for `chainId`. */
+export function isUsdcToken(tokenAddress: string, chainId: number): boolean {
+	const usdc = USDC_ADDRESSES[chainId];
+	return usdc?.toLowerCase() === tokenAddress.toLowerCase();
+}
+
+/** Returns the USDC address for a chain, or undefined if not supported. */
+export function getUsdcAddress(chainId: number): `0x${string}` | undefined {
+	return USDC_ADDRESSES[chainId];
+}
+
 const wcProjectId = process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"];
 
 const hasWcProjectId = wcProjectId !== undefined && wcProjectId !== "";

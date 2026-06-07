@@ -51,6 +51,27 @@ export function formatEth(wei: bigint): string {
 	return `${eth.toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
 }
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+/**
+ * Formats an escrow amount using the correct unit for the payment token.
+ * Native ETH (zero address) → 18-decimal ETH formatting.
+ * Any ERC-20 (e.g. USDC) → 6-decimal USDC formatting.
+ * The 6-decimal assumption is safe for USDC on all supported chains.
+ */
+export function formatTokenAmount(amount: bigint, tokenAddress: string): string {
+	if (tokenAddress === ZERO_ADDRESS) {
+		return formatEth(amount);
+	}
+	const usdc = Number(amount) / 1e6;
+	return `${usdc.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC`;
+}
+
+/** Returns "ETH" or "USDC" for display in labels/hints. */
+export function tokenLabel(tokenAddress: string): string {
+	return tokenAddress === ZERO_ADDRESS ? "ETH" : "USDC";
+}
+
 export function formatDeadline(ts: bigint): string {
 	if (ts === BigInt(0)) return "-";
 	return new Date(Number(ts) * 1000).toLocaleDateString(undefined, {

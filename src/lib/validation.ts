@@ -11,7 +11,7 @@
  *   <Field error={error}>…</Field>
  */
 
-import { isAddress, parseEther } from "viem";
+import { isAddress, parseEther, parseUnits } from "viem";
 import { resolveDocUrl } from "@/lib/utils";
 
 /** A validator result: an error message, or `undefined` when valid. */
@@ -70,6 +70,27 @@ export function validateNumberInRange(
 	}
 	if (num < min || num > max) {
 		return `Enter a value between ${min.toString()} and ${max.toString()}${unit}.`;
+	}
+	return undefined;
+}
+
+/**
+ * Requires a positive USDC amount parseable to base units (6 decimals).
+ * Enforces a practical cap of 1,000,000 USDC to catch obvious input errors.
+ */
+export function validateUsdcAmount(value: string, maxUsdc?: number): ValidationResult {
+	const trimmed = value.trim();
+	if (trimmed === "") return "Enter an amount in USDC.";
+	const num = Number(trimmed);
+	if (!Number.isFinite(num)) return "Enter a valid number, e.g. 100.";
+	if (num <= 0) return "Amount must be greater than 0 USDC.";
+	try {
+		parseUnits(trimmed, 6);
+	} catch {
+		return "Enter a valid USDC amount (up to 6 decimal places).";
+	}
+	if (maxUsdc !== undefined && num > maxUsdc) {
+		return `Amount exceeds the available ${maxUsdc.toString()} USDC.`;
 	}
 	return undefined;
 }

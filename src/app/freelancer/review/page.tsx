@@ -13,7 +13,7 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { DecryptDocumentForm } from "@/components/DecryptDocumentForm";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
-import { formatEth, resolveDocUrl } from "@/lib/utils";
+import { formatTokenAmount, resolveDocUrl } from "@/lib/utils";
 import type { MagicLinkPayload } from "@/lib/magicLink";
 
 // The freelancer lands here from the magic-link email sent when a client proposes
@@ -260,7 +260,7 @@ function ReviewPageInner(): React.JSX.Element {
 			<p className="text-gray-500 dark:text-gray-400 text-sm mb-2">
 				The client proposes{" "}
 				<span className="font-medium text-gray-900 dark:text-white">
-					{formatEth(contract.amount)}
+					{formatTokenAmount(contract.amount, contract.token)}
 				</span>{" "}
 				in escrow. Review the offer below. Accepting signals your agreement — the client
 				will then fund the escrow to start the project deadline.
@@ -270,7 +270,7 @@ function ReviewPageInner(): React.JSX.Element {
 				<Row label="Status" value={statusLabel} />
 				<Row label="Client" value={contract.client} mono />
 				<Row label="Freelancer" value={contract.freelancer} mono />
-				<Row label="Amount" value={formatEth(contract.amount)} />
+				<Row label="Amount" value={formatTokenAmount(contract.amount, contract.token)} />
 				<Row
 					label="Deadline"
 					value={
