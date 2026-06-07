@@ -30,9 +30,9 @@ export function useInactivityLogout(): void {
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const lastResetRef = useRef<number>(0);
 
-	// react-doctor-disable-next-line react-doctor/exhaustive-deps
 	// timerRef.current in cleanup is intentional: we want to clear whatever
 	// timer is live at teardown time. Refs are stable and do not belong in deps.
+	// react-doctor-disable-next-line react-doctor/exhaustive-deps
 	useEffect(() => {
 		if (!isConnected) return;
 
