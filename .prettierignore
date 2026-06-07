@@ -38,5 +38,8 @@ src/next-env.d.ts
 .claude/
 .sixth/
 
+# ─── Git hooks (no file extension — prettier cannot infer a parser) ───────────
+.husky/
+
 # ─── Future coverage output (when added) ─────────────────────────────────────
 coverage/

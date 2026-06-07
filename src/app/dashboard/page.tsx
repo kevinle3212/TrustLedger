@@ -524,9 +524,7 @@ function SingleContract({
 	const addr = address.toLowerCase();
 	// Show this contract only if the wallet participates in the active role.
 	const matches =
-		role === "client"
-			? c.client.toLowerCase() === addr
-			: c.freelancer.toLowerCase() === addr;
+		role === "client" ? c.client.toLowerCase() === addr : c.freelancer.toLowerCase() === addr;
 
 	if (!matches) return null;
 

@@ -737,7 +737,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
             revert InvalidStatus(c.status); // freelancer has not yet accepted
         }
 
-        // Pull the agreed funds from the client.
+        // Validate the incoming payment without touching external contracts yet (Checks).
         if (c.token == address(0)) {
             if (msg.value != c.amount) {
                 revert InsufficientFunds();
@@ -746,17 +746,24 @@ contract TrustLedger is ReentrancyGuard, Pausable {
             if (msg.value != 0) {
                 revert InvalidTokenParams();
             }
+        }
+
+        // Effects: update state before any external interaction (CEI pattern).
+        // Convert the buffered duration stored in projectDeadline to an absolute timestamp.
+        // forge-lint: disable-next-line(unsafe-typecast)
+        c.projectDeadline = uint64(block.timestamp + uint256(c.projectDeadline));
+        c.usdValueAtCreation = c.token == address(0) ? _queryUsdValue(msg.value) : 0;
+        c.status = Status.ACTIVE;
+
+        // Interaction: pull ERC-20 funds after state is finalised.
+        // A revert here (false return or throw) unwinds the state changes above.
+        if (c.token != address(0)) {
             bool ok = IERC20(c.token).transferFrom(msg.sender, address(this), c.amount);
             if (!ok) {
                 revert TokenTransferFailed();
             }
         }
 
-        // Convert the buffered duration stored in projectDeadline to an absolute timestamp.
-        // forge-lint: disable-next-line(unsafe-typecast)
-        c.projectDeadline = uint64(block.timestamp + uint256(c.projectDeadline));
-        c.usdValueAtCreation = c.token == address(0) ? _queryUsdValue(msg.value) : 0;
-        c.status = Status.ACTIVE;
         emit ContractFundedByClient(id);
     }
 
@@ -871,7 +878,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
             revert NotFreelancerProposed();
         }
 
-        // Fund the escrow. The proposed amount lives in c.amount; the client must lock exactly that.
+        // Validate the incoming payment without touching external contracts yet (Checks).
         if (c.token == address(0)) {
             if (msg.value != c.amount) {
                 revert InsufficientFunds();
@@ -880,18 +887,25 @@ contract TrustLedger is ReentrancyGuard, Pausable {
             if (msg.value != 0) {
                 revert InvalidTokenParams(); // no ETH should accompany a token escrow
             }
-            bool ok = IERC20(c.token).transferFrom(msg.sender, address(this), c.amount);
-            if (!ok) {
-                revert TokenTransferFailed();
-            }
         }
 
+        // Effects: update state before any external interaction (CEI pattern).
         // The project deadline counts from acceptance. proposeContract stashed the buffered duration
         // (seconds) in projectDeadline; convert it to an absolute timestamp now that work can begin.
         // forge-lint: disable-next-line(unsafe-typecast)
         c.projectDeadline = uint64(block.timestamp + uint256(c.projectDeadline));
         c.usdValueAtCreation = c.token == address(0) ? _queryUsdValue(msg.value) : 0;
         c.status = Status.ACTIVE;
+
+        // Interaction: pull ERC-20 funds after state is finalised.
+        // A revert here (false return or throw) unwinds the state changes above.
+        if (c.token != address(0)) {
+            bool ok = IERC20(c.token).transferFrom(msg.sender, address(this), c.amount);
+            if (!ok) {
+                revert TokenTransferFailed();
+            }
+        }
+
         emit ContractAccepted(id);
     }
 
