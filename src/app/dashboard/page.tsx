@@ -728,7 +728,10 @@ function SummaryBanner({
 	].filter((c) => c.label === "Total" || c.value > 0);
 
 	return (
-		<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+		<section
+			aria-label="Contract status summary"
+			className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8"
+		>
 			{chips.map((c) => (
 				<div
 					key={c.label}
@@ -737,10 +740,15 @@ function SummaryBanner({
 					<p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
 						{c.label}
 					</p>
-					<p className={`text-2xl font-bold mt-0.5 ${c.color}`}>{c.value}</p>
+					<p
+						className={`text-2xl font-bold mt-0.5 ${c.color}`}
+						aria-label={`${String(c.value)} ${c.label.toLowerCase()}`}
+					>
+						{c.value}
+					</p>
 				</div>
 			))}
-		</div>
+		</section>
 	);
 }
 

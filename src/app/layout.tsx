@@ -44,9 +44,14 @@ export default function RootLayout({
 				className="min-h-full flex flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100"
 				suppressHydrationWarning
 			>
+				<a href="#main-content" className="skip-link">
+					Skip to main content
+				</a>
 				<Providers>
 					<Navbar />
-					<main className="flex-1">{children}</main>
+					<main id="main-content" className="flex-1">
+						{children}
+					</main>
 				</Providers>
 				{ReactScanMonitor !== null && <ReactScanMonitor />}
 			</body>

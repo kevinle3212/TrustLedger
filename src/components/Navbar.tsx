@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ContrastToggle } from "@/components/ContrastToggle";
 
 /** GitHub mark SVG icon. */
 function GitHubIcon(): React.JSX.Element {
@@ -25,16 +26,20 @@ function GitHubIcon(): React.JSX.Element {
 }
 
 /** Pill toggle that switches between client and freelancer mode. */
+/** Pill toggle that switches between client and freelancer mode. */
+/** Pill toggle that switches between client and freelancer mode. */
 function RoleToggle(): React.JSX.Element {
 	const { role, setRole } = useRole();
 	return (
-		<div className="flex items-center rounded-full border border-gray-200 dark:border-white/10 p-0.5 text-xs font-medium">
+		<fieldset className="flex items-center rounded-full border border-gray-200 dark:border-white/10 p-0.5 text-xs font-medium">
+			<legend className="sr-only">Active role</legend>
 			<button
 				type="button"
+				aria-pressed={role === "client"}
 				onClick={() => {
 					setRole("client");
 				}}
-				className={`px-3 py-1 rounded-full transition-colors ${
+				className={`px-3 py-1 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
 					role === "client"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -44,10 +49,11 @@ function RoleToggle(): React.JSX.Element {
 			</button>
 			<button
 				type="button"
+				aria-pressed={role === "freelancer"}
 				onClick={() => {
 					setRole("freelancer");
 				}}
-				className={`px-3 py-1 rounded-full transition-colors ${
+				className={`px-3 py-1 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
 					role === "freelancer"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -55,7 +61,7 @@ function RoleToggle(): React.JSX.Element {
 			>
 				Freelancer
 			</button>
-		</div>
+		</fieldset>
 	);
 }
 
@@ -64,7 +70,7 @@ export function Navbar(): React.JSX.Element {
 	const githubUrl = process.env["NEXT_PUBLIC_GITHUB_URL"];
 
 	const linkClass = (href: string): string =>
-		`text-sm font-medium transition-colors ${
+		`text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-sm ${
 			path === href
 				? "text-gray-900 dark:text-white"
 				: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -76,7 +82,8 @@ export function Navbar(): React.JSX.Element {
 				<div className="flex items-center gap-8">
 					<Link
 						href="/"
-						className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-lg tracking-tight"
+						aria-current={path === "/" ? "page" : undefined}
+						className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-lg tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-sm"
 					>
 						<Image
 							src="/logo.png"
@@ -88,17 +95,33 @@ export function Navbar(): React.JSX.Element {
 						/>
 						TrustLedger
 					</Link>
-					<nav className="flex items-center gap-6">
-						<Link href="/create" className={linkClass("/create")}>
+					<nav aria-label="Main navigation" className="flex items-center gap-6">
+						<Link
+							href="/create"
+							aria-current={path === "/create" ? "page" : undefined}
+							className={linkClass("/create")}
+						>
 							New Contract
 						</Link>
-						<Link href="/dashboard" className={linkClass("/dashboard")}>
+						<Link
+							href="/dashboard"
+							aria-current={path === "/dashboard" ? "page" : undefined}
+							className={linkClass("/dashboard")}
+						>
 							Dashboard
 						</Link>
-						<Link href="/juror" className={linkClass("/juror")}>
+						<Link
+							href="/juror"
+							aria-current={path === "/juror" ? "page" : undefined}
+							className={linkClass("/juror")}
+						>
 							Juror
 						</Link>
-						<Link href="/reputation" className={linkClass("/reputation")}>
+						<Link
+							href="/reputation"
+							aria-current={path === "/reputation" ? "page" : undefined}
+							className={linkClass("/reputation")}
+						>
 							Reputation
 						</Link>
 					</nav>
@@ -111,11 +134,12 @@ export function Navbar(): React.JSX.Element {
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label="View source on GitHub"
-							className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+							className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-lg"
 						>
 							<GitHubIcon />
 						</a>
 					)}
+					<ContrastToggle />
 					<ThemeToggle />
 					<ConnectButton />
 				</div>

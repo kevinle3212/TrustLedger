@@ -9,7 +9,9 @@ import {
 	useWaitForTransactionReceipt,
 } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
-import { Field, Input, Select } from "@/components/Field";
+import { Field } from "@/components/Field";
+import { Input } from "@/components/Input";
+import { Select } from "@/components/Select";
 import { parseEther, parseUnits, keccak256, toBytes, parseEventLogs } from "viem";
 import { TRUSTLEDGER_ABI } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl, getUsdcAddress } from "@/lib/wagmi";

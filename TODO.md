@@ -96,7 +96,11 @@ mainnet launch deliverables.
       live mode to iterate on UI components directly in the browser.
     - Launch live mode with `/impeccable live` and inspect, tweak, and validate
       changes visually before committing them. This is faster than
-      edit-refresh-repeat cycles for purely visual work.
+      edit-refresh-repeat cycles for purely visual work. If the RAM/Memory usage
+      is too high, try `/impeccable live --no-inspect` to disable the DOM
+      inspection layer, which is the most resource-intensive part of live mode.
+      You can still see the live updates in the browser without the inspection
+      panel.
 
 ## Phase 4 — Core Contract Lifecycle Features
 
@@ -448,15 +452,6 @@ mainnet launch deliverables.
     - A single `useReducer` per component makes state transitions explicit and
       eliminates the "many useState in a row" anti-pattern.
 
-- [ ] Split `components/Field.tsx` into one file per exported component.
-    - React Doctor flags `Input` (line 58) and `Select` (line 72) as secondary
-      components that should live in their own files.
-    - Create `components/Input.tsx` and `components/Select.tsx`, move the
-      implementations there, and update all import sites across the codebase.
-      The `Field` and `Label` components stay in `Field.tsx`.
-    - Run `npx tsc --noEmit` and the lint suite after to confirm no broken
-      imports.
-
 - [ ] Split the three oversized page components into focused sub-components
       (`no-giant-component` — React Doctor).
     - `app/freelancer/review/page.tsx` — extract `TokenVerificationLoader`,
@@ -467,10 +462,6 @@ mainnet launch deliverables.
       `ArweaveBackupPanel`, `ContractFormFields`, and `SubmitSummary`.
     - Keep `"use client"` only on the leaf components that need wagmi hooks;
       lift any purely presentational pieces to Server Components where possible.
-
-- [ ] Add accessibility features to the frontend so the platform is usable by
-      people with disabilities, including screen reader support, keyboard
-      navigation, and adjustable color contrast.
 
 - [ ] Add error monitoring and analytics (for example Sentry for error tracking
       and a privacy-respecting analytics tool) to surface production issues and
@@ -519,6 +510,15 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Split `components/Field.tsx` into one file per exported component.
+    - React Doctor flags `Input` (line 58) and `Select` (line 72) as secondary
+      components that should live in their own files.
+    - Created `components/Input.tsx` and `components/Select.tsx`; shared
+      internals (`FieldIdContext`, `controlClass`, `INPUT_BG`, `SELECT_BG`) are
+      exported from `Field.tsx` and imported by the new files. `Field` stays in
+      `Field.tsx`. Updated the one import site (`app/create/page.tsx`).
+      `tsc --noEmit` and the lint suite pass.
 
 - [x] Commit the six untracked page layout files that supply missing metadata
       (`src/app/{arbitration,client,create,freelancer,juror,reputation}/layout.tsx`).
@@ -991,3 +991,18 @@ mainnet launch deliverables.
       ZDR enabled), Resend + Brevo overflow (email), Alchemy (RPC), Pinata →
       Filebase migration path (IPFS), Chainlink on-chain + CoinGecko off-chain
       (price data).
+
+- [x] Add accessibility features to the frontend so the platform is usable by
+      people with disabilities, including screen reader support, keyboard
+      navigation, and adjustable color contrast. — Added a skip-to-main-content
+      link (`layout.tsx`); `aria-current="page"` on active nav links; labeled
+      `<nav aria-label="Main navigation">`; `<fieldset>` + `<legend>` for the
+      role toggle with `aria-pressed` on each button; `aria-label` on the
+      connected-wallet button; `role="region"` → `<section aria-label>` on the
+      `SummaryBanner`; threaded `Field` id context so every `<label>` now has a
+      matching `htmlFor`; global `focus-visible` ring in `globals.css`;
+      `ContrastToggle` component (half-circle icon in the navbar) that toggles
+      the `high-contrast` CSS class via `useSyncExternalStore`, persists to
+      `localStorage`, and auto-activates from `prefers-contrast: more`; high-
+      contrast CSS overrides for gray text, borders, and focus rings. React
+      Doctor accessibility findings: 16 → 0; score 74 → 82.
