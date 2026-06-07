@@ -10,7 +10,12 @@ import {
 } from "wagmi";
 import { useRole } from "@/contexts/RoleContext";
 import { ConnectButton } from "@/components/ConnectButton";
-import { DecryptDocumentForm } from "@/components/DecryptDocumentForm";
+import dynamic from "next/dynamic";
+
+const DecryptDocumentForm = dynamic(
+	async () => (await import("@/components/DecryptDocumentForm")).DecryptDocumentForm,
+	{ ssr: false },
+);
 import { keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { ERC20_ABI } from "@/lib/erc20Abi";
@@ -22,7 +27,7 @@ import {
 	resolveDocUrl,
 	STATUS_COLORS,
 } from "@/lib/utils";
-import { validateRequiredUri, validateScore } from "@/lib/validation";
+import { validateDeliverableUri, validateScore } from "@/lib/validation";
 import type { Contract } from "@/types";
 import Link from "next/link";
 
@@ -281,11 +286,14 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 // the on-chain hash no longer matches, proving the deliverable was altered after submission.
 function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	const [uri, setUri] = useState("");
+	// touched becomes true as soon as the user types anything or blurs the field,
+	// so the error message appears in real time once they start interacting.
 	const [touched, setTouched] = useState(false);
 	const { writeContract, data: txHash, isPending, error } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-	const uriError = validateRequiredUri(uri);
+	const uriError = validateDeliverableUri(uri);
+	const showError = touched && uriError !== undefined;
 
 	function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
@@ -303,33 +311,38 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 	if (isSuccess)
 		return (
 			<p className="text-xs text-green-500 dark:text-green-400">
-				Work submitted - waiting for client approval.
+				Work submitted — waiting for client approval.
 			</p>
 		);
 
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">
+			{/* Error message appears at the top of the form as soon as the input is
+			    invalid, so the user sees feedback in real time while typing. */}
+			{showError && (
+				<p role="alert" className="text-xs text-red-500 dark:text-red-400">
+					{uriError}
+				</p>
+			)}
 			<input
-				type="text"
-				placeholder="Deliverable URL or IPFS link"
+				type="url"
+				placeholder="https://… or ipfs://… or Qm… / baf…"
 				value={uri}
 				onChange={(e) => {
 					setUri(e.target.value);
+					setTouched(true);
 				}}
 				onBlur={() => {
 					setTouched(true);
 				}}
-				required
-				aria-invalid={touched && uriError !== undefined}
+				aria-invalid={showError}
+				aria-describedby={showError ? "uri-error" : undefined}
 				className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition ${
-					touched && uriError !== undefined
+					showError
 						? "border-red-500 dark:border-red-500 focus:ring-red-500"
 						: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
 				}`}
 			/>
-			{touched && uriError !== undefined && (
-				<p className="text-xs text-red-500 dark:text-red-400">{uriError}</p>
-			)}
 			{error !== null && (
 				<p className="text-xs text-red-500 dark:text-red-400">
 					{(error as { shortMessage?: string }).shortMessage ?? error.message}
