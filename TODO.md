@@ -88,10 +88,10 @@ mainnet launch deliverables.
       the contract description, key terms (amount and deadlines), and current
       status (for example "In Progress, 40% completed, no disputes") from the
       on-chain data and any relevant off-chain metadata.
-    - Research and compare free or free-tier AI providers before committing to
-      one, and document the trade-offs (rate limits, context window, data-
-      retention/privacy terms, and whether a card is required) in `NOTES.md`.
-      Candidates to evaluate:
+    - [x] Research and compare free or free-tier AI providers before committing
+          to one, and document the trade-offs (rate limits, context window,
+          data- retention/privacy terms, and whether a card is required) in
+          `NOTES.md`. Candidates to evaluate:
         - **Google Gemini API** — generous free tier (e.g. Gemini 2.x Flash)
           with a simple REST/SDK and no card required to start.
         - **Groq** — free tier serving open models (Llama, etc.) at very low
@@ -209,41 +209,12 @@ mainnet launch deliverables.
       for development and testing to replace the current one, which is
       restrictive and causes problems with email deliverability and the
       authentication experience.
-    - Research and evaluate alternatives that better support magic-link
-      authentication, such as SendGrid, Mailgun, or Postmark. Look for improved
-      deliverability, easier backend integration, and better analytics for
-      tracking email performance.
+    - [x] Research and evaluate alternatives that better support magic-link
+          authentication, such as SendGrid, Mailgun, or Postmark. Look for
+          improved deliverability, easier backend integration, and better
+          analytics for tracking email performance.
     - Implement the new provider in the authentication flow so users reliably
       receive their magic links and authenticate without issues.
-
-- [ ] Survey and document useful free / free-tier external APIs the platform can
-      adopt to stay zero- or low-cost through development and early launch, then
-      record the chosen providers and their limits in `NOTES.md`. I need
-      unlimited free access to some core services during development and
-      testing,and I want to avoid surprise paywalls or rate limits as I build
-      and iterate. For each category, research and compare the leading free-tier
-      options, then pick the one that best fits our needs and document the
-      choice and its limits in `NOTES.md` so it's clear to all contributors.
-      Check the below categories for ideas, but also keep an eye out for any
-      other useful APIs that could speed up development or enhance the platform
-      without adding cost:
-    - **Email / transactional:** currently Resend (3,000/month, 100/day free);
-      benchmark against SendGrid, Mailgun, Postmark, and Brevo for
-      deliverability and free-tier headroom (ties into the magic-link provider
-      item above).
-    - **AI summarization / moderation:** see the free-tier AI research under the
-      Phase 4 AI-summary item (Gemini, Groq, OpenRouter, Cloudflare Workers AI,
-      Mistral, Together AI).
-    - **RPC / node access:** Alchemy, Infura, and the public/free endpoints for
-      Sepolia and the production L2s — compare request quotas and archive
-      access.
-    - **IPFS / storage pinning:** Pinata (already used), web3.storage, and
-      Filebase free tiers for document and deliverable pinning.
-    - **Price / oracle feeds:** CoinGecko and Chainlink free feeds for the
-      stablecoin/exchange-rate work in the oracle item below.
-    - For each category, note rate limits, whether a credit card is required,
-      data-retention/privacy terms, and the upgrade path, so the team can pick
-      deliberately and avoid surprise paywalls near mainnet.
 
 - [ ] Add an oracle service to fetch off-chain data relevant to contracts, such
       as exchange rates for stablecoin payments or external data feeds that
@@ -853,3 +824,14 @@ mainnet launch deliverables.
           (clients, freelancers, jurors, disputes, fees, developers, doc-site)
           and referenced it from the `mkdocs.yml` nav, `Home.md` index, and
           `CONTRACTS.md` related docs.
+
+- [x] Survey and document useful free / free-tier external APIs the platform can
+      adopt to stay zero- or low-cost through development and early launch, then
+      record the chosen providers and their limits in `NOTES.md`. — Researched
+      and compared all five categories (AI summarization/moderation, email/
+      transactional, RPC/node access, IPFS pinning, price/oracle feeds) and
+      documented findings, trade-offs, and chosen providers in `NOTES.md` under
+      "Free-Tier API Provider Survey (2026-06-06)". Chosen providers: Groq (AI,
+      ZDR enabled), Resend + Brevo overflow (email), Alchemy (RPC), Pinata →
+      Filebase migration path (IPFS), Chainlink on-chain + CoinGecko off-chain
+      (price data).
