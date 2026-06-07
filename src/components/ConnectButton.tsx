@@ -118,7 +118,7 @@ export function ConnectButton(): React.JSX.Element {
 					type="button"
 					onClick={openModal}
 					aria-label={`Connected as ${address}. Click to open wallet options.`}
-					className="inline-flex items-center min-h-[44px] px-4 py-2 text-sm font-medium font-mono transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+					className="inline-flex items-center min-h-11 px-4 py-2 text-sm font-medium font-mono transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
 				>
 					<span aria-hidden="true">{formatAddress(address)}</span>
 				</button>
@@ -127,7 +127,7 @@ export function ConnectButton(): React.JSX.Element {
 					onClick={copyAddress}
 					aria-label={copied ? "Address copied" : "Copy wallet address"}
 					title={copied ? "Copied!" : "Copy address"}
-					className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] border-l border-white/20 px-3 transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+					className="inline-flex items-center justify-center min-h-11 border-l border-white/20 px-3 transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
 				>
 					{copied ? <CheckIcon /> : <CopyIcon />}
 				</button>

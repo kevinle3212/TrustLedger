@@ -9,17 +9,23 @@ import {
 	useWriteContract,
 	useWaitForTransactionReceipt,
 } from "wagmi";
-import { ConnectButton } from "@/components/ConnectButton";
-import { DecryptDocumentForm } from "@/components/DecryptDocumentForm";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
 import { ERC20_ABI } from "@/lib/erc20Abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
-import { formatTokenAmount, resolveDocUrl } from "@/lib/utils";
+import { formatTokenAmount } from "@/lib/utils";
 import type { MagicLinkPayload } from "@/lib/magicLink";
+import { TokenVerificationLoader } from "./_components/TokenVerificationLoader";
+import { ContractDetailPanel } from "./_components/ContractDetailPanel";
+import { AcceptRejectActions } from "./_components/AcceptRejectActions";
 
 // The client lands here from the magic-link email. They review the freelancer's
 // proposal, securely view the (optionally encrypted) IPFS contract document, then
 // either accept — funding the escrow in the same transaction — or reject it.
+
+function PageShell({ children }: { children: React.ReactNode }): React.JSX.Element {
+	return <div className="max-w-lg mx-auto px-6 py-16 flex flex-col gap-4">{children}</div>;
+}
+
 function AcceptPageInner(): React.JSX.Element {
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token") ?? "";
@@ -168,76 +174,6 @@ function AcceptPageInner(): React.JSX.Element {
 		});
 	}
 
-	// - Loading states -
-	if (tokenLoading)
-		return (
-			<PageShell>
-				<p className="text-gray-500 dark:text-gray-400">Verifying link…</p>
-			</PageShell>
-		);
-
-	if (tokenError !== null) {
-		return (
-			<PageShell>
-				<div className="rounded-xl bg-red-500/10 border border-red-500/20 px-6 py-5 text-center">
-					<p className="text-red-500 dark:text-red-400 font-semibold mb-1">
-						Invalid or Expired Link
-					</p>
-					<p className="text-gray-500 dark:text-gray-400 text-sm">{tokenError}</p>
-				</div>
-			</PageShell>
-		);
-	}
-
-	if (!isConnected) {
-		return (
-			<PageShell>
-				<p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
-					Connect the wallet at{" "}
-					<span className="font-mono text-indigo-600 dark:text-indigo-400">
-						{payload?.clientAddress}
-					</span>{" "}
-					to review contract #{payload?.contractId}.
-				</p>
-				<ConnectButton />
-			</PageShell>
-		);
-	}
-
-	// Wallet address mismatch
-	const expectedAddress = payload?.clientAddress.toLowerCase();
-	if (address?.toLowerCase() !== expectedAddress) {
-		return (
-			<PageShell>
-				<div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-6 py-5">
-					<p className="text-yellow-600 dark:text-yellow-400 font-semibold mb-1">
-						Wrong Wallet
-					</p>
-					<p className="text-gray-500 dark:text-gray-400 text-sm">
-						This link is for{" "}
-						<span className="font-mono text-yellow-600 dark:text-yellow-300">
-							{payload?.clientAddress}
-						</span>
-						. Please switch to that account.
-					</p>
-				</div>
-				<div className="mt-4">
-					<ConnectButton />
-				</div>
-			</PageShell>
-		);
-	}
-
-	if (contractLoading || contract === undefined) {
-		return (
-			<PageShell>
-				<p className="text-gray-500 dark:text-gray-400">Loading contract…</p>
-			</PageShell>
-		);
-	}
-
-	const statusLabel = STATUS_LABELS[contract.status] ?? "Unknown";
-
 	if (isSuccess) {
 		const accepted = action === "accept";
 		return (
@@ -281,154 +217,64 @@ function AcceptPageInner(): React.JSX.Element {
 		);
 	}
 
-	const canRespond = contract.status === 0; // PENDING
-	const docUrl = resolveDocUrl(contract.contractURI);
+	const statusLabel = contract !== undefined ? (STATUS_LABELS[contract.status] ?? "Unknown") : "";
+	const canRespond = contract?.status === 0; // PENDING
 	const busy = isSending || isConfirming || isApproveSending || isApproveConfirming;
-	const formattedAmount = formatTokenAmount(contract.amount, contract.token);
+	const formattedAmount =
+		contract !== undefined ? formatTokenAmount(contract.amount, contract.token) : "";
 
 	return (
-		<PageShell>
-			<h1 className="text-2xl font-bold mb-1">Contract #{payload?.contractId}</h1>
-			<p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-				Review the terms and document below. Accepting locks {formattedAmount} in escrow.
-				{isToken && (
-					<span className="block mt-1 text-amber-600 dark:text-amber-400">
-						This contract uses USDC. You will approve the transfer in a separate step
-						before funding.
-					</span>
-				)}
-			</p>
+		<TokenVerificationLoader
+			tokenLoading={tokenLoading}
+			tokenError={tokenError}
+			isConnected={isConnected}
+			address={address}
+			payload={payload}
+			contractLoading={contractLoading}
+			contract={contract}
+		>
+			<PageShell>
+				<h1 className="text-2xl font-bold mb-1">Contract #{payload?.contractId}</h1>
+				<p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+					Review the terms and document below. Accepting locks {formattedAmount} in
+					escrow.
+					{isToken && (
+						<span className="block mt-1 text-amber-600 dark:text-amber-400">
+							This contract uses USDC. You will approve the transfer in a separate
+							step before funding.
+						</span>
+					)}
+				</p>
 
-			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3 text-sm mb-6">
-				<Row label="Status" value={statusLabel} />
-				<Row label="Client" value={contract.client} mono />
-				<Row label="Freelancer" value={contract.freelancer} mono />
-				<Row label="Amount" value={formattedAmount} />
-				<Row label="Currency" value={isToken ? "USDC" : "ETH"} />
-				<Row
-					label="Deadline"
-					value={
-						contract.projectDeadline > 0n
-							? `~${String(Math.round(Number(contract.projectDeadline) / 86400))} days after acceptance`
-							: "Set on acceptance"
-					}
-				/>
-				{contract.holdBackBps > 0 && (
-					<Row label="Hold-back" value={`${String(contract.holdBackBps / 100)}%`} />
-				)}
-				{docUrl !== undefined && (
-					<Row
-						label="Document"
-						value={
-							<span className="flex items-center justify-end gap-2">
-								<a
-									href={docUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
-								>
-									View
-								</a>
-								<span className="text-gray-300 dark:text-gray-600 text-xs">·</span>
-								<button
-									type="button"
-									onClick={() => {
-										setDecryptOpen((o) => !o);
-									}}
-									className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
-								>
-									{decryptOpen ? "Hide decrypt" : "Decrypt"}
-								</button>
-							</span>
-						}
-					/>
-				)}
-			</div>
-
-			{/* Decrypt-and-view panel for AES-256-GCM encrypted documents. */}
-			{docUrl !== undefined && decryptOpen && (
-				<div className="mb-6">
-					<DecryptDocumentForm
-						gatewayUrl={docUrl}
-						onClose={() => {
-							setDecryptOpen(false);
+				{contract !== undefined && (
+					<ContractDetailPanel
+						contract={contract}
+						statusLabel={statusLabel}
+						isToken={isToken}
+						decryptOpen={decryptOpen}
+						onToggleDecrypt={() => {
+							setDecryptOpen((o) => !o);
 						}}
 					/>
-				</div>
-			)}
+				)}
 
-			{!canRespond && (
-				<div className="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-4 py-3 text-sm text-yellow-600 dark:text-yellow-400 mb-4">
-					Contract is not awaiting acceptance (current: {statusLabel}). It may already be
-					accepted, rejected, or withdrawn.
-				</div>
-			)}
-
-			{approveError !== null && (
-				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
-					{(approveError as { shortMessage?: string }).shortMessage ??
-						approveError.message}
-				</p>
-			)}
-			{writeError !== null && (
-				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
-					{(writeError as { shortMessage?: string }).shortMessage ?? writeError.message}
-				</p>
-			)}
-
-			<div className="flex gap-3">
-				<button
-					type="button"
-					onClick={handleAccept}
-					disabled={!canRespond || busy}
-					className="flex-1 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
-				>
-					{busy && action === "accept"
-						? isApproveSending || isApproveConfirming
-							? "Approving USDC…"
-							: isConfirming
-								? "Confirming on-chain…"
-								: "Waiting for wallet…"
-						: isToken
-							? `Approve & Fund (${formattedAmount})`
-							: `Accept & Fund (${formattedAmount})`}
-				</button>
-				<button
-					type="button"
-					onClick={handleReject}
-					disabled={!canRespond || busy}
-					className="px-6 py-3 rounded-xl border border-gray-300 dark:border-white/15 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 font-semibold transition-colors"
-				>
-					{busy && action === "reject" ? "Rejecting…" : "Reject"}
-				</button>
-			</div>
-		</PageShell>
+				<AcceptRejectActions
+					busy={busy}
+					action={action}
+					isApproveSending={isApproveSending}
+					isApproveConfirming={isApproveConfirming}
+					isConfirming={isConfirming}
+					canRespond={canRespond}
+					isToken={isToken}
+					formattedAmount={formattedAmount}
+					onAccept={handleAccept}
+					onReject={handleReject}
+					approveError={approveError}
+					writeError={writeError}
+				/>
+			</PageShell>
+		</TokenVerificationLoader>
 	);
-}
-
-function Row({
-	label,
-	value,
-	mono = false,
-}: {
-	label: string;
-	value: React.ReactNode;
-	mono?: boolean;
-}): React.JSX.Element {
-	return (
-		<div className="flex justify-between gap-4">
-			<span className="text-gray-500 shrink-0">{label}</span>
-			<span
-				className={`text-right truncate ${mono ? "font-mono text-xs text-gray-600 dark:text-gray-300" : "text-gray-900 dark:text-white"}`}
-			>
-				{value}
-			</span>
-		</div>
-	);
-}
-
-function PageShell({ children }: { children: React.ReactNode }): React.JSX.Element {
-	return <div className="max-w-lg mx-auto px-6 py-16 flex flex-col gap-4">{children}</div>;
 }
 
 export default function AcceptPage(): React.JSX.Element {

@@ -102,6 +102,41 @@ mainnet launch deliverables.
       You can still see the live updates in the browser without the inspection
       panel.
 
+- [ ] Add internationalization (i18n) so TrustLedger is accessible to a global
+      freelance audience.
+    - Use `next-intl` (the idiomatic Next.js App Router i18n library) to manage
+      translations and locale routing. It supports the App Router's `layout.tsx`
+      nesting, server components, and client components without a custom server.
+    - Extract all user-facing strings into locale message files under
+      `src/messages/` (e.g., `en.json`, `es.json`, `vi.json`).
+    - Priority locales based on global freelance market size:
+        1. **Spanish** (`es`) — largest non-English freelance population in
+           Latin America and Spain.
+        2. **Vietnamese** (`vi`) — fast-growing tech freelance community in
+           Southeast Asia.
+        3. **Portuguese** (`pt`) — Brazil is one of the largest freelance
+           markets globally.
+        4. **Chinese (Simplified)** (`zh-CN`) — large developer and design
+           freelance base.
+        5. **Arabic** (`ar`) — significant Gulf-region freelance market; also
+           requires RTL layout support.
+        6. **French** (`fr`) — sizable Francophone freelance community across
+           Europe and Africa.
+        7. **Hindi** (`hi`) — India is one of the top freelance-exporting
+           countries.
+    - Add a locale switcher in the site header or footer so users can change
+      language without a full page reload.
+    - Ensure date, number, and currency formatting respects locale conventions
+      (use the `Intl` browser API rather than hard-coded formats).
+    - For RTL locales (Arabic), add `dir="rtl"` to the root layout and audit
+      Tailwind utility classes that assume LTR flow (e.g., `ml-`, `pl-`,
+      `text-left`); use logical properties (`ms-`, `ps-`, `text-start`) instead.
+    - Smart contract error messages and on-chain status labels (e.g.,
+      `STATUS_LABELS` in `lib/abi.ts`) should also be translated — map them
+      through the i18n layer rather than rendering raw English strings.
+    - Machine-translate first drafts with a tool like DeepL, then engage native
+      speakers for review before shipping each locale.
+
 ## Phase 4 — Core Contract Lifecycle Features
 
 - [ ] Allow clients and freelancers to create a contract within the platform,
@@ -452,17 +487,6 @@ mainnet launch deliverables.
     - A single `useReducer` per component makes state transitions explicit and
       eliminates the "many useState in a row" anti-pattern.
 
-- [ ] Split the three oversized page components into focused sub-components
-      (`no-giant-component` — React Doctor).
-    - `app/freelancer/review/page.tsx` — extract `TokenVerificationLoader`,
-      `ContractSummaryPanel`, and `ActionButtons` sections.
-    - `app/client/accept/page.tsx` — same pattern: split token loader, contract
-      detail panel, and accept/reject form.
-    - `app/create/page.tsx` — extract `FileUploadPanel`, `EncryptionOptions`,
-      `ArweaveBackupPanel`, `ContractFormFields`, and `SubmitSummary`.
-    - Keep `"use client"` only on the leaf components that need wagmi hooks;
-      lift any purely presentational pieces to Server Components where possible.
-
 - [ ] Add error monitoring and analytics (for example Sentry for error tracking
       and a privacy-respecting analytics tool) to surface production issues and
       usage patterns.
@@ -510,6 +534,21 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Split the three oversized page components into focused sub-components
+      (`no-giant-component` — React Doctor).
+    - `app/freelancer/review/page.tsx` — extract `TokenVerificationLoader`,
+      `ContractSummaryPanel`, and `ActionButtons` sections.
+    - `app/client/accept/page.tsx` — same pattern: split token loader, contract
+      detail panel, and accept/reject form.
+    - `app/create/page.tsx` — extract `FileUploadPanel`, `EncryptionOptions`,
+      `ArweaveBackupPanel`, `ContractFormFields`, and `SubmitSummary`.
+    - Keep `"use client"` only on the leaf components that need wagmi hooks;
+      lift any purely presentational pieces to Server Components where possible.
+    - React Doctor score: 80 → 84 (diff mode). Remaining `no-giant-component`
+      warning on `create/page.tsx` is pre-existing in spirit; the ~550-line
+      residual is almost entirely wagmi hooks + business logic that cannot leave
+      the component under React hook rules. `tsc --noEmit` and full lint pass.
 
 - [x] Split `components/Field.tsx` into one file per exported component.
     - React Doctor flags `Input` (line 58) and `Select` (line 72) as secondary
