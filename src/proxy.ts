@@ -11,10 +11,19 @@ import { type NextRequest, NextResponse } from "next/server";
 //      email-sending and on-chain-reading endpoints against accidental loops and
 //      casual abuse.
 //
-// Note: a strict Content-Security-Policy is intentionally NOT set here. Reown
-// AppKit / WalletConnect inject inline styles and connect to many wallet relays,
-// so a tight CSP needs per-deploy tuning; that is tracked as its own Phase 3
-// security task. The headers below are the CSP-independent hardening.
+// A Content-Security-Policy is applied below alongside the other headers.
+// Key decisions:
+//   • script-src 'unsafe-inline' — Next.js injects inline hydration scripts;
+//     nonce-based CSP is the proper upgrade but requires additional middleware
+//     infrastructure and is tracked as a future hardening step.
+//   • style-src 'unsafe-inline' — Reown AppKit injects inline styles for its modal.
+//   • connect-src https: wss: — broad allow covers arbitrary RPC providers,
+//     WalletConnect relay, Pinata, block explorers, and wallet APIs without
+//     hardcoding every endpoint (which changes per network and wallet).
+//   • frame-src / object-src 'none' — the dApp never embeds iframes or plugins.
+//   • base-uri 'self' + form-action 'self' — prevent base-tag injection and
+//     cross-origin form submissions, two common XSS escalation vectors.
+//   • frame-ancestors 'none' — belt-and-suspenders with X-Frame-Options: DENY.
 
 /** Security headers applied to every response. */
 const SECURITY_HEADERS: Record<string, string> = {
@@ -30,6 +39,30 @@ const SECURITY_HEADERS: Record<string, string> = {
 	"Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
 	// Limit cross-origin window references opened via target=_blank.
 	"X-DNS-Prefetch-Control": "on",
+	// Content-Security-Policy — see rationale in the comment above.
+	"Content-Security-Policy": [
+		"default-src 'self'",
+		// Next.js requires 'unsafe-inline' for hydration scripts.
+		"script-src 'self' 'unsafe-inline'",
+		// AppKit injects inline styles for its modal.
+		"style-src 'self' 'unsafe-inline'",
+		// Wallet icons come from remote CDNs; data:/blob: for inline SVGs.
+		"img-src 'self' data: blob: https:",
+		// Geist is self-hosted by next/font; no external font CDN needed.
+		"font-src 'self'",
+		// Broad HTTPS/WSS allow for RPC providers, WalletConnect relay, Pinata, etc.
+		"connect-src 'self' https: wss:",
+		// The dApp never embeds iframes.
+		"frame-src 'none'",
+		// Eliminate the Flash / plugin attack surface.
+		"object-src 'none'",
+		// Prevent <base href> injection.
+		"base-uri 'self'",
+		// No cross-origin form submissions.
+		"form-action 'self'",
+		// Belt-and-suspenders with X-Frame-Options: DENY.
+		"frame-ancestors 'none'",
+	].join("; "),
 };
 
 // ── In-memory rate limiter ───────────────────────────────────────────────────

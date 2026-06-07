@@ -131,6 +131,30 @@ export function validateRequiredUri(value: string): ValidationResult {
 	return validateContractUri(trimmed);
 }
 
+/** CIDv0: base58btc-encoded SHA2-256, always 46 chars starting with "Qm". */
+const CIDV0_RE = /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/;
+/** CIDv1: multibase-encoded (base32 most common → baf…/bafy…/baga…), 20+ chars. */
+const CIDV1_RE = /^b[A-Za-z2-7]{20,}$/;
+
+/**
+ * Validates a deliverable submission URI. Stricter than {@link validateContractUri}:
+ * only `https://` URLs, `ipfs://` URIs, and raw CIDv0/CIDv1 strings are accepted.
+ * `http://`, `ar://`, and everything else are rejected.
+ *
+ * Example:
+ *   validateDeliverableUri("ipfs://Qm…") // undefined (valid)
+ *   validateDeliverableUri("http://…")   // error message
+ */
+export function validateDeliverableUri(value: string): ValidationResult {
+	const trimmed = value.trim();
+	if (trimmed === "") return "Enter a deliverable URL or IPFS link.";
+	const isHttps = trimmed.startsWith("https://") && trimmed.length > "https://".length;
+	const isIpfs = trimmed.startsWith("ipfs://") && trimmed.length > "ipfs://".length;
+	const isCid = CIDV0_RE.test(trimmed) || CIDV1_RE.test(trimmed);
+	if (isHttps || isIpfs || isCid) return undefined;
+	return "Must be a valid URL or IPFS link (ipfs://, https://…/ipfs/…, or a CID).";
+}
+
 // Pragmatic email shape check: a single @, no spaces, a dot in the domain. Full
 // RFC 5322 validation is intentionally avoided - the magic-link send confirms
 // deliverability.

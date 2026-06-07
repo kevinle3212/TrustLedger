@@ -244,22 +244,45 @@ mainnet launch deliverables.
       work smoothly in mobile browsers, since many users access the platform
       from their phones as well as their desktops.
 
-- [ ] Add Tailwind CSS for the frontend if needed, and make the frontend faster,
-      more secure, and more aesthetically pleasing.
-    - Tailwind is already a dev dependency in `src/package.json` (v4 via
-      `@tailwindcss/postcss`); audit whether it is actually wired into the
-      styling pipeline and adopt it consistently if it improves maintainability
-      over the current approach, otherwise document why it is intentionally
-      unused.
-    - Performance: trim client bundle size, lazy-load wallet/AppKit code, adopt
-      Next.js streaming/Server Components where possible, optimize fonts and
-      images, and target strong Core Web Vitals (LCP, CLS, INP).
-    - Security: add a strict Content-Security-Policy and security headers, audit
-      `dangerouslySetInnerHTML`/external links, keep dependencies patched, and
-      ensure no secrets reach the client bundle.
-    - Aesthetics: establish a consistent design system (spacing, typography,
-      color tokens, dark mode), improve accessibility (WCAG AA contrast, focus
-      states, reduced-motion support), and polish loading/empty/error states.
+- [x] Add Tailwind CSS for the frontend if needed, and make the frontend faster,
+      more secure, and more aesthetically pleasing. — Tailwind v4 is confirmed
+      fully wired via `@import "tailwindcss"` in `globals.css` and
+      `@tailwindcss/postcss` in `postcss.config.mjs`; all pages and components
+      use Tailwind classes consistently so no migration was needed. Three
+      concrete improvements were landed in this pass:
+    - **Performance:** Lazy-loaded `DecryptDocumentForm` in `dashboard/page.tsx`
+      via `next/dynamic` (SSR disabled); the 208-line component is now a split
+      chunk fetched only when a user opens a decrypt panel. Geist fonts are
+      already self-hosted and preloaded by `next/font`; `next/image` is already
+      used for the logo. All pages are `"use client"` because they depend on
+      wagmi hooks — Server Components are not applicable here. AppKit is
+      initialized as a module-import side effect, which is required for web
+      component registration and cannot be deferred further without breaking the
+      wallet modal.
+    - **Security:** Added a `Content-Security-Policy` header to `proxy.ts`
+      (deferred from Phase 2). Key directives: `object-src 'none'` eliminates
+      the plugin/Flash attack surface; `base-uri 'self'` prevents `<base>` tag
+      injection; `form-action 'self'` blocks cross-origin form submissions;
+      `frame-ancestors 'none'` reinforces `X-Frame-Options: DENY`;
+      `connect-src 'self' https: wss:` restricts outbound fetch/XHR/WebSocket to
+      HTTPS and WSS only (covers arbitrary RPC providers, WalletConnect relay,
+      Pinata, and block explorers without hardcoding every endpoint).
+      `script-src 'unsafe-inline'` is required by Next.js hydration scripts;
+      nonce-based CSP is the proper upgrade path but needs additional middleware
+      infrastructure. Audited all `target="_blank"` links — every one already
+      carries `rel="noopener noreferrer"`. No `dangerouslySetInnerHTML` found.
+      All `NEXT_PUBLIC_*` vars are intentional public values (contract
+      addresses, WalletConnect project ID, GitHub URL); `NEXT_PUBLIC_PINATA_JWT`
+      is a dev-only convenience — the JWT field is shown in the UI when the var
+      is absent so users supply their own key at runtime.
+    - **Aesthetics:** Added `prefers-reduced-motion` media query to
+      `globals.css` (collapses all transitions/animations to 0.01 ms for users
+      who opt out of motion). Added `--color-brand` and `--color-brand-hover`
+      design tokens to the `@theme inline` block, making the indigo accent
+      explicitly referenceable without hard-coded hex values. The existing UI
+      already has a consistent design system (indigo brand color, gray neutrals,
+      44 px touch targets, `focus-visible` ring states, dark mode via
+      `next-themes`); no further design-system work was needed.
 
 ## Phase 4 — Core Contract Lifecycle Features
 
@@ -275,7 +298,7 @@ mainnet launch deliverables.
     - No smart-contract changes are required — the contracts already track both
       parties by address. This is purely a frontend routing and state concern.
 
-- [ ] Add USDC as a supported payment currency alongside ETH.
+- [x] Add USDC as a supported payment currency alongside ETH.
     - The escrow contract currently operates in the native chain token (ETH).
       Add an ERC-20 payment path: accept a `tokenAddress` (address(0) for ETH, a
       USDC contract address otherwise) and use `IERC20.transferFrom` /
@@ -331,18 +354,27 @@ mainnet launch deliverables.
       contract at a glance, so users can understand the state of their contracts
       without clicking into each one.
 
-- [ ] Add a link checker to the deliverable submission form so that invalid URLs
-      or IPFS links are caught before submission.
-    - Validate the input in real time as the user types or pastes a link. Accept
-      only well-formed `https://` URLs or IPFS links in any of the standard
-      formats (`ipfs://`, `https://<gateway>/ipfs/`, or a raw CIDv0/CIDv1
-      starting with `Qm…` or `baf…`).
-    - Display a clear error message at the top of the submit box when the link
-      does not match a valid pattern (for example "Must be a valid URL or IPFS
-      link (ipfs://, https://…/ipfs/…, or a CID)").
-    - Disable the submit button while the link is empty or invalid, re-enabling
-      it only once the input passes validation, so users cannot accidentally
-      submit a broken link.
+- [x] Add a link checker to the deliverable submission form so that invalid URLs
+      or IPFS links are caught before submission. — Added
+      `validateDeliverableUri` to `src/lib/validation.ts` and wired it into
+      `SubmitWorkForm` in `src/app/dashboard/page.tsx`.
+    - **Real-time validation:** `touched` is now set on the first `onChange`
+      event (not only on blur), so the error appears immediately as the user
+      types or pastes an invalid value rather than waiting for focus to leave
+      the field.
+    - **Accepted formats:** `https://` URLs (length > 8, covering
+      `https://<gateway>/ipfs/…` paths), `ipfs://` URIs (length > 7), raw CIDv0
+      (`Qm[base58]{44}`), and raw CIDv1 (`b[base32]{20+}`, e.g. `baf…`).
+      `http://`, `ar://`, and anything else is rejected. The new validator is
+      stricter than the existing `validateContractUri` (which accepted `ar://`
+      and `http://`) and lives alongside it so the contract-document URI field
+      is unaffected.
+    - **Error message location:** the error now renders at the top of the form
+      (above the input) using `role="alert"` so screen readers announce it
+      immediately.
+    - **Disabled submit:** the "Submit Work" button was already gated on
+      `uriError !== undefined`; that invariant is preserved with the new
+      validator so the button stays disabled until a valid link is entered.
 
 - [ ] Add an AI-generated summary of each contract and its status to the
       dashboard, so users can quickly understand the key details and current
