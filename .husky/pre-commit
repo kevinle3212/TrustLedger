@@ -1,2 +1,4 @@
-npm run lint && npm run lint:frontend && npm run lint:prettier
+prettier --write . && git add -u
+npm run lint && npm run lint:frontend
+(cd src && npx tsc --noEmit)
 (cd contracts && FOUNDRY_PROFILE=ci forge build && FOUNDRY_PROFILE=ci forge test)

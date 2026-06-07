@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { config } from "@/lib/wagmi";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
+import { RoleProvider } from "@/contexts/RoleContext";
 
 /**
  * Keeps the AppKit modal's light/dark mode in sync with next-themes.
@@ -44,13 +45,15 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 			enableSystem={false}
 			disableTransitionOnChange
 		>
-			<WagmiProvider config={config}>
-				<QueryClientProvider client={queryClient}>
-					<AppKitThemeSync />
-					<InactivityWatcher />
-					{children}
-				</QueryClientProvider>
-			</WagmiProvider>
+			<RoleProvider>
+				<WagmiProvider config={config}>
+					<QueryClientProvider client={queryClient}>
+						<AppKitThemeSync />
+						<InactivityWatcher />
+						{children}
+					</QueryClientProvider>
+				</WagmiProvider>
+			</RoleProvider>
 		</ThemeProvider>
 	);
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useRole } from "@/contexts/RoleContext";
 import { ConnectButton } from "@/components/ConnectButton";
 import { DecryptDocumentForm } from "@/components/DecryptDocumentForm";
 import { formatEther, keccak256, toBytes } from "viem";
@@ -455,7 +456,13 @@ function ContractCard({
 // Reads nextId from the contract to know the total count, then renders IDs in reverse
 // (newest first). Each ID is rendered as a separate SingleContract so reads are parallelised
 // by wagmi's internal query deduplication rather than one large multicall.
-function ContractList({ address }: { address: `0x${string}` }): React.JSX.Element {
+function ContractList({
+	address,
+	role,
+}: {
+	address: `0x${string}`;
+	role: "client" | "freelancer";
+}): React.JSX.Element {
 	const { data: nextId } = useReadContract({
 		address: TRUSTLEDGER_ADDRESS,
 		abi: TRUSTLEDGER_ABI,
@@ -486,21 +493,23 @@ function ContractList({ address }: { address: `0x${string}` }): React.JSX.Elemen
 	return (
 		<div className="flex flex-col gap-4">
 			{ids.map((id) => (
-				<SingleContract key={id.toString()} id={id} address={address} />
+				<SingleContract key={id.toString()} id={id} address={address} role={role} />
 			))}
 		</div>
 	);
 }
 
-// Fetches one contract by ID and filters it out if the connected wallet isn't a participant.
+// Fetches one contract by ID and filters it to the active role view.
 // Rendering each contract individually means wagmi can cache and deduplicate reads across
 // re-renders — if the same ID is shown on two pages it hits the cache instead of the RPC.
 function SingleContract({
 	id,
 	address,
+	role,
 }: {
 	id: bigint;
 	address: `0x${string}`;
+	role: "client" | "freelancer";
 }): React.JSX.Element | null {
 	const { data: contract, isLoading } = useReadContract({
 		address: TRUSTLEDGER_ADDRESS,
@@ -512,19 +521,19 @@ function SingleContract({
 	if (isLoading || contract === undefined) return null;
 
 	const c = contract;
-	// Only show contracts where the connected wallet is the client or the freelancer.
-	// toLowerCase() normalises checksum addresses so the comparison is case-insensitive.
-	const isParticipant =
-		c.client.toLowerCase() === address.toLowerCase() ||
-		c.freelancer.toLowerCase() === address.toLowerCase();
+	const addr = address.toLowerCase();
+	// Show this contract only if the wallet participates in the active role.
+	const matches =
+		role === "client" ? c.client.toLowerCase() === addr : c.freelancer.toLowerCase() === addr;
 
-	if (!isParticipant) return null;
+	if (!matches) return null;
 
 	return <ContractCard id={id} contract={c} address={address} />;
 }
 
 export default function DashboardPage(): React.JSX.Element {
 	const { address, isConnected } = useAccount();
+	const { role } = useRole();
 
 	if (!isConnected || address === undefined) {
 		return (
@@ -537,13 +546,15 @@ export default function DashboardPage(): React.JSX.Element {
 		);
 	}
 
+	const roleLabel = role === "client" ? "Client" : "Freelancer";
+
 	return (
 		<div className="max-w-2xl mx-auto px-6 py-12">
 			<div className="flex items-center justify-between mb-8">
 				<div>
 					<h1 className="text-3xl font-bold">Dashboard</h1>
 					<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-						Contracts where you are the client or freelancer.
+						Contracts where you are the {roleLabel.toLowerCase()}.
 					</p>
 				</div>
 				<Link
@@ -554,7 +565,7 @@ export default function DashboardPage(): React.JSX.Element {
 				</Link>
 			</div>
 
-			<ContractList address={address} />
+			<ContractList address={address} role={role} />
 		</div>
 	);
 }
