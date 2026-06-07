@@ -6,6 +6,9 @@
   can help", "Let me check", "Hope you're having a great day").
 - Output code blocks immediately.
 - Explain logic in short bulleted fragments, not long paragraphs.
+- Whenever editing any text — comments, docs, UI copy, commit messages, or any
+  prose — apply a final pass for correct grammar, punctuation, syntax, and
+  clarity if it has not already been done.
 
 ## Branching and Committing
 
