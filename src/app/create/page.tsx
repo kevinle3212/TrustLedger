@@ -25,6 +25,7 @@ import {
 import { uploadToPinata } from "@/lib/ipfs";
 import { encryptFile } from "@/lib/encryption";
 import type { ArweaveJWK } from "@/lib/arweave";
+import { useRole } from "@/contexts/RoleContext";
 
 type DocMode = "upload" | "manual";
 type UploadStatus = "idle" | "working" | "done" | "error";
@@ -38,10 +39,12 @@ export default function CreatePage(): React.JSX.Element {
 		isSuccess,
 		data: receipt,
 	} = useWaitForTransactionReceipt({ hash: txHash });
+	const { role: globalRole } = useRole();
 
 	// "freelancer" = current user is the freelancer proposing unfunded terms (existing flow).
 	// "client"     = current user is the client proposing + funding immediately.
-	const [proposerRole, setProposerRole] = useState<"freelancer" | "client">("freelancer");
+	// Defaults to the global role toggle so the form opens in the expected mode.
+	const [proposerRole, setProposerRole] = useState<"freelancer" | "client">(globalRole);
 	const isClientProposing = proposerRole === "client";
 
 	const [form, setForm] = useState({
