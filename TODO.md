@@ -7,51 +7,6 @@ mainnet launch deliverables.
 
 ## Phase 1 — Development Environment and Tooling
 
-- [x] Add a `.nvmrc` file to pin the Node.js version for the project so that all
-      contributors use the same version and avoid compatibility issues. — Added
-      `.nvmrc` pinning Node **22.22.3** (latest LTS "Jod", matching the CI
-      `node-version: 22` and the `engines.node` floor). It mirrors the commented
-      `.python-version` format; nvm (>=0.40) strips the `#` comment header and
-      reads the single version line, so `nvm use` selects it automatically. A
-      companion `.node-version` (same `22.22.3` pin) was added for managers that
-      read that file instead (nodenv, asdf, fnm, Volta); both are excluded from
-      markdownlint via `.markdownlintignore` and mapped to plaintext in
-      `.vscode/settings.json`.
-    - This is a small but important step toward consistent development
-      environments. With the version pinned in `.nvmrc`, contributors can switch
-      to the correct version with `nvm use`, which helps prevent problems caused
-      by version mismatches.
-
-- [x] Add a `.vercelignore` file to exclude files and directories that should
-      not be deployed to Vercel, such as the `contracts/` directory and local
-      configuration files. — Added a root `.vercelignore`. The Vercel deployment
-      only needs the Next.js frontend in `src/`, so the file excludes the
-      smart-contract and chain tooling (`contracts/`, `artifacts/`,
-      `hardhat-cache/`, `scripts/`, `test/`, `tools/`, `utils/`, `stubs/`),
-      local environment files (`.env`, `.env.*`, while re-including the
-      `*.example` templates), build output (`dist/`, `src/.next/`, `coverage/`),
-      Docker, docs/site assets, and editor/agent/OS files.
-    - This keeps deployments clean and prevents sensitive or unnecessary files
-      from being uploaded to production. The `.vercelignore` file should exclude
-      the `contracts/` directory, local environment files (for example
-      `.env.local`), and any other files the frontend deployment does not need.
-
-- [x] Add a `NOTES.local.md` (private, git-ignored) and a `NOTES.md` (public) to
-      track ongoing thoughts, ideas, and research that are not yet ready for
-      formal documentation but are still valuable to the development process. —
-      Added both as templates (no real content yet). `NOTES.md` is committed
-      with headings for research/ideas, decisions, technical debt, and open
-      questions, plus conventions for adding entries. `NOTES.local.md` is the
-      private scratch counterpart and is git-ignored via a new `NOTES.local.md`
-      rule in `.gitignore`; its template points to the public `NOTES.md` for the
-      shared notes and the promotion workflow.
-    - `NOTES.local.md` is a private space for jotting down ideas, research
-      findings, and other rough notes, without worrying about polish or
-      completeness.
-    - `NOTES.md` is the public-facing version. Move any insight worth sharing
-      with the broader community here. This keeps the project transparent while
-      still leaving room for informal note-taking.
-
 - [ ] Update all packages to their latest versions, upgrade Hardhat to 3.x, and
       confirm that all tests and code still work, so the project benefits from
       new features, improvements, and security patches.
@@ -78,84 +33,7 @@ mainnet launch deliverables.
       afterward to confirm. The high (`undici`) and moderate (`bn.js`) findings
       were already patched via `overrides` in `package.json`.
 
-- [x] Set up a CI/CD pipeline (GitHub Actions) that runs linting, the full test
-      suite, and a production build on every pull request, to catch regressions
-      before they reach `main`. — `.github/workflows/ci.yml` runs on every
-      `push`/`pull_request` to `main` with five jobs: **Frontend** (typecheck +
-      ESLint/Prettier + `next build` production build), **TypeScript** (ESLint +
-      Solhint + markdownlint + Prettier + `tsc`), **Python** (`mypy` via
-      `lint:py`), **Hardhat** (compile + 146 Mocha tests), and **Solidity**
-      (`forge fmt --check` + `forge build --sizes` + `forge test`). Linting, the
-      full test suite, and the production build are therefore all gated per PR.
-
-- [x] Wire `mypy` into the lint pipeline so the Python scripts are type-checked
-      in CI, not just locally. `mypy` is currently installed in the local pyenv
-      but is not enforced by the repo. — Added a `lint:py` npm script
-      (`mypy utils/generate_contract.py scripts/models/github_models.py`), a
-      root `mypy.ini`, and a `Python (mypy)` CI job in
-      `.github/workflows/ci.yml` that installs `mypy` plus `types-reportlab` via
-      `utils/requirements.txt`. The config is maximally strict (`strict = True`
-      plus every extra check: `warn_unreachable`, `strict_equality`,
-      `disallow_any_unimported`, `disallow_any_explicit`, `extra_checks`, etc.).
-      Rather than relax `disallow_any_unimported` for the stub-less
-      `azure-ai-inference` SDK, its used surface is typed by hand-written stubs
-      under `stubs/azure/**` (`mypy_path = stubs`). Fixed the resulting real
-      type issues: `SCENARIOS` got a precise `Callable` value type;
-      `parse_json_response` returns `dict[str, object]` with an `isinstance`
-      guard; the sample dicts are typed (a `Rating` / `ReputationSample`
-      `TypedDict` pair for the iterated reputation data); and the dispute `pct`
-      is type-narrowed before `int()`.
-    - Add a `models:typecheck` (or `lint:py`) npm script that runs `mypy` over
-      the Python sources (for example `utils/` and `scripts/models/`), and add a
-      matching GitHub Actions step so pull requests are gated on it.
-    - Ensure the CI job installs the type stubs first (for example
-      `pip install -r utils/requirements.txt`, which pins `types-reportlab`) so
-      `mypy` can resolve third-party imports without "library stubs not
-      installed" errors.
-    - When selecting the interpreter in CI via `actions/setup-python` with
-      `python-version-file: .python-version`, use a recent version of the action
-      (older ones do not parse the comment lines in `.python-version`) or pass
-      `python-version: '3.14.2'` directly to avoid the comments tripping it up.
-
-- [x] Make the pinned Python version discoverable alongside the Node pin. —
-      Added a "Python (Optional, Version 3.14.2)" prerequisite to `README.md`
-      (`pyenv install 3.14.2` + `pip install -r utils/requirements.txt`),
-      referenced it from the prerequisites intro, and documented the `lint:py`
-      script and the `Python` CI job in the command and CI tables. The Node
-      `.nvmrc` (the counterpart to `.python-version`) is now cross-documented
-      the same way: the Node prerequisite calls out the **22.22.3** pin and the
-      no-argument `nvm install` / `nvm use` flow, and `.nvmrc`,
-      `.python-version`, `mypy.ini`, and `stubs/` were added to the
-      project-structure tree.
-    - Document the `.python-version` (3.14.2) requirement in `README.md` next to
-      the Node/engines guidance, and mention `pyenv install 3.14.2` plus
-      `pip install -r utils/requirements.txt` in the setup instructions so new
-      contributors land on the same interpreter and stubs.
-    - Document the `.nvmrc` file the same way for the `.python-version` file if
-      it hasn't been already, so it's clear to contributors how to set up their
-      Node environment as well.
-
 ## Phase 2 — Code Organization and Architecture
-
-- [x] Add a `types/` directory for shared TypeScript types and interfaces that
-      can be imported across the frontend and backend, ensuring type safety and
-      consistency. — Added a root `types/` directory with `common.ts`
-      (`Address`/`Hex`/`Bytes32` aliases), `contract.ts` (`Contract` +
-      `ContractStatus` mirroring `EscrowContract`), `dispute.ts` (`Dispute` +
-      `DisputePhase` mirroring the `Dispute` struct), `rating.ts` (`Rating`,
-      `ReputationSummary`, `ReputationHistoryEntry`), and an `index.ts` barrel.
-      Wired a `@/types` / `@/types/*` path alias in `src/tsconfig.json` (the
-      repo-root `types/` is also added to `include`) and adopted the shared
-      types in the frontend: `dashboard/page.tsx` now imports `Contract` and
-      `reputation/page.tsx` imports `ReputationHistoryEntry`, replacing their
-      local interface copies. `tsc`, ESLint, Prettier, and `next build` all
-      pass.
-    - Create a `types/` directory at the project root and define shared types
-      such as `Contract`, `Dispute`, and `Rating` in separate files (for example
-      `types/contract.ts` and `types/dispute.ts`).
-    - Import these types into both the frontend components and any backend logic
-      (for example API routes) so data structures stay consistent and type-safe
-      across the entire codebase.
 
 - [ ] Add the following directories to keep the code organized, modular, and
       aligned with common React conventions: `hooks/`, `store/`, `utils/`,
@@ -190,154 +68,7 @@ mainnet launch deliverables.
       summaries. This keeps the codebase clean and makes integrations easier to
       manage and update.
 
-- [x] If needed, add a `middleware.ts` file (and API routes) to handle
-      server-side logic such as fetching contract data, handling authentication,
-      or processing payments. — Added `src/proxy.ts` (Next.js 16 renamed the
-      `middleware.ts` convention to `proxy.ts`; the function is exported as
-      `proxy`) that applies baseline security headers (`X-Content-Type-Options`,
-      `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS,
-      `X-DNS-Prefetch-Control`) to every response and best-effort per-IP rate
-      limiting to `/api/*`. A strict CSP is intentionally deferred to the Phase
-      3 security task because Reown AppKit/WalletConnect need per-deploy tuning.
-      Added API routes alongside it: `GET /api/contract/[id]` (server-side
-      aggregation that reads `getContract()` on-chain and returns a JSON-safe,
-      gateway-resolved shape), `POST /api/notifications` (auth-gated lifecycle
-      emails), and `GET /api/cron/deadline-reminders` (scheduled in
-      `src/vercel.json`). `tsc`, ESLint, Prettier, and `next build` all pass.
-    - Set up API routes that interact with both the blockchain and the frontend,
-      enabling more complex interactions that are not well suited to client-side
-      logic.
-    - For example, an API route could aggregate on-chain data with off-chain
-      metadata for a contract, or handle user authentication and session
-      management.
-    - This also improves separation of concerns: the frontend stays focused on
-      the user interface while heavier logic moves to the backend, which
-      improves maintainability and scalability as the platform grows.
-
-## Phase 3 — Wallet and Browser Compatibility
-
-- [x] Fix Base (works on Safari), Browser Wallet, MetaMask, and WalletConnect
-      integration and compatibility, since they cause issues on Safari. —
-      Replaced RainbowKit with **Reown AppKit** (`@reown/appkit` +
-      `@reown/appkit-adapter-wagmi`) in `src/lib/wagmi.ts`, which fixes Safari's
-      two failure modes (broken `metamask://` deep links and a WalletConnect
-      relay that errored against RainbowKit's placeholder project ID) and
-      removes the deprecated RainbowKit Coinbase connector. The connect modal
-      now features Coinbase Wallet (no longer deprecated), MetaMask, Phantom,
-      and Tangem by their verified WalletConnect-registry IDs, plus the Base
-      Account passkey smart wallet and every other registry/injected wallet. A
-      custom `src/components/ConnectButton.tsx` (AppKit
-      `useAppKit`/`useAppKitAccount` hooks) replaces RainbowKit's
-      `<ConnectButton>` across the navbar and all six pages; `Providers.tsx`
-      drops `RainbowKitProvider` and syncs AppKit's light/dark theme with
-      `next-themes`. The relay-dependent wallets still require
-      `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` (documented in `.env.example`);
-      injected and Coinbase work without it. `tsc`, ESLint, Prettier, and
-      `next build` all pass; real-device QA on iOS Safari is still recommended
-      before mainnet.
-    - Resolve these issues for compatibility across all browsers and wallets,
-      but prioritize Safari, since it is the most common browser on iOS and has
-      the most wallet-integration problems. This ensures the platform is
-      accessible to the widest possible audience, regardless of device or
-      wallet.
-    - Ensure the UI is clean on mobile displays and that all wallet interactions
-      work smoothly in mobile browsers, since many users access the platform
-      from their phones as well as their desktops.
-
-- [x] Add Tailwind CSS for the frontend if needed, and make the frontend faster,
-      more secure, and more aesthetically pleasing. — Tailwind v4 is confirmed
-      fully wired via `@import "tailwindcss"` in `globals.css` and
-      `@tailwindcss/postcss` in `postcss.config.mjs`; all pages and components
-      use Tailwind classes consistently so no migration was needed. Three
-      concrete improvements were landed in this pass:
-    - **Performance:** Lazy-loaded `DecryptDocumentForm` in `dashboard/page.tsx`
-      via `next/dynamic` (SSR disabled); the 208-line component is now a split
-      chunk fetched only when a user opens a decrypt panel. Geist fonts are
-      already self-hosted and preloaded by `next/font`; `next/image` is already
-      used for the logo. All pages are `"use client"` because they depend on
-      wagmi hooks — Server Components are not applicable here. AppKit is
-      initialized as a module-import side effect, which is required for web
-      component registration and cannot be deferred further without breaking the
-      wallet modal.
-    - **Security:** Added a `Content-Security-Policy` header to `proxy.ts`
-      (deferred from Phase 2). Key directives: `object-src 'none'` eliminates
-      the plugin/Flash attack surface; `base-uri 'self'` prevents `<base>` tag
-      injection; `form-action 'self'` blocks cross-origin form submissions;
-      `frame-ancestors 'none'` reinforces `X-Frame-Options: DENY`;
-      `connect-src 'self' https: wss:` restricts outbound fetch/XHR/WebSocket to
-      HTTPS and WSS only (covers arbitrary RPC providers, WalletConnect relay,
-      Pinata, and block explorers without hardcoding every endpoint).
-      `script-src 'unsafe-inline'` is required by Next.js hydration scripts;
-      nonce-based CSP is the proper upgrade path but needs additional middleware
-      infrastructure. Audited all `target="_blank"` links — every one already
-      carries `rel="noopener noreferrer"`. No `dangerouslySetInnerHTML` found.
-      All `NEXT_PUBLIC_*` vars are intentional public values (contract
-      addresses, WalletConnect project ID, GitHub URL); `NEXT_PUBLIC_PINATA_JWT`
-      is a dev-only convenience — the JWT field is shown in the UI when the var
-      is absent so users supply their own key at runtime.
-    - **Aesthetics:** Added `prefers-reduced-motion` media query to
-      `globals.css` (collapses all transitions/animations to 0.01 ms for users
-      who opt out of motion). Added `--color-brand` and `--color-brand-hover`
-      design tokens to the `@theme inline` block, making the indigo accent
-      explicitly referenceable without hard-coded hex values. The existing UI
-      already has a consistent design system (indigo brand color, gray neutrals,
-      44 px touch targets, `focus-visible` ring states, dark mode via
-      `next-themes`); no further design-system work was needed.
-
 ## Phase 4 — Core Contract Lifecycle Features
-
-- [x] Support dual-role accounts so a single wallet can operate as both a client
-      and a freelancer, with a persistent role toggle in the UI.
-    - Add a role-switching control (for example a toggle or dropdown in the
-      navbar) that sets the active role to `client` or `freelancer`. Store the
-      preference in `localStorage` and propagate it via a React context so all
-      pages respond without a full reload.
-    - Filter the dashboard, contract creation flow, and notifications to the
-      active role. A wallet that has contracts as both parties should see the
-      correct subset for each view.
-    - No smart-contract changes are required — the contracts already track both
-      parties by address. This is purely a frontend routing and state concern.
-
-- [x] Add USDC as a supported payment currency alongside ETH.
-    - The escrow contract currently operates in the native chain token (ETH).
-      Add an ERC-20 payment path: accept a `tokenAddress` (address(0) for ETH, a
-      USDC contract address otherwise) and use `IERC20.transferFrom` /
-      `IERC20.transfer` in fund, release, and refund flows.
-    - Validate the token address on-chain against an allowlist (ETH + approved
-      stablecoins) to prevent arbitrary ERC-20 abuse.
-    - Update the contract-creation UI to let the client choose ETH or USDC, and
-      surface the currency on every contract card and detail page.
-    - Add `approve` UX before funding: the client must approve the escrow
-      contract to spend their USDC before `fundContract()` succeeds.
-    - Document the USDC contract addresses for each supported network in
-      `.env.example` (e.g. `NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA`,
-      `NEXT_PUBLIC_USDC_ADDRESS_BASE`).
-
-- [x] Fix the currency-lock warning and logic on the Create Contract page so
-      funds are not locked until the counterparty accepts, in both proposal
-      directions.
-    - **Warning message (client view):** The yellow badge currently reads "ETH
-      locked on submit". Change it to "BEWARE: The proposed currency is locked
-      on submit AND freelancer agreement!" so the copy accurately reflects that
-      funds move the moment the client submits the transaction.
-    - **Logic fix (client-proposed flow):** `proposeContractByClient` in
-      `TrustLedger.sol` takes `msg.value` immediately (line ~616), locking ETH
-      at proposal time before the freelancer has agreed. Refactor so the client
-      proposal is unfunded (no `payable` / no `msg.value` transfer); add a
-      separate `fundContractByClient` step that the contract triggers (or the
-      client calls) only when `acceptContractByFreelancer` is invoked. Update
-      `withdrawClientProposal` accordingly since there will be no funds to
-      return while the contract is still PENDING.
-    - **Logic fix (freelancer-proposed flow, vice versa):** The freelancer-
-      proposed path (`proposeContract` + `acceptContract`) already defers
-      funding to the client's acceptance call. Verify the matching warning is
-      shown to the freelancer on that flow and that its copy is consistent with
-      the updated client-side language.
-    - Update the frontend `create/page.tsx` (around line 435) to reflect the new
-      flow: remove `value: parsedAmount` from the `proposeContractByClient`
-      wagmi args and wire the fund step into the post-acceptance callback.
-    - Re-run `forge test` and the Hardhat suite after any contract change;
-      update ABI exports and any test fixtures that assert on locked balances.
 
 - [ ] Allow clients and freelancers to create a contract within the platform,
       see live edits, and update the contract terms before deployment.
@@ -349,32 +80,6 @@ mainnet launch deliverables.
       live edits during the drafting phase improves the user experience, makes
       it easier for both parties to agree on terms, and avoids repeated rounds
       of off-chain negotiation and on-chain redeployment.
-
-- [ ] Add a dashboard summary view that shows the key details and status of each
-      contract at a glance, so users can understand the state of their contracts
-      without clicking into each one.
-
-- [x] Add a link checker to the deliverable submission form so that invalid URLs
-      or IPFS links are caught before submission. — Added
-      `validateDeliverableUri` to `src/lib/validation.ts` and wired it into
-      `SubmitWorkForm` in `src/app/dashboard/page.tsx`.
-    - **Real-time validation:** `touched` is now set on the first `onChange`
-      event (not only on blur), so the error appears immediately as the user
-      types or pastes an invalid value rather than waiting for focus to leave
-      the field.
-    - **Accepted formats:** `https://` URLs (length > 8, covering
-      `https://<gateway>/ipfs/…` paths), `ipfs://` URIs (length > 7), raw CIDv0
-      (`Qm[base58]{44}`), and raw CIDv1 (`b[base32]{20+}`, e.g. `baf…`).
-      `http://`, `ar://`, and anything else is rejected. The new validator is
-      stricter than the existing `validateContractUri` (which accepted `ar://`
-      and `http://`) and lives alongside it so the contract-document URI field
-      is unaffected.
-    - **Error message location:** the error now renders at the top of the form
-      (above the input) using `role="alert"` so screen readers announce it
-      immediately.
-    - **Disabled submit:** the "Submit Work" button was already gated on
-      `uriError !== undefined`; that invariant is preserved with the new
-      validator so the button stays disabled until a valid link is entered.
 
 - [ ] Add an AI-generated summary of each contract and its status to the
       dashboard, so users can quickly understand the key details and current
@@ -405,14 +110,14 @@ mainnet launch deliverables.
       giving users an easy-to-digest overview without clicking into each
       contract.
     - Add an in-app PDF viewer for the contract document so users can read the
-      full contract in a readable format without downloading it separately. - If
+      full contract in a readable format without downloading it separately. — If
       the document is encrypted, prompt the user to decrypt it first. Otherwise,
       prompt them either to view it on IPFS (and let IPFS download it for them)
-      or to re-authenticate with their wallet so the backend can fetch it. - Do
+      or to re-authenticate with their wallet so the backend can fetch it. — Do
       not allow users to view the document unless they are the client or
       freelancer on the contract, but still allow anyone to view the summary and
       key details, so sensitive information is protected while the contract
-      remains broadly understandable. - Protect everything behind wallet
+      remains broadly understandable. — Protect everything behind wallet
       authentication and authorization so only the relevant parties can access
       the contract details and documents, preventing broad public access to
       potentially sensitive information.
@@ -575,12 +280,12 @@ mainnet launch deliverables.
       Python backend could handle work that benefits from its rich ecosystem,
       such as AI integrations and data analysis.
     - Add directories such as `.cargo/`, `infra/`, `lib/`, and `programs/` to
-      set up the Rust backend and keep its code organized and modular. -
-      `.cargo/` — the `Cargo.toml` file and any other Rust configuration. -
+      set up the Rust backend and keep its code organized and modular. —
+      `.cargo/` — the `Cargo.toml` file and any other Rust configuration. —
       `infra/` — infrastructure code and configuration, such as Dockerfiles,
       Kubernetes manifests, or Terraform scripts for deploying the backend
-      services. - `lib/` — shared libraries and modules used across the Rust
-      backend. - `programs/` — the main application logic, such as the API
+      services. — `lib/` — shared libraries and modules used across the Rust
+      backend. — `programs/` — the main application logic, such as the API
       server and blockchain interaction code.
 
 - [ ] If needed, add C or C++ for performance-critical math, cryptography, or
@@ -711,7 +416,7 @@ mainnet launch deliverables.
       URL in the docs and `README.md` so contributors and users can track
       platform activity.
     - Document how Dune is set up to query the contracts, including the SQL
-      queries used for each chart and any relevant schema details. - Also
+      queries used for each chart and any relevant schema details. — Also
       document how Dune was used to generate data, visualizations, and insights
       during the whitepaper research phase, so future contributors understand
       the data-driven approach to platform design and improvement.
@@ -725,6 +430,307 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Add a `.nvmrc` file to pin the Node.js version for the project so that all
+      contributors use the same version and avoid compatibility issues. — Added
+      `.nvmrc` pinning Node **22.22.3** (latest LTS "Jod", matching the CI
+      `node-version: 22` and the `engines.node` floor). It mirrors the commented
+      `.python-version` format; nvm (>=0.40) strips the `#` comment header and
+      reads the single version line, so `nvm use` selects it automatically. A
+      companion `.node-version` (same `22.22.3` pin) was added for managers that
+      read that file instead (nodenv, asdf, fnm, Volta); both are excluded from
+      markdownlint via `.markdownlintignore` and mapped to plaintext in
+      `.vscode/settings.json`.
+    - This is a small but important step toward consistent development
+      environments. With the version pinned in `.nvmrc`, contributors can switch
+      to the correct version with `nvm use`, which helps prevent problems caused
+      by version mismatches.
+
+- [x] Add a `.vercelignore` file to exclude files and directories that should
+      not be deployed to Vercel, such as the `contracts/` directory and local
+      configuration files. — Added a root `.vercelignore`. The Vercel deployment
+      only needs the Next.js frontend in `src/`, so the file excludes the
+      smart-contract and chain tooling (`contracts/`, `artifacts/`,
+      `hardhat-cache/`, `scripts/`, `test/`, `tools/`, `utils/`, `stubs/`),
+      local environment files (`.env`, `.env.*`, while re-including the
+      `*.example` templates), build output (`dist/`, `src/.next/`, `coverage/`),
+      Docker, docs/site assets, and editor/agent/OS files.
+    - This keeps deployments clean and prevents sensitive or unnecessary files
+      from being uploaded to production. The `.vercelignore` file should exclude
+      the `contracts/` directory, local environment files (for example
+      `.env.local`), and any other files the frontend deployment does not need.
+
+- [x] Add a `NOTES.local.md` (private, git-ignored) and a `NOTES.md` (public) to
+      track ongoing thoughts, ideas, and research that are not yet ready for
+      formal documentation but are still valuable to the development process. —
+      Added both as templates (no real content yet). `NOTES.md` is committed
+      with headings for research/ideas, decisions, technical debt, and open
+      questions, plus conventions for adding entries. `NOTES.local.md` is the
+      private scratch counterpart and is git-ignored via a new `NOTES.local.md`
+      rule in `.gitignore`; its template points to the public `NOTES.md` for the
+      shared notes and the promotion workflow.
+    - `NOTES.local.md` is a private space for jotting down ideas, research
+      findings, and other rough notes, without worrying about polish or
+      completeness.
+    - `NOTES.md` is the public-facing version. Move any insight worth sharing
+      with the broader community here. This keeps the project transparent while
+      still leaving room for informal note-taking.
+
+- [x] Set up a CI/CD pipeline (GitHub Actions) that runs linting, the full test
+      suite, and a production build on every pull request, to catch regressions
+      before they reach `main`. — `.github/workflows/ci.yml` runs on every
+      `push`/`pull_request` to `main` with five jobs: **Frontend** (typecheck +
+      ESLint/Prettier + `next build` production build), **TypeScript** (ESLint +
+      Solhint + markdownlint + Prettier + `tsc`), **Python** (`mypy` via
+      `lint:py`), **Hardhat** (compile + 146 Mocha tests), and **Solidity**
+      (`forge fmt --check` + `forge build --sizes` + `forge test`). Linting, the
+      full test suite, and the production build are therefore all gated per PR.
+
+- [x] Wire `mypy` into the lint pipeline so the Python scripts are type-checked
+      in CI, not just locally. `mypy` is currently installed in the local pyenv
+      but is not enforced by the repo. — Added a `lint:py` npm script
+      (`mypy utils/generate_contract.py scripts/models/github_models.py`), a
+      root `mypy.ini`, and a `Python (mypy)` CI job in
+      `.github/workflows/ci.yml` that installs `mypy` plus `types-reportlab` via
+      `utils/requirements.txt`. The config is maximally strict (`strict = True`
+      plus every extra check: `warn_unreachable`, `strict_equality`,
+      `disallow_any_unimported`, `disallow_any_explicit`, `extra_checks`, etc.).
+      Rather than relax `disallow_any_unimported` for the stub-less
+      `azure-ai-inference` SDK, its used surface is typed by hand-written stubs
+      under `stubs/azure/**` (`mypy_path = stubs`). Fixed the resulting real
+      type issues: `SCENARIOS` got a precise `Callable` value type;
+      `parse_json_response` returns `dict[str, object]` with an `isinstance`
+      guard; the sample dicts are typed (a `Rating` / `ReputationSample`
+      `TypedDict` pair for the iterated reputation data); and the dispute `pct`
+      is type-narrowed before `int()`.
+    - Add a `models:typecheck` (or `lint:py`) npm script that runs `mypy` over
+      the Python sources (for example `utils/` and `scripts/models/`), and add a
+      matching GitHub Actions step so pull requests are gated on it.
+    - Ensure the CI job installs the type stubs first (for example
+      `pip install -r utils/requirements.txt`, which pins `types-reportlab`) so
+      `mypy` can resolve third-party imports without "library stubs not
+      installed" errors.
+    - When selecting the interpreter in CI via `actions/setup-python` with
+      `python-version-file: .python-version`, use a recent version of the action
+      (older ones do not parse the comment lines in `.python-version`) or pass
+      `python-version: '3.14.2'` directly to avoid the comments tripping it up.
+
+- [x] Make the pinned Python version discoverable alongside the Node pin. —
+      Added a "Python (Optional, Version 3.14.2)" prerequisite to `README.md`
+      (`pyenv install 3.14.2` + `pip install -r utils/requirements.txt`),
+      referenced it from the prerequisites intro, and documented the `lint:py`
+      script and the `Python` CI job in the command and CI tables. The Node
+      `.nvmrc` (the counterpart to `.python-version`) is now cross-documented
+      the same way: the Node prerequisite calls out the **22.22.3** pin and the
+      no-argument `nvm install` / `nvm use` flow, and `.nvmrc`,
+      `.python-version`, `mypy.ini`, and `stubs/` were added to the
+      project-structure tree.
+    - Document the `.python-version` (3.14.2) requirement in `README.md` next to
+      the Node/engines guidance, and mention `pyenv install 3.14.2` plus
+      `pip install -r utils/requirements.txt` in the setup instructions so new
+      contributors land on the same interpreter and stubs.
+    - Document the `.nvmrc` file the same way for the `.python-version` file if
+      it hasn't been already, so it's clear to contributors how to set up their
+      Node environment as well.
+
+- [x] Add a `types/` directory for shared TypeScript types and interfaces that
+      can be imported across the frontend and backend, ensuring type safety and
+      consistency. — Added a root `types/` directory with `common.ts`
+      (`Address`/`Hex`/`Bytes32` aliases), `contract.ts` (`Contract` +
+      `ContractStatus` mirroring `EscrowContract`), `dispute.ts` (`Dispute` +
+      `DisputePhase` mirroring the `Dispute` struct), `rating.ts` (`Rating`,
+      `ReputationSummary`, `ReputationHistoryEntry`), and an `index.ts` barrel.
+      Wired a `@/types` / `@/types/*` path alias in `src/tsconfig.json` (the
+      repo-root `types/` is also added to `include`) and adopted the shared
+      types in the frontend: `dashboard/page.tsx` now imports `Contract` and
+      `reputation/page.tsx` imports `ReputationHistoryEntry`, replacing their
+      local interface copies. `tsc`, ESLint, Prettier, and `next build` all
+      pass.
+    - Create a `types/` directory at the project root and define shared types
+      such as `Contract`, `Dispute`, and `Rating` in separate files (for example
+      `types/contract.ts` and `types/dispute.ts`).
+    - Import these types into both the frontend components and any backend logic
+      (for example API routes) so data structures stay consistent and type-safe
+      across the entire codebase.
+
+- [x] If needed, add a `middleware.ts` file (and API routes) to handle
+      server-side logic such as fetching contract data, handling authentication,
+      or processing payments. — Added `src/proxy.ts` (Next.js 16 renamed the
+      `middleware.ts` convention to `proxy.ts`; the function is exported as
+      `proxy`) that applies baseline security headers (`X-Content-Type-Options`,
+      `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS,
+      `X-DNS-Prefetch-Control`) to every response and best-effort per-IP rate
+      limiting to `/api/*`. A strict CSP is intentionally deferred to the Phase
+      3 security task because Reown AppKit/WalletConnect need per-deploy tuning.
+      Added API routes alongside it: `GET /api/contract/[id]` (server-side
+      aggregation that reads `getContract()` on-chain and returns a JSON-safe,
+      gateway-resolved shape), `POST /api/notifications` (auth-gated lifecycle
+      emails), and `GET /api/cron/deadline-reminders` (scheduled in
+      `src/vercel.json`). `tsc`, ESLint, Prettier, and `next build` all pass.
+    - Set up API routes that interact with both the blockchain and the frontend,
+      enabling more complex interactions that are not well suited to client-side
+      logic.
+    - For example, an API route could aggregate on-chain data with off-chain
+      metadata for a contract, or handle user authentication and session
+      management.
+    - This also improves separation of concerns: the frontend stays focused on
+      the user interface while heavier logic moves to the backend, which
+      improves maintainability and scalability as the platform grows.
+
+- [x] Fix Base (works on Safari), Browser Wallet, MetaMask, and WalletConnect
+      integration and compatibility, since they cause issues on Safari. —
+      Replaced RainbowKit with **Reown AppKit** (`@reown/appkit` +
+      `@reown/appkit-adapter-wagmi`) in `src/lib/wagmi.ts`, which fixes Safari's
+      two failure modes (broken `metamask://` deep links and a WalletConnect
+      relay that errored against RainbowKit's placeholder project ID) and
+      removes the deprecated RainbowKit Coinbase connector. The connect modal
+      now features Coinbase Wallet (no longer deprecated), MetaMask, Phantom,
+      and Tangem by their verified WalletConnect-registry IDs, plus the Base
+      Account passkey smart wallet and every other registry/injected wallet. A
+      custom `src/components/ConnectButton.tsx` (AppKit
+      `useAppKit`/`useAppKitAccount` hooks) replaces RainbowKit's
+      `<ConnectButton>` across the navbar and all six pages; `Providers.tsx`
+      drops `RainbowKitProvider` and syncs AppKit's light/dark theme with
+      `next-themes`. The relay-dependent wallets still require
+      `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` (documented in `.env.example`);
+      injected and Coinbase work without it. `tsc`, ESLint, Prettier, and
+      `next build` all pass; real-device QA on iOS Safari is still recommended
+      before mainnet.
+    - Resolve these issues for compatibility across all browsers and wallets,
+      but prioritize Safari, since it is the most common browser on iOS and has
+      the most wallet-integration problems. This ensures the platform is
+      accessible to the widest possible audience, regardless of device or
+      wallet.
+    - Ensure the UI is clean on mobile displays and that all wallet interactions
+      work smoothly in mobile browsers, since many users access the platform
+      from their phones as well as their desktops.
+
+- [x] Add Tailwind CSS for the frontend if needed, and make the frontend faster,
+      more secure, and more aesthetically pleasing. — Tailwind v4 is confirmed
+      fully wired via `@import "tailwindcss"` in `globals.css` and
+      `@tailwindcss/postcss` in `postcss.config.mjs`; all pages and components
+      use Tailwind classes consistently so no migration was needed. Three
+      concrete improvements were landed in this pass:
+    - **Performance:** Lazy-loaded `DecryptDocumentForm` in `dashboard/page.tsx`
+      via `next/dynamic` (SSR disabled); the 208-line component is now a split
+      chunk fetched only when a user opens a decrypt panel. Geist fonts are
+      already self-hosted and preloaded by `next/font`; `next/image` is already
+      used for the logo. All pages are `"use client"` because they depend on
+      wagmi hooks — Server Components are not applicable here. AppKit is
+      initialized as a module-import side effect, which is required for web
+      component registration and cannot be deferred further without breaking the
+      wallet modal.
+    - **Security:** Added a `Content-Security-Policy` header to `proxy.ts`
+      (deferred from Phase 2). Key directives: `object-src 'none'` eliminates
+      the plugin/Flash attack surface; `base-uri 'self'` prevents `<base>` tag
+      injection; `form-action 'self'` blocks cross-origin form submissions;
+      `frame-ancestors 'none'` reinforces `X-Frame-Options: DENY`;
+      `connect-src 'self' https: wss:` restricts outbound fetch/XHR/WebSocket to
+      HTTPS and WSS only (covers arbitrary RPC providers, WalletConnect relay,
+      Pinata, and block explorers without hardcoding every endpoint).
+      `script-src 'unsafe-inline'` is required by Next.js hydration scripts;
+      nonce-based CSP is the proper upgrade path but needs additional middleware
+      infrastructure. Audited all `target="_blank"` links — every one already
+      carries `rel="noopener noreferrer"`. No `dangerouslySetInnerHTML` found.
+      All `NEXT_PUBLIC_*` vars are intentional public values (contract
+      addresses, WalletConnect project ID, GitHub URL); `NEXT_PUBLIC_PINATA_JWT`
+      is a dev-only convenience — the JWT field is shown in the UI when the var
+      is absent so users supply their own key at runtime.
+    - **Aesthetics:** Added `prefers-reduced-motion` media query to
+      `globals.css` (collapses all transitions/animations to 0.01 ms for users
+      who opt out of motion). Added `--color-brand` and `--color-brand-hover`
+      design tokens to the `@theme inline` block, making the indigo accent
+      explicitly referenceable without hard-coded hex values. The existing UI
+      already has a consistent design system (indigo brand color, gray neutrals,
+      44 px touch targets, `focus-visible` ring states, dark mode via
+      `next-themes`); no further design-system work was needed.
+
+- [x] Support dual-role accounts so a single wallet can operate as both a client
+      and a freelancer, with a persistent role toggle in the UI.
+    - Add a role-switching control (for example a toggle or dropdown in the
+      navbar) that sets the active role to `client` or `freelancer`. Store the
+      preference in `localStorage` and propagate it via a React context so all
+      pages respond without a full reload.
+    - Filter the dashboard, contract creation flow, and notifications to the
+      active role. A wallet that has contracts as both parties should see the
+      correct subset for each view.
+    - No smart-contract changes are required — the contracts already track both
+      parties by address. This is purely a frontend routing and state concern.
+
+- [x] Add USDC as a supported payment currency alongside ETH.
+    - The escrow contract currently operates in the native chain token (ETH).
+      Add an ERC-20 payment path: accept a `tokenAddress` (address(0) for ETH, a
+      USDC contract address otherwise) and use `IERC20.transferFrom` /
+      `IERC20.transfer` in fund, release, and refund flows.
+    - Validate the token address on-chain against an allowlist (ETH + approved
+      stablecoins) to prevent arbitrary ERC-20 abuse.
+    - Update the contract-creation UI to let the client choose ETH or USDC, and
+      surface the currency on every contract card and detail page.
+    - Add `approve` UX before funding: the client must approve the escrow
+      contract to spend their USDC before `fundContract()` succeeds.
+    - Document the USDC contract addresses for each supported network in
+      `.env.example` (e.g. `NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA`,
+      `NEXT_PUBLIC_USDC_ADDRESS_BASE`).
+
+- [x] Fix the currency-lock warning and logic on the Create Contract page so
+      funds are not locked until the counterparty accepts, in both proposal
+      directions.
+    - **Warning message (client view):** The yellow badge currently reads "ETH
+      locked on submit". Change it to "BEWARE: The proposed currency is locked
+      on submit AND freelancer agreement!" so the copy accurately reflects that
+      funds move the moment the client submits the transaction.
+    - **Logic fix (client-proposed flow):** `proposeContractByClient` in
+      `TrustLedger.sol` takes `msg.value` immediately (line ~616), locking ETH
+      at proposal time before the freelancer has agreed. Refactor so the client
+      proposal is unfunded (no `payable` / no `msg.value` transfer); add a
+      separate `fundContractByClient` step that the contract triggers (or the
+      client calls) only when `acceptContractByFreelancer` is invoked. Update
+      `withdrawClientProposal` accordingly since there will be no funds to
+      return while the contract is still PENDING.
+    - **Logic fix (freelancer-proposed flow, vice versa):** The freelancer-
+      proposed path (`proposeContract` + `acceptContract`) already defers
+      funding to the client's acceptance call. Verify the matching warning is
+      shown to the freelancer on that flow and that its copy is consistent with
+      the updated client-side language.
+    - Update the frontend `create/page.tsx` (around line 435) to reflect the new
+      flow: remove `value: parsedAmount` from the `proposeContractByClient`
+      wagmi args and wire the fund step into the post-acceptance callback.
+    - Re-run `forge test` and the Hardhat suite after any contract change;
+      update ABI exports and any test fixtures that assert on locked balances.
+
+- [x] Add a dashboard summary view that shows the key details and status of each
+      contract at a glance, so users can understand the state of their contracts
+      without clicking into each one. — Added `SummaryBanner` to
+      `src/app/dashboard/page.tsx`. It batch-reads all on-chain contracts via
+      `useReadContracts`, filters to the current wallet + role, and renders a
+      grid of count chips for every status with at least one contract (Pending,
+      Active, Submitted, Approved, Disputed, Resolved, Cancelled), plus a
+      "Total" chip that is always shown. The banner appears above the contract
+      list and is hidden entirely when the wallet has no contracts. Wagmi
+      deduplicates the batch reads with the individual `getContract` calls in
+      `ContractList`, so there is no extra RPC cost.
+
+- [x] Add a link checker to the deliverable submission form so that invalid URLs
+      or IPFS links are caught before submission. — Added
+      `validateDeliverableUri` to `src/lib/validation.ts` and wired it into
+      `SubmitWorkForm` in `src/app/dashboard/page.tsx`.
+    - **Real-time validation:** `touched` is now set on the first `onChange`
+      event (not only on blur), so the error appears immediately as the user
+      types or pastes an invalid value rather than waiting for focus to leave
+      the field.
+    - **Accepted formats:** `https://` URLs (length > 8, covering
+      `https://<gateway>/ipfs/…` paths), `ipfs://` URIs (length > 7), raw CIDv0
+      (`Qm[base58]{44}`), and raw CIDv1 (`b[base32]{20+}`, e.g. `baf…`).
+      `http://`, `ar://`, and anything else is rejected. The new validator is
+      stricter than the existing `validateContractUri` (which accepted `ar://`
+      and `http://`) and lives alongside it so the contract-document URI field
+      is unaffected.
+    - **Error message location:** the error now renders at the top of the form
+      (above the input) using `role="alert"` so screen readers announce it
+      immediately.
+    - **Disabled submit:** the "Submit Work" button was already gated on
+      `uriError !== undefined`; that invariant is preserved with the new
+      validator so the button stays disabled until a valid link is entered.
 
 - [x] Allow users to earn back reputation by successfully completing new
       contracts or performing well during arbitration, so that a bad rating does
@@ -743,7 +749,7 @@ mainnet launch deliverables.
       `rawPay = (2 × pct × amount) / 3`, not
       `rawPay = (2 × pct × amount) / 300`.
     - A worked numeric example also helps users understand the fee and payment
-      calculations in practice. - `400 = (2 × 40% × 1000) / 3`
+      calculations in practice. — `400 = (2 × 40% × 1000) / 3`
     - Update the documentation so it no longer describes freelancers as getting
       60% of the contract amount for 60% completion, to avoid confusion with the
       2/3 formula. Clarify instead that the freelancer gets 2/3 of the "earned

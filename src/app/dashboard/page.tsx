@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	useAccount,
 	useChainId,
 	useReadContract,
+	useReadContracts,
 	useWriteContract,
 	useWaitForTransactionReceipt,
 } from "wagmi";
@@ -624,6 +625,119 @@ function ContractCard({
 	);
 }
 
+/**
+ * Summary stat strip shown above the contract list.
+ *
+ * Reads all on-chain contracts via a single `useReadContracts` batch call (wagmi
+ * deduplicates with the individual reads in `ContractList`, so there is no extra
+ * RPC cost), filters to the current wallet + role, and displays a count chip for
+ * every status that has at least one contract. "Total" is always shown.
+ */
+function SummaryBanner({
+	address,
+	role,
+}: {
+	address: `0x${string}`;
+	role: "client" | "freelancer";
+}): React.JSX.Element | null {
+	const { data: nextId } = useReadContract({
+		address: TRUSTLEDGER_ADDRESS,
+		abi: TRUSTLEDGER_ABI,
+		functionName: "nextId",
+	});
+
+	const total = Number(nextId ?? BigInt(0));
+
+	const contractConfigs = useMemo(
+		() =>
+			Array.from({ length: total }, (_, i) => ({
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: "getContract" as const,
+				args: [BigInt(i)] as [bigint],
+			})),
+		[total],
+	);
+
+	const { data: allContracts } = useReadContracts({ contracts: contractConfigs });
+
+	const stats = useMemo(() => {
+		if (allContracts === undefined || allContracts.length === 0) return null;
+		const addr = address.toLowerCase();
+		const mine = allContracts
+			.map((r) => (r.status === "success" ? r.result : undefined))
+			.filter((c): c is Contract => {
+				if (c === undefined) return false;
+				return role === "client"
+					? c.client.toLowerCase() === addr
+					: c.freelancer.toLowerCase() === addr;
+			});
+
+		const byStatus: Record<number, number> = {};
+		for (const c of mine) {
+			byStatus[c.status] = (byStatus[c.status] ?? 0) + 1;
+		}
+		return { count: mine.length, byStatus };
+	}, [allContracts, address, role]);
+
+	if (stats === null || stats.count === 0) return null;
+
+	const chips: { label: string; value: number; color: string }[] = [
+		{ label: "Total", value: stats.count, color: "text-gray-900 dark:text-white" },
+		{
+			label: "Pending",
+			value: stats.byStatus[0] ?? 0,
+			color: "text-yellow-600 dark:text-yellow-400",
+		},
+		{
+			label: "Active",
+			value: stats.byStatus[1] ?? 0,
+			color: "text-green-600 dark:text-green-400",
+		},
+		{
+			label: "Submitted",
+			value: stats.byStatus[2] ?? 0,
+			color: "text-blue-600 dark:text-blue-400",
+		},
+		{
+			label: "Approved",
+			value: stats.byStatus[3] ?? 0,
+			color: "text-indigo-600 dark:text-indigo-400",
+		},
+		{
+			label: "Disputed",
+			value: stats.byStatus[4] ?? 0,
+			color: "text-red-600 dark:text-red-400",
+		},
+		{
+			label: "Resolved",
+			value: stats.byStatus[5] ?? 0,
+			color: "text-purple-600 dark:text-purple-400",
+		},
+		{
+			label: "Cancelled",
+			value: stats.byStatus[6] ?? 0,
+			color: "text-gray-500 dark:text-gray-400",
+		},
+	].filter((c) => c.label === "Total" || c.value > 0);
+
+	return (
+		<div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+			{chips.map((c) => (
+				<div
+					key={c.label}
+					className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 py-3"
+				>
+					<p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
+						{c.label}
+					</p>
+					<p className={`text-2xl font-bold mt-0.5 ${c.color}`}>{c.value}</p>
+				</div>
+			))}
+		</div>
+	);
+}
+
 // Reads nextId from the contract to know the total count, then renders IDs in reverse
 // (newest first). Each ID is rendered as a separate SingleContract so reads are parallelised
 // by wagmi's internal query deduplication rather than one large multicall.
@@ -736,6 +850,7 @@ export default function DashboardPage(): React.JSX.Element {
 				</Link>
 			</div>
 
+			<SummaryBanner address={address} role={role} />
 			<ContractList address={address} role={role} />
 		</div>
 	);
