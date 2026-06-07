@@ -1,11 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useReducer } from "react";
 import { validateRequired } from "@/lib/validation";
 import { decryptFile } from "@/lib/encryption";
 
 type DecryptMode = "fetch" | "paste";
 type DecryptStatus = "idle" | "working" | "done" | "error";
+
+interface State {
+	mode: DecryptMode;
+	pastedBundle: string;
+	passphrase: string;
+	filename: string;
+	status: DecryptStatus;
+	errorMsg: string | null;
+	passphraseTouched: boolean;
+	bundleTouched: boolean;
+}
+
+type Action =
+	| { type: "SET_MODE"; mode: DecryptMode }
+	| { type: "SET_PASTED_BUNDLE"; value: string }
+	| { type: "SET_PASSPHRASE"; value: string }
+	| { type: "SET_FILENAME"; value: string }
+	| { type: "DECRYPT_START" }
+	| { type: "DECRYPT_SUCCESS" }
+	| { type: "DECRYPT_ERROR"; errorMsg: string }
+	| { type: "TOUCH_PASSPHRASE" }
+	| { type: "TOUCH_BUNDLE" }
+	| { type: "RESET_AFTER_DECRYPT" };
+
+const initialState: State = {
+	mode: "fetch",
+	pastedBundle: "",
+	passphrase: "",
+	filename: "decrypted-document",
+	status: "idle",
+	errorMsg: null,
+	passphraseTouched: false,
+	bundleTouched: false,
+};
+
+function reducer(state: State, action: Action): State {
+	switch (action.type) {
+		case "SET_MODE":
+			return { ...state, mode: action.mode };
+		case "SET_PASTED_BUNDLE":
+			return { ...state, pastedBundle: action.value };
+		case "SET_PASSPHRASE":
+			return { ...state, passphrase: action.value };
+		case "SET_FILENAME":
+			return { ...state, filename: action.value };
+		case "DECRYPT_START":
+			return { ...state, status: "working", errorMsg: null };
+		case "DECRYPT_SUCCESS":
+			return { ...state, status: "done" };
+		case "DECRYPT_ERROR":
+			return { ...state, status: "error", errorMsg: action.errorMsg };
+		case "TOUCH_PASSPHRASE":
+			return { ...state, passphraseTouched: true };
+		case "TOUCH_BUNDLE":
+			return { ...state, bundleTouched: true };
+		case "RESET_AFTER_DECRYPT":
+			return { ...state, status: "idle", errorMsg: null, passphrase: "" };
+	}
+}
 
 /// Full-width decrypt panel for AES-256-GCM encrypted IPFS documents.
 /// Rendered by ContractCard below the info grid when the user toggles decrypt open.
@@ -17,22 +76,24 @@ export function DecryptDocumentForm({
 	gatewayUrl: string;
 	onClose: () => void;
 }): React.JSX.Element {
-	const [mode, setMode] = useState<DecryptMode>("fetch");
-	const [pastedBundle, setPastedBundle] = useState("");
-	const [passphrase, setPassphrase] = useState("");
-	const [filename, setFilename] = useState("decrypted-document");
-	const [status, setStatus] = useState<DecryptStatus>("idle");
-	const [errorMsg, setErrorMsg] = useState<string | null>(null);
-	const [passphraseTouched, setPassphraseTouched] = useState(false);
-	const [bundleTouched, setBundleTouched] = useState(false);
+	const [state, dispatch] = useReducer(reducer, initialState);
+	const {
+		mode,
+		pastedBundle,
+		passphrase,
+		filename,
+		status,
+		errorMsg,
+		passphraseTouched,
+		bundleTouched,
+	} = state;
 
 	const passphraseError = validateRequired(passphrase, "Passphrase");
 	const bundleError =
 		mode === "paste" ? validateRequired(pastedBundle, "Encrypted bundle") : undefined;
 
 	async function handleDecrypt(): Promise<void> {
-		setStatus("working");
-		setErrorMsg(null);
+		dispatch({ type: "DECRYPT_START" });
 		try {
 			let buffer: ArrayBuffer;
 			if (mode === "fetch") {
@@ -54,7 +115,7 @@ export function DecryptDocumentForm({
 			a.click();
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
-			setStatus("done");
+			dispatch({ type: "DECRYPT_SUCCESS" });
 		} catch (err) {
 			// AES-GCM throws OperationError when the passphrase is wrong or ciphertext is tampered.
 			const friendly =
@@ -63,8 +124,7 @@ export function DecryptDocumentForm({
 					: err instanceof Error
 						? err.message
 						: String(err);
-			setErrorMsg(friendly);
-			setStatus("error");
+			dispatch({ type: "DECRYPT_ERROR", errorMsg: friendly });
 		}
 	}
 
@@ -90,7 +150,7 @@ export function DecryptDocumentForm({
 						key={m}
 						type="button"
 						onClick={() => {
-							setMode(m);
+							dispatch({ type: "SET_MODE", mode: m });
 						}}
 						className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
 							mode === m
@@ -116,10 +176,10 @@ export function DecryptDocumentForm({
 						placeholder={'{"v":1,"alg":"AES-256-GCM",…}'}
 						value={pastedBundle}
 						onChange={(e) => {
-							setPastedBundle(e.target.value);
+							dispatch({ type: "SET_PASTED_BUNDLE", value: e.target.value });
 						}}
 						onBlur={() => {
-							setBundleTouched(true);
+							dispatch({ type: "TOUCH_BUNDLE" });
 						}}
 						aria-invalid={bundleTouched && bundleError !== undefined}
 						className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-mono focus:outline-none focus:ring-2 resize-none ${
@@ -141,10 +201,10 @@ export function DecryptDocumentForm({
 					placeholder="Passphrase"
 					value={passphrase}
 					onChange={(e) => {
-						setPassphrase(e.target.value);
+						dispatch({ type: "SET_PASSPHRASE", value: e.target.value });
 					}}
 					onBlur={() => {
-						setPassphraseTouched(true);
+						dispatch({ type: "TOUCH_PASSPHRASE" });
 					}}
 					aria-invalid={passphraseTouched && passphraseError !== undefined}
 					className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 ${
@@ -164,7 +224,7 @@ export function DecryptDocumentForm({
 				placeholder="Output filename (e.g. contract.pdf)"
 				value={filename}
 				onChange={(e) => {
-					setFilename(e.target.value);
+					dispatch({ type: "SET_FILENAME", value: e.target.value });
 				}}
 				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			/>
@@ -175,9 +235,7 @@ export function DecryptDocumentForm({
 					<button
 						type="button"
 						onClick={() => {
-							setStatus("idle");
-							setErrorMsg(null);
-							setPassphrase("");
+							dispatch({ type: "RESET_AFTER_DECRYPT" });
 						}}
 						className="underline text-gray-500 hover:text-gray-900 dark:hover:text-white"
 					>

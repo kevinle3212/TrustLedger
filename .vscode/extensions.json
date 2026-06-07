@@ -30,6 +30,7 @@
 		// AI Coding Assistants
 		"anthropic-ai.claude-code",
 		"GitHub.copilot-chat",
-		"openai.chatgpt"
+		"openai.chatgpt",
+		"ms-playwright.playwright"
 	]
 }

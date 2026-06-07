@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useReducer, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import {
 	useAccount,
@@ -22,6 +22,33 @@ import { AcceptRejectActions } from "./_components/AcceptRejectActions";
 // proposal, securely view the (optionally encrypted) IPFS contract document, then
 // either accept — funding the escrow in the same transaction — or reject it.
 
+interface PageState {
+	payload: MagicLinkPayload | null;
+	tokenError: string | null;
+	tokenLoading: boolean;
+	decryptOpen: boolean;
+	action: "accept" | "reject" | null;
+}
+
+type PageAction =
+	| { type: "VERIFY_SUCCESS"; payload: MagicLinkPayload }
+	| { type: "VERIFY_ERROR"; error: string }
+	| { type: "TOGGLE_DECRYPT" }
+	| { type: "SET_ACTION"; action: "accept" | "reject" };
+
+function pageReducer(state: PageState, action: PageAction): PageState {
+	switch (action.type) {
+		case "VERIFY_SUCCESS":
+			return { ...state, payload: action.payload, tokenLoading: false };
+		case "VERIFY_ERROR":
+			return { ...state, tokenError: action.error, tokenLoading: false };
+		case "TOGGLE_DECRYPT":
+			return { ...state, decryptOpen: !state.decryptOpen };
+		case "SET_ACTION":
+			return { ...state, action: action.action };
+	}
+}
+
 function PageShell({ children }: { children: React.ReactNode }): React.JSX.Element {
 	return <div className="max-w-lg mx-auto px-6 py-16 flex flex-col gap-4">{children}</div>;
 }
@@ -30,12 +57,14 @@ function AcceptPageInner(): React.JSX.Element {
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token") ?? "";
 
-	const [payload, setPayload] = useState<MagicLinkPayload | null>(null);
-	const [tokenError, setTokenError] = useState<string | null>(
-		token === "" ? "No token provided." : null,
-	);
-	const [tokenLoading, setTokenLoading] = useState(token !== "");
-	const [decryptOpen, setDecryptOpen] = useState(false);
+	const [state, dispatch] = useReducer(pageReducer, {
+		payload: null,
+		tokenError: token === "" ? "No token provided." : null,
+		tokenLoading: token !== "",
+		decryptOpen: false,
+		action: null,
+	});
+	const { payload, tokenError, tokenLoading, decryptOpen, action } = state;
 
 	useEffect(() => {
 		if (token === "") return;
@@ -47,12 +76,11 @@ function AcceptPageInner(): React.JSX.Element {
 					error?: string;
 					payload?: MagicLinkPayload;
 				};
-				if (data.ok === true && data.payload !== undefined) setPayload(data.payload);
-				else setTokenError(data.error ?? "Invalid link.");
+				if (data.ok === true && data.payload !== undefined)
+					dispatch({ type: "VERIFY_SUCCESS", payload: data.payload });
+				else dispatch({ type: "VERIFY_ERROR", error: data.error ?? "Invalid link." });
 			} catch {
-				setTokenError("Failed to verify link.");
-			} finally {
-				setTokenLoading(false);
+				dispatch({ type: "VERIFY_ERROR", error: "Failed to verify link." });
 			}
 		};
 		void verify();
@@ -89,9 +117,6 @@ function AcceptPageInner(): React.JSX.Element {
 	const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } =
 		useWaitForTransactionReceipt({ hash: approveTxHash });
 
-	// Tracks which action the in-flight transaction represents so the success screen
-	// can show the right copy.
-	const [action, setAction] = useState<"accept" | "reject" | null>(null);
 	// Ref tracks whether we're in the "approving" half of the USDC two-step flow.
 	// A ref avoids triggering setState inside a useEffect (which would cause cascading renders).
 	const approveStepRef = useRef<"idle" | "approving">("idle");
@@ -130,7 +155,7 @@ function AcceptPageInner(): React.JSX.Element {
 
 	function handleAccept(): void {
 		if (payload === null || contract === undefined) return;
-		setAction("accept");
+		dispatch({ type: "SET_ACTION", action: "accept" });
 
 		if (isToken) {
 			// ERC-20: check allowance first, approve if needed, then fund.
@@ -165,7 +190,7 @@ function AcceptPageInner(): React.JSX.Element {
 
 	function handleReject(): void {
 		if (payload === null) return;
-		setAction("reject");
+		dispatch({ type: "SET_ACTION", action: "reject" });
 		writeContract({
 			address: TRUSTLEDGER_ADDRESS,
 			abi: TRUSTLEDGER_ABI,
@@ -253,7 +278,7 @@ function AcceptPageInner(): React.JSX.Element {
 						isToken={isToken}
 						decryptOpen={decryptOpen}
 						onToggleDecrypt={() => {
-							setDecryptOpen((o) => !o);
+							dispatch({ type: "TOGGLE_DECRYPT" });
 						}}
 					/>
 				)}

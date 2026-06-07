@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef } from "react";
 import {
 	useAccount,
 	useChainId,
@@ -32,6 +32,109 @@ import { SubmitSummary } from "./_components/SubmitSummary";
 type DocMode = "upload" | "manual";
 type UploadStatus = "idle" | "working" | "done" | "error";
 
+interface FormFields {
+	client: string;
+	clientEmail: string;
+	amount: string;
+	contractURI: string;
+	estimatedDurationDays: string;
+	bufferFactor: string;
+	acceptanceWindowDays: string;
+	arbitrationFeePct: string;
+	holdBack: "none" | "5" | "10" | "15";
+	warrantyPeriodDays: string;
+}
+
+interface CreateState {
+	proposerRole: "freelancer" | "client";
+	paymentToken: "eth" | "usdc";
+	form: FormFields;
+	magicLinkStatus: "idle" | "sending" | "sent" | "error";
+	docMode: DocMode;
+	selectedFile: File | null;
+	encryptEnabled: boolean;
+	passphrase: string;
+	pinataJwt: string;
+	uploadStatus: UploadStatus;
+	uploadError: string | null;
+	fileHash: `0x${string}` | null;
+	arweaveWallet: ArweaveJWK | null;
+	arweaveStatus: UploadStatus;
+	arweaveUri: string;
+	arweaveBalance: string | null;
+	touched: Partial<Record<string, boolean>>;
+	submitAttempted: boolean;
+}
+
+type CreateAction =
+	| { type: "SET_PROPOSER_ROLE"; role: "freelancer" | "client" }
+	| { type: "SET_PAYMENT_TOKEN"; token: "eth" | "usdc" }
+	| { type: "SET_FIELD"; key: keyof FormFields; value: string }
+	| { type: "SET_MAGIC_LINK_STATUS"; status: CreateState["magicLinkStatus"] }
+	| { type: "SET_DOC_MODE"; mode: DocMode }
+	| { type: "FILE_SELECTED"; file: File | null }
+	| { type: "SET_ENCRYPT_ENABLED"; enabled: boolean }
+	| { type: "SET_PASSPHRASE"; value: string }
+	| { type: "SET_PINATA_JWT"; value: string }
+	| { type: "UPLOAD_START" }
+	| { type: "UPLOAD_SUCCESS"; hash: `0x${string}`; uri: string }
+	| { type: "UPLOAD_ERROR"; error: string }
+	| { type: "ARWEAVE_WALLET_SET"; wallet: ArweaveJWK }
+	| { type: "ARWEAVE_BALANCE_LOADED"; balance: string | null }
+	| { type: "ARWEAVE_UPLOAD_START" }
+	| { type: "ARWEAVE_UPLOAD_SUCCESS"; uri: string }
+	| { type: "ARWEAVE_UPLOAD_ERROR" }
+	| { type: "MARK_TOUCHED"; key: string }
+	| { type: "SET_SUBMIT_ATTEMPTED" };
+
+function createReducer(state: CreateState, action: CreateAction): CreateState {
+	switch (action.type) {
+		case "SET_PROPOSER_ROLE":
+			return { ...state, proposerRole: action.role };
+		case "SET_PAYMENT_TOKEN":
+			return { ...state, paymentToken: action.token, form: { ...state.form, amount: "" } };
+		case "SET_FIELD":
+			return { ...state, form: { ...state.form, [action.key]: action.value } };
+		case "SET_MAGIC_LINK_STATUS":
+			return { ...state, magicLinkStatus: action.status };
+		case "SET_DOC_MODE":
+			return { ...state, docMode: action.mode };
+		case "FILE_SELECTED":
+			return { ...state, selectedFile: action.file, uploadStatus: "idle", fileHash: null };
+		case "SET_ENCRYPT_ENABLED":
+			return { ...state, encryptEnabled: action.enabled };
+		case "SET_PASSPHRASE":
+			return { ...state, passphrase: action.value };
+		case "SET_PINATA_JWT":
+			return { ...state, pinataJwt: action.value };
+		case "UPLOAD_START":
+			return { ...state, uploadStatus: "working", uploadError: null };
+		case "UPLOAD_SUCCESS":
+			return {
+				...state,
+				uploadStatus: "done",
+				fileHash: action.hash,
+				form: { ...state.form, contractURI: action.uri },
+			};
+		case "UPLOAD_ERROR":
+			return { ...state, uploadStatus: "error", uploadError: action.error };
+		case "ARWEAVE_WALLET_SET":
+			return { ...state, arweaveWallet: action.wallet };
+		case "ARWEAVE_BALANCE_LOADED":
+			return { ...state, arweaveBalance: action.balance };
+		case "ARWEAVE_UPLOAD_START":
+			return { ...state, arweaveStatus: "working" };
+		case "ARWEAVE_UPLOAD_SUCCESS":
+			return { ...state, arweaveStatus: "done", arweaveUri: action.uri };
+		case "ARWEAVE_UPLOAD_ERROR":
+			return { ...state, arweaveStatus: "error" };
+		case "MARK_TOUCHED":
+			return { ...state, touched: { ...state.touched, [action.key]: true } };
+		case "SET_SUBMIT_ATTEMPTED":
+			return { ...state, submitAttempted: true };
+	}
+}
+
 export default function CreatePage(): React.JSX.Element {
 	const { isConnected } = useAccount();
 	const chainId = useChainId();
@@ -44,66 +147,85 @@ export default function CreatePage(): React.JSX.Element {
 	} = useWaitForTransactionReceipt({ hash: txHash });
 	const { role: globalRole } = useRole();
 
+	const [state, dispatch] = useReducer(
+		createReducer,
+		globalRole,
+		(role): CreateState => ({
+			proposerRole: role,
+			paymentToken: "eth" as const,
+			form: {
+				client: "",
+				clientEmail: "",
+				amount: "",
+				contractURI: "",
+				estimatedDurationDays: "30",
+				bufferFactor: "1200",
+				acceptanceWindowDays: "3",
+				arbitrationFeePct: "5",
+				holdBack: "none" as const,
+				warrantyPeriodDays: "30",
+			},
+			magicLinkStatus: "idle" as const,
+			docMode: "upload",
+			selectedFile: null,
+			encryptEnabled: false,
+			passphrase: "",
+			pinataJwt: process.env["NEXT_PUBLIC_PINATA_JWT"] ?? "",
+			uploadStatus: "idle",
+			uploadError: null,
+			fileHash: null,
+			arweaveWallet: null,
+			arweaveStatus: "idle",
+			arweaveUri: "",
+			arweaveBalance: null,
+			touched: {},
+			submitAttempted: false,
+		}),
+	);
+
+	const {
+		proposerRole,
+		paymentToken,
+		form,
+		magicLinkStatus,
+		docMode,
+		selectedFile,
+		encryptEnabled,
+		passphrase,
+		pinataJwt,
+		uploadStatus,
+		uploadError,
+		fileHash,
+		arweaveWallet,
+		arweaveStatus,
+		arweaveUri,
+		arweaveBalance,
+		touched,
+		submitAttempted,
+	} = state;
+
 	// "freelancer" = current user is the freelancer proposing unfunded terms (existing flow).
 	// "client"     = current user is the client proposing + funding immediately.
 	// Defaults to the global role toggle so the form opens in the expected mode.
-	const [proposerRole, setProposerRole] = useState<"freelancer" | "client">(globalRole);
 	const isClientProposing = proposerRole === "client";
 
 	// "eth" = native ETH; "usdc" = ERC-20 USDC on the connected chain.
-	const [paymentToken, setPaymentToken] = useState<"eth" | "usdc">("eth");
 	const isUsdc = paymentToken === "usdc";
 
-	const [form, setForm] = useState({
-		client: "",
-		clientEmail: "",
-		amount: "",
-		contractURI: "",
-		estimatedDurationDays: "30",
-		bufferFactor: "1200",
-		acceptanceWindowDays: "3",
-		arbitrationFeePct: "5",
-		holdBack: "none" as "none" | "5" | "10" | "15",
-		warrantyPeriodDays: "30",
-	});
+	function set(key: keyof FormFields, value: string): void {
+		dispatch({ type: "SET_FIELD", key, value });
+	}
 
-	const [magicLinkStatus, setMagicLinkStatus] = useState<"idle" | "sending" | "sent" | "error">(
-		"idle",
-	);
-
-	// Document upload state
-	const [docMode, setDocMode] = useState<DocMode>("upload");
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const [encryptEnabled, setEncryptEnabled] = useState(false);
-	const [passphrase, setPassphrase] = useState("");
-	const [pinataJwt, setPinataJwt] = useState(process.env["NEXT_PUBLIC_PINATA_JWT"] ?? "");
-	const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
-	const [uploadError, setUploadError] = useState<string | null>(null);
 	// Bytes that were actually uploaded (post-encryption if applicable) - reused for Arweave backup.
 	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
 	const uploadedMime = useRef("application/octet-stream");
-	// keccak256 of the uploaded bytes - used as contractHash instead of hashing the URI.
-	const [fileHash, setFileHash] = useState<`0x${string}` | null>(null);
-
-	// Arweave backup state
-	const [arweaveWallet, setArweaveWallet] = useState<ArweaveJWK | null>(null);
-	const [arweaveStatus, setArweaveStatus] = useState<UploadStatus>("idle");
-	const [arweaveUri, setArweaveUri] = useState("");
-	const [arweaveBalance, setArweaveBalance] = useState<string | null>(null);
-
-	function set(key: keyof typeof form, value: string): void {
-		setForm((f) => ({ ...f, [key]: value }));
-	}
 
 	// ── Field validation ────────────────────────────────────────────────────────
 	// Each field's error is computed from current state; it is only surfaced once
 	// the field has been blurred (touched) or the user has attempted to submit, so
 	// the form doesn't shout at the user before they've typed.
-	const [touched, setTouched] = useState<Partial<Record<string, boolean>>>({});
-	const [submitAttempted, setSubmitAttempted] = useState(false);
-
 	function markTouched(key: string): void {
-		setTouched((t) => ({ ...t, [key]: true }));
+		dispatch({ type: "MARK_TOUCHED", key });
 	}
 
 	const fieldErrors = useMemo(
@@ -224,7 +346,7 @@ export default function CreatePage(): React.JSX.Element {
 
 	function handleSubmit(e: React.SyntheticEvent): void {
 		e.preventDefault();
-		setSubmitAttempted(true);
+		dispatch({ type: "SET_SUBMIT_ATTEMPTED" });
 		if (hasBlockingErrors) return;
 		if (simData?.request !== undefined) {
 			writeContract(simData.request as Parameters<typeof writeContract>[0]);
@@ -256,23 +378,24 @@ export default function CreatePage(): React.JSX.Element {
 			}),
 		})
 			.then((r) => {
-				setMagicLinkStatus(r.ok ? "sent" : "error");
+				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: r.ok ? "sent" : "error" });
 			})
 			.catch(() => {
-				setMagicLinkStatus("error");
+				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: "error" });
 			});
 	}, [isSuccess, receipt, form.clientEmail, form.client, isClientProposing]);
 
 	async function handleUploadToIPFS(): Promise<void> {
 		if (selectedFile === null) return;
 		if (pinataJwt === "") {
-			setUploadError("Enter your Pinata JWT to enable IPFS upload.");
-			setUploadStatus("error");
+			dispatch({
+				type: "UPLOAD_ERROR",
+				error: "Enter your Pinata JWT to enable IPFS upload.",
+			});
 			return;
 		}
 
-		setUploadStatus("working");
-		setUploadError(null);
+		dispatch({ type: "UPLOAD_START" });
 
 		try {
 			const rawBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -296,12 +419,12 @@ export default function CreatePage(): React.JSX.Element {
 
 			uploadedBytes.current = bytes;
 			uploadedMime.current = mime;
-			setFileHash(hash);
-			set("contractURI", uri);
-			setUploadStatus("done");
+			dispatch({ type: "UPLOAD_SUCCESS", hash, uri });
 		} catch (err) {
-			setUploadError(err instanceof Error ? err.message : String(err));
-			setUploadStatus("error");
+			dispatch({
+				type: "UPLOAD_ERROR",
+				error: err instanceof Error ? err.message : String(err),
+			});
 		}
 	}
 
@@ -312,11 +435,11 @@ export default function CreatePage(): React.JSX.Element {
 		reader.onload = async (ev): Promise<void> => {
 			try {
 				const jwk = JSON.parse(ev.target?.result as string) as ArweaveJWK;
-				setArweaveWallet(jwk);
+				dispatch({ type: "ARWEAVE_WALLET_SET", wallet: jwk });
 				// Fetch balance so the user knows they have AR to spend.
 				const { getArweaveBalance } = await import("@/lib/arweave");
 				const bal = await getArweaveBalance(jwk);
-				setArweaveBalance(bal);
+				dispatch({ type: "ARWEAVE_BALANCE_LOADED", balance: bal });
 			} catch {
 				// ignore parse errors - bad wallet file
 			}
@@ -326,7 +449,7 @@ export default function CreatePage(): React.JSX.Element {
 
 	async function handleArweaveUpload(): Promise<void> {
 		if (uploadedBytes.current === null || arweaveWallet === null) return;
-		setArweaveStatus("working");
+		dispatch({ type: "ARWEAVE_UPLOAD_START" });
 		try {
 			const { uploadToArweave } = await import("@/lib/arweave");
 			const uri = await uploadToArweave(
@@ -334,10 +457,9 @@ export default function CreatePage(): React.JSX.Element {
 				uploadedMime.current,
 				arweaveWallet,
 			);
-			setArweaveUri(uri);
-			setArweaveStatus("done");
+			dispatch({ type: "ARWEAVE_UPLOAD_SUCCESS", uri });
 		} catch {
-			setArweaveStatus("error");
+			dispatch({ type: "ARWEAVE_UPLOAD_ERROR" });
 		}
 	}
 
@@ -441,7 +563,7 @@ export default function CreatePage(): React.JSX.Element {
 							key={r}
 							type="button"
 							onClick={() => {
-								setProposerRole(r);
+								dispatch({ type: "SET_PROPOSER_ROLE", role: r });
 							}}
 							className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors capitalize ${
 								proposerRole === r
@@ -469,8 +591,7 @@ export default function CreatePage(): React.JSX.Element {
 							key={t}
 							type="button"
 							onClick={() => {
-								setPaymentToken(t);
-								set("amount", "");
+								dispatch({ type: "SET_PAYMENT_TOKEN", token: t });
 							}}
 							className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors uppercase ${
 								paymentToken === t
@@ -496,25 +617,31 @@ export default function CreatePage(): React.JSX.Element {
 					showError={showError as (key: string) => string | undefined}
 					markTouched={markTouched}
 					docMode={docMode}
-					onDocModeChange={setDocMode}
+					onDocModeChange={(mode) => {
+						dispatch({ type: "SET_DOC_MODE", mode });
+					}}
 					isClientProposing={isClientProposing}
 					isUsdc={isUsdc}
 					selectedFile={selectedFile}
 					onFileChange={(file) => {
-						setSelectedFile(file);
-						setUploadStatus("idle");
-						setFileHash(null);
+						dispatch({ type: "FILE_SELECTED", file });
 						uploadedBytes.current = null;
 					}}
 					encryptEnabled={encryptEnabled}
-					onEncryptChange={setEncryptEnabled}
+					onEncryptChange={(enabled) => {
+						dispatch({ type: "SET_ENCRYPT_ENABLED", enabled });
+					}}
 					passphrase={passphrase}
-					onPassphraseChange={setPassphrase}
+					onPassphraseChange={(value) => {
+						dispatch({ type: "SET_PASSPHRASE", value });
+					}}
 					onPassphraseBlur={() => {
 						markTouched("passphrase");
 					}}
 					pinataJwt={pinataJwt}
-					onPinataJwtChange={setPinataJwt}
+					onPinataJwtChange={(value) => {
+						dispatch({ type: "SET_PINATA_JWT", value });
+					}}
 					onPinataJwtBlur={() => {
 						markTouched("pinataJwt");
 					}}

@@ -477,16 +477,6 @@ mainnet launch deliverables.
       they depend on `useSearchParams`), replace the raw `fetch` with `useSWR`
       or `@tanstack/react-query` so the fetching lifecycle is properly managed.
 
-- [ ] Consolidate related `useState` clusters into `useReducer` in four
-      components flagged by React Doctor (`prefer-useReducer`).
-    - `components/DecryptDocumentForm.tsx` (line 19) — form input state (bundle
-      source, passphrase, filename, touched flags) should become one reducer.
-    - `app/client/accept/page.tsx` (line 23) — token/payload/UI state cluster.
-    - `app/freelancer/review/page.tsx` (line 53) — same pattern.
-    - `app/create/page.tsx` (line 34) — large group of upload + form state.
-    - A single `useReducer` per component makes state transitions explicit and
-      eliminates the "many useState in a row" anti-pattern.
-
 - [ ] Add error monitoring and analytics (for example Sentry for error tracking
       and a privacy-respecting analytics tool) to surface production issues and
       usage patterns.
@@ -534,6 +524,24 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Consolidate related `useState` clusters into `useReducer` in four
+      components flagged by React Doctor (`prefer-useReducer`).
+    - `components/DecryptDocumentForm.tsx` — 8 `useState` calls (mode, bundle,
+      passphrase, filename, status, errorMsg, two touched flags) replaced with
+      one reducer; semantic actions: `DECRYPT_START`, `DECRYPT_SUCCESS`,
+      `DECRYPT_ERROR`, `RESET_AFTER_DECRYPT`, etc.
+    - `app/client/accept/page.tsx` — 5 `useState` calls (payload, tokenError,
+      tokenLoading, decryptOpen, action) replaced with one reducer; loading is
+      resolved atomically in `VERIFY_SUCCESS` / `VERIFY_ERROR` so the `finally`
+      block is no longer needed.
+    - `app/freelancer/review/page.tsx` — same pattern as accept page.
+    - `app/create/page.tsx` — 17 `useState` calls consolidated into one
+      `CreateState` reducer with 21 typed actions covering proposer role,
+      payment token, form fields, magic-link status, document upload, IPFS
+      upload, and Arweave backup; `FILE_SELECTED` atomically resets upload
+      status and hash; `UPLOAD_SUCCESS` atomically sets hash + contractURI;
+      `SET_PAYMENT_TOKEN` atomically clears amount. `tsc --noEmit` passes.
 
 - [x] Split the three oversized page components into focused sub-components
       (`no-giant-component` — React Doctor).
