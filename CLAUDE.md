@@ -22,8 +22,10 @@
 - Prefer a pull request so CI runs; confirm required checks pass before merging.
   Keep `main` deployable at all times. If a change can't be made green without
   breaking things, don't force it — explain the problem and options.
-- I run git/`gh` myself. When a change is ready, give me every command I need to
-  ship it, copy-paste ready and in order, e.g.:
+- Never run `git` or `gh` commands autonomously. Only run them when the user
+  explicitly grants permission for that specific command in that turn.
+- When a change is ready, give the user every command needed to ship it,
+  copy-paste ready and in order, e.g.:
 
     ```bash
     # 1. Branch + commit
@@ -94,8 +96,9 @@
 
 ## Checking off TODO.md
 
-- When a TODO item is completed, check it off (`- [ ]` → `- [x]`) promptly so
-  the file stays accurate.
+- When a TODO item is completed, check it off (`- [ ]` → `- [x]`) and move it to
+  the `## Completed` section at the bottom of `TODO.md` promptly so the file
+  stays accurate.
 - Add a brief note next to any item needing clarification.
 - After checking off, verify the code change is implemented and introduced no
   new bugs (run tests, check for errors/warnings). Report any issue with a clear

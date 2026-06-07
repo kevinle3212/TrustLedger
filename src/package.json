@@ -11,7 +11,20 @@
 		"obg",
 		"ledger",
 		"next.js",
-		"react"
+		"react",
+		"trustledger",
+		"dapp",
+		"web3",
+		"escrow",
+		"freelance",
+		"dispute-resolution",
+		"wagmi",
+		"viem",
+		"tailwindcss",
+		"typescript",
+		"walletconnect",
+		"appkit",
+		"frontend"
 	],
 	"homepage": "https://github.com/kevinle3212/TrustLedger/blob/main/src/README.md",
 	"bugs": {

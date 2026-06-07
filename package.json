@@ -11,7 +11,19 @@
 		"oregon-blockchain-group",
 		"obg",
 		"contract",
-		"ledger"
+		"ledger",
+		"trustledger",
+		"solidity",
+		"hardhat",
+		"foundry",
+		"escrow",
+		"dapp",
+		"web3",
+		"defi",
+		"freelance",
+		"dispute-resolution",
+		"openzeppelin",
+		"sepolia"
 	],
 	"homepage": "https://github.com/kevinle3212/TrustLedger#readme",
 	"bugs": {
