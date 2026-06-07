@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	useAccount,
 	useChainId,
@@ -79,8 +79,8 @@ export default function CreatePage(): React.JSX.Element {
 	const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
 	const [uploadError, setUploadError] = useState<string | null>(null);
 	// Bytes that were actually uploaded (post-encryption if applicable) - reused for Arweave backup.
-	const [uploadedBytes, setUploadedBytes] = useState<Uint8Array<ArrayBuffer> | null>(null);
-	const [uploadedMime, setUploadedMime] = useState("application/octet-stream");
+	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
+	const uploadedMime = useRef("application/octet-stream");
 	// keccak256 of the uploaded bytes - used as contractHash instead of hashing the URI.
 	const [fileHash, setFileHash] = useState<`0x${string}` | null>(null);
 
@@ -293,8 +293,8 @@ export default function CreatePage(): React.JSX.Element {
 			const blob = new Blob([bytes.buffer], { type: mime });
 			const uri = await uploadToPinata(blob, selectedFile.name, pinataJwt);
 
-			setUploadedBytes(bytes);
-			setUploadedMime(mime);
+			uploadedBytes.current = bytes;
+			uploadedMime.current = mime;
 			setFileHash(hash);
 			set("contractURI", uri);
 			setUploadStatus("done");
@@ -324,11 +324,15 @@ export default function CreatePage(): React.JSX.Element {
 	}
 
 	async function handleArweaveUpload(): Promise<void> {
-		if (uploadedBytes === null || arweaveWallet === null) return;
+		if (uploadedBytes.current === null || arweaveWallet === null) return;
 		setArweaveStatus("working");
 		try {
 			const { uploadToArweave } = await import("@/lib/arweave");
-			const uri = await uploadToArweave(uploadedBytes, uploadedMime, arweaveWallet);
+			const uri = await uploadToArweave(
+				uploadedBytes.current,
+				uploadedMime.current,
+				arweaveWallet,
+			);
 			setArweaveUri(uri);
 			setArweaveStatus("done");
 		} catch {
@@ -402,6 +406,7 @@ export default function CreatePage(): React.JSX.Element {
 					</p>
 				)}
 				<button
+					type="button"
 					onClick={() => {
 						window.location.reload();
 					}}
@@ -607,7 +612,7 @@ export default function CreatePage(): React.JSX.Element {
 										setSelectedFile(e.target.files?.[0] ?? null);
 										setUploadStatus("idle");
 										setFileHash(null);
-										setUploadedBytes(null);
+										uploadedBytes.current = null;
 									}}
 								/>
 								<span className="text-sm text-gray-500 dark:text-gray-400">
@@ -935,9 +940,11 @@ export default function CreatePage(): React.JSX.Element {
 
 				{/* Summary */}
 				{form.amount !== "" && (
-					<div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-4 text-sm text-gray-600 dark:text-gray-300 flex flex-col gap-1">
+					<div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-4 text-sm text-indigo-900 dark:text-indigo-100 flex flex-col gap-1">
 						<p>
-							<span className="text-gray-500 dark:text-gray-400">Escrow amount:</span>{" "}
+							<span className="text-indigo-700 dark:text-indigo-300">
+								Escrow amount:
+							</span>{" "}
 							<span className="text-gray-900 dark:text-white font-medium">
 								{form.amount} {isUsdc ? "USDC" : "ETH"}
 							</span>

@@ -55,6 +55,7 @@ export function Field({ label, hint, error, children }: FieldProps): React.JSX.E
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & { error?: boolean };
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
 export function Input({ error = false, className, ...props }: InputProps): React.JSX.Element {
 	const id = useId();
 	return (
@@ -69,24 +70,13 @@ export function Input({ error = false, className, ...props }: InputProps): React
 
 type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & { error?: boolean };
 
+// react-doctor-disable-next-line react-doctor/no-multi-comp
 export function Select({ error = false, className, ...props }: SelectProps): React.JSX.Element {
 	return (
 		<select
 			aria-invalid={error}
 			{...props}
 			className={`${controlClass(SELECT_BG, error)}${className !== undefined && className !== "" ? ` ${className}` : ""}`}
-		/>
-	);
-}
-
-type TextAreaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement> & { error?: boolean };
-
-export function TextArea({ error = false, className, ...props }: TextAreaProps): React.JSX.Element {
-	return (
-		<textarea
-			aria-invalid={error}
-			{...props}
-			className={`${controlClass(INPUT_BG, error)}${className !== undefined && className !== "" ? ` ${className}` : ""}`}
 		/>
 	);
 }

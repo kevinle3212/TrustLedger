@@ -172,3 +172,43 @@ jobs:
               uses: github/codeql-action/analyze@v4
               with:
                   category: "/language:javascript-typescript"
+
+    # ---------------------------------------------------------------------------
+    # Semgrep SAST. Covers JS/TS/React/Next.js security rules, secrets, and
+    # supply-chain checks. Free for public repos via the semgrep-action.
+    # ---------------------------------------------------------------------------
+    semgrep:
+        name: Semgrep (SAST)
+        runs-on: ubuntu-latest
+        container:
+            image: semgrep/semgrep
+        # Only run on PRs to avoid duplicate runs on push to main (CodeQL covers
+        # main). Semgrep OSS is free for open-source repositories.
+        if: github.actor != 'dependabot[bot]'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Run Semgrep
+              run: >
+                  semgrep scan
+                  --config auto
+                  --sarif
+                  --output semgrep.sarif
+                  --exclude "contracts/lib"
+                  --exclude "artifacts"
+                  --exclude "contracts/out"
+                  --exclude "contracts/cache"
+                  --exclude "hardhat-cache"
+                  --exclude "src/.next"
+                  --exclude "node_modules"
+                  --exclude "site"
+                  --error
+              continue-on-error: true
+
+            - name: Upload SARIF to GitHub Security
+              if: always() && hashFiles('semgrep.sarif') != ''
+              uses: github/codeql-action/upload-sarif@v4
+              with:
+                  sarif_file: semgrep.sarif
+                  category: semgrep

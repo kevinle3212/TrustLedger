@@ -1,5 +1,10 @@
 import Link from "next/link";
 
+export const metadata = {
+	title: "TrustLedger",
+	description: "Decentralized freelance escrow powered by Ethereum smart contracts.",
+};
+
 export default function HomePage(): React.JSX.Element {
 	return (
 		<div className="max-w-4xl mx-auto px-6 py-24 flex flex-col items-center text-center gap-10">

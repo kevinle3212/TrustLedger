@@ -94,6 +94,28 @@
   decisions that will confuse a future reader without context.
 - Reference existing instructions rather than restating them inline.
 
+## Quality Pipeline
+
+Run these before opening a PR on frontend code:
+
+```bash
+# From src/
+npx tsc --noEmit              # TypeScript
+npm run lint:frontend         # ESLint + Prettier
+npm run doctor                # React Doctor (score + verbose findings)
+```
+
+- **React Doctor** (`npm run doctor` from `src/`) — run after any
+  React/component changes. Score should not regress. Fix all new `error`-level
+  findings; triage `warning`-level before merging.
+- **React Scan** — active automatically in `NODE_ENV=development` via
+  `ReactScanMonitor` in the root layout. Open the browser to see re-render
+  highlights; use it when investigating performance regressions.
+- **Semgrep** — runs in CI (`security.yml`) on every PR. If a finding looks like
+  a false positive, add a `# nosemgrep: <rule-id>` comment with a justification.
+- **Pre-commit hook** (`.husky/_/pre-commit`) — runs React Doctor `--staged` and
+  then the full lint suite. Fix blocking issues before committing.
+
 ## Checking off TODO.md
 
 - When a TODO item is completed, check it off (`- [ ]` → `- [x]`) and move it to

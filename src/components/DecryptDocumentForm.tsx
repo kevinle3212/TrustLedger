@@ -111,6 +111,7 @@ export function DecryptDocumentForm({
 			) : (
 				<div className="flex flex-col gap-1">
 					<textarea
+						aria-label="Encrypted bundle JSON"
 						rows={4}
 						placeholder={'{"v":1,"alg":"AES-256-GCM",…}'}
 						value={pastedBundle}
@@ -135,6 +136,7 @@ export function DecryptDocumentForm({
 
 			<div className="flex flex-col gap-1">
 				<input
+					aria-label="Passphrase for decryption"
 					type="password"
 					placeholder="Passphrase"
 					value={passphrase}
@@ -157,6 +159,7 @@ export function DecryptDocumentForm({
 			</div>
 
 			<input
+				aria-label="Output filename"
 				type="text"
 				placeholder="Output filename (e.g. contract.pdf)"
 				value={filename}

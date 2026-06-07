@@ -96,14 +96,6 @@ export function validateUsdcAmount(value: string, maxUsdc?: number): ValidationR
 }
 
 /** Requires a finite number strictly greater than 0. */
-export function validatePositiveNumber(value: string, label = "Value"): ValidationResult {
-	const trimmed = value.trim();
-	if (trimmed === "") return `${label} is required.`;
-	const num = Number(trimmed);
-	if (!Number.isFinite(num)) return "Enter a valid number.";
-	if (num <= 0) return `${label} must be greater than 0.`;
-	return undefined;
-}
 
 /** Requires an integer reputation score in [1, 100]. */
 export function validateScore(value: string): ValidationResult {
@@ -125,11 +117,6 @@ export function validateContractUri(value: string): ValidationResult {
 }
 
 /** Like {@link validateContractUri} but the value is mandatory. */
-export function validateRequiredUri(value: string): ValidationResult {
-	const trimmed = value.trim();
-	if (trimmed === "") return "Enter a deliverable URL or IPFS link.";
-	return validateContractUri(trimmed);
-}
 
 /** CIDv0: base58btc-encoded SHA2-256, always 46 chars starting with "Qm". */
 const CIDV0_RE = /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/;
@@ -168,11 +155,3 @@ export function validateEmail(value: string, required = false): ValidationResult
 }
 
 /** Requires a 0x-prefixed hex string (any non-zero length), e.g. a salt. */
-export function validateHex(value: string, label = "Value"): ValidationResult {
-	const trimmed = value.trim();
-	if (trimmed === "") return `${label} is required.`;
-	if (!/^0x[0-9a-fA-F]+$/.test(trimmed)) {
-		return `${label} must be a 0x-prefixed hex string.`;
-	}
-	return undefined;
-}

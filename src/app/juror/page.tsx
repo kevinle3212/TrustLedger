@@ -196,6 +196,7 @@ function RegisterForm(): React.JSX.Element {
 					activates.
 				</p>
 				<button
+					type="button"
 					onClick={reset}
 					className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white underline self-start"
 				>
@@ -216,6 +217,7 @@ function RegisterForm(): React.JSX.Element {
 			<form onSubmit={handleRegister} className="flex flex-col gap-3">
 				<div className="flex gap-2 items-center">
 					<input
+						aria-label="Stake amount in ETH"
 						type="number"
 						min="0.01"
 						step="0.001"
@@ -333,9 +335,12 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 			<h2 className="font-semibold text-gray-900 dark:text-white">Manage Stake</h2>
 
 			<form onSubmit={handleAdd} className="flex flex-col gap-2">
-				<label className="text-xs text-gray-500">Add Stake</label>
+				<label htmlFor="add-stake-amount" className="text-xs text-gray-500">
+					Add Stake
+				</label>
 				<div className="flex gap-2 items-center">
 					<input
+						id="add-stake-amount"
 						type="number"
 						min="0.001"
 						step="0.001"
@@ -374,12 +379,13 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 			</form>
 
 			<form onSubmit={handleUnstake} className="flex flex-col gap-2">
-				<label className="text-xs text-gray-500">
+				<label htmlFor="unstake-amount" className="text-xs text-gray-500">
 					Withdraw Stake
 					{juror !== undefined ? ` (max ${formatEther(juror.stake)} ETH)` : ""}
 				</label>
 				<div className="flex gap-2 items-center">
 					<input
+						id="unstake-amount"
 						type="number"
 						min="0.001"
 						step="0.001"

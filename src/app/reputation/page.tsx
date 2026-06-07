@@ -358,10 +358,14 @@ export default function ReputationPage(): React.JSX.Element {
 				onSubmit={handleLookup}
 				className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3"
 			>
-				<label className="text-sm font-medium text-gray-900 dark:text-white">
+				<label
+					htmlFor="rep-lookup-address"
+					className="text-sm font-medium text-gray-900 dark:text-white"
+				>
 					Wallet address
 				</label>
 				<input
+					id="rep-lookup-address"
 					type="text"
 					placeholder="0x…"
 					value={input}

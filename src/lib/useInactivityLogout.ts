@@ -7,7 +7,7 @@ import { useAccount, useDisconnect } from "wagmi";
  * Minutes of user inactivity after which a connected wallet is automatically
  * disconnected. Exported so tests/dev can reference the same constant.
  */
-export const INACTIVITY_LIMIT_MS = 10 * 60 * 1000;
+const INACTIVITY_LIMIT_MS = 10 * 60 * 1000;
 
 // Activity within this window of the previous reset is ignored, so a burst of
 // mousemove/scroll events doesn't reschedule the timer hundreds of times.
@@ -30,6 +30,9 @@ export function useInactivityLogout(): void {
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const lastResetRef = useRef<number>(0);
 
+	// react-doctor-disable-next-line react-doctor/exhaustive-deps
+	// timerRef.current in cleanup is intentional: we want to clear whatever
+	// timer is live at teardown time. Refs are stable and do not belong in deps.
 	useEffect(() => {
 		if (!isConnected) return;
 

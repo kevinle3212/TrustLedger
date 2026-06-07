@@ -514,14 +514,23 @@ npm run dev:frontend
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Linting
+### Linting and quality
 
 ```bash
 # from src/
 npm run lint:frontend           # ESLint + Prettier
 npm run lint:frontend:ts        # ESLint only
 npm run lint:frontend:prettier  # Prettier only
+npm run doctor                  # React Doctor full scan (score + verbose findings)
 ```
+
+[React Doctor](https://react.doctor) scores the frontend on bugs, performance,
+accessibility, and maintainability. Run `npm run doctor` after React changes and
+ensure the score does not regress before opening a PR.
+
+[React Scan](https://github.com/aidenybai/react-scan) is active automatically in
+`NODE_ENV=development` via the `ReactScanMonitor` component in the root layout.
+Open the browser overlay to highlight unnecessary re-renders while developing.
 
 ### Building
 
@@ -611,14 +620,21 @@ Prints the balance of the configured deployer wallet on the connected network.
 
 ## Git Hooks
 
-Two hooks are enforced automatically via
+Three hooks are enforced automatically via
 [Husky](https://typicode.github.io/husky/) on every commit.
 
-### pre-commit - linting and formatting
+### pre-commit — React Doctor + linting and formatting
 
-Runs `npm run lint` (ESLint + Solhint) and `npm run lint:prettier` (Prettier
-format check) before the commit is recorded. If any error is found the commit is
-aborted. Fix the errors and re-run `git commit`.
+Two stages run in sequence:
+
+1. **React Doctor** scans staged React/TypeScript files for bugs, performance
+   regressions, accessibility violations, and maintainability issues. Findings
+   are printed as warnings; the commit is not blocked unless new regressions
+   appear at the `error` level.
+2. **Lint and format** — Prettier auto-formats and re-stages all changed files,
+   then `npm run lint` (ESLint + Solhint), `npm run lint:frontend` (ESLint on
+   `src/`), and `tsc --noEmit` typecheck run. If any step exits with errors the
+   commit is aborted. Fix the errors and re-run `git commit`.
 
 ### commit-msg - conventional commits
 

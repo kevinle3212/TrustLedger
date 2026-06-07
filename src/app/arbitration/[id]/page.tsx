@@ -66,6 +66,7 @@ function PermissionlessButton({
 	return (
 		<div className="flex flex-col gap-1">
 			<button
+				type="button"
 				disabled={isPending || isConfirming}
 				onClick={() => {
 					writeContract({
@@ -149,6 +150,7 @@ function CommitForm({
 			</p>
 			<div className="flex items-center gap-4">
 				<input
+					aria-label="Completion percentage to commit"
 					type="range"
 					min={0}
 					max={100}
@@ -228,6 +230,7 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 			</p>
 			<div className="flex items-center gap-4">
 				<input
+					aria-label="Completion percentage to reveal"
 					type="range"
 					min={0}
 					max={100}
@@ -242,8 +245,11 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 				</span>
 			</div>
 			<div className="flex flex-col gap-1">
-				<label className="text-xs text-gray-500">Salt (bytes32)</label>
+				<label htmlFor="arb-salt" className="text-xs text-gray-500">
+					Salt (bytes32)
+				</label>
 				<input
+					id="arb-salt"
 					type="text"
 					value={salt}
 					onChange={(e) => {
@@ -309,6 +315,7 @@ function AppealButton({
 				</p>
 			)}
 			<button
+				type="button"
 				disabled={isPending || isConfirming}
 				onClick={() => {
 					writeContract({
