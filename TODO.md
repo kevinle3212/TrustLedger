@@ -460,23 +460,6 @@ mainnet launch deliverables.
       any backend API routes. For smart contracts, use Hardhat's testing
       framework to cover all contract functions and edge cases.
 
-- [ ] Refactor magic-link token verification out of `useEffect` in
-      `app/freelancer/review/page.tsx` (line 64) and
-      `app/client/accept/page.tsx` (line 34).
-    - Both pages read a `?token=` query parameter in `useEffect` and call
-      `fetch('/api/magic-link/verify?token=...')` — a client-side round-trip
-      that React Doctor flags as `no-fetch-in-effect` and
-      `nextjs-no-client-fetch-for-server-data`.
-    - **Fix:** convert each page to a Server Component wrapper. Accept
-      `searchParams: { token?: string }` as a page prop, call the verify API
-      server-side (or inline the HMAC check), and pass the resolved `payload`
-      (or error) down to a thin `"use client"` inner component that only handles
-      wagmi hooks and UI state. This eliminates the client fetch and the
-      unnecessary loading state.
-    - Alternatively, if the pages must stay as client components (e.g. because
-      they depend on `useSearchParams`), replace the raw `fetch` with `useSWR`
-      or `@tanstack/react-query` so the fetching lifecycle is properly managed.
-
 - [ ] Add error monitoring and analytics (for example Sentry for error tracking
       and a privacy-respecting analytics tool) to surface production issues and
       usage patterns.
@@ -524,6 +507,15 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Refactor magic-link token verification out of `useEffect` in
+      `app/freelancer/review/page.tsx` and `app/client/accept/page.tsx`.
+    - Both pages are now async Server Components that read `searchParams`, call
+      `verifyMagicToken` inline (no API round-trip), and pass the resolved
+      `payload`/`tokenError` to thin `"use client"` inner components
+      (`ReviewPageInner`, `AcceptPageInner`) that handle only wagmi hooks and UI
+      state. Drops `no-fetch-in-effect` and
+      `nextjs-no-client-fetch-for-server-data` findings.
 
 - [x] Consolidate related `useState` clusters into `useReducer` in four
       components flagged by React Doctor (`prefer-useReducer`).

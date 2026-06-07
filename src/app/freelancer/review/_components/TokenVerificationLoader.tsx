@@ -13,7 +13,6 @@ function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
 }
 
 interface Props {
-	tokenLoading: boolean;
 	tokenError: string | null;
 	isConnected: boolean;
 	address: string | undefined;
@@ -26,7 +25,6 @@ interface Props {
 
 /** Renders guard states for token verification and wallet checks; passes through to children when all clear. */
 export function TokenVerificationLoader({
-	tokenLoading,
 	tokenError,
 	isConnected,
 	address,
@@ -36,13 +34,6 @@ export function TokenVerificationLoader({
 	statusLabel,
 	children,
 }: Props): React.JSX.Element {
-	if (tokenLoading)
-		return (
-			<Shell>
-				<p className="text-gray-500 dark:text-gray-400">Verifying link…</p>
-			</Shell>
-		);
-
 	if (tokenError !== null)
 		return (
 			<Shell>
