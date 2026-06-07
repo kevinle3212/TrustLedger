@@ -9,9 +9,6 @@ import {
 	useWaitForTransactionReceipt,
 } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
-import { Field } from "@/components/Field";
-import { Input } from "@/components/Input";
-import { Select } from "@/components/Select";
 import { parseEther, parseUnits, keccak256, toBytes, parseEventLogs } from "viem";
 import { TRUSTLEDGER_ABI } from "@/lib/abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl, getUsdcAddress } from "@/lib/wagmi";
@@ -29,6 +26,8 @@ import { uploadToPinata } from "@/lib/ipfs";
 import { encryptFile } from "@/lib/encryption";
 import type { ArweaveJWK } from "@/lib/arweave";
 import { useRole } from "@/contexts/RoleContext";
+import { ContractFormFields } from "./_components/ContractFormFields";
+import { SubmitSummary } from "./_components/SubmitSummary";
 
 type DocMode = "upload" | "manual";
 type UploadStatus = "idle" | "working" | "done" | "error";
@@ -491,531 +490,64 @@ export default function CreatePage(): React.JSX.Element {
 			</div>
 
 			<form onSubmit={handleSubmit} className="flex flex-col gap-6">
-				{/* Parties & Payment */}
-				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
-					<h2 className="font-semibold text-gray-900 dark:text-white">
-						Parties &amp; Payment
-					</h2>
+				<ContractFormFields
+					form={form}
+					set={set}
+					showError={showError as (key: string) => string | undefined}
+					markTouched={markTouched}
+					docMode={docMode}
+					onDocModeChange={setDocMode}
+					isClientProposing={isClientProposing}
+					isUsdc={isUsdc}
+					selectedFile={selectedFile}
+					onFileChange={(file) => {
+						setSelectedFile(file);
+						setUploadStatus("idle");
+						setFileHash(null);
+						uploadedBytes.current = null;
+					}}
+					encryptEnabled={encryptEnabled}
+					onEncryptChange={setEncryptEnabled}
+					passphrase={passphrase}
+					onPassphraseChange={setPassphrase}
+					onPassphraseBlur={() => {
+						markTouched("passphrase");
+					}}
+					pinataJwt={pinataJwt}
+					onPinataJwtChange={setPinataJwt}
+					onPinataJwtBlur={() => {
+						markTouched("pinataJwt");
+					}}
+					uploadStatus={uploadStatus}
+					uploadError={uploadError}
+					onUpload={() => {
+						void handleUploadToIPFS();
+					}}
+					arweaveWallet={arweaveWallet}
+					arweaveStatus={arweaveStatus}
+					arweaveUri={arweaveUri}
+					arweaveBalance={arweaveBalance}
+					onArweaveWalletLoad={handleArweaveWalletLoad}
+					onArweaveUpload={() => {
+						void handleArweaveUpload();
+					}}
+				/>
 
-					<Field
-						label={isClientProposing ? "Freelancer Address" : "Client Address"}
-						hint={
-							isClientProposing
-								? "The wallet that will review, accept, and deliver the work."
-								: "The wallet that will review, fund, and approve this contract."
-						}
-						error={showError("client")}
-					>
-						<Input
-							type="text"
-							placeholder="0x..."
-							value={form.client}
-							onChange={(e) => {
-								set("client", e.target.value);
-							}}
-							onBlur={() => {
-								markTouched("client");
-							}}
-							error={showError("client") !== undefined}
-							required
-							pattern="^0x[0-9a-fA-F]{40}$"
-						/>
-					</Field>
-
-					<Field
-						label={isClientProposing ? "Freelancer Email" : "Client Email"}
-						hint={
-							isClientProposing
-								? "A signed magic link will be sent here so the freelancer can review and accept via the web."
-								: "A signed magic link will be sent here so the client can review and accept via the web."
-						}
-						error={showError("clientEmail")}
-					>
-						<Input
-							type="email"
-							placeholder="client@example.com"
-							value={form.clientEmail}
-							onChange={(e) => {
-								set("clientEmail", e.target.value);
-							}}
-							onBlur={() => {
-								markTouched("clientEmail");
-							}}
-							error={showError("clientEmail") !== undefined}
-						/>
-					</Field>
-
-					<Field
-						label={`Escrow Amount (${isUsdc ? "USDC" : "ETH"})`}
-						hint={
-							isClientProposing
-								? `Total ${isUsdc ? "USDC" : "ETH"} you agree to lock in escrow once the freelancer accepts.${isUsdc ? " You will approve the USDC transfer when funding." : ""}`
-								: `Total ${isUsdc ? "USDC" : "ETH"} the client will lock in escrow on acceptance.${isUsdc ? " The client must approve the USDC transfer before funding." : ""}`
-						}
-						error={showError("amount")}
-					>
-						<Input
-							type="number"
-							placeholder={isUsdc ? "100" : "0.5"}
-							min={isUsdc ? "0.01" : "0.000001"}
-							step="any"
-							value={form.amount}
-							onChange={(e) => {
-								set("amount", e.target.value);
-							}}
-							onBlur={() => {
-								markTouched("amount");
-							}}
-							error={showError("amount") !== undefined}
-							required
-						/>
-					</Field>
-					{showError("paymentToken") !== undefined && (
-						<p className="text-xs text-red-500 dark:text-red-400">
-							{showError("paymentToken")}
-						</p>
-					)}
-				</div>
-
-				{/* Contract Document */}
-				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
-					<div className="flex items-center justify-between">
-						<h2 className="font-semibold text-gray-900 dark:text-white">
-							Contract Document
-						</h2>
-						<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1">
-							{(["upload", "manual"] as DocMode[]).map((m) => (
-								<button
-									key={m}
-									type="button"
-									onClick={() => {
-										setDocMode(m);
-									}}
-									className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-										docMode === m
-											? "bg-indigo-600 text-white"
-											: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-									}`}
-								>
-									{m === "upload" ? "Upload File" : "Enter URI"}
-								</button>
-							))}
-						</div>
-					</div>
-
-					{docMode === "upload" ? (
-						<div className="flex flex-col gap-3">
-							{/* File picker */}
-							<label className="flex flex-col items-center justify-center gap-2 h-20 rounded-lg border-2 border-dashed border-gray-300 dark:border-white/15 hover:border-indigo-500/50 cursor-pointer transition-colors">
-								<input
-									type="file"
-									className="sr-only"
-									onChange={(e) => {
-										setSelectedFile(e.target.files?.[0] ?? null);
-										setUploadStatus("idle");
-										setFileHash(null);
-										uploadedBytes.current = null;
-									}}
-								/>
-								<span className="text-sm text-gray-500 dark:text-gray-400">
-									{selectedFile !== null
-										? selectedFile.name
-										: "Click to browse or drop a file"}
-								</span>
-								{selectedFile !== null && (
-									<span className="text-xs text-gray-500">
-										{(selectedFile.size / 1024).toFixed(1)} KB
-									</span>
-								)}
-							</label>
-
-							{/* Encryption toggle */}
-							<label className="flex items-center gap-3 cursor-pointer select-none">
-								<input
-									type="checkbox"
-									checked={encryptEnabled}
-									onChange={(e) => {
-										setEncryptEnabled(e.target.checked);
-									}}
-									className="w-4 h-4 rounded border-gray-300 dark:border-white/20 bg-gray-100 dark:bg-white/5 text-indigo-500 focus:ring-indigo-500"
-								/>
-								<span className="text-sm text-gray-600 dark:text-gray-300">
-									Encrypt before upload (AES-256-GCM)
-								</span>
-							</label>
-
-							{encryptEnabled && (
-								<Field
-									label="Passphrase"
-									hint="Share this with the other party via a separate secure channel. You cannot decrypt without it."
-									error={showError("passphrase")}
-								>
-									<Input
-										type="password"
-										placeholder="Strong passphrase…"
-										value={passphrase}
-										onChange={(e) => {
-											setPassphrase(e.target.value);
-										}}
-										onBlur={() => {
-											markTouched("passphrase");
-										}}
-										error={showError("passphrase") !== undefined}
-									/>
-								</Field>
-							)}
-
-							{/* Pinata JWT - shown if not baked in via env */}
-							{(process.env["NEXT_PUBLIC_PINATA_JWT"] === undefined ||
-								process.env["NEXT_PUBLIC_PINATA_JWT"] === "") && (
-								<Field
-									label="Pinata JWT"
-									hint="Required to upload the document to IPFS."
-									error={showError("pinataJwt")}
-								>
-									<Input
-										type="password"
-										placeholder="eyJhbGciOiJIUzI1NiIs…"
-										value={pinataJwt}
-										onChange={(e) => {
-											setPinataJwt(e.target.value);
-										}}
-										onBlur={() => {
-											markTouched("pinataJwt");
-										}}
-										error={showError("pinataJwt") !== undefined}
-									/>
-								</Field>
-							)}
-
-							{/* Upload button */}
-							<button
-								type="button"
-								onClick={() => {
-									void handleUploadToIPFS();
-								}}
-								disabled={
-									selectedFile === null ||
-									uploadStatus === "working" ||
-									(encryptEnabled && passphrase === "") ||
-									pinataJwt === ""
-								}
-								className="px-4 py-2 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
-							>
-								{uploadStatus === "working" ? "Uploading…" : "Upload to IPFS"}
-							</button>
-
-							{/* Upload result */}
-							{uploadStatus === "done" && form.contractURI !== "" && (
-								<div className="flex flex-col gap-3">
-									<div className="flex items-start gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-green-600 dark:text-green-300">
-										<span className="shrink-0 mt-0.5">✓</span>
-										<span className="font-mono break-all">
-											{form.contractURI}
-										</span>
-									</div>
-
-									{/* Arweave backup */}
-									<div className="flex flex-col gap-2 border-t border-gray-100 dark:border-white/5 pt-3">
-										<p className="text-xs text-gray-500">
-											Permanent backup to Arweave (optional - for long-term
-											legal retention)
-										</p>
-
-										{arweaveStatus === "idle" && (
-											<div className="flex items-center gap-3">
-												<label className="cursor-pointer text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2">
-													<input
-														type="file"
-														accept=".json"
-														className="sr-only"
-														onChange={handleArweaveWalletLoad}
-													/>
-													{arweaveWallet !== null
-														? "Wallet loaded"
-														: "Load Arweave wallet (.json)"}
-												</label>
-												{arweaveWallet !== null && (
-													<>
-														{arweaveBalance !== null && (
-															<span className="text-xs text-gray-500">
-																{arweaveBalance} AR
-															</span>
-														)}
-														<button
-															type="button"
-															onClick={() => {
-																void handleArweaveUpload();
-															}}
-															className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
-														>
-															Upload to Arweave
-														</button>
-													</>
-												)}
-											</div>
-										)}
-										{arweaveStatus === "working" && (
-											<span className="text-xs text-gray-500">
-												Uploading to Arweave…
-											</span>
-										)}
-										{arweaveStatus === "done" && arweaveUri !== "" && (
-											<span className="text-xs text-green-500 dark:text-green-400 font-mono break-all">
-												✓ {arweaveUri}
-											</span>
-										)}
-										{arweaveStatus === "error" && (
-											<span className="text-xs text-red-500 dark:text-red-400">
-												Arweave upload failed - check wallet balance.
-											</span>
-										)}
-									</div>
-								</div>
-							)}
-
-							{uploadStatus === "error" &&
-								uploadError !== null &&
-								uploadError !== "" && (
-									<p className="text-xs text-red-500 dark:text-red-400 rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
-										{uploadError}
-									</p>
-								)}
-						</div>
-					) : (
-						<Field
-							label="Contract Document URI"
-							hint="IPFS link or URL to the off-chain agreement. A hash of this is stored on-chain."
-							error={showError("contractURI")}
-						>
-							<Input
-								type="text"
-								placeholder="ipfs://Qm…"
-								value={form.contractURI}
-								onChange={(e) => {
-									set("contractURI", e.target.value);
-								}}
-								onBlur={() => {
-									markTouched("contractURI");
-								}}
-								error={showError("contractURI") !== undefined}
-							/>
-						</Field>
-					)}
-				</div>
-
-				{/* Timeline */}
-				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
-					<h2 className="font-semibold text-gray-900 dark:text-white">Timeline</h2>
-
-					<div className="grid grid-cols-2 gap-4">
-						<Field
-							label="Estimated Duration (days)"
-							hint="How long the project should take."
-							error={showError("estimatedDurationDays")}
-						>
-							<Input
-								type="number"
-								min="1"
-								value={form.estimatedDurationDays}
-								onChange={(e) => {
-									set("estimatedDurationDays", e.target.value);
-								}}
-								onBlur={() => {
-									markTouched("estimatedDurationDays");
-								}}
-								error={showError("estimatedDurationDays") !== undefined}
-								required
-							/>
-						</Field>
-
-						<Field
-							label="Buffer Factor"
-							hint="Project deadline = duration × buffer / 1000. E.g. 1200 = 1.2× buffer."
-							error={showError("bufferFactor")}
-						>
-							<Input
-								type="number"
-								min="1000"
-								step="100"
-								value={form.bufferFactor}
-								onChange={(e) => {
-									set("bufferFactor", e.target.value);
-								}}
-								onBlur={() => {
-									markTouched("bufferFactor");
-								}}
-								error={showError("bufferFactor") !== undefined}
-								required
-							/>
-						</Field>
-					</div>
-
-					<Field
-						label="Acceptance Window (days)"
-						hint="How long you have to review submitted work. Minimum 2 days."
-						error={showError("acceptanceWindowDays")}
-					>
-						<Input
-							type="number"
-							min="2"
-							value={form.acceptanceWindowDays}
-							onChange={(e) => {
-								set("acceptanceWindowDays", e.target.value);
-							}}
-							onBlur={() => {
-								markTouched("acceptanceWindowDays");
-							}}
-							error={showError("acceptanceWindowDays") !== undefined}
-							required
-						/>
-					</Field>
-				</div>
-
-				{/* Advanced */}
-				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
-					<h2 className="font-semibold text-gray-900 dark:text-white">
-						Advanced Options
-					</h2>
-
-					<Field
-						label="Arbitration Fee (%)"
-						hint="Percentage of escrow set aside for jurors if a dispute is opened (0-50%)."
-						error={showError("arbitrationFeePct")}
-					>
-						<Input
-							type="number"
-							min="0"
-							max="50"
-							step="0.5"
-							value={form.arbitrationFeePct}
-							onChange={(e) => {
-								set("arbitrationFeePct", e.target.value);
-							}}
-							onBlur={() => {
-								markTouched("arbitrationFeePct");
-							}}
-							error={showError("arbitrationFeePct") !== undefined}
-							required
-						/>
-					</Field>
-
-					<Field
-						label="Warranty Hold-back"
-						hint="Portion withheld from the freelancer until the warranty period elapses."
-					>
-						<Select
-							value={form.holdBack}
-							onChange={(e) => {
-								set("holdBack", e.target.value);
-							}}
-						>
-							<option value="none">None</option>
-							<option value="5">5%</option>
-							<option value="10">10%</option>
-							<option value="15">15%</option>
-						</Select>
-					</Field>
-
-					{form.holdBack !== "none" && (
-						<Field
-							label="Warranty Period (days)"
-							hint="How long the hold-back is locked after work is approved."
-							error={showError("warrantyPeriodDays")}
-						>
-							<Input
-								type="number"
-								min="1"
-								value={form.warrantyPeriodDays}
-								onChange={(e) => {
-									set("warrantyPeriodDays", e.target.value);
-								}}
-								onBlur={() => {
-									markTouched("warrantyPeriodDays");
-								}}
-								error={showError("warrantyPeriodDays") !== undefined}
-								required
-							/>
-						</Field>
-					)}
-				</div>
-
-				{/* Summary */}
-				{form.amount !== "" && (
-					<div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-4 text-sm text-indigo-900 dark:text-indigo-100 flex flex-col gap-1">
-						<p>
-							<span className="text-indigo-700 dark:text-indigo-300">
-								Escrow amount:
-							</span>{" "}
-							<span className="text-gray-900 dark:text-white font-medium">
-								{form.amount} {isUsdc ? "USDC" : "ETH"}
-							</span>
-						</p>
-						{isUsdc && (
-							<p className="text-xs text-amber-600 dark:text-amber-400">
-								You will need to approve the escrow contract to spend your USDC
-								before funding.
-							</p>
-						)}
-						<p>
-							<span className="text-gray-500 dark:text-gray-400">Deadline:</span>{" "}
-							<span className="text-gray-900 dark:text-white font-medium">
-								~
-								{Math.round(
-									(Number(form.estimatedDurationDays) *
-										Number(form.bufferFactor)) /
-										1000,
-								)}{" "}
-								days from now
-							</span>
-						</p>
-						{form.holdBack !== "none" && (
-							<p>
-								<span className="text-gray-500 dark:text-gray-400">Hold-back:</span>{" "}
-								<span className="text-gray-900 dark:text-white font-medium">
-									{form.holdBack}% (
-									{((Number(form.amount) * Number(form.holdBack)) / 100).toFixed(
-										isUsdc ? 2 : 6,
-									)}{" "}
-									{isUsdc ? "USDC" : "ETH"})
-								</span>
-							</p>
-						)}
-					</div>
-				)}
-
-				{/* Simulation error - shown before MetaMask opens, surfaces revert reason. */}
-				{simError !== null && txArgs !== null && (
-					<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
-						{(simError as { shortMessage?: string }).shortMessage ?? simError.message}
-					</p>
-				)}
-
-				{writeError !== null && (
-					<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
-						{(writeError as { shortMessage?: string }).shortMessage ??
-							writeError.message}
-					</p>
-				)}
-
-				<button
-					type="submit"
-					disabled={
-						isPending ||
-						isConfirming ||
-						hasBlockingErrors ||
-						(txArgs !== null && simData?.request === undefined && simError === null)
-					}
-					className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
-				>
-					{isPending
-						? "Waiting for wallet…"
-						: isConfirming
-							? "Confirming on-chain…"
-							: isClientProposing
-								? `Create Contract Offer (${isUsdc ? "USDC" : "ETH"})`
-								: "Propose Escrow Contract"}
-				</button>
+				<SubmitSummary
+					amount={form.amount}
+					isUsdc={isUsdc}
+					estimatedDurationDays={form.estimatedDurationDays}
+					bufferFactor={form.bufferFactor}
+					holdBack={form.holdBack}
+					simError={simError}
+					txArgsReady={txArgs !== null}
+					writeError={writeError}
+					isPending={isPending}
+					isConfirming={isConfirming}
+					hasBlockingErrors={hasBlockingErrors}
+					simDataReady={simData?.request !== undefined}
+					isClientProposing={isClientProposing}
+				/>
 			</form>
 		</div>
 	);
