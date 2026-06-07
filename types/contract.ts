@@ -100,4 +100,6 @@ export interface Contract {
 	previousContractId: bigint;
 	/** True when the client initiated and pre-funded this contract; false for freelancer-proposed. */
 	proposedByClient: boolean;
+	/** True once the freelancer has called acceptContractByFreelancer; client must then fund. */
+	freelancerAccepted: boolean;
 }

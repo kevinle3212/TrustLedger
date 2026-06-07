@@ -168,6 +168,11 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         Set once via initPauser(). If never called, pause() / unpause() revert.
     address public pauser;
 
+    /// @notice ERC-20 token addresses approved for use as escrow currency.
+    ///         The zero address (native ETH) is always implicitly allowed.
+    ///         Populated via addAllowedToken(); enforced at proposal time.
+    mapping(address token => bool allowed) public allowedTokens;
+
     // Tracks which party has already submitted a rating for each contract.
     // Prevents rating the same counterparty twice.
     mapping(uint256 id => bool rated) private _clientRated;
@@ -251,6 +256,10 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @param newId      The replacement contract ID.
     /// @param previousId The cancelled contract ID being superseded.
     event ContractAmended(uint256 indexed newId, uint256 indexed previousId);
+
+    /// @notice Emitted when an ERC-20 token is added to the escrow-currency allowlist.
+    /// @param token ERC-20 contract address that was approved.
+    event TokenAllowed(address indexed token);
 
     // ─── Errors
     // ──────────────────────────────────────────────────────────────
@@ -339,6 +348,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @notice This action is only valid for client-proposed (pre-funded PENDING) contracts.
     error NotClientProposed();
 
+    /// @notice Token address is not on the approved ERC-20 allowlist.
+    error TokenNotAllowed();
+
     // ─── Constructor
     // ─────────────────────────────────────────────────────────
 
@@ -413,6 +425,22 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         _unpause();
     }
 
+    /// @notice Add an ERC-20 token to the escrow-currency allowlist.
+    ///         Callable by the pauser once a pauser is configured; callable by anyone before initPauser.
+    ///         Native ETH (address(0)) is always allowed and must not be passed here.
+    ///         Adding a token is permanent — there is no removal function.
+    /// @param token_ ERC-20 contract address to approve as a valid escrow currency.
+    function addAllowedToken(address token_) external {
+        if (pauser != address(0) && msg.sender != pauser) {
+            revert NotPauser();
+        }
+        if (token_ == address(0)) {
+            revert ZeroAddress();
+        }
+        allowedTokens[token_] = true;
+        emit TokenAllowed(token_);
+    }
+
     // ─── Freelancer: propose
     // ───────────────────────────────────────────────────────
 
@@ -454,6 +482,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         }
         if (bytes(contractURI).length == 0) {
             revert EmptyURI();
+        }
+        if (token != address(0) && !allowedTokens[token]) {
+            revert TokenNotAllowed();
         }
         _validateProposeParams({
             client: client,
@@ -603,6 +634,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         }
         if (bytes(contractURI).length == 0) {
             revert EmptyURI();
+        }
+        if (token != address(0) && !allowedTokens[token]) {
+            revert TokenNotAllowed();
         }
         // Reuse validation: pass `freelancer` as the "counterparty" so the
         // ZeroAddress and SelfContract checks work symmetrically.

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
 	useAccount,
@@ -12,8 +12,9 @@ import {
 import { ConnectButton } from "@/components/ConnectButton";
 import { DecryptDocumentForm } from "@/components/DecryptDocumentForm";
 import { TRUSTLEDGER_ABI, STATUS_LABELS } from "@/lib/abi";
+import { ERC20_ABI } from "@/lib/erc20Abi";
 import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
-import { formatEth, resolveDocUrl } from "@/lib/utils";
+import { formatTokenAmount, resolveDocUrl } from "@/lib/utils";
 import type { MagicLinkPayload } from "@/lib/magicLink";
 
 // The client lands here from the magic-link email. They review the freelancer's
@@ -71,22 +72,89 @@ function AcceptPageInner(): React.JSX.Element {
 		error: writeError,
 	} = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
+
+	// Separate hook for the USDC approve step that precedes acceptContract.
+	const {
+		writeContract: writeApprove,
+		data: approveTxHash,
+		isPending: isApproveSending,
+		error: approveError,
+	} = useWriteContract();
+	const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } =
+		useWaitForTransactionReceipt({ hash: approveTxHash });
+
 	// Tracks which action the in-flight transaction represents so the success screen
 	// can show the right copy.
 	const [action, setAction] = useState<"accept" | "reject" | null>(null);
+	// Ref tracks whether we're in the "approving" half of the USDC two-step flow.
+	// A ref avoids triggering setState inside a useEffect (which would cause cascading renders).
+	const approveStepRef = useRef<"idle" | "approving">("idle");
+
+	const isToken =
+		contract !== undefined && contract.token !== "0x0000000000000000000000000000000000000000";
+
+	// Read current USDC allowance so we can skip the approve step when already sufficient.
+	const { data: currentAllowance } = useReadContract({
+		address: contract?.token,
+		abi: ERC20_ABI,
+		functionName: "allowance",
+		args: [address ?? "0x0000000000000000000000000000000000000000", TRUSTLEDGER_ADDRESS],
+		query: { enabled: isToken && address !== undefined },
+	});
+
+	// After approve confirms, auto-trigger acceptContract.
+	useEffect(() => {
+		if (
+			isApproveSuccess &&
+			approveStepRef.current === "approving" &&
+			contract !== undefined &&
+			payload !== null
+		) {
+			approveStepRef.current = "idle";
+			writeContract({
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: "acceptContract",
+				args: [BigInt(payload.contractId)],
+			});
+		}
+	}, [isApproveSuccess, contract, payload, writeContract]);
 
 	const explorerTxUrl = txHash !== undefined ? getExplorerTxUrl(chainId, txHash) : null;
 
 	function handleAccept(): void {
 		if (payload === null || contract === undefined) return;
 		setAction("accept");
-		writeContract({
-			address: TRUSTLEDGER_ADDRESS,
-			abi: TRUSTLEDGER_ABI,
-			functionName: "acceptContract",
-			args: [BigInt(payload.contractId)],
-			value: contract.amount, // fund the escrow with exactly the proposed amount
-		});
+
+		if (isToken) {
+			// ERC-20: check allowance first, approve if needed, then fund.
+			const hasAllowance =
+				currentAllowance !== undefined && currentAllowance >= contract.amount;
+			if (hasAllowance) {
+				writeContract({
+					address: TRUSTLEDGER_ADDRESS,
+					abi: TRUSTLEDGER_ABI,
+					functionName: "acceptContract",
+					args: [BigInt(payload.contractId)],
+				});
+			} else {
+				approveStepRef.current = "approving";
+				writeApprove({
+					address: contract.token,
+					abi: ERC20_ABI,
+					functionName: "approve",
+					args: [TRUSTLEDGER_ADDRESS, contract.amount],
+				});
+			}
+		} else {
+			writeContract({
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: "acceptContract",
+				args: [BigInt(payload.contractId)],
+				value: contract.amount,
+			});
+		}
 	}
 
 	function handleReject(): void {
@@ -215,21 +283,28 @@ function AcceptPageInner(): React.JSX.Element {
 
 	const canRespond = contract.status === 0; // PENDING
 	const docUrl = resolveDocUrl(contract.contractURI);
-	const busy = isSending || isConfirming;
+	const busy = isSending || isConfirming || isApproveSending || isApproveConfirming;
+	const formattedAmount = formatTokenAmount(contract.amount, contract.token);
 
 	return (
 		<PageShell>
 			<h1 className="text-2xl font-bold mb-1">Contract #{payload?.contractId}</h1>
 			<p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-				Review the terms and document below. Accepting locks {formatEth(contract.amount)} in
-				escrow.
+				Review the terms and document below. Accepting locks {formattedAmount} in escrow.
+				{isToken && (
+					<span className="block mt-1 text-amber-600 dark:text-amber-400">
+						This contract uses USDC. You will approve the transfer in a separate step
+						before funding.
+					</span>
+				)}
 			</p>
 
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3 text-sm mb-6">
 				<Row label="Status" value={statusLabel} />
 				<Row label="Client" value={contract.client} mono />
 				<Row label="Freelancer" value={contract.freelancer} mono />
-				<Row label="Amount" value={formatEth(contract.amount)} />
+				<Row label="Amount" value={formattedAmount} />
+				<Row label="Currency" value={isToken ? "USDC" : "ETH"} />
 				<Row
 					label="Deadline"
 					value={
@@ -289,6 +364,12 @@ function AcceptPageInner(): React.JSX.Element {
 				</div>
 			)}
 
+			{approveError !== null && (
+				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
+					{(approveError as { shortMessage?: string }).shortMessage ??
+						approveError.message}
+				</p>
+			)}
 			{writeError !== null && (
 				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 mb-4">
 					{(writeError as { shortMessage?: string }).shortMessage ?? writeError.message}
@@ -302,10 +383,14 @@ function AcceptPageInner(): React.JSX.Element {
 					className="flex-1 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
 				>
 					{busy && action === "accept"
-						? isConfirming
-							? "Confirming on-chain…"
-							: "Waiting for wallet…"
-						: `Accept & Fund (${formatEth(contract.amount)})`}
+						? isApproveSending || isApproveConfirming
+							? "Approving USDC…"
+							: isConfirming
+								? "Confirming on-chain…"
+								: "Waiting for wallet…"
+						: isToken
+							? `Approve & Fund (${formattedAmount})`
+							: `Accept & Fund (${formattedAmount})`}
 				</button>
 				<button
 					onClick={handleReject}

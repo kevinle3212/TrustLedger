@@ -263,7 +263,7 @@ mainnet launch deliverables.
 
 ## Phase 4 — Core Contract Lifecycle Features
 
-- [x] Support dual-role accounts so a single wallet can operate as both a client
+- [ ] Support dual-role accounts so a single wallet can operate as both a client
       and a freelancer, with a persistent role toggle in the UI.
     - Add a role-switching control (for example a toggle or dropdown in the
       navbar) that sets the active role to `client` or `freelancer`. Store the

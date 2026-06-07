@@ -10,15 +10,16 @@ import {
 } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
 import { Field, Input, Select } from "@/components/Field";
-import { parseEther, keccak256, toBytes, parseEventLogs } from "viem";
+import { parseEther, parseUnits, keccak256, toBytes, parseEventLogs } from "viem";
 import { TRUSTLEDGER_ABI } from "@/lib/abi";
-import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl } from "@/lib/wagmi";
+import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl, getUsdcAddress } from "@/lib/wagmi";
 import { daysToSeconds } from "@/lib/utils";
 import {
 	validateContractUri,
 	validateEmail,
 	validateEthAddress,
 	validateEthAmount,
+	validateUsdcAmount,
 	validateNumberInRange,
 	validateRequired,
 } from "@/lib/validation";
@@ -33,6 +34,7 @@ type UploadStatus = "idle" | "working" | "done" | "error";
 export default function CreatePage(): React.JSX.Element {
 	const { isConnected } = useAccount();
 	const chainId = useChainId();
+	const usdcAddress = getUsdcAddress(chainId);
 	const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
 	const {
 		isLoading: isConfirming,
@@ -47,10 +49,14 @@ export default function CreatePage(): React.JSX.Element {
 	const [proposerRole, setProposerRole] = useState<"freelancer" | "client">(globalRole);
 	const isClientProposing = proposerRole === "client";
 
+	// "eth" = native ETH; "usdc" = ERC-20 USDC on the connected chain.
+	const [paymentToken, setPaymentToken] = useState<"eth" | "usdc">("eth");
+	const isUsdc = paymentToken === "usdc";
+
 	const [form, setForm] = useState({
 		client: "",
 		clientEmail: "",
-		amountEth: "",
+		amount: "",
 		contractURI: "",
 		estimatedDurationDays: "30",
 		bufferFactor: "1200",
@@ -103,8 +109,12 @@ export default function CreatePage(): React.JSX.Element {
 		() => ({
 			client: validateEthAddress(form.client),
 			clientEmail: validateEmail(form.clientEmail),
-			amountEth: validateEthAmount(form.amountEth),
+			amount: isUsdc ? validateUsdcAmount(form.amount) : validateEthAmount(form.amount),
 			contractURI: docMode === "manual" ? validateContractUri(form.contractURI) : undefined,
+			paymentToken:
+				isUsdc && usdcAddress === undefined
+					? "USDC is not supported on this network. Switch to Sepolia, Arbitrum, Base, or Optimism."
+					: undefined,
 			estimatedDurationDays: validateNumberInRange(form.estimatedDurationDays, 1, 3650, {
 				integer: true,
 				unit: "days",
@@ -128,7 +138,7 @@ export default function CreatePage(): React.JSX.Element {
 					: undefined,
 			passphrase: encryptEnabled ? validateRequired(passphrase, "Passphrase") : undefined,
 		}),
-		[form, docMode, selectedFile, pinataJwt, encryptEnabled, passphrase],
+		[form, docMode, selectedFile, pinataJwt, encryptEnabled, passphrase, isUsdc, usdcAddress],
 	);
 
 	function showError(key: keyof typeof fieldErrors): string | undefined {
@@ -143,15 +153,20 @@ export default function CreatePage(): React.JSX.Element {
 	const txArgs = useMemo(() => {
 		if (
 			!/^0x[0-9a-fA-F]{40}$/.test(form.client) ||
-			form.amountEth === "" ||
-			Number(form.amountEth) <= 0 ||
+			form.amount === "" ||
+			Number(form.amount) <= 0 ||
 			Number(form.arbitrationFeePct) <= 0
 		) {
 			return null;
 		}
+		if (isUsdc && usdcAddress === undefined) return null;
 		const trimmedURI = form.contractURI.trim();
 		const contractURI = trimmedURI !== "" ? trimmedURI : "ipfs://";
-		const parsedAmount = parseEther(form.amountEth);
+		const parsedAmount = isUsdc ? parseUnits(form.amount, 6) : parseEther(form.amount);
+		// usdcAddress is always defined here — we return null above when isUsdc && usdcAddress === undefined.
+		const tokenAddress: `0x${string}` = isUsdc
+			? (usdcAddress ?? "0x0000000000000000000000000000000000000000")
+			: "0x0000000000000000000000000000000000000000";
 		const sharedArgs = [
 			fileHash ?? keccak256(toBytes(contractURI)),
 			contractURI,
@@ -161,7 +176,7 @@ export default function CreatePage(): React.JSX.Element {
 			Math.round(Number(form.arbitrationFeePct) * 100),
 			form.holdBack === "none" ? 0 : Number(form.holdBack) * 100,
 			form.holdBack === "none" ? 0n : BigInt(Number(form.warrantyPeriodDays) * 86400),
-			"0x0000000000000000000000000000000000000000" as const,
+			tokenAddress,
 			parsedAmount,
 		] as const;
 
@@ -182,7 +197,7 @@ export default function CreatePage(): React.JSX.Element {
 			functionName: "proposeContract" as const,
 			args: [form.client as `0x${string}`, ...sharedArgs] as const,
 		};
-	}, [form, fileHash, isClientProposing]);
+	}, [form, fileHash, isClientProposing, isUsdc, usdcAddress]);
 
 	// wagmi's overloaded types can't handle a union of two different functionName
 	// shapes in a single call, so we use two hooks — only one is enabled at a time.
@@ -407,7 +422,7 @@ export default function CreatePage(): React.JSX.Element {
 				<p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
 					{isClientProposing
 						? "You propose the terms. The freelancer reviews and accepts, then you fund the escrow to start the project."
-						: "You propose the terms; the client reviews and locks the ETH in escrow on acceptance. Funds are released once you deliver and the client approves - or a dispute is resolved."}
+						: `You propose the terms; the client reviews and locks the ${isUsdc ? "USDC" : "ETH"} in escrow on acceptance. Funds are released once you deliver and the client approves — or a dispute is resolved.`}
 				</p>
 			</div>
 
@@ -435,6 +450,35 @@ export default function CreatePage(): React.JSX.Element {
 				{isClientProposing && (
 					<span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
 						BEWARE: The proposed currency is locked on submit AND freelancer agreement!
+					</span>
+				)}
+			</div>
+
+			{/* Currency selector */}
+			<div className="mb-6 flex items-center gap-3">
+				<span className="text-sm text-gray-500 dark:text-gray-400">Payment currency:</span>
+				<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1">
+					{(["eth", "usdc"] as const).map((t) => (
+						<button
+							key={t}
+							type="button"
+							onClick={() => {
+								setPaymentToken(t);
+								set("amount", "");
+							}}
+							className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors uppercase ${
+								paymentToken === t
+									? "bg-indigo-600 text-white"
+									: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+							}`}
+						>
+							{t}
+						</button>
+					))}
+				</div>
+				{isUsdc && usdcAddress === undefined && (
+					<span className="text-xs text-red-500 dark:text-red-400">
+						USDC not supported on this network.
 					</span>
 				)}
 			</div>
@@ -495,30 +539,35 @@ export default function CreatePage(): React.JSX.Element {
 					</Field>
 
 					<Field
-						label="Escrow Amount (ETH)"
+						label={`Escrow Amount (${isUsdc ? "USDC" : "ETH"})`}
 						hint={
 							isClientProposing
-								? "Total ETH you agree to lock in escrow once the freelancer accepts."
-								: "Total ETH the client will lock in escrow on acceptance."
+								? `Total ${isUsdc ? "USDC" : "ETH"} you agree to lock in escrow once the freelancer accepts.${isUsdc ? " You will approve the USDC transfer when funding." : ""}`
+								: `Total ${isUsdc ? "USDC" : "ETH"} the client will lock in escrow on acceptance.${isUsdc ? " The client must approve the USDC transfer before funding." : ""}`
 						}
-						error={showError("amountEth")}
+						error={showError("amount")}
 					>
 						<Input
 							type="number"
-							placeholder="0.5"
-							min="0.000001"
+							placeholder={isUsdc ? "100" : "0.5"}
+							min={isUsdc ? "0.01" : "0.000001"}
 							step="any"
-							value={form.amountEth}
+							value={form.amount}
 							onChange={(e) => {
-								set("amountEth", e.target.value);
+								set("amount", e.target.value);
 							}}
 							onBlur={() => {
-								markTouched("amountEth");
+								markTouched("amount");
 							}}
-							error={showError("amountEth") !== undefined}
+							error={showError("amount") !== undefined}
 							required
 						/>
 					</Field>
+					{showError("paymentToken") !== undefined && (
+						<p className="text-xs text-red-500 dark:text-red-400">
+							{showError("paymentToken")}
+						</p>
+					)}
 				</div>
 
 				{/* Contract Document */}
@@ -885,14 +934,20 @@ export default function CreatePage(): React.JSX.Element {
 				</div>
 
 				{/* Summary */}
-				{form.amountEth !== "" && (
+				{form.amount !== "" && (
 					<div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-4 text-sm text-gray-600 dark:text-gray-300 flex flex-col gap-1">
 						<p>
 							<span className="text-gray-500 dark:text-gray-400">Escrow amount:</span>{" "}
 							<span className="text-gray-900 dark:text-white font-medium">
-								{form.amountEth} ETH
+								{form.amount} {isUsdc ? "USDC" : "ETH"}
 							</span>
 						</p>
+						{isUsdc && (
+							<p className="text-xs text-amber-600 dark:text-amber-400">
+								You will need to approve the escrow contract to spend your USDC
+								before funding.
+							</p>
+						)}
 						<p>
 							<span className="text-gray-500 dark:text-gray-400">Deadline:</span>{" "}
 							<span className="text-gray-900 dark:text-white font-medium">
@@ -910,11 +965,10 @@ export default function CreatePage(): React.JSX.Element {
 								<span className="text-gray-500 dark:text-gray-400">Hold-back:</span>{" "}
 								<span className="text-gray-900 dark:text-white font-medium">
 									{form.holdBack}% (
-									{(
-										(Number(form.amountEth) * Number(form.holdBack)) /
-										100
-									).toFixed(6)}{" "}
-									ETH)
+									{((Number(form.amount) * Number(form.holdBack)) / 100).toFixed(
+										isUsdc ? 2 : 6,
+									)}{" "}
+									{isUsdc ? "USDC" : "ETH"})
 								</span>
 							</p>
 						)}
@@ -950,7 +1004,7 @@ export default function CreatePage(): React.JSX.Element {
 						: isConfirming
 							? "Confirming on-chain…"
 							: isClientProposing
-								? "Create Contract Offer & Lock ETH"
+								? `Create Contract Offer (${isUsdc ? "USDC" : "ETH"})`
 								: "Propose Escrow Contract"}
 				</button>
 			</form>

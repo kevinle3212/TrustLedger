@@ -138,6 +138,11 @@ export const TRUSTLEDGER_ABI = [
 	},
 	{
 		inputs: [],
+		name: "TokenNotAllowed",
+		type: "error",
+	},
+	{
+		inputs: [],
 		name: "TokenTransferFailed",
 		type: "error",
 	},
@@ -191,6 +196,19 @@ export const TRUSTLEDGER_ABI = [
 			},
 		],
 		name: "ContractAmended",
+		type: "event",
+	},
+	{
+		anonymous: false,
+		inputs: [
+			{
+				indexed: true,
+				internalType: "address",
+				name: "token",
+				type: "address",
+			},
+		],
+		name: "TokenAllowed",
 		type: "event",
 	},
 	{
@@ -839,6 +857,38 @@ export const TRUSTLEDGER_ABI = [
 		name: "initPauser",
 		outputs: [],
 		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "token_",
+				type: "address",
+			},
+		],
+		name: "addAllowedToken",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{
+				internalType: "address",
+				name: "token",
+				type: "address",
+			},
+		],
+		name: "allowedTokens",
+		outputs: [
+			{
+				internalType: "bool",
+				name: "",
+				type: "bool",
+			},
+		],
+		stateMutability: "view",
 		type: "function",
 	},
 	{
