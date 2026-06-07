@@ -235,8 +235,8 @@ function ReviewPageInner(): React.JSX.Element {
 				</h2>
 				<p className="text-gray-500 dark:text-gray-400 text-sm text-center mb-4">
 					{accepted
-						? "The project deadline timer has started. Deliver before the deadline and submit proof of work."
-						: "The offer has been declined. The client's ETH will be returned."}
+						? "The client will now be notified to fund the escrow. The project deadline starts once funds are locked."
+						: "The offer has been declined. No funds were held."}
 				</p>
 				{txHash !== undefined && explorerTxUrl !== null && (
 					<a
@@ -258,12 +258,12 @@ function ReviewPageInner(): React.JSX.Element {
 	return (
 		<PageShell>
 			<p className="text-gray-500 dark:text-gray-400 text-sm mb-2">
-				The client has pre-funded{" "}
+				The client proposes{" "}
 				<span className="font-medium text-gray-900 dark:text-white">
 					{formatEth(contract.amount)}
 				</span>{" "}
-				in escrow. Review the offer below. Accepting starts the project deadline
-				immediately.
+				in escrow. Review the offer below. Accepting signals your agreement — the client
+				will then fund the escrow to start the project deadline.
 			</p>
 
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3 text-sm mb-6">

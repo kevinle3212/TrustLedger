@@ -14,7 +14,7 @@ import {JurorRegistry} from "./../../src/JurorRegistry.sol";
 import {TrustLedger} from "./../../src/TrustLedger.sol";
 
 /// @notice Tests for the client-initiated proposal flow (proposeContractByClient).
-///         The symmetric path: client proposes + funds → freelancer accepts or rejects.
+///         New flow: client proposes (unfunded) → freelancer accepts → client funds → ACTIVE.
 contract TrustLedgerClientProposeTest is Test {
     uint256 public constant AMOUNT = 1 ether;
     uint256 public constant ESTIMATED_DURATION = 30 days;
@@ -57,7 +57,7 @@ contract TrustLedgerClientProposeTest is Test {
 
     function _clientPropose(uint16 holdBackBps, uint64 warrantyPeriod) internal returns (uint256 id) {
         vm.prank(client);
-        id = trustLedger.proposeContractByClient{value: AMOUNT}({
+        id = trustLedger.proposeContractByClient({
             freelancer: freelancer,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
@@ -76,14 +76,20 @@ contract TrustLedgerClientProposeTest is Test {
         return _clientPropose(0, 0);
     }
 
-    function _clientProposeAndAccept() internal returns (uint256 id) {
+    function _clientProposeAndFreelancerAccept() internal returns (uint256 id) {
         id = _clientProposeSimple();
         vm.prank(freelancer);
         trustLedger.acceptContractByFreelancer(id);
     }
 
-    function _clientProposeAcceptSubmit() internal returns (uint256 id) {
-        id = _clientProposeAndAccept();
+    function _clientProposeAcceptAndFund() internal returns (uint256 id) {
+        id = _clientProposeAndFreelancerAccept();
+        vm.prank(client);
+        trustLedger.fundContractByClient{value: AMOUNT}(id);
+    }
+
+    function _clientProposeAcceptFundSubmit() internal returns (uint256 id) {
+        id = _clientProposeAcceptAndFund();
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, POW_URI);
     }
@@ -99,16 +105,17 @@ contract TrustLedgerClientProposeTest is Test {
         assertEq(c.freelancer, freelancer);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.PENDING));
         assertTrue(c.proposedByClient, "proposedByClient should be true");
+        assertFalse(c.freelancerAccepted, "freelancerAccepted should be false at proposal");
         assertEq(c.amount, AMOUNT);
-        // Escrow holds the funds immediately.
-        assertEq(address(trustLedger).balance, AMOUNT);
+        // No funds locked at proposal time.
+        assertEq(address(trustLedger).balance, 0);
     }
 
     function test_ClientPropose_EmitsEvent() public {
         vm.expectEmit(true, true, true, true);
         emit TrustLedger.ContractProposedByClient(0, client, freelancer, AMOUNT);
         vm.prank(client);
-        trustLedger.proposeContractByClient{value: AMOUNT}({
+        trustLedger.proposeContractByClient({
             freelancer: freelancer,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
@@ -123,10 +130,10 @@ contract TrustLedgerClientProposeTest is Test {
         });
     }
 
-    // ── Happy path: freelancer accepts
-    // ───────────────────────────────────────
+    // ── Freelancer accepts (sets flag, keeps PENDING until funded)
+    // ───────────────────────────────────────────────────────────
 
-    function test_FreelancerAccept_MovesToActive() public {
+    function test_FreelancerAccept_SetsFlag_RemainsPending() public {
         uint256 id = _clientProposeSimple();
 
         vm.expectEmit(true, false, false, false);
@@ -136,15 +143,36 @@ contract TrustLedgerClientProposeTest is Test {
         trustLedger.acceptContractByFreelancer(id);
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
+        // Still PENDING — client hasn't funded yet.
+        assertEq(uint8(c.status), uint8(TrustLedger.Status.PENDING));
+        assertTrue(c.freelancerAccepted, "freelancerAccepted should be true");
+        // No funds in escrow yet.
+        assertEq(address(trustLedger).balance, 0);
+    }
+
+    // ── Client funds after freelancer accepts
+    // ────────────────────────────────────────
+
+    function test_ClientFund_MovesToActive() public {
+        uint256 id = _clientProposeAndFreelancerAccept();
+
+        vm.expectEmit(true, false, false, false);
+        emit TrustLedger.ContractFundedByClient(id);
+
+        vm.prank(client);
+        trustLedger.fundContractByClient{value: AMOUNT}(id);
+
+        TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.ACTIVE));
-        // projectDeadline should now be an absolute timestamp (> current block).
         assertGt(c.projectDeadline, vm.getBlockTimestamp());
-        // Funds remain in escrow.
         assertEq(address(trustLedger).balance, AMOUNT);
     }
 
-    function test_FullLifecycle_ClientPropose_Accept_Submit_Approve() public {
-        uint256 id = _clientProposeAcceptSubmit();
+    // ── Full lifecycle
+    // ────────────────────────────────────────────────────────
+
+    function test_FullLifecycle_ClientPropose_Accept_Fund_Submit_Approve() public {
+        uint256 id = _clientProposeAcceptFundSubmit();
 
         uint256 freelancerBefore = freelancer.balance;
         vm.prank(client);
@@ -159,6 +187,8 @@ contract TrustLedgerClientProposeTest is Test {
         uint256 id = _clientPropose(HOLD_BACK_BPS, WARRANTY_PERIOD);
         vm.prank(freelancer);
         trustLedger.acceptContractByFreelancer(id);
+        vm.prank(client);
+        trustLedger.fundContractByClient{value: AMOUNT}(id);
         vm.prank(freelancer);
         trustLedger.submitProofOfWork(id, POW_HASH, POW_URI);
 
@@ -178,10 +208,10 @@ contract TrustLedgerClientProposeTest is Test {
         assertEq(freelancer.balance, freelancerBefore + AMOUNT);
     }
 
-    // ── Freelancer rejects
-    // ────────────────────────────────────────────────────
+    // ── Freelancer rejects (before accepting)
+    // ───────────────────────────────────────
 
-    function test_FreelancerReject_ReturnsFundsToClient() public {
+    function test_FreelancerReject_CancelsWithNoFunds() public {
         uint256 id = _clientProposeSimple();
         uint256 clientBefore = client.balance;
 
@@ -193,14 +223,15 @@ contract TrustLedgerClientProposeTest is Test {
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED));
-        assertEq(client.balance, clientBefore + AMOUNT);
+        // No funds were ever locked, so balances are unchanged.
+        assertEq(client.balance, clientBefore);
         assertEq(address(trustLedger).balance, 0);
     }
 
-    // ── Client withdraws proposal
-    // ────────────────────────────────────────────
+    // ── Client withdraws proposal (no funds to return)
+    // ────────────────────────────────────────────────
 
-    function test_ClientWithdraw_ReturnsFunds() public {
+    function test_ClientWithdraw_CancelsWithNoFunds() public {
         uint256 id = _clientProposeSimple();
         uint256 clientBefore = client.balance;
 
@@ -212,7 +243,19 @@ contract TrustLedgerClientProposeTest is Test {
 
         TrustLedger.EscrowContract memory c = trustLedger.getContract(id);
         assertEq(uint8(c.status), uint8(TrustLedger.Status.CANCELLED));
-        assertEq(client.balance, clientBefore + AMOUNT);
+        // No funds were ever locked.
+        assertEq(client.balance, clientBefore);
+    }
+
+    function test_ClientWithdraw_AfterFreelancerAccept_StillCancels() public {
+        uint256 id = _clientProposeAndFreelancerAccept();
+        uint256 clientBefore = client.balance;
+
+        vm.prank(client);
+        trustLedger.withdrawClientProposal(id);
+
+        assertEq(uint8(trustLedger.getContract(id).status), uint8(TrustLedger.Status.CANCELLED));
+        assertEq(client.balance, clientBefore);
     }
 
     // ── linkAmendment across directions
@@ -259,10 +302,18 @@ contract TrustLedgerClientProposeTest is Test {
         trustLedger.acceptContractByFreelancer(id);
     }
 
-    function test_Revert_FreelancerAccept_WrongStatus() public {
+    function test_Revert_FreelancerAccept_AlreadyAccepted() public {
         uint256 id = _clientProposeSimple();
         vm.prank(freelancer);
         trustLedger.acceptContractByFreelancer(id);
+        // Cannot accept a second time.
+        vm.prank(freelancer);
+        vm.expectRevert(TrustLedger.AlreadySet.selector);
+        trustLedger.acceptContractByFreelancer(id);
+    }
+
+    function test_Revert_FreelancerAccept_WrongStatus() public {
+        uint256 id = _clientProposeAcceptAndFund();
         // Already ACTIVE — cannot accept again.
         vm.prank(freelancer);
         vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.ACTIVE));
@@ -297,6 +348,14 @@ contract TrustLedgerClientProposeTest is Test {
         trustLedger.rejectContractByFreelancer(id);
     }
 
+    function test_Revert_FreelancerReject_AfterAccept() public {
+        uint256 id = _clientProposeAndFreelancerAccept();
+        // Cannot reject after having already accepted.
+        vm.prank(freelancer);
+        vm.expectRevert(TrustLedger.AlreadySet.selector);
+        trustLedger.rejectContractByFreelancer(id);
+    }
+
     function test_Revert_WithdrawClientProposal_NotClient() public {
         uint256 id = _clientProposeSimple();
         vm.prank(stranger);
@@ -305,7 +364,7 @@ contract TrustLedgerClientProposeTest is Test {
     }
 
     function test_Revert_WithdrawClientProposal_WrongStatus() public {
-        uint256 id = _clientProposeAndAccept();
+        uint256 id = _clientProposeAcceptAndFund();
         vm.prank(client);
         vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.ACTIVE));
         trustLedger.withdrawClientProposal(id);
@@ -330,6 +389,38 @@ contract TrustLedgerClientProposeTest is Test {
         vm.prank(client);
         vm.expectRevert(TrustLedger.NotClientProposed.selector);
         trustLedger.withdrawClientProposal(id);
+    }
+
+    // ── fundContractByClient reverts
+    // ─────────────────────────────────────────────
+
+    function test_Revert_Fund_NotClient() public {
+        uint256 id = _clientProposeAndFreelancerAccept();
+        vm.prank(stranger);
+        vm.expectRevert(TrustLedger.Unauthorized.selector);
+        trustLedger.fundContractByClient{value: AMOUNT}(id);
+    }
+
+    function test_Revert_Fund_FreelancerNotAcceptedYet() public {
+        uint256 id = _clientProposeSimple();
+        vm.prank(client);
+        // freelancerAccepted is false → revert InvalidStatus
+        vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.PENDING));
+        trustLedger.fundContractByClient{value: AMOUNT}(id);
+    }
+
+    function test_Revert_Fund_WrongValue() public {
+        uint256 id = _clientProposeAndFreelancerAccept();
+        vm.prank(client);
+        vm.expectRevert(TrustLedger.InsufficientFunds.selector);
+        trustLedger.fundContractByClient{value: AMOUNT / 2}(id);
+    }
+
+    function test_Revert_Fund_WrongStatus() public {
+        uint256 id = _clientProposeAcceptAndFund();
+        vm.prank(client);
+        vm.expectRevert(abi.encodeWithSelector(TrustLedger.InvalidStatus.selector, TrustLedger.Status.ACTIVE));
+        trustLedger.fundContractByClient{value: AMOUNT}(id);
     }
 
     // Freelancer-proposed guards still reject the symmetric calls.
@@ -360,26 +451,8 @@ contract TrustLedgerClientProposeTest is Test {
     function test_Revert_ClientPropose_SelfContract() public {
         vm.prank(client);
         vm.expectRevert(TrustLedger.SelfContract.selector);
-        trustLedger.proposeContractByClient{value: AMOUNT}({
+        trustLedger.proposeContractByClient({
             freelancer: client,
-            contractHash: CONTRACT_HASH,
-            contractURI: CONTRACT_URI,
-            estimatedDuration: ESTIMATED_DURATION,
-            bufferFactor: BUFFER_FACTOR,
-            acceptanceWindow: ACCEPTANCE_WINDOW,
-            arbitrationFeeBps: ARB_FEE_BPS,
-            holdBackBps: 0,
-            warrantyPeriod: 0,
-            token: address(0),
-            amount: AMOUNT
-        });
-    }
-
-    function test_Revert_ClientPropose_WrongValue() public {
-        vm.prank(client);
-        vm.expectRevert(TrustLedger.InsufficientFunds.selector);
-        trustLedger.proposeContractByClient{value: AMOUNT / 2}({
-            freelancer: freelancer,
             contractHash: CONTRACT_HASH,
             contractURI: CONTRACT_URI,
             estimatedDuration: ESTIMATED_DURATION,
