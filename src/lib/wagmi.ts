@@ -21,7 +21,7 @@ export const REPUTATION_REGISTRY_ADDRESS: `0x${string}` =
 
 // Native USDC addresses per supported chain. Sepolia uses Circle's testnet USDC.
 // Override NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA for a custom mock deployment.
-export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
+const USDC_ADDRESSES: Record<number, `0x${string}`> = {
 	11155111:
 		(process.env["NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA"] as `0x${string}` | undefined) ??
 		"0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238", // Circle testnet USDC
@@ -37,10 +37,6 @@ export const USDC_ADDRESSES: Record<number, `0x${string}`> = {
 };
 
 /** Returns true when `tokenAddress` is the USDC contract for `chainId`. */
-export function isUsdcToken(tokenAddress: string, chainId: number): boolean {
-	const usdc = USDC_ADDRESSES[chainId];
-	return usdc?.toLowerCase() === tokenAddress.toLowerCase();
-}
 
 /** Returns the USDC address for a chain, or undefined if not supported. */
 export function getUsdcAddress(chainId: number): `0x${string}` | undefined {
@@ -109,7 +105,7 @@ export const config = wagmiAdapter.wagmiConfig;
  * Phantom, Tangem, WalletConnect) need a real projectId; injected/Coinbase work
  * without the relay, which keeps desktop and iOS Safari connections reliable.
  */
-export const appkit = createAppKit({
+createAppKit({
 	// AppKit types an adapter's `namespace` as optional, but the adapters array
 	// requires it; under `exactOptionalPropertyTypes` that surfaces as a mismatch.
 	// The wagmi adapter is a valid ChainAdapter, so assert the expected element type.

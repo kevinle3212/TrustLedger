@@ -67,6 +67,7 @@ function ActionButton({
 
 	return (
 		<button
+			type="button"
 			disabled={(disabled ?? false) || isPending || isConfirming}
 			onClick={() => {
 				writeContract({
@@ -180,6 +181,7 @@ function TokenFundButton({
 
 	return (
 		<button
+			type="button"
 			disabled={(disabled ?? false) || busy}
 			onClick={handleClick}
 			className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
@@ -240,9 +242,12 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 			onSubmit={handleSubmit}
 			className="flex flex-col gap-2 w-full border-t border-gray-200 dark:border-white/10 pt-3 mt-1"
 		>
-			<label className="text-xs text-gray-500">Rate counterparty (1-100)</label>
+			<label htmlFor="rate-score" className="text-xs text-gray-500">
+				Rate counterparty (1-100)
+			</label>
 			<div className="flex gap-2 items-center">
 				<input
+					id="rate-score"
 					type="number"
 					min={1}
 					max={100}
@@ -326,6 +331,7 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 				</p>
 			)}
 			<input
+				aria-label="Deliverable URL"
 				type="url"
 				placeholder="https://… or ipfs://… or Qm… / baf…"
 				value={uri}

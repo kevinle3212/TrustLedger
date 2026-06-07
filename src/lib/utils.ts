@@ -1,12 +1,3 @@
-import { keccak256, toBytes } from "viem";
-
-// Convenience wrapper for keccak256(toBytes(value)). Currently unused - call sites
-// inline the keccak256 call directly - but kept as a potentially useful helper for
-// future hashing needs (e.g. contract/proof URIs) to keep those call sites terse.
-export function hashString(value: string): `0x${string}` {
-	return keccak256(toBytes(value));
-}
-
 export function daysToSeconds(days: number): bigint {
 	return BigInt(Math.floor(days * 24 * 60 * 60));
 }
@@ -46,7 +37,7 @@ export function formatAddress(addr: string): string {
 	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-export function formatEth(wei: bigint): string {
+function formatEth(wei: bigint): string {
 	const eth = Number(wei) / 1e18;
 	return `${eth.toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
 }
@@ -68,9 +59,6 @@ export function formatTokenAmount(amount: bigint, tokenAddress: string): string 
 }
 
 /** Returns "ETH" or "USDC" for display in labels/hints. */
-export function tokenLabel(tokenAddress: string): string {
-	return tokenAddress === ZERO_ADDRESS ? "ETH" : "USDC";
-}
 
 export function formatDeadline(ts: bigint): string {
 	if (ts === BigInt(0)) return "-";

@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/Providers";
@@ -13,6 +14,14 @@ const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
 });
+
+const ReactScanMonitor =
+	process.env.NODE_ENV === "development"
+		? dynamic(async () => {
+				const m = await import("../components/ReactScanMonitor");
+				return { default: m.ReactScanMonitor };
+			})
+		: null;
 
 export const metadata: Metadata = {
 	title: "TrustLedger - Decentralized Freelance Escrow",
@@ -39,6 +48,7 @@ export default function RootLayout({
 					<Navbar />
 					<main className="flex-1">{children}</main>
 				</Providers>
+				{ReactScanMonitor !== null && <ReactScanMonitor />}
 			</body>
 		</html>
 	);

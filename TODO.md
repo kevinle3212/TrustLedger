@@ -68,6 +68,36 @@ mainnet launch deliverables.
       summaries. This keeps the codebase clean and makes integrations easier to
       manage and update.
 
+## Phase 3 — UI/UX Design and Polish
+
+- [ ] Critique and improve the home page (`src/app/page.tsx`). Two immediate
+      flags: the uppercase eyebrow ("BUILT ON ETHEREUM SEPOLIA") violates
+      typographic convention, and the 3-card grid is identical to a known
+      anti-pattern. Run a full scored critique to prioritize the complete
+      backlog before implementing any fixes.
+    - Use `/impeccable critique src/app/page.tsx` to generate a scored list of
+      issues covering visual hierarchy, information architecture, typography,
+      spacing, and copy.
+    - Address findings in priority order, starting with the items most likely to
+      confuse or disengage a first-time visitor.
+
+- [ ] Design and build a dashboard empty state that teaches new users how to
+      create their first contract. This is the highest-priority onboarding gap
+      for a Web3-newcomer audience — a blank dashboard with no guidance leaves
+      new users stranded.
+    - The empty state should explain what TrustLedger does in one sentence, give
+      a clear primary call-to-action ("Create your first contract"), and ideally
+      surface a short example or illustration of what a contract card looks
+      like.
+    - Use `/impeccable craft dashboard-empty-state` to generate and iterate on
+      the design before writing production code.
+
+- [ ] Once the dev server is running (`npm run dev:frontend` from `src/`), use
+      live mode to iterate on UI components directly in the browser.
+    - Launch live mode with `/impeccable live` and inspect, tweak, and validate
+      changes visually before committing them. This is faster than
+      edit-refresh-repeat cycles for purely visual work.
+
 ## Phase 4 — Core Contract Lifecycle Features
 
 - [ ] Allow clients and freelancers to create a contract within the platform,
@@ -167,6 +197,19 @@ mainnet launch deliverables.
       case.
 
 ## Phase 6 — Backend Services and Off-Chain Infrastructure (Mainnet)
+
+- [ ] Evaluate whether Supabase is needed for this project.
+    - Determine which specific features or requirements would benefit from
+      Supabase (authentication, database, storage, realtime features, edge
+      functions, etc.).
+    - Compare Supabase against the current architecture and justify adoption or
+      non-adoption.
+    - If adopted, document exactly what Supabase will be responsible for and
+      what remains outside of Supabase.
+    - Note: Supabase CLI is already installed globally and available for use.
+    - Provide a recommendation with trade-offs, implementation complexity,
+      costs, vendor lock-in considerations, security implications, and long-term
+      maintainability impacts.
 
 - [ ] Add off-chain user accounts to support profile data, notifications, and
       messaging that cannot or should not live on-chain.
@@ -301,6 +344,27 @@ mainnet launch deliverables.
 
 ## Phase 7 — Testing, Quality, and Accessibility
 
+- [ ] `NOTES.md` cost optimization and alternatives research
+    - Review all currently used and planned APIs, SaaS services, infrastructure
+      providers, developer tools, monitoring services, databases, storage
+      providers, authentication providers, AI services, blockchain services, and
+      third-party integrations.
+    - Create a dedicated section in `NOTES.md` containing a comparison table.
+    - For each service, list: current or planned provider, free-tier limits,
+      estimated paid pricing, reasonable low-cost alternatives, open-source
+      self-hosted alternatives (when practical), advantages and disadvantages,
+      migration difficulty, and vendor lock-in considerations.
+    - Prioritize sustainable, startup-friendly, open-source, and
+      budget-conscious options.
+    - Highlight any services that could significantly reduce costs without
+      materially harming functionality.
+    - Update the table whenever major dependencies or external services are
+      added.
+    - Include recommendations for MVP, growth-stage, and production-scale
+      deployments.
+    - Where possible, identify services that can be deferred until real usage
+      justifies their cost.
+
 - [ ] Perform a thorough security sweep of the entire frontend and backend and
       patch any vulnerabilities found, then document the findings and fixes in
       `SECURITY.md` and `NOTES.md`.
@@ -357,6 +421,60 @@ mainnet launch deliverables.
       any backend API routes. For smart contracts, use Hardhat's testing
       framework to cover all contract functions and edge cases.
 
+- [ ] Commit the six untracked page layout files that supply missing metadata
+      (`src/app/{arbitration,client,create,freelancer,juror,reputation}/layout.tsx`).
+      Each file already exists with the correct `export const metadata` block
+      and a pass-through layout component; they just need to be staged and
+      pushed. This will clear six React Doctor "Page missing metadata" findings
+      and raise the score without any code changes.
+
+- [ ] Refactor magic-link token verification out of `useEffect` in
+      `app/freelancer/review/page.tsx` (line 64) and
+      `app/client/accept/page.tsx` (line 34).
+    - Both pages read a `?token=` query parameter in `useEffect` and call
+      `fetch('/api/magic-link/verify?token=...')` — a client-side round-trip
+      that React Doctor flags as `no-fetch-in-effect` and
+      `nextjs-no-client-fetch-for-server-data`.
+    - **Fix:** convert each page to a Server Component wrapper. Accept
+      `searchParams: { token?: string }` as a page prop, call the verify API
+      server-side (or inline the HMAC check), and pass the resolved `payload`
+      (or error) down to a thin `"use client"` inner component that only handles
+      wagmi hooks and UI state. This eliminates the client fetch and the
+      unnecessary loading state.
+    - Alternatively, if the pages must stay as client components (e.g. because
+      they depend on `useSearchParams`), replace the raw `fetch` with `useSWR`
+      or `@tanstack/react-query` so the fetching lifecycle is properly managed.
+
+- [ ] Consolidate related `useState` clusters into `useReducer` in four
+      components flagged by React Doctor (`prefer-useReducer`).
+    - `components/DecryptDocumentForm.tsx` (line 19) — form input state (bundle
+      source, passphrase, filename, touched flags) should become one reducer.
+    - `app/client/accept/page.tsx` (line 23) — token/payload/UI state cluster.
+    - `app/freelancer/review/page.tsx` (line 53) — same pattern.
+    - `app/create/page.tsx` (line 34) — large group of upload + form state.
+    - A single `useReducer` per component makes state transitions explicit and
+      eliminates the "many useState in a row" anti-pattern.
+
+- [ ] Split `components/Field.tsx` into one file per exported component.
+    - React Doctor flags `Input` (line 58) and `Select` (line 72) as secondary
+      components that should live in their own files.
+    - Create `components/Input.tsx` and `components/Select.tsx`, move the
+      implementations there, and update all import sites across the codebase.
+      The `Field` and `Label` components stay in `Field.tsx`.
+    - Run `npx tsc --noEmit` and the lint suite after to confirm no broken
+      imports.
+
+- [ ] Split the three oversized page components into focused sub-components
+      (`no-giant-component` — React Doctor).
+    - `app/freelancer/review/page.tsx` — extract `TokenVerificationLoader`,
+      `ContractSummaryPanel`, and `ActionButtons` sections.
+    - `app/client/accept/page.tsx` — same pattern: split token loader, contract
+      detail panel, and accept/reject form.
+    - `app/create/page.tsx` — extract `FileUploadPanel`, `EncryptionOptions`,
+      `ArweaveBackupPanel`, `ContractFormFields`, and `SubmitSummary`.
+    - Keep `"use client"` only on the leaf components that need wagmi hooks;
+      lift any purely presentational pieces to Server Components where possible.
+
 - [ ] Add accessibility features to the frontend so the platform is usable by
       people with disabilities, including screen reader support, keyboard
       navigation, and adjustable color contrast.
@@ -408,6 +526,44 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Configure React Doctor (`react-doctor`), React Scan, Semgrep, ESLint,
+      TypeScript checks, and existing validation tooling as a unified quality
+      and security pipeline. — React Doctor installed as a `src/` dev dependency
+      (`react-doctor@0.4.0`) with `npm run doctor` script; React Scan installed
+      (`react-scan`) as a dev dependency and wired into the root layout as a
+      dev-only dynamic import via `ReactScanMonitor`; Semgrep added to
+      `.github/workflows/security.yml` as a new `semgrep` job (SARIF uploaded to
+      the Security tab); pre-commit hook (`.husky/_/pre-commit`) runs
+      `react-doctor --staged` automatically; CI workflow
+      `.github/workflows/react-doctor.yml` scans `src/` on every PR and push to
+      `main`; `CLAUDE.md` updated with the quality-pipeline workflow. Score 71 →
+      74 (67 → 54 issues); remaining issues documented below.
+
+- [x] React Doctor — installed as dev dep; `npm run doctor` script; pre-commit
+      hook via `.husky/_/pre-commit`; `.github/workflows/react-doctor.yml` CI
+      workflow scoped to `src/**` changes.
+    - **Remaining findings (54 issues, score 74/100):** Accessibility labels (16
+      controls missing labels — needs UI work), data fetching in effects /
+      client-fetch-for-server-data (6 findings — requires React Query or Server
+      Components refactor, out of scope for now), unused exports (13 — some are
+      intentional public API surface; review before removing), `useState` used
+      only in handlers in `create/page.tsx:82` (minor perf), gray text on
+      colored background in `create/page.tsx:938` (UI polish).
+
+- [x] React Scan — installed as `src/` dev dependency (`react-scan`); active in
+      `NODE_ENV=development` via `ReactScanMonitor` component loaded dynamically
+      in `app/layout.tsx`; does not affect production builds.
+
+- [x] Semgrep — added as `semgrep` job in `.github/workflows/security.yml`; uses
+      `semgrep scan --config auto` (OSS ruleset covering JS/TS/React/ Next.js
+      security, secrets, supply chain); SARIF output uploaded to the GitHub
+      Security tab; runs on every PR and weekly schedule alongside Slither,
+      TruffleHog, and CodeQL.
+
+- [x] `CLAUDE.md` integration for tooling workflows — added "Quality Pipeline"
+      section with `npm run doctor`, React Scan, Semgrep, and pre-commit hook
+      guidance; instructions are concise and workflow-oriented.
 
 - [x] Add a `.nvmrc` file to pin the Node.js version for the project so that all
       contributors use the same version and avoid compatibility issues. — Added

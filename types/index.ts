@@ -6,7 +6,7 @@
 // import type { Contract, Dispute, Rating } from "@/types";
 // import { ContractStatus } from "@/types";
 
-export * from "./common";
+export type * from "./common";
 export * from "./contract";
 export * from "./dispute";
-export * from "./rating";
+export type * from "./rating";

@@ -270,13 +270,28 @@ Prompt files under `.github/prompts/` are evaluated in CI and locally. See
 
 ## Pre-commit Checks
 
-The Husky pre-commit hook runs automatically on every commit:
+The Husky pre-commit hook (`.husky/_/pre-commit`) runs automatically on every
+commit in two stages:
+
+### Stage 1 — React Doctor (staged files)
+
+[React Doctor](https://react.doctor) scans any staged React/TypeScript files for
+bugs, performance regressions, accessibility violations, and maintainability
+issues. If it finds regressions in the staged diff the commit prints a warning
+(non-blocking by default); run `npm run doctor` from `src/` to inspect the full
+report before pushing.
+
+### Stage 2 — lint and format
 
 ```text
-npm run lint          # ESLint (test/**/*.ts, scripts/**/*.ts, hardhat.config.ts) + Solhint
-npm run lint:frontend # ESLint on src/
-npm run lint:prettier # Prettier check across the whole repo
+prettier --write . && git add -u   # auto-format and re-stage
+npm run lint                       # ESLint (test/**/*.ts, scripts/**/*.ts, hardhat.config.ts) + Solhint
+npm run lint:frontend              # ESLint on src/
+(cd src && npx tsc --noEmit)       # TypeScript typecheck
 ```
+
+If any linter exits with errors the commit is aborted. Fix the errors and re-run
+`git commit`.
 
 Tests are **not** run on pre-commit (they are slow); they run in CI instead.
 
@@ -284,20 +299,46 @@ Tests are **not** run on pre-commit (they are slow); they run in CI instead.
 
 ## CI Pipeline
 
-Four parallel jobs run on every push and PR (`.github/workflows/ci.yml`):
+### `ci.yml` — correctness (required checks)
+
+Five parallel jobs run on every push and PR
+([`.github/workflows/ci.yml`](../.github/workflows/ci.yml)):
 
 | Job        | What runs                                                                               |
 | ---------- | --------------------------------------------------------------------------------------- |
 | Frontend   | `tsc --noEmit`, `lint:frontend`, `build:frontend`                                       |
 | TypeScript | `tsc -p tsconfig.hardhat.json --noEmit`, `lint`, `prettier`                             |
+| Python     | `mypy` strict typecheck over `utils/` and `scripts/models/`                             |
 | Hardhat    | `compile`, `hardhat:test` (146 integration tests)                                       |
 | Solidity   | `forge fmt --check`, `forge build --sizes`, `forge test -vvv`, `forge snapshot --check` |
 
-All four jobs must pass for a PR to merge.
+All five jobs must pass for a PR to merge.
 
-A separate workflow,
-[`.github/workflows/github-models.yml`](../.github/workflows/github-models.yml),
-runs when `.github/prompts/` or `scripts/models/` change. See
+### `react-doctor.yml` — React quality
+
+[React Doctor](https://react.doctor) runs on every PR and push to `main` that
+touches `src/`
+([`.github/workflows/react-doctor.yml`](../.github/workflows/react-doctor.yml)).
+It posts a sticky score-and-findings comment on each PR. Currently non-blocking;
+flip `fail-on: warning` in the workflow once the baseline score is stable.
+
+### `security.yml` — security (weekly + every PR/push)
+
+Five jobs run on every push/PR to `main` and on a weekly Monday schedule
+([`.github/workflows/security.yml`](../.github/workflows/security.yml)):
+
+| Job                | What runs                                                                                |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| Slither            | Solidity SAST — reentrancy, uninitialized storage, dangerous calls; SARIF → Security tab |
+| TruffleHog         | Secret scanning across full git history                                                  |
+| Dependency audit   | `npm audit --omit=dev --audit-level=high` (root)                                         |
+| Frontend dep audit | `npm audit --omit=dev --audit-level=high` (`src/`)                                       |
+| CodeQL             | TypeScript SAST — path traversal, prototype pollution, SSRF; SARIF → Security tab        |
+| Semgrep            | JS/TS/React/Next.js security rules (`--config auto`); SARIF → Security tab               |
+
+### `github-models.yml` — AI prompt evaluation
+
+Runs when `.github/prompts/` or `scripts/models/` change. See
 [GITHUB_MODELS.md](GITHUB_MODELS.md).
 
 ---

@@ -26,8 +26,17 @@ node_modules/
 .claude/
 .serena/
 .sixth/
+.impeccable/
 site/
 testing/
+src/skills/
+src/.agents/
+src/.claude/
+
+## Private Scratch Space
+# These files may contain incomplete or unformatted content.
+
+NOTES.local.md
 
 ## Non-Markdown Files With Hash Comments
 # These version-pin files use `#` comment headers that markdownlint would

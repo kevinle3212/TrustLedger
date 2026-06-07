@@ -119,25 +119,40 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 	const now = Math.floor(Date.now() / 1000);
 	const reminders = findDeadlineReminders(contracts, now, WINDOW_SECONDS);
 
-	let sent = 0;
-	let skipped = 0;
 	const errors: string[] = [];
 
-	for (const r of reminders) {
+	// Partition into skipped (no email on file) and sendable.
+	const toSend = reminders.flatMap((r) => {
 		const to = emailMap[r.recipient.toLowerCase()];
-		if (to === undefined) {
-			skipped++; // no email on file for this address (DB lookup will replace this)
-			continue;
+		return to !== undefined ? [{ r, to }] : [];
+	});
+	const skipped = reminders.length - toSend.length;
+
+	// Send all emails concurrently to avoid serial await-in-loop.
+	const sendResults = await Promise.allSettled(
+		toSend.map(async ({ to, r }) => {
+			const { subject, html } = buildNotification("deadline_reminder", {
+				contractId: r.contractId,
+				appUrl,
+				deadlineKind: r.kind,
+				deadlineTs: r.deadlineTs,
+			});
+			return await sendEmail({ to, subject, html });
+		}),
+	);
+
+	let sent = 0;
+	for (const [i, result] of sendResults.entries()) {
+		const item = toSend[i];
+		if (item === undefined) continue;
+		const { contractId } = item.r;
+		if (result.status === "rejected") {
+			errors.push(`#${contractId}: ${String(result.reason)}`);
+		} else if (result.value.ok) {
+			sent++;
+		} else {
+			errors.push(`#${contractId}: ${result.value.error}`);
 		}
-		const { subject, html } = buildNotification("deadline_reminder", {
-			contractId: r.contractId,
-			appUrl,
-			deadlineKind: r.kind,
-			deadlineTs: r.deadlineTs,
-		});
-		const result = await sendEmail({ to, subject, html });
-		if (result.ok) sent++;
-		else errors.push(`#${r.contractId}: ${result.error}`);
 	}
 
 	return NextResponse.json({

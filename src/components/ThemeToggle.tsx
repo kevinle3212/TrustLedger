@@ -53,6 +53,7 @@ export function ThemeToggle(): React.JSX.Element {
 
 	return (
 		<button
+			type="button"
 			onClick={() => {
 				setTheme(isDark ? "light" : "dark");
 			}}

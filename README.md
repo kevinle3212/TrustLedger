@@ -1546,6 +1546,28 @@ configure required status checks in Settings → Branches.
 
 ## Code Review and Git Commit Best Practices
 
+### Claude Code — Agent Workflows
+
+When using [Claude Code](https://claude.ai/code) on this project, prefer the
+`/agents` command for multi-step tasks. It parallelizes independent subtasks
+across specialized sub-agents, which is significantly faster and more thorough
+than a single linear session.
+
+```text
+/agents   # launch a multi-agent workflow for the current task
+```
+
+Typical use cases where `/agents` outperforms a single session:
+
+- Running a security review (`/security-review`) in parallel with a code review
+  (`/code-review`).
+- Refactoring multiple independent modules at the same time.
+- Searching the codebase across several directories while writing code
+  elsewhere.
+
+For straightforward one-shot tasks (a small bug fix, a single file edit), a
+normal session is fine — agent overhead is not worth it for simple changes.
+
 ### CodeRabbit
 
 [CodeRabbit](https://coderabbit.ai) performs automated AI code review on every

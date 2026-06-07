@@ -378,6 +378,7 @@ function AcceptPageInner(): React.JSX.Element {
 
 			<div className="flex gap-3">
 				<button
+					type="button"
 					onClick={handleAccept}
 					disabled={!canRespond || busy}
 					className="flex-1 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
@@ -393,6 +394,7 @@ function AcceptPageInner(): React.JSX.Element {
 							: `Accept & Fund (${formattedAmount})`}
 				</button>
 				<button
+					type="button"
 					onClick={handleReject}
 					disabled={!canRespond || busy}
 					className="px-6 py-3 rounded-xl border border-gray-300 dark:border-white/15 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 font-semibold transition-colors"

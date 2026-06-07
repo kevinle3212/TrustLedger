@@ -34,11 +34,3 @@ export function setLastWallet(name: string): void {
 }
 
 /** Forgets the remembered connector label. */
-export function clearLastWallet(): void {
-	if (typeof window === "undefined") return;
-	try {
-		window.localStorage.removeItem(LAST_WALLET_KEY);
-	} catch {
-		// Ignore storage failures.
-	}
-}

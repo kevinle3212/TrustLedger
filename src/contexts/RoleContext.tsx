@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, use, useMemo, useState } from "react";
 
 type Role = "client" | "freelancer";
 
@@ -23,14 +23,17 @@ export function RoleProvider({ children }: { children: React.ReactNode }): React
 		return stored === "client" || stored === "freelancer" ? stored : "freelancer";
 	});
 
-	function setRole(r: Role): void {
-		setRoleState(r);
-		localStorage.setItem(STORAGE_KEY, r);
-	}
+	const value = useMemo(() => {
+		function setRole(r: Role): void {
+			setRoleState(r);
+			localStorage.setItem(STORAGE_KEY, r);
+		}
+		return { role, setRole };
+	}, [role]);
 
-	return <RoleContext.Provider value={{ role, setRole }}>{children}</RoleContext.Provider>;
+	return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }
 
 export function useRole(): { role: Role; setRole: (r: Role) => void } {
-	return useContext(RoleContext);
+	return use(RoleContext);
 }
