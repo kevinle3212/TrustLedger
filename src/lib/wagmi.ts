@@ -127,6 +127,7 @@ export const appkit = createAppKit({
 	themeMode: "dark",
 	themeVariables: {
 		"--w3m-accent": ACCENT_COLOR,
+		"--w3m-font-family": "var(--font-geist-sans), Arial, Helvetica, sans-serif",
 	},
 	features: {
 		analytics: false,
