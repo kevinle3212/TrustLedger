@@ -218,8 +218,15 @@ mainnet launch deliverables.
 
 - [ ] Survey and document useful free / free-tier external APIs the platform can
       adopt to stay zero- or low-cost through development and early launch, then
-      record the chosen providers and their limits in `NOTES.md` and
-      `.env.example`.
+      record the chosen providers and their limits in `NOTES.md`. I need
+      unlimited free access to some core services during development and
+      testing,and I want to avoid surprise paywalls or rate limits as I build
+      and iterate. For each category, research and compare the leading free-tier
+      options, then pick the one that best fits our needs and document the
+      choice and its limits in `NOTES.md` so it's clear to all contributors.
+      Check the below categories for ideas, but also keep an eye out for any
+      other useful APIs that could speed up development or enhance the platform
+      without adding cost:
     - **Email / transactional:** currently Resend (3,000/month, 100/day free);
       benchmark against SendGrid, Mailgun, Postmark, and Brevo for
       deliverability and free-tier headroom (ties into the magic-link provider
