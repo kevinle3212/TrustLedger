@@ -54,4 +54,7 @@ RUN npm run compile \
 
 EXPOSE 8545
 
+# Drop to the built-in non-root user so the container does not run as root.
+USER node
+
 ENTRYPOINT ["bash", "scripts/docker-demo.sh"]

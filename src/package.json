@@ -1,4 +1,5 @@
 {
+	"$schema": "https://json.schemastore.org/package.json",
 	"name": "frontend",
 	"version": "0.1.0",
 	"description": "TrustLedger frontend - Next.js 16 dApp for interacting with the TrustLedger smart contract on Ethereum Sepolia.",
@@ -48,6 +49,9 @@
 		"lint:frontend": "npm run lint:frontend:ts && npm run lint:frontend:prettier",
 		"lint:frontend:ts": "eslint app lib components contexts services proxy.ts",
 		"lint:frontend:prettier": "prettier --check \"app/**\" \"lib/**\" \"components/**\" \"contexts/**\" \"services/**\" \"proxy.ts\" \"next.config.ts\"",
+		"fix:frontend": "npm run fix:frontend:ts && npm run fix:frontend:prettier",
+		"fix:frontend:ts": "eslint --fix app lib components contexts services proxy.ts",
+		"fix:frontend:prettier": "prettier --write \"app/**\" \"lib/**\" \"components/**\" \"contexts/**\" \"services/**\" \"proxy.ts\" \"next.config.ts\"",
 		"debug:frontend:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile",
 		"cache:clear": "npm run cache:clear:eslint && npm run cache:clear:prettier && npm run cache:clear:npm && npm run cache:clear:next",
 		"cache:clear:eslint": "find . -name '.eslintcache' -maxdepth 3 | grep -v node_modules | xargs rm -f",

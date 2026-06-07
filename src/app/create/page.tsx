@@ -1,187 +1,37 @@
 "use client";
 
-import { useEffect, useMemo, useReducer, useRef } from "react";
-import {
-	useAccount,
-	useChainId,
-	useWriteContract,
-	useSimulateContract,
-	useWaitForTransactionReceipt,
-} from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
-import { parseEther, parseUnits, keccak256, toBytes, parseEventLogs } from "viem";
-import { TRUSTLEDGER_ABI } from "@/lib/abi";
-import { TRUSTLEDGER_ADDRESS, getExplorerTxUrl, getUsdcAddress } from "@/lib/wagmi";
-import { daysToSeconds } from "@/lib/utils";
-import {
-	validateContractUri,
-	validateEmail,
-	validateEthAddress,
-	validateEthAmount,
-	validateUsdcAmount,
-	validateNumberInRange,
-	validateRequired,
-} from "@/lib/validation";
-import { uploadToPinata } from "@/lib/ipfs";
-import { encryptFile } from "@/lib/encryption";
-import type { ArweaveJWK } from "@/lib/arweave";
-import { useRole } from "@/contexts/RoleContext";
+import { useCreatePageState } from "./_lib/useCreatePageState";
 import { ContractFormFields } from "./_components/ContractFormFields";
+import { CreateSuccessView } from "./_components/CreateSuccessView";
 import { SubmitSummary } from "./_components/SubmitSummary";
 
-type DocMode = "upload" | "manual";
-type UploadStatus = "idle" | "working" | "done" | "error";
-
-interface FormFields {
-	client: string;
-	clientEmail: string;
-	amount: string;
-	contractURI: string;
-	estimatedDurationDays: string;
-	bufferFactor: string;
-	acceptanceWindowDays: string;
-	arbitrationFeePct: string;
-	holdBack: "none" | "5" | "10" | "15";
-	warrantyPeriodDays: string;
-}
-
-interface CreateState {
-	proposerRole: "freelancer" | "client";
-	paymentToken: "eth" | "usdc";
-	form: FormFields;
-	magicLinkStatus: "idle" | "sending" | "sent" | "error";
-	docMode: DocMode;
-	selectedFile: File | null;
-	encryptEnabled: boolean;
-	passphrase: string;
-	pinataJwt: string;
-	uploadStatus: UploadStatus;
-	uploadError: string | null;
-	fileHash: `0x${string}` | null;
-	arweaveWallet: ArweaveJWK | null;
-	arweaveStatus: UploadStatus;
-	arweaveUri: string;
-	arweaveBalance: string | null;
-	touched: Partial<Record<string, boolean>>;
-	submitAttempted: boolean;
-}
-
-type CreateAction =
-	| { type: "SET_PROPOSER_ROLE"; role: "freelancer" | "client" }
-	| { type: "SET_PAYMENT_TOKEN"; token: "eth" | "usdc" }
-	| { type: "SET_FIELD"; key: keyof FormFields; value: string }
-	| { type: "SET_MAGIC_LINK_STATUS"; status: CreateState["magicLinkStatus"] }
-	| { type: "SET_DOC_MODE"; mode: DocMode }
-	| { type: "FILE_SELECTED"; file: File | null }
-	| { type: "SET_ENCRYPT_ENABLED"; enabled: boolean }
-	| { type: "SET_PASSPHRASE"; value: string }
-	| { type: "SET_PINATA_JWT"; value: string }
-	| { type: "UPLOAD_START" }
-	| { type: "UPLOAD_SUCCESS"; hash: `0x${string}`; uri: string }
-	| { type: "UPLOAD_ERROR"; error: string }
-	| { type: "ARWEAVE_WALLET_SET"; wallet: ArweaveJWK }
-	| { type: "ARWEAVE_BALANCE_LOADED"; balance: string | null }
-	| { type: "ARWEAVE_UPLOAD_START" }
-	| { type: "ARWEAVE_UPLOAD_SUCCESS"; uri: string }
-	| { type: "ARWEAVE_UPLOAD_ERROR" }
-	| { type: "MARK_TOUCHED"; key: string }
-	| { type: "SET_SUBMIT_ATTEMPTED" };
-
-function createReducer(state: CreateState, action: CreateAction): CreateState {
-	switch (action.type) {
-		case "SET_PROPOSER_ROLE":
-			return { ...state, proposerRole: action.role };
-		case "SET_PAYMENT_TOKEN":
-			return { ...state, paymentToken: action.token, form: { ...state.form, amount: "" } };
-		case "SET_FIELD":
-			return { ...state, form: { ...state.form, [action.key]: action.value } };
-		case "SET_MAGIC_LINK_STATUS":
-			return { ...state, magicLinkStatus: action.status };
-		case "SET_DOC_MODE":
-			return { ...state, docMode: action.mode };
-		case "FILE_SELECTED":
-			return { ...state, selectedFile: action.file, uploadStatus: "idle", fileHash: null };
-		case "SET_ENCRYPT_ENABLED":
-			return { ...state, encryptEnabled: action.enabled };
-		case "SET_PASSPHRASE":
-			return { ...state, passphrase: action.value };
-		case "SET_PINATA_JWT":
-			return { ...state, pinataJwt: action.value };
-		case "UPLOAD_START":
-			return { ...state, uploadStatus: "working", uploadError: null };
-		case "UPLOAD_SUCCESS":
-			return {
-				...state,
-				uploadStatus: "done",
-				fileHash: action.hash,
-				form: { ...state.form, contractURI: action.uri },
-			};
-		case "UPLOAD_ERROR":
-			return { ...state, uploadStatus: "error", uploadError: action.error };
-		case "ARWEAVE_WALLET_SET":
-			return { ...state, arweaveWallet: action.wallet };
-		case "ARWEAVE_BALANCE_LOADED":
-			return { ...state, arweaveBalance: action.balance };
-		case "ARWEAVE_UPLOAD_START":
-			return { ...state, arweaveStatus: "working" };
-		case "ARWEAVE_UPLOAD_SUCCESS":
-			return { ...state, arweaveStatus: "done", arweaveUri: action.uri };
-		case "ARWEAVE_UPLOAD_ERROR":
-			return { ...state, arweaveStatus: "error" };
-		case "MARK_TOUCHED":
-			return { ...state, touched: { ...state.touched, [action.key]: true } };
-		case "SET_SUBMIT_ATTEMPTED":
-			return { ...state, submitAttempted: true };
-	}
-}
-
 export default function CreatePage(): React.JSX.Element {
-	const { isConnected } = useAccount();
-	const chainId = useChainId();
-	const usdcAddress = getUsdcAddress(chainId);
-	const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
 	const {
-		isLoading: isConfirming,
+		state,
+		dispatch,
+		isConnected,
+		isClientProposing,
+		isUsdc,
+		txHash,
+		isPending,
+		writeError,
+		isConfirming,
 		isSuccess,
-		data: receipt,
-	} = useWaitForTransactionReceipt({ hash: txHash });
-	const { role: globalRole } = useRole();
-
-	const [state, dispatch] = useReducer(
-		createReducer,
-		globalRole,
-		(role): CreateState => ({
-			proposerRole: role,
-			paymentToken: "eth" as const,
-			form: {
-				client: "",
-				clientEmail: "",
-				amount: "",
-				contractURI: "",
-				estimatedDurationDays: "30",
-				bufferFactor: "1200",
-				acceptanceWindowDays: "3",
-				arbitrationFeePct: "5",
-				holdBack: "none" as const,
-				warrantyPeriodDays: "30",
-			},
-			magicLinkStatus: "idle" as const,
-			docMode: "upload",
-			selectedFile: null,
-			encryptEnabled: false,
-			passphrase: "",
-			pinataJwt: process.env["NEXT_PUBLIC_PINATA_JWT"] ?? "",
-			uploadStatus: "idle",
-			uploadError: null,
-			fileHash: null,
-			arweaveWallet: null,
-			arweaveStatus: "idle",
-			arweaveUri: "",
-			arweaveBalance: null,
-			touched: {},
-			submitAttempted: false,
-		}),
-	);
+		receipt,
+		usdcAddress,
+		simData,
+		simError,
+		txArgs,
+		hasBlockingErrors,
+		set,
+		markTouched,
+		showError,
+		handleSubmit,
+		handleUploadToIPFS,
+		handleArweaveWalletLoad,
+		handleArweaveUpload,
+	} = useCreatePageState();
 
 	const {
 		proposerRole,
@@ -195,273 +45,11 @@ export default function CreatePage(): React.JSX.Element {
 		pinataJwt,
 		uploadStatus,
 		uploadError,
-		fileHash,
 		arweaveWallet,
 		arweaveStatus,
 		arweaveUri,
 		arweaveBalance,
-		touched,
-		submitAttempted,
 	} = state;
-
-	// "freelancer" = current user is the freelancer proposing unfunded terms (existing flow).
-	// "client"     = current user is the client proposing + funding immediately.
-	// Defaults to the global role toggle so the form opens in the expected mode.
-	const isClientProposing = proposerRole === "client";
-
-	// "eth" = native ETH; "usdc" = ERC-20 USDC on the connected chain.
-	const isUsdc = paymentToken === "usdc";
-
-	function set(key: keyof FormFields, value: string): void {
-		dispatch({ type: "SET_FIELD", key, value });
-	}
-
-	// Bytes that were actually uploaded (post-encryption if applicable) - reused for Arweave backup.
-	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
-	const uploadedMime = useRef("application/octet-stream");
-
-	// ── Field validation ────────────────────────────────────────────────────────
-	// Each field's error is computed from current state; it is only surfaced once
-	// the field has been blurred (touched) or the user has attempted to submit, so
-	// the form doesn't shout at the user before they've typed.
-	function markTouched(key: string): void {
-		dispatch({ type: "MARK_TOUCHED", key });
-	}
-
-	const fieldErrors = useMemo(
-		() => ({
-			client: validateEthAddress(form.client),
-			clientEmail: validateEmail(form.clientEmail),
-			amount: isUsdc ? validateUsdcAmount(form.amount) : validateEthAmount(form.amount),
-			contractURI: docMode === "manual" ? validateContractUri(form.contractURI) : undefined,
-			paymentToken:
-				isUsdc && usdcAddress === undefined
-					? "USDC is not supported on this network. Switch to Sepolia, Arbitrum, Base, or Optimism."
-					: undefined,
-			estimatedDurationDays: validateNumberInRange(form.estimatedDurationDays, 1, 3650, {
-				integer: true,
-				unit: "days",
-			}),
-			bufferFactor: validateNumberInRange(form.bufferFactor, 1000, 100000, { integer: true }),
-			acceptanceWindowDays: validateNumberInRange(form.acceptanceWindowDays, 2, 3650, {
-				integer: true,
-				unit: "days",
-			}),
-			arbitrationFeePct: validateNumberInRange(form.arbitrationFeePct, 0, 50),
-			warrantyPeriodDays:
-				form.holdBack === "none"
-					? undefined
-					: validateNumberInRange(form.warrantyPeriodDays, 1, 3650, {
-							integer: true,
-							unit: "days",
-						}),
-			pinataJwt:
-				docMode === "upload" && selectedFile !== null
-					? validateRequired(pinataJwt, "Pinata JWT")
-					: undefined,
-			passphrase: encryptEnabled ? validateRequired(passphrase, "Passphrase") : undefined,
-		}),
-		[form, docMode, selectedFile, pinataJwt, encryptEnabled, passphrase, isUsdc, usdcAddress],
-	);
-
-	function showError(key: keyof typeof fieldErrors): string | undefined {
-		return touched[key] === true || submitAttempted ? fieldErrors[key] : undefined;
-	}
-
-	const hasBlockingErrors = Object.values(fieldErrors).some((e) => e !== undefined);
-
-	// Pre-compute tx args whenever the form changes - fed into useSimulateContract so the
-	// transaction is validated on-chain before MetaMask opens. This prevents the "gas limit
-	// too high" symptom caused by gas estimation failing on a reverting transaction.
-	const txArgs = useMemo(() => {
-		if (
-			!/^0x[0-9a-fA-F]{40}$/.test(form.client) ||
-			form.amount === "" ||
-			Number(form.amount) <= 0 ||
-			Number(form.arbitrationFeePct) <= 0
-		) {
-			return null;
-		}
-		if (isUsdc && usdcAddress === undefined) return null;
-		const trimmedURI = form.contractURI.trim();
-		const contractURI = trimmedURI !== "" ? trimmedURI : "ipfs://";
-		const parsedAmount = isUsdc ? parseUnits(form.amount, 6) : parseEther(form.amount);
-		// usdcAddress is always defined here — we return null above when isUsdc && usdcAddress === undefined.
-		const tokenAddress: `0x${string}` = isUsdc
-			? (usdcAddress ?? "0x0000000000000000000000000000000000000000")
-			: "0x0000000000000000000000000000000000000000";
-		const sharedArgs = [
-			fileHash ?? keccak256(toBytes(contractURI)),
-			contractURI,
-			daysToSeconds(Number(form.estimatedDurationDays)),
-			BigInt(form.bufferFactor),
-			daysToSeconds(Number(form.acceptanceWindowDays)),
-			Math.round(Number(form.arbitrationFeePct) * 100),
-			form.holdBack === "none" ? 0 : Number(form.holdBack) * 100,
-			form.holdBack === "none" ? 0n : BigInt(Number(form.warrantyPeriodDays) * 86400),
-			tokenAddress,
-			parsedAmount,
-		] as const;
-
-		if (isClientProposing) {
-			// Client proposes unfunded terms; funds are locked only after the freelancer accepts
-			// and the client calls fundContractByClient.
-			return {
-				address: TRUSTLEDGER_ADDRESS,
-				abi: TRUSTLEDGER_ABI,
-				functionName: "proposeContractByClient" as const,
-				args: [form.client as `0x${string}`, ...sharedArgs] as const,
-			};
-		}
-		// Freelancer proposes unfunded terms; no ETH sent with this transaction.
-		return {
-			address: TRUSTLEDGER_ADDRESS,
-			abi: TRUSTLEDGER_ABI,
-			functionName: "proposeContract" as const,
-			args: [form.client as `0x${string}`, ...sharedArgs] as const,
-		};
-	}, [form, fileHash, isClientProposing, isUsdc, usdcAddress]);
-
-	// wagmi's overloaded types can't handle a union of two different functionName
-	// shapes in a single call, so we use two hooks — only one is enabled at a time.
-	const clientTxArgs = txArgs?.functionName === "proposeContractByClient" ? txArgs : null;
-	const freelancerTxArgs = txArgs?.functionName === "proposeContract" ? txArgs : null;
-
-	const { data: clientSimData, error: clientSimError } = useSimulateContract({
-		address: TRUSTLEDGER_ADDRESS,
-		abi: TRUSTLEDGER_ABI,
-		functionName: "proposeContractByClient",
-		args: clientTxArgs?.args,
-		query: { enabled: clientTxArgs !== null },
-	});
-	const { data: freelancerSimData, error: freelancerSimError } = useSimulateContract({
-		address: TRUSTLEDGER_ADDRESS,
-		abi: TRUSTLEDGER_ABI,
-		functionName: "proposeContract",
-		args: freelancerTxArgs?.args,
-		query: { enabled: freelancerTxArgs !== null },
-	});
-	const simData = clientSimData ?? freelancerSimData;
-	const simError = clientSimError ?? freelancerSimError;
-
-	function handleSubmit(e: React.SyntheticEvent): void {
-		e.preventDefault();
-		dispatch({ type: "SET_SUBMIT_ATTEMPTED" });
-		if (hasBlockingErrors) return;
-		if (simData?.request !== undefined) {
-			writeContract(simData.request as Parameters<typeof writeContract>[0]);
-		}
-	}
-
-	useEffect(() => {
-		if (!isSuccess || form.clientEmail === "") return;
-
-		// Parse the correct event based on which flow was used.
-		const eventName = isClientProposing ? "ContractProposedByClient" : "ContractProposed";
-		const logs = parseEventLogs({
-			abi: TRUSTLEDGER_ABI,
-			eventName,
-			logs: receipt.logs,
-		});
-		const contractId = (logs[0] as { args?: { id?: bigint } } | undefined)?.args?.id;
-		if (contractId === undefined) return;
-
-		fetch("/api/magic-link/send", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				contractId: contractId.toString(),
-				clientEmail: form.clientEmail,
-				clientAddress: form.client,
-				// "freelancer" role routes the link to /freelancer/review
-				role: isClientProposing ? "freelancer" : "client",
-			}),
-		})
-			.then((r) => {
-				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: r.ok ? "sent" : "error" });
-			})
-			.catch(() => {
-				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: "error" });
-			});
-	}, [isSuccess, receipt, form.clientEmail, form.client, isClientProposing]);
-
-	async function handleUploadToIPFS(): Promise<void> {
-		if (selectedFile === null) return;
-		if (pinataJwt === "") {
-			dispatch({
-				type: "UPLOAD_ERROR",
-				error: "Enter your Pinata JWT to enable IPFS upload.",
-			});
-			return;
-		}
-
-		dispatch({ type: "UPLOAD_START" });
-
-		try {
-			const rawBytes = new Uint8Array(await selectedFile.arrayBuffer());
-			let bytes: Uint8Array<ArrayBuffer>;
-			let mime: string;
-
-			if (encryptEnabled) {
-				if (passphrase === "") throw new Error("Passphrase required for encryption.");
-				bytes = await encryptFile(rawBytes.buffer, passphrase);
-				mime = "application/octet-stream";
-			} else {
-				// new Uint8Array(ArrayBuffer) narrows to Uint8Array<ArrayBuffer>.
-				bytes = new Uint8Array(rawBytes.buffer);
-				mime = selectedFile.type !== "" ? selectedFile.type : "application/octet-stream";
-			}
-
-			const hash = keccak256(bytes);
-			// Pass the underlying ArrayBuffer - Blob accepts ArrayBuffer as BlobPart.
-			const blob = new Blob([bytes.buffer], { type: mime });
-			const uri = await uploadToPinata(blob, selectedFile.name, pinataJwt);
-
-			uploadedBytes.current = bytes;
-			uploadedMime.current = mime;
-			dispatch({ type: "UPLOAD_SUCCESS", hash, uri });
-		} catch (err) {
-			dispatch({
-				type: "UPLOAD_ERROR",
-				error: err instanceof Error ? err.message : String(err),
-			});
-		}
-	}
-
-	function handleArweaveWalletLoad(e: React.ChangeEvent<HTMLInputElement>): void {
-		const file = e.target.files?.[0];
-		if (file === undefined) return;
-		const reader = new FileReader();
-		reader.onload = async (ev): Promise<void> => {
-			try {
-				const jwk = JSON.parse(ev.target?.result as string) as ArweaveJWK;
-				dispatch({ type: "ARWEAVE_WALLET_SET", wallet: jwk });
-				// Fetch balance so the user knows they have AR to spend.
-				const { getArweaveBalance } = await import("@/lib/arweave");
-				const bal = await getArweaveBalance(jwk);
-				dispatch({ type: "ARWEAVE_BALANCE_LOADED", balance: bal });
-			} catch {
-				// ignore parse errors - bad wallet file
-			}
-		};
-		reader.readAsText(file);
-	}
-
-	async function handleArweaveUpload(): Promise<void> {
-		if (uploadedBytes.current === null || arweaveWallet === null) return;
-		dispatch({ type: "ARWEAVE_UPLOAD_START" });
-		try {
-			const { uploadToArweave } = await import("@/lib/arweave");
-			const uri = await uploadToArweave(
-				uploadedBytes.current,
-				uploadedMime.current,
-				arweaveWallet,
-			);
-			dispatch({ type: "ARWEAVE_UPLOAD_SUCCESS", uri });
-		} catch {
-			dispatch({ type: "ARWEAVE_UPLOAD_ERROR" });
-		}
-	}
 
 	if (!isConnected) {
 		return (
@@ -474,70 +62,18 @@ export default function CreatePage(): React.JSX.Element {
 		);
 	}
 
-	if (isSuccess) {
+	if (isSuccess && receipt !== undefined) {
 		return (
-			<div className="max-w-lg mx-auto px-6 py-24 flex flex-col items-center gap-6 text-center">
-				<div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center">
-					<svg
-						className="w-8 h-8 text-green-500 dark:text-green-400"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M5 13l4 4L19 7"
-						/>
-					</svg>
-				</div>
-				<h2 className="text-2xl font-bold">
-					{isClientProposing ? "Contract Offer Created!" : "Contract Proposed!"}
-				</h2>
-				<p className="text-gray-500 dark:text-gray-400 text-sm">
-					Transaction confirmed in block {receipt.blockNumber.toString()}.
-					{isClientProposing &&
-						" The freelancer will review and accept. You will then be prompted to fund the escrow to start the project."}
-				</p>
-				<a
-					href={getExplorerTxUrl(chainId, txHash ?? "")}
-					target="_blank"
-					rel="noopener noreferrer"
-					className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-sm underline underline-offset-2"
-				>
-					View on explorer
-				</a>
-				{form.clientEmail !== "" && (
-					<p className="text-sm">
-						{magicLinkStatus === "sending" && (
-							<span className="text-gray-500 dark:text-gray-400">
-								Sending magic link…
-							</span>
-						)}
-						{magicLinkStatus === "sent" && (
-							<span className="text-green-500 dark:text-green-400">
-								{isClientProposing ? "Review link" : "Magic link"} sent to{" "}
-								{form.clientEmail}
-							</span>
-						)}
-						{magicLinkStatus === "error" && (
-							<span className="text-red-500 dark:text-red-400">
-								Failed to send magic link - check server env vars.
-							</span>
-						)}
-					</p>
-				)}
-				<button
-					type="button"
-					onClick={() => {
-						window.location.reload();
-					}}
-					className="mt-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-colors"
-				>
-					Create Another
-				</button>
-			</div>
+			<CreateSuccessView
+				txHash={txHash}
+				blockNumber={receipt.blockNumber}
+				isClientProposing={isClientProposing}
+				clientEmail={form.clientEmail}
+				magicLinkStatus={magicLinkStatus}
+				onCreateAnother={() => {
+					window.location.reload();
+				}}
+			/>
 		);
 	}
 
@@ -614,7 +150,7 @@ export default function CreatePage(): React.JSX.Element {
 				<ContractFormFields
 					form={form}
 					set={set}
-					showError={showError as (key: string) => string | undefined}
+					showError={showError}
 					markTouched={markTouched}
 					docMode={docMode}
 					onDocModeChange={(mode) => {
@@ -625,7 +161,6 @@ export default function CreatePage(): React.JSX.Element {
 					selectedFile={selectedFile}
 					onFileChange={(file) => {
 						dispatch({ type: "FILE_SELECTED", file });
-						uploadedBytes.current = null;
 					}}
 					encryptEnabled={encryptEnabled}
 					onEncryptChange={(enabled) => {
@@ -662,18 +197,22 @@ export default function CreatePage(): React.JSX.Element {
 
 				<SubmitSummary
 					amount={form.amount}
-					isUsdc={isUsdc}
+					token={paymentToken}
 					estimatedDurationDays={form.estimatedDurationDays}
 					bufferFactor={form.bufferFactor}
 					holdBack={form.holdBack}
 					simError={simError}
-					txArgsReady={txArgs !== null}
+					simStatus={
+						txArgs === null
+							? "idle"
+							: simData?.request !== undefined
+								? "ready"
+								: "loading"
+					}
 					writeError={writeError}
-					isPending={isPending}
-					isConfirming={isConfirming}
+					txStatus={isPending ? "pending" : isConfirming ? "confirming" : "idle"}
 					hasBlockingErrors={hasBlockingErrors}
-					simDataReady={simData?.request !== undefined}
-					isClientProposing={isClientProposing}
+					proposerRole={proposerRole}
 				/>
 			</form>
 		</div>

@@ -202,7 +202,7 @@ check_node() {
 
     if ! has nvm && [[ "$OS" != "windows" ]]; then
         if ask "Install nvm (Node Version Manager)?"; then
-            curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+            curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash # nosemgrep: bash.curl.security.curl-pipe-bash.curl-pipe-bash
             export NVM_DIR="$HOME/.nvm"
             # shellcheck disable=SC1091
             [[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
@@ -242,7 +242,7 @@ check_foundry() {
     [[ "$SKIP_INSTALL" -eq 1 ]] && { fail_step "Foundry missing" "Install with: curl -L https://foundry.paradigm.xyz | bash && foundryup"; return; }
 
     if ask "Install Foundry via the official foundryup installer?"; then
-        curl -L https://foundry.paradigm.xyz | bash
+        curl -L https://foundry.paradigm.xyz | bash # nosemgrep: bash.curl.security.curl-pipe-bash.curl-pipe-bash
         # foundryup is installed to ~/.foundry/bin; add it to PATH for this run.
         export PATH="$HOME/.foundry/bin:$PATH"
         if has foundryup; then foundryup; fi

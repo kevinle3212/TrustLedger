@@ -32,6 +32,7 @@
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**", "**/.claude/**", "**/SECURITY.md"],
 	"eslint.useFlatConfig": true,
+	"css.lint.unknownAtRules": "ignore",
 	"python.analysis.typeCheckingMode": "basic",
 	"python.analysis.diagnosticSeverityOverrides": {
 		"reportMissingModuleSource": "information"

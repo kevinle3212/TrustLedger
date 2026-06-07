@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { use } from "react";
 
 import { controlClass, FieldIdContext, SELECT_BG } from "@/components/Field";
 
@@ -8,7 +8,7 @@ type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & { error?: boo
 
 /** `<select>` that integrates with the surrounding `Field` for label binding and error styling. */
 export function Select({ error = false, className, ...props }: SelectProps): React.JSX.Element {
-	const fieldId = useContext(FieldIdContext);
+	const fieldId = use(FieldIdContext);
 	return (
 		<select
 			id={props.id ?? fieldId}

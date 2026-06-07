@@ -5,7 +5,7 @@ import { createContext, useId } from "react";
 /** Provides the generated field id so `Input`/`Select` can bind to the wrapping `Field` label. */
 export const FieldIdContext = createContext<string | undefined>(undefined);
 
-export const BASE_INPUT_CLASS =
+const BASE_INPUT_CLASS =
 	"rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition";
 export const INPUT_BG = "bg-gray-50 dark:bg-white/5";
 export const SELECT_BG = "bg-gray-100 dark:bg-gray-900";
