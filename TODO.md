@@ -421,13 +421,6 @@ mainnet launch deliverables.
       any backend API routes. For smart contracts, use Hardhat's testing
       framework to cover all contract functions and edge cases.
 
-- [ ] Commit the six untracked page layout files that supply missing metadata
-      (`src/app/{arbitration,client,create,freelancer,juror,reputation}/layout.tsx`).
-      Each file already exists with the correct `export const metadata` block
-      and a pass-through layout component; they just need to be staged and
-      pushed. This will clear six React Doctor "Page missing metadata" findings
-      and raise the score without any code changes.
-
 - [ ] Refactor magic-link token verification out of `useEffect` in
       `app/freelancer/review/page.tsx` (line 64) and
       `app/client/accept/page.tsx` (line 34).
@@ -526,6 +519,13 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Commit the six untracked page layout files that supply missing metadata
+      (`src/app/{arbitration,client,create,freelancer,juror,reputation}/layout.tsx`).
+      Each file already exists with the correct `export const metadata` block
+      and a pass-through layout component; they just need to be staged and
+      pushed. This will clear six React Doctor "Page missing metadata" findings
+      and raise the score without any code changes.
 
 - [x] Configure React Doctor (`react-doctor`), React Scan, Semgrep, ESLint,
       TypeScript checks, and existing validation tooling as a unified quality
