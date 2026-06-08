@@ -27,10 +27,17 @@ function parseRootEnv(): Record<string, string> {
 	}
 }
 
-// Resolve a deployed contract address. Priority: env var > artifacts JSON > zero address.
+function isContractAddress(value: string | undefined): value is `0x${string}` {
+	return /^0x[a-fA-F0-9]{40}$/.test(value ?? "") && value !== ZERO;
+}
+
+// Resolve a deployed contract address. Priority: env var > root .env > artifacts JSON > zero address.
 function resolveAddress(jsonKey: string, envKey: string): string {
 	const envAddr = process.env[envKey];
-	if (envAddr !== undefined && envAddr !== ZERO) return envAddr;
+	if (isContractAddress(envAddr)) return envAddr;
+
+	const rootAddr = rootEnv[envKey];
+	if (isContractAddress(rootAddr)) return rootAddr;
 
 	try {
 		const json = JSON.parse(
@@ -39,7 +46,8 @@ function resolveAddress(jsonKey: string, envKey: string): string {
 				"utf8",
 			),
 		) as Record<string, string | undefined>;
-		return json[jsonKey] ?? ZERO;
+		const artifactAddr = json[jsonKey];
+		return isContractAddress(artifactAddr) ? artifactAddr : ZERO;
 	} catch {
 		return ZERO;
 	}

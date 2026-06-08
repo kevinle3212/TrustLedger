@@ -15,7 +15,7 @@ interface ContractDeployment {
 
 function readAddress(key: string): `0x${string}` | undefined {
 	const value = process.env[key];
-	if (value === undefined || value === "" || !value.startsWith("0x")) return undefined;
+	if (!/^0x[a-fA-F0-9]{40}$/.test(value ?? "")) return undefined;
 	return value as `0x${string}`;
 }
 
@@ -31,18 +31,16 @@ function readBlock(key: string): bigint | undefined {
 }
 
 export const TRUSTLEDGER_ADDRESS: `0x${string}` =
-	(process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"] as `0x${string}` | undefined) ?? ZERO_ADDRESS;
+	readAddress("NEXT_PUBLIC_TRUSTLEDGER_ADDRESS") ?? ZERO_ADDRESS;
 
 export const ARBITRATION_ADDRESS: `0x${string}` =
-	(process.env["NEXT_PUBLIC_ARBITRATION_ADDRESS"] as `0x${string}` | undefined) ?? ZERO_ADDRESS;
+	readAddress("NEXT_PUBLIC_ARBITRATION_ADDRESS") ?? ZERO_ADDRESS;
 
 export const JUROR_REGISTRY_ADDRESS: `0x${string}` =
-	(process.env["NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
-	ZERO_ADDRESS;
+	readAddress("NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS") ?? ZERO_ADDRESS;
 
 export const REPUTATION_REGISTRY_ADDRESS: `0x${string}` =
-	(process.env["NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
-	ZERO_ADDRESS;
+	readAddress("NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS") ?? ZERO_ADDRESS;
 
 const DEFAULT_DEPLOYMENT: ContractDeployment = {
 	trustLedger: TRUSTLEDGER_ADDRESS,
