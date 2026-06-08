@@ -78,7 +78,7 @@ export function Navbar(): React.JSX.Element {
 
 	return (
 		<header className="border-b border-gray-200 dark:border-white/10 bg-white/80 dark:bg-gray-950/80 backdrop-blur sticky top-0 z-50">
-			<div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:py-0">
+			<div className="tl-site-frame flex flex-col gap-3 py-3 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:py-0">
 				<div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
 					<Link
 						href="/"

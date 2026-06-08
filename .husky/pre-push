@@ -1,3 +1,4 @@
 set -e
 npm run lint:frontend
+(cd src && npm run test:e2e)
 (cd contracts && FOUNDRY_PROFILE=ci forge build && FOUNDRY_PROFILE=ci forge test)

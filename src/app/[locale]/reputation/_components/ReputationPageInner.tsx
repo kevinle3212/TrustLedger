@@ -498,88 +498,98 @@ export function ReputationPageInner(): React.JSX.Element {
 	}
 
 	return (
-		<div className="max-w-lg mx-auto px-6 py-12 flex flex-col gap-6">
-			<div>
-				<h1 className="text-3xl font-bold">{t("title")}</h1>
-				<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t("subtitle")}</p>
+		<div className="tl-app-shell tl-app-shell--focused">
+			<div className="tl-page-header">
+				<div>
+					<h1 className="tl-page-title">{t("title")}</h1>
+					<p className="tl-page-description text-gray-500 dark:text-gray-400">
+						{t("subtitle")}
+					</p>
+				</div>
 			</div>
 
-			<form
-				onSubmit={handleLookup}
-				className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3"
-			>
-				<label
-					htmlFor="rep-lookup-address"
-					className="text-sm font-medium text-gray-900 dark:text-white"
-				>
-					{t("walletAddress")}
-				</label>
-				<input
-					id="rep-lookup-address"
-					type="text"
-					placeholder="0x…"
-					value={input}
-					onChange={(e) => {
-						setInput(e.target.value);
-					}}
-					aria-invalid={inputError !== undefined}
-					className={`rounded-lg bg-white dark:bg-white/5 border px-3 py-2 text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
-						inputError !== undefined
-							? "border-red-500 dark:border-red-500 focus:ring-red-500"
-							: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
-					}`}
-				/>
-				{inputError !== undefined && (
-					<p className="text-xs text-red-500 dark:text-red-400">{inputError}</p>
-				)}
-				<div className="flex gap-2 flex-wrap">
-					<button
-						type="submit"
-						className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors"
+			<div className="tl-reputation-grid">
+				<div className="tl-reputation-sidebar flex flex-col gap-4">
+					<form
+						onSubmit={handleLookup}
+						className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3"
 					>
-						{t("lookUp")}
-					</button>
-					{isConnected && address !== undefined && (
-						<button
-							type="button"
-							onClick={lookupSelf}
-							className="px-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+						<label
+							htmlFor="rep-lookup-address"
+							className="text-sm font-medium text-gray-900 dark:text-white"
 						>
-							{t("useMyWallet")}
-						</button>
-					)}
-				</div>
-			</form>
-
-			{!isConnected && (
-				<div className="flex items-center gap-3 text-sm text-gray-500">
-					<ConnectButton />
-					<span>{t("connectToLookUp")}</span>
-				</div>
-			)}
-
-			{lookupAddress !== undefined && (
-				<>
-					<ReputationLookup
-						lookupAddress={lookupAddress}
-						registryAddress={registryAddress}
-						registryLookupError={registryLookupError}
-						registryLookupLoading={registryLookupLoading}
-						trustLedgerDeployed={trustLedgerDeployed}
-						trustLedgerAddress={trustLedgerAddress}
-						networkName={networkName}
-						configuredNetworkNames={configuredNetworkNames}
-					/>
-					{registryAvailable && trustLedgerDeployed && (
-						<RatingHistoryFeed
-							lookupAddress={lookupAddress}
-							registryAddress={registryAddress}
-							trustLedgerAddress={trustLedgerAddress}
-							deployBlock={deployment.deployBlock}
+							{t("walletAddress")}
+						</label>
+						<input
+							id="rep-lookup-address"
+							type="text"
+							placeholder="0x…"
+							value={input}
+							onChange={(e) => {
+								setInput(e.target.value);
+							}}
+							aria-invalid={inputError !== undefined}
+							className={`rounded-lg bg-white dark:bg-white/5 border px-3 py-2 text-sm font-mono text-gray-900 dark:text-white focus:outline-none focus:ring-2 ${
+								inputError !== undefined
+									? "border-red-500 dark:border-red-500 focus:ring-red-500"
+									: "border-gray-200 dark:border-white/10 focus:ring-indigo-500"
+							}`}
 						/>
+						{inputError !== undefined && (
+							<p className="text-xs text-red-500 dark:text-red-400">{inputError}</p>
+						)}
+						<div className="flex gap-2 flex-wrap">
+							<button
+								type="submit"
+								className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors"
+							>
+								{t("lookUp")}
+							</button>
+							{isConnected && address !== undefined && (
+								<button
+									type="button"
+									onClick={lookupSelf}
+									className="px-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+								>
+									{t("useMyWallet")}
+								</button>
+							)}
+						</div>
+					</form>
+
+					{!isConnected && (
+						<div className="flex items-center gap-3 text-sm text-gray-500">
+							<ConnectButton />
+							<span>{t("connectToLookUp")}</span>
+						</div>
 					)}
-				</>
-			)}
+				</div>
+
+				<div className="tl-reputation-main flex flex-col gap-6" aria-live="polite">
+					{lookupAddress !== undefined && (
+						<>
+							<ReputationLookup
+								lookupAddress={lookupAddress}
+								registryAddress={registryAddress}
+								registryLookupError={registryLookupError}
+								registryLookupLoading={registryLookupLoading}
+								trustLedgerDeployed={trustLedgerDeployed}
+								trustLedgerAddress={trustLedgerAddress}
+								networkName={networkName}
+								configuredNetworkNames={configuredNetworkNames}
+							/>
+							{registryAvailable && trustLedgerDeployed && (
+								<RatingHistoryFeed
+									lookupAddress={lookupAddress}
+									registryAddress={registryAddress}
+									trustLedgerAddress={trustLedgerAddress}
+									deployBlock={deployment.deployBlock}
+								/>
+							)}
+						</>
+					)}
+				</div>
+			</div>
 		</div>
 	);
 }

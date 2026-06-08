@@ -2,4 +2,5 @@ set -e
 prettier --write . && git add -u
 npm run lint && npm run lint:frontend
 (cd src && npx tsc --noEmit)
+(cd src && npm run test:e2e)
 (cd contracts && FOUNDRY_PROFILE=ci forge build && FOUNDRY_PROFILE=ci forge test)

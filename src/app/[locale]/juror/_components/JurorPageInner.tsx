@@ -449,14 +449,24 @@ export function JurorPageInner(): React.JSX.Element {
 	}
 
 	return (
-		<div className="max-w-lg mx-auto px-6 py-12 flex flex-col gap-6">
-			<div>
-				<h1 className="text-3xl font-bold">{t("title")}</h1>
-				<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t("subtitle")}</p>
+		<div className="tl-app-shell tl-app-shell--focused">
+			<div className="tl-page-header">
+				<div>
+					<h1 className="tl-page-title">{t("title")}</h1>
+					<p className="tl-page-description text-gray-500 dark:text-gray-400">
+						{t("subtitle")}
+					</p>
+				</div>
 			</div>
-			<StatusCard address={address} />
-			<RegisterForm />
-			<ManageStakePanel address={address} />
+			<div className="tl-two-column-stack">
+				<div className="tl-stack-main">
+					<StatusCard address={address} />
+					<ManageStakePanel address={address} />
+				</div>
+				<div className="tl-stack-side">
+					<RegisterForm />
+				</div>
+			</div>
 		</div>
 	);
 }

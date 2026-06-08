@@ -67,7 +67,7 @@ function CheckIcon(): React.JSX.Element {
 }
 
 const BUTTON_CLASS =
-	"inline-flex min-h-10 max-w-full items-center justify-center rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-[44px] sm:px-4";
+	"inline-flex min-h-10 max-w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-[44px] sm:px-4";
 
 // Hydration-safe "are we on the client yet?" flag. useSyncExternalStore returns
 // the server snapshot (false) during SSR and the first client render, then the

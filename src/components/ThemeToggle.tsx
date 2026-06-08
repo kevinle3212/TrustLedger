@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
+import { useSyncExternalStore } from "react";
 
 function SunIcon(): React.JSX.Element {
 	return (
@@ -40,18 +41,29 @@ function MoonIcon(): React.JSX.Element {
 	);
 }
 
+// Hydration-safe "are we on the client yet?" flag. useSyncExternalStore returns
+// false during SSR and the first client render, then true after hydration.
+const subscribeNoop = (): (() => void) => (): void => undefined;
+function useMounted(): boolean {
+	return useSyncExternalStore(
+		subscribeNoop,
+		() => true,
+		() => false,
+	);
+}
+
 /** Button that toggles between light and dark mode. */
 export function ThemeToggle(): React.JSX.Element {
 	const { resolvedTheme, setTheme } = useTheme();
 	const t = useTranslations("Common");
+	const mounted = useMounted();
 
-	// resolvedTheme is undefined on the server and on the first client render
-	// (before next-themes mounts), so both render this same-size placeholder -
-	// keeping markup identical across hydration (avoids React #418) without a
-	// setState-in-effect mounted flag.
-	if (resolvedTheme === undefined) return <div className="h-10 w-10 sm:h-9 sm:w-9" />;
+	// next-themes can resolve the active theme before React hydrates this client
+	// component, so the first client render must stay identical to the server
+	// placeholder. After mount, it is safe to show the real interactive button.
+	if (!mounted) return <div className="h-10 w-10 sm:h-9 sm:w-9" />;
 
-	const isDark = resolvedTheme === "dark";
+	const isDark = (resolvedTheme ?? "dark") === "dark";
 
 	return (
 		<button

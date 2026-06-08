@@ -36,6 +36,9 @@ jobs:
             - name: Install dependencies
               run: npx --yes npm@11.12.1 ci
 
+            - name: Install Playwright browser
+              run: npx playwright install --with-deps chromium
+
             - name: TypeScript typecheck
               run: npx tsc --noEmit
 
@@ -44,6 +47,11 @@ jobs:
 
             - name: Build
               run: npm run build:frontend
+              env:
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+
+            - name: Playwright E2E
+              run: npm run test:e2e
               env:
                   NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
 

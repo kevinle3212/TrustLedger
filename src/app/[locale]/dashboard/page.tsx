@@ -1140,11 +1140,11 @@ export default function DashboardPage(): React.JSX.Element {
 	const roleLabel = role === "client" ? t("isClient") : t("isFreelancer");
 
 	return (
-		<div className="mx-auto max-w-3xl px-6 py-12">
-			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+		<div className="tl-app-shell tl-app-shell--wide">
+			<div className="tl-page-header">
 				<div>
-					<h1 className="text-3xl font-bold">{t("title")}</h1>
-					<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+					<h1 className="tl-page-title">{t("title")}</h1>
+					<p className="tl-page-description text-gray-500 dark:text-gray-400">
 						{t("contractsWhere", { role: roleLabel.toLowerCase() })}
 					</p>
 				</div>

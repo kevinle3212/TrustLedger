@@ -57,6 +57,13 @@ coverage/
 *.lcov
 .nyc_output/
 
+# ─── Playwright test output and local browser state ──────────────────────────
+src/test-results/
+src/playwright-report/
+src/blob-report/
+src/playwright/.cache/
+src/playwright/.auth/
+
 # ─── Logs ─────────────────────────────────────────────────────────────────────
 *.log
 logs/

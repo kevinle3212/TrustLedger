@@ -1,0 +1,115 @@
+.tl-site-frame {
+	width: min(100% - 2rem, 80rem);
+	margin-inline: auto;
+}
+
+.tl-app-shell {
+	width: min(100% - 2rem, 72rem);
+	margin-inline: auto;
+	padding-block: 2.5rem 3.5rem;
+}
+
+.tl-app-shell--wide {
+	max-width: 80rem;
+}
+
+.tl-app-shell--focused {
+	max-width: 64rem;
+}
+
+.tl-page-header {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-block-end: 2rem;
+}
+
+.tl-page-title {
+	font-size: 1.875rem;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.015em;
+}
+
+.tl-page-description {
+	margin-block-start: 0.375rem;
+	max-width: 62ch;
+	font-size: 0.875rem;
+	line-height: 1.5rem;
+}
+
+.tl-workspace-grid {
+	display: grid;
+	gap: 1.5rem;
+}
+
+.tl-two-column-stack {
+	display: grid;
+	gap: 1.5rem;
+}
+
+.tl-stack-main,
+.tl-stack-side {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.tl-reputation-grid {
+	display: grid;
+	gap: 1.5rem;
+}
+
+.tl-reputation-sidebar,
+.tl-reputation-main {
+	min-width: 0;
+}
+
+@media (min-width: 40rem) {
+	.tl-site-frame,
+	.tl-app-shell {
+		width: min(100% - 3rem, var(--tl-shell-max, 72rem));
+	}
+
+	.tl-app-shell--wide {
+		--tl-shell-max: 80rem;
+	}
+
+	.tl-app-shell--focused {
+		--tl-shell-max: 64rem;
+	}
+}
+
+@media (min-width: 64rem) {
+	.tl-app-shell {
+		padding-block: 3rem 5rem;
+	}
+
+	.tl-page-header {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 2rem;
+	}
+
+	.tl-workspace-grid {
+		grid-template-columns: minmax(0, 1fr) minmax(20rem, 23rem);
+		align-items: start;
+	}
+
+	.tl-two-column-stack {
+		grid-template-columns: minmax(0, 1.25fr) minmax(20rem, 0.75fr);
+		align-items: start;
+	}
+
+	.tl-reputation-grid {
+		grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+		align-items: start;
+	}
+
+	.tl-reputation-sidebar {
+		position: sticky;
+		top: 6rem;
+	}
+}

@@ -85,12 +85,12 @@ export function CreatePageInner(): React.JSX.Element {
 	}
 
 	return (
-		<div className="mx-auto max-w-6xl px-6 py-12">
+		<div className="tl-app-shell tl-app-shell--wide">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold">
+				<h1 className="tl-page-title">
 					{isClientProposing ? t("titleClient") : t("titleFreelancer")}
 				</h1>
-				<p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
+				<p className="tl-page-description text-gray-500 dark:text-gray-400">
 					{isClientProposing
 						? t("subtitleClient")
 						: t("subtitleFreelancer", { token: isUsdc ? "USDC" : "ETH" })}
@@ -155,7 +155,7 @@ export function CreatePageInner(): React.JSX.Element {
 				)}
 			</div>
 
-			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+			<div className="tl-workspace-grid">
 				<form onSubmit={handleSubmit} className="flex flex-col gap-6">
 					<ContractFormFields
 						form={form}

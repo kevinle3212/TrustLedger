@@ -1,0 +1,7 @@
+# ─── Playwright test output and local browser state ──────────────────────────
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
