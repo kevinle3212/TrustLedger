@@ -353,7 +353,7 @@ contract TrustLedgerTest is Test {
     // ────────────────────────────────────────────────────
 
     function test_Revert_ProposeContract_ZeroAddress() public {
-        vm.expectRevert(TrustLedger.ZeroAddress.selector);
+        vm.expectRevert(TrustLedger.InvalidClientAddress.selector);
         vm.prank(freelancer);
         trustLedger.proposeContract({
             client: address(0),
@@ -371,7 +371,7 @@ contract TrustLedgerTest is Test {
     }
 
     function test_Revert_ProposeContract_SelfContract() public {
-        vm.expectRevert(TrustLedger.SelfContract.selector);
+        vm.expectRevert(TrustLedger.ClientIsCaller.selector);
         vm.prank(freelancer);
         trustLedger.proposeContract({
             client: freelancer,
@@ -389,7 +389,7 @@ contract TrustLedgerTest is Test {
     }
 
     function test_Revert_ProposeContract_ZeroAmount() public {
-        vm.expectRevert(TrustLedger.InsufficientFunds.selector);
+        vm.expectRevert(TrustLedger.ProposalAmountZero.selector);
         vm.prank(freelancer);
         trustLedger.proposeContract({
             client: client,

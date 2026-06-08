@@ -17,12 +17,27 @@ export const TRUSTLEDGER_ABI = [
 	},
 	{
 		inputs: [],
+		name: "ClientIsCaller",
+		type: "error",
+	},
+	{
+		inputs: [],
 		name: "CompletionPctOutOfRange",
 		type: "error",
 	},
 	{
 		inputs: [],
+		name: "ContractHashRequired",
+		type: "error",
+	},
+	{
+		inputs: [],
 		name: "ContractNotFinished",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ContractURIRequired",
 		type: "error",
 	},
 	{
@@ -62,6 +77,11 @@ export const TRUSTLEDGER_ABI = [
 	},
 	{
 		inputs: [],
+		name: "FreelancerIsCaller",
+		type: "error",
+	},
+	{
+		inputs: [],
 		name: "InsufficientFunds",
 		type: "error",
 	},
@@ -78,6 +98,21 @@ export const TRUSTLEDGER_ABI = [
 	{
 		inputs: [],
 		name: "InvalidBufferFactor",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidClientAddress",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidEstimatedDuration",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "InvalidFreelancerAddress",
 		type: "error",
 	},
 	{
@@ -114,6 +149,11 @@ export const TRUSTLEDGER_ABI = [
 	{
 		inputs: [],
 		name: "NotPauser",
+		type: "error",
+	},
+	{
+		inputs: [],
+		name: "ProposalAmountZero",
 		type: "error",
 	},
 	{

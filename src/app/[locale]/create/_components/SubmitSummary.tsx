@@ -125,7 +125,10 @@ export function SubmitSummary({
 					{decodedSimError?.field !== undefined && (
 						<p className="mt-1 text-xs opacity-75">
 							{t("checkField", {
-								field: decodedSimError.field.replace(/([A-Z])/g, " $1").trim(),
+								field: decodedSimError.field
+									.replace(/([A-Z])/g, " $1")
+									.trim()
+									.toLowerCase(),
 							})}
 						</p>
 					)}

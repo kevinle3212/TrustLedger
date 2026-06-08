@@ -529,7 +529,7 @@ describe("TrustLedger", function () {
 						ethers.ZeroAddress,
 						AMOUNT,
 					),
-			).to.be.revertedWithCustomError(trustLedger, "ZeroAddress");
+			).to.be.revertedWithCustomError(trustLedger, "InvalidClientAddress");
 		});
 
 		it("should revert proposeContract with self as client", async function () {
@@ -549,7 +549,7 @@ describe("TrustLedger", function () {
 						ethers.ZeroAddress,
 						AMOUNT,
 					),
-			).to.be.revertedWithCustomError(trustLedger, "SelfContract");
+			).to.be.revertedWithCustomError(trustLedger, "ClientIsCaller");
 		});
 
 		it("should revert proposeContract with 0 amount", async function () {
@@ -569,7 +569,7 @@ describe("TrustLedger", function () {
 						ethers.ZeroAddress,
 						0n,
 					),
-			).to.be.revertedWithCustomError(trustLedger, "InsufficientFunds");
+			).to.be.revertedWithCustomError(trustLedger, "ProposalAmountZero");
 		});
 
 		it("should revert acceptContract when not client", async function () {
@@ -1618,14 +1618,14 @@ describe("TrustLedger", function () {
 		it("should revert createContract with zero contractHash", async function () {
 			await expect(createWith({ hash: ethers.ZeroHash })).to.be.revertedWithCustomError(
 				trustLedger,
-				"EmptyHash",
+				"ContractHashRequired",
 			);
 		});
 
 		it("should revert createContract with empty contractURI", async function () {
 			await expect(createWith({ uri: "" })).to.be.revertedWithCustomError(
 				trustLedger,
-				"EmptyURI",
+				"ContractURIRequired",
 			);
 		});
 
@@ -1670,7 +1670,7 @@ describe("TrustLedger", function () {
 		it("should revert proposeContract with zero amount", async function () {
 			await expect(createWith({ amount: 0n })).to.be.revertedWithCustomError(
 				trustLedger,
-				"InsufficientFunds",
+				"ProposalAmountZero",
 			);
 		});
 

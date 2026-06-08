@@ -450,7 +450,7 @@ contract TrustLedgerClientProposeTest is Test {
 
     function test_Revert_ClientPropose_SelfContract() public {
         vm.prank(client);
-        vm.expectRevert(TrustLedger.SelfContract.selector);
+        vm.expectRevert(TrustLedger.FreelancerIsCaller.selector);
         trustLedger.proposeContractByClient({
             freelancer: client,
             contractHash: CONTRACT_HASH,

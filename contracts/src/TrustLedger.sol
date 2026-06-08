@@ -282,6 +282,30 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @notice The acceptance or warranty window has already closed.
     error WindowElapsed();
 
+    /// @notice Client address is missing when a freelancer proposes terms.
+    error InvalidClientAddress();
+
+    /// @notice Freelancer address is missing when a client proposes terms.
+    error InvalidFreelancerAddress();
+
+    /// @notice Client address cannot be the caller when a freelancer proposes terms.
+    error ClientIsCaller();
+
+    /// @notice Freelancer address cannot be the caller when a client proposes terms.
+    error FreelancerIsCaller();
+
+    /// @notice Escrow amount is zero on a proposal.
+    error ProposalAmountZero();
+
+    /// @notice Estimated project duration is zero on a proposal.
+    error InvalidEstimatedDuration();
+
+    /// @notice Contract document hash is missing on a proposal.
+    error ContractHashRequired();
+
+    /// @notice Contract document URI is missing on a proposal.
+    error ContractURIRequired();
+
     /// @notice Buffer factor is below the minimum of 1.1× (1100).
     error InvalidBufferFactor();
 
@@ -478,16 +502,18 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         returns (uint256 id)
     {
         if (contractHash == bytes32(0)) {
-            revert EmptyHash();
+            revert ContractHashRequired();
         }
         if (bytes(contractURI).length == 0) {
-            revert EmptyURI();
+            revert ContractURIRequired();
         }
         if (token != address(0) && !allowedTokens[token]) {
             revert TokenNotAllowed();
         }
         _validateProposeParams({
-            client: client,
+            counterparty: client,
+            counterpartyIsFreelancer: false,
+            estimatedDuration: estimatedDuration,
             bufferFactor: bufferFactor,
             acceptanceWindow: acceptanceWindow,
             arbitrationFeeBps: arbitrationFeeBps,
@@ -630,18 +656,18 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         returns (uint256 id)
     {
         if (contractHash == bytes32(0)) {
-            revert EmptyHash();
+            revert ContractHashRequired();
         }
         if (bytes(contractURI).length == 0) {
-            revert EmptyURI();
+            revert ContractURIRequired();
         }
         if (token != address(0) && !allowedTokens[token]) {
             revert TokenNotAllowed();
         }
-        // Reuse validation: pass `freelancer` as the "counterparty" so the
-        // ZeroAddress and SelfContract checks work symmetrically.
         _validateProposeParams({
-            client: freelancer,
+            counterparty: freelancer,
+            counterpartyIsFreelancer: true,
+            estimatedDuration: estimatedDuration,
             bufferFactor: bufferFactor,
             acceptanceWindow: acceptanceWindow,
             arbitrationFeeBps: arbitrationFeeBps,
@@ -1186,9 +1212,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     // ─── Internal
     // ─────────────────────────────────────────────────────────────
 
-    // Validation helper extracted from proposeContract to keep the function under the line limit.
+    // Validation helper shared by both proposal flows. `counterpartyIsFreelancer`
+    // selects field-specific errors for the side that the caller is entering.
     function _validateProposeParams(
-        address client,
+        address counterparty,
+        bool counterpartyIsFreelancer,
+        uint256 estimatedDuration,
         uint256 bufferFactor,
         uint256 acceptanceWindow,
         uint16 arbitrationFeeBps,
@@ -1199,14 +1228,23 @@ contract TrustLedger is ReentrancyGuard, Pausable {
         internal
         view
     {
-        if (client == address(0)) {
-            revert ZeroAddress();
+        if (counterparty == address(0)) {
+            if (counterpartyIsFreelancer) {
+                revert InvalidFreelancerAddress();
+            }
+            revert InvalidClientAddress();
         }
-        if (client == msg.sender) {
-            revert SelfContract();
+        if (counterparty == msg.sender) {
+            if (counterpartyIsFreelancer) {
+                revert FreelancerIsCaller();
+            }
+            revert ClientIsCaller();
         }
         if (amount == 0) {
-            revert InsufficientFunds(); // a proposal must name a non-zero escrow amount
+            revert ProposalAmountZero();
+        }
+        if (estimatedDuration == 0) {
+            revert InvalidEstimatedDuration();
         }
         if (bufferFactor < MIN_BUFFER_FACTOR) {
             revert InvalidBufferFactor();

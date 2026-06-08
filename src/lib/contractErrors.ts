@@ -12,6 +12,41 @@ export interface DecodedContractError {
 }
 
 const ERROR_MAP: Record<string, DecodedContractError> = {
+	InvalidClientAddress: {
+		message:
+			"Client address is required. Enter the wallet that will fund and approve the contract.",
+		field: "clientAddress",
+	},
+	InvalidFreelancerAddress: {
+		message:
+			"Freelancer address is required. Enter the wallet that will review, accept, and deliver the work.",
+		field: "freelancerAddress",
+	},
+	ClientIsCaller: {
+		message: "Client address cannot be your own wallet. Enter the other party's client wallet.",
+		field: "clientAddress",
+	},
+	FreelancerIsCaller: {
+		message:
+			"Freelancer address cannot be your own wallet. Enter the other party's freelancer wallet.",
+		field: "freelancerAddress",
+	},
+	ProposalAmountZero: {
+		message: "Escrow amount must be greater than zero.",
+		field: "amount",
+	},
+	InvalidEstimatedDuration: {
+		message: "Estimated duration must be greater than zero days.",
+		field: "estimatedDurationDays",
+	},
+	ContractHashRequired: {
+		message: "Contract document hash is missing. Upload a file or enter a document URI.",
+		field: "contractURI",
+	},
+	ContractURIRequired: {
+		message: "Contract document URI is required. Upload a file or enter a URI.",
+		field: "contractURI",
+	},
 	ZeroAddress: {
 		message: "Client address is required.",
 		field: "client",
@@ -65,18 +100,50 @@ const ERROR_MAP: Record<string, DecodedContractError> = {
 	},
 };
 
+function matchKnownErrorName(value: string): string | undefined {
+	const withParens = /\b([A-Z][A-Za-z]+)\(\)/.exec(value);
+	if (withParens?.[1] !== undefined) return withParens[1];
+
+	return Object.keys(ERROR_MAP).find((name) => value.includes(name));
+}
+
 /** Pulls the Solidity error name out of a viem/wagmi revert error. */
 function extractErrorName(err: Error): string | undefined {
-	// viem ContractFunctionRevertedError exposes .data.errorName when decoded
-	const anyErr = err as unknown as Record<string, unknown>;
-	const data = anyErr["data"];
-	if (data !== null && typeof data === "object") {
-		const name = (data as Record<string, unknown>)["errorName"];
-		if (typeof name === "string") return name;
+	const seen = new Set<unknown>();
+	const stack: unknown[] = [err];
+
+	while (stack.length > 0) {
+		const current = stack.pop();
+		if (current === null || typeof current !== "object" || seen.has(current)) continue;
+		seen.add(current);
+
+		const record = current as Record<string, unknown>;
+		const data = record["data"];
+		if (data !== null && typeof data === "object") {
+			const name = (data as Record<string, unknown>)["errorName"];
+			if (typeof name === "string") return name;
+		}
+
+		for (const key of ["message", "shortMessage", "details"] as const) {
+			const value = record[key];
+			if (typeof value !== "string") continue;
+			const name = matchKnownErrorName(value);
+			if (name !== undefined) return name;
+		}
+
+		const metaMessages = record["metaMessages"];
+		if (Array.isArray(metaMessages)) {
+			for (const value of metaMessages) {
+				if (typeof value !== "string") continue;
+				const name = matchKnownErrorName(value);
+				if (name !== undefined) return name;
+			}
+		}
+
+		stack.push(record["cause"]);
 	}
-	// Fallback: extract from the message string, e.g. "reason:\nFooBar()"
-	const match = /\b([A-Z][A-Za-z]+)\(\)/.exec(err.message);
-	return match?.[1];
+
+	return undefined;
 }
 
 /**
