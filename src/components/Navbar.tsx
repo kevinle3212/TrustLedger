@@ -3,9 +3,8 @@
 import { ConnectButton } from "@/components/ConnectButton";
 import { useRole } from "@/contexts/RoleContext";
 import Image from "next/image";
-import { useLocale, useTranslations } from "next-intl";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ContrastToggle } from "@/components/ContrastToggle";
 
@@ -27,13 +26,11 @@ function GitHubIcon(): React.JSX.Element {
 }
 
 /** Pill toggle that switches between client and freelancer mode. */
-/** Pill toggle that switches between client and freelancer mode. */
-/** Pill toggle that switches between client and freelancer mode. */
 function RoleToggle(): React.JSX.Element {
 	const { role, setRole } = useRole();
 	const t = useTranslations("Nav");
 	return (
-		<fieldset className="flex items-center rounded-full border border-gray-200 dark:border-white/10 p-0.5 text-xs font-medium">
+		<fieldset className="inline-grid shrink-0 grid-cols-2 rounded-full border border-gray-200 p-0.5 text-xs font-medium dark:border-white/10">
 			<legend className="sr-only">{t("activeRole")}</legend>
 			<button
 				type="button"
@@ -41,7 +38,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("client");
 				}}
-				className={`px-3 py-1 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
+				className={`min-h-8 rounded-full px-3 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
 					role === "client"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -55,7 +52,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("freelancer");
 				}}
-				className={`px-3 py-1 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
+				className={`min-h-8 rounded-full px-3 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
 					role === "freelancer"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -64,49 +61,6 @@ function RoleToggle(): React.JSX.Element {
 				{t("roleFreelancer")}
 			</button>
 		</fieldset>
-	);
-}
-
-const LOCALE_LABELS: Record<(typeof routing.locales)[number], string> = {
-	"en": "English",
-	"es": "Español",
-	"vi": "Tiếng Việt",
-	"pt": "Português",
-	"zh-CN": "简体中文",
-	"ar": "العربية",
-	"fr": "Français",
-	"hi": "हिन्दी",
-};
-
-function LocaleSwitcher(): React.JSX.Element {
-	const locale = useLocale() as (typeof routing.locales)[number];
-	const pathname = usePathname();
-	const router = useRouter();
-	const t = useTranslations("Nav");
-
-	return (
-		<>
-			<label className="sr-only" htmlFor="locale-switcher">
-				{t("changeLanguage")}
-			</label>
-			<select
-				id="locale-switcher"
-				value={locale}
-				onChange={(event) => {
-					router.replace(pathname, {
-						locale: event.target.value,
-					});
-				}}
-				aria-label={t("changeLanguage")}
-				className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300 dark:hover:text-white"
-			>
-				{routing.locales.map((option) => (
-					<option key={option} value={option}>
-						{LOCALE_LABELS[option]}
-					</option>
-				))}
-			</select>
-		</>
 	);
 }
 
@@ -124,12 +78,12 @@ export function Navbar(): React.JSX.Element {
 
 	return (
 		<header className="border-b border-gray-200 dark:border-white/10 bg-white/80 dark:bg-gray-950/80 backdrop-blur sticky top-0 z-50">
-			<div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-				<div className="flex items-center gap-8">
+			<div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:py-0">
+				<div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
 					<Link
 						href="/"
 						aria-current={path === "/" ? "page" : undefined}
-						className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-lg tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-sm"
+						className="flex shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
 					>
 						<Image
 							src="/logo.png"
@@ -141,7 +95,10 @@ export function Navbar(): React.JSX.Element {
 						/>
 						TrustLedger
 					</Link>
-					<nav aria-label={t("mainNav")} className="flex items-center gap-6">
+					<nav
+						aria-label={t("mainNav")}
+						className="-mx-1 flex max-w-full items-center gap-4 overflow-x-auto px-1 pb-1 whitespace-nowrap sm:gap-6 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0"
+					>
 						<Link
 							href="/create"
 							aria-current={path === "/create" ? "page" : undefined}
@@ -172,16 +129,15 @@ export function Navbar(): React.JSX.Element {
 						</Link>
 					</nav>
 				</div>
-				<div className="flex items-center gap-3">
+				<div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:justify-end">
 					<RoleToggle />
-					<LocaleSwitcher />
 					{githubUrl !== undefined && githubUrl !== "" && (
 						<a
 							href={githubUrl}
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label={t("viewGitHub")}
-							className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-lg"
+							className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
 						>
 							<GitHubIcon />
 						</a>

@@ -47,7 +47,7 @@ function CheckIcon(): React.JSX.Element {
 }
 
 const BUTTON_CLASS =
-	"inline-flex items-center justify-center min-h-[44px] rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500";
+	"inline-flex min-h-10 max-w-full items-center justify-center rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-[44px] sm:px-4";
 
 // Hydration-safe "are we on the client yet?" flag. useSyncExternalStore returns
 // the server snapshot (false) during SSR and the first client render, then the
@@ -99,7 +99,7 @@ export function ConnectButton(): React.JSX.Element {
 	if (!mounted) {
 		return (
 			<button type="button" onClick={openModal} className={BUTTON_CLASS}>
-				{t("connectWallet")}
+				<span className="truncate">{t("connectWallet")}</span>
 			</button>
 		);
 	}
@@ -115,21 +115,23 @@ export function ConnectButton(): React.JSX.Element {
 		};
 
 		return (
-			<div className="inline-flex items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white">
+			<div className="inline-flex max-w-full items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white">
 				<button
 					type="button"
 					onClick={openModal}
 					aria-label={t("connectedAs", { address })}
-					className="inline-flex items-center min-h-11 px-4 py-2 text-sm font-medium font-mono transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+					className="inline-flex min-h-10 min-w-0 items-center px-3.5 py-2 font-mono text-sm font-medium transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:px-4"
 				>
-					<span aria-hidden="true">{formatAddress(address)}</span>
+					<span aria-hidden="true" className="truncate">
+						{formatAddress(address)}
+					</span>
 				</button>
 				<button
 					type="button"
 					onClick={copyAddress}
 					aria-label={copied ? t("addressCopied") : t("copyWalletAddress")}
 					title={copied ? t("copied") : t("copyAddress")}
-					className="inline-flex items-center justify-center min-h-11 border-l border-white/20 px-3 transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+					className="inline-flex min-h-10 shrink-0 items-center justify-center border-l border-white/20 px-3 transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11"
 				>
 					{copied ? <CheckIcon /> : <CopyIcon />}
 				</button>
@@ -146,7 +148,7 @@ export function ConnectButton(): React.JSX.Element {
 
 	return (
 		<button type="button" onClick={openModal} className={BUTTON_CLASS}>
-			{label}
+			<span className="max-w-[12rem] truncate sm:max-w-[14rem]">{label}</span>
 		</button>
 	);
 }

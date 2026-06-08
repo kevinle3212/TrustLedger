@@ -12,6 +12,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -86,6 +87,7 @@ export default async function LocaleLayout({
 						<main id="main-content" className="flex-1">
 							{children}
 						</main>
+						<Footer />
 					</Providers>
 					{ReactScanMonitor !== null && <ReactScanMonitor />}
 				</NextIntlClientProvider>

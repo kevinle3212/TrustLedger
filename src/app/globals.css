@@ -47,6 +47,73 @@ body {
 	outline: none;
 }
 
+/* Footer language selector. */
+.locale-switcher {
+	display: inline-flex;
+	min-height: 2.75rem;
+	width: 100%;
+	align-items: center;
+	gap: 0.5rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.75rem;
+	background: #f9fafb;
+	color: #4b5563;
+	padding: 0.5rem 0.75rem;
+	transition:
+		background-color 150ms ease,
+		border-color 150ms ease,
+		color 150ms ease;
+}
+
+.locale-switcher:hover {
+	border-color: #d1d5db;
+	background: #ffffff;
+	color: #111827;
+}
+
+.locale-switcher__select {
+	min-width: 0;
+	flex: 1;
+	appearance: none;
+	background: transparent;
+	color: inherit;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.25rem;
+	outline: none;
+	padding-inline-end: 1.5rem;
+}
+
+.locale-switcher__chevron {
+	pointer-events: none;
+	margin-inline-start: -1.5rem;
+	flex-shrink: 0;
+	color: #9ca3af;
+}
+
+.dark .locale-switcher {
+	border-color: rgb(255 255 255 / 0.1);
+	background: rgb(255 255 255 / 0.03);
+	color: #d1d5db;
+}
+
+.dark .locale-switcher:hover {
+	border-color: rgb(255 255 255 / 0.2);
+	background: rgb(255 255 255 / 0.06);
+	color: #ffffff;
+}
+
+.dark .locale-switcher__chevron {
+	color: #6b7280;
+}
+
+@media (min-width: 640px) {
+	.locale-switcher {
+		width: auto;
+		min-width: 11rem;
+	}
+}
+
 /* Default focus-visible ring for all interactive elements that don't
    already define one, so keyboard users always see a clear focus indicator. */
 :focus-visible {
@@ -92,6 +159,16 @@ html.high-contrast .dark\:text-gray-400 {
 html.high-contrast .border-gray-200,
 html.high-contrast .dark\:border-white\/10 {
 	border-color: var(--hc-border) !important;
+}
+
+html.high-contrast .locale-switcher {
+	border-color: var(--hc-border);
+	background: var(--hc-bg);
+	color: var(--hc-fg);
+}
+
+html.high-contrast .locale-switcher__chevron {
+	color: var(--hc-muted);
 }
 
 html.high-contrast .text-indigo-600,
