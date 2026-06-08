@@ -1,0 +1,381 @@
+{
+	"schemaVersion": 2,
+	"generatedAt": "2026-06-07T00:00:00Z",
+	"title": "Design System: TrustLedger",
+	"extensions": {
+		"colorMeta": {
+			"indigo": {
+				"role": "primary",
+				"displayName": "Institutional Indigo",
+				"canonical": "#6366f1",
+				"tonalRamp": [
+					"#1e1b4b",
+					"#2e27a3",
+					"#3730a3",
+					"#4338ca",
+					"#4f46e5",
+					"#6366f1",
+					"#818cf8",
+					"#a5b4fc",
+					"#c7d2fe",
+					"#e0e7ff"
+				]
+			},
+			"indigo-hover": {
+				"role": "primary",
+				"displayName": "Indigo Deep",
+				"canonical": "#4f46e5",
+				"tonalRamp": [
+					"#1e1b4b",
+					"#2e27a3",
+					"#3730a3",
+					"#4338ca",
+					"#4f46e5",
+					"#6366f1",
+					"#818cf8",
+					"#a5b4fc",
+					"#c7d2fe",
+					"#e0e7ff"
+				]
+			},
+			"indigo-dark-accent": {
+				"role": "primary",
+				"displayName": "Indigo Lifted",
+				"canonical": "#818cf8",
+				"tonalRamp": [
+					"#1e1b4b",
+					"#2e27a3",
+					"#3730a3",
+					"#4338ca",
+					"#4f46e5",
+					"#6366f1",
+					"#818cf8",
+					"#a5b4fc",
+					"#c7d2fe",
+					"#e0e7ff"
+				]
+			},
+			"surface-base": {
+				"role": "neutral",
+				"displayName": "Page White",
+				"canonical": "#ffffff",
+				"tonalRamp": [
+					"#111827",
+					"#1f2937",
+					"#374151",
+					"#4b5563",
+					"#6b7280",
+					"#9ca3af",
+					"#d1d5db",
+					"#e5e7eb",
+					"#f9fafb",
+					"#ffffff"
+				]
+			},
+			"surface-base-dark": {
+				"role": "neutral",
+				"displayName": "Pitch Dark",
+				"canonical": "#030712",
+				"tonalRamp": [
+					"#030712",
+					"#0f172a",
+					"#1e293b",
+					"#334155",
+					"#475569",
+					"#64748b",
+					"#94a3b8",
+					"#cbd5e1",
+					"#e2e8f0",
+					"#f8fafc"
+				]
+			},
+			"surface-raised": {
+				"role": "neutral",
+				"displayName": "Surface Raised",
+				"canonical": "#f9fafb",
+				"tonalRamp": [
+					"#111827",
+					"#1f2937",
+					"#374151",
+					"#4b5563",
+					"#6b7280",
+					"#9ca3af",
+					"#d1d5db",
+					"#e5e7eb",
+					"#f9fafb",
+					"#ffffff"
+				]
+			},
+			"border-default": {
+				"role": "neutral",
+				"displayName": "Border",
+				"canonical": "#e5e7eb",
+				"tonalRamp": [
+					"#111827",
+					"#1f2937",
+					"#374151",
+					"#4b5563",
+					"#6b7280",
+					"#9ca3af",
+					"#d1d5db",
+					"#e5e7eb",
+					"#f9fafb",
+					"#ffffff"
+				]
+			},
+			"text-primary": {
+				"role": "neutral",
+				"displayName": "Ink",
+				"canonical": "#111827",
+				"tonalRamp": [
+					"#111827",
+					"#1f2937",
+					"#374151",
+					"#4b5563",
+					"#6b7280",
+					"#9ca3af",
+					"#d1d5db",
+					"#e5e7eb",
+					"#f9fafb",
+					"#ffffff"
+				]
+			},
+			"text-muted": {
+				"role": "neutral",
+				"displayName": "Muted Gray",
+				"canonical": "#6b7280",
+				"tonalRamp": [
+					"#111827",
+					"#1f2937",
+					"#374151",
+					"#4b5563",
+					"#6b7280",
+					"#9ca3af",
+					"#d1d5db",
+					"#e5e7eb",
+					"#f9fafb",
+					"#ffffff"
+				]
+			},
+			"text-label": {
+				"role": "neutral",
+				"displayName": "Label Gray",
+				"canonical": "#374151",
+				"tonalRamp": [
+					"#111827",
+					"#1f2937",
+					"#374151",
+					"#4b5563",
+					"#6b7280",
+					"#9ca3af",
+					"#d1d5db",
+					"#e5e7eb",
+					"#f9fafb",
+					"#ffffff"
+				]
+			},
+			"error": {
+				"role": "semantic",
+				"displayName": "Error Red",
+				"canonical": "#ef4444",
+				"tonalRamp": [
+					"#450a0a",
+					"#7f1d1d",
+					"#991b1b",
+					"#b91c1c",
+					"#dc2626",
+					"#ef4444",
+					"#f87171",
+					"#fca5a5",
+					"#fecaca",
+					"#fee2e2"
+				]
+			},
+			"error-dark": {
+				"role": "semantic",
+				"displayName": "Error Red Dark",
+				"canonical": "#f87171",
+				"tonalRamp": [
+					"#450a0a",
+					"#7f1d1d",
+					"#991b1b",
+					"#b91c1c",
+					"#dc2626",
+					"#ef4444",
+					"#f87171",
+					"#fca5a5",
+					"#fecaca",
+					"#fee2e2"
+				]
+			}
+		},
+		"typographyMeta": {
+			"display": {
+				"displayName": "Display",
+				"purpose": "Hero headings on landing page only. Maximum one per view."
+			},
+			"headline": {
+				"displayName": "Headline",
+				"purpose": "Section headings and page titles inside app routes."
+			},
+			"title": {
+				"displayName": "Title",
+				"purpose": "Contract card titles, modal headings, sidebar section labels."
+			},
+			"body": {
+				"displayName": "Body",
+				"purpose": "Paragraph copy, descriptions, and explanatory text. 65-75ch max line length."
+			},
+			"label": {
+				"displayName": "Label",
+				"purpose": "Form field labels, button text, nav links, short UI copy. Never all-caps."
+			},
+			"caption": {
+				"displayName": "Caption",
+				"purpose": "Hint text below fields, error messages, metadata timestamps."
+			},
+			"mono": {
+				"displayName": "Mono",
+				"purpose": "Ethereum addresses, tx hashes, on-chain amounts. Never used for prose or labels."
+			}
+		},
+		"shadows": [],
+		"motion": [
+			{
+				"name": "color-transition",
+				"value": "transition-colors 150ms ease-out",
+				"purpose": "Default for button and link hover color changes."
+			},
+			{
+				"name": "opacity-transition",
+				"value": "transition-opacity 150ms ease-out",
+				"purpose": "Loading/disabled state fade."
+			}
+		],
+		"breakpoints": [
+			{ "name": "sm", "value": "640px" },
+			{ "name": "md", "value": "768px" },
+			{ "name": "lg", "value": "1024px" },
+			{ "name": "xl", "value": "1280px" }
+		]
+	},
+	"components": [
+		{
+			"name": "Primary Button",
+			"kind": "button",
+			"refersTo": "button-primary",
+			"description": "Primary CTA for contract actions (fund, approve, submit). Used once per CTA hierarchy.",
+			"html": "<button class=\"ds-btn-primary\">Create Contract</button>",
+			"css": ".ds-btn-primary { background: #6366f1; color: #ffffff; padding: 12px 24px; border-radius: 12px; font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; font-weight: 600; border: none; cursor: pointer; transition: background-color 150ms ease-out; } .ds-btn-primary:hover { background: #4f46e5; } .ds-btn-primary:focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }"
+		},
+		{
+			"name": "Ghost Button",
+			"kind": "button",
+			"refersTo": "button-ghost",
+			"description": "Secondary action alongside a primary CTA. Used for View, Cancel, and navigation alternatives.",
+			"html": "<button class=\"ds-btn-ghost\">View My Contracts</button>",
+			"css": ".ds-btn-ghost { background: transparent; color: #4b5563; padding: 12px 24px; border-radius: 12px; font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; font-weight: 600; border: 1px solid #e5e7eb; cursor: pointer; transition: border-color 150ms ease-out, color 150ms ease-out; } .ds-btn-ghost:hover { border-color: #d1d5db; color: #111827; } .ds-btn-ghost:focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; } .ds-btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }"
+		},
+		{
+			"name": "Text Input",
+			"kind": "input",
+			"refersTo": "input-default",
+			"description": "Default text field for contract creation and dispute forms.",
+			"html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-input-demo\">Ethereum Address</label><input class=\"ds-input\" id=\"ds-input-demo\" type=\"text\" placeholder=\"0x...\" /><p class=\"ds-field-hint\">The client's wallet address.</p></div>",
+			"css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-field-label { font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; font-weight: 500; color: #374151; } .ds-input { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; color: #111827; outline: none; transition: box-shadow 150ms ease-out, border-color 150ms ease-out; } .ds-input::placeholder { color: #9ca3af; } .ds-input:focus { border-color: transparent; box-shadow: 0 0 0 2px #6366f1; } .ds-field-hint { font-family: 'Geist', Arial, sans-serif; font-size: 0.75rem; color: #6b7280; margin: 0; }"
+		},
+		{
+			"name": "Error Input",
+			"kind": "input",
+			"refersTo": "input-error",
+			"description": "Form field in invalid state. Error message uses role=alert and plain-English explanation.",
+			"html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-input-err\">Amount (ETH)</label><input class=\"ds-input ds-input--error\" id=\"ds-input-err\" type=\"text\" placeholder=\"0.1\" aria-invalid=\"true\" /><p class=\"ds-field-error\" role=\"alert\">Enter a number greater than 0 (e.g. 0.5 ETH).</p></div>",
+			"css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-field-label { font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; font-weight: 500; color: #374151; } .ds-input { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px 12px; font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; color: #111827; outline: none; transition: box-shadow 150ms ease-out, border-color 150ms ease-out; } .ds-input--error { border-color: #ef4444; } .ds-input--error:focus { border-color: transparent; box-shadow: 0 0 0 2px #ef4444; } .ds-field-error { font-family: 'Geist', Arial, sans-serif; font-size: 0.75rem; color: #ef4444; margin: 0; }"
+		},
+		{
+			"name": "Contract Card",
+			"kind": "card",
+			"refersTo": "card",
+			"description": "Standard card for displaying contract summaries in the dashboard.",
+			"html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Logo Design Contract</h3><p class=\"ds-card-body\">Funds held in escrow pending freelancer submission.</p></div>",
+			"css": ".ds-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 8px; } .ds-card-title { font-family: 'Geist', Arial, sans-serif; font-size: 1rem; font-weight: 600; color: #111827; margin: 0; } .ds-card-body { font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; color: #6b7280; margin: 0; line-height: 1.5; }"
+		},
+		{
+			"name": "Nav Link Active",
+			"kind": "nav",
+			"refersTo": null,
+			"description": "Top navigation bar link in active state.",
+			"html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link ds-nav-link--active\" href=\"#\">Dashboard</a><a class=\"ds-nav-link\" href=\"#\">New Contract</a><a class=\"ds-nav-link\" href=\"#\">Juror</a></nav>",
+			"css": ".ds-nav { display: flex; align-items: center; gap: 24px; } .ds-nav-link { font-family: 'Geist', Arial, sans-serif; font-size: 0.875rem; font-weight: 500; color: #6b7280; text-decoration: none; transition: color 150ms ease-out; } .ds-nav-link:hover { color: #111827; } .ds-nav-link--active { color: #111827; }"
+		},
+		{
+			"name": "Status Badge — Active",
+			"kind": "chip",
+			"refersTo": null,
+			"description": "Contract status badge. Color + text label; never color alone.",
+			"html": "<span class=\"ds-badge ds-badge--active\">Active</span>",
+			"css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-family: 'Geist', Arial, sans-serif; font-size: 0.75rem; font-weight: 500; } .ds-badge--active { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; } .ds-badge--pending { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; } .ds-badge--disputed { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; } .ds-badge--approved { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; } .ds-badge--resolved { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }"
+		},
+		{
+			"name": "Address (Mono)",
+			"kind": "custom",
+			"refersTo": null,
+			"description": "Truncated Ethereum address displayed inline. Always monospace; never sans-serif.",
+			"html": "<span class=\"ds-address\">0x1a2b…cd3e</span>",
+			"css": ".ds-address { font-family: 'Geist Mono', Menlo, monospace; font-size: 0.875rem; color: #374151; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }"
+		}
+	],
+	"narrative": {
+		"northStar": "The Notary's Interface",
+		"overview": "TrustLedger handles real money under enforceable contract terms. The interface must convey institutional weight without becoming bureaucratic. Every surface signals that something consequential is happening here, and that the system knows exactly what to do about it. The product earns trust not through decoration, but through clarity: clear states, clear labels, clear consequences.\n\nThe system is built for mainstream freelancers who are new to Web3. Labels are plain English. States are unambiguous. Errors say what to do next. The \"tactile and confident\" component feel gives users physical feedback that actions have been received, without choreography that makes them wait.\n\nThis system explicitly rejects: crypto hype aesthetics (neon gradients, excessive animation, aggressive dark themes), casual SaaS pastels that underweight the financial gravity, and opaque DeFi UIs that assume Web3 literacy.",
+		"keyCharacteristics": [
+			"Flat surfaces with border-based depth, no structural shadows",
+			"Single accent color reserved for action, not decoration",
+			"Monospace used exclusively for on-chain data (addresses, hashes, amounts)",
+			"Every interactive state documented: hover, focus, active, disabled, error, loading",
+			"Plain-English labels with inline explanation for Web3 concepts"
+		],
+		"rules": [
+			{
+				"name": "The Single Voice Rule",
+				"body": "Institutional Indigo appears once per CTA hierarchy per screen. It is never used decoratively on backgrounds, icons, or text unless that element is the primary action. Its rarity is the trust signal.",
+				"section": "colors"
+			},
+			{
+				"name": "The Color-Blind Safety Rule",
+				"body": "All state information conveyed by color (error, active selection, status badges) has a non-color fallback: an icon, a border treatment, a text label, or a shape change. Red alone never means error; the word Error or a caution icon is always present alongside the red.",
+				"section": "colors"
+			},
+			{
+				"name": "The Mono Boundary Rule",
+				"body": "Geist Mono is strictly for on-chain data: addresses, hashes, amounts in wei or token units. Form labels, nav links, button copy, and explanatory text always use Geist Sans, even when the content is technical.",
+				"section": "typography"
+			},
+			{
+				"name": "The Flat-By-Default Rule",
+				"body": "Shadows appear only on overlay surfaces (dropdown menus, tooltips, modals) as a positional signal, never as a style choice. If a component is in the page flow, it has no shadow.",
+				"section": "elevation"
+			}
+		],
+		"dos": [
+			"Do use Institutional Indigo exclusively on primary CTAs, active selection indicators, and focus rings.",
+			"Do use Geist Mono for all on-chain data strings: addresses, hashes, amounts.",
+			"Do provide a non-color fallback alongside every color-coded state signal.",
+			"Do disable action buttons during pending and confirming transaction states.",
+			"Do give every error message a plain-English explanation of what went wrong and what to do next.",
+			"Do explain Web3 concepts inline and contextually."
+		],
+		"donts": [
+			"Don't use crypto hype aesthetics: neon gradients, coin imagery, animated tickers.",
+			"Don't use casual SaaS pastels that underweight the financial gravity of the product.",
+			"Don't use border-left greater than 1px as a colored accent stripe.",
+			"Don't use background-clip text gradient anywhere.",
+			"Don't use glassmorphism on cards or panels.",
+			"Don't use uppercase tracked eyebrow labels above every section.",
+			"Don't put Geist Mono on labels, button text, nav links, or prose.",
+			"Don't convey state through color alone.",
+			"Don't use structural shadows on cards or modals.",
+			"Don't use decorative motion or page-load animation sequences."
+		]
+	}
+}

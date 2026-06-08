@@ -267,27 +267,6 @@ mainnet launch deliverables.
 
 ## Phase 7 — Testing, Quality, and Accessibility
 
-- [ ] `NOTES.md` cost optimization and alternatives research
-    - Review all currently used and planned APIs, SaaS services, infrastructure
-      providers, developer tools, monitoring services, databases, storage
-      providers, authentication providers, AI services, blockchain services, and
-      third-party integrations.
-    - Create a dedicated section in `NOTES.md` containing a comparison table.
-    - For each service, list: current or planned provider, free-tier limits,
-      estimated paid pricing, reasonable low-cost alternatives, open-source
-      self-hosted alternatives (when practical), advantages and disadvantages,
-      migration difficulty, and vendor lock-in considerations.
-    - Prioritize sustainable, startup-friendly, open-source, and
-      budget-conscious options.
-    - Highlight any services that could significantly reduce costs without
-      materially harming functionality.
-    - Update the table whenever major dependencies or external services are
-      added.
-    - Include recommendations for MVP, growth-stage, and production-scale
-      deployments.
-    - Where possible, identify services that can be deferred until real usage
-      justifies their cost.
-
 - [ ] Perform a thorough security sweep of the entire frontend and backend and
       patch any vulnerabilities found, then document the findings and fixes in
       `SECURITY.md` and `NOTES.md`.
@@ -391,6 +370,17 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] `NOTES.md` cost optimization and alternatives research.
+    - Completed 2026-06-08: added the "Cost Optimization and Alternatives
+      Matrix" section to `NOTES.md`.
+    - Compared hosting, database/profile storage, email, RPC, document storage,
+      AI, price/oracle data, monitoring, analytics, CI/CD, security scanning,
+      and documentation hosting.
+    - Included current/planned providers, free-tier and paid-pricing notes,
+      low-cost alternatives, self-hosted options, MVP/beta/production
+      recommendations, vendor-lock-in considerations, and services that can be
+      deferred until usage justifies cost.
 
 - [x] Go through and fix any and all react-doctor issues, preexisting or not,
       and ensure the app reaches 100/100.

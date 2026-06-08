@@ -1,0 +1,31 @@
+# Use the same high-capability model profile for this project unless a task asks
+# for a different tradeoff.
+model = "gpt-5.5"
+model_reasoning_effort = "medium"
+
+# Serena provides symbolic code navigation/editing through MCP. Keeping it
+# project-scoped lets Codex inspect this repo without scanning unrelated files.
+[mcp_servers.serena]
+startup_timeout_sec = 15
+command = "serena"
+args = ["start-mcp-server", "--project-from-cwd", "--context=codex"]
+
+# Nexus Graph mirrors the Claude setup: it serves a pre-indexed code graph for
+# token-budgeted context. Refresh the graph with `npm run nexus:index` after
+# large refactors.
+[mcp_servers.nexus]
+startup_timeout_sec = 60
+command = "./node_modules/.bin/nexus-graph"
+args = ["server", "--project", "."]
+
+# MCP env values here must be non-secret runtime hints only. Put API keys in
+# `.env`, `.env.local`, Vercel env vars, or shell exports instead.
+[mcp_servers.nexus.env]
+NODE_ENV = "development"
+NO_COLOR = "1"
+
+# Hooks keep Serena active/reminding during sessions. JS REPL stays disabled to
+# reduce idle tooling overhead unless a task explicitly needs it.
+[features]
+hooks = true
+js_repl = false

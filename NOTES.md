@@ -423,6 +423,57 @@ history). This keeps the trust-critical path fully decentralized.
 
 ---
 
+### Cost Optimization and Alternatives Matrix (2026-06-08)
+
+This section is the standing budget review for APIs, SaaS services,
+infrastructure, developer tools, databases, storage, authentication, AI,
+blockchain services, and third-party integrations. Pricing changes often; verify
+against official pricing pages before committing to paid usage.
+
+#### Service Cost Matrix
+
+| Area                        | Current or planned provider               | Free tier and paid pricing                                                                                  | Low-cost alternatives                                        | Self-hosted option                                                       | Recommendation                                                                                                        |
+| --------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| Frontend hosting            | Vercel                                    | Hobby is free for non-commercial work; Pro is the commercial baseline and is seat-based.                    | Cloudflare Pages, Netlify, Fly.io static deploys             | Self-host Next.js on a VPS with Caddy or Nginx                           | Use Vercel for MVP and demos. Move high-traffic static docs/assets to GitHub Pages or Cloudflare if bandwidth grows.  |
+| Database and profiles       | Deferred; Supabase likely in Phase 6      | Supabase Free includes 50,000 MAU, 500 MB database, 1 GB storage, and 5 GB egress; Pro starts at $25/month. | Neon, Turso, Railway Postgres, Render Postgres               | Postgres on a managed VPS                                                | Defer until wallet profiles and notification preferences need durable storage. Keep chain state authoritative.        |
+| Email and magic links       | Resend                                    | Free plan is limited to 100 emails/day; paid plans are required for production spikes.                      | Brevo, Mailgun, Amazon SES, Postmark                         | Self-hosted SMTP is possible but not recommended for auth deliverability | Keep Resend for MVP. Add Brevo overflow before launch. Budget Postmark or SES if deliverability becomes critical.     |
+| RPC access                  | Alchemy                                   | Free tier is compute-unit based with dedicated CUPS; paid usage scales by compute units or plan.            | Infura, QuickNode, Ankr public endpoints for dev             | Self-host Ethereum node, not practical for MVP                           | Keep Alchemy primary. Use public RPC only for local dev and CI fallbacks. Add Infura as a failover before production. |
+| Document storage            | Pinata                                    | Free tier is constrained by storage, bandwidth, requests, and pin count.                                    | Filebase, Storacha, Arweave gateway providers                | IPFS node plus pinning automation                                        | Keep Pinata while usage is low. Move to Filebase if the 500-pin or 1 GB limit becomes the blocker.                    |
+| AI summaries and moderation | Planned Groq                              | Free usage is rate-limited; paid usage is token-based.                                                      | OpenRouter, Gemini paid tier, Mistral, Cloudflare Workers AI | Run small open models on a GPU VPS only when volume justifies ops cost   | Use Groq with zero-data-retention settings for MVP. Defer AI features until manual summaries are insufficient.        |
+| Price and oracle data       | Chainlink plus CoinGecko                  | Chainlink reads cost only gas on-chain; CoinGecko Demo API has a monthly cap.                               | CoinMarketCap, DefiLlama APIs                                | Own indexer fed by chain events and public market data                   | Use Chainlink for trust-critical on-chain values. Use CoinGecko only for dashboard display.                           |
+| Error monitoring            | Planned Sentry                            | Free and low-cost tiers are enough for MVP observability; paid plans grow by event volume and seats.        | Highlight.io, Axiom, Better Stack                            | OpenTelemetry plus Grafana/Loki                                          | Defer until production beta. Add sampling from day one to avoid surprise event overages.                              |
+| Analytics                   | Planned lightweight analytics             | Paid analytics costs usually scale by events or page views.                                                 | Vercel Analytics, Plausible Cloud, PostHog Cloud             | Umami or PostHog self-hosted                                             | Use privacy-preserving analytics only after real users exist. Prefer Umami self-hosted for low-cost production.       |
+| CI/CD                       | GitHub Actions                            | Public repos get generous included minutes; private usage has monthly included minutes then overages.       | Buildkite, CircleCI, local release scripts                   | Self-hosted GitHub runner                                                | Stay on GitHub Actions. Add cache discipline before adding paid runners.                                              |
+| Security scanning           | GitHub code scanning, Dependabot, Semgrep | GitHub-native scanning is free for public repos; Semgrep community rules are free.                          | Snyk free tier, OSV Scanner, Trivy                           | Trivy and Gitleaks in local CI                                           | Keep the current GitHub and Semgrep path. Add Gitleaks before production secrets expand.                              |
+| Documentation hosting       | GitHub Pages and MkDocs                   | GitHub Pages is free for this project profile.                                                              | Cloudflare Pages, Netlify                                    | Static site on VPS                                                       | Keep GitHub Pages. Do not move docs to Vercel unless docs need app runtime features.                                  |
+
+#### Deployment Recommendations
+
+| Stage                  | Recommended stack                                                                                                                                      | Cost posture                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| MVP and class/demo use | Vercel Hobby where allowed, Alchemy free, Resend free, Pinata free, GitHub Pages, GitHub Actions                                                       | Keep paid commitments at $0. Defer Supabase, Sentry, analytics, and AI until the workflow proves user value.            |
+| Early public beta      | Vercel Pro if commercial use requires it, Alchemy plus Infura failover, Resend plus Brevo overflow, Pinata or Filebase, Sentry sampled                 | Budget for the first unavoidable paid services: hosting, email reliability, and monitoring. Keep database scope narrow. |
+| Production scale       | Vercel Pro or self-hosted Next.js after cost review, Supabase Pro or managed Postgres, Postmark/SES, Filebase or dedicated storage, full observability | Revisit vendor lock-in quarterly. Move high-volume, low-differentiation workloads to cheaper commodity providers.       |
+
+#### Highest-Impact Cost Controls
+
+- Defer Supabase until Phase 6 needs wallet profiles, notification preferences,
+  or rebuildable event indexes. This avoids paying for a database before there
+  is off-chain state worth preserving.
+- Keep AI summaries behind a feature flag and cache generated summaries by
+  contract revision. Re-running summaries on every dashboard load would turn a
+  useful feature into a recurring token bill.
+- Avoid storing generated Vercel output or Nexus graph databases in Git. They
+  add repository weight without improving reproducibility.
+- Use GitHub Pages for documentation and public static material so Vercel
+  bandwidth is reserved for the app.
+- Add email overflow before launch day. Resend's 100/day free limit is the first
+  likely reliability bottleneck for magic links.
+- Treat public RPC endpoints as development fallbacks only. Production should
+  use keyed providers with quotas, dashboards, and failover.
+
+---
+
 ## Decisions
 
 <!-- Notable choices and the reasoning behind them. -->
