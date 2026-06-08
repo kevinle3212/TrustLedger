@@ -13,6 +13,14 @@ interface ContractDeployment {
 	deployBlock: bigint | undefined;
 }
 
+const CHAIN_NAMES: Record<number, string> = {
+	10: "Optimism",
+	8453: "Base",
+	42161: "Arbitrum",
+	11155111: "Sepolia",
+	31337: "local Hardhat",
+};
+
 function readAddress(key: string): `0x${string}` | undefined {
 	const value = process.env[key];
 	if (!/^0x[a-fA-F0-9]{40}$/.test(value ?? "")) return undefined;
@@ -51,6 +59,7 @@ const DEFAULT_DEPLOYMENT: ContractDeployment = {
 };
 
 const CONTRACT_DEPLOYMENTS: Record<number, ContractDeployment> = {
+	31337: DEFAULT_DEPLOYMENT,
 	11155111: {
 		trustLedger: readAddress("NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_SEPOLIA") ?? TRUSTLEDGER_ADDRESS,
 		arbitration: readAddress("NEXT_PUBLIC_ARBITRATION_ADDRESS_SEPOLIA") ?? ARBITRATION_ADDRESS,
@@ -90,7 +99,26 @@ const CONTRACT_DEPLOYMENTS: Record<number, ContractDeployment> = {
 };
 
 export function getContractDeployment(chainId: number): ContractDeployment {
-	return CONTRACT_DEPLOYMENTS[chainId] ?? DEFAULT_DEPLOYMENT;
+	return (
+		CONTRACT_DEPLOYMENTS[chainId] ?? {
+			...DEFAULT_DEPLOYMENT,
+			trustLedger: ZERO_ADDRESS,
+			arbitration: ZERO_ADDRESS,
+			jurorRegistry: ZERO_ADDRESS,
+			reputationRegistry: ZERO_ADDRESS,
+		}
+	);
+}
+
+export function getNetworkName(chainId: number): string {
+	return CHAIN_NAMES[chainId] ?? `chain ${chainId.toString()}`;
+}
+
+export function getConfiguredDeploymentNetworkNames(): string[] {
+	const configured = Object.entries(CONTRACT_DEPLOYMENTS)
+		.filter(([, deployment]) => deployment.trustLedger !== ZERO_ADDRESS)
+		.map(([chainId]) => getNetworkName(Number(chainId)));
+	return [...new Set(configured)];
 }
 
 // Native USDC addresses per supported chain. Sepolia uses Circle's testnet USDC.

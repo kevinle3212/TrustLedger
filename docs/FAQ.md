@@ -169,12 +169,41 @@ once (1-100) via `submitRating`. Scores accumulate in `ReputationRegistry`,
 which stores a cumulative `(sum, count)` per address; the average is
 `numerator / denominator`.
 
-### Why does the reputation page say reputation is not available?
+### Why does the reputation page say TrustLedger or reputation is not available?
 
-The frontend found the deployed `TrustLedger`, but that contract returned the
-zero address from `reputationRegistry()`. This happens when a TrustLedger
-deployment was created before the separate `ReputationRegistry` contract was
-deployed and wired in.
+There are two different deployment/configuration failures that can surface on
+the reputation page.
+
+If the page says `TrustLedger is not configured for <network>`, the frontend
+does not have a `TrustLedger` address for the wallet's current chain. Switch the
+wallet to a chain with a configured deployment, or set the chain-specific
+`NEXT_PUBLIC_*` variables and redeploy the frontend. Production Sepolia should
+have both the default keys and Sepolia-specific keys:
+
+```bash
+NEXT_PUBLIC_TRUSTLEDGER_ADDRESS
+NEXT_PUBLIC_ARBITRATION_ADDRESS
+NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS
+NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS
+NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK
+NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_SEPOLIA
+NEXT_PUBLIC_ARBITRATION_ADDRESS_SEPOLIA
+NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_SEPOLIA
+NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_SEPOLIA
+NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_SEPOLIA
+```
+
+For local Hardhat, `scripts/deploy.ts` writes
+`artifacts/deployed-addresses.json` and syncs the default `NEXT_PUBLIC_*` keys
+into `src/.env.local`. For Vercel, update Production and Preview env vars, then
+trigger a new production deployment; public env vars are baked into the browser
+bundle at build time.
+
+If the page says
+`Reputation is not available for this TrustLedger deployment yet`, the frontend
+found `TrustLedger`, but that contract returned the zero address from
+`reputationRegistry()`. This happens when a TrustLedger deployment was created
+before the separate `ReputationRegistry` contract was deployed and wired in.
 
 For a full redeploy, run the current Sepolia deploy workflow or
 `npm run foundry:deploy:sepolia`; the current deploy script deploys

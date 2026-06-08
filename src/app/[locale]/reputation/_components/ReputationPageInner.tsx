@@ -5,7 +5,12 @@ import { useAccount, useChainId, usePublicClient, useReadContract } from "wagmi"
 import { ConnectButton } from "@/components/ConnectButton";
 import { isAddress, parseAbiItem } from "viem";
 import { REPUTATION_REGISTRY_ABI, TRUSTLEDGER_ABI } from "@/lib/abi";
-import { getContractDeployment, ZERO_ADDRESS } from "@/lib/wagmi";
+import {
+	getConfiguredDeploymentNetworkNames,
+	getContractDeployment,
+	getNetworkName,
+	ZERO_ADDRESS,
+} from "@/lib/wagmi";
 import { formatAddress } from "@/lib/utils";
 import { validateEthAddress } from "@/lib/validation";
 import type { ReputationHistoryEntry as HistoryEntry } from "@/types";
@@ -301,6 +306,8 @@ function ReputationLookup({
 	registryLookupLoading,
 	trustLedgerDeployed,
 	trustLedgerAddress,
+	networkName,
+	configuredNetworkNames,
 }: {
 	lookupAddress: `0x${string}`;
 	registryAddress: `0x${string}` | undefined;
@@ -308,6 +315,8 @@ function ReputationLookup({
 	registryLookupLoading: boolean;
 	trustLedgerDeployed: boolean;
 	trustLedgerAddress: `0x${string}`;
+	networkName: string;
+	configuredNetworkNames: string[];
 }): React.JSX.Element {
 	const registryAvailable = registryAddress !== undefined && registryAddress !== ZERO_ADDRESS;
 
@@ -337,10 +346,13 @@ function ReputationLookup({
 	const inRecovery = pending !== undefined && pending > 0n;
 
 	if (!trustLedgerDeployed) {
+		const networkHint =
+			configuredNetworkNames.length > 0
+				? `Switch your wallet to ${configuredNetworkNames.join(", ")} or set this network's NEXT_PUBLIC_* contract address variables and redeploy.`
+				: "Set the NEXT_PUBLIC_* contract address variables for this network and redeploy.";
 		return (
 			<div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-700 dark:text-yellow-300">
-				TrustLedger is not configured for this deployment. Set the production contract
-				address for your wallet&apos;s current network and redeploy the app.
+				TrustLedger is not configured for {networkName}. {networkHint}
 			</div>
 		);
 	}
@@ -434,6 +446,8 @@ export function ReputationPageInner(): React.JSX.Element {
 	const [lookupAddress, setLookupAddress] = useState<`0x${string}` | undefined>(undefined);
 	const [inputError, setInputError] = useState<string | undefined>(undefined);
 	const deployment = getContractDeployment(chainId);
+	const networkName = getNetworkName(chainId);
+	const configuredNetworkNames = getConfiguredDeploymentNetworkNames();
 	const trustLedgerAddress = deployment.trustLedger;
 	const configuredRegistryAddress = deployment.reputationRegistry;
 	const trustLedgerDeployed = trustLedgerAddress !== ZERO_ADDRESS;
@@ -551,6 +565,8 @@ export function ReputationPageInner(): React.JSX.Element {
 						registryLookupLoading={registryLookupLoading}
 						trustLedgerDeployed={trustLedgerDeployed}
 						trustLedgerAddress={trustLedgerAddress}
+						networkName={networkName}
+						configuredNetworkNames={configuredNetworkNames}
 					/>
 					{registryAvailable && trustLedgerDeployed && (
 						<RatingHistoryFeed
