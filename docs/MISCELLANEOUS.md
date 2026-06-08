@@ -35,28 +35,28 @@ Supplementary notes that don't belong in any single other document.
 
 ## Tooling Overview
 
-| Tool                  | Role                                                                                                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                                                                            |
-| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment                                              |
-| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                                                                    |
-| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                                                                        |
-| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                                                                         |
-| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                                                               |
-| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                                                                     |
-| **Solhint**           | Solidity-specific style and security linting rules                                                                                                                       |
-| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                                                                         |
-| **nexus-graph**       | Indexes TypeScript/JavaScript source as a symbol graph; serves token-budgeted code context to Claude Code via MCP (`.mcp.json`); launched through `scripts/nexus-mcp.js` |
-| **Serena**            | Semantic code navigation MCP; local Claude hooks remind agents to activate Serena and auto-approve Serena MCP calls                                                      |
-| **rtk**               | Token-optimized Claude Code CLI proxy (60-90% token savings on shell operations); agent commands should be prefixed with `rtk` - run `rtk gain` to view savings          |
-| **Excalidraw**        | Hand-drawn-style diagramming tool used for architecture sketches and flow diagrams; export as SVG/PNG for embedding in docs ([excalidraw.com](https://excalidraw.com))   |
-| **Vercel**            | Frontend hosting platform; auto-deploys on push to `main` and exposes preview URLs on every PR - configured in `src/vercel.json` and `.vercel/project.json`              |
-| **RainbowKit**        | Wallet connection UI library for React - provides the connect-wallet modal, multi-wallet support, and chain-switching UI; wired via wagmi in `src/lib/wagmi.ts`          |
+| Tool                  | Role                                                                                                                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                                                                                     |
+| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment                                                       |
+| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                                                                             |
+| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                                                                                 |
+| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                                                                                  |
+| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                                                                        |
+| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                                                                              |
+| **Solhint**           | Solidity-specific style and security linting rules                                                                                                                                |
+| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                                                                                  |
+| **nexus-graph**       | Indexes TypeScript/JavaScript source as a symbol graph; serves token-budgeted code context through MCP (`.mcp.json`, `.vscode/mcp.json`); launched through `scripts/nexus-mcp.js` |
+| **Serena**            | Semantic code navigation MCP; configured for Codex, Claude Code, and VS Code workspace sessions; hooks remind agents to activate Serena and use symbolic tools                    |
+| **rtk**               | Token-optimized Claude Code CLI proxy (60-90% token savings on shell operations); agent commands should be prefixed with `rtk` - run `rtk gain` to view savings                   |
+| **Excalidraw**        | Hand-drawn-style diagramming tool used for architecture sketches and flow diagrams; export as SVG/PNG for embedding in docs ([excalidraw.com](https://excalidraw.com))            |
+| **Vercel**            | Frontend hosting platform; auto-deploys on push to `main` and exposes preview URLs on every PR - configured in `src/vercel.json` and `.vercel/project.json`                       |
+| **RainbowKit**        | Wallet connection UI library for React - provides the connect-wallet modal, multi-wallet support, and chain-switching UI; wired via wagmi in `src/lib/wagmi.ts`                   |
 
 ### Nexus Graph for Claude Code
 
-`nexus-graph` is configured in `.mcp.json`, and the root npm scripts now start
-it through `scripts/nexus-mcp.js`:
+`nexus-graph` is configured in `.mcp.json` and `.vscode/mcp.json`, and the root
+npm scripts now start it through `scripts/nexus-mcp.js`:
 
 ```bash
 npm run nexus:index
@@ -69,11 +69,24 @@ inputs that trigger a `tree-sitter-typescript` `Invalid argument` parser bug.
 This keeps `test/TrustLedger.test.ts` from generating parse and edge warnings
 during indexing.
 
-### Serena Hooks for Claude Code
+### Serena MCP Setup
 
-Serena is expected to be available through MCP during Claude Code sessions. The
-local `.claude/settings.local.json` file should enable the repo's `.mcp.json`
-servers and configure these hooks:
+Serena is expected to be available through MCP during Codex, Claude Code, and VS
+Code sessions.
+
+- Codex uses `.codex/config.toml` with `--project-from-cwd --context=codex`.
+- Claude Code uses `.mcp.json` with `--context=claude-code --project .`.
+- VS Code uses `.vscode/mcp.json` with
+  `--context=vscode --project ${workspaceFolder}`.
+
+Serena's global VS Code command is `serena start-mcp-server --context=vscode`.
+The Serena docs note a VS Code bug: global MCP servers cannot activate the
+project automatically. The workspace config avoids that by passing the project
+path. If you use global VS Code MCP configuration anyway, begin each session
+with: `Activate the current dir as project using serena`.
+
+For Claude Code, the local `.claude/settings.local.json` file should enable the
+repo's `.mcp.json` servers and configure these hooks:
 
 | Event          | Command                                          |
 | -------------- | ------------------------------------------------ |
@@ -87,6 +100,34 @@ Verify with:
 ```bash
 command -v serena-hooks
 serena-hooks --help
+```
+
+For VS Code, Serena recommends the same hook family in
+`~/.copilot/hooks/serena-hooks.json`:
+
+```json
+{
+    "hooks": {
+        "PreToolUse": [
+            {
+                "type": "command",
+                "command": "serena-hooks remind --client=vscode"
+            }
+        ],
+        "SessionStart": [
+            {
+                "type": "command",
+                "command": "serena-hooks activate --client=vscode"
+            }
+        ],
+        "Stop": [
+            {
+                "type": "command",
+                "command": "serena-hooks cleanup --client=vscode"
+            }
+        ]
+    }
+}
 ```
 
 ### RTK — Token Proxy for Claude Code

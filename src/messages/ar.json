@@ -222,7 +222,13 @@
 		"contractNum": "عقد #{id}",
 		"autoPenalty": "عقوبة تلقائية",
 		"block": "كتلة {n}",
-		"registryNotConfigured": "السمعة غير متاحة بعد لهذا النشر من TrustLedger."
+		"registryNotConfigured": "السمعة غير متاحة بعد لهذا النشر من TrustLedger.",
+		"historyLoadFailed": "تعذر تحميل سجل التقييمات.",
+		"trustLedgerNotConfiguredWithHint": "لم يتم تكوين TrustLedger لـ {network}. بدّل محفظتك إلى {networks}، أو اضبط متغيرات عناوين العقود NEXT_PUBLIC_* لهذه الشبكة ثم أعد النشر.",
+		"trustLedgerNotConfiguredNoHint": "لم يتم تكوين TrustLedger لـ {network}. اضبط متغيرات عناوين العقود NEXT_PUBLIC_* لهذه الشبكة ثم أعد النشر.",
+		"findingRegistry": "جارٍ العثور على سجل السمعة…",
+		"registryLookupError": "تعذر اكتشاف سجل السمعة لهذه الشبكة. تحقق من اتصال محفظتك بشبكة TrustLedger مدعومة.",
+		"registryLabel": "السجل {address}"
 	},
 	"Arbitration": {
 		"dispute": "نزاع",
@@ -247,7 +253,7 @@
 		"advanceToReveal": "الانتقال إلى مرحلة الكشف",
 		"finalizeDispute": "إنهاء النزاع",
 		"appealWindowOpen": "نافذة الاستئناف مفتوحة (72 ساعة بعد الإنهاء)",
-		"bondRequired": "الكفالة المطلوبة: {amount} ETH (1.5× مجموعة الرسوم). تُعاد إذا فزت؛ تُصادر إذا خسرت.",
+		"bondRequired": "الضمان المطلوب: <amountStrong>{amount} ETH</amountStrong> (1.5× من صندوق الرسوم). يُعاد إذا فزت ويُصادر إذا خسرت.",
 		"filingAppeal": "جارٍ تقديم الاستئناف…",
 		"fileAppeal": "تقديم استئناف",
 		"appealFiled": "تم تقديم الاستئناف.",
@@ -267,7 +273,9 @@
 		"completionPercentageReveal": "نسبة الاكتمال للكشف",
 		"revealing": "جارٍ الكشف…",
 		"revealVote": "الكشف عن التصويت",
-		"voteRevealed": "تم الكشف عن التصويت بنجاح."
+		"voteRevealed": "تم الكشف عن التصويت بنجاح.",
+		"contract": "العقد",
+		"phaseUnknown": "المرحلة {phase}"
 	},
 	"Client": {
 		"contractTitle": "عقد #{id}",
@@ -303,7 +311,11 @@
 		"wrongWallet": "محفظة خاطئة",
 		"wrongWalletDesc": "هذا الرابط مخصص لـ {address}. يرجى التبديل إلى ذلك الحساب.",
 		"connectWalletPrompt": "اربط المحفظة في {address} لمراجعة العقد #{id}.",
-		"loadingContract": "جارٍ تحميل العقد…"
+		"loadingContract": "جارٍ تحميل العقد…",
+		"tokenMissing": "لم يتم تقديم رمز.",
+		"serverConfigError": "خطأ في إعدادات الخادم.",
+		"tokenExpired": "انتهت صلاحية هذا الرابط.",
+		"tokenInvalid": "الرابط غير صالح."
 	},
 	"Freelancer": {
 		"reviewOffer": "مراجعة عرض العقد",
@@ -335,7 +347,11 @@
 		"wrongWallet": "محفظة خاطئة",
 		"wrongWalletDesc": "هذا الرابط مخصص لـ {address}. يرجى التبديل إلى ذلك الحساب.",
 		"connectWalletPrompt": "اربط المحفظة في {address} لمراجعة العقد #{id}.",
-		"loadingContract": "جارٍ تحميل العقد…"
+		"loadingContract": "جارٍ تحميل العقد…",
+		"tokenMissing": "لم يتم تقديم رمز.",
+		"serverConfigError": "خطأ في إعدادات الخادم.",
+		"tokenExpired": "انتهت صلاحية هذا الرابط.",
+		"tokenInvalid": "الرابط غير صالح."
 	},
 	"Common": {
 		"connectWallet": "ربط المحفظة",

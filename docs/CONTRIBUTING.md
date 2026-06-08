@@ -381,18 +381,18 @@ cd contracts && forge fmt
 
 ---
 
-## Nexus Code Graph (AI Context)
+## MCP Code Context
 
 `nexus-graph` indexes the TypeScript and JavaScript source into a SQLite symbol
 graph and serves it to Claude Code as an MCP server. This gives Claude
 token-budgeted context about functions, classes, and their dependencies without
 reading every file.
 
-The MCP server is configured in `.mcp.json` at the repo root. Claude Code picks
-it up automatically on session start. The project routes both manual indexing
-and MCP startup through `scripts/nexus-mcp.js`, which patches around a
-`tree-sitter-typescript` parser limit that throws `Invalid argument` on very
-large TypeScript files such as `test/TrustLedger.test.ts`.
+The MCP servers are configured in `.mcp.json` at the repo root. Claude Code
+picks them up automatically on session start. The project routes both manual
+Nexus indexing and MCP startup through `scripts/nexus-mcp.js`, which patches
+around a `tree-sitter-typescript` parser limit that throws `Invalid argument` on
+very large TypeScript files such as `test/TrustLedger.test.ts`.
 
 ```bash
 # Build or refresh the symbol graph (run from repo root)
@@ -408,19 +408,39 @@ npm run nexus:viz
 Re-run `nexus:index` after large refactors to keep the graph current. The
 generated database lives in `.nexus/graph.db` (gitignored).
 
+Serena is also configured in `.mcp.json` for symbolic code navigation and
+editing. For VS Code, use the workspace MCP config in `.vscode/mcp.json`; it
+starts Serena with:
+
+```bash
+serena start-mcp-server --context=vscode --project ${workspaceFolder}
+```
+
+This is intentional. Serena's global VS Code command is:
+
+```bash
+serena start-mcp-server --context=vscode
+```
+
+That global mode is recommended by Serena for general use, but the Serena docs
+note a VS Code bug where global MCP servers cannot activate the project
+automatically. The workspace config avoids the bug by passing the project path.
+If you use the global VS Code config anyway, start each session by prompting:
+`Activate the current dir as project using serena`.
+
 ---
 
 ## Serena Hooks (Claude Code)
 
-Serena is configured through Claude Code's local settings so agents are reminded
-to activate and use Serena for code navigation while avoiding repeated manual
-approval prompts for Serena MCP calls.
+Serena is configured through `.mcp.json` and Claude Code's local settings so
+agents are reminded to activate and use Serena for code navigation while
+avoiding repeated manual approval prompts for Serena MCP calls.
 
 The expected local config is `.claude/settings.local.json`:
 
 ```json
 {
-    "enabledMcpjsonServers": ["nexus"],
+    "enabledMcpjsonServers": ["serena", "nexus"],
     "hooks": {
         "PreToolUse": [
             {

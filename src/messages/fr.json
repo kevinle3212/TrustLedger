@@ -222,7 +222,13 @@
 		"contractNum": "contrat #{id}",
 		"autoPenalty": "pénalité automatique",
 		"block": "bloc {n}",
-		"registryNotConfigured": "La réputation n'est pas encore disponible pour ce déploiement TrustLedger."
+		"registryNotConfigured": "La réputation n'est pas encore disponible pour ce déploiement TrustLedger.",
+		"historyLoadFailed": "Impossible de charger l’historique des évaluations.",
+		"trustLedgerNotConfiguredWithHint": "TrustLedger n’est pas configuré pour {network}. Basculez votre portefeuille vers {networks}, ou définissez les variables d’adresse de contrat NEXT_PUBLIC_* pour ce réseau puis redéployez.",
+		"trustLedgerNotConfiguredNoHint": "TrustLedger n’est pas configuré pour {network}. Définissez les variables d’adresse de contrat NEXT_PUBLIC_* pour ce réseau puis redéployez.",
+		"findingRegistry": "Recherche du registre de réputation…",
+		"registryLookupError": "Impossible de découvrir le registre de réputation pour ce réseau. Vérifiez que votre portefeuille est connecté à un réseau TrustLedger pris en charge.",
+		"registryLabel": "registre {address}"
 	},
 	"Arbitration": {
 		"dispute": "Litige",
@@ -247,7 +253,7 @@
 		"advanceToReveal": "Passer à la Révélation",
 		"finalizeDispute": "Finaliser le Litige",
 		"appealWindowOpen": "Fenêtre d'appel ouverte (72h après finalisation)",
-		"bondRequired": "Caution requise : {amount} ETH (1,5× pool de frais). Remboursée si vous gagnez ; perdue si vous perdez.",
+		"bondRequired": "Caution requise : <amountStrong>{amount} ETH</amountStrong> (1,5× le fonds de frais). Remboursée si vous gagnez ; perdue si vous perdez.",
 		"filingAppeal": "Dépôt de l'Appel…",
 		"fileAppeal": "Déposer un Appel",
 		"appealFiled": "Appel déposé.",
@@ -267,7 +273,9 @@
 		"completionPercentageReveal": "Pourcentage d'achèvement à révéler",
 		"revealing": "Révélation…",
 		"revealVote": "Révéler le Vote",
-		"voteRevealed": "Vote révélé avec succès."
+		"voteRevealed": "Vote révélé avec succès.",
+		"contract": "Contrat",
+		"phaseUnknown": "Phase {phase}"
 	},
 	"Client": {
 		"contractTitle": "Contrat #{id}",
@@ -303,7 +311,11 @@
 		"wrongWallet": "Mauvais Portefeuille",
 		"wrongWalletDesc": "Ce lien est pour {address}. Veuillez passer à ce compte.",
 		"connectWalletPrompt": "Connectez le portefeuille à {address} pour examiner le contrat #{id}.",
-		"loadingContract": "Chargement du contrat…"
+		"loadingContract": "Chargement du contrat…",
+		"tokenMissing": "Aucun jeton fourni.",
+		"serverConfigError": "Erreur de configuration du serveur.",
+		"tokenExpired": "Ce lien a expiré.",
+		"tokenInvalid": "Lien invalide."
 	},
 	"Freelancer": {
 		"reviewOffer": "Examiner l'Offre de Contrat",
@@ -335,7 +347,11 @@
 		"wrongWallet": "Mauvais Portefeuille",
 		"wrongWalletDesc": "Ce lien est pour {address}. Veuillez passer à ce compte.",
 		"connectWalletPrompt": "Connectez le portefeuille à {address} pour examiner le contrat #{id}.",
-		"loadingContract": "Chargement du contrat…"
+		"loadingContract": "Chargement du contrat…",
+		"tokenMissing": "Aucun jeton fourni.",
+		"serverConfigError": "Erreur de configuration du serveur.",
+		"tokenExpired": "Ce lien a expiré.",
+		"tokenInvalid": "Lien invalide."
 	},
 	"Common": {
 		"connectWallet": "Connecter le Portefeuille",

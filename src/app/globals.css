@@ -49,62 +49,185 @@ body {
 
 /* Footer language selector. */
 .locale-switcher {
+	position: relative;
+	z-index: 20;
+	width: 100%;
+}
+
+.locale-switcher__button {
 	display: inline-flex;
 	min-height: 2.75rem;
 	width: 100%;
 	align-items: center;
-	gap: 0.5rem;
+	gap: 0.625rem;
 	border: 1px solid #e5e7eb;
 	border-radius: 0.75rem;
-	background: #f9fafb;
-	color: #4b5563;
-	padding: 0.5rem 0.75rem;
+	background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+	color: #374151;
+	padding: 0.5rem 0.875rem;
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8);
 	transition:
 		background-color 150ms ease,
 		border-color 150ms ease,
-		color 150ms ease;
+		color 150ms ease,
+		box-shadow 150ms ease;
 }
 
-.locale-switcher:hover {
+.locale-switcher__button:hover {
 	border-color: #d1d5db;
 	background: #ffffff;
 	color: #111827;
 }
 
-.locale-switcher__select {
+.locale-switcher__button[aria-expanded="true"] {
+	border-color: #6366f1;
+	box-shadow:
+		0 0 0 3px rgb(99 102 241 / 0.12),
+		inset 0 1px 0 rgb(255 255 255 / 0.8);
+}
+
+.locale-switcher__icon {
+	display: inline-flex;
+	flex-shrink: 0;
+	color: #6366f1;
+}
+
+.locale-switcher__current {
 	min-width: 0;
 	flex: 1;
-	appearance: none;
-	background: transparent;
-	color: inherit;
+	overflow: hidden;
+	text-align: start;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	font-size: 0.875rem;
-	font-weight: 500;
+	font-weight: 600;
 	line-height: 1.25rem;
-	outline: none;
-	padding-inline-end: 1.5rem;
 }
 
 .locale-switcher__chevron {
 	pointer-events: none;
-	margin-inline-start: -1.5rem;
 	flex-shrink: 0;
-	color: #9ca3af;
+	color: #6b7280;
+	transition: transform 150ms ease;
+}
+
+.locale-switcher__button[aria-expanded="true"] .locale-switcher__chevron {
+	transform: rotate(180deg);
+}
+
+.locale-switcher__menu {
+	position: absolute;
+	inset-inline: 0;
+	bottom: calc(100% + 0.5rem);
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.875rem;
+	background: #ffffff;
+	padding: 0.25rem;
+	box-shadow:
+		0 12px 28px rgb(17 24 39 / 0.12),
+		0 2px 6px rgb(17 24 39 / 0.08);
+}
+
+.locale-switcher__option {
+	display: flex;
+	min-height: 2.25rem;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	border-radius: 0.625rem;
+	color: #374151;
+	padding: 0.5rem 0.625rem;
+	text-align: start;
+	font-size: 0.875rem;
+	font-weight: 500;
+	transition:
+		background-color 150ms ease,
+		color 150ms ease;
+}
+
+.locale-switcher__option:hover,
+.locale-switcher__option:focus-visible {
+	background: #f3f4f6;
+	color: #111827;
+	outline: none;
+}
+
+.locale-switcher__option[aria-current="true"] {
+	background: #eef2ff;
+	color: #3730a3;
+	font-weight: 600;
+}
+
+.locale-switcher__check {
+	width: 1rem;
+	flex-shrink: 0;
+	color: #4f46e5;
+	text-align: center;
+	font-size: 0.75rem;
+	font-weight: 700;
 }
 
 .dark .locale-switcher {
-	border-color: rgb(255 255 255 / 0.1);
-	background: rgb(255 255 255 / 0.03);
 	color: #d1d5db;
 }
 
-.dark .locale-switcher:hover {
+.dark .locale-switcher__button {
+	border-color: rgb(255 255 255 / 0.1);
+	background: rgb(255 255 255 / 0.04);
+	color: #d1d5db;
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+.dark .locale-switcher__button:hover {
 	border-color: rgb(255 255 255 / 0.2);
 	background: rgb(255 255 255 / 0.06);
 	color: #ffffff;
 }
 
+.dark .locale-switcher__button[aria-expanded="true"] {
+	border-color: #818cf8;
+	box-shadow:
+		0 0 0 3px rgb(129 140 248 / 0.18),
+		inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+.dark .locale-switcher__icon {
+	color: #818cf8;
+}
+
 .dark .locale-switcher__chevron {
-	color: #6b7280;
+	color: #9ca3af;
+}
+
+.dark .locale-switcher__menu {
+	border-color: rgb(255 255 255 / 0.12);
+	background: #111827;
+	box-shadow:
+		0 14px 32px rgb(0 0 0 / 0.36),
+		0 2px 8px rgb(0 0 0 / 0.28);
+}
+
+.dark .locale-switcher__option {
+	color: #d1d5db;
+}
+
+.dark .locale-switcher__option:hover,
+.dark .locale-switcher__option:focus-visible {
+	background: rgb(255 255 255 / 0.08);
+	color: #ffffff;
+}
+
+.dark .locale-switcher__option[aria-current="true"] {
+	background: rgb(99 102 241 / 0.22);
+	color: #ffffff;
+}
+
+.dark .locale-switcher__check {
+	color: #a5b4fc;
 }
 
 @media (min-width: 640px) {
@@ -162,8 +285,25 @@ html.high-contrast .dark\:border-white\/10 {
 }
 
 html.high-contrast .locale-switcher {
+	color: var(--hc-fg);
+}
+
+html.high-contrast .locale-switcher__button {
 	border-color: var(--hc-border);
 	background: var(--hc-bg);
+	color: var(--hc-fg);
+}
+
+html.high-contrast .locale-switcher__menu,
+html.high-contrast .locale-switcher__option[aria-current="true"] {
+	border-color: var(--hc-border);
+	background: var(--hc-bg);
+	color: var(--hc-fg);
+}
+
+html.high-contrast .locale-switcher__option:hover,
+html.high-contrast .locale-switcher__option:focus-visible {
+	background: #e5e7eb;
 	color: var(--hc-fg);
 }
 

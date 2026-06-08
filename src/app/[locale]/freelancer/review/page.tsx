@@ -1,5 +1,6 @@
 import { verifyMagicToken, type MagicLinkPayload } from "@/lib/magicLink";
 import { ReviewPageInner } from "./_components/ReviewPageInner";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,26 +13,34 @@ export const metadata: Metadata = {
 // project deadline) or reject (returning funds to the client).
 
 export default async function FreelancerReviewPage({
+	params,
 	searchParams,
 }: {
+	params: Promise<{ locale: string }>;
 	searchParams: Promise<{ token?: string }>;
 }): Promise<React.JSX.Element> {
-	const { token } = await searchParams;
+	const translationPromise = params.then(
+		async ({ locale }) => await getTranslations({ locale, namespace: "Freelancer" }),
+	);
+	const [{ token }, t] = await Promise.all([searchParams, translationPromise]);
 
 	let payload: MagicLinkPayload | null = null;
 	let tokenError: string | null = null;
 
 	if (token === undefined || token === "") {
-		tokenError = "No token provided.";
+		tokenError = t("tokenMissing");
 	} else {
 		const secret = process.env["MAGIC_LINK_SECRET"];
 		if (secret === undefined || secret === "") {
-			tokenError = "Server configuration error.";
+			tokenError = t("serverConfigError");
 		} else {
 			try {
 				payload = await verifyMagicToken(token, secret);
 			} catch (err) {
-				tokenError = err instanceof Error ? err.message : "Invalid link.";
+				tokenError =
+					err instanceof Error && err.message === "token expired"
+						? t("tokenExpired")
+						: t("tokenInvalid");
 			}
 		}
 	}

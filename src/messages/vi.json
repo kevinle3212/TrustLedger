@@ -222,7 +222,13 @@
 		"contractNum": "hợp đồng #{id}",
 		"autoPenalty": "hình phạt tự động",
 		"block": "khối {n}",
-		"registryNotConfigured": "Danh tiếng chưa khả dụng cho bản triển khai TrustLedger này."
+		"registryNotConfigured": "Danh tiếng chưa khả dụng cho bản triển khai TrustLedger này.",
+		"historyLoadFailed": "Không tải được lịch sử đánh giá.",
+		"trustLedgerNotConfiguredWithHint": "TrustLedger chưa được cấu hình cho {network}. Hãy chuyển ví sang {networks}, hoặc đặt các biến địa chỉ hợp đồng NEXT_PUBLIC_* cho mạng này rồi triển khai lại.",
+		"trustLedgerNotConfiguredNoHint": "TrustLedger chưa được cấu hình cho {network}. Hãy đặt các biến địa chỉ hợp đồng NEXT_PUBLIC_* cho mạng này rồi triển khai lại.",
+		"findingRegistry": "Đang tìm registry uy tín…",
+		"registryLookupError": "Không thể tìm registry uy tín cho mạng này. Hãy kiểm tra ví của bạn đang kết nối với mạng TrustLedger được hỗ trợ.",
+		"registryLabel": "registry {address}"
 	},
 	"Arbitration": {
 		"dispute": "Tranh Chấp",
@@ -247,7 +253,7 @@
 		"advanceToReveal": "Chuyển sang Tiết Lộ",
 		"finalizeDispute": "Hoàn Tất Tranh Chấp",
 		"appealWindowOpen": "Cửa sổ kháng cáo mở (72h sau khi hoàn tất)",
-		"bondRequired": "Tiền đặt cọc yêu cầu: {amount} ETH (1.5× pool phí). Hoàn lại nếu bạn thắng; mất nếu bạn thua.",
+		"bondRequired": "Tiền ký quỹ bắt buộc: <amountStrong>{amount} ETH</amountStrong> (1,5× quỹ phí). Được hoàn lại nếu bạn thắng; bị mất nếu bạn thua.",
 		"filingAppeal": "Đang Nộp Kháng Cáo…",
 		"fileAppeal": "Nộp Kháng Cáo",
 		"appealFiled": "Đã nộp kháng cáo.",
@@ -267,7 +273,9 @@
 		"completionPercentageReveal": "Phần trăm hoàn thành để tiết lộ",
 		"revealing": "Đang tiết lộ…",
 		"revealVote": "Tiết Lộ Phiếu",
-		"voteRevealed": "Đã tiết lộ phiếu thành công."
+		"voteRevealed": "Đã tiết lộ phiếu thành công.",
+		"contract": "Hợp đồng",
+		"phaseUnknown": "Giai đoạn {phase}"
 	},
 	"Client": {
 		"contractTitle": "Hợp Đồng #{id}",
@@ -303,7 +311,11 @@
 		"wrongWallet": "Sai Ví",
 		"wrongWalletDesc": "Liên kết này dành cho {address}. Vui lòng chuyển sang tài khoản đó.",
 		"connectWalletPrompt": "Kết nối ví tại {address} để xem xét hợp đồng #{id}.",
-		"loadingContract": "Đang tải hợp đồng…"
+		"loadingContract": "Đang tải hợp đồng…",
+		"tokenMissing": "Thiếu token.",
+		"serverConfigError": "Lỗi cấu hình máy chủ.",
+		"tokenExpired": "Liên kết này đã hết hạn.",
+		"tokenInvalid": "Liên kết không hợp lệ."
 	},
 	"Freelancer": {
 		"reviewOffer": "Xem Xét Đề Nghị Hợp Đồng",
@@ -335,7 +347,11 @@
 		"wrongWallet": "Sai Ví",
 		"wrongWalletDesc": "Liên kết này dành cho {address}. Vui lòng chuyển sang tài khoản đó.",
 		"connectWalletPrompt": "Kết nối ví tại {address} để xem xét hợp đồng #{id}.",
-		"loadingContract": "Đang tải hợp đồng…"
+		"loadingContract": "Đang tải hợp đồng…",
+		"tokenMissing": "Thiếu token.",
+		"serverConfigError": "Lỗi cấu hình máy chủ.",
+		"tokenExpired": "Liên kết này đã hết hạn.",
+		"tokenInvalid": "Liên kết không hợp lệ."
 	},
 	"Common": {
 		"connectWallet": "Kết Nối Ví",

@@ -1,10 +1,12 @@
 {
-	"mcpServers": {
+	"servers": {
 		"serena": {
+			"type": "stdio",
 			"command": "serena",
-			"args": ["start-mcp-server", "--context=claude-code", "--project", "."]
+			"args": ["start-mcp-server", "--context=vscode", "--project", "${workspaceFolder}"]
 		},
 		"nexus": {
+			"type": "stdio",
 			"command": "node",
 			"args": ["./scripts/nexus-mcp.js", "server", "--project", "."],
 			"env": {

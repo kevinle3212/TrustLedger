@@ -48,6 +48,13 @@ const config = {
 				files: ["contexts/RoleContext.tsx"],
 				rules: ["react-doctor/no-initialize-state"],
 			},
+			{
+				// findDeploymentBlock performs a dependent binary search over chain
+				// history. Each midpoint depends on the previous getCode result, so
+				// Promise.all would change the algorithm rather than improve it.
+				files: ["app/[locale]/reputation/_components/ReputationPageInner.tsx"],
+				rules: ["react-doctor/async-await-in-loop"],
+			},
 		],
 	},
 };

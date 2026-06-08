@@ -222,7 +222,13 @@
 		"contractNum": "合同 #{id}",
 		"autoPenalty": "自动惩罚",
 		"block": "区块 {n}",
-		"registryNotConfigured": "此 TrustLedger 部署尚未提供信誉功能。"
+		"registryNotConfigured": "此 TrustLedger 部署尚未提供信誉功能。",
+		"historyLoadFailed": "无法加载评分历史。",
+		"trustLedgerNotConfiguredWithHint": "TrustLedger 尚未为 {network} 配置。请将钱包切换到 {networks}，或为此网络设置 NEXT_PUBLIC_* 合约地址变量并重新部署。",
+		"trustLedgerNotConfiguredNoHint": "TrustLedger 尚未为 {network} 配置。请为此网络设置 NEXT_PUBLIC_* 合约地址变量并重新部署。",
+		"findingRegistry": "正在查找信誉注册表…",
+		"registryLookupError": "无法发现此网络的信誉注册表。请确认钱包已连接到受支持的 TrustLedger 网络。",
+		"registryLabel": "注册表 {address}"
 	},
 	"Arbitration": {
 		"dispute": "争议",
@@ -247,7 +253,7 @@
 		"advanceToReveal": "进入揭示阶段",
 		"finalizeDispute": "最终确定争议",
 		"appealWindowOpen": "申诉窗口开放（最终确定后 72 小时）",
-		"bondRequired": "所需保证金：{amount} ETH（费用池的 1.5 倍）。赢得则退还；输掉则没收。",
+		"bondRequired": "所需保证金：<amountStrong>{amount} ETH</amountStrong>（费用池的 1.5 倍）。胜诉则返还；败诉则没收。",
 		"filingAppeal": "提交申诉中…",
 		"fileAppeal": "提交申诉",
 		"appealFiled": "申诉已提交。",
@@ -267,7 +273,9 @@
 		"completionPercentageReveal": "待揭示的完成百分比",
 		"revealing": "揭示中…",
 		"revealVote": "揭示投票",
-		"voteRevealed": "投票揭示成功。"
+		"voteRevealed": "投票揭示成功。",
+		"contract": "合约",
+		"phaseUnknown": "阶段 {phase}"
 	},
 	"Client": {
 		"contractTitle": "合同 #{id}",
@@ -303,7 +311,11 @@
 		"wrongWallet": "钱包不匹配",
 		"wrongWalletDesc": "此链接适用于 {address}。请切换到该账户。",
 		"connectWalletPrompt": "连接 {address} 的钱包以审核合同 #{id}。",
-		"loadingContract": "加载合同中…"
+		"loadingContract": "加载合同中…",
+		"tokenMissing": "未提供令牌。",
+		"serverConfigError": "服务器配置错误。",
+		"tokenExpired": "此链接已过期。",
+		"tokenInvalid": "链接无效。"
 	},
 	"Freelancer": {
 		"reviewOffer": "审核合同报价",
@@ -335,7 +347,11 @@
 		"wrongWallet": "钱包不匹配",
 		"wrongWalletDesc": "此链接适用于 {address}。请切换到该账户。",
 		"connectWalletPrompt": "连接 {address} 的钱包以审核合同 #{id}。",
-		"loadingContract": "加载合同中…"
+		"loadingContract": "加载合同中…",
+		"tokenMissing": "未提供令牌。",
+		"serverConfigError": "服务器配置错误。",
+		"tokenExpired": "此链接已过期。",
+		"tokenInvalid": "链接无效。"
 	},
 	"Common": {
 		"connectWallet": "连接钱包",

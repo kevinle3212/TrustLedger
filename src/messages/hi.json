@@ -222,7 +222,13 @@
 		"contractNum": "अनुबंध #{id}",
 		"autoPenalty": "स्वचालित दंड",
 		"block": "ब्लॉक {n}",
-		"registryNotConfigured": "इस TrustLedger डिप्लॉयमेंट के लिए प्रतिष्ठा अभी उपलब्ध नहीं है।"
+		"registryNotConfigured": "इस TrustLedger डिप्लॉयमेंट के लिए प्रतिष्ठा अभी उपलब्ध नहीं है।",
+		"historyLoadFailed": "रेटिंग इतिहास लोड नहीं हो सका।",
+		"trustLedgerNotConfiguredWithHint": "TrustLedger {network} के लिए कॉन्फ़िगर नहीं है। अपने वॉलेट को {networks} पर स्विच करें, या इस नेटवर्क के NEXT_PUBLIC_* कॉन्ट्रैक्ट एड्रेस वैरिएबल सेट करके फिर से डिप्लॉय करें।",
+		"trustLedgerNotConfiguredNoHint": "TrustLedger {network} के लिए कॉन्फ़िगर नहीं है। इस नेटवर्क के NEXT_PUBLIC_* कॉन्ट्रैक्ट एड्रेस वैरिएबल सेट करके फिर से डिप्लॉय करें।",
+		"findingRegistry": "प्रतिष्ठा रजिस्ट्री खोजी जा रही है…",
+		"registryLookupError": "इस नेटवर्क के लिए प्रतिष्ठा रजिस्ट्री खोजी नहीं जा सकी। जांचें कि आपका वॉलेट समर्थित TrustLedger नेटवर्क से जुड़ा है।",
+		"registryLabel": "रजिस्ट्री {address}"
 	},
 	"Arbitration": {
 		"dispute": "विवाद",
@@ -247,7 +253,7 @@
 		"advanceToReveal": "रिवील चरण में जाएं",
 		"finalizeDispute": "विवाद अंतिम करें",
 		"appealWindowOpen": "अपील विंडो खुली है (अंतिम होने के 72 घंटे बाद)",
-		"bondRequired": "आवश्यक बॉन्ड: {amount} ETH (शुल्क पूल का 1.5×)। जीतने पर वापस; हारने पर जब्त।",
+		"bondRequired": "आवश्यक बॉन्ड: <amountStrong>{amount} ETH</amountStrong> (शुल्क पूल का 1.5×)। जीतने पर वापस मिलेगा; हारने पर जब्त होगा।",
 		"filingAppeal": "अपील दाखिल हो रही है…",
 		"fileAppeal": "अपील दाखिल करें",
 		"appealFiled": "अपील दाखिल हुई।",
@@ -267,7 +273,9 @@
 		"completionPercentageReveal": "प्रकट करने के लिए पूर्णता प्रतिशत",
 		"revealing": "प्रकट हो रहा है…",
 		"revealVote": "वोट प्रकट करें",
-		"voteRevealed": "वोट सफलतापूर्वक प्रकट हुआ।"
+		"voteRevealed": "वोट सफलतापूर्वक प्रकट हुआ।",
+		"contract": "अनुबंध",
+		"phaseUnknown": "चरण {phase}"
 	},
 	"Client": {
 		"contractTitle": "अनुबंध #{id}",
@@ -303,7 +311,11 @@
 		"wrongWallet": "गलत वॉलेट",
 		"wrongWalletDesc": "यह लिंक {address} के लिए है। कृपया उस खाते पर स्विच करें।",
 		"connectWalletPrompt": "अनुबंध #{id} की समीक्षा के लिए {address} पर वॉलेट कनेक्ट करें।",
-		"loadingContract": "अनुबंध लोड हो रहा है…"
+		"loadingContract": "अनुबंध लोड हो रहा है…",
+		"tokenMissing": "कोई टोकन प्रदान नहीं किया गया।",
+		"serverConfigError": "सर्वर कॉन्फ़िगरेशन त्रुटि।",
+		"tokenExpired": "यह लिंक समाप्त हो गया है।",
+		"tokenInvalid": "अमान्य लिंक।"
 	},
 	"Freelancer": {
 		"reviewOffer": "अनुबंध ऑफर की समीक्षा करें",
@@ -335,7 +347,11 @@
 		"wrongWallet": "गलत वॉलेट",
 		"wrongWalletDesc": "यह लिंक {address} के लिए है। कृपया उस खाते पर स्विच करें।",
 		"connectWalletPrompt": "अनुबंध #{id} की समीक्षा के लिए {address} पर वॉलेट कनेक्ट करें।",
-		"loadingContract": "अनुबंध लोड हो रहा है…"
+		"loadingContract": "अनुबंध लोड हो रहा है…",
+		"tokenMissing": "कोई टोकन प्रदान नहीं किया गया।",
+		"serverConfigError": "सर्वर कॉन्फ़िगरेशन त्रुटि।",
+		"tokenExpired": "यह लिंक समाप्त हो गया है।",
+		"tokenInvalid": "अमान्य लिंक।"
 	},
 	"Common": {
 		"connectWallet": "वॉलेट कनेक्ट करें",

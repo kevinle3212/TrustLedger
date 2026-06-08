@@ -222,7 +222,13 @@
 		"contractNum": "contrato #{id}",
 		"autoPenalty": "penalización automática",
 		"block": "bloque {n}",
-		"registryNotConfigured": "La reputación aún no está disponible para este despliegue de TrustLedger."
+		"registryNotConfigured": "La reputación aún no está disponible para este despliegue de TrustLedger.",
+		"historyLoadFailed": "No se pudo cargar el historial de calificaciones.",
+		"trustLedgerNotConfiguredWithHint": "TrustLedger no está configurado para {network}. Cambia tu billetera a {networks}, o configura las variables NEXT_PUBLIC_* de esta red y vuelve a desplegar.",
+		"trustLedgerNotConfiguredNoHint": "TrustLedger no está configurado para {network}. Configura las variables NEXT_PUBLIC_* de esta red y vuelve a desplegar.",
+		"findingRegistry": "Buscando el registro de reputación…",
+		"registryLookupError": "No se pudo descubrir el registro de reputación para esta red. Comprueba que tu billetera esté conectada a una red TrustLedger compatible.",
+		"registryLabel": "registro {address}"
 	},
 	"Arbitration": {
 		"dispute": "Disputa",
@@ -247,7 +253,7 @@
 		"advanceToReveal": "Avanzar a Revelación",
 		"finalizeDispute": "Finalizar Disputa",
 		"appealWindowOpen": "Ventana de apelación abierta (72h después de la finalización)",
-		"bondRequired": "Fianza requerida: {amount} ETH (1.5× pool de tarifas). Se devuelve si ganas; se pierde si pierdes.",
+		"bondRequired": "Fianza requerida: <amountStrong>{amount} ETH</amountStrong> (1,5× del fondo de comisiones). Se devuelve si ganas; se pierde si pierdes.",
 		"filingAppeal": "Presentando Apelación…",
 		"fileAppeal": "Presentar Apelación",
 		"appealFiled": "Apelación presentada.",
@@ -267,7 +273,9 @@
 		"completionPercentageReveal": "Porcentaje de finalización a revelar",
 		"revealing": "Revelando…",
 		"revealVote": "Revelar Voto",
-		"voteRevealed": "Voto revelado con éxito."
+		"voteRevealed": "Voto revelado con éxito.",
+		"contract": "Contrato",
+		"phaseUnknown": "Fase {phase}"
 	},
 	"Client": {
 		"contractTitle": "Contrato #{id}",
@@ -303,7 +311,11 @@
 		"wrongWallet": "Billetera Incorrecta",
 		"wrongWalletDesc": "Este enlace es para {address}. Por favor cambia a esa cuenta.",
 		"connectWalletPrompt": "Conecta la billetera en {address} para revisar el contrato #{id}.",
-		"loadingContract": "Cargando contrato…"
+		"loadingContract": "Cargando contrato…",
+		"tokenMissing": "No se proporcionó ningún token.",
+		"serverConfigError": "Error de configuración del servidor.",
+		"tokenExpired": "Este enlace ha caducado.",
+		"tokenInvalid": "Enlace no válido."
 	},
 	"Freelancer": {
 		"reviewOffer": "Revisar Oferta de Contrato",
@@ -335,7 +347,11 @@
 		"wrongWallet": "Billetera Incorrecta",
 		"wrongWalletDesc": "Este enlace es para {address}. Por favor cambia a esa cuenta.",
 		"connectWalletPrompt": "Conecta la billetera en {address} para revisar el contrato #{id}.",
-		"loadingContract": "Cargando contrato…"
+		"loadingContract": "Cargando contrato…",
+		"tokenMissing": "No se proporcionó ningún token.",
+		"serverConfigError": "Error de configuración del servidor.",
+		"tokenExpired": "Este enlace ha caducado.",
+		"tokenInvalid": "Enlace no válido."
 	},
 	"Common": {
 		"connectWallet": "Conectar Billetera",

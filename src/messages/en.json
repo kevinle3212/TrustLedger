@@ -222,7 +222,13 @@
 		"contractNum": "contract #{id}",
 		"autoPenalty": "auto-penalty",
 		"block": "block {n}",
-		"registryNotConfigured": "Reputation is not available for this TrustLedger deployment yet."
+		"registryNotConfigured": "Reputation is not available for this TrustLedger deployment yet.",
+		"historyLoadFailed": "Failed to load rating history.",
+		"trustLedgerNotConfiguredWithHint": "TrustLedger is not configured for {network}. Switch your wallet to {networks}, or set this network's NEXT_PUBLIC_* contract address variables and redeploy.",
+		"trustLedgerNotConfiguredNoHint": "TrustLedger is not configured for {network}. Set the NEXT_PUBLIC_* contract address variables for this network and redeploy.",
+		"findingRegistry": "Finding reputation registry…",
+		"registryLookupError": "Could not discover the reputation registry for this network. Check that your wallet is connected to a supported TrustLedger network.",
+		"registryLabel": "registry {address}"
 	},
 	"Arbitration": {
 		"dispute": "Dispute",
@@ -247,7 +253,7 @@
 		"advanceToReveal": "Advance to Reveal",
 		"finalizeDispute": "Finalize Dispute",
 		"appealWindowOpen": "Appeal window open (72h after finalization)",
-		"bondRequired": "Bond required: {amount} ETH (1.5× fee pool). Returned if you win; forfeited if you lose.",
+		"bondRequired": "Bond required: <amountStrong>{amount} ETH</amountStrong> (1.5× fee pool). Returned if you win; forfeited if you lose.",
 		"filingAppeal": "Filing Appeal…",
 		"fileAppeal": "File Appeal",
 		"appealFiled": "Appeal filed.",
@@ -267,7 +273,9 @@
 		"completionPercentageReveal": "Completion percentage to reveal",
 		"revealing": "Revealing…",
 		"revealVote": "Reveal Vote",
-		"voteRevealed": "Vote revealed successfully."
+		"voteRevealed": "Vote revealed successfully.",
+		"contract": "Contract",
+		"phaseUnknown": "Phase {phase}"
 	},
 	"Client": {
 		"contractTitle": "Contract #{id}",
@@ -303,7 +311,11 @@
 		"wrongWallet": "Wrong Wallet",
 		"wrongWalletDesc": "This link is for {address}. Please switch to that account.",
 		"connectWalletPrompt": "Connect the wallet at {address} to review contract #{id}.",
-		"loadingContract": "Loading contract…"
+		"loadingContract": "Loading contract…",
+		"tokenMissing": "No token provided.",
+		"serverConfigError": "Server configuration error.",
+		"tokenExpired": "This link has expired.",
+		"tokenInvalid": "Invalid link."
 	},
 	"Freelancer": {
 		"reviewOffer": "Review Contract Offer",
@@ -335,7 +347,11 @@
 		"wrongWallet": "Wrong Wallet",
 		"wrongWalletDesc": "This link is for {address}. Please switch to that account.",
 		"connectWalletPrompt": "Connect the wallet at {address} to review contract #{id}.",
-		"loadingContract": "Loading contract…"
+		"loadingContract": "Loading contract…",
+		"tokenMissing": "No token provided.",
+		"serverConfigError": "Server configuration error.",
+		"tokenExpired": "This link has expired.",
+		"tokenInvalid": "Invalid link."
 	},
 	"Common": {
 		"connectWallet": "Connect Wallet",

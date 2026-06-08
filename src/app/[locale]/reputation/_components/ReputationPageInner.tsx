@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAccount, useChainId, usePublicClient, useReadContract } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
 import { isAddress, parseAbiItem } from "viem";
@@ -80,6 +81,7 @@ function RatingHistoryFeed({
 	trustLedgerAddress: `0x${string}`;
 	deployBlock: bigint | undefined;
 }): React.JSX.Element {
+	const t = useTranslations("Reputation");
 	const publicClient = usePublicClient();
 	const chainId = useChainId();
 	const [entries, setEntries] = useState<HistoryEntry[]>([]);
@@ -200,9 +202,7 @@ function RatingHistoryFeed({
 
 		fetchHistory().catch((err: unknown) => {
 			if (!cancelled) {
-				setFetchError(
-					err instanceof Error ? err.message : "Failed to load rating history.",
-				);
+				setFetchError(err instanceof Error ? err.message : t("historyLoadFailed"));
 				setLoading(false);
 			}
 		});
@@ -210,12 +210,12 @@ function RatingHistoryFeed({
 		return (): void => {
 			cancelled = true;
 		};
-	}, [deployBlock, lookupAddress, publicClient, registryAddress, trustLedgerAddress]);
+	}, [deployBlock, lookupAddress, publicClient, registryAddress, t, trustLedgerAddress]);
 
 	if (loading) {
 		return (
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
-				<p className="text-sm text-gray-500">Loading rating history…</p>
+				<p className="text-sm text-gray-500">{t("loadingHistory")}</p>
 			</div>
 		);
 	}
@@ -223,7 +223,7 @@ function RatingHistoryFeed({
 	if (fetchError !== null) {
 		return (
 			<div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-700 dark:text-yellow-300">
-				Could not load history: {fetchError}
+				{t("couldNotLoad", { error: fetchError })}
 			</div>
 		);
 	}
@@ -231,14 +231,14 @@ function RatingHistoryFeed({
 	if (entries.length === 0) {
 		return (
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
-				<p className="text-sm text-gray-500">No rating history found.</p>
+				<p className="text-sm text-gray-500">{t("noHistory")}</p>
 			</div>
 		);
 	}
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3">
-			<h2 className="font-semibold text-gray-900 dark:text-white">Rating History</h2>
+			<h2 className="font-semibold text-gray-900 dark:text-white">{t("ratingHistory")}</h2>
 			<div className="flex flex-col gap-2">
 				{entries.map((entry) => (
 					<div
@@ -248,7 +248,7 @@ function RatingHistoryFeed({
 						<div className="flex flex-col gap-0.5 min-w-0">
 							{entry.type === "recovery" ? (
 								<span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-									Recovery bonus +{entry.score}
+									{t("recoveryBonus", { score: entry.score })}
 								</span>
 							) : (
 								<span
@@ -265,21 +265,23 @@ function RatingHistoryFeed({
 							)}
 							<div className="flex items-center gap-2 text-xs text-gray-500 truncate">
 								{entry.rater !== null && (
-									<span>from {formatAddress(entry.rater)}</span>
+									<span>
+										{t("from", { address: formatAddress(entry.rater) })}
+									</span>
 								)}
 								{entry.contractId !== null && (
 									<span className="font-mono">
-										contract #{entry.contractId.toString()}
+										{t("contractNum", { id: entry.contractId.toString() })}
 									</span>
 								)}
 								{entry.rater === null && entry.type === "rating" && (
-									<span className="italic">auto-penalty</span>
+									<span className="italic">{t("autoPenalty")}</span>
 								)}
 							</div>
 						</div>
 						<div className="flex items-center gap-3 shrink-0">
 							<span className="text-xs text-gray-400 font-mono">
-								block {entry.blockNumber.toString()}
+								{t("block", { n: entry.blockNumber.toString() })}
 							</span>
 							<a
 								href={`${explorerBase}/tx/${entry.txHash}`}
@@ -318,6 +320,7 @@ function ReputationLookup({
 	networkName: string;
 	configuredNetworkNames: string[];
 }): React.JSX.Element {
+	const t = useTranslations("Reputation");
 	const registryAvailable = registryAddress !== undefined && registryAddress !== ZERO_ADDRESS;
 
 	const {
@@ -346,13 +349,16 @@ function ReputationLookup({
 	const inRecovery = pending !== undefined && pending > 0n;
 
 	if (!trustLedgerDeployed) {
-		const networkHint =
+		const message =
 			configuredNetworkNames.length > 0
-				? `Switch your wallet to ${configuredNetworkNames.join(", ")} or set this network's NEXT_PUBLIC_* contract address variables and redeploy.`
-				: "Set the NEXT_PUBLIC_* contract address variables for this network and redeploy.";
+				? t("trustLedgerNotConfiguredWithHint", {
+						network: networkName,
+						networks: configuredNetworkNames.join(", "),
+					})
+				: t("trustLedgerNotConfiguredNoHint", { network: networkName });
 		return (
 			<div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-700 dark:text-yellow-300">
-				TrustLedger is not configured for {networkName}. {networkHint}
+				{message}
 			</div>
 		);
 	}
@@ -360,7 +366,7 @@ function ReputationLookup({
 	if (registryLookupLoading) {
 		return (
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
-				<p className="text-sm text-gray-500">Finding reputation registry…</p>
+				<p className="text-sm text-gray-500">{t("findingRegistry")}</p>
 			</div>
 		);
 	}
@@ -368,8 +374,7 @@ function ReputationLookup({
 	if (registryLookupError) {
 		return (
 			<div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-700 dark:text-red-300">
-				Could not discover the reputation registry for this network. Check that your wallet
-				is connected to a supported TrustLedger network.
+				{t("registryLookupError")}
 			</div>
 		);
 	}
@@ -377,7 +382,7 @@ function ReputationLookup({
 	if (!registryAvailable) {
 		return (
 			<div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-700 dark:text-yellow-300">
-				Reputation is not available for this TrustLedger deployment yet.
+				{t("registryNotConfigured")}
 			</div>
 		);
 	}
@@ -385,27 +390,27 @@ function ReputationLookup({
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
-				<h2 className="font-semibold text-gray-900 dark:text-white">On-chain Reputation</h2>
+				<h2 className="font-semibold text-gray-900 dark:text-white">
+					{t("onChainReputation")}
+				</h2>
 				<div className="flex flex-col items-end gap-0.5">
 					<span className="text-xs text-gray-500 font-mono">
 						{formatAddress(lookupAddress)}
 					</span>
 					<span className="text-[11px] text-gray-400 font-mono">
-						registry {formatAddress(registryAddress)}
+						{t("registryLabel", { address: formatAddress(registryAddress) })}
 					</span>
 					<span className="sr-only">TrustLedger {trustLedgerAddress}</span>
 				</div>
 			</div>
 
-			{isLoading && <p className="text-sm text-gray-500">Loading…</p>}
+			{isLoading && <p className="text-sm text-gray-500">{t("loading")}</p>}
 			{isError && (
-				<p className="text-sm text-red-500 dark:text-red-400">
-					Failed to read reputation. Check that you are on the correct network.
-				</p>
+				<p className="text-sm text-red-500 dark:text-red-400">{t("failedToRead")}</p>
 			)}
 			{!isLoading && !isError && (
 				<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-					<span className="text-gray-500">Average score</span>
+					<span className="text-gray-500">{t("averageScore")}</span>
 					<span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
 						{score}
 						{score !== "-" && (
@@ -413,26 +418,24 @@ function ReputationLookup({
 						)}
 					</span>
 
-					<span className="text-gray-500">Ratings received</span>
+					<span className="text-gray-500">{t("ratingsReceived")}</span>
 					<span className="text-gray-900 dark:text-white">{count}</span>
 
 					{inRecovery && (
 						<>
-							<span className="text-gray-500">Recovery progress</span>
+							<span className="text-gray-500">{t("recoveryProgress")}</span>
 							<span className="text-amber-600 dark:text-amber-400 text-xs font-medium">
-								{progress.toString()} / 3 toward clearing {pending.toString()} low
-								rating{pending === 1n ? "" : "s"}
+								{t("recoveryProgressValue", {
+									progress: progress.toString(),
+									pending: Number(pending),
+								})}
 							</span>
 						</>
 					)}
 				</div>
 			)}
 
-			<p className="text-xs text-gray-500">
-				Scores are submitted by contract parties after completion (1–100). Dispute
-				resolutions may apply automatic penalties. Receiving 3 scores ≥ 70 after a low score
-				(≤ 30) earns a +50 recovery bonus.
-			</p>
+			<p className="text-xs text-gray-500">{t("scoresNote")}</p>
 		</div>
 	);
 }
@@ -440,6 +443,7 @@ function ReputationLookup({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function ReputationPageInner(): React.JSX.Element {
+	const t = useTranslations("Reputation");
 	const { address, isConnected } = useAccount();
 	const chainId = useChainId();
 	const [input, setInput] = useState("");
@@ -496,10 +500,8 @@ export function ReputationPageInner(): React.JSX.Element {
 	return (
 		<div className="max-w-lg mx-auto px-6 py-12 flex flex-col gap-6">
 			<div>
-				<h1 className="text-3xl font-bold">Reputation</h1>
-				<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-					Look up cumulative escrow ratings from completed TrustLedger contracts.
-				</p>
+				<h1 className="text-3xl font-bold">{t("title")}</h1>
+				<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{t("subtitle")}</p>
 			</div>
 
 			<form
@@ -510,7 +512,7 @@ export function ReputationPageInner(): React.JSX.Element {
 					htmlFor="rep-lookup-address"
 					className="text-sm font-medium text-gray-900 dark:text-white"
 				>
-					Wallet address
+					{t("walletAddress")}
 				</label>
 				<input
 					id="rep-lookup-address"
@@ -535,7 +537,7 @@ export function ReputationPageInner(): React.JSX.Element {
 						type="submit"
 						className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors"
 					>
-						Look up
+						{t("lookUp")}
 					</button>
 					{isConnected && address !== undefined && (
 						<button
@@ -543,7 +545,7 @@ export function ReputationPageInner(): React.JSX.Element {
 							onClick={lookupSelf}
 							className="px-4 py-2 text-sm rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
 						>
-							Use my wallet
+							{t("useMyWallet")}
 						</button>
 					)}
 				</div>
@@ -552,7 +554,7 @@ export function ReputationPageInner(): React.JSX.Element {
 			{!isConnected && (
 				<div className="flex items-center gap-3 text-sm text-gray-500">
 					<ConnectButton />
-					<span>Connect to look up your own address quickly.</span>
+					<span>{t("connectToLookUp")}</span>
 				</div>
 			)}
 
