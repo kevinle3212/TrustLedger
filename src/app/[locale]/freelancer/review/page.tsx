@@ -1,5 +1,11 @@
 import { verifyMagicToken, type MagicLinkPayload } from "@/lib/magicLink";
 import { ReviewPageInner } from "./_components/ReviewPageInner";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Review Contract | TrustLedger",
+	description: "Review a client-funded freelance contract before accepting or rejecting it.",
+};
 
 // The freelancer lands here from the magic-link email sent when a client proposes
 // a pre-funded contract. They review the offer and either accept (activating the

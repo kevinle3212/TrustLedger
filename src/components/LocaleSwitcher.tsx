@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
 const LOCALE_LABELS: Record<(typeof routing.locales)[number], string> = {
@@ -61,7 +61,6 @@ function ChevronIcon(): React.JSX.Element {
 
 export function LocaleSwitcher(): React.JSX.Element {
 	const locale = useLocale() as (typeof routing.locales)[number];
-	const pathname = usePathname();
 	const router = useRouter();
 	const t = useTranslations("Nav");
 
@@ -76,6 +75,11 @@ export function LocaleSwitcher(): React.JSX.Element {
 				value={locale}
 				onChange={(event) => {
 					const nextLocale = event.target.value as (typeof routing.locales)[number];
+					const pathSegments = window.location.pathname.split("/").filter(Boolean);
+					const [, ...rest] = hasLocaleSegment(pathSegments)
+						? pathSegments
+						: ["", ...pathSegments];
+					const pathname = rest.length > 0 ? `/${rest.join("/")}` : "/";
 					router.replace(pathname, { locale: nextLocale });
 				}}
 				aria-label={t("changeLanguage")}
@@ -92,4 +96,8 @@ export function LocaleSwitcher(): React.JSX.Element {
 			</span>
 		</div>
 	);
+}
+
+function hasLocaleSegment(pathSegments: string[]): boolean {
+	return routing.locales.includes(pathSegments[0] as (typeof routing.locales)[number]);
 }

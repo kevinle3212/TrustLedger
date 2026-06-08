@@ -39,7 +39,7 @@ export function formatAddress(addr: string): string {
 
 function formatEth(wei: bigint, locale?: string): string {
 	const eth = Number(wei) / 1e18;
-	return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(eth)} ETH`;
+	return `${eth.toLocaleString(locale, { maximumFractionDigits: 6 })} ETH`;
 }
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -55,18 +55,18 @@ export function formatTokenAmount(amount: bigint, tokenAddress: string, locale?:
 		return formatEth(amount, locale);
 	}
 	const usdc = Number(amount) / 1e6;
-	return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(usdc)} USDC`;
+	return `${usdc.toLocaleString(locale, { maximumFractionDigits: 2 })} USDC`;
 }
 
 /** Returns "ETH" or "USDC" for display in labels/hints. */
 
 export function formatDeadline(ts: bigint, locale?: string): string {
 	if (ts === BigInt(0)) return "-";
-	return new Intl.DateTimeFormat(locale, {
+	return new Date(Number(ts) * 1000).toLocaleDateString(locale, {
 		year: "numeric",
 		month: "short",
 		day: "numeric",
-	}).format(new Date(Number(ts) * 1000));
+	});
 }
 
 export const STATUS_COLORS: Record<number, string> = {

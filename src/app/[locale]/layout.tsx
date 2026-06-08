@@ -61,9 +61,8 @@ export default async function LocaleLayout({
 	// Enable static rendering for this locale.
 	setRequestLocale(locale);
 
-	// Load messages for the current locale so they can be passed to Client Components.
-	const messages = await getMessages();
-	const t = await getTranslations("Nav");
+	// Load locale resources in parallel so layout rendering is not serialized.
+	const [messages, t] = await Promise.all([getMessages(), getTranslations("Nav")]);
 
 	const dir = locale === "ar" ? "rtl" : "ltr";
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import {
 	useAccount,
 	useChainId,
@@ -33,6 +33,40 @@ import { useRole } from "@/contexts/RoleContext";
 import { decodeContractError, type DecodedContractError } from "@/lib/contractErrors";
 import type { CreateState, FormFields } from "./types";
 import { createReducer } from "./reducer";
+
+const FIELD_LABELS: Record<string, string> = {
+	client: "client address",
+	clientEmail: "client email",
+	amount: "escrow amount",
+	contractURI: "contract document",
+	paymentToken: "payment token",
+	estimatedDurationDays: "estimated duration",
+	bufferFactor: "buffer factor",
+	acceptanceWindowDays: "acceptance window",
+	arbitrationFeePct: "arbitration fee",
+	warrantyPeriodDays: "warranty period",
+	pinataJwt: "Pinata JWT",
+	passphrase: "passphrase",
+};
+
+interface MagicLinkRequest {
+	contractId: string;
+	clientEmail: string;
+	clientAddress: string;
+	role: "client" | "freelancer";
+}
+
+async function sendMagicLink(body: MagicLinkRequest): Promise<void> {
+	const response = await fetch("/api/magic-link/send", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body),
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to send magic link.");
+	}
+}
 
 export function useCreatePageState(): {
 	state: CreateState;
@@ -187,27 +221,11 @@ export function useCreatePageState(): {
 
 	const hasBlockingErrors = Object.values(fieldErrors).some((e) => e !== undefined);
 
-	const FIELD_LABELS: Record<string, string> = {
-		client: "client address",
-		clientEmail: "client email",
-		amount: "escrow amount",
-		contractURI: "contract document",
-		paymentToken: "payment token",
-		estimatedDurationDays: "estimated duration",
-		bufferFactor: "buffer factor",
-		acceptanceWindowDays: "acceptance window",
-		arbitrationFeePct: "arbitration fee",
-		warrantyPeriodDays: "warranty period",
-		pinataJwt: "Pinata JWT",
-		passphrase: "passphrase",
-	};
-
 	const missingFieldLabels = useMemo(
 		() =>
 			Object.entries(fieldErrors)
 				.filter(([, v]) => v !== undefined)
 				.map(([k]) => FIELD_LABELS[k] ?? k),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[fieldErrors],
 	);
 
@@ -278,6 +296,15 @@ export function useCreatePageState(): {
 	const simData = clientSimData ?? freelancerSimData;
 	const simError = clientSimError ?? freelancerSimError;
 	const decodedSimError = decodeContractError(simError);
+	const sendMagicLinkRequest = useCallback((body: MagicLinkRequest): void => {
+		void sendMagicLink(body)
+			.then(() => {
+				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: "sent" });
+			})
+			.catch(() => {
+				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: "error" });
+			});
+	}, []);
 
 	function handleSubmit(e: React.SyntheticEvent): void {
 		e.preventDefault();
@@ -300,24 +327,21 @@ export function useCreatePageState(): {
 		const contractId = (logs[0] as { args?: { id?: bigint } } | undefined)?.args?.id;
 		if (contractId === undefined) return;
 
-		fetch("/api/magic-link/send", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				contractId: contractId.toString(),
-				clientEmail: form.clientEmail,
-				clientAddress: form.client,
-				// "freelancer" role routes the link to /freelancer/review
-				role: isClientProposing ? "freelancer" : "client",
-			}),
-		})
-			.then((r) => {
-				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: r.ok ? "sent" : "error" });
-			})
-			.catch(() => {
-				dispatch({ type: "SET_MAGIC_LINK_STATUS", status: "error" });
-			});
-	}, [isSuccess, receipt, form.clientEmail, form.client, isClientProposing]);
+		sendMagicLinkRequest({
+			contractId: contractId.toString(),
+			clientEmail: form.clientEmail,
+			clientAddress: form.client,
+			// "freelancer" role routes the link to /freelancer/review
+			role: isClientProposing ? "freelancer" : "client",
+		});
+	}, [
+		isSuccess,
+		receipt,
+		form.clientEmail,
+		form.client,
+		isClientProposing,
+		sendMagicLinkRequest,
+	]);
 
 	async function handleUploadToIPFS(): Promise<void> {
 		if (selectedFile === null) return;

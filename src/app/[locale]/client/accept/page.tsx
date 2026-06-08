@@ -1,5 +1,11 @@
 import { verifyMagicToken, type MagicLinkPayload } from "@/lib/magicLink";
 import { AcceptPageInner } from "./_components/AcceptPageInner";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Accept Contract | TrustLedger",
+	description: "Review and fund a freelance escrow contract from a secure magic link.",
+};
 
 // The client lands here from the magic-link email. They review the freelancer's
 // proposal, securely view the (optionally encrypted) IPFS contract document, then

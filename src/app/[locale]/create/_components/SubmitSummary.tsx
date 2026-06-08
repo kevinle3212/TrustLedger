@@ -2,6 +2,7 @@
 
 import type { DecodedContractError } from "@/lib/contractErrors";
 import { useLocale, useTranslations } from "next-intl";
+import { useMemo } from "react";
 
 interface Props {
 	amount: string;
@@ -50,6 +51,10 @@ export function SubmitSummary({
 	const isClientProposing = proposerRole === "client";
 	const tokenLabel = isUsdc ? "USDC" : "ETH";
 	const deadlineDays = Math.round((Number(estimatedDurationDays) * Number(bufferFactor)) / 1000);
+	const amountFormatter = useMemo(
+		() => new Intl.NumberFormat(locale, { maximumFractionDigits: isUsdc ? 2 : 6 }),
+		[locale, isUsdc],
+	);
 
 	/** Message to show for a simulation revert, preferring the decoded form. */
 	const simErrorMessage: string | null = ((): string | null => {
@@ -67,10 +72,7 @@ export function SubmitSummary({
 							{t("escrowAmountSummary")}
 						</span>{" "}
 						<span className="text-gray-900 dark:text-white font-medium">
-							{new Intl.NumberFormat(locale, {
-								maximumFractionDigits: isUsdc ? 2 : 6,
-							}).format(Number(amount))}{" "}
-							{tokenLabel}
+							{amountFormatter.format(Number(amount))} {tokenLabel}
 						</span>
 					</p>
 					{isUsdc && (
@@ -93,9 +95,7 @@ export function SubmitSummary({
 							</span>{" "}
 							<span className="text-gray-900 dark:text-white font-medium">
 								{holdBack}% (
-								{new Intl.NumberFormat(locale, {
-									maximumFractionDigits: isUsdc ? 2 : 6,
-								}).format((Number(amount) * Number(holdBack)) / 100)}{" "}
+								{amountFormatter.format((Number(amount) * Number(holdBack)) / 100)}{" "}
 								{tokenLabel})
 							</span>
 						</p>
