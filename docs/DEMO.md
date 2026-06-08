@@ -1,37 +1,35 @@
-# Demo Assets
+# Demo Guide
 
-Reusable assets for demoing TrustLedger live.
+This document explains the local demo scripts included with TrustLedger. Read it
+when preparing a contract lifecycle or arbitration demonstration.
 
-## Sample Contract Document
+## Prerequisites
 
-`utils/sample-contract.pdf` is a dummy freelance service agreement you can
-upload as the **Contract Document** when creating an escrow. On creation,
-TrustLedger stores the file's `keccak256` hash on-chain (`contractHash`) and
-pins the file to IPFS (`contractURI`). Any later edit to the file changes the
-hash and fails the on-chain match — demonstrating on-chain proof of agreement.
-
-- Fictional parties and values; **not a legally binding contract**.
-- Terms mirror the protocol: 1.00 ETH escrow, 5% arbitration fee, 10%/30-day
-  warranty hold-back, 48-hour acceptance window.
-
-## Regenerating the PDF
-
-The PDF is produced by `utils/generate_contract.py` (uses
-[`reportlab`](https://pypi.org/project/reportlab/)). Edit the script to change
-parties, amounts, or clauses, then regenerate.
+Start a local Hardhat chain:
 
 ```bash
-# from the project root
-pip install -r utils/requirements.txt
-python3 utils/generate_contract.py
-# → writes utils/sample-contract.pdf
+npm run node
 ```
 
-## Using It in a Demo
+Deploy contracts to the local chain:
 
-1. Open the frontend and connect a wallet on Ethereum Sepolia.
-2. Start **Create a Contract**.
-3. Under **Contract Document**, upload `utils/sample-contract.pdf` (or paste an
-   IPFS URI).
-4. Fill in the freelancer address and escrow amount, then create the contract.
-5. The stored `contractHash` now binds the exact bytes of the PDF on-chain.
+```bash
+npm run hardhat:deploy:local
+```
+
+## Demo Scripts
+
+Run demo scripts from the repository root after the local deployment.
+
+| Scenario             | Command                   |
+| -------------------- | ------------------------- |
+| Successful lifecycle | `npm run demo:good`       |
+| Failed work scenario | `npm run demo:bad`        |
+| Juror scenario       | `npm run demo:jurors`     |
+| Scenario runner      | `npm run demo:scenario`   |
+| Stablecoin scenario  | `npm run demo:stablecoin` |
+| Shell wrapper        | `npm run demo:run`        |
+
+The demo scripts use the local Hardhat network and deployed-address artifacts.
+They are not a replacement for the Foundry and Hardhat test suites documented in
+[Testing](TESTING.md).

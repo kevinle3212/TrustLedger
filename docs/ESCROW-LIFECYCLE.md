@@ -1,0 +1,132 @@
+# Escrow Lifecycle
+
+This document explains TrustLedger escrow state transitions. Read it when
+reviewing user flows, testing lifecycle behavior, or integrating a client with
+`TrustLedger.sol`.
+
+## Statuses
+
+| Status      | Meaning                                                     |
+| ----------- | ----------------------------------------------------------- |
+| `PENDING`   | A proposal exists but escrow funds have not been deposited. |
+| `ACTIVE`    | Escrow funds are deposited and the freelancer can work.     |
+| `SUBMITTED` | The freelancer submitted proof of work.                     |
+| `APPROVED`  | The client approved work; the holdback remains in warranty. |
+| `DISPUTED`  | Arbitration owns the outcome.                               |
+| `RESOLVED`  | Funds were released or an arbitration ruling executed.      |
+| `CANCELLED` | The proposal or escrow was cancelled before completion.     |
+
+## Freelancer-Proposed Flow
+
+Use this flow when the freelancer writes the offer and the client decides
+whether to fund it.
+
+```text
+proposeContract
+      |
+      v
+PENDING -- acceptContract --> ACTIVE -- submitProofOfWork --> SUBMITTED
+   |                              |                              |
+   |                              |                              +-- approveWork --> APPROVED
+   |                              |                              |
+   |                              |                              +-- disputeWork --> DISPUTED
+   |                              |                              |
+   |                              |                              +-- claimAfterAcceptanceWindow
+   |                              |                                  --> RESOLVED
+   |                              |
+   |                              +-- claimAfterDeadlineMiss --> CANCELLED
+   |
+   +-- cancelProposal --> CANCELLED
+   |
+   +-- rejectContract --> CANCELLED
+```
+
+### Proposal
+
+The freelancer calls `proposeContract` with a client address, amount, project
+duration, warranty period, contract hash, contract URI, token address, and
+optional previous contract ID. The function does not escrow funds. Native-token
+escrows use the zero address. ERC-20 escrows require a token that
+`allowedTokens[token]` already marks as allowed.
+
+The contract stores a buffered deadline using `MIN_BUFFER_FACTOR`, which is
+`1100` basis points. That gives the freelancer 110 percent of the estimated
+duration.
+
+### Funding
+
+The client calls `acceptContract`. For native-token escrows, `msg.value` must
+equal the contract amount. For ERC-20 escrows, `msg.value` must be zero and the
+client must approve `TrustLedger` to transfer the escrow amount before calling.
+
+### Cancellation
+
+Before funding, the freelancer can call `cancelProposal` and the client can call
+`rejectContract`. Both paths move the escrow to `CANCELLED`.
+
+## Client-Proposed Flow
+
+Use this flow when the client writes the offer and the freelancer decides
+whether to accept it.
+
+```text
+proposeContractByClient
+      |
+      v
+PENDING -- acceptContractByFreelancer --> PENDING -- fundContractByClient --> ACTIVE
+   |                                           |
+   |                                           +-- rejectContractByFreelancer --> CANCELLED
+   |
+   +-- withdrawClientProposal --> CANCELLED
+```
+
+The client-proposed path is two-step acceptance plus funding.
+`acceptContractByFreelancer` marks the freelancer as accepted but does not take
+funds. `fundContractByClient` deposits funds and moves the escrow to `ACTIVE`.
+
+## Work Submission
+
+The freelancer calls `submitProofOfWork` from `ACTIVE`. The proof hash and proof
+URI are stored, and the escrow moves to `SUBMITTED`. The contract then waits for
+client approval, dispute, or the acceptance-window claim path.
+
+## Approval And Holdback
+
+The client calls `approveWork` from `SUBMITTED`. The contract pays the
+freelancer the escrow amount minus the holdback and moves to `APPROVED`. The
+holdback remains in escrow until the warranty period expires.
+
+After the warranty deadline, the freelancer calls `claimWarrantyFunds`. That
+pays the holdback and moves the escrow to `RESOLVED`.
+
+## Deadline Claims
+
+| Claim                        | Caller     | State                               | Result                                         |
+| ---------------------------- | ---------- | ----------------------------------- | ---------------------------------------------- |
+| `claimAfterDeadlineMiss`     | Client     | `ACTIVE` after project deadline     | Refunds escrow funds and cancels the contract. |
+| `claimAfterAcceptanceWindow` | Freelancer | `SUBMITTED` after acceptance window | Pays the freelancer and resolves the contract. |
+| `claimWarrantyFunds`         | Freelancer | `APPROVED` after warranty deadline  | Pays holdback and resolves the contract.       |
+
+## Disputes
+
+Either the client or freelancer can call `disputeWork` when the escrow is in a
+disputable state. The escrow moves to `DISPUTED`, and `TrustLedger` opens an
+arbitration dispute.
+
+Native-token escrows carve the juror fee pool from escrowed funds. ERC-20
+escrows require the caller to provide the ETH juror fee separately because the
+escrowed asset is not ETH.
+
+Read [Arbitration](ARBITRATION.md) for the dispute flow.
+
+## Ratings
+
+After completion paths, `submitRating` lets each party rate the counterparty
+from `1` to `100`. When arbitration executes a ruling, `TrustLedger` also
+records automatic low-score ratings in extreme outcomes:
+
+- Completion at least `80` records a low client score.
+- Completion at most `20` records a low freelancer score.
+
+Ratings are sent to `ReputationRegistry` only after `initReputationRegistry` has
+configured that registry.

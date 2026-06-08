@@ -63,7 +63,7 @@
 		"fix:prettier": "prettier --write .",
 		"lint:sol": "solhint --disc --max-warnings 0 'contracts/src/**/*.sol' 'contracts/test/**/*.sol' 'contracts/script/**/*.sol'",
 		"lint:forge": "cd contracts && forge fmt --check && forge lint",
-		"lint:md": "markdownlint-cli2 \"**/*.md\" \"#contracts/lib\" \"#contracts/out\" \"#contracts/cache\" \"#artifacts\" \"#dist\" \"#node_modules\" \"#src/node_modules\" \"#.next\" \"#src/.next\" \"#.vercel/output\" \"#.claude\" \"#.sixth\" \"#site\" \"#testing\" \"#src/skills\" \"#src/.agents\" \"#src/.claude\"",
+		"lint:md": "markdownlint-cli2 \"**/*.md\" \"#NOTES.local.md\" \"#contracts/lib\" \"#contracts/out\" \"#contracts/cache\" \"#artifacts\" \"#dist\" \"#node_modules\" \"#src/node_modules\" \"#.next\" \"#src/.next\" \"#.vercel/output\" \"#.claude\" \"#.sixth\" \"#site\" \"#testing\" \"#src/skills\" \"#src/.agents\" \"#src/.claude\"",
 		"lint:ts": "eslint 'test/**/*.ts' 'scripts/**/*.ts' 'hardhat.config.ts'",
 		"lint:prettier": "prettier --check .",
 		"lint:py": "mypy utils/generate_contract.py scripts/models/github_models.py",

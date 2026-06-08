@@ -60,14 +60,22 @@ theme:
 nav:
     - Home: Home.md
     - Architecture: ARCHITECTURE.md
-    - Contract Reference: CONTRACTS.md
+    - Smart Contracts: SMART-CONTRACTS.md
+    - Escrow Lifecycle: ESCROW-LIFECYCLE.md
+    - Arbitration: ARBITRATION.md
+    - Deployment: DEPLOYMENT.md
+    - Testing: TESTING.md
+    - Security: SECURITY.md
+    - Environment: ENVIRONMENT.md
+    - CI/CD: CI-CD.md
     - Contributing: CONTRIBUTING.md
+    - Frontend: FRONTEND.md
+    - TypeScript SDK: TYPESCRIPT-SDK.md
     - Wallets: WALLETS.md
     - FAQ: FAQ.md
-    - Deployment: DEPLOYMENT.md
     - Docker: DOCKER.md
-    - Testing: TESTING.md
     - GitHub Models: GITHUB_MODELS.md
+    - Contract Reference: CONTRACTS.md
     - Miscellaneous: MISCELLANEOUS.md
     - Presentation: PRESENTATION.md
     - Demo: DEMO.md
