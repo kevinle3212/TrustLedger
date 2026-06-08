@@ -49,7 +49,7 @@ export function ThemeToggle(): React.JSX.Element {
 	// (before next-themes mounts), so both render this same-size placeholder -
 	// keeping markup identical across hydration (avoids React #418) without a
 	// setState-in-effect mounted flag.
-	if (resolvedTheme === undefined) return <div className="w-9 h-9" />;
+	if (resolvedTheme === undefined) return <div className="h-10 w-10 sm:h-9 sm:w-9" />;
 
 	const isDark = resolvedTheme === "dark";
 
@@ -60,7 +60,7 @@ export function ThemeToggle(): React.JSX.Element {
 				setTheme(isDark ? "light" : "dark");
 			}}
 			aria-label={isDark ? t("switchToLightMode") : t("switchToDarkMode")}
-			className="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+			className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white sm:min-h-9 sm:min-w-9"
 		>
 			{isDark ? <SunIcon /> : <MoonIcon />}
 		</button>

@@ -136,12 +136,12 @@ export function ConnectButton(): React.JSX.Element {
 		};
 
 		return (
-			<div className="inline-flex max-w-full items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white">
+			<div className="grid max-w-full grid-cols-[minmax(0,1fr)_2.5rem] items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white sm:inline-grid sm:grid-cols-[minmax(0,1fr)_2.75rem]">
 				<button
 					type="button"
 					onClick={openModal}
 					aria-label={t("connectedAs", { address })}
-					className="inline-flex min-h-10 min-w-0 items-center px-3.5 py-2 font-mono text-sm font-medium transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:px-4"
+					className="inline-flex min-h-10 min-w-0 items-center justify-center px-4 py-2 font-mono text-sm font-semibold transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:px-5"
 				>
 					<span aria-hidden="true" className="truncate">
 						{formatAddress(address)}
@@ -152,7 +152,7 @@ export function ConnectButton(): React.JSX.Element {
 					onClick={copyAddress}
 					aria-label={copied ? t("addressCopied") : t("copyWalletAddress")}
 					title={copied ? t("copied") : t("copyAddress")}
-					className="inline-flex min-h-10 shrink-0 items-center justify-center border-l border-white/20 px-3 transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11"
+					className="inline-flex min-h-10 w-10 shrink-0 items-center justify-center border-l border-white/20 text-white/90 transition-colors hover:bg-indigo-500 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:w-11"
 				>
 					{copied ? <CheckIcon /> : <CopyIcon />}
 				</button>

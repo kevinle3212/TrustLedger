@@ -38,7 +38,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("client");
 				}}
-				className={`min-h-8 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:px-3 ${
+				className={`min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
 					role === "client"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -52,7 +52,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("freelancer");
 				}}
-				className={`min-h-8 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:px-3 ${
+				className={`min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
 					role === "freelancer"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -70,7 +70,7 @@ export function Navbar(): React.JSX.Element {
 	const t = useTranslations("Nav");
 
 	const linkClass = (href: string): string =>
-		`text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-sm ${
+		`inline-flex min-h-10 items-center rounded-sm px-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-9 ${
 			path === href
 				? "text-gray-900 dark:text-white"
 				: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -83,7 +83,7 @@ export function Navbar(): React.JSX.Element {
 					<Link
 						href="/"
 						aria-current={path === "/" ? "page" : undefined}
-						className="flex shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+						className="flex min-h-10 shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
 					>
 						<Image
 							src="/logo.png"
@@ -97,7 +97,7 @@ export function Navbar(): React.JSX.Element {
 					</Link>
 					<nav
 						aria-label={t("mainNav")}
-						className="-mx-1 flex max-w-full items-center gap-4 overflow-x-auto px-1 pb-1 whitespace-nowrap sm:gap-6 lg:mx-0 lg:overflow-visible lg:px-0 lg:pb-0"
+						className="-mx-1 flex max-w-full flex-wrap items-center gap-x-4 gap-y-1 px-1 sm:gap-x-6 lg:mx-0 lg:px-0"
 					>
 						<Link
 							href="/create"

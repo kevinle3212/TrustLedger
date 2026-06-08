@@ -11,10 +11,19 @@
 		// Frontend
 		"bradlc.vscode-tailwindcss",
 		"formulahendry.auto-rename-tag",
+		"christian-kohler.npm-intellisense",
 		"christian-kohler.path-intellisense",
 
 		// Config / Environment
 		"mikestead.dotenv",
+		"redhat.vscode-yaml",
+		"tamasfe.even-better-toml",
+
+		// Python
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-python.mypy-type-checker",
+		"ms-python.vscode-python-envs",
 
 		// Docs
 		"DavidAnson.vscode-markdownlint",
@@ -26,9 +35,10 @@
 		// Git / Productivity
 		"eamodio.gitlens",
 		"Gruntfuggly.todo-tree",
+		"coderabbit.coderabbit-vscode",
 
 		// AI Coding Assistants
-		"anthropic-ai.claude-code",
+		"anthropic.claude-code",
 		"GitHub.copilot-chat",
 		"openai.chatgpt",
 		"ms-playwright.playwright"
