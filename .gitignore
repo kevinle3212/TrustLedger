@@ -3,6 +3,8 @@
 
 # ─── Editor / tool local config ──────────────────────────────────────────────
 .claude/
+.codex/
+.copilot/
 .serena/
 .sixth/
 .vscode-test/
