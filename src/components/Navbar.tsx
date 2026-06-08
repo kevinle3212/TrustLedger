@@ -66,7 +66,7 @@ function RoleToggle(): React.JSX.Element {
 
 export function Navbar(): React.JSX.Element {
 	const path = usePathname();
-	const githubUrl = process.env["NEXT_PUBLIC_GITHUB_URL"];
+	const githubUrl = process.env.NEXT_PUBLIC_GITHUB_URL;
 	const t = useTranslations("Nav");
 
 	const linkClass = (href: string): string =>

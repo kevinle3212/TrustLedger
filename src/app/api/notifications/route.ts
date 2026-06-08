@@ -86,7 +86,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 	if (detail !== undefined && typeof detail !== "string")
 		return NextResponse.json({ error: "detail must be a string" }, { status: 400 });
 
-	const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 	const { subject, html } = buildNotification(type as NotificationType, {
 		contractId,
 		appUrl,

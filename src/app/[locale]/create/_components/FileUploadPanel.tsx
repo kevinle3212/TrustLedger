@@ -92,8 +92,8 @@ export function FileUploadPanel({
 			/>
 
 			{/* Pinata JWT - shown if not baked in via env */}
-			{(process.env["NEXT_PUBLIC_PINATA_JWT"] === undefined ||
-				process.env["NEXT_PUBLIC_PINATA_JWT"] === "") && (
+			{(process.env.NEXT_PUBLIC_PINATA_JWT === undefined ||
+				process.env.NEXT_PUBLIC_PINATA_JWT === "") && (
 				<Field label={t("pinataJwt")} hint={t("pinataJwtHint")} error={pinataJwtError}>
 					<Input
 						type="password"

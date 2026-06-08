@@ -135,7 +135,7 @@ export function useCreatePageState(): {
 			selectedFile: null,
 			encryptEnabled: false,
 			passphrase: "",
-			pinataJwt: process.env["NEXT_PUBLIC_PINATA_JWT"] ?? "",
+			pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT ?? "",
 			uploadStatus: "idle",
 			uploadError: null,
 			fileHash: null,

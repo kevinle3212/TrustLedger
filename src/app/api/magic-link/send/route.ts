@@ -7,7 +7,7 @@ const EXPIRY_SECONDS = 72 * 60 * 60; // 72 hours
 export async function POST(req: NextRequest): Promise<NextResponse> {
 	const secret = process.env["MAGIC_LINK_SECRET"];
 	const apiKey = process.env["RESEND_API_KEY"];
-	const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 	if (secret === undefined || secret === "")
 		return NextResponse.json({ error: "MAGIC_LINK_SECRET not set" }, { status: 500 });

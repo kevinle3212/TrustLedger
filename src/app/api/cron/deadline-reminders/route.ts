@@ -64,7 +64,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 	// `chain: sepolia` gives multicall the canonical Multicall3 address; the cron
 	// reads from SEPOLIA_RPC_URL, matching the testnet deployment.
 	const client = createPublicClient({ chain: sepolia, transport: http(rpcUrl) });
-	const appUrl = process.env["NEXT_PUBLIC_APP_URL"] ?? "http://localhost:3000";
+	const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 	const emailMap = loadEmailMap();
 
 	// Total contract count, then read each open contract via multicall.
