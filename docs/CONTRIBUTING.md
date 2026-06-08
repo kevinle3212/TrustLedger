@@ -389,7 +389,10 @@ token-budgeted context about functions, classes, and their dependencies without
 reading every file.
 
 The MCP server is configured in `.mcp.json` at the repo root. Claude Code picks
-it up automatically on session start.
+it up automatically on session start. The project routes both manual indexing
+and MCP startup through `scripts/nexus-mcp.js`, which patches around a
+`tree-sitter-typescript` parser limit that throws `Invalid argument` on very
+large TypeScript files such as `test/TrustLedger.test.ts`.
 
 ```bash
 # Build or refresh the symbol graph (run from repo root)
@@ -404,6 +407,73 @@ npm run nexus:viz
 
 Re-run `nexus:index` after large refactors to keep the graph current. The
 generated database lives in `.nexus/graph.db` (gitignored).
+
+---
+
+## Serena Hooks (Claude Code)
+
+Serena is configured through Claude Code's local settings so agents are reminded
+to activate and use Serena for code navigation while avoiding repeated manual
+approval prompts for Serena MCP calls.
+
+The expected local config is `.claude/settings.local.json`:
+
+```json
+{
+    "enabledMcpjsonServers": ["nexus"],
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "serena-hooks remind --client=claude-code"
+                    }
+                ]
+            },
+            {
+                "matcher": "mcp__serena__*",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "serena-hooks auto-approve --client=claude-code"
+                    }
+                ]
+            }
+        ],
+        "SessionStart": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "serena-hooks activate --client=claude-code"
+                    }
+                ]
+            }
+        ],
+        "SessionEnd": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "serena-hooks cleanup --client=claude-code"
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+Verify the hook binary is installed and exposes the expected commands:
+
+```bash
+command -v serena-hooks
+serena-hooks --help
+```
 
 ---
 
@@ -439,6 +509,10 @@ Once `rtk` is installed, Claude Code's session hook (defined in
 `.claude/settings.json`) automatically routes all shell commands through the
 proxy. No manual configuration is required — just install and it is active the
 next time a Claude Code session starts.
+
+For this repo, agent shell commands should be explicitly prefixed with `rtk`
+(`rtk git status`, `rtk npm run build:frontend`, etc.) so command output stays
+compact even when the hook is not active.
 
 ```text
 git status  →  rtk git status   (Claude only sees the filtered output)

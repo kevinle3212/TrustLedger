@@ -35,22 +35,59 @@ Supplementary notes that don't belong in any single other document.
 
 ## Tooling Overview
 
-| Tool                  | Role                                                                                                                                                                   |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                                                                          |
-| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment                                            |
-| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                                                                  |
-| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                                                                      |
-| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                                                                       |
-| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                                                             |
-| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                                                                   |
-| **Solhint**           | Solidity-specific style and security linting rules                                                                                                                     |
-| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                                                                       |
-| **nexus-graph**       | Indexes TypeScript/JavaScript source as a symbol graph; serves token-budgeted code context to Claude Code via MCP (`.mcp.json`)                                        |
-| **rtk**               | Token-optimized Claude Code CLI proxy (60-90% token savings on shell operations); transparently wraps commands via a session hook - run `rtk gain` to view savings     |
-| **Excalidraw**        | Hand-drawn-style diagramming tool used for architecture sketches and flow diagrams; export as SVG/PNG for embedding in docs ([excalidraw.com](https://excalidraw.com)) |
-| **Vercel**            | Frontend hosting platform; auto-deploys on push to `main` and exposes preview URLs on every PR - configured in `src/vercel.json` and `.vercel/project.json`            |
-| **RainbowKit**        | Wallet connection UI library for React - provides the connect-wallet modal, multi-wallet support, and chain-switching UI; wired via wagmi in `src/lib/wagmi.ts`        |
+| Tool                  | Role                                                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Hardhat 2.x**       | Local EVM node, TypeScript deployment scripts, integration test runner (Mocha/Chai/ethers.js)                                                                            |
+| **Foundry (forge)**   | Solidity-native unit tests, fuzz tests, gas reports, `forge fmt` / `forge build`, and `forge script` for testnet deployment                                              |
+| **TypeChain**         | Generates TypeScript types from Hardhat-compiled ABIs so test code is fully type-safe                                                                                    |
+| **Husky**             | Runs `npm run lint` before every commit and `commitlint` against the commit message via git hooks                                                                        |
+| **commitlint**        | Enforces Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, etc.) on every commit message                                                                         |
+| **ESLint**            | TypeScript linting; flat-config mode (`eslint.config.mjs`)                                                                                                               |
+| **Prettier**          | Consistent formatting for TypeScript, JSON, Markdown, and YAML files                                                                                                     |
+| **Solhint**           | Solidity-specific style and security linting rules                                                                                                                       |
+| **markdownlint-cli2** | Lints all documentation Markdown files against the rules in `.markdownlint.json`                                                                                         |
+| **nexus-graph**       | Indexes TypeScript/JavaScript source as a symbol graph; serves token-budgeted code context to Claude Code via MCP (`.mcp.json`); launched through `scripts/nexus-mcp.js` |
+| **Serena**            | Semantic code navigation MCP; local Claude hooks remind agents to activate Serena and auto-approve Serena MCP calls                                                      |
+| **rtk**               | Token-optimized Claude Code CLI proxy (60-90% token savings on shell operations); agent commands should be prefixed with `rtk` - run `rtk gain` to view savings          |
+| **Excalidraw**        | Hand-drawn-style diagramming tool used for architecture sketches and flow diagrams; export as SVG/PNG for embedding in docs ([excalidraw.com](https://excalidraw.com))   |
+| **Vercel**            | Frontend hosting platform; auto-deploys on push to `main` and exposes preview URLs on every PR - configured in `src/vercel.json` and `.vercel/project.json`              |
+| **RainbowKit**        | Wallet connection UI library for React - provides the connect-wallet modal, multi-wallet support, and chain-switching UI; wired via wagmi in `src/lib/wagmi.ts`          |
+
+### Nexus Graph for Claude Code
+
+`nexus-graph` is configured in `.mcp.json`, and the root npm scripts now start
+it through `scripts/nexus-mcp.js`:
+
+```bash
+npm run nexus:index
+npm run nexus:server
+npm run nexus:viz
+```
+
+The launcher keeps Nexus on stdio for MCP while skipping oversized TypeScript
+inputs that trigger a `tree-sitter-typescript` `Invalid argument` parser bug.
+This keeps `test/TrustLedger.test.ts` from generating parse and edge warnings
+during indexing.
+
+### Serena Hooks for Claude Code
+
+Serena is expected to be available through MCP during Claude Code sessions. The
+local `.claude/settings.local.json` file should enable the repo's `.mcp.json`
+servers and configure these hooks:
+
+| Event          | Command                                          |
+| -------------- | ------------------------------------------------ |
+| `PreToolUse`   | `serena-hooks remind --client=claude-code`       |
+| `PreToolUse`   | `serena-hooks auto-approve --client=claude-code` |
+| `SessionStart` | `serena-hooks activate --client=claude-code`     |
+| `SessionEnd`   | `serena-hooks cleanup --client=claude-code`      |
+
+Verify with:
+
+```bash
+command -v serena-hooks
+serena-hooks --help
+```
 
 ### RTK — Token Proxy for Claude Code
 
@@ -76,6 +113,10 @@ rtk gain --history   # per-command savings breakdown
 transparently rewrites commands through RTK. Install it once and every
 subsequent Claude Code session uses it automatically — no per-project
 configuration required.
+
+In TrustLedger agent sessions, prefer explicitly prefixing shell commands with
+`rtk` even when hooks are installed. This keeps behavior consistent across local
+Claude Code, Codex, and CI-like terminal sessions.
 
 **Useful meta-commands** (always call these directly, not through the hook):
 
