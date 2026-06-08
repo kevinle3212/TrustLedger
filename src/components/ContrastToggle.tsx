@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "tl-high-contrast";
@@ -43,6 +44,7 @@ function getServerSnapshot(): boolean {
  */
 export function ContrastToggle(): React.JSX.Element {
 	const high = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+	const t = useTranslations("Common");
 
 	function toggle(): void {
 		const next = !high;
@@ -55,8 +57,8 @@ export function ContrastToggle(): React.JSX.Element {
 			type="button"
 			onClick={toggle}
 			aria-pressed={high}
-			aria-label={high ? "Disable high-contrast mode" : "Enable high-contrast mode"}
-			title={high ? "High contrast: on" : "High contrast: off"}
+			aria-label={high ? t("disableHighContrast") : t("enableHighContrast")}
+			title={high ? t("highContrastOn") : t("highContrastOff")}
 			className="p-2 rounded-lg text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
 		>
 			{/* Half-filled circle signals contrast adjustment */}

@@ -3,6 +3,7 @@
 import { useAppKit } from "@reown/appkit/react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useAccount } from "wagmi";
+import { useTranslations } from "next-intl";
 import { getLastWallet, setLastWallet } from "@/lib/lastWallet";
 import { formatAddress } from "@/lib/utils";
 
@@ -76,6 +77,7 @@ function useMounted(): boolean {
 export function ConnectButton(): React.JSX.Element {
 	const { open } = useAppKit();
 	const { address, isConnected, connector } = useAccount();
+	const t = useTranslations("Common");
 
 	const mounted = useMounted();
 	const [copied, setCopied] = useState(false);
@@ -97,7 +99,7 @@ export function ConnectButton(): React.JSX.Element {
 	if (!mounted) {
 		return (
 			<button type="button" onClick={openModal} className={BUTTON_CLASS}>
-				Connect Wallet
+				{t("connectWallet")}
 			</button>
 		);
 	}
@@ -117,7 +119,7 @@ export function ConnectButton(): React.JSX.Element {
 				<button
 					type="button"
 					onClick={openModal}
-					aria-label={`Connected as ${address}. Click to open wallet options.`}
+					aria-label={t("connectedAs", { address })}
 					className="inline-flex items-center min-h-11 px-4 py-2 text-sm font-medium font-mono transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
 				>
 					<span aria-hidden="true">{formatAddress(address)}</span>
@@ -125,8 +127,8 @@ export function ConnectButton(): React.JSX.Element {
 				<button
 					type="button"
 					onClick={copyAddress}
-					aria-label={copied ? "Address copied" : "Copy wallet address"}
-					title={copied ? "Copied!" : "Copy address"}
+					aria-label={copied ? t("addressCopied") : t("copyWalletAddress")}
+					title={copied ? t("copied") : t("copyAddress")}
 					className="inline-flex items-center justify-center min-h-11 border-l border-white/20 px-3 transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
 				>
 					{copied ? <CheckIcon /> : <CopyIcon />}
@@ -139,8 +141,8 @@ export function ConnectButton(): React.JSX.Element {
 	const remembered = getLastWallet();
 	const label =
 		remembered !== null && remembered !== ""
-			? `Reconnect with ${remembered}`
-			: "Connect Wallet";
+			? t("reconnectWith", { wallet: remembered })
+			: t("connectWallet");
 
 	return (
 		<button type="button" onClick={openModal} className={BUTTON_CLASS}>

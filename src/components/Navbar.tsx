@@ -3,8 +3,9 @@
 import { ConnectButton } from "@/components/ConnectButton";
 import { useRole } from "@/contexts/RoleContext";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ContrastToggle } from "@/components/ContrastToggle";
 
@@ -30,9 +31,10 @@ function GitHubIcon(): React.JSX.Element {
 /** Pill toggle that switches between client and freelancer mode. */
 function RoleToggle(): React.JSX.Element {
 	const { role, setRole } = useRole();
+	const t = useTranslations("Nav");
 	return (
 		<fieldset className="flex items-center rounded-full border border-gray-200 dark:border-white/10 p-0.5 text-xs font-medium">
-			<legend className="sr-only">Active role</legend>
+			<legend className="sr-only">{t("activeRole")}</legend>
 			<button
 				type="button"
 				aria-pressed={role === "client"}
@@ -45,7 +47,7 @@ function RoleToggle(): React.JSX.Element {
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
 				}`}
 			>
-				Client
+				{t("roleClient")}
 			</button>
 			<button
 				type="button"
@@ -59,15 +61,59 @@ function RoleToggle(): React.JSX.Element {
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
 				}`}
 			>
-				Freelancer
+				{t("roleFreelancer")}
 			</button>
 		</fieldset>
+	);
+}
+
+const LOCALE_LABELS: Record<(typeof routing.locales)[number], string> = {
+	"en": "English",
+	"es": "Español",
+	"vi": "Tiếng Việt",
+	"pt": "Português",
+	"zh-CN": "简体中文",
+	"ar": "العربية",
+	"fr": "Français",
+	"hi": "हिन्दी",
+};
+
+function LocaleSwitcher(): React.JSX.Element {
+	const locale = useLocale() as (typeof routing.locales)[number];
+	const pathname = usePathname();
+	const router = useRouter();
+	const t = useTranslations("Nav");
+
+	return (
+		<>
+			<label className="sr-only" htmlFor="locale-switcher">
+				{t("changeLanguage")}
+			</label>
+			<select
+				id="locale-switcher"
+				value={locale}
+				onChange={(event) => {
+					router.replace(pathname, {
+						locale: event.target.value,
+					});
+				}}
+				aria-label={t("changeLanguage")}
+				className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300 dark:hover:text-white"
+			>
+				{routing.locales.map((option) => (
+					<option key={option} value={option}>
+						{LOCALE_LABELS[option]}
+					</option>
+				))}
+			</select>
+		</>
 	);
 }
 
 export function Navbar(): React.JSX.Element {
 	const path = usePathname();
 	const githubUrl = process.env["NEXT_PUBLIC_GITHUB_URL"];
+	const t = useTranslations("Nav");
 
 	const linkClass = (href: string): string =>
 		`text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-sm ${
@@ -87,7 +133,7 @@ export function Navbar(): React.JSX.Element {
 					>
 						<Image
 							src="/logo.png"
-							alt="TrustLedger logo"
+							alt={t("logoAlt")}
 							width={28}
 							height={28}
 							className="rounded"
@@ -95,45 +141,46 @@ export function Navbar(): React.JSX.Element {
 						/>
 						TrustLedger
 					</Link>
-					<nav aria-label="Main navigation" className="flex items-center gap-6">
+					<nav aria-label={t("mainNav")} className="flex items-center gap-6">
 						<Link
 							href="/create"
 							aria-current={path === "/create" ? "page" : undefined}
 							className={linkClass("/create")}
 						>
-							New Contract
+							{t("newContract")}
 						</Link>
 						<Link
 							href="/dashboard"
 							aria-current={path === "/dashboard" ? "page" : undefined}
 							className={linkClass("/dashboard")}
 						>
-							Dashboard
+							{t("dashboard")}
 						</Link>
 						<Link
 							href="/juror"
 							aria-current={path === "/juror" ? "page" : undefined}
 							className={linkClass("/juror")}
 						>
-							Juror
+							{t("juror")}
 						</Link>
 						<Link
 							href="/reputation"
 							aria-current={path === "/reputation" ? "page" : undefined}
 							className={linkClass("/reputation")}
 						>
-							Reputation
+							{t("reputation")}
 						</Link>
 					</nav>
 				</div>
 				<div className="flex items-center gap-3">
 					<RoleToggle />
+					<LocaleSwitcher />
 					{githubUrl !== undefined && githubUrl !== "" && (
 						<a
 							href={githubUrl}
 							target="_blank"
 							rel="noopener noreferrer"
-							aria-label="View source on GitHub"
+							aria-label={t("viewGitHub")}
 							className="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 rounded-lg"
 						>
 							<GitHubIcon />

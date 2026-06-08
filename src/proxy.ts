@@ -1,4 +1,6 @@
+import createIntlMiddleware from "next-intl/middleware";
 import { type NextRequest, NextResponse } from "next/server";
+import { routing } from "@/i18n/routing";
 
 // Routing proxy (Next.js 16's replacement for the deprecated `middleware.ts`
 // convention) that runs before every matched request. It does two things, both
@@ -73,6 +75,7 @@ const SECURITY_HEADERS: Record<string, string> = {
 const RATE_LIMIT = 30; // requests …
 const WINDOW_MS = 60_000; // … per minute per IP
 const hits = new Map<string, { count: number; resetAt: number }>();
+const handleI18nRouting = createIntlMiddleware(routing);
 
 /** Best-effort client IP from forwarded headers (Vercel sets x-forwarded-for). */
 function clientIp(req: NextRequest): string {
@@ -105,7 +108,9 @@ export function proxy(req: NextRequest): NextResponse {
 		return res;
 	}
 
-	const res = NextResponse.next();
+	const res = req.nextUrl.pathname.startsWith("/api/")
+		? NextResponse.next()
+		: handleI18nRouting(req);
 	for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.headers.set(k, v);
 	return res;
 }

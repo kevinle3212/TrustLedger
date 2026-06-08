@@ -1,6 +1,7 @@
 "use client";
 
 import { useReducer } from "react";
+import { useTranslations } from "next-intl";
 import { validateRequired } from "@/lib/validation";
 import { decryptFile } from "@/lib/encryption";
 
@@ -76,6 +77,7 @@ export function DecryptDocumentForm({
 	gatewayUrl: string;
 	onClose: () => void;
 }): React.JSX.Element {
+	const t = useTranslations("Decrypt");
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const {
 		mode,
@@ -120,7 +122,7 @@ export function DecryptDocumentForm({
 			// AES-GCM throws OperationError when the passphrase is wrong or ciphertext is tampered.
 			const friendly =
 				err instanceof DOMException && err.name === "OperationError"
-					? "Decryption failed — wrong passphrase or corrupted bundle."
+					? t("decryptionFailed")
 					: err instanceof Error
 						? err.message
 						: String(err);
@@ -132,7 +134,7 @@ export function DecryptDocumentForm({
 		<div className="flex flex-col gap-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4">
 			<div className="flex items-center justify-between">
 				<span className="text-xs font-medium text-gray-700 dark:text-gray-200">
-					Decrypt AES-256-GCM document
+					{t("title")}
 				</span>
 				<button
 					type="button"
@@ -158,14 +160,14 @@ export function DecryptDocumentForm({
 								: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
 						}`}
 					>
-						{m === "fetch" ? "Fetch from URI" : "Paste bundle"}
+						{m === "fetch" ? t("fetchFromUri") : t("pasteBundle")}
 					</button>
 				))}
 			</div>
 
 			{mode === "fetch" ? (
 				<p className="text-xs text-gray-500 break-all">
-					Will fetch:{" "}
+					{t("willFetch", { url: "" })}
 					<span className="font-mono text-gray-600 dark:text-gray-400">{gatewayUrl}</span>
 				</p>
 			) : (
@@ -198,7 +200,7 @@ export function DecryptDocumentForm({
 				<input
 					aria-label="Passphrase for decryption"
 					type="password"
-					placeholder="Passphrase"
+					placeholder={t("passphrasePlaceholder")}
 					value={passphrase}
 					onChange={(e) => {
 						dispatch({ type: "SET_PASSPHRASE", value: e.target.value });
@@ -221,7 +223,7 @@ export function DecryptDocumentForm({
 			<input
 				aria-label="Output filename"
 				type="text"
-				placeholder="Output filename (e.g. contract.pdf)"
+				placeholder={t("outputFilenamePlaceholder")}
 				value={filename}
 				onChange={(e) => {
 					dispatch({ type: "SET_FILENAME", value: e.target.value });
@@ -231,7 +233,7 @@ export function DecryptDocumentForm({
 
 			{status === "done" ? (
 				<p className="text-xs text-green-500 dark:text-green-400">
-					✓ File downloaded.{" "}
+					{t("fileDownloaded")}{" "}
 					<button
 						type="button"
 						onClick={() => {
@@ -239,7 +241,7 @@ export function DecryptDocumentForm({
 						}}
 						className="underline text-gray-500 hover:text-gray-900 dark:hover:text-white"
 					>
-						Decrypt another
+						{t("decryptAnother")}
 					</button>
 				</p>
 			) : (
@@ -255,7 +257,7 @@ export function DecryptDocumentForm({
 					}
 					className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
 				>
-					{status === "working" ? "Decrypting…" : "Decrypt & Download"}
+					{status === "working" ? t("decrypting") : t("decryptAndDownload")}
 				</button>
 			)}
 

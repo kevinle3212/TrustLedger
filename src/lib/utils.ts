@@ -37,9 +37,9 @@ export function formatAddress(addr: string): string {
 	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-function formatEth(wei: bigint): string {
+function formatEth(wei: bigint, locale?: string): string {
 	const eth = Number(wei) / 1e18;
-	return `${eth.toLocaleString(undefined, { maximumFractionDigits: 6 })} ETH`;
+	return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 6 }).format(eth)} ETH`;
 }
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -50,23 +50,23 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
  * Any ERC-20 (e.g. USDC) → 6-decimal USDC formatting.
  * The 6-decimal assumption is safe for USDC on all supported chains.
  */
-export function formatTokenAmount(amount: bigint, tokenAddress: string): string {
+export function formatTokenAmount(amount: bigint, tokenAddress: string, locale?: string): string {
 	if (tokenAddress === ZERO_ADDRESS) {
-		return formatEth(amount);
+		return formatEth(amount, locale);
 	}
 	const usdc = Number(amount) / 1e6;
-	return `${usdc.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC`;
+	return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(usdc)} USDC`;
 }
 
 /** Returns "ETH" or "USDC" for display in labels/hints. */
 
-export function formatDeadline(ts: bigint): string {
+export function formatDeadline(ts: bigint, locale?: string): string {
 	if (ts === BigInt(0)) return "-";
-	return new Date(Number(ts) * 1000).toLocaleDateString(undefined, {
+	return new Intl.DateTimeFormat(locale, {
 		year: "numeric",
 		month: "short",
 		day: "numeric",
-	});
+	}).format(new Date(Number(ts) * 1000));
 }
 
 export const STATUS_COLORS: Record<number, string> = {
