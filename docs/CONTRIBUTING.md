@@ -785,6 +785,34 @@ privately via the contact in `SECURITY.md`.
 TrustLedger is currently pre-mainnet. No contracts hold real user funds. The
 codebase targets Ethereum Sepolia (testnet) and is under active development.
 
+### GitHub Security Alert Commands
+
+Three npm scripts surface open security alerts from GitHub without leaving the
+terminal. They require `gh` (already authenticated) and `jq`.
+
+| Command                       | Description                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------------------------- |
+| `npm run security`            | Runs both `security:alerts` and `security:dependabot` in sequence.                            |
+| `npm run security:alerts`     | Lists open GitHub code-scanning alerts — rule ID, severity, description, file, line, and URL. |
+| `npm run security:dependabot` | Lists open Dependabot alerts — package name, severity, advisory summary, and URL.             |
+
+**Output format** — each command returns a compact JSON array so you can pipe it
+further or review it directly:
+
+```bash
+# Review all open alerts at once
+npm run security
+
+# Pipe code-scanning alerts into a pager
+npm run security:alerts | less
+
+# Filter to critical Dependabot alerts only
+npm run security:dependabot | jq '[.[] | select(.severity == "critical")]'
+```
+
+Resolve alerts on a dedicated branch (`fix/security-...`) and open a PR so CI
+re-runs the scans and confirms the fix. See the branching guidelines above.
+
 ---
 
 ## License

@@ -99,7 +99,10 @@
 		"cache:clear:prettier": "find . -name '.prettiercache' -maxdepth 3 | grep -v node_modules | xargs rm -f",
 		"cache:clear:npm": "npm cache clean --force",
 		"cache:clear:hardhat": "rm -rf artifacts cache typechain-types",
-		"cache:clear:typechain": "rm -rf typechain-types"
+		"cache:clear:typechain": "rm -rf typechain-types",
+		"security:alerts": "gh api repos/kevinle3212/TrustLedger/code-scanning/alerts?state=open --paginate | jq '[.[] | {number: .number, rule: .rule.id, severity: .rule.severity, description: .rule.description, file: .most_recent_instance.location.path, line: .most_recent_instance.location.start_line, url: .html_url}]'",
+		"security:dependabot": "gh api repos/kevinle3212/TrustLedger/dependabot/alerts?state=open --paginate | jq '[.[] | {number: .number, package: .dependency.package.name, severity: .security_advisory.severity, summary: .security_advisory.summary, url: .html_url}]'",
+		"security": "npm run security:alerts && npm run security:dependabot"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^21.0.2",

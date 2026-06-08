@@ -22,6 +22,8 @@ export default function CreatePage(): React.JSX.Element {
 		usdcAddress,
 		simData,
 		simError,
+		decodedSimError,
+		missingFieldLabels,
 		txArgs,
 		hasBlockingErrors,
 		set,
@@ -202,6 +204,7 @@ export default function CreatePage(): React.JSX.Element {
 					bufferFactor={form.bufferFactor}
 					holdBack={form.holdBack}
 					simError={simError}
+					decodedSimError={decodedSimError}
 					simStatus={
 						txArgs === null
 							? "idle"
@@ -212,6 +215,8 @@ export default function CreatePage(): React.JSX.Element {
 					writeError={writeError}
 					txStatus={isPending ? "pending" : isConfirming ? "confirming" : "idle"}
 					hasBlockingErrors={hasBlockingErrors}
+					submitAttempted={state.submitAttempted}
+					missingFieldLabels={missingFieldLabels}
 					proposerRole={proposerRole}
 				/>
 			</form>
