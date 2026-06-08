@@ -174,19 +174,6 @@ mainnet launch deliverables.
 
 ## Phase 6 — Backend Services and Off-Chain Infrastructure (Mainnet)
 
-- [ ] Evaluate whether Supabase is needed for this project.
-    - Determine which specific features or requirements would benefit from
-      Supabase (authentication, database, storage, realtime features, edge
-      functions, etc.).
-    - Compare Supabase against the current architecture and justify adoption or
-      non-adoption.
-    - If adopted, document exactly what Supabase will be responsible for and
-      what remains outside of Supabase.
-    - Note: Supabase CLI is already installed globally and available for use.
-    - Provide a recommendation with trade-offs, implementation complexity,
-      costs, vendor lock-in considerations, security implications, and long-term
-      maintainability impacts.
-
 - [ ] Add off-chain user accounts to support profile data, notifications, and
       messaging that cannot or should not live on-chain.
     - **Authentication:** Require users to sign a typed EIP-712 message with
@@ -444,6 +431,23 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Evaluate whether Supabase is needed for this project.
+    - Determine which specific features or requirements would benefit from
+      Supabase (authentication, database, storage, realtime features, edge
+      functions, etc.).
+    - Compare Supabase against the current architecture and justify adoption or
+      non-adoption.
+    - If adopted, document exactly what Supabase will be responsible for and
+      what remains outside of Supabase.
+    - Note: Supabase CLI is already installed globally and available for use.
+    - Provide a recommendation with trade-offs, implementation complexity,
+      costs, vendor lock-in considerations, security implications, and long-term
+      maintainability impacts.
+    - Completed 2026-06-08: documented the recommendation in
+      `NOTES.md#supabase-evaluation-2026-06-08`. Decision: defer Supabase as a
+      core dependency; revisit in Phase 6 only for off-chain profiles,
+      notification preferences, and rebuildable event indexes.
 
 - [x] Add internationalization (i18n) so TrustLedger is accessible to a global
       freelance audience.

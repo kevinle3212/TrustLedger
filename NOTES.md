@@ -427,6 +427,93 @@ history). This keeps the trust-critical path fully decentralized.
 
 <!-- Notable choices and the reasoning behind them. -->
 
+### Supabase Evaluation (2026-06-08)
+
+**Recommendation:** Do **not** make Supabase a core dependency for the current
+TrustLedger architecture. Adopt it only when Phase 6 needs a real off-chain
+account and notification database. The current app can keep shipping with wallet
+authentication, on-chain escrow state, Resend for email, Pinata/Arweave for
+documents, and provider-specific services for RPC, AI, and price data.
+
+#### Features That Would Benefit From Supabase
+
+| Supabase capability | TrustLedger fit                                                                                                                                             | Recommendation                                                                                  |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Postgres database   | Strong fit for wallet-address profiles, address-to-email mappings, notification preferences, contract watchlists, audit metadata, and indexed event caches. | Adopt in Phase 6 if these records outgrow `NOTIFICATION_EMAILS` and event-log reads.            |
+| Auth                | Partial fit. TrustLedger already uses wallet ownership and signed magic links; Supabase Auth would add another identity system.                             | Skip for core escrow flows. Consider only for optional email/password admin or support tooling. |
+| Storage             | Weak fit. Contract and proof files need content-addressed, portable storage; Pinata/IPFS and Arweave already match that requirement.                        | Do not replace Pinata/Arweave.                                                                  |
+| Realtime            | Useful for dashboards if the app introduces off-chain event indexing or live notification status.                                                           | Defer until there is a Supabase-backed event table to stream from.                              |
+| Edge Functions      | Useful for email fanout, webhook ingestion, and scheduled jobs, but Vercel API routes and cron already cover the current needs.                             | Keep on Vercel for now; revisit if backend logic becomes Supabase-centric.                      |
+
+#### Comparison Against Current Architecture
+
+- **Current source of truth:** Escrow lifecycle, funds, ratings, juror state,
+  and dispute outcomes live on-chain. Supabase should not become authoritative
+  for any trust-critical state.
+- **Current authentication:** Wallet connection plus HMAC magic links are enough
+  for contract acceptance and review. Supabase Auth would duplicate identity
+  without removing wallet-signature requirements.
+- **Current storage:** Contract files and proof of work are pinned to IPFS via
+  Pinata, with Arweave available for permanent storage. Supabase Storage is not
+  content-addressed and would weaken portability for documents referenced by
+  on-chain hashes or URIs.
+- **Current backend:** Vercel API routes already send magic links and lifecycle
+  notifications through Resend. Supabase Edge Functions would add another
+  runtime unless the project also adopts Supabase Postgres.
+- **Current gap:** Deadline reminders currently rely on a JSON address-to-email
+  map in `NOTIFICATION_EMAILS`. That is the strongest reason to add a database
+  later.
+
+#### If Supabase Is Adopted
+
+Supabase should be responsible for:
+
+- Wallet-address profiles: address, verified email, display name, locale, and
+  notification preferences.
+- Notification routing: durable replacement for `NOTIFICATION_EMAILS`, opt-out
+  state, bounce state, and last-sent timestamps.
+- Optional off-chain indexes: cached contract event summaries, user watchlists,
+  and dashboard filters that can always be rebuilt from chain data.
+- Optional realtime dashboard feeds backed by the event/index tables.
+
+Supabase should **not** be responsible for:
+
+- Escrow balances, contract status, dispute rulings, ratings, juror eligibility,
+  or any final settlement logic.
+- Storing canonical contract/proof documents that are referenced on-chain.
+- Replacing wallet checks for actions that require the client, freelancer, or
+  juror address to sign a transaction.
+- RPC access, AI summarization/moderation, oracle reads, or email delivery.
+
+#### Trade-Offs
+
+- **Implementation complexity:** Low to moderate if limited to profiles and
+  notifications. High if the app tries to mirror all chain state; that would
+  require event ingestion, replay, reorg handling, and reconciliation.
+- **Costs:** Supabase's Free plan includes 50,000 monthly active users, 500 MB
+  database size, 1 GB file storage, 5 GB egress, 2 million realtime messages,
+  200 realtime peak connections, and 500,000 Edge Function invocations, but free
+  projects pause after one week of inactivity. Production should assume the Pro
+  plan starts at $25/month, with 100,000 MAU, 8 GB database disk, 250 GB egress,
+  100 GB file storage, daily backups, and paid overages. Current pricing source:
+  [Supabase Pricing](https://supabase.com/pricing), checked 2026-06-08.
+- **Vendor lock-in:** Moderate. Postgres schemas and SQL are portable, but Auth,
+  Realtime, Storage policies, Edge Functions, and row-level-security conventions
+  create platform coupling. Keep schema migrations in-repo and isolate Supabase
+  calls behind service modules if adopted.
+- **Security implications:** Positive if row-level security is carefully tested
+  for profile and notification data. Negative if Supabase data is treated as
+  authoritative for funds or contract rights. Service-role keys must stay
+  server-only; never expose them through `NEXT_PUBLIC_*`.
+- **Maintainability:** Good when Supabase owns a narrow off-chain domain.
+  Maintainability worsens if contributors must reason about three sources of
+  truth: chain state, local frontend state, and database mirrors.
+
+**Decision:** Defer Supabase for now. Revisit during Phase 6 and adopt it only
+for off-chain profiles, notification preferences, and rebuildable event indexes.
+The database should support user experience, not replace the blockchain-backed
+contract state.
+
 ## Technical Debt
 
 <!--
