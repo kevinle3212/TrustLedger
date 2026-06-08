@@ -13,6 +13,25 @@
 		"changeLanguage": "Cambiar idioma",
 		"skipToMain": "Saltar al contenido principal"
 	},
+	"FooterHelp": {
+		"buttonLabel": "Guía",
+		"buttonAriaLabel": "Abrir guía de TrustLedger",
+		"buttonTooltip": "Abrir guía de TrustLedger",
+		"title": "Cómo usar TrustLedger",
+		"intro": "Usa esta guía cuando necesites el camino más rápido para crear contratos, navegar el panel y resolver disputas.",
+		"close": "Cerrar",
+		"stepCreateTitle": "Crea o propone un contrato",
+		"stepCreateBody": "Abre Nuevo Contrato, elige si eres cliente o freelancer, agrega la billetera de la contraparte, monto, plazo y enlace del documento, y envía la oferta.",
+		"stepCreateLink": "Crear un contrato",
+		"stepDashboardTitle": "Sigue el trabajo desde el panel",
+		"stepDashboardBody": "Usa el Panel para financiar ofertas aceptadas, enviar trabajo, aprobar entregas, abrir disputas, reclamar plazos y calificar a la otra parte.",
+		"stepDashboardLink": "Abrir panel",
+		"stepJurorTitle": "Gestiona disputas y acciones de jurado",
+		"stepJurorBody": "Los contratos en disputa enlazan al arbitraje. Los jurados usan la página Jurado para registrar stake y la página de disputa para confirmar y revelar votos.",
+		"stepJurorLink": "Abrir página de jurado",
+		"reputationLink": "Ver reputación",
+		"primaryLink": "Iniciar contrato"
+	},
 	"Home": {
 		"builtOn": "Construido en Ethereum Sepolia",
 		"headline1": "Trabaja freelance sin",

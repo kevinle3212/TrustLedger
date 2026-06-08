@@ -13,6 +13,25 @@
 		"changeLanguage": "切换语言",
 		"skipToMain": "跳转到主要内容"
 	},
+	"FooterHelp": {
+		"buttonLabel": "Guide",
+		"buttonAriaLabel": "Open TrustLedger guide",
+		"buttonTooltip": "Open TrustLedger guide",
+		"title": "How to use TrustLedger",
+		"intro": "Use this guide when you need the fastest path through contract creation, dashboard navigation, and dispute resolution.",
+		"close": "Close",
+		"stepCreateTitle": "Create or propose a contract",
+		"stepCreateBody": "Open New Contract, choose whether you are the client or freelancer, add the counterparty wallet, amount, timeline, and document link, then send the offer.",
+		"stepCreateLink": "Create a contract",
+		"stepDashboardTitle": "Track work from the dashboard",
+		"stepDashboardBody": "Use Dashboard to fund accepted offers, submit work, approve delivery, open disputes, claim deadlines, and rate the other party.",
+		"stepDashboardLink": "Open dashboard",
+		"stepJurorTitle": "Handle disputes and juror actions",
+		"stepJurorBody": "Disputed contracts link into arbitration. Jurors use the Juror page to register stake and the dispute page to commit and reveal votes.",
+		"stepJurorLink": "Open juror page",
+		"reputationLink": "View reputation",
+		"primaryLink": "Start a contract"
+	},
 	"Home": {
 		"builtOn": "构建于以太坊 Sepolia",
 		"headline1": "自由接单，",
