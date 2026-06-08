@@ -38,12 +38,12 @@ const ENV_KEY_BY_CONTRACT: Record<string, string> = {
 /** Upserts `key=value` into the `.env` file body, preserving all other lines. */
 function upsertEnvLine(body: string, key: string, value: string): string {
 	const line = `${key}=${value}`;
-	// Keys are env-var names (alphanumeric + underscore only); escaping prevents
-	// any accidental regex metacharacter from breaking the pattern.
-	const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-	const pattern = new RegExp(`^${escapedKey}=.*$`, "m");
-	if (pattern.test(body)) {
-		return body.replace(pattern, line);
+	const prefix = `${key}=`;
+	const lines = body.split("\n");
+	const idx = lines.findIndex((l): boolean => l === line || l.startsWith(prefix));
+	if (idx !== -1) {
+		lines[idx] = line;
+		return lines.join("\n");
 	}
 	const trimmed = body.replace(/\s*$/, "");
 	return trimmed === "" ? `${line}\n` : `${trimmed}\n${line}\n`;
