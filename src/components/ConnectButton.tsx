@@ -7,6 +7,26 @@ import { useTranslations } from "next-intl";
 import { getLastWallet, setLastWallet } from "@/lib/lastWallet";
 import { formatAddress } from "@/lib/utils";
 
+/** Wallet glyph for connect/reconnect calls to action. */
+function WalletIcon(): React.JSX.Element {
+	return (
+		<svg
+			width="16"
+			height="16"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			aria-hidden="true"
+		>
+			<path d="M19 7V5a2 2 0 0 0-2-2H5a3 3 0 0 0 0 6h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3V6" />
+			<path d="M16 13h.01" />
+		</svg>
+	);
+}
+
 /** Clipboard "copy" glyph. */
 function CopyIcon(): React.JSX.Element {
 	return (
@@ -99,6 +119,7 @@ export function ConnectButton(): React.JSX.Element {
 	if (!mounted) {
 		return (
 			<button type="button" onClick={openModal} className={BUTTON_CLASS}>
+				<WalletIcon />
 				<span className="truncate">{t("connectWallet")}</span>
 			</button>
 		);
@@ -148,6 +169,7 @@ export function ConnectButton(): React.JSX.Element {
 
 	return (
 		<button type="button" onClick={openModal} className={BUTTON_CLASS}>
+			<WalletIcon />
 			<span className="max-w-[12rem] truncate sm:max-w-[14rem]">{label}</span>
 		</button>
 	);
