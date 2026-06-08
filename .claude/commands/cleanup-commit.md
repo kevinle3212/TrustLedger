@@ -1,6 +1,7 @@
 # cleanup-commit
 
-Step-by-step agent guide for cleaning up code, resolving lint errors, and committing changes correctly in TrustLedger.
+Step-by-step agent guide for cleaning up code, resolving lint errors, and
+committing changes correctly in TrustLedger.
 
 ---
 
@@ -60,7 +61,9 @@ Fix Solidity formatting:
 cd contracts && forge fmt
 ```
 
-ESLint does **not** auto-fix most rules in this project — the ruleset is intentionally strict. Do not rely on `--fix` for ESLint. Manually resolve the remaining errors in Phase 3.
+ESLint does **not** auto-fix most rules in this project; the ruleset is
+intentionally strict. Do not rely on `--fix` for ESLint. Manually resolve the
+remaining errors in Phase 3.
 
 ---
 
@@ -114,7 +117,8 @@ Both must exit with code 0 before moving to Phase 4.
 git add path/to/file1 path/to/file2
 ```
 
-Never use `git add -A` or `git add .` without reviewing the diff first — it can include `.env` files, binary artifacts, or generated files.
+Never use `git add -A` or `git add .` without reviewing the diff first. It can
+include `.env` files, binary artifacts, or generated files.
 
 Verify what is staged:
 
@@ -124,7 +128,9 @@ git diff --staged
 
 ### Write the commit message
 
-Messages are validated by `commitlint` via the `commit-msg` hook (Husky). The project follows [Conventional Commits](https://www.conventionalcommits.org/).
+Messages are validated by `commitlint` via the `commit-msg` hook (Husky). The
+project follows
+[Conventional Commits](https://www.conventionalcommits.org/).
 
 **Format:**
 
@@ -148,7 +154,8 @@ Messages are validated by `commitlint` via the `commit-msg` hook (Husky). The pr
 | `perf` | Performance improvement |
 | `revert` | Reverts a prior commit |
 
-**Scope** (optional): a short kebab-case noun scoping the change — `arbitration`, `juror-registry`, `reputation`, `frontend`, `deploy`, `docs`.
+**Scope** (optional): a short kebab-case noun scoping the change, such as
+`arbitration`, `juror-registry`, `reputation`, `frontend`, `deploy`, or `docs`.
 
 **Rules enforced by commitlint:**
 
@@ -190,7 +197,8 @@ The `pre-commit` hook (Husky) automatically runs before the commit is recorded:
 npm run lint && npm run lint:frontend && npm run lint:prettier
 ```
 
-If the hook fails, the commit is aborted. Fix all reported errors, re-stage, and run `git commit` again. **Do not use `--no-verify`.**
+If the hook fails, the commit is aborted. Fix all reported errors, re-stage, and
+run `git commit` again. **Do not use `--no-verify`.**
 
 The `commit-msg` hook then validates the message format. If it is rejected, amend:
 
@@ -216,7 +224,7 @@ git commit --amend
 
 | Tool | Role | Docs |
 | --- | --- | --- |
-| **ESLint 9** | TypeScript linting — flat config in `eslint.config.mjs`, type-aware, strict | [eslint.org](https://eslint.org) |
+| **ESLint 9** | TypeScript linting, flat config in `eslint.config.mjs`, type-aware, strict | [eslint.org](https://eslint.org) |
 | **Prettier** | Formatting — config in `.prettierrc.json` | [prettier.io](https://prettier.io) |
 | **Solhint** | Solidity security and style rules — config in `.solhint.json` | [protofire.github.io/solhint](https://protofire.github.io/solhint/) |
 | **forge fmt** | Solidity auto-formatter built into Foundry | [book.getfoundry.sh](https://book.getfoundry.sh/reference/forge/forge-fmt) |
