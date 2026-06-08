@@ -169,6 +169,44 @@ once (1-100) via `submitRating`. Scores accumulate in `ReputationRegistry`,
 which stores a cumulative `(sum, count)` per address; the average is
 `numerator / denominator`.
 
+### Why does the reputation page say reputation is not available?
+
+The frontend found the deployed `TrustLedger`, but that contract returned the
+zero address from `reputationRegistry()`. This happens when a TrustLedger
+deployment was created before the separate `ReputationRegistry` contract was
+deployed and wired in.
+
+For a full redeploy, run the current Sepolia deploy workflow or
+`npm run foundry:deploy:sepolia`; the current deploy script deploys
+`ReputationRegistry` and calls `initReputationRegistry(...)` automatically.
+
+To repair an existing Sepolia TrustLedger deployment without redeploying the
+escrow contracts, run:
+
+```bash
+npm run hardhat:wire-reputation:sepolia
+```
+
+By default, the script reads the latest Sepolia `TrustLedger` address from
+`contracts/broadcast/Deploy.s.sol/11155111/run-latest.json`. To wire a specific
+deployment instead, set:
+
+```bash
+TRUSTLEDGER_ADDRESS=0xYourTrustLedger npm run hardhat:wire-reputation:sepolia
+```
+
+The script deploys `ReputationRegistry(TrustLedger)`, calls
+`TrustLedger.initReputationRegistry(...)`, and writes
+`artifacts/reputation-registry-wire.json` with the new registry address and
+history start block. The operation is set-once: if `TrustLedger` is already
+wired, the script prints the existing registry and exits.
+
+After wiring, the production reputation page can discover the registry directly
+from `TrustLedger.reputationRegistry()`. Updating Vercel's
+`NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` and
+`NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK` is still recommended for faster history
+loads, but the page no longer depends on those env vars to function.
+
 ---
 
 ## Developers and contributors

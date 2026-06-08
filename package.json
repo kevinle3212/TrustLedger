@@ -49,6 +49,7 @@
 		"node": "hardhat node",
 		"hardhat:deploy:local": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/deploy.ts --network localhost",
 		"hardhat:deploy:sepolia": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/deploy.ts --network sepolia",
+		"hardhat:wire-reputation:sepolia": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/wire-reputation-registry.ts --network sepolia",
 		"sync:frontend:env": "TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/sync-frontend-env.ts",
 		"start:deploy:local": "npm run compile && (npm run node &) && sleep 2 && npm run hardhat:deploy:local",
 		"start:deploy:dry-run": "npm run foundry:build && npm run foundry:deploy:sepolia:dry-run",
