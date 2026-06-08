@@ -1,5 +1,7 @@
 "use client";
 
+import type { DecodedContractError } from "@/lib/contractErrors";
+
 interface Props {
 	amount: string;
 	/** Payment token type. */
@@ -8,12 +10,18 @@ interface Props {
 	bufferFactor: string;
 	holdBack: "none" | "5" | "10" | "15";
 	simError: Error | null;
+	/** Decoded custom-error details from a simulation revert. */
+	decodedSimError: DecodedContractError | null;
 	/** Simulation pipeline stage. */
 	simStatus: "idle" | "loading" | "ready";
 	writeError: Error | null;
 	/** Wallet/chain transaction lifecycle stage. */
 	txStatus: "idle" | "pending" | "confirming";
 	hasBlockingErrors: boolean;
+	/** Whether the user has attempted to submit (triggers missing-field banner). */
+	submitAttempted: boolean;
+	/** Human-readable labels of fields that still have validation errors. */
+	missingFieldLabels: string[];
 	/** Proposer's role in the contract. */
 	proposerRole: "freelancer" | "client";
 }
@@ -26,14 +34,25 @@ export function SubmitSummary({
 	bufferFactor,
 	holdBack,
 	simError,
+	decodedSimError,
 	simStatus,
 	writeError,
 	txStatus,
 	hasBlockingErrors,
+	submitAttempted,
+	missingFieldLabels,
 	proposerRole,
 }: Props): React.JSX.Element {
 	const isUsdc = token === "usdc";
 	const isClientProposing = proposerRole === "client";
+
+	/** Message to show for a simulation revert, preferring the decoded form. */
+	const simErrorMessage: string | null = ((): string | null => {
+		if (simError === null) return null;
+		if (decodedSimError !== null) return decodedSimError.message;
+		return (simError as { shortMessage?: string }).shortMessage ?? simError.message;
+	})();
+
 	return (
 		<>
 			{amount !== "" && (
@@ -75,11 +94,35 @@ export function SubmitSummary({
 				</div>
 			)}
 
-			{/* Simulation error - shown before MetaMask opens, surfaces revert reason. */}
-			{simError !== null && simStatus !== "idle" && (
-				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
-					{(simError as { shortMessage?: string }).shortMessage ?? simError.message}
-				</p>
+			{/* Missing-field banner — shown after the first submit attempt. */}
+			{submitAttempted && missingFieldLabels.length > 0 && (
+				<div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+					<p className="font-medium mb-1">Fix the following before submitting:</p>
+					<ul className="list-disc list-inside space-y-0.5">
+						{missingFieldLabels.map((label) => (
+							<li key={label} className="capitalize">
+								{label}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+
+			{/* Simulation error — shown before MetaMask opens, surfaces revert reason. */}
+			{simErrorMessage !== null && simStatus !== "idle" && (
+				<div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-500 dark:text-red-400">
+					<p className="font-medium mb-0.5">Transaction would revert</p>
+					<p>{simErrorMessage}</p>
+					{decodedSimError?.field !== undefined && (
+						<p className="mt-1 text-xs opacity-75">
+							Check the{" "}
+							<span className="font-medium">
+								{decodedSimError.field.replace(/([A-Z])/g, " $1").trim()}
+							</span>{" "}
+							field above.
+						</p>
+					)}
+				</div>
 			)}
 
 			{writeError !== null && (

@@ -30,6 +30,7 @@ import { uploadToPinata } from "@/lib/ipfs";
 import { encryptFile } from "@/lib/encryption";
 import type { ArweaveJWK } from "@/lib/arweave";
 import { useRole } from "@/contexts/RoleContext";
+import { decodeContractError, type DecodedContractError } from "@/lib/contractErrors";
 import type { CreateState, FormFields } from "./types";
 import { createReducer } from "./reducer";
 
@@ -49,6 +50,8 @@ export function useCreatePageState(): {
 	receipt: TransactionReceipt | undefined;
 	simData: { request: unknown } | undefined;
 	simError: Error | null;
+	decodedSimError: DecodedContractError | null;
+	missingFieldLabels: string[];
 	txArgs: {
 		functionName: "proposeContractByClient" | "proposeContract";
 		address: `0x${string}`;
@@ -159,7 +162,7 @@ export function useCreatePageState(): {
 				integer: true,
 				unit: "days",
 			}),
-			arbitrationFeePct: validateNumberInRange(form.arbitrationFeePct, 0, 50),
+			arbitrationFeePct: validateNumberInRange(form.arbitrationFeePct, 0.01, 50),
 			warrantyPeriodDays:
 				form.holdBack === "none"
 					? undefined
@@ -183,6 +186,30 @@ export function useCreatePageState(): {
 	}
 
 	const hasBlockingErrors = Object.values(fieldErrors).some((e) => e !== undefined);
+
+	const FIELD_LABELS: Record<string, string> = {
+		client: "client address",
+		clientEmail: "client email",
+		amount: "escrow amount",
+		contractURI: "contract document",
+		paymentToken: "payment token",
+		estimatedDurationDays: "estimated duration",
+		bufferFactor: "buffer factor",
+		acceptanceWindowDays: "acceptance window",
+		arbitrationFeePct: "arbitration fee",
+		warrantyPeriodDays: "warranty period",
+		pinataJwt: "Pinata JWT",
+		passphrase: "passphrase",
+	};
+
+	const missingFieldLabels = useMemo(
+		() =>
+			Object.entries(fieldErrors)
+				.filter(([, v]) => v !== undefined)
+				.map(([k]) => FIELD_LABELS[k] ?? k),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[fieldErrors],
+	);
 
 	const txArgs = useMemo(() => {
 		if (
@@ -239,17 +266,18 @@ export function useCreatePageState(): {
 		abi: TRUSTLEDGER_ABI,
 		functionName: "proposeContractByClient",
 		args: clientTxArgs?.args,
-		query: { enabled: clientTxArgs !== null },
+		query: { enabled: clientTxArgs !== null && !hasBlockingErrors },
 	});
 	const { data: freelancerSimData, error: freelancerSimError } = useSimulateContract({
 		address: TRUSTLEDGER_ADDRESS,
 		abi: TRUSTLEDGER_ABI,
 		functionName: "proposeContract",
 		args: freelancerTxArgs?.args,
-		query: { enabled: freelancerTxArgs !== null },
+		query: { enabled: freelancerTxArgs !== null && !hasBlockingErrors },
 	});
 	const simData = clientSimData ?? freelancerSimData;
 	const simError = clientSimError ?? freelancerSimError;
+	const decodedSimError = decodeContractError(simError);
 
 	function handleSubmit(e: React.SyntheticEvent): void {
 		e.preventDefault();
@@ -377,6 +405,8 @@ export function useCreatePageState(): {
 		receipt,
 		simData,
 		simError,
+		decodedSimError,
+		missingFieldLabels,
 		txArgs,
 		hasBlockingErrors,
 		set,

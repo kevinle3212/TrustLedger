@@ -1,3 +1,4 @@
+set -e
 prettier --write . && git add -u
 npm run lint && npm run lint:frontend
 (cd src && npx tsc --noEmit)
