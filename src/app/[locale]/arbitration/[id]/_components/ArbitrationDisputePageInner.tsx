@@ -371,8 +371,8 @@ export function ArbitrationDisputePageInner(): React.JSX.Element {
 	return (
 		<div className="max-w-2xl mx-auto px-6 py-12 flex flex-col gap-6">
 			{/* Header */}
-			<div className="flex items-start justify-between gap-2">
-				<div>
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				<div className="min-w-0">
 					<span className="text-xs text-gray-500">{t("dispute")}</span>
 					<h1 className="text-3xl font-bold">#{id}</h1>
 					<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
@@ -386,7 +386,7 @@ export function ArbitrationDisputePageInner(): React.JSX.Element {
 					</p>
 				</div>
 				<span
-					className={`text-xs font-medium px-2 py-1 rounded-full shrink-0 ${PHASE_COLORS[phase] ?? ""}`}
+					className={`w-fit shrink-0 rounded-full px-2 py-1 text-xs font-medium ${PHASE_COLORS[phase] ?? ""}`}
 				>
 					{phaseLabel}
 				</span>
@@ -394,7 +394,7 @@ export function ArbitrationDisputePageInner(): React.JSX.Element {
 
 			{/* Info grid */}
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
-				<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+				<div className="tl-kv-grid text-sm">
 					<span className="text-gray-500">{t("client")}</span>
 					<span className="text-gray-900 dark:text-white font-mono">
 						{formatAddress(dispute.client)}
@@ -441,7 +441,7 @@ export function ArbitrationDisputePageInner(): React.JSX.Element {
 					<p className="text-2xl font-bold text-green-600 dark:text-green-300">
 						{t("rulingComplete", { pct: dispute.ruling.toString() })}
 					</p>
-					<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm mt-1">
+					<div className="tl-kv-grid mt-1 text-sm">
 						<span className="text-gray-500">{t("freelancerReceives")}</span>
 						<span className="text-gray-900 dark:text-white">
 							{formatEther(linearPayout(dispute.ruling, dispute.contractAmount))} ETH

@@ -243,7 +243,7 @@ function RatingHistoryFeed({
 				{entries.map((entry) => (
 					<div
 						key={entry.txHash + entry.type}
-						className="flex items-center justify-between gap-3 py-2 border-t border-gray-200 dark:border-white/10 first:border-t-0"
+						className="flex flex-col gap-2 border-t border-gray-200 py-2 first:border-t-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 dark:border-white/10"
 					>
 						<div className="flex flex-col gap-0.5 min-w-0">
 							{entry.type === "recovery" ? (
@@ -389,11 +389,11 @@ function ReputationLookup({
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<h2 className="font-semibold text-gray-900 dark:text-white">
 					{t("onChainReputation")}
 				</h2>
-				<div className="flex flex-col items-end gap-0.5">
+				<div className="flex min-w-0 flex-col gap-0.5 sm:items-end">
 					<span className="text-xs text-gray-500 font-mono">
 						{formatAddress(lookupAddress)}
 					</span>
@@ -409,7 +409,7 @@ function ReputationLookup({
 				<p className="text-sm text-red-500 dark:text-red-400">{t("failedToRead")}</p>
 			)}
 			{!isLoading && !isError && (
-				<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+				<div className="tl-kv-grid text-sm">
 					<span className="text-gray-500">{t("averageScore")}</span>
 					<span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
 						{score}

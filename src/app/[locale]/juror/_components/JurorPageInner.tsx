@@ -69,10 +69,10 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<h2 className="font-semibold text-gray-900 dark:text-white">{t("yourStatus")}</h2>
 				<span
-					className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+					className={`w-fit rounded-full px-2 py-0.5 text-xs font-medium ${
 						eligible === true
 							? "bg-green-500/20 text-green-600 dark:text-green-300"
 							: "bg-gray-500/20 text-gray-500 dark:text-gray-400"
@@ -86,7 +86,7 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				</span>
 			</div>
 
-			<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+			<div className="tl-kv-grid text-sm">
 				<span className="text-gray-500">{t("address")}</span>
 				<span className="text-gray-900 dark:text-white font-mono">
 					{formatAddress(address)}

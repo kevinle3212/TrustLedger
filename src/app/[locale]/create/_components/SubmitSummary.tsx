@@ -155,8 +155,8 @@ export function SubmitSummary({
 					: txStatus === "confirming"
 						? t("confirmingOnChain")
 						: isClientProposing
-							? t("createContractOffer", { token: tokenLabel })
-							: t("proposeEscrowContract")}
+							? t("reviewContractOffer", { token: tokenLabel })
+							: t("reviewEscrowContract")}
 			</button>
 		</>
 	);

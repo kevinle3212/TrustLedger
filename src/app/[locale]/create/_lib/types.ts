@@ -20,6 +20,7 @@ export interface CreateState {
 	proposerRole: "freelancer" | "client";
 	paymentToken: "eth" | "usdc";
 	form: FormFields;
+	reviewOpen: boolean;
 	magicLinkStatus: "idle" | "sending" | "sent" | "error";
 	docMode: DocMode;
 	selectedFile: File | null;
@@ -41,6 +42,8 @@ export type CreateAction =
 	| { type: "SET_PROPOSER_ROLE"; role: "freelancer" | "client" }
 	| { type: "SET_PAYMENT_TOKEN"; token: "eth" | "usdc" }
 	| { type: "SET_FIELD"; key: keyof FormFields; value: string }
+	| { type: "OPEN_REVIEW" }
+	| { type: "CLOSE_REVIEW" }
 	| { type: "SET_MAGIC_LINK_STATUS"; status: CreateState["magicLinkStatus"] }
 	| { type: "SET_DOC_MODE"; mode: DocMode }
 	| { type: "FILE_SELECTED"; file: File | null }

@@ -132,21 +132,21 @@ export function DecryptDocumentForm({
 
 	return (
 		<div className="flex flex-col gap-3 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-4">
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between gap-3">
 				<span className="text-xs font-medium text-gray-700 dark:text-gray-200">
 					{t("title")}
 				</span>
 				<button
 					type="button"
 					onClick={onClose}
-					className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+					className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-xs text-gray-400 hover:text-gray-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:text-gray-200"
 				>
 					✕
 				</button>
 			</div>
 
 			{/* Source mode toggle: "fetch" loads from the IPFS gateway URI; "paste" accepts a copied JSON bundle */}
-			<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1 self-start">
+			<div className="flex flex-wrap gap-1 self-start rounded-lg bg-gray-100 p-1 dark:bg-white/5">
 				{(["fetch", "paste"] as DecryptMode[]).map((m) => (
 					<button
 						key={m}
@@ -154,7 +154,7 @@ export function DecryptDocumentForm({
 						onClick={() => {
 							dispatch({ type: "SET_MODE", mode: m });
 						}}
-						className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+						className={`min-h-9 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
 							mode === m
 								? "bg-indigo-600 text-white"
 								: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"

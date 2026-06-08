@@ -34,6 +34,8 @@ import { decodeContractError, type DecodedContractError } from "@/lib/contractEr
 import type { CreateState, FormFields } from "./types";
 import { createReducer } from "./reducer";
 
+const DRAFT_STORAGE_KEY = "tl_create_contract_draft";
+
 const FIELD_LABELS: Record<string, string> = {
 	client: "client address",
 	clientEmail: "client email",
@@ -97,6 +99,7 @@ export function useCreatePageState(): {
 	markTouched: (key: string) => void;
 	showError: (key: string) => string | undefined;
 	handleSubmit: (e: React.SyntheticEvent) => void;
+	handleConfirmDeploy: () => void;
 	handleUploadToIPFS: () => Promise<void>;
 	handleArweaveWalletLoad: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	handleArweaveUpload: () => Promise<void>;
@@ -130,6 +133,7 @@ export function useCreatePageState(): {
 				holdBack: "none" as const,
 				warrantyPeriodDays: "30",
 			},
+			reviewOpen: false,
 			magicLinkStatus: "idle" as const,
 			docMode: "upload",
 			selectedFile: null,
@@ -306,13 +310,42 @@ export function useCreatePageState(): {
 			});
 	}, []);
 
+	useEffect(() => {
+		const draft = {
+			proposerRole: state.proposerRole,
+			paymentToken: state.paymentToken,
+			form: state.form,
+			docMode: state.docMode,
+			encryptEnabled: state.encryptEnabled,
+		};
+		try {
+			window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+		} catch {
+			// Browsers can deny localStorage in private or sandboxed contexts.
+		}
+	}, [state.proposerRole, state.paymentToken, state.form, state.docMode, state.encryptEnabled]);
+
+	useEffect(() => {
+		if (!isSuccess) return;
+		try {
+			window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+		} catch {
+			// Browsers can deny localStorage in private or sandboxed contexts.
+		}
+	}, [isSuccess]);
+
 	function handleSubmit(e: React.SyntheticEvent): void {
 		e.preventDefault();
 		dispatch({ type: "SET_SUBMIT_ATTEMPTED" });
 		if (hasBlockingErrors) return;
-		if (simData?.request !== undefined) {
-			writeContract(simData.request as Parameters<typeof writeContract>[0]);
-		}
+		dispatch({ type: "OPEN_REVIEW" });
+	}
+
+	function handleConfirmDeploy(): void {
+		if (hasBlockingErrors) return;
+		if (simData?.request === undefined) return;
+		dispatch({ type: "CLOSE_REVIEW" });
+		writeContract(simData.request as Parameters<typeof writeContract>[0]);
 	}
 
 	useEffect(() => {
@@ -437,6 +470,7 @@ export function useCreatePageState(): {
 		markTouched,
 		showError,
 		handleSubmit,
+		handleConfirmDeploy,
 		handleUploadToIPFS,
 		handleArweaveWalletLoad,
 		handleArweaveUpload,

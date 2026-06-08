@@ -34,6 +34,7 @@ import type { Contract } from "@/types";
 import { Link } from "@/i18n/navigation";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const DASHBOARD_VISITED_KEY = "tl_visited";
 
 // Maps numeric status to the ContractStatus message key.
 const STATUS_KEYS = [
@@ -50,6 +51,14 @@ const STATUS_KEYS = [
 // Used for deadline comparisons in ContractCard to avoid re-renders on every second.
 // These checks are approximate — the contract enforces the real deadline on-chain.
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
+
+function markDashboardVisited(): void {
+	try {
+		window.localStorage.setItem(DASHBOARD_VISITED_KEY, "1");
+	} catch {
+		// localStorage can be unavailable in private or sandboxed browser contexts.
+	}
+}
 
 // The EscrowContract struct returned by TrustLedger.getContract() is modelled
 // by the shared `Contract` type imported from `@/types`.
@@ -404,8 +413,8 @@ function ContractCard({
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
-			<div className="flex items-start justify-between gap-2">
-				<div>
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				<div className="min-w-0">
 					<span className="text-xs text-gray-500 font-mono">#{id.toString()}</span>
 					<h3 className="font-semibold text-gray-900 dark:text-white mt-0.5">
 						{isClient ? t("isClient") : t("isFreelancer")} -{" "}
@@ -421,13 +430,13 @@ function ContractCard({
 					</span>
 				</div>
 				<span
-					className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_COLORS[status] ?? ""}`}
+					className={`w-fit shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status] ?? ""}`}
 				>
 					{statusLabel}
 				</span>
 			</div>
 
-			<div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+			<div className="tl-kv-grid text-sm">
 				<span className="text-gray-500">{t("amount")}</span>
 				<span className="text-gray-900 dark:text-white font-medium">{formattedAmount}</span>
 
@@ -497,7 +506,7 @@ function ContractCard({
 			)}
 
 			{/* Actions — each block is gated by role (isClient/isFreelancer) and status number */}
-			<div className="flex flex-wrap gap-2">
+			<div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
 				{/* status 0 = PENDING: freelancer-proposed → client accepts (funding) or rejects */}
 				{isClient && status === 0 && !contract.proposedByClient && (
 					<>
@@ -781,17 +790,230 @@ function SummaryBanner({
 	);
 }
 
+function ExampleContractPreview(): React.JSX.Element {
+	const t = useTranslations("Dashboard");
+
+	return (
+		<div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03]">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				<div className="min-w-0">
+					<p className="font-mono text-xs text-gray-500">#12</p>
+					<h3 className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-white">
+						{t("exampleTitle")}
+					</h3>
+					<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+						{t("exampleSubtitle")}
+					</p>
+				</div>
+				<span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
+					{t("active")}
+				</span>
+			</div>
+			<div className="tl-kv-grid mt-4 text-sm">
+				<span className="text-gray-500 dark:text-gray-400">{t("amount")}</span>
+				<span className="font-medium text-gray-900 dark:text-white">0.75 ETH</span>
+				<span className="text-gray-500 dark:text-gray-400">{t("deadline")}</span>
+				<span className="text-gray-900 dark:text-white">{t("exampleDeadline")}</span>
+				<span className="text-gray-500 dark:text-gray-400">{t("document")}</span>
+				<span className="text-indigo-600 dark:text-indigo-400">{t("view")}</span>
+			</div>
+		</div>
+	);
+}
+
+function DashboardEmptyState({
+	role,
+	onShowHelp,
+}: {
+	role: "client" | "freelancer";
+	onShowHelp: () => void;
+}): React.JSX.Element {
+	const t = useTranslations("Dashboard");
+	const roleLabel =
+		role === "client" ? t("isClient").toLowerCase() : t("isFreelancer").toLowerCase();
+
+	return (
+		<section className="rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/5 sm:p-8">
+			<div className="grid gap-8 lg:grid-cols-[1fr_18rem] lg:items-center">
+				<div className="max-w-xl">
+					<h2 className="text-2xl font-semibold tracking-[-0.015em] text-gray-900 dark:text-white">
+						{t("emptyTitle", { role: roleLabel })}
+					</h2>
+					<p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
+						{t("emptyDescription")}
+					</p>
+					<div className="mt-6 flex flex-col gap-3 sm:flex-row">
+						<Link
+							href="/create"
+							className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:focus-visible:ring-offset-gray-950"
+						>
+							{t("createFirst")}
+						</Link>
+						<button
+							type="button"
+							onClick={onShowHelp}
+							className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white dark:focus-visible:ring-offset-gray-950"
+						>
+							{t("showWalkthrough")}
+						</button>
+					</div>
+					<ol className="mt-8 grid gap-3 text-sm text-gray-600 dark:text-gray-300">
+						{[t("emptyStepCreate"), t("emptyStepFund"), t("emptyStepReview")].map(
+							(step, index) => (
+								<li key={step} className="flex gap-3">
+									<span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs font-semibold text-gray-700 dark:border-white/15 dark:bg-white/5 dark:text-gray-200">
+										{index + 1}
+									</span>
+									<span>{step}</span>
+								</li>
+							),
+						)}
+					</ol>
+				</div>
+				<ExampleContractPreview />
+			</div>
+		</section>
+	);
+}
+
+function DashboardHelpButton({ onClick }: { onClick: () => void }): React.JSX.Element {
+	const t = useTranslations("Dashboard");
+
+	return (
+		<div className="fixed bottom-5 right-5 z-40">
+			<button
+				type="button"
+				onClick={onClick}
+				aria-label={t("helpAriaLabel")}
+				className="group relative flex size-11 items-center justify-center rounded-full border border-gray-200 bg-white text-lg font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
+			>
+				?
+				<span
+					role="tooltip"
+					className="pointer-events-none absolute bottom-full right-0 mb-2 w-max max-w-56 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 dark:border-white/10 dark:bg-gray-900 dark:text-gray-200"
+				>
+					{t("helpTooltip")}
+				</span>
+			</button>
+		</div>
+	);
+}
+
+function DashboardWalkthrough({
+	open,
+	onClose,
+}: {
+	open: boolean;
+	onClose: () => void;
+}): React.JSX.Element | null {
+	const t = useTranslations("Dashboard");
+
+	if (!open) return null;
+
+	return (
+		<dialog
+			open
+			aria-labelledby="dashboard-walkthrough-title"
+			className="fixed inset-0 z-50 h-full max-h-none w-full max-w-none bg-gray-950/45 p-0"
+			onCancel={(event) => {
+				event.preventDefault();
+				onClose();
+			}}
+		>
+			<div className="flex min-h-full items-end px-4 py-4 sm:items-center sm:justify-center">
+				<section className="max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 text-gray-900 dark:border-white/10 dark:bg-gray-950 dark:text-white sm:p-8">
+					<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+						<div className="max-w-2xl">
+							<h2
+								id="dashboard-walkthrough-title"
+								className="text-2xl font-semibold tracking-[-0.015em]"
+							>
+								{t("walkthroughTitle")}
+							</h2>
+							<p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
+								{t("walkthroughIntro")}
+							</p>
+						</div>
+						<button
+							type="button"
+							onClick={onClose}
+							className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
+						>
+							{t("skip")}
+						</button>
+					</div>
+					<div className="mt-8 grid gap-6 lg:grid-cols-[1fr_18rem]">
+						<div className="space-y-4">
+							{[
+								{
+									title: t("walkthroughStepCreateTitle"),
+									body: t("walkthroughStepCreateBody"),
+								},
+								{
+									title: t("walkthroughStepTrackTitle"),
+									body: t("walkthroughStepTrackBody"),
+								},
+								{
+									title: t("walkthroughStepResolveTitle"),
+									body: t("walkthroughStepResolveBody"),
+								},
+							].map((step, index) => (
+								<div
+									key={step.title}
+									className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5"
+								>
+									<div className="flex gap-3">
+										<span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-sm font-semibold text-gray-700 dark:border-white/15 dark:bg-gray-950 dark:text-gray-200">
+											{index + 1}
+										</span>
+										<div>
+											<h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+												{step.title}
+											</h3>
+											<p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
+												{step.body}
+											</p>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+						<ExampleContractPreview />
+					</div>
+					<div className="mt-8 flex flex-col gap-3 border-t border-gray-200 pt-6 dark:border-white/10 sm:flex-row sm:justify-end">
+						<button
+							type="button"
+							onClick={onClose}
+							className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
+						>
+							{t("skip")}
+						</button>
+						<Link
+							href="/create"
+							onClick={onClose}
+							className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+						>
+							{t("createFirst")}
+						</Link>
+					</div>
+				</section>
+			</div>
+		</dialog>
+	);
+}
+
 // Reads nextId from the contract to know the total count, then renders IDs in reverse
 // (newest first). Each ID is rendered as a separate SingleContract so reads are parallelised
 // by wagmi's internal query deduplication rather than one large multicall.
 function ContractList({
 	address,
 	role,
+	onShowHelp,
 }: {
 	address: `0x${string}`;
 	role: "client" | "freelancer";
+	onShowHelp: () => void;
 }): React.JSX.Element {
-	const t = useTranslations("Dashboard");
 	const { data: nextId } = useReadContract({
 		address: TRUSTLEDGER_ADDRESS,
 		abi: TRUSTLEDGER_ABI,
@@ -799,71 +1021,112 @@ function ContractList({
 	});
 
 	const total = Number(nextId ?? BigInt(0));
+	const contractConfigs = useMemo(
+		() =>
+			Array.from({ length: total }, (_, i) => ({
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: "getContract" as const,
+				args: [BigInt(i)] as [bigint],
+			})),
+		[total],
+	);
+	const { data: allContracts, isLoading } = useReadContracts({ contracts: contractConfigs });
 
-	if (total === 0) {
+	const visibleContracts = useMemo(() => {
+		if (allContracts === undefined) return [];
+		const addr = address.toLowerCase();
+		return allContracts
+			.map((result, index) => ({
+				id: BigInt(index),
+				contract: result.status === "success" ? result.result : undefined,
+			}))
+			.filter(
+				(item): item is { id: bigint; contract: Contract } =>
+					item.contract !== undefined &&
+					(role === "client"
+						? item.contract.client.toLowerCase() === addr
+						: item.contract.freelancer.toLowerCase() === addr),
+			)
+			.reverse();
+	}, [allContracts, address, role]);
+
+	if (total === 0 || (!isLoading && visibleContracts.length === 0)) {
+		return <DashboardEmptyState role={role} onShowHelp={onShowHelp} />;
+	}
+
+	if (isLoading && visibleContracts.length === 0) {
 		return (
-			<div className="text-center py-16 text-gray-500">
-				<p>{t("noContracts")}</p>
-				<Link
-					href="/create"
-					className="mt-3 inline-block text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-sm underline"
-				>
-					{t("createFirst")}
-				</Link>
+			<div className="space-y-4" aria-label="Loading contracts">
+				{[0, 1, 2].map((item) => (
+					<div
+						key={item}
+						className="h-36 animate-pulse rounded-2xl border border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-white/5"
+					/>
+				))}
 			</div>
 		);
 	}
 
-	const ids: bigint[] = [];
-	for (let i = total - 1; i >= 0; i--) {
-		ids.push(BigInt(i));
-	}
-
 	return (
 		<div className="flex flex-col gap-4">
-			{ids.map((id) => (
-				<SingleContract key={id.toString()} id={id} address={address} role={role} />
+			{visibleContracts.map(({ id, contract }) => (
+				<ContractCard key={id.toString()} id={id} contract={contract} address={address} />
 			))}
 		</div>
 	);
-}
-
-// Fetches one contract by ID and filters it to the active role view.
-// Rendering each contract individually means wagmi can cache and deduplicate reads across
-// re-renders — if the same ID is shown on two pages it hits the cache instead of the RPC.
-function SingleContract({
-	id,
-	address,
-	role,
-}: {
-	id: bigint;
-	address: `0x${string}`;
-	role: "client" | "freelancer";
-}): React.JSX.Element | null {
-	const { data: contract, isLoading } = useReadContract({
-		address: TRUSTLEDGER_ADDRESS,
-		abi: TRUSTLEDGER_ABI,
-		functionName: "getContract",
-		args: [id],
-	});
-
-	if (isLoading || contract === undefined) return null;
-
-	const c = contract;
-	const addr = address.toLowerCase();
-	// Show this contract only if the wallet participates in the active role.
-	const matches =
-		role === "client" ? c.client.toLowerCase() === addr : c.freelancer.toLowerCase() === addr;
-
-	if (!matches) return null;
-
-	return <ContractCard id={id} contract={c} address={address} />;
 }
 
 export default function DashboardPage(): React.JSX.Element {
 	const t = useTranslations("Dashboard");
 	const { address, isConnected } = useAccount();
 	const { role } = useRole();
+	const [walkthroughOpen, setWalkthroughOpen] = useState(false);
+
+	useEffect(() => {
+		if (!isConnected || address === undefined) return;
+		let shouldOpen = false;
+		try {
+			if (window.localStorage.getItem(DASHBOARD_VISITED_KEY) !== "1") {
+				shouldOpen = true;
+			}
+		} catch {
+			shouldOpen = true;
+		}
+		if (!shouldOpen) return;
+
+		const timer = window.setTimeout(() => {
+			setWalkthroughOpen(true);
+		}, 0);
+		return (): void => {
+			window.clearTimeout(timer);
+		};
+	}, [address, isConnected]);
+
+	useEffect(() => {
+		if (!walkthroughOpen) return;
+
+		function handleKeyDown(event: KeyboardEvent): void {
+			if (event.key === "Escape") {
+				markDashboardVisited();
+				setWalkthroughOpen(false);
+			}
+		}
+
+		window.addEventListener("keydown", handleKeyDown);
+		return (): void => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [walkthroughOpen]);
+
+	function openWalkthrough(): void {
+		setWalkthroughOpen(true);
+	}
+
+	function closeWalkthrough(): void {
+		markDashboardVisited();
+		setWalkthroughOpen(false);
+	}
 
 	if (!isConnected || address === undefined) {
 		return (
@@ -877,8 +1140,8 @@ export default function DashboardPage(): React.JSX.Element {
 	const roleLabel = role === "client" ? t("isClient") : t("isFreelancer");
 
 	return (
-		<div className="max-w-2xl mx-auto px-6 py-12">
-			<div className="flex items-center justify-between mb-8">
+		<div className="mx-auto max-w-3xl px-6 py-12">
+			<div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 className="text-3xl font-bold">{t("title")}</h1>
 					<p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
@@ -887,14 +1150,16 @@ export default function DashboardPage(): React.JSX.Element {
 				</div>
 				<Link
 					href="/create"
-					className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors"
+					className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
 				>
 					{t("newButton")}
 				</Link>
 			</div>
 
 			<SummaryBanner address={address} role={role} />
-			<ContractList address={address} role={role} />
+			<ContractList address={address} role={role} onShowHelp={openWalkthrough} />
+			<DashboardHelpButton onClick={openWalkthrough} />
+			<DashboardWalkthrough open={walkthroughOpen} onClose={closeWalkthrough} />
 		</div>
 	);
 }

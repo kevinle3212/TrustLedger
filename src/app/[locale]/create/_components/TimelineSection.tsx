@@ -20,7 +20,7 @@ export function TimelineSection({ form, set, showError, markTouched }: Props): R
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
 			<h2 className="font-semibold text-gray-900 dark:text-white">{t("timelineTitle")}</h2>
 
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<Field
 					label={t("estimatedDuration")}
 					hint={t("estimatedDurationHint")}

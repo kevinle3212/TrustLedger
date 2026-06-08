@@ -30,12 +30,12 @@ export function ActionButtons({
 				</p>
 			)}
 
-			<div className="flex gap-3">
+			<div className="flex flex-col gap-3 sm:flex-row">
 				<button
 					type="button"
 					onClick={onAccept}
 					disabled={busy}
-					className="flex-1 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+					className="min-h-11 flex-1 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
 				>
 					{busy && action === "accept"
 						? isConfirming
@@ -47,7 +47,7 @@ export function ActionButtons({
 					type="button"
 					onClick={onReject}
 					disabled={busy}
-					className="px-6 py-3 rounded-xl border border-gray-300 dark:border-white/15 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-gray-700 dark:text-gray-200 font-semibold transition-colors"
+					className="min-h-11 rounded-xl border border-gray-300 px-6 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/15 dark:text-gray-200 dark:hover:bg-white/5"
 				>
 					{busy && action === "reject" ? t("rejecting") : t("decline")}
 				</button>

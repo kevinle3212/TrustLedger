@@ -8,6 +8,10 @@ export function createReducer(state: CreateState, action: CreateAction): CreateS
 			return { ...state, paymentToken: action.token, form: { ...state.form, amount: "" } };
 		case "SET_FIELD":
 			return { ...state, form: { ...state.form, [action.key]: action.value } };
+		case "OPEN_REVIEW":
+			return { ...state, reviewOpen: true };
+		case "CLOSE_REVIEW":
+			return { ...state, reviewOpen: false };
 		case "SET_MAGIC_LINK_STATUS":
 			return { ...state, magicLinkStatus: action.status };
 		case "SET_DOC_MODE":

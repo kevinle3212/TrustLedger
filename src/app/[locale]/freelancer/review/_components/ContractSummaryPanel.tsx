@@ -14,10 +14,10 @@ function Row({
 	mono?: boolean;
 }): React.JSX.Element {
 	return (
-		<div className="flex items-start justify-between gap-4">
-			<span className="text-gray-500 shrink-0">{label}</span>
+		<div className="grid gap-1 sm:grid-cols-[minmax(8rem,0.9fr)_minmax(0,1.1fr)] sm:gap-4">
+			<span className="text-gray-500">{label}</span>
 			<span
-				className={`text-gray-900 dark:text-white text-right break-all ${mono === true ? "font-mono text-xs" : ""}`}
+				className={`min-w-0 [overflow-wrap:anywhere] text-gray-900 dark:text-white sm:text-right ${mono === true ? "font-mono text-xs" : ""}`}
 			>
 				{value}
 			</span>

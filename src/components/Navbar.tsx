@@ -30,7 +30,7 @@ function RoleToggle(): React.JSX.Element {
 	const { role, setRole } = useRole();
 	const t = useTranslations("Nav");
 	return (
-		<fieldset className="inline-grid shrink-0 grid-cols-2 rounded-full border border-gray-200 p-0.5 text-xs font-medium dark:border-white/10">
+		<fieldset className="grid min-w-0 grid-cols-2 rounded-full border border-gray-200 p-0.5 text-xs font-medium dark:border-white/10 sm:inline-grid sm:w-auto sm:shrink-0">
 			<legend className="sr-only">{t("activeRole")}</legend>
 			<button
 				type="button"
@@ -38,7 +38,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("client");
 				}}
-				className={`min-h-8 rounded-full px-3 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
+				className={`min-h-8 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:px-3 ${
 					role === "client"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -52,7 +52,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("freelancer");
 				}}
-				className={`min-h-8 rounded-full px-3 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 ${
+				className={`min-h-8 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:px-3 ${
 					role === "freelancer"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -129,8 +129,10 @@ export function Navbar(): React.JSX.Element {
 						</Link>
 					</nav>
 				</div>
-				<div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3 lg:justify-end">
-					<RoleToggle />
+				<div className="grid w-full min-w-0 grid-cols-3 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-3 lg:justify-end">
+					<div className="col-span-full w-full sm:col-span-1 sm:w-auto [&>fieldset]:w-full sm:[&>fieldset]:w-auto">
+						<RoleToggle />
+					</div>
 					{githubUrl !== undefined && githubUrl !== "" && (
 						<a
 							href={githubUrl}
@@ -144,7 +146,9 @@ export function Navbar(): React.JSX.Element {
 					)}
 					<ContrastToggle />
 					<ThemeToggle />
-					<ConnectButton />
+					<div className="col-span-full w-full sm:col-span-1 sm:w-auto [&>button]:w-full [&>div]:w-full sm:[&>button]:w-auto sm:[&>div]:w-auto">
+						<ConnectButton />
+					</div>
 				</div>
 			</div>
 		</header>

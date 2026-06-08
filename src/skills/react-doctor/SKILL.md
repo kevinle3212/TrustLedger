@@ -12,7 +12,7 @@ version: "1.1.0"
 # React Doctor
 
 Scans React codebases for security, performance, correctness, and architecture
-issues. Outputs a 0–100 health score.
+issues. Outputs a 0-100 health score.
 
 ## After making React code changes:
 

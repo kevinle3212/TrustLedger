@@ -163,10 +163,13 @@ export function getNetworkName(chainId: number): string {
 }
 
 export function getConfiguredDeploymentNetworkNames(): string[] {
-	const configured = Object.entries(CONTRACT_DEPLOYMENTS)
-		.filter(([, deployment]) => deployment.trustLedger !== ZERO_ADDRESS)
-		.map(([chainId]) => getNetworkName(Number(chainId)));
-	return [...new Set(configured)];
+	const configured = new Set<string>();
+	for (const [chainId, deployment] of Object.entries(CONTRACT_DEPLOYMENTS)) {
+		if (deployment.trustLedger !== ZERO_ADDRESS) {
+			configured.add(getNetworkName(Number(chainId)));
+		}
+	}
+	return [...configured];
 }
 
 // Native USDC addresses per supported chain. Sepolia uses Circle's testnet USDC.

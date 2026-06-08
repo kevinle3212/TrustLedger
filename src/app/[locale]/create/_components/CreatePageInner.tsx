@@ -3,8 +3,10 @@
 import { ConnectButton } from "@/components/ConnectButton";
 import { useTranslations } from "next-intl";
 import { useCreatePageState } from "../_lib/useCreatePageState";
+import { ContractLivePreview } from "./ContractLivePreview";
 import { ContractFormFields } from "./ContractFormFields";
 import { CreateSuccessView } from "./CreateSuccessView";
+import { ReviewConfirmationPanel } from "./ReviewConfirmationPanel";
 import { SubmitSummary } from "./SubmitSummary";
 
 export function CreatePageInner(): React.JSX.Element {
@@ -36,6 +38,7 @@ export function CreatePageInner(): React.JSX.Element {
 		handleUploadToIPFS,
 		handleArweaveWalletLoad,
 		handleArweaveUpload,
+		handleConfirmDeploy,
 	} = useCreatePageState();
 
 	const {
@@ -54,6 +57,7 @@ export function CreatePageInner(): React.JSX.Element {
 		arweaveStatus,
 		arweaveUri,
 		arweaveBalance,
+		reviewOpen,
 	} = state;
 
 	if (!isConnected) {
@@ -81,7 +85,7 @@ export function CreatePageInner(): React.JSX.Element {
 	}
 
 	return (
-		<div className="max-w-2xl mx-auto px-6 py-12">
+		<div className="mx-auto max-w-6xl px-6 py-12">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold">
 					{isClientProposing ? t("titleClient") : t("titleFreelancer")}
@@ -151,78 +155,99 @@ export function CreatePageInner(): React.JSX.Element {
 				)}
 			</div>
 
-			<form onSubmit={handleSubmit} className="flex flex-col gap-6">
-				<ContractFormFields
-					form={form}
-					set={set}
-					showError={showError}
-					markTouched={markTouched}
-					docMode={docMode}
-					onDocModeChange={(mode) => {
-						dispatch({ type: "SET_DOC_MODE", mode });
-					}}
-					isClientProposing={isClientProposing}
-					isUsdc={isUsdc}
-					selectedFile={selectedFile}
-					onFileChange={(file) => {
-						dispatch({ type: "FILE_SELECTED", file });
-					}}
-					encryptEnabled={encryptEnabled}
-					onEncryptChange={(enabled) => {
-						dispatch({ type: "SET_ENCRYPT_ENABLED", enabled });
-					}}
-					passphrase={passphrase}
-					onPassphraseChange={(value) => {
-						dispatch({ type: "SET_PASSPHRASE", value });
-					}}
-					onPassphraseBlur={() => {
-						markTouched("passphrase");
-					}}
-					pinataJwt={pinataJwt}
-					onPinataJwtChange={(value) => {
-						dispatch({ type: "SET_PINATA_JWT", value });
-					}}
-					onPinataJwtBlur={() => {
-						markTouched("pinataJwt");
-					}}
-					uploadStatus={uploadStatus}
-					uploadError={uploadError}
-					onUpload={() => {
-						void handleUploadToIPFS();
-					}}
-					arweaveWallet={arweaveWallet}
-					arweaveStatus={arweaveStatus}
-					arweaveUri={arweaveUri}
-					arweaveBalance={arweaveBalance}
-					onArweaveWalletLoad={handleArweaveWalletLoad}
-					onArweaveUpload={() => {
-						void handleArweaveUpload();
-					}}
-				/>
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+				<form onSubmit={handleSubmit} className="flex flex-col gap-6">
+					<ContractFormFields
+						form={form}
+						set={set}
+						showError={showError}
+						markTouched={markTouched}
+						docMode={docMode}
+						onDocModeChange={(mode) => {
+							dispatch({ type: "SET_DOC_MODE", mode });
+						}}
+						isClientProposing={isClientProposing}
+						isUsdc={isUsdc}
+						selectedFile={selectedFile}
+						onFileChange={(file) => {
+							dispatch({ type: "FILE_SELECTED", file });
+						}}
+						encryptEnabled={encryptEnabled}
+						onEncryptChange={(enabled) => {
+							dispatch({ type: "SET_ENCRYPT_ENABLED", enabled });
+						}}
+						passphrase={passphrase}
+						onPassphraseChange={(value) => {
+							dispatch({ type: "SET_PASSPHRASE", value });
+						}}
+						onPassphraseBlur={() => {
+							markTouched("passphrase");
+						}}
+						pinataJwt={pinataJwt}
+						onPinataJwtChange={(value) => {
+							dispatch({ type: "SET_PINATA_JWT", value });
+						}}
+						onPinataJwtBlur={() => {
+							markTouched("pinataJwt");
+						}}
+						uploadStatus={uploadStatus}
+						uploadError={uploadError}
+						onUpload={() => {
+							void handleUploadToIPFS();
+						}}
+						arweaveWallet={arweaveWallet}
+						arweaveStatus={arweaveStatus}
+						arweaveUri={arweaveUri}
+						arweaveBalance={arweaveBalance}
+						onArweaveWalletLoad={handleArweaveWalletLoad}
+						onArweaveUpload={() => {
+							void handleArweaveUpload();
+						}}
+					/>
 
-				<SubmitSummary
-					amount={form.amount}
-					token={paymentToken}
-					estimatedDurationDays={form.estimatedDurationDays}
-					bufferFactor={form.bufferFactor}
-					holdBack={form.holdBack}
-					simError={simError}
-					decodedSimError={decodedSimError}
-					simStatus={
-						txArgs === null
-							? "idle"
-							: simData?.request !== undefined
-								? "ready"
-								: "loading"
-					}
-					writeError={writeError}
-					txStatus={isPending ? "pending" : isConfirming ? "confirming" : "idle"}
-					hasBlockingErrors={hasBlockingErrors}
-					submitAttempted={state.submitAttempted}
-					missingFieldLabels={missingFieldLabels}
-					proposerRole={proposerRole}
+					<SubmitSummary
+						amount={form.amount}
+						token={paymentToken}
+						estimatedDurationDays={form.estimatedDurationDays}
+						bufferFactor={form.bufferFactor}
+						holdBack={form.holdBack}
+						simError={simError}
+						decodedSimError={decodedSimError}
+						simStatus={
+							txArgs === null
+								? "idle"
+								: simData?.request !== undefined
+									? "ready"
+									: "loading"
+						}
+						writeError={writeError}
+						txStatus={isPending ? "pending" : isConfirming ? "confirming" : "idle"}
+						hasBlockingErrors={hasBlockingErrors}
+						submitAttempted={state.submitAttempted}
+						missingFieldLabels={missingFieldLabels}
+						proposerRole={proposerRole}
+					/>
+
+					<ReviewConfirmationPanel
+						open={reviewOpen}
+						form={form}
+						paymentToken={paymentToken}
+						isClientProposing={isClientProposing}
+						txReady={simData?.request !== undefined}
+						txStatus={isPending ? "pending" : isConfirming ? "confirming" : "idle"}
+						onCancel={() => {
+							dispatch({ type: "CLOSE_REVIEW" });
+						}}
+						onConfirm={handleConfirmDeploy}
+					/>
+				</form>
+
+				<ContractLivePreview
+					form={form}
+					paymentToken={paymentToken}
+					isClientProposing={isClientProposing}
 				/>
-			</form>
+			</div>
 		</div>
 	);
 }

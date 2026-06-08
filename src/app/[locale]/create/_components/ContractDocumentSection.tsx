@@ -67,11 +67,11 @@ export function ContractDocumentSection({
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 				<h2 className="font-semibold text-gray-900 dark:text-white">
 					{t("contractDocumentTitle")}
 				</h2>
-				<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1">
+				<div className="flex flex-wrap gap-1 rounded-lg bg-gray-100 p-1 dark:bg-white/5">
 					{(["upload", "manual"] as DocMode[]).map((m) => (
 						<button
 							key={m}
@@ -79,7 +79,7 @@ export function ContractDocumentSection({
 							onClick={() => {
 								onDocModeChange(m);
 							}}
-							className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+							className={`min-h-9 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
 								docMode === m
 									? "bg-indigo-600 text-white"
 									: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"

@@ -33,59 +33,19 @@ mainnet launch deliverables.
       afterward to confirm. The high (`undici`) and moderate (`bn.js`) findings
       were already patched via `overrides` in `package.json`.
 
-## Phase 2 — Code Organization and Architecture
-
 ## Phase 3 — UI/UX Design and Polish
 
-- [ ] Critique and improve the home page (`src/app/page.tsx`). Two immediate
-      flags: the uppercase eyebrow ("BUILT ON ETHEREUM SEPOLIA") violates
-      typographic convention, and the 3-card grid is identical to a known
-      anti-pattern. Run a full scored critique to prioritize the complete
-      backlog before implementing any fixes.
-    - Use `/impeccable critique src/app/page.tsx` to generate a scored list of
-      issues covering visual hierarchy, information architecture, typography,
-      spacing, and copy.
-    - Address findings in priority order, starting with the items most likely to
-      confuse or disengage a first-time visitor.
-
-- [ ] Design and build a dashboard empty state that teaches new users how to
-      create their first contract. This is the highest-priority onboarding gap
-      for a Web3-newcomer audience — a blank dashboard with no guidance leaves
-      new users stranded.
-    - The empty state should explain what TrustLedger does in one sentence, give
-      a clear primary call-to-action ("Create your first contract"), and ideally
-      surface a short example or illustration of what a contract card looks
-      like.
-    - Use `/impeccable craft dashboard-empty-state` to generate and iterate on
-      the design before writing production code.
-
-- [ ] Once the dev server is running (`npm run dev:frontend` from `src/`), use
-      live mode to iterate on UI components directly in the browser.
-    - Launch live mode with `/impeccable live` and inspect, tweak, and validate
-      changes visually before committing them. This is faster than
-      edit-refresh-repeat cycles for purely visual work. If the RAM/Memory usage
-      is too high, try `/impeccable live --no-inspect` to disable the DOM
-      inspection layer, which is the most resource-intensive part of live mode.
-      You can still see the live updates in the browser without the inspection
-      panel.
+- [ ] Migrate dashboard onboarding state to the off-chain account database once
+      user accounts exist.
+    - Replace the temporary `localStorage` key (`tl_visited`) with a
+      wallet-scoped profile preference so the walkthrough state follows the user
+      across browsers and devices.
+    - Keep the localStorage fallback until the account database and wallet
+      authentication flow are live in Phase 6.
+    - Include a migration path that preserves existing local first-visit state
+      when a user signs in after the database is introduced.
 
 ## Phase 4 — Core Contract Lifecycle Features
-
-- [ ] Allow clients and freelancers to create a contract within the platform,
-      see live edits, and update the contract terms before deployment.
-    - Build a contract creation and editing interface where users enter the
-      contract details (for example description, amount, and deadlines) and see
-      a live preview as they edit. Store the terms in a way that supports
-      updates before the contract is finalized and deployed on-chain.
-    - Once finalized, the contract is deployed to the blockchain. Supporting
-      live edits during the drafting phase improves the user experience, makes
-      it easier for both parties to agree on terms, and avoids repeated rounds
-      of off-chain negotiation and on-chain redeployment.
-    - Add a review confirmation step after a contract is proposed, asking "Are
-      you sure you want to send this to the [client/freelancer]?" where the
-      recipient role is the opposite of the current user. Require explicit
-      confirmation before sending so users do not accidentally submit contract
-      proposals.
 
 - [ ] Add an AI-generated summary of each contract and its status to the
       dashboard, so users can quickly understand the key details and current
@@ -431,6 +391,70 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Go through and fix any and all react-doctor issues, preexisting or not,
+      and ensure the app reaches 100/100.
+    - Completed 2026-06-08: fixed the remaining React Doctor warnings by
+      memoizing locale-aware amount formatters in the contract draft preview and
+      review confirmation components, then replacing the deployment-network
+      filter/map chain with a single-pass loop in `src/lib/wagmi.ts`.
+    - Reached `100 / 100` with `npx react-doctor@latest --verbose`.
+    - Launched the Impeccable live helper against the running frontend dev
+      server, corrected its stale live config target for the locale layout, and
+      removed the temporary live script injection before committing.
+    - Validated the touched UI in headless Chrome and fixed mobile navbar
+      wrapping so role, utility, and wallet controls remain usable at narrow
+      widths.
+    - Verified zero horizontal overflow on `/en`, `/en/create`, `/en/dashboard`,
+      `/en/juror`, and `/en/reputation` at 320, 390, 768, and 1440px.
+
+- [x] Allow clients and freelancers to create a contract within the platform,
+      see live edits, and update the contract terms before deployment.
+    - Completed 2026-06-08: expanded the create flow in
+      `src/app/[locale]/create/_components/CreatePageInner.tsx` into an editable
+      draft workflow with a live terms preview in `ContractLivePreview.tsx`.
+    - Draft terms are saved locally under `tl_create_contract_draft` while the
+      user edits, then cleared after successful on-chain proposal submission.
+      This keeps terms editable before deployment without changing the
+      blockchain contract interface.
+    - Added an explicit review step in `ReviewConfirmationPanel.tsx` before the
+      wallet write. The panel asks whether the user is sure they want to send
+      the proposal to the opposite role and keeps "Keep editing" available until
+      confirmation.
+    - Verified with `npm run doctor`,
+      `npx react-doctor@latest --verbose --diff`, `npm run lint:frontend`,
+      `npm run build:frontend`, and root `npm run lint`.
+
+- [x] Critique and improve the home page (`src/app/[locale]/page.tsx`).
+    - Completed 2026-06-08: ran an Impeccable-style scored critique before
+      editing. Manual design review score was 25/40: the primary issues were the
+      uppercase tracked eyebrow, a centered generic hero, the identical 3-card
+      feature grid, weak product specificity for first-time visitors, and
+      limited recognition of the escrow workflow.
+    - Deterministic detector result: clean
+      (`detect.mjs --json src/app/[locale]/page.tsx` returned `[]`) before and
+      after changes.
+    - Implemented a more specific landing page structure in
+      `src/app/[locale]/page.tsx`: sentence-case network badge, left-aligned
+      hero, concrete escrow contract preview, status chips, and a workflow list
+      that replaces the generic 3-card grid.
+    - Verified with `npm run lint:frontend` and `npm run build:frontend`.
+
+- [x] Design and build a dashboard empty state and first-time onboarding
+      walkthrough.
+    - **First-visit detection:** uses `localStorage` key `tl_visited` to decide
+      whether to auto-open the walkthrough on dashboard load.
+    - **First-time experience:** the walkthrough explains TrustLedger escrow in
+      one sentence, includes a "Create the first one" primary CTA, shows an
+      example contract card, and provides visible Skip controls.
+    - **Return-visit experience:** a fixed bottom-right `?` help button with an
+      accessible tooltip opens the walkthrough on demand.
+    - **Empty and populated dashboard support:** the zero-contract state teaches
+      the contract workflow and the help button is rendered for connected
+      dashboards regardless of contract count.
+    - Completed 2026-06-08: implemented in `src/app/[locale]/dashboard/page.tsx`
+      with message keys in `src/messages/*.json`. Verified with
+      `npm run lint:frontend` and `npm run build:frontend`.
 
 - [x] Evaluate whether Supabase is needed for this project.
     - Determine which specific features or requirements would benefit from

@@ -15,6 +15,31 @@ body {
 	font-family: var(--font-sans, Arial, Helvetica, sans-serif);
 }
 
+.tl-kv-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0.25rem 1rem;
+}
+
+.tl-kv-grid > * {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.tl-kv-grid > :nth-child(even) {
+	margin-block-end: 0.5rem;
+}
+
+@media (min-width: 30rem) {
+	.tl-kv-grid {
+		grid-template-columns: minmax(8rem, 0.9fr) minmax(0, 1.1fr);
+	}
+
+	.tl-kv-grid > :nth-child(even) {
+		margin-block-end: 0;
+	}
+}
+
 /* Respect the user's motion preference: collapse all transitions and
    animations to a near-instant flicker so the UI remains usable. */
 @media (prefers-reduced-motion: reduce) {
