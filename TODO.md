@@ -35,39 +35,6 @@ mainnet launch deliverables.
 
 ## Phase 2 — Code Organization and Architecture
 
-- [ ] Add the following directories to keep the code organized, modular, and
-      aligned with common React conventions: `hooks/`, `store/`, `utils/`,
-      `providers/`, and `agent/`.
-    - `hooks/` — custom React hooks for state and side effects (for example
-      `useContractData`, `useAuthentication`, `useNotifications`).
-    - `store/` — global state management, such as a context provider or a
-      Zustand store for shared state (for example authentication state and a
-      contract data cache).
-    - `utils/` — utility functions used across the codebase, such as formatters,
-      API helpers, and blockchain interaction utilities.
-    - `providers/` — context providers for global state or side effects (for
-      example `AuthProvider` and `ContractDataProvider`).
-    - `agent/` — AI agent logic and integrations, such as generating contract
-      summaries or providing AI-powered assistance to users.
-
-- [ ] Add a `services/` directory for external service integrations — such as
-      IPFS pinning, email notifications, and AI summarization — to keep the code
-      organized and modular. — **Partially done:** added `src/services/email.ts`
-      (a Resend wrapper with a shared HTML email shell) and
-      `src/services/notifications.ts` (lifecycle-email templates plus the pure
-      `findDeadlineReminders` deadline scanner) as part of the
-      email-notification work below. Placed under `src/services/` (not the repo
-      root) so the Next.js API routes import them via the existing
-      `@/services/*` path alias. `services/ipfs.ts` and `services/aiSummary.ts`
-      are still pending.
-    - Create a `services/` directory at the project root and define a module per
-      integration (for example `services/ipfs.ts`, `services/email.ts`, and
-      `services/aiSummary.ts`).
-    - Each module contains the functions for interacting with that service, such
-      as uploading files to IPFS, sending email notifications, or generating AI
-      summaries. This keeps the codebase clean and makes integrations easier to
-      manage and update.
-
 ## Phase 3 — UI/UX Design and Polish
 
 - [ ] Critique and improve the home page (`src/app/page.tsx`). Two immediate
@@ -507,6 +474,35 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Add the following directories to keep the code organized, modular, and
+      aligned with common React conventions: `hooks/`, `store/`, `utils/`,
+      `providers/`, and `agent/`.
+    - `hooks/` — custom React hooks for state and side effects (for example
+      `useContractData`, `useAuthentication`, `useNotifications`).
+    - `store/` — global state management, such as a context provider or a
+      Zustand store for shared state (for example authentication state and a
+      contract data cache).
+    - `utils/` — utility functions used across the codebase, such as formatters,
+      API helpers, and blockchain interaction utilities.
+    - `providers/` — context providers for global state or side effects (for
+      example `AuthProvider` and `ContractDataProvider`).
+    - `agent/` — AI agent logic and integrations, such as generating contract
+      summaries or providing AI-powered assistance to users.
+
+- [x] Add a `services/` directory for external service integrations — such as
+      IPFS pinning, email notifications, and AI summarization — to keep the code
+      organized and modular.
+    - `src/services/email.ts` — Resend wrapper with a shared HTML email shell.
+    - `src/services/notifications.ts` — lifecycle-email templates plus the pure
+      `findDeadlineReminders` deadline scanner.
+    - `src/services/ipfs.ts` — Pinata REST API wrapper (`gatewayUrl`, `pinJson`,
+      `pinFile`, `unpin`); no extra npm dependency, server-only.
+    - `src/services/aiSummary.ts` — Claude-powered summaries via
+      `@anthropic-ai/sdk` (`summarizeContract`, `summarizeDispute`);
+      server-only. `@anthropic-ai/sdk ^0.52.0` added to `package.json`.
+    - `PINATA_JWT`, optional `PINATA_GATEWAY`, and `ANTHROPIC_API_KEY` added to
+      `src/.env.local.example`.
 
 - [x] Refactor magic-link token verification out of `useEffect` in
       `app/freelancer/review/page.tsx` and `app/client/accept/page.tsx`.
