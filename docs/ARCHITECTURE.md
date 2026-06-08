@@ -478,10 +478,13 @@ Two distinct on-chain reputation systems surface in the Next.js app:
 | `/dashboard`  | `TrustLedger`        | `submitRating` form on `APPROVED` / `RESOLVED` contracts                          |
 | `/juror`      | `JurorRegistry`      | Juror stake reputation (100 → −10 per minority vote); unrelated to escrow ratings |
 
-Local dev: deploy with `npm run hardhat:deploy:local` so
-`artifacts/deployed-addresses.json` includes `ReputationRegistry`;
-`next.config.ts` injects `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` at build
-time.
+Production and local builds read the reputation registry from deployment
+metadata. `next.config.ts` injects `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS`
+when it is configured, and the reputation page can also discover the registry
+on-chain from `TrustLedger.reputationRegistry()`.
+`NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK` sets the first block scanned for
+reputation history so production RPC providers do not need genesis-range log
+queries.
 
 ---
 

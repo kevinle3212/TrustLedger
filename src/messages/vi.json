@@ -222,7 +222,7 @@
 		"contractNum": "hợp đồng #{id}",
 		"autoPenalty": "hình phạt tự động",
 		"block": "khối {n}",
-		"registryNotConfigured": "ReputationRegistry chưa được cấu hình. Triển khai cục bộ với npm run hardhat:deploy:local và khởi động lại máy chủ dev."
+		"registryNotConfigured": "Danh tiếng chưa khả dụng cho bản triển khai TrustLedger này."
 	},
 	"Arbitration": {
 		"dispute": "Tranh Chấp",

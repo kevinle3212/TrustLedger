@@ -89,6 +89,7 @@ async function main(): Promise<void> {
 	const ReputationRegistry = await ethers.getContractFactory("ReputationRegistry");
 	const reputationRegistry = await ReputationRegistry.deploy(await trustLedger.getAddress());
 	await reputationRegistry.waitForDeployment();
+	const reputationRegistryReceipt = await reputationRegistry.deploymentTransaction()?.wait();
 	console.log("ReputationRegistry:", await reputationRegistry.getAddress());
 
 	// Wire ReputationRegistry into TrustLedger so submitRating() is live.
@@ -103,6 +104,7 @@ async function main(): Promise<void> {
 		TrustLedger: await trustLedger.getAddress(),
 		Arbitration: await arbitration.getAddress(),
 		ReputationRegistry: await reputationRegistry.getAddress(),
+		TrustLedgerDeployBlock: reputationRegistryReceipt?.blockNumber ?? 0,
 		network: (await ethers.provider.getNetwork()).name,
 		deployedAt: new Date().toISOString(),
 	};

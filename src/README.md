@@ -111,7 +111,8 @@ Then open `.env` in any text editor and fill in the values below.
 | ----------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`    | Yes, for wallet connection | Free project ID from WalletConnect Cloud - see steps below.                                                               |
 | `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`         | No (auto-detected)         | Deployed `TrustLedger` contract address. Left blank, it is read from `artifacts/deployed-addresses.json` automatically.   |
-| `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` | No (auto-detected)         | Deployed `ReputationRegistry` address. Same resolution as above. Required for `/reputation` and dashboard rating forms.   |
+| `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` | No (auto-detected)         | Deployed `ReputationRegistry` address. The reputation page can also discover it from `TrustLedger.reputationRegistry()`.  |
+| `NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK`    | Recommended                | First block scanned for reputation history. Set by deploy automation to avoid production RPC genesis-range log queries.   |
 | `NEXT_BASE_PATH`                          | No                         | URL prefix. Leave empty (`NEXT_BASE_PATH=`) to serve from the root path `/`. The root `.env` already sets this correctly. |
 
 > The email features (magic-link onboarding and contract notifications) use a

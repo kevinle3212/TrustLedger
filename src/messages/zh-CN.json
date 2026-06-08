@@ -222,7 +222,7 @@
 		"contractNum": "合同 #{id}",
 		"autoPenalty": "自动惩罚",
 		"block": "区块 {n}",
-		"registryNotConfigured": "ReputationRegistry 未配置。使用 npm run hardhat:deploy:local 在本地部署并重启开发服务器。"
+		"registryNotConfigured": "此 TrustLedger 部署尚未提供信誉功能。"
 	},
 	"Arbitration": {
 		"dispute": "争议",

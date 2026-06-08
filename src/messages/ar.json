@@ -222,7 +222,7 @@
 		"contractNum": "عقد #{id}",
 		"autoPenalty": "عقوبة تلقائية",
 		"block": "كتلة {n}",
-		"registryNotConfigured": "لم يُهيَّأ ReputationRegistry. انشره محليًا باستخدام npm run hardhat:deploy:local وأعد تشغيل خادم التطوير."
+		"registryNotConfigured": "السمعة غير متاحة بعد لهذا النشر من TrustLedger."
 	},
 	"Arbitration": {
 		"dispute": "نزاع",

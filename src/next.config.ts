@@ -45,6 +45,28 @@ function resolveAddress(jsonKey: string, envKey: string): string {
 	}
 }
 
+function resolveArtifactValue(jsonKey: string, envKey: string): string {
+	const envValue = process.env[envKey];
+	if (envValue !== undefined && envValue !== "") return envValue;
+
+	try {
+		const json = JSON.parse(
+			fs.readFileSync(
+				path.resolve(__dirname, "../artifacts/deployed-addresses.json"),
+				"utf8",
+			),
+		) as Record<string, string | number | undefined>;
+		const artifactValue = json[jsonKey];
+		return artifactValue === undefined ? "" : String(artifactValue);
+	} catch {
+		return "";
+	}
+}
+
+function resolveEnvValue(envKey: string): string {
+	return process.env[envKey] ?? rootEnv[envKey] ?? "";
+}
+
 const rootEnv = parseRootEnv();
 
 // Resolve the public GitHub URL. Priority:
@@ -85,6 +107,70 @@ const nextConfig: NextConfig = {
 		NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS: resolveAddress(
 			"ReputationRegistry",
 			"NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK: resolveArtifactValue(
+			"TrustLedgerDeployBlock",
+			"NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_SEPOLIA: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_SEPOLIA",
+		),
+		NEXT_PUBLIC_ARBITRATION_ADDRESS_SEPOLIA: resolveEnvValue(
+			"NEXT_PUBLIC_ARBITRATION_ADDRESS_SEPOLIA",
+		),
+		NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_SEPOLIA: resolveEnvValue(
+			"NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_SEPOLIA",
+		),
+		NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_SEPOLIA: resolveEnvValue(
+			"NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_SEPOLIA",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_SEPOLIA: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_SEPOLIA",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_ARBITRUM: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_ARBITRUM",
+		),
+		NEXT_PUBLIC_ARBITRATION_ADDRESS_ARBITRUM: resolveEnvValue(
+			"NEXT_PUBLIC_ARBITRATION_ADDRESS_ARBITRUM",
+		),
+		NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_ARBITRUM: resolveEnvValue(
+			"NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_ARBITRUM",
+		),
+		NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_ARBITRUM: resolveEnvValue(
+			"NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_ARBITRUM",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_ARBITRUM: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_ARBITRUM",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_BASE: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_BASE",
+		),
+		NEXT_PUBLIC_ARBITRATION_ADDRESS_BASE: resolveEnvValue(
+			"NEXT_PUBLIC_ARBITRATION_ADDRESS_BASE",
+		),
+		NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_BASE: resolveEnvValue(
+			"NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_BASE",
+		),
+		NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_BASE: resolveEnvValue(
+			"NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_BASE",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_BASE: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_BASE",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_OPTIMISM: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_OPTIMISM",
+		),
+		NEXT_PUBLIC_ARBITRATION_ADDRESS_OPTIMISM: resolveEnvValue(
+			"NEXT_PUBLIC_ARBITRATION_ADDRESS_OPTIMISM",
+		),
+		NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_OPTIMISM: resolveEnvValue(
+			"NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_OPTIMISM",
+		),
+		NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_OPTIMISM: resolveEnvValue(
+			"NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_OPTIMISM",
+		),
+		NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_OPTIMISM: resolveEnvValue(
+			"NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_OPTIMISM",
 		),
 		NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:
 			process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??

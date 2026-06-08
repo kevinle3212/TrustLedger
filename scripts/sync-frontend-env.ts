@@ -33,6 +33,7 @@ const ENV_KEY_BY_CONTRACT: Record<string, string> = {
 	Arbitration: "NEXT_PUBLIC_ARBITRATION_ADDRESS",
 	JurorRegistry: "NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS",
 	ReputationRegistry: "NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS",
+	TrustLedgerDeployBlock: "NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK",
 };
 
 /** Upserts `key=value` into the `.env` file body, preserving all other lines. */

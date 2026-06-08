@@ -222,7 +222,7 @@
 		"contractNum": "contrat #{id}",
 		"autoPenalty": "pénalité automatique",
 		"block": "bloc {n}",
-		"registryNotConfigured": "ReputationRegistry non configuré. Déployez localement avec npm run hardhat:deploy:local et redémarrez le serveur de développement."
+		"registryNotConfigured": "La réputation n'est pas encore disponible pour ce déploiement TrustLedger."
 	},
 	"Arbitration": {
 		"dispute": "Litige",

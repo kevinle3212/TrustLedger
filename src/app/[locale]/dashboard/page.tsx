@@ -21,7 +21,7 @@ const DecryptDocumentForm = dynamic(
 import { keccak256, toBytes } from "viem";
 import { TRUSTLEDGER_ABI } from "@/lib/abi";
 import { ERC20_ABI } from "@/lib/erc20Abi";
-import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
+import { TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import {
 	formatAddress,
 	formatDeadline,
@@ -208,18 +208,12 @@ function TokenFundButton({
 
 // Inline form for submitting a 1-100 reputation score after contract completion.
 // submitRating() is callable by both parties once the contract reaches APPROVED (3) or RESOLVED (5).
-// The registry is optional — if it isn't deployed (zero address), the form hides entirely.
 function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 	const t = useTranslations("Dashboard");
 	const [score, setScore] = useState("80");
 	const [touched, setTouched] = useState(false);
 	const { writeContract, data: txHash, isPending, error, reset } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
-
-	// Guard: REPUTATION_REGISTRY_ADDRESS is the zero address when the registry isn't deployed.
-	// Comparing to the zero address is cheaper than an extra RPC call.
-	const registryDeployed =
-		REPUTATION_REGISTRY_ADDRESS !== "0x0000000000000000000000000000000000000000";
 
 	const scoreError = validateScore(score);
 
@@ -235,8 +229,6 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 			args: [contractId, parsed],
 		});
 	}
-
-	if (!registryDeployed) return <></>;
 
 	if (isSuccess) {
 		return (

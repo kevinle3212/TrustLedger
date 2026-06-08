@@ -85,17 +85,18 @@ lists every variable, whether it is required, and where to get the value.
 
 These must be set before the frontend will work correctly in production.
 
-| Variable                                  | Environment        | How to obtain                                                                                                                                                     |
-| ----------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`    | Production/Preview | Free project ID from [cloud.walletconnect.com](https://cloud.walletconnect.com) - create a project of type **App**                                                |
-| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`         | Production/Preview | Set to `0x0000000000000000000000000000000000000000` initially; `deploy.yml` overwrites it automatically after every deploy                                        |
-| `NEXT_PUBLIC_ARBITRATION_ADDRESS`         | Production/Preview | Set to `0x0000000000000000000000000000000000000000` initially; `deploy.yml` overwrites it automatically after every deploy                                        |
-| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`      | Production/Preview | Set to `0x0000000000000000000000000000000000000000` initially; `deploy.yml` overwrites it automatically after every deploy                                        |
-| `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` | Production/Preview | Set manually after deploy (or from `artifacts/deployed-addresses.json` locally). Not yet synced by `deploy.yml` (Forge script deploy only three contracts today). |
-| `MAGIC_LINK_SECRET`                       | Production/Preview | Random 32-byte hex: `openssl rand -hex 32` - ⚠️ never expose                                                                                                      |
-| `RESEND_API_KEY`                          | Production/Preview | From [resend.com/api-keys](https://resend.com/api-keys) - ⚠️ never expose                                                                                         |
-| `RESEND_FROM`                             | Production/Preview | Verified sender address in Resend, e.g. `TrustLedger <noreply@yourdomain.com>`                                                                                    |
-| `NEXT_PUBLIC_APP_URL`                     | Production/Preview | Your deployment URL, e.g. `https://trustledger-zeta.vercel.app` - used to build magic link URLs in emails                                                         |
+| Variable                                  | Environment        | How to obtain                                                                                                              |
+| ----------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`    | Production/Preview | Free project ID from [cloud.walletconnect.com](https://cloud.walletconnect.com) - create a project of type **App**         |
+| `NEXT_PUBLIC_TRUSTLEDGER_ADDRESS`         | Production/Preview | Set to `0x0000000000000000000000000000000000000000` initially; `deploy.yml` overwrites it automatically after every deploy |
+| `NEXT_PUBLIC_ARBITRATION_ADDRESS`         | Production/Preview | Set to `0x0000000000000000000000000000000000000000` initially; `deploy.yml` overwrites it automatically after every deploy |
+| `NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS`      | Production/Preview | Set to `0x0000000000000000000000000000000000000000` initially; `deploy.yml` overwrites it automatically after every deploy |
+| `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` | Production/Preview | Set to `0x0000000000000000000000000000000000000000` initially; `deploy.yml` overwrites it automatically after every deploy |
+| `NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK`    | Production/Preview | Set to `0` initially; `deploy.yml` overwrites it with the reputation-history start block after every deploy                |
+| `MAGIC_LINK_SECRET`                       | Production/Preview | Random 32-byte hex: `openssl rand -hex 32` - ⚠️ never expose                                                               |
+| `RESEND_API_KEY`                          | Production/Preview | From [resend.com/api-keys](https://resend.com/api-keys) - ⚠️ never expose                                                  |
+| `RESEND_FROM`                             | Production/Preview | Verified sender address in Resend, e.g. `TrustLedger <noreply@yourdomain.com>`                                             |
+| `NEXT_PUBLIC_APP_URL`                     | Production/Preview | Your deployment URL, e.g. `https://trustledger-zeta.vercel.app` - used to build magic link URLs in emails                  |
 
 #### Optional variables
 
@@ -108,10 +109,9 @@ These must be set before the frontend will work correctly in production.
 > **Why contract address env vars must be set in Vercel:**
 > `artifacts/deployed-addresses.json` is gitignored and never reaches the CI
 > checkout. Vercel's build has no access to it. Env vars are the only mechanism
-> the frontend uses to know deployed addresses. `deploy.yml` keeps the three
-> core contracts in sync automatically after every Forge deploy; set
-> `NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS` manually until the Forge script
-> deploys `ReputationRegistry` too.
+> the frontend uses to know deployed addresses. `deploy.yml` keeps TrustLedger,
+> Arbitration, JurorRegistry, ReputationRegistry, and the reputation-history
+> start block in sync automatically after every Forge deploy.
 
 #### Method A - Vercel dashboard (recommended for first-time setup)
 
@@ -141,6 +141,10 @@ vercel env add NEXT_PUBLIC_ARBITRATION_ADDRESS production
 vercel env add NEXT_PUBLIC_ARBITRATION_ADDRESS preview
 vercel env add NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS production
 vercel env add NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS preview
+vercel env add NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS production
+vercel env add NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS preview
+vercel env add NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK production
+vercel env add NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK preview
 
 # Required - magic link / email
 vercel env add MAGIC_LINK_SECRET production

@@ -3,21 +3,97 @@ import { arbitrum, type AppKitNetwork, base, optimism, sepolia } from "@reown/ap
 import { createAppKit, type CreateAppKit } from "@reown/appkit/react";
 import { FEATURED_WALLET_IDS } from "./walletIds";
 
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+interface ContractDeployment {
+	trustLedger: `0x${string}`;
+	arbitration: `0x${string}`;
+	jurorRegistry: `0x${string}`;
+	reputationRegistry: `0x${string}`;
+	deployBlock: bigint | undefined;
+}
+
+function readAddress(key: string): `0x${string}` | undefined {
+	const value = process.env[key];
+	if (value === undefined || value === "" || !value.startsWith("0x")) return undefined;
+	return value as `0x${string}`;
+}
+
+function readBlock(key: string): bigint | undefined {
+	const value = process.env[key];
+	if (value === undefined || value === "") return undefined;
+	try {
+		const parsed = BigInt(value);
+		return parsed >= 0n ? parsed : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 export const TRUSTLEDGER_ADDRESS: `0x${string}` =
-	(process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"] as `0x${string}` | undefined) ??
-	"0x0000000000000000000000000000000000000000";
+	(process.env["NEXT_PUBLIC_TRUSTLEDGER_ADDRESS"] as `0x${string}` | undefined) ?? ZERO_ADDRESS;
 
 export const ARBITRATION_ADDRESS: `0x${string}` =
-	(process.env["NEXT_PUBLIC_ARBITRATION_ADDRESS"] as `0x${string}` | undefined) ??
-	"0x0000000000000000000000000000000000000000";
+	(process.env["NEXT_PUBLIC_ARBITRATION_ADDRESS"] as `0x${string}` | undefined) ?? ZERO_ADDRESS;
 
 export const JUROR_REGISTRY_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
-	"0x0000000000000000000000000000000000000000";
+	ZERO_ADDRESS;
 
 export const REPUTATION_REGISTRY_ADDRESS: `0x${string}` =
 	(process.env["NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS"] as `0x${string}` | undefined) ??
-	"0x0000000000000000000000000000000000000000";
+	ZERO_ADDRESS;
+
+const DEFAULT_DEPLOYMENT: ContractDeployment = {
+	trustLedger: TRUSTLEDGER_ADDRESS,
+	arbitration: ARBITRATION_ADDRESS,
+	jurorRegistry: JUROR_REGISTRY_ADDRESS,
+	reputationRegistry: REPUTATION_REGISTRY_ADDRESS,
+	deployBlock: readBlock("NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK"),
+};
+
+const CONTRACT_DEPLOYMENTS: Record<number, ContractDeployment> = {
+	11155111: {
+		trustLedger: readAddress("NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_SEPOLIA") ?? TRUSTLEDGER_ADDRESS,
+		arbitration: readAddress("NEXT_PUBLIC_ARBITRATION_ADDRESS_SEPOLIA") ?? ARBITRATION_ADDRESS,
+		jurorRegistry:
+			readAddress("NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_SEPOLIA") ?? JUROR_REGISTRY_ADDRESS,
+		reputationRegistry:
+			readAddress("NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_SEPOLIA") ??
+			REPUTATION_REGISTRY_ADDRESS,
+		deployBlock:
+			readBlock("NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_SEPOLIA") ??
+			DEFAULT_DEPLOYMENT.deployBlock,
+	},
+	42161: {
+		trustLedger: readAddress("NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_ARBITRUM") ?? ZERO_ADDRESS,
+		arbitration: readAddress("NEXT_PUBLIC_ARBITRATION_ADDRESS_ARBITRUM") ?? ZERO_ADDRESS,
+		jurorRegistry: readAddress("NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_ARBITRUM") ?? ZERO_ADDRESS,
+		reputationRegistry:
+			readAddress("NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_ARBITRUM") ?? ZERO_ADDRESS,
+		deployBlock: readBlock("NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_ARBITRUM"),
+	},
+	8453: {
+		trustLedger: readAddress("NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_BASE") ?? ZERO_ADDRESS,
+		arbitration: readAddress("NEXT_PUBLIC_ARBITRATION_ADDRESS_BASE") ?? ZERO_ADDRESS,
+		jurorRegistry: readAddress("NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_BASE") ?? ZERO_ADDRESS,
+		reputationRegistry:
+			readAddress("NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_BASE") ?? ZERO_ADDRESS,
+		deployBlock: readBlock("NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_BASE"),
+	},
+	10: {
+		trustLedger: readAddress("NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_OPTIMISM") ?? ZERO_ADDRESS,
+		arbitration: readAddress("NEXT_PUBLIC_ARBITRATION_ADDRESS_OPTIMISM") ?? ZERO_ADDRESS,
+		jurorRegistry: readAddress("NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS_OPTIMISM") ?? ZERO_ADDRESS,
+		reputationRegistry:
+			readAddress("NEXT_PUBLIC_REPUTATION_REGISTRY_ADDRESS_OPTIMISM") ?? ZERO_ADDRESS,
+		deployBlock: readBlock("NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_OPTIMISM"),
+	},
+};
+
+export function getContractDeployment(chainId: number): ContractDeployment {
+	return CONTRACT_DEPLOYMENTS[chainId] ?? DEFAULT_DEPLOYMENT;
+}
 
 // Native USDC addresses per supported chain. Sepolia uses Circle's testnet USDC.
 // Override NEXT_PUBLIC_USDC_ADDRESS_SEPOLIA for a custom mock deployment.

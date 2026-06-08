@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useAccount, useChainId, usePublicClient, useReadContract } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
 import { isAddress, parseAbiItem } from "viem";
-import { REPUTATION_REGISTRY_ABI } from "@/lib/abi";
-import { REPUTATION_REGISTRY_ADDRESS, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
+import { REPUTATION_REGISTRY_ABI, TRUSTLEDGER_ABI } from "@/lib/abi";
+import { getContractDeployment, ZERO_ADDRESS } from "@/lib/wagmi";
 import { formatAddress } from "@/lib/utils";
 import { validateEthAddress } from "@/lib/validation";
 import type { ReputationHistoryEntry as HistoryEntry } from "@/types";
@@ -17,7 +17,6 @@ const RATING_SUBMITTED_EVENT = parseAbiItem(
 const RECOVERY_EVENT = parseAbiItem(
 	"event RecoveryAchieved(address indexed user, uint8 indexed bonus)",
 );
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const MAX_LOG_BLOCK_RANGE = 49_999n;
 
 // The reputation history feed entry shape is modelled by the shared
@@ -40,9 +39,42 @@ function formatReputation(
 	};
 }
 
+async function findDeploymentBlock(
+	publicClient: NonNullable<ReturnType<typeof usePublicClient>>,
+	address: `0x${string}`,
+	latestBlock: bigint,
+): Promise<bigint | undefined> {
+	const latestCode = await publicClient.getCode({ address, blockNumber: latestBlock });
+	if (latestCode === undefined || latestCode === "0x") return undefined;
+
+	let low = 0n;
+	let high = latestBlock;
+	while (low < high) {
+		const mid = (low + high) / 2n;
+		const code = await publicClient.getCode({ address, blockNumber: mid });
+		if (code !== undefined && code !== "0x") {
+			high = mid;
+		} else {
+			low = mid + 1n;
+		}
+	}
+
+	return low;
+}
+
 // ─── Rating history feed ──────────────────────────────────────────────────────
 
-function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }): React.JSX.Element {
+function RatingHistoryFeed({
+	lookupAddress,
+	registryAddress,
+	trustLedgerAddress,
+	deployBlock,
+}: {
+	lookupAddress: `0x${string}`;
+	registryAddress: `0x${string}`;
+	trustLedgerAddress: `0x${string}`;
+	deployBlock: bigint | undefined;
+}): React.JSX.Element {
 	const publicClient = usePublicClient();
 	const chainId = useChainId();
 	const [entries, setEntries] = useState<HistoryEntry[]>([]);
@@ -70,12 +102,18 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 			setEntries([]);
 
 			const latestBlock = await publicClient.getBlockNumber();
+			const discoveredDeployBlock =
+				deployBlock ??
+				(await findDeploymentBlock(publicClient, registryAddress, latestBlock));
+			const firstBlock =
+				discoveredDeployBlock ??
+				(latestBlock > MAX_LOG_BLOCK_RANGE ? latestBlock - MAX_LOG_BLOCK_RANGE : 0n);
 
 			async function getLogsInChunks<TLog>(
 				getLogsForRange: (fromBlock: bigint, toBlock: bigint) => Promise<TLog[]>,
 			): Promise<TLog[]> {
 				const logs: TLog[] = [];
-				for (let fromBlock = 0n; fromBlock <= latestBlock; ) {
+				for (let fromBlock = firstBlock; fromBlock <= latestBlock; ) {
 					const toBlock =
 						fromBlock + MAX_LOG_BLOCK_RANGE > latestBlock
 							? latestBlock
@@ -93,7 +131,7 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 				getLogsInChunks(
 					async (fromBlock, toBlock) =>
 						await publicClient.getLogs({
-							address: REPUTATION_REGISTRY_ADDRESS,
+							address: registryAddress,
 							event: RATED_EVENT,
 							args: { user: lookupAddress },
 							fromBlock,
@@ -103,7 +141,7 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 				getLogsInChunks(
 					async (fromBlock, toBlock) =>
 						await publicClient.getLogs({
-							address: TRUSTLEDGER_ADDRESS,
+							address: trustLedgerAddress,
 							event: RATING_SUBMITTED_EVENT,
 							fromBlock,
 							toBlock,
@@ -112,7 +150,7 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 				getLogsInChunks(
 					async (fromBlock, toBlock) =>
 						await publicClient.getLogs({
-							address: REPUTATION_REGISTRY_ADDRESS,
+							address: registryAddress,
 							event: RECOVERY_EVENT,
 							args: { user: lookupAddress },
 							fromBlock,
@@ -167,7 +205,7 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 		return (): void => {
 			cancelled = true;
 		};
-	}, [lookupAddress, publicClient]);
+	}, [deployBlock, lookupAddress, publicClient, registryAddress, trustLedgerAddress]);
 
 	if (loading) {
 		return (
@@ -256,27 +294,41 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 
 // ─── Average score + recovery status ─────────────────────────────────────────
 
-function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): React.JSX.Element {
-	const registryDeployed = REPUTATION_REGISTRY_ADDRESS !== ZERO_ADDRESS;
+function ReputationLookup({
+	lookupAddress,
+	registryAddress,
+	registryLookupError,
+	registryLookupLoading,
+	trustLedgerDeployed,
+	trustLedgerAddress,
+}: {
+	lookupAddress: `0x${string}`;
+	registryAddress: `0x${string}` | undefined;
+	registryLookupError: boolean;
+	registryLookupLoading: boolean;
+	trustLedgerDeployed: boolean;
+	trustLedgerAddress: `0x${string}`;
+}): React.JSX.Element {
+	const registryAvailable = registryAddress !== undefined && registryAddress !== ZERO_ADDRESS;
 
 	const {
 		data: avgData,
 		isLoading,
 		isError,
 	} = useReadContract({
-		address: REPUTATION_REGISTRY_ADDRESS,
+		address: registryAddress ?? ZERO_ADDRESS,
 		abi: REPUTATION_REGISTRY_ABI,
 		functionName: "averageRating",
 		args: [lookupAddress],
-		query: { enabled: registryDeployed },
+		query: { enabled: registryAvailable },
 	});
 
 	const { data: recoveryData } = useReadContract({
-		address: REPUTATION_REGISTRY_ADDRESS,
+		address: registryAddress ?? ZERO_ADDRESS,
 		abi: REPUTATION_REGISTRY_ABI,
 		functionName: "recoveryStatus",
 		args: [lookupAddress],
-		query: { enabled: registryDeployed },
+		query: { enabled: registryAvailable },
 	});
 
 	const [numerator, denominator] = avgData ?? [undefined, undefined];
@@ -284,12 +336,36 @@ function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): 
 	const [pending, progress] = recoveryData ?? [undefined, undefined];
 	const inRecovery = pending !== undefined && pending > 0n;
 
-	if (!registryDeployed) {
+	if (!trustLedgerDeployed) {
 		return (
 			<div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-700 dark:text-yellow-300">
-				ReputationRegistry is not configured. Deploy locally with{" "}
-				<code className="font-mono text-xs">npm run hardhat:deploy:local</code> and restart
-				the dev server.
+				TrustLedger is not configured for this deployment. Set the production contract
+				address for your wallet&apos;s current network and redeploy the app.
+			</div>
+		);
+	}
+
+	if (registryLookupLoading) {
+		return (
+			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
+				<p className="text-sm text-gray-500">Finding reputation registry…</p>
+			</div>
+		);
+	}
+
+	if (registryLookupError) {
+		return (
+			<div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-700 dark:text-red-300">
+				Could not discover the reputation registry for this network. Check that your wallet
+				is connected to a supported TrustLedger network.
+			</div>
+		);
+	}
+
+	if (!registryAvailable) {
+		return (
+			<div className="rounded-2xl border border-yellow-500/30 bg-yellow-500/10 p-5 text-sm text-yellow-700 dark:text-yellow-300">
+				Reputation is not available for this TrustLedger deployment yet.
 			</div>
 		);
 	}
@@ -298,9 +374,15 @@ function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): 
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h2 className="font-semibold text-gray-900 dark:text-white">On-chain Reputation</h2>
-				<span className="text-xs text-gray-500 font-mono">
-					{formatAddress(lookupAddress)}
-				</span>
+				<div className="flex flex-col items-end gap-0.5">
+					<span className="text-xs text-gray-500 font-mono">
+						{formatAddress(lookupAddress)}
+					</span>
+					<span className="text-[11px] text-gray-400 font-mono">
+						registry {formatAddress(registryAddress)}
+					</span>
+					<span className="sr-only">TrustLedger {trustLedgerAddress}</span>
+				</div>
 			</div>
 
 			{isLoading && <p className="text-sm text-gray-500">Loading…</p>}
@@ -347,11 +429,33 @@ function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): 
 
 export function ReputationPageInner(): React.JSX.Element {
 	const { address, isConnected } = useAccount();
+	const chainId = useChainId();
 	const [input, setInput] = useState("");
 	const [lookupAddress, setLookupAddress] = useState<`0x${string}` | undefined>(undefined);
 	const [inputError, setInputError] = useState<string | undefined>(undefined);
-	const registryDeployed = REPUTATION_REGISTRY_ADDRESS !== ZERO_ADDRESS;
-	const trustLedgerDeployed = TRUSTLEDGER_ADDRESS !== ZERO_ADDRESS;
+	const deployment = getContractDeployment(chainId);
+	const trustLedgerAddress = deployment.trustLedger;
+	const configuredRegistryAddress = deployment.reputationRegistry;
+	const trustLedgerDeployed = trustLedgerAddress !== ZERO_ADDRESS;
+	const shouldDiscoverRegistry =
+		trustLedgerDeployed && configuredRegistryAddress === ZERO_ADDRESS;
+
+	const {
+		data: discoveredRegistryAddress,
+		isLoading: registryLookupLoading,
+		isError: registryLookupError,
+	} = useReadContract({
+		address: trustLedgerAddress,
+		abi: TRUSTLEDGER_ABI,
+		functionName: "reputationRegistry",
+		query: { enabled: shouldDiscoverRegistry },
+	});
+
+	const registryAddress =
+		configuredRegistryAddress !== ZERO_ADDRESS
+			? configuredRegistryAddress
+			: discoveredRegistryAddress;
+	const registryAvailable = registryAddress !== undefined && registryAddress !== ZERO_ADDRESS;
 
 	function handleLookup(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
@@ -440,9 +544,21 @@ export function ReputationPageInner(): React.JSX.Element {
 
 			{lookupAddress !== undefined && (
 				<>
-					<ReputationLookup lookupAddress={lookupAddress} />
-					{registryDeployed && trustLedgerDeployed && (
-						<RatingHistoryFeed lookupAddress={lookupAddress} />
+					<ReputationLookup
+						lookupAddress={lookupAddress}
+						registryAddress={registryAddress}
+						registryLookupError={registryLookupError}
+						registryLookupLoading={registryLookupLoading}
+						trustLedgerDeployed={trustLedgerDeployed}
+						trustLedgerAddress={trustLedgerAddress}
+					/>
+					{registryAvailable && trustLedgerDeployed && (
+						<RatingHistoryFeed
+							lookupAddress={lookupAddress}
+							registryAddress={registryAddress}
+							trustLedgerAddress={trustLedgerAddress}
+							deployBlock={deployment.deployBlock}
+						/>
 					)}
 				</>
 			)}
