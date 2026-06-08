@@ -47,7 +47,7 @@ export function SubmitSummary({
 	const isClientProposing = proposerRole === "client";
 
 	/** Message to show for a simulation revert, preferring the decoded form. */
-	const simErrorMessage: string | null = (() => {
+	const simErrorMessage: string | null = ((): string | null => {
 		if (simError === null) return null;
 		if (decodedSimError !== null) return decodedSimError.message;
 		return (simError as { shortMessage?: string }).shortMessage ?? simError.message;

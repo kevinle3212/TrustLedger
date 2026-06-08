@@ -90,6 +90,6 @@ function extractErrorName(err: Error): string | undefined {
 export function decodeContractError(err: Error | null): DecodedContractError | null {
 	if (err === null) return null;
 	const name = extractErrorName(err);
-	if (name !== undefined && name in ERROR_MAP) return ERROR_MAP[name]!;
+	if (name !== undefined && name in ERROR_MAP) return ERROR_MAP[name] ?? null;
 	return null;
 }
