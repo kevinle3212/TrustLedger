@@ -17,6 +17,8 @@ const RATING_SUBMITTED_EVENT = parseAbiItem(
 const RECOVERY_EVENT = parseAbiItem(
 	"event RecoveryAchieved(address indexed user, uint8 indexed bonus)",
 );
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const MAX_LOG_BLOCK_RANGE = 49_999n;
 
 // The reputation history feed entry shape is modelled by the shared
 // `ReputationHistoryEntry` type (imported above as `HistoryEntry`) from `@/types`.
@@ -66,30 +68,57 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 			setLoading(true);
 			setFetchError(null);
 			setEntries([]);
+
+			const latestBlock = await publicClient.getBlockNumber();
+
+			async function getLogsInChunks<TLog>(
+				getLogsForRange: (fromBlock: bigint, toBlock: bigint) => Promise<TLog[]>,
+			): Promise<TLog[]> {
+				const logs: TLog[] = [];
+				for (let fromBlock = 0n; fromBlock <= latestBlock; ) {
+					const toBlock =
+						fromBlock + MAX_LOG_BLOCK_RANGE > latestBlock
+							? latestBlock
+							: fromBlock + MAX_LOG_BLOCK_RANGE;
+					logs.push(...(await getLogsForRange(fromBlock, toBlock)));
+					fromBlock = toBlock + 1n;
+				}
+				return logs;
+			}
+
 			// Fetch Rated, RatingSubmitted, and RecoveryAchieved logs in parallel.
 			// RatingSubmitted is not filtered by address — we join it with Rated by txHash
 			// to recover the rater and contract ID for each received rating.
 			const [ratedLogs, submittedLogs, recoveryLogs] = await Promise.all([
-				publicClient.getLogs({
-					address: REPUTATION_REGISTRY_ADDRESS,
-					event: RATED_EVENT,
-					args: { user: lookupAddress },
-					fromBlock: 0n,
-					toBlock: "latest",
-				}),
-				publicClient.getLogs({
-					address: TRUSTLEDGER_ADDRESS,
-					event: RATING_SUBMITTED_EVENT,
-					fromBlock: 0n,
-					toBlock: "latest",
-				}),
-				publicClient.getLogs({
-					address: REPUTATION_REGISTRY_ADDRESS,
-					event: RECOVERY_EVENT,
-					args: { user: lookupAddress },
-					fromBlock: 0n,
-					toBlock: "latest",
-				}),
+				getLogsInChunks(
+					async (fromBlock, toBlock) =>
+						await publicClient.getLogs({
+							address: REPUTATION_REGISTRY_ADDRESS,
+							event: RATED_EVENT,
+							args: { user: lookupAddress },
+							fromBlock,
+							toBlock,
+						}),
+				),
+				getLogsInChunks(
+					async (fromBlock, toBlock) =>
+						await publicClient.getLogs({
+							address: TRUSTLEDGER_ADDRESS,
+							event: RATING_SUBMITTED_EVENT,
+							fromBlock,
+							toBlock,
+						}),
+				),
+				getLogsInChunks(
+					async (fromBlock, toBlock) =>
+						await publicClient.getLogs({
+							address: REPUTATION_REGISTRY_ADDRESS,
+							event: RECOVERY_EVENT,
+							args: { user: lookupAddress },
+							fromBlock,
+							toBlock,
+						}),
+				),
 			]);
 
 			// Build txHash → RatingSubmitted so we can enrich each Rated log.
@@ -228,8 +257,7 @@ function RatingHistoryFeed({ lookupAddress }: { lookupAddress: `0x${string}` }):
 // ─── Average score + recovery status ─────────────────────────────────────────
 
 function ReputationLookup({ lookupAddress }: { lookupAddress: `0x${string}` }): React.JSX.Element {
-	const registryDeployed =
-		REPUTATION_REGISTRY_ADDRESS !== "0x0000000000000000000000000000000000000000";
+	const registryDeployed = REPUTATION_REGISTRY_ADDRESS !== ZERO_ADDRESS;
 
 	const {
 		data: avgData,
@@ -322,6 +350,8 @@ export function ReputationPageInner(): React.JSX.Element {
 	const [input, setInput] = useState("");
 	const [lookupAddress, setLookupAddress] = useState<`0x${string}` | undefined>(undefined);
 	const [inputError, setInputError] = useState<string | undefined>(undefined);
+	const registryDeployed = REPUTATION_REGISTRY_ADDRESS !== ZERO_ADDRESS;
+	const trustLedgerDeployed = TRUSTLEDGER_ADDRESS !== ZERO_ADDRESS;
 
 	function handleLookup(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
@@ -411,7 +441,9 @@ export function ReputationPageInner(): React.JSX.Element {
 			{lookupAddress !== undefined && (
 				<>
 					<ReputationLookup lookupAddress={lookupAddress} />
-					<RatingHistoryFeed lookupAddress={lookupAddress} />
+					{registryDeployed && trustLedgerDeployed && (
+						<RatingHistoryFeed lookupAddress={lookupAddress} />
+					)}
 				</>
 			)}
 		</div>

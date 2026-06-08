@@ -81,6 +81,11 @@ mainnet launch deliverables.
       live edits during the drafting phase improves the user experience, makes
       it easier for both parties to agree on terms, and avoids repeated rounds
       of off-chain negotiation and on-chain redeployment.
+    - Add a review confirmation step after a contract is proposed, asking "Are
+      you sure you want to send this to the [client/freelancer]?" where the
+      recipient role is the opposite of the current user. Require explicit
+      confirmation before sending so users do not accidentally submit contract
+      proposals.
 
 - [ ] Add an AI-generated summary of each contract and its status to the
       dashboard, so users can quickly understand the key details and current

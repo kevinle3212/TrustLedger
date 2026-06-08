@@ -1,8 +1,8 @@
 {
 	"mcpServers": {
 		"nexus": {
-			"command": "./node_modules/.bin/nexus-graph",
-			"args": ["server", "--project", "."],
+			"command": "node",
+			"args": ["./scripts/nexus-mcp.js", "server", "--project", "."],
 			"env": {
 				"NODE_ENV": "development",
 				"NO_COLOR": "1"
