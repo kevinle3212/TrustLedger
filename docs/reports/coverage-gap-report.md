@@ -10,6 +10,11 @@ Date: 2026-06-09
 - Foundry unit, fuzz, and fork tests exist under `contracts/test/`.
 - New oracle unit coverage was added in `src/tests/unit/oracle.test.ts`.
 - New health-check unit coverage was added in `src/tests/unit/health.test.ts`.
+- New legal helper coverage was added in `src/tests/unit/legal-docs.test.ts`.
+- New Solana helper coverage was added in
+  `src/tests/unit/solana-helper.test.ts`.
+- New interactive home preview coverage was added in
+  `src/tests/unit/interactive-contract-preview.test.tsx`.
 
 Latest frontend coverage from `cd src && npm run test:coverage`:
 
@@ -21,8 +26,8 @@ Latest frontend coverage from `cd src && npm run test:coverage`:
 | Lines      | 98.07%  |
 
 Solidity coverage percentages still need a selected contract coverage command
-and threshold policy. Phase 7 Item 3 is not complete because comprehensive
-cross-layer coverage has not been proven.
+and threshold policy. Phase 7 Item 3 is complete for the current sweep, while
+the future gaps below remain useful hardening work before mainnet.
 
 ## Known Critical Gaps
 
@@ -45,6 +50,12 @@ cross-layer coverage has not been proven.
   cache reuse, stale fallback, and malformed payload rejection.
 - `src/services/health.ts` unit tests for healthy config, missing required
   config, and invalid public app URL handling.
+- `src/helpers/legal-docs.ts` unit tests for locale fallback, review status, and
+  translation prompt guardrails.
+- `src/helpers/solana.ts` unit tests for native support mode, cluster fallback,
+  public-key shape checks, and Explorer URL generation.
+- `src/app/[locale]/_components/InteractiveContractPreview.tsx` React Testing
+  Library tests for direct phase selection and CTA-driven phase advancement.
 
 ## Recommended Future Tests
 

@@ -19,6 +19,7 @@ frontend-specific developer tooling.
 - [Accessibility](#accessibility)
 - [Testing](#testing)
 - [Developer Workflow](#developer-workflow)
+- [Related Documentation](#related-documentation)
 
 ## Architecture
 
@@ -69,6 +70,101 @@ src/
 ├── .claude/                Frontend Claude skills
 └── skills/                 Reusable frontend development skills
 ```
+
+<details>
+<summary>App Router route map</summary>
+
+```text
+app/
+├── [locale]/
+│   ├── layout.tsx                       Locale shell, providers, navbar, footer.
+│   ├── page.tsx                         Home page, animated escrow preview, CTAs.
+│   ├── legal/page.tsx                   Legal center backed by helpers/legal-docs.
+│   ├── faq/page.tsx                     User-facing wallet, faucet, and recovery FAQ.
+│   ├── dashboard/page.tsx               Contract cards, lifecycle actions, document tools.
+│   ├── create/
+│   │   ├── page.tsx                     Create route entry.
+│   │   ├── _components/                 Form sections, upload, encryption, success view.
+│   │   └── _lib/useCreatePageState.ts   Contract creation reducer and write orchestration.
+│   ├── client/accept/                   Magic-link token verification and client approval.
+│   ├── freelancer/review/               Freelancer review of client-proposed contracts.
+│   ├── arbitration/[id]/                Evidence summaries, deadlines, voting status.
+│   ├── juror/                           Stake, activate, inspect disputes, submit votes.
+│   └── reputation/                      Address lookup and reputation history.
+├── api/
+│   ├── contract/[id]/route.ts           Public contract aggregation over viem reads.
+│   ├── cron/deadline-reminders/route.ts Bounded deadline scanner for Vercel Cron.
+│   ├── health/route.ts                  Admin-gated configuration health.
+│   ├── health/runtime/route.ts          Public runtime probe for orchestration.
+│   ├── magic-link/send/route.ts         Sends HMAC acceptance/review links.
+│   ├── magic-link/verify/route.ts       Verifies HMAC token payloads and expiry.
+│   ├── notifications/route.ts           Bearer-gated notification delivery.
+│   └── oracle/                          Rates and provider freshness status.
+├── globals.scss                         Theme tokens, motion, reduced-motion policy.
+├── helpers.css                          Reusable utility classes and surface helpers.
+└── proxy.ts                             Locale routing and security headers.
+```
+
+</details>
+
+<details>
+<summary>Shared module map</summary>
+
+```text
+components/
+├── ConnectButton.tsx          Reown AppKit trigger, last-wallet hint, compact header mode.
+├── Navbar.tsx                 Responsive nav, role switch, theme, contrast, wallet controls.
+├── Footer.tsx                 Footer navigation, legal/security links, locale switcher.
+├── FooterHelp.tsx             Guide/help affordance.
+├── Field.tsx                  Accessible form field shell and shared field context.
+├── Input.tsx / Select.tsx     Strict form controls built on Field context.
+└── DecryptDocumentForm.tsx    Client-side encrypted document recovery UI.
+
+helpers/
+├── legal-docs.ts              Legal registry, locale support, translation prompt guardrails.
+└── solana.ts                  Native Solana support mode, cluster config, address helpers.
+
+lib/
+├── abi.ts                     Contract ABIs and status labels.
+├── wagmi.ts                   EVM chain, Reown AppKit, and explorer configuration.
+├── validation.ts              URL, email, amount, score, and document validation.
+├── encryption.ts              AES-GCM document encryption/decryption helpers.
+├── magicLink.ts               HMAC token signing and verification.
+├── lastWallet.ts              Safe last-connected-wallet label storage.
+├── arweave.ts / ipfs.ts       Optional decentralized storage adapters.
+└── utils.ts                   Formatting, time, amount, and URI utilities.
+
+services/
+├── email.ts                   Resend wrapper and HTML email shell.
+├── notifications.ts           Lifecycle notification renderer and deadline scan logic.
+├── oracle.ts                  Display exchange-rate fetch/cache/status service.
+├── health.ts                  Runtime and configuration health report builder.
+└── healthAuth.ts              Admin/IP authorization for health endpoints.
+```
+
+</details>
+
+<details>
+<summary>Testing and generated files map</summary>
+
+```text
+tests/
+├── accessibility.spec.ts      Axe and route accessibility checks.
+├── public-routes.spec.ts      Public route rendering and overflow checks.
+├── unit/
+│   ├── *.test.ts(x)           Helper, service, route, and component unit tests.
+│   └── __mocks__/             Deterministic browser/API shims.
+playwright.config.ts           Browser matrix and web-server config.
+jest.config.ts                 next/jest integration, module aliases, jsdom.
+jest.setup.ts                  Testing Library setup and app-level mocks.
+eslint.config.mjs              Strict frontend ESLint flat config.
+tsconfig.json                  Next.js TypeScript build config.
+tsconfig.debug.json            Diagnostic TypeScript config for trace/debug runs.
+knip.json                      Unused export/dependency audit config.
+.swc/                          Locally seeded SWC binary cache, managed by tooling.
+```
+
+</details>
 
 ## Routing
 
@@ -248,6 +344,7 @@ That writes frontend contract addresses into `src/.env.local`.
 - [Root README](../README.md)
 - [Frontend Guide](../docs/FRONTEND.md)
 - [Oracle Architecture](../docs/ORACLE.md)
+- [Solana Support](../docs/SOLANA.md)
 - [Utilities](../docs/UTILITIES.md)
 - [Type Stubs](../docs/STUBS.md)
 - [Environment](../docs/ENVIRONMENT.md)

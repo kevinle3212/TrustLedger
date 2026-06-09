@@ -107,6 +107,7 @@ flowchart TB
 │   ├── src/                Solidity escrow, arbitration, juror, reputation contracts
 │   ├── script/             Foundry deployment and wiring scripts
 │   ├── test/               Foundry unit, invariant, and fork tests
+│   ├── foundry-sandbox/    Isolated Foundry repro and experiment workspace
 │   └── foundry.toml        Foundry profiles, compiler, formatter, RPC config
 ├── src/
 │   ├── app/                Next.js App Router pages, API routes, global styles
@@ -139,7 +140,115 @@ flowchart TB
 ```
 
 <details>
-<summary>Generated and cache folders</summary>
+<summary>Frontend source map</summary>
+
+`src/` is the deployed Next.js application and has its own deeper map in
+[src/README.md](src/README.md).
+
+```text
+src/
+├── app/
+│   ├── [locale]/                  Locale-prefixed user routes.
+│   │   ├── _components/           Route-shared localized UI modules.
+│   │   ├── arbitration/[id]/      Dispute detail and evidence workflow.
+│   │   ├── client/accept/         Client magic-link acceptance flow.
+│   │   ├── create/                Contract creation state machine and form UI.
+│   │   ├── dashboard/             Contract dashboard and lifecycle actions.
+│   │   ├── faq/                   Recovery, wallet, faucet, and support FAQ.
+│   │   ├── freelancer/review/     Freelancer review for client-originated work.
+│   │   ├── juror/                 Juror staking, voting, and dispute queue.
+│   │   ├── legal/                 Legal, policy, and compliance publication index.
+│   │   └── reputation/            Reputation lookup and history UI.
+│   ├── api/
+│   │   ├── contract/[id]/         JSON-safe on-chain contract aggregation.
+│   │   ├── cron/                  Vercel Cron endpoints.
+│   │   ├── health/                Runtime and admin health probes.
+│   │   ├── magic-link/            HMAC review and acceptance token routes.
+│   │   ├── notifications/         Bearer-gated lifecycle email sender.
+│   │   └── oracle/                Display exchange-rate and freshness endpoints.
+│   ├── app-desktop.scss           Desktop shell and workspace layout rules.
+│   ├── globals.scss               Tailwind v4, tokens, keyframes, global motion.
+│   └── helpers.css                Reusable utility classes outside Tailwind tokens.
+├── components/                    Navigation, wallet, forms, fields, toggles, footer.
+├── contexts/                      Role and cross-cutting React context providers.
+├── helpers/                       Typed frontend helpers for legal docs and Solana.
+├── hooks/                         Client hooks for dispute and contract helpers.
+├── helpers/                       Legal localization and Solana support helpers.
+├── i18n/                          next-intl routing, request config, navigation wrappers.
+├── lib/                           ABI, chain config, validation, encryption, storage helpers.
+├── messages/                      Locale JSON dictionaries.
+├── providers/                     External provider adapters and chain-facing constants.
+├── services/                      Server-only health, email, notification, oracle logic.
+├── store/                         Client persistence for arbitration drafts.
+├── tests/                         Jest unit tests and Playwright route/a11y checks.
+├── types/                         Frontend domain model exports.
+├── utils/                         Small pure utility modules.
+├── public/                        Static icons, manifest, and public assets.
+└── vercel.json                    Frontend deployment and cron configuration.
+```
+
+</details>
+
+<details>
+<summary>Smart contract and chain tooling map</summary>
+
+```text
+contracts/
+├── src/
+│   ├── TrustLedger.sol            Escrow lifecycle, approvals, payout, warranty logic.
+│   ├── Arbitration.sol            Commit-reveal arbitration and appeal lifecycle.
+│   ├── JurorRegistry.sol          Juror staking, assignment, slashing, and rewards.
+│   ├── ReputationRegistry.sol     Bidirectional rating and recovery history.
+│   └── mocks/                     Test-only token and integration helpers.
+├── script/                        Foundry scripts for deploy and registry wiring.
+├── test/                          Solidity unit, invariant, fork, and fuzz tests.
+├── foundry-sandbox/               Isolated scratch project for minimal repros.
+├── foundry.toml                   Compiler, optimizer, fuzz, invariant, RPC profiles.
+└── lib/
+    ├── openzeppelin-contracts/    Pinned upstream submodule.
+    └── forge-std/                 Vendored Foundry standard library.
+```
+
+Root-level Hardhat tests remain under `test/` for TypeScript integration checks,
+while Foundry is the primary Solidity unit/fuzz harness.
+
+</details>
+
+<details>
+<summary>Documentation, automation, and agent map</summary>
+
+```text
+docs/
+├── reports/                       Audit, dependency, coverage, and operational reports.
+├── DEPLOYMENT.md                  Vercel, canonical URL, release, and env runbook.
+├── DOCKER.md                      Container build and runtime guide.
+├── ENVIRONMENT.md                 Required env vars and secret ownership.
+├── FRONTEND.md                    Next.js architecture and UI conventions.
+├── KUBERNETES.md                  Kustomize, secrets, probes, ingress, HPA.
+├── LEGAL.md                       Legal inventory and review workflow.
+├── SECURITY.md                    Security model, disclosure, gates, and findings.
+├── SMART-CONTRACTS.md             Contract architecture, submodules, test profiles.
+├── SOLANA.md                      Native Solana support decision and next milestones.
+└── TESTING.md                     Unit, E2E, contract, docs, and quality commands.
+
+.github/
+├── workflows/                     CI, security, docs, React Doctor, log hygiene.
+├── dependabot.yml                 Dependency update policy.
+├── copilot-instructions.md        Copilot repository guidance.
+└── prompts/                       Reusable review and automation prompts.
+
+.codex/                            Codex-specific guidance.
+.claude/                           Claude commands and settings.
+.cursor/                           Cursor rules and project context.
+.sixth/                            Sixth README and agent skills.
+src/.agents/, src/.claude/, src/skills/
+                                    Frontend-scoped agent skills mirrored by harness.
+```
+
+</details>
+
+<details>
+<summary>Generated, cache, and local-only folders</summary>
 
 These folders may appear during local work and should not be edited by hand:
 `src/.next/`, `.vercel/output/`, `artifacts/`, `hardhat-cache/`,
@@ -147,6 +256,31 @@ These folders may appear during local work and should not be edited by hand:
 `src/.swc/`, `.mypy_cache/`, and `__pycache__/`.
 
 Read [SWC And Generated Build Artifacts](docs/SWC.md).
+
+</details>
+
+<details>
+<summary>Legal and security document map</summary>
+
+Root legal documents are formatted and linted as Markdown, referenced by the
+frontend legal center, and excluded from build/deploy paths when the build does
+not need their bodies. Keep legal/compliance edits synchronized with
+[docs/LEGAL.md](docs/LEGAL.md), [SECURITY.md](SECURITY.md), and
+[docs/SECURITY.md](docs/SECURITY.md).
+
+```text
+ACCEPTABLE_USE_POLICY.md           Acceptable use and prohibited conduct.
+COMMUNITY_GUIDELINES.md           Community, evidence, and juror conduct.
+CONTENT_POLICY.md                  User content, evidence, and deliverable rules.
+COOKIE_POLICY.md                   Cookies, local storage, and consent expectations.
+DISCLAIMER.md                      No-advice and warranty disclaimers.
+DMCA_POLICY.md                     Copyright takedown and counter-notice process.
+PRIVACY_POLICY.md                  Personal data, wallet identifiers, and rights.
+RISK_DISCLOSURE.md                 Blockchain, wallet, smart contract, and market risk.
+TERMS_AND_CONDITIONS.md            User terms and platform conditions.
+TRADEMARK_POLICY.md                Brand use and impersonation policy.
+SECURITY.md                        Vulnerability disclosure and supported scope.
+```
 
 </details>
 
@@ -315,8 +449,9 @@ until explicitly approved for editing and publication.
 | Python            | Strict mypy                                                          |
 | Static analysis   | ESLint, Solhint, Forge lint, markdownlint, Prettier, React Doctor    |
 
-Phase 7 Item 3 remains open until comprehensive cross-layer coverage evidence
-satisfies the original scope. Read the
+Phase 7 Item 3 is tracked as completed for the current testing sweep with new
+legal, Solana, and interactive component coverage. Remaining future coverage
+gaps stay documented in the
 [Coverage Gap Report](docs/reports/coverage-gap-report.md).
 
 ## CI/CD
@@ -409,7 +544,7 @@ and validation evidence.
 ## Credits
 
 TrustLedger was created by Kevin Le with contributions from Kellen Snider and
-the Oregon Blockchain Group context that shaped the project.
+the early university demo context that shaped the project.
 
 ## License
 

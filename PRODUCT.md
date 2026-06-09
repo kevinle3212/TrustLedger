@@ -14,7 +14,7 @@ some friction from the crypto requirement. The interface cannot assume Web3
 literacy; it must guide, not gate.
 
 Secondary audience: jurors (crypto-native, staking capital to arbitrate
-disputes) and Oregon Blockchain Group evaluators (portfolio/demo context).
+disputes) and open source reviewers (portfolio/demo context).
 
 ## Product Purpose
 

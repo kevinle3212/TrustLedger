@@ -39,6 +39,7 @@ These variables are safe to expose to the browser because their names start with
 | `NEXT_PUBLIC_APP_URL`                  | Magic links and wallet origin alias | API routes, `src/lib/wagmi.ts` |
 | `NEXT_PUBLIC_GITHUB_URL`               | Navbar source link                  | Frontend components            |
 | `NEXT_PUBLIC_PINATA_JWT`               | IPFS uploads                        | Frontend upload code           |
+| `NEXT_PUBLIC_SOLANA_CLUSTER`           | Native Solana support label         | `src/helpers/solana.ts`        |
 | `NEXT_BASE_PATH`                       | Hosting under a subpath             | `src/next.config.ts`           |
 
 ## Frontend Contract Variables

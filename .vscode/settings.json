@@ -30,7 +30,22 @@
 		"LICENSE": "plaintext"
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
-	"todo-tree.filtering.excludeGlobs": ["**/contracts/lib/**", "**/.claude/**", "**/SECURITY.md"],
+	"todo-tree.filtering.excludeGlobs": [
+		"**/contracts/lib/**",
+		"**/.claude/**",
+		"**/SECURITY.md",
+		"**/ACCEPTABLE_USE_POLICY.md",
+		"**/COMMUNITY_GUIDELINES.md",
+		"**/CONTENT_POLICY.md",
+		"**/COOKIE_POLICY.md",
+		"**/DISCLAIMER.md",
+		"**/DISCLAIMER 2.md",
+		"**/DMCA_POLICY.md",
+		"**/PRIVACY_POLICY.md",
+		"**/RISK_DISCLOSURE.md",
+		"**/TERMS_AND_CONDITIONS.md",
+		"**/TRADEMARK_POLICY.md"
+	],
 	"eslint.useFlatConfig": true,
 	"css.lint.unknownAtRules": "ignore",
 	"python.analysis.typeCheckingMode": "basic",

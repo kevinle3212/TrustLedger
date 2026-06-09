@@ -1,0 +1,25 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+cache_path = "cache"
+libs = ["../lib"]
+allow_paths = ["../src"]
+solc_version = "0.8.24"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+evm_version = "cancun"
+verbosity = 2
+ffi = false
+fs_permissions = []
+
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
+
+[profile.ci]
+verbosity = 3
+fuzz = { runs = 256 }

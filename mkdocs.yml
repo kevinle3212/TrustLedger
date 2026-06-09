@@ -74,6 +74,7 @@ nav:
     - Contributing: CONTRIBUTING.md
     - Frontend: FRONTEND.md
     - Oracle: ORACLE.md
+    - Solana: SOLANA.md
     - Utilities: UTILITIES.md
     - Type Stubs: STUBS.md
     - SWC And Artifacts: SWC.md

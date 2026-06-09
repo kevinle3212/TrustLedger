@@ -4,10 +4,25 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const MAX_TREE_SITTER_TS_BYTES = 35_000;
+const DEFAULT_MAX_TREE_SITTER_TS_BYTES = 35_000;
+const DEFAULT_MCP_TIMEOUT_MS = 120_000;
+
+function parsePositiveInt(value, fallback) {
+	if (value === undefined) {
+		return fallback;
+	}
+	const parsed = Number.parseInt(value, 10);
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const MAX_TREE_SITTER_TS_BYTES = parsePositiveInt(
+	process.env.NEXUS_MAX_TREE_SITTER_TS_BYTES,
+	DEFAULT_MAX_TREE_SITTER_TS_BYTES,
+);
+const MCP_TIMEOUT_MS = parsePositiveInt(process.env.NEXUS_MCP_TIMEOUT_MS, DEFAULT_MCP_TIMEOUT_MS);
 
 function printUsage() {
-	console.log(`Usage: node scripts/nexus-mcp.js <index|server> [--project <path>]
+	console.log(`Usage: node scripts/nexus-mcp.js <index|server> [--project <path>] [--timeout-ms <ms>]
 
 Commands:
   index    Build the Nexus graph index for the project.
@@ -15,6 +30,7 @@ Commands:
 
 Options:
   -p, --project <path>  Project directory. Defaults to current directory.
+  --timeout-ms <ms>     Reserved Claude/Nexus timeout hint. Defaults to ${DEFAULT_MCP_TIMEOUT_MS}.
   -h, --help            Show this help.`);
 }
 
@@ -28,9 +44,19 @@ function parseProjectArg(argv) {
 	return ".";
 }
 
+function parseTimeoutArg(argv) {
+	for (let i = 0; i < argv.length; i += 1) {
+		if (argv[i] === "--timeout-ms" && argv[i + 1] !== undefined) {
+			return parsePositiveInt(argv[i + 1], MCP_TIMEOUT_MS);
+		}
+	}
+	return MCP_TIMEOUT_MS;
+}
+
 function parseCommandArg(argv) {
 	const project = parseProjectArg(argv);
-	const command = argv.find((arg) => !arg.startsWith("-") && arg !== project);
+	const timeout = String(parseTimeoutArg(argv));
+	const command = argv.find((arg) => !arg.startsWith("-") && arg !== project && arg !== timeout);
 	return command === "index" || command === "server" ? command : "server";
 }
 
@@ -51,17 +77,22 @@ if (argv.includes("--help") || argv.includes("-h")) {
 
 for (let i = 0; i < argv.length; i += 1) {
 	const arg = argv[i];
-	if ((arg === "--project" || arg === "-p") && argv[i + 1] === undefined) {
+	if (
+		(arg === "--project" || arg === "-p" || arg === "--timeout-ms") &&
+		argv[i + 1] === undefined
+	) {
 		console.error(`${arg} requires a project path.`);
 		printUsage();
 		process.exit(2);
 	}
-	if (arg.startsWith("-") && arg !== "--project" && arg !== "-p") {
+	if (arg.startsWith("-") && arg !== "--project" && arg !== "-p" && arg !== "--timeout-ms") {
 		console.error(`Unknown option: ${arg}`);
 		printUsage();
 		process.exit(2);
 	}
 }
+
+process.env.NEXUS_MCP_TIMEOUT_MS = String(parseTimeoutArg(argv));
 
 const parserModule = requireNexusModule(
 	"../node_modules/@costline/nexus-graph/dist/indexer/parser.js",
