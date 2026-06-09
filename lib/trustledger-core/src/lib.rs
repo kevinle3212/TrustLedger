@@ -7,7 +7,7 @@ pub mod config;
 use serde::{Deserialize, Serialize};
 
 pub use audit::{readonly_health_event, Event, Severity};
-pub use config::{ApiConfig, RedactedConfig};
+pub use config::{AdminRuntime, RedactedRuntime};
 
 /// High-level status returned by Rust service health probes.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -51,7 +51,7 @@ pub fn service_health(service: &str, configured: bool) -> ServiceHealth {
 
 #[cfg(test)]
 mod tests {
-    use super::{readonly_health_event, service_health, ApiConfig, ServiceStatus, Severity};
+    use super::{readonly_health_event, service_health, AdminRuntime, ServiceStatus, Severity};
 
     #[test]
     fn service_health_reports_configuration_state() {
@@ -63,7 +63,7 @@ mod tests {
 
     #[test]
     fn config_redacts_token_presence() {
-        let config = ApiConfig::from_lookup(|key| match key {
+        let config = AdminRuntime::from_lookup(|key| match key {
             "TRUSTLEDGER_ADMIN_API_TOKEN" => Some("secret".to_owned()),
             "TRUSTLEDGER_ENV" => Some("test".to_owned()),
             _ => None,

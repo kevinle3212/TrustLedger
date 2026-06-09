@@ -39,16 +39,4 @@ const payload = {
 
 fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2), { mode: 0o600 });
 
-console.log(
-	JSON.stringify(
-		{
-			outputPath,
-			email,
-			username,
-			walletConfigured: walletAddress !== undefined,
-			secretFieldsWritten: ["ADMIN_BOOTSTRAP_PASSWORD_HASH", "ADMIN_ACCOUNTS_JSON"],
-		},
-		null,
-		2,
-	),
-);
+console.log("Admin bootstrap file written with redacted console output.");

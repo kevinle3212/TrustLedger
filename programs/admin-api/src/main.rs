@@ -11,14 +11,14 @@ use std::{env, net::SocketAddr};
 use tokio::net::TcpListener;
 use tower_http::trace::TraceLayer;
 use trustledger_core::{
-    readonly_health_event, ApiConfig, Event, RedactedConfig, ServiceHealth, ServiceStatus,
+    readonly_health_event, AdminRuntime, Event, RedactedRuntime, ServiceHealth, ServiceStatus,
 };
 
 const SERVICE_NAME: &str = "trustledger-admin-api";
 
 #[derive(Clone)]
 struct AppState {
-    config: ApiConfig,
+    config: AdminRuntime,
     token: Option<String>,
 }
 
@@ -27,7 +27,7 @@ struct AdminSummary {
     service: &'static str,
     status: ServiceStatus,
     read_only: bool,
-    config: RedactedConfig,
+    config: RedactedRuntime,
     routes: [&'static str; 3],
 }
 
@@ -100,7 +100,7 @@ fn app_with_state(state: AppState) -> Router {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let config = ApiConfig::from_lookup(|key| env::var(key).ok());
+    let config = AdminRuntime::from_lookup(|key| env::var(key).ok());
     let addr: SocketAddr = config.bind.parse()?;
     let token = env::var("TRUSTLEDGER_ADMIN_API_TOKEN").ok();
     let listener = TcpListener::bind(addr).await?;
@@ -116,11 +116,11 @@ mod tests {
         http::{Request, StatusCode},
     };
     use tower::ServiceExt;
-    use trustledger_core::ApiConfig;
+    use trustledger_core::AdminRuntime;
 
     fn state() -> AppState {
         AppState {
-            config: ApiConfig::from_lookup(|key| match key {
+            config: AdminRuntime::from_lookup(|key| match key {
                 "TRUSTLEDGER_ADMIN_API_TOKEN" => Some("test-token".to_owned()),
                 _ => None,
             }),
