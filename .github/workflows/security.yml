@@ -21,6 +21,24 @@ permissions:
     security-events: write
 
 jobs:
+    contract-vendors:
+        name: Contract vendor freshness
+        runs-on: ubuntu-latest
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                  submodules: recursive
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+
+            - name: Check OpenZeppelin and forge-std freshness
+              run: npm run contracts:vendor:check:remote
+
     # ---------------------------------------------------------------------------
     # Solidity static analysis. Slither is the industry workhorse for finding
     # reentrancy, uninitialized storage, shadowed vars, dangerous low-level calls,

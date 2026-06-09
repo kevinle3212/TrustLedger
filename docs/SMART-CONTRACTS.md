@@ -26,6 +26,22 @@ move only through an intentional dependency-review change.
 `contracts/lib/forge-std` is vendored as regular tracked files, so it is
 intentionally not listed as a submodule in `.gitmodules`.
 
+Check that both contract vendors are clean and pinned before contract work:
+
+```bash
+npm run contracts:vendor:check
+```
+
+A scheduled Security workflow runs the remote freshness check. To intentionally
+review and bump OpenZeppelin or forge-std locally, run:
+
+```bash
+npm run contracts:vendor:update
+npm run foundry:test
+```
+
+Then inspect the vendor diff and commit the bump as a dependency-review change.
+
 `contracts/foundry-sandbox` is a separate Foundry project for minimal
 reproductions and fork-test debugging. Keep production regression tests in
 `contracts/test/`; use the sandbox for isolated compiler, dependency, or fork

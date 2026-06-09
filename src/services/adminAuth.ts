@@ -109,11 +109,18 @@ function parseAccountsJson(): AdminAccount[] {
 function bootstrapAccount(): AdminAccount | undefined {
 	const passwordHash = process.env["ADMIN_BOOTSTRAP_PASSWORD_HASH"];
 	if (passwordHash === undefined || passwordHash === "") return undefined;
+	const email = process.env["ADMIN_BOOTSTRAP_EMAIL"]?.trim().toLowerCase();
+	const username = process.env["ADMIN_BOOTSTRAP_USERNAME"]?.trim().toLowerCase();
+	if (email === undefined || email === "" || username === undefined || username === "") {
+		throw new Error(
+			"ADMIN_BOOTSTRAP_EMAIL and ADMIN_BOOTSTRAP_USERNAME are required when ADMIN_BOOTSTRAP_PASSWORD_HASH is set",
+		);
+	}
 	const walletAddress = normalizeWallet(process.env["ADMIN_BOOTSTRAP_WALLET_ADDRESS"]);
 
 	return {
-		email: (process.env["ADMIN_BOOTSTRAP_EMAIL"] ?? "kevinle3212@gmail.com").toLowerCase(),
-		username: (process.env["ADMIN_BOOTSTRAP_USERNAME"] ?? "kevinle").toLowerCase(),
+		email,
+		username,
 		passwordHash,
 		...(walletAddress === undefined ? {} : { walletAddress }),
 		roles: ["owner", "admin", "operator"],

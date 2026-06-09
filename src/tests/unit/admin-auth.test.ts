@@ -17,8 +17,8 @@ describe("admin auth", () => {
 		process.env = {
 			...originalEnv,
 			ADMIN_SESSION_SECRET: "test-session-secret-that-is-long-enough",
-			ADMIN_BOOTSTRAP_EMAIL: "kevinle3212@gmail.com",
-			ADMIN_BOOTSTRAP_USERNAME: "kevinle",
+			ADMIN_BOOTSTRAP_EMAIL: "owner@example.com",
+			ADMIN_BOOTSTRAP_USERNAME: "owner-admin",
 			ADMIN_BOOTSTRAP_PASSWORD_HASH: TEST_PASSWORD_HASH,
 		};
 	});
@@ -29,20 +29,20 @@ describe("admin auth", () => {
 
 	it("authenticates bootstrap credentials and signs a session cookie", () => {
 		const session = authenticateAdminCredentials({
-			usernameOrEmail: "kevinle",
+			usernameOrEmail: "owner-admin",
 			password: "secure-admin-password",
 		});
 
-		expect(session?.email).toBe("kevinle3212@gmail.com");
+		expect(session?.email).toBe("owner@example.com");
 		if (session === undefined) throw new Error("expected admin session");
 		const cookie = adminCookieHeader(session);
-		expect(adminSessionFromHeaders(new Headers({ cookie }))?.username).toBe("kevinle");
+		expect(adminSessionFromHeaders(new Headers({ cookie }))?.username).toBe("owner-admin");
 	});
 
 	it("rejects invalid bootstrap credentials", () => {
 		expect(
 			authenticateAdminCredentials({
-				usernameOrEmail: "kevinle",
+				usernameOrEmail: "owner-admin",
 				password: "wrong-password",
 			}),
 		).toBeUndefined();

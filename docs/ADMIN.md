@@ -26,15 +26,16 @@ Access can be restricted with:
 Do not commit plaintext admin passwords. Generate the bootstrap owner hash with:
 
 ```bash
-ADMIN_BOOTSTRAP_PASSWORD='replace-with-a-long-password' npm run admin:bootstrap
+ADMIN_BOOTSTRAP_EMAIL='owner@example.com' \
+ADMIN_BOOTSTRAP_USERNAME='owner' \
+ADMIN_BOOTSTRAP_PASSWORD='replace-with-a-long-password' \
+npm run admin:bootstrap
 ```
 
-Set the emitted `ADMIN_BOOTSTRAP_PASSWORD_HASH` in `.env`, Vercel, or your
-secret manager. The default bootstrap identity is:
-
-- Email: `kevinle3212@gmail.com`
-- Username: `kevinle`
-- Non-deletable: yes
+Set the emitted `ADMIN_BOOTSTRAP_PASSWORD_HASH` plus the same
+`ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_BOOTSTRAP_USERNAME` in `.env`, Vercel, or
+your secret manager. The bootstrap identity is non-deletable but must be
+provided through environment variables; it is not hardcoded in application code.
 
 ## Rust Admin API
 

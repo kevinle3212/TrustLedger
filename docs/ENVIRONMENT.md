@@ -105,7 +105,10 @@ smoke checks. Use `GET /api/health` only from admin monitors with
 Generate admin password hashes with:
 
 ```bash
-ADMIN_BOOTSTRAP_PASSWORD='replace-with-a-long-password' npm run admin:bootstrap
+ADMIN_BOOTSTRAP_EMAIL='owner@example.com' \
+ADMIN_BOOTSTRAP_USERNAME='owner' \
+ADMIN_BOOTSTRAP_PASSWORD='replace-with-a-long-password' \
+npm run admin:bootstrap
 ```
 
 ## Rust Admin API Variables

@@ -9,8 +9,17 @@ if (password === undefined || password.length < 12) {
 	process.exit(1);
 }
 
-const email = (process.env.ADMIN_BOOTSTRAP_EMAIL ?? "kevinle3212@gmail.com").toLowerCase();
-const username = (process.env.ADMIN_BOOTSTRAP_USERNAME ?? "kevinle").toLowerCase();
+function requiredValue(name) {
+	const value = process.env[name]?.trim();
+	if (value === undefined || value === "") {
+		console.error(`Set ${name} before generating an admin bootstrap hash.`);
+		process.exit(1);
+	}
+	return value;
+}
+
+const email = requiredValue("ADMIN_BOOTSTRAP_EMAIL").toLowerCase();
+const username = requiredValue("ADMIN_BOOTSTRAP_USERNAME").toLowerCase();
 const walletAddress = process.env.ADMIN_BOOTSTRAP_WALLET_ADDRESS?.toLowerCase();
 const salt = crypto.randomBytes(16).toString("base64url");
 const iterations = 310_000;
