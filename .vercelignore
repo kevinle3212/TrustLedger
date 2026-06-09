@@ -5,16 +5,16 @@
 # the deployment and is excluded here to keep uploads small and free of secrets.
 
 # ─── Smart contracts and chain tooling (not part of the frontend) ─────────────
-contracts/
-artifacts/
-hardhat-cache/
-typechain-types/
-scripts/
-test/
-testing/
-tools/
-utils/
-stubs/
+/contracts/
+/artifacts/
+/hardhat-cache/
+/typechain-types/
+/scripts/
+/test/
+/testing/
+/tools/
+/utils/
+/stubs/
 
 # ─── Local environment files - never upload secrets ───────────────────────────
 .env
@@ -23,30 +23,30 @@ stubs/
 !.env.local.example
 
 # ─── Build output (Vercel builds fresh on its own runners) ────────────────────
-dist/
+/dist/
 *.tsbuildinfo
 src/.next/
 src/out/
-coverage/
+/coverage/
 
 # ─── Debug / profiling output ─────────────────────────────────────────────────
 *.cpuprofile
 *.log
-logs/
-trace/
+/logs/
+/trace/
 
 # ─── Containers (Vercel does not use the Docker setup) ────────────────────────
-docker/
-Dockerfile
-docker-compose.yml
-.dockerignore
+/docker/
+/Dockerfile
+/docker-compose.yml
+/.dockerignore
 
 # ─── Documentation site and project docs ──────────────────────────────────────
-docs/
-site/
-assets/
-mkdocs.yml
-requirements-docs.txt
+/docs/
+/site/
+/assets/
+/mkdocs.yml
+/requirements-docs.txt
 
 # ─── Editor, agent, and OS generated files ────────────────────────────────────
 .vscode/

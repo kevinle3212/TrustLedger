@@ -1,5 +1,27 @@
-# Set default behavior to automatically normalize line endings.
-* text=auto
+# Normalize text files to LF so shell scripts, workflows, Solidity, and
+# TypeScript stay reproducible across macOS, Linux, and CI.
+* text=auto eol=lf
 
-# This ensures that all text files use LF line endings in the repository, regardless of the operating system.
-text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.jsx text eol=lf
+*.md text eol=lf
+*.mjs text eol=lf
+*.sh text eol=lf
+*.sol text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+*.avif binary
+*.gif binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.node binary
+*.pdf binary
+*.png binary
+*.webp binary

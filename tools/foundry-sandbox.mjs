@@ -5,8 +5,16 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 
-if (args.length === 0) {
-	console.error("Usage: node tools/foundry-sandbox.mjs <forge-args...>");
+if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
+	console.error(`Usage: node tools/foundry-sandbox.mjs <forge-args...>
+
+Runs forge from contracts/ with proxy-related environment stripped so sandboxed
+macOS sessions do not trigger system proxy access panics. Live fork tests are
+skipped unless TRUSTLEDGER_ALLOW_FORK_RPC=1 is set.
+
+Examples:
+  node tools/foundry-sandbox.mjs test --offline --no-match-path 'test/fork/**'
+  TRUSTLEDGER_ALLOW_FORK_RPC=1 node tools/foundry-sandbox.mjs test --match-path 'test/fork/**'`);
 	process.exit(2);
 }
 
@@ -29,7 +37,24 @@ for (const key of [
 env.NO_PROXY = "*";
 env.no_proxy = "*";
 
-const isForkTest = args.some((arg) => arg.includes("test/fork"));
+const isForkTest = args.some((arg, index) => {
+	const next = args[index + 1] ?? "";
+	const previous = args[index - 1] ?? "";
+
+	if (arg === "--no-match-path" && next.includes("test/fork")) {
+		return false;
+	}
+	if (arg === "--match-path" && next.includes("test/fork")) {
+		return true;
+	}
+	if (
+		(arg === "--match-contract" || arg === "--match-test") &&
+		next.toLowerCase().includes("fork")
+	) {
+		return true;
+	}
+	return arg.includes("test/fork") && previous !== "--no-match-path";
+});
 
 if (isForkTest && env.TRUSTLEDGER_ALLOW_FORK_RPC !== "1") {
 	console.warn(

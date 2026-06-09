@@ -98,6 +98,7 @@ function resolveGithubUrl(): string {
 }
 
 const nextConfig: NextConfig = {
+	allowedDevOrigins: ["127.0.0.1"],
 	// Controls the URL prefix. Read from process.env first (set via Vercel project settings),
 	// then falls back to the root .env (parsed above), then to empty string (served at root).
 	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "",

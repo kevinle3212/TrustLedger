@@ -63,11 +63,16 @@ const manifest = {
 
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, "\t")}\n`);
 
-if (!existsSync(readmePath)) {
+try {
 	writeFileSync(
 		readmePath,
 		`# ${target.platform} SWC Plugin Cache\n\nThis directory is seeded locally from \`src/node_modules/${target.packageName}\`.\nThe native \`.node\` binary is dependency material and remains ignored.\n\nRepopulate with \`npm run swc:populate\`.\n`,
+		{ flag: "wx" },
 	);
+} catch (error) {
+	if (!error || error.code !== "EEXIST") {
+		throw error;
+	}
 }
 
 console.log(`SWC cache populated: ${path.relative(repoRoot, destination)}`);

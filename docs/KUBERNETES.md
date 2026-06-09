@@ -23,6 +23,7 @@ Build the same standalone frontend image used by Kubernetes:
 
 ```bash
 docker build -f docker/Dockerfile.frontend \
+  --build-arg NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="$NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID" \
   -t ghcr.io/kevinle3212/trustledger-frontend:main .
 ```
 
@@ -37,10 +38,12 @@ For a remote cluster, push the image to the registry configured in
 
 ## Configure
 
-Edit `k8s/configmap.yaml` for non-secret public values such as chain addresses,
-deploy blocks, or `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`. Public `NEXT_PUBLIC_*`
-values are safe to expose because they are compiled or served to browsers; do
-not put bearer tokens or API keys there.
+Use an overlay, Helm values, or deployment automation to set non-secret public
+values such as chain addresses, deploy blocks, app URLs, repository URL, and
+`NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`. The committed `k8s/configmap.yaml` keeps
+environment-specific values blank so the base is reusable. Public
+`NEXT_PUBLIC_*` values are safe to expose because they are compiled or served to
+browsers; do not put bearer tokens or API keys there.
 
 Create secrets from shell environment without committing real values:
 
@@ -67,7 +70,11 @@ Or create the secret directly:
 
 ```bash
 kubectl -n trustledger create secret generic trustledger-frontend-secrets \
-  --from-literal=NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="$NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID" \
+  --from-literal=HEALTH_CHECK_TOKEN="$HEALTH_CHECK_TOKEN" \
+  --from-literal=CRON_SECRET="$CRON_SECRET" \
+  --from-literal=NOTIFICATIONS_SECRET="$NOTIFICATIONS_SECRET" \
+  --from-literal=MAGIC_LINK_SECRET="$MAGIC_LINK_SECRET" \
+  --from-literal=SEPOLIA_RPC_URL="$SEPOLIA_RPC_URL" \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 

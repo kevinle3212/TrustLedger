@@ -96,12 +96,15 @@ docker build -t trustledger .
 Build the standalone frontend image directly:
 
 ```bash
-docker build -f docker/Dockerfile.frontend -t trustledger-frontend .
+docker build -f docker/Dockerfile.frontend \
+  --build-arg NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="$NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID" \
+  -t trustledger-frontend .
 ```
 
-The frontend image has a default public `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
-build arg so Reown AppKit can prerender without placeholder network warnings.
-Override it for another Reown project:
+The frontend image intentionally has no baked WalletConnect/Reown project ID.
+Pass the public `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` build arg from the target
+environment so the image can be rebuilt reproducibly without committing
+environment-specific values.
 
 ```bash
 docker build -f docker/Dockerfile.frontend \
