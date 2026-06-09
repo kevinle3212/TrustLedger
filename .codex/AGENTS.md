@@ -14,6 +14,8 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
 - Keep generated diagnostics, agent run notes, audit output, and error logs in
   `logs/`; the directory is intentionally ignored by git.
 - Format `logs/*.md` with `src/.agents/skills/log-markdown/SKILL.md`.
+- Run `npm run logs:check` after writing logs; use `npm run logs:prune` when
+  retention limits are exceeded.
 - For frontend specialist context, read `src/.agents/README.md` and the matching
   skill under `src/.agents/skills/` before editing.
 

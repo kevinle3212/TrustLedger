@@ -60,6 +60,15 @@ on bearer secrets. Rotate those secrets if they are exposed.
 checks are configured with `continue-on-error`, so review logs even when the
 workflow succeeds.
 
+Production dependency audits run with `--omit=dev`. The root full dependency
+graph can include low-severity development-toolchain advisories tied to Hardhat
+2 and ethers 5; npm currently reports the automatic fix as a breaking Hardhat 3
+migration. Treat that migration as a planned toolchain upgrade, not an automatic
+`npm audit fix --force`.
+
+Security and CI jobs also run `npm run logs:check` where root dependencies are
+installed, so local ignored audit logs do not grow without a visible policy.
+
 ## Reporting Vulnerabilities
 
 Use the root

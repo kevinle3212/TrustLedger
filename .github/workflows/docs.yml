@@ -7,6 +7,9 @@ on:
             - "docs/**"
             - "mkdocs.yml"
             - "requirements-docs.txt"
+            - "package-lock.json"
+            - "package.json"
+            - "tools/check-logs.mjs"
             - "tools/mkdocs-build-strict.sh"
     workflow_dispatch:
 
@@ -33,11 +36,25 @@ jobs:
               with:
                   python-version: "3.x"
 
+            - name: Set up Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+                  cache: npm
+
             - name: Configure Pages
               uses: actions/configure-pages@v6
 
             - name: Install MkDocs and Material theme
               run: pip install -r requirements-docs.txt
+
+            - name: Check log Markdown policy
+              run: |
+                  if [ -f package.json ]; then
+                    npm ci
+                    npm run logs:check
+                    npm run lint:logs
+                  fi
 
             - name: Build site
               run: python -m mkdocs build --strict

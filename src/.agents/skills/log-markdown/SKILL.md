@@ -28,8 +28,12 @@ Use this skill before writing or updating any file under `logs/`.
 When a log should be kept or reviewed, run:
 
 ```bash
+npm run logs:check
 npx markdownlint-cli2 "logs/**/*.md"
 ```
 
 If `logs/` is ignored and the command is too broad for the current task, run it
 against the specific log file.
+
+Use `npm run logs:prune` when `logs:check` reports stale, oversized, or excess
+local log files.

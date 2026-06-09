@@ -62,3 +62,35 @@ Runtime dependencies:
 - `scripts/models/requirements.txt` for GitHub Models integration.
 
 See [Type Stubs](STUBS.md) for the hand-written Azure SDK stubs.
+
+## Log Retention
+
+Agent run notes, dependency audits, Impeccable notes, and transient issue
+summaries belong in ignored `logs/` as Markdown. They should be useful
+summaries, not raw terminal dumps.
+
+Check retention and Markdown policy:
+
+```bash
+npm run logs:check
+npm run lint:logs
+```
+
+Prune old or oversized local logs:
+
+```bash
+npm run logs:prune
+```
+
+Default retention limits:
+
+| Setting                  |         Default | Environment override             |
+| ------------------------ | --------------: | -------------------------------- |
+| Maximum files            |              25 | `TRUSTLEDGER_LOG_MAX_FILES`      |
+| Maximum total size       | 2,000,000 bytes | `TRUSTLEDGER_LOG_MAX_BYTES`      |
+| Maximum single file size |   500,000 bytes | `TRUSTLEDGER_LOG_MAX_FILE_BYTES` |
+| Maximum age              |         30 days | `TRUSTLEDGER_LOG_MAX_AGE_DAYS`   |
+
+`logs:check` is non-destructive and fails when `logs/` exceeds policy.
+`logs:prune` removes stale, oversized, and oldest excess files until the local
+directory is back under the same limits.

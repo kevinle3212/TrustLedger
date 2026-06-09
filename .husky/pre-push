@@ -1,6 +1,8 @@
 set -e
 echo "pre-push: SWC cache"
 npm run swc:populate
+echo "pre-push: logs"
+npm run logs:check
 echo "pre-push: quality"
 npm run quality
 echo "pre-push: frontend E2E"

@@ -32,8 +32,15 @@ Run Foundry fork tests:
 npm run foundry:test:fork
 ```
 
-Foundry fork tests read `SEPOLIA_RPC_URL` and `FORK_BLOCK_NUMBER` directly. Set
-`SEPOLIA_RPC_URL` before running fork tests that require live Sepolia state.
+The default fork command is sandbox-safe and skips live RPC execution unless it
+is explicitly enabled. Run live fork tests with:
+
+```bash
+npm run foundry:test:fork:live
+```
+
+Live Foundry fork tests read `SEPOLIA_RPC_URL` and `FORK_BLOCK_NUMBER` directly.
+Set `SEPOLIA_RPC_URL` before running fork tests that require live Sepolia state.
 
 Run Hardhat tests:
 
@@ -112,6 +119,18 @@ Run markdown lint checks:
 
 ```bash
 npm run lint:md
+```
+
+Run ignored log Markdown checks:
+
+```bash
+npm run lint:logs
+```
+
+Run log retention checks:
+
+```bash
+npm run logs:check
 ```
 
 Run Python type checks for the model helper scripts:

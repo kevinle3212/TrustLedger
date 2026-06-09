@@ -1,0 +1,42 @@
+name: Log Hygiene
+
+on:
+    pull_request:
+        branches: [main]
+    push:
+        branches: [main]
+    schedule:
+        # Weekly policy check so the log tooling stays healthy even when no
+        # local hooks run.
+        - cron: "0 14 * * 1"
+    workflow_dispatch:
+
+concurrency:
+    group: log-hygiene-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    logs:
+        name: Logs (retention + markdownlint)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Check log retention
+              run: npm run logs:check
+
+            - name: Check log Markdown
+              run: npm run lint:logs

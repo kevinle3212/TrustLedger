@@ -34,7 +34,8 @@ commands with `rtk` when available.
 - Agentic run logs, Impeccable notes, audit results, errors, and issue triage
   notes belong in `logs/`. The directory is intentionally ignored by git. Format
   every `logs/*.md` file with `src/.agents/skills/log-markdown/SKILL.md` so
-  ignored logs still comply with markdownlint.
+  ignored logs still comply with markdownlint. Run `npm run logs:check` after
+  writing logs and `npm run logs:prune` when retention limits are exceeded.
 - SWC cache/policy work: use `src/.agents/skills/swc-config/SKILL.md`, keep
   generated native binaries ignored, and run `npm run swc:populate` before
   frontend builds or push-time checks.

@@ -1,4 +1,6 @@
 set -e
+echo "pre-commit: logs"
+npm run logs:check
 echo "pre-commit: formatting"
 npm run lint:prettier
 echo "pre-commit: quality"

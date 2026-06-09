@@ -62,6 +62,7 @@ source pages in `docs/` instead.
 Before opening a PR, run the relevant checks:
 
 ```bash
+npm run logs:check
 npm run lint
 npm run foundry:test
 npm run hardhat:test
@@ -112,6 +113,16 @@ npm run lint:md
 Use one H1 at the top of each file, ATX headings, fenced code blocks with
 language tags, no bare URLs, and prose lines around 100 characters where
 practical.
+
+Ignored files under `logs/` still need to be Markdown summaries that pass
+markdownlint. Use:
+
+```bash
+npm run lint:logs
+npm run logs:check
+```
+
+Run `npm run logs:prune` when local logs exceed retention limits.
 
 ## Documentation Ownership
 

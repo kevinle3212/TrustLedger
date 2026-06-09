@@ -7,4 +7,4 @@ version: "1.0.0"
 # Log Markdown
 
 Use `src/.agents/skills/log-markdown/SKILL.md` before writing or updating any
-file under `logs/`.
+file under `logs/`. Run `npm run logs:check` after logs are written.

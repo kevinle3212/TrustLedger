@@ -73,6 +73,9 @@ jobs:
             - name: Compile contracts (generates TypeChain types for ESLint)
               run: npm run compile
 
+            - name: Log retention check
+              run: npm run logs:check
+
             - name: TypeScript typecheck
               run: npx tsc -p tsconfig.hardhat.json --noEmit
 
@@ -80,7 +83,7 @@ jobs:
             # fmt/lint is owned by the Solidity job). Run only the node-based
             # linters here: ESLint, Solhint, and markdownlint.
             - name: ESLint + Solhint + markdownlint
-              run: npm run lint:config && npm run lint:ts && npm run lint:js && npm run lint:sol && npm run lint:md && npm run lint:cursor
+              run: npm run lint:config && npm run lint:ts && npm run lint:js && npm run lint:sol && npm run lint:md && npm run lint:cursor && npm run lint:logs
 
             - name: Prettier check
               run: npx prettier --check .
@@ -143,6 +146,9 @@ jobs:
 
             - name: Compile contracts (generates TypeChain types)
               run: npm run compile
+
+            - name: Log retention check
+              run: npm run logs:check
 
             - name: Run Hardhat tests
               run: npm run hardhat:test

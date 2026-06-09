@@ -14,19 +14,21 @@ it when adding a job, debugging CI, or changing deployment secrets.
 | `wiki-sync.yml`            | Docs pushes and manual                       | Copy `docs/*.md` into the GitHub wiki repository.                   |
 | `github-models.yml`        | Prompt-related pushes, pull requests, manual | Run GitHub Models prompt checks and examples.                       |
 | `react-doctor.yml`         | Frontend pushes and pull requests            | Run React Doctor checks on frontend changes.                        |
+| `log-hygiene.yml`          | Push, pull request, weekly schedule, manual  | Check ignored log retention policy and log Markdown formatting.     |
 | `dependabot-automerge.yml` | Dependabot pull requests                     | Auto-merge selected Dependabot updates.                             |
 
 ## CI Workflow
 
 `ci.yml` has separate jobs for frontend, TypeScript, Python, Hardhat, and
-Solidity.
+Solidity. Root TypeScript and Hardhat jobs also run `npm run logs:check` so
+ignored local log growth cannot silently drift from policy.
 
 | Job          | Key Checks                                                                                                       |
 | ------------ | ---------------------------------------------------------------------------------------------------------------- |
 | `frontend`   | `npm ci` in `src/`, Playwright browser install, TypeScript check, frontend lint, frontend build, Playwright E2E. |
-| `typescript` | Root `npm ci`, Hardhat compile, TypeScript lint, Solidity lint, markdown lint, Prettier check.                   |
+| `typescript` | Root `npm ci`, Hardhat compile, log retention, TypeScript lint, Solidity lint, markdown lint, Prettier check.    |
 | `python`     | Python setup, mypy install, and `npm run lint:py`.                                                               |
-| `hardhat`    | Hardhat compile and tests.                                                                                       |
+| `hardhat`    | Hardhat compile, log retention, and tests.                                                                       |
 | `solidity`   | Foundry install, `forge fmt --check`, `forge build --sizes`, CI-profile tests, gas snapshot.                     |
 
 ## Deploy Workflow
@@ -65,6 +67,20 @@ Local docs checks:
 | Relative Markdown links | `npm run docs:links`          |
 | External Markdown links | `npm run docs:links:external` |
 
+## Log Hygiene Workflow
+
+`log-hygiene.yml` runs on pushes, pull requests, a weekly schedule, and manual
+dispatch. It installs root npm dependencies, then runs:
+
+```bash
+npm run logs:check
+npm run lint:logs
+```
+
+The workflow usually sees an empty `logs/` directory because logs are ignored by
+git. Its job is to keep the policy executable and catch any accidentally tracked
+log files. Local hooks enforce the same checks against real local logs.
+
 ### MkDocs Dependency Pinning
 
 TrustLedger pins MkDocs below 2.0 and Material for MkDocs below 9.7. Material
@@ -89,6 +105,9 @@ MkDocs major version.
 - The deploy workflow is Ethereum Sepolia-specific; it does not deploy to
   Arbitrum Sepolia.
 - Foundry fork tests need `SEPOLIA_RPC_URL`; Hardhat forks need `FORK_URL`.
+- `npm run foundry:test:fork` skips live fork RPC by default in sandboxed
+  environments. Use `npm run foundry:test:fork:live` when `SEPOLIA_RPC_URL` is
+  set and live RPC access is intentional.
 - The frontend workflow uses `npx --yes npm@11.12.1 ci` inside `src/`.
 - Vercel address sync depends on Foundry broadcast output existing at the
   expected Sepolia path.
