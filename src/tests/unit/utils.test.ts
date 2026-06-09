@@ -18,7 +18,7 @@ describe("frontend utility helpers", () => {
 		expect(daysToSeconds(1.5)).toBe(129600n);
 		expect(formatAddress("0x1234567890abcdef1234567890abcdef12345678")).toBe("0x1234…5678");
 		expect(formatDeadline(0n, "en-US")).toBe("-");
-		expect(formatDeadline(1735776000n, "en-US")).toBe("Jan 1, 2025");
+		expect(formatDeadline(1735776000n, "en-US")).toBe("Jan 2, 2025");
 		expect(
 			formatTokenAmount(
 				1_500_000_000_000_000_000n,

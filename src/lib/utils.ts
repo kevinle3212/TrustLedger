@@ -63,6 +63,7 @@ export function formatTokenAmount(amount: bigint, tokenAddress: string, locale?:
 export function formatDeadline(ts: bigint, locale?: string): string {
 	if (ts === BigInt(0)) return "-";
 	return new Date(Number(ts) * 1000).toLocaleDateString(locale, {
+		timeZone: "UTC",
 		year: "numeric",
 		month: "short",
 		day: "numeric",
