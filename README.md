@@ -102,21 +102,38 @@ flowchart TB
 
 ```text
 .
-├── contracts/              Solidity contracts, Foundry config, scripts, tests
-├── src/                    Next.js app, API routes, services, frontend tests
-├── scripts/                Hardhat deploy/demo scripts and GitHub Models tools
+├── contracts/
+│   ├── src/                Solidity escrow, arbitration, juror, reputation contracts
+│   ├── script/             Foundry deployment and wiring scripts
+│   ├── test/               Foundry unit, invariant, and fork tests
+│   └── foundry.toml        Foundry profiles, compiler, formatter, RPC config
+├── src/
+│   ├── app/                Next.js App Router pages, API routes, global styles
+│   ├── components/         Shared UI, wallet, accessibility, and form controls
+│   ├── contexts/           Role and cross-cutting React context
+│   ├── hooks/              Client hooks for contract/dispute helpers
+│   ├── lib/                ABI, chain config, validation, storage, crypto helpers
+│   ├── services/           Server health, email, notification, oracle logic
+│   ├── store/              Client persistence for arbitration drafts
+│   ├── tests/              Jest unit tests, mocks, Playwright E2E specs
+│   ├── types/              Shared frontend TypeScript domain models
+│   ├── public/             Static images, icons, manifest, and public assets
+│   └── README.md           Frontend/API architecture map
+├── k8s/                    Kustomize base, probes, secrets template, HPA, ingress
+├── docker/                 Frontend runtime Dockerfile and local service images
+├── docs/                   MkDocs guides, deployment, security, reports, runbooks
+├── scripts/                Hardhat deploy/demo scripts and GitHub Models tooling
 ├── test/                   Hardhat TypeScript contract tests
-├── k8s/                    Kubernetes base for the production frontend image
+├── tools/                  Setup, SWC, logs, docs links, Kubernetes helper scripts
 ├── utils/                  Python contract-template PDF utility
 ├── stubs/                  Hand-written Python type stubs
-├── docs/                   MkDocs source and architecture guides
 ├── assets/                 Canonical project assets and placeholders
-├── docker/                 Development, CI, and frontend Docker files
-├── src/types/              Shared frontend TypeScript domain models
-├── tools/                  Local setup and maintenance helpers
-├── .github/                Workflows, prompts, Dependabot config
+├── .github/                CI, security, docs, prompts, Dependabot, Copilot config
+├── .cursor/                Cursor rules by frontend/backend/contracts/security area
+├── .sixth/                 Sixth agent README and reusable skills
+├── .codex/                 Codex-specific AGENTS guidance
 ├── .claude/                Claude settings and commands
-├── .cursor/                Cursor rules and context
+├── .coderabbit.yaml        Strict CodeRabbit review policy
 └── .mcp.json               Serena and Nexus MCP server config
 ```
 
@@ -206,6 +223,9 @@ the authenticated wallet.
 
 Privileged routes:
 
+- `GET /api/health` requires `Authorization: Bearer <HEALTH_CHECK_TOKEN>` or an
+  IP listed in `HEALTH_CHECK_ALLOWED_IPS`. `GET /api/health/runtime` remains
+  public for Kubernetes and uptime runtime probes.
 - `POST /api/notifications` requires
   `Authorization: Bearer <NOTIFICATIONS_SECRET>`.
 - `GET /api/cron/deadline-reminders` requires
@@ -227,7 +247,8 @@ wallet authorization, and migration strategy before adoption.
 
 | Route                              | Purpose                                          | Auth               |
 | ---------------------------------- | ------------------------------------------------ | ------------------ |
-| `GET /api/health`                  | Operational config health.                       | Public             |
+| `GET /api/health/runtime`          | Runtime probe for containers and smoke checks.   | Public             |
+| `GET /api/health`                  | Operational config health.                       | Bearer/IP admin    |
 | `GET /api/contract/[id]`           | JSON-safe on-chain contract aggregation.         | Public             |
 | `POST /api/magic-link/send`        | Send review/acceptance magic link.               | Server env secrets |
 | `GET /api/magic-link/verify`       | Verify HMAC magic-link token.                    | Token              |

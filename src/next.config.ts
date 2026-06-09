@@ -76,6 +76,7 @@ function resolveEnvValue(envKey: string): string {
 }
 
 const rootEnv = parseRootEnv();
+const isVercelBuild = process.env["VERCEL"] === "1";
 
 // Resolve the public GitHub URL. Priority:
 //   1. Vercel system vars (VERCEL_GIT_REPO_OWNER / VERCEL_GIT_REPO_SLUG) - injected
@@ -99,8 +100,10 @@ const nextConfig: NextConfig = {
 	// Must point to the repo root so Next.js traces node_modules relative to
 	// /vercel/path0/ rather than /vercel/path0/src/, matching where Vercel resolves them.
 	outputFileTracingRoot: path.resolve(__dirname, ".."),
-	// Emit a minimal self-hostable server for Docker and Kubernetes images.
-	output: "standalone",
+	// Docker and Kubernetes consume Next's standalone server output. Vercel's
+	// builder packages functions itself and can misresolve nested app paths when
+	// standalone output is enabled, so leave it off only for Vercel builds.
+	...(isVercelBuild ? {} : { output: "standalone" as const }),
 	env: {
 		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: resolveAddress(
 			"TrustLedger",

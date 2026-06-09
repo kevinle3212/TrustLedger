@@ -16,6 +16,24 @@ Approved audit commands were run against npm's audit service.
 The remaining root findings are development-tooling findings. Production
 dependencies are clean in both the root and frontend package trees.
 
+## Outdated Package Sweep
+
+Safe non-major updates were applied on 2026-06-09:
+
+- Root: `@types/node`, `typescript-eslint`.
+- Frontend: `@tanstack/react-query`, `@types/node`, `@types/react`,
+  `react-doctor`, `resend`, `typescript-eslint`, `viem`, and lockfile-resolved
+  transitive updates.
+
+Remaining outdated direct packages are intentionally not force-upgraded in this
+pass:
+
+- Root Hardhat packages require Hardhat 3/toolbox major migration.
+- Frontend `eslint`/`@eslint/js` require ESLint 10 migration.
+- Frontend `wagmi` requires wagmi 3 migration and wallet regression testing.
+- Exact-pinned Next/React packages remain on the repository's pinned versions
+  until a coordinated framework bump is tested.
+
 ## Vulnerability Chains
 
 | Root package                       | Direct?    | Severity | Dependency path                                                                            | Fix availability                                       | Mitigation                                                                           |

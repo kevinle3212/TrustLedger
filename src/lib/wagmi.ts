@@ -200,10 +200,11 @@ const wcProjectId = PUBLIC_ENV.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
 
 const hasWcProjectId = wcProjectId !== undefined && wcProjectId !== "";
 
-// Reown AppKit (and the WalletConnect relay it builds on) require a real project
-// ID. The placeholder keeps the build and local dev working; set
-// NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID for the connect modal to actually pair.
-const projectId = hasWcProjectId ? wcProjectId : "YOUR_PROJECT_ID";
+// Reown AppKit (and the WalletConnect relay it builds on) require a real
+// project ID during prerender because AppKit hooks read the singleton on SSR.
+// This is a NEXT_PUBLIC value, not a secret; Docker/Kubernetes provide it
+// through build/runtime config so builds do not fall back to placeholders.
+const projectId = wcProjectId ?? "";
 
 // Relay-based wallets (Tangem, Phantom, MetaMask-mobile via QR, WalletConnect)
 // silently fail to pair without a real project ID - especially on mobile, where
@@ -252,11 +253,8 @@ const wagmiAdapter = new WagmiAdapter({
 export const config = wagmiAdapter.wagmiConfig;
 
 /**
- * The AppKit modal singleton. Created here (as an import side effect) so the
- * `<appkit-*>` web components register and the AppKit React hooks work anywhere
- * the wagmi config is imported. WalletConnect-relay wallets (MetaMask QR,
- * Phantom, Tangem, WalletConnect) need a real projectId; injected/Coinbase work
- * without the relay, which keeps desktop and iOS Safari connections reliable.
+ * The AppKit modal singleton. Created here as an import side effect so AppKit
+ * hooks are registered during SSR and client rendering.
  */
 createAppKit({
 	// AppKit types an adapter's `namespace` as optional, but the adapters array
@@ -276,7 +274,7 @@ createAppKit({
 	themeMode: "dark",
 	themeVariables: {
 		"--w3m-accent": ACCENT_COLOR,
-		"--w3m-font-family": "var(--font-geist-sans), Arial, Helvetica, sans-serif",
+		"--w3m-font-family": "var(--font-sans)",
 	},
 	features: {
 		analytics: false,

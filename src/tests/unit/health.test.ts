@@ -1,4 +1,5 @@
 import { buildHealthReport, buildRuntimeHealthReport } from "@/services/health";
+import { isAuthorizedHealthRequest } from "@/services/healthAuth";
 
 describe("health report", () => {
 	const originalEnv = process.env;
@@ -10,6 +11,7 @@ describe("health report", () => {
 			NOTIFICATIONS_SECRET: "notifications",
 			CRON_SECRET: "cron",
 			NEXT_PUBLIC_APP_URL: "https://trustledger.example",
+			HEALTH_CHECK_TOKEN: "health-token",
 		};
 	});
 
@@ -70,6 +72,47 @@ describe("health report", () => {
 					ok: false,
 				}),
 			]),
+		);
+	});
+
+	function requestWithHeaders(headers: HeadersInit): Pick<Request, "headers"> {
+		return { headers: new Headers(headers) };
+	}
+
+	it("rejects unauthenticated operational health requests", () => {
+		expect(isAuthorizedHealthRequest(requestWithHeaders({}))).toBe(false);
+	});
+
+	it("allows bearer-authenticated operational health requests", () => {
+		expect(
+			isAuthorizedHealthRequest(
+				requestWithHeaders({
+					authorization: "Bearer health-token",
+				}),
+			),
+		).toBe(true);
+	});
+
+	it("allows allowlisted operational health IPs", () => {
+		process.env["HEALTH_CHECK_ALLOWED_IPS"] = "203.0.113.10, 2001:db8::10";
+
+		expect(
+			isAuthorizedHealthRequest(requestWithHeaders({ "x-forwarded-for": "203.0.113.10" })),
+		).toBe(true);
+	});
+
+	it("allows loopback operational health requests", () => {
+		expect(
+			isAuthorizedHealthRequest(requestWithHeaders({ "x-forwarded-for": "127.0.0.1" })),
+		).toBe(true);
+	});
+
+	it("keeps runtime health public through the runtime report", () => {
+		const report = buildRuntimeHealthReport();
+
+		expect(report.ok).toBe(true);
+		expect(report.checks).toEqual(
+			expect.arrayContaining([expect.objectContaining({ name: "runtime" })]),
 		);
 	});
 });

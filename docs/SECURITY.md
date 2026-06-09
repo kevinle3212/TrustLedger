@@ -54,6 +54,11 @@ API bearer tokens, or HMAC secrets in `NEXT_PUBLIC_*` variables.
 Magic links depend on `MAGIC_LINK_SECRET`. Notifications and cron routes depend
 on bearer secrets. Rotate those secrets if they are exposed.
 
+`GET /api/health/runtime` is public and should only report that the Next.js API
+runtime responds. `GET /api/health` is admin-gated with `HEALTH_CHECK_TOKEN`,
+`ADMIN_API_TOKEN`, or `HEALTH_CHECK_ALLOWED_IPS` because it reports operational
+configuration status.
+
 ## CI Security Checks
 
 `security.yml` runs Slither, TruffleHog, npm audit, CodeQL, and Semgrep. Some

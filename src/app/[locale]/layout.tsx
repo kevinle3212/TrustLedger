@@ -1,11 +1,10 @@
 /**
  * Locale-aware root shell. Provides the `<html lang>` and `<dir>` attributes,
- * loads Geist fonts, wraps with app Providers and Navbar, and makes
+ * wraps with app Providers and Navbar, and makes
  * next-intl messages available to Client Components via NextIntlClientProvider.
  */
 import dynamic from "next/dynamic";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -14,16 +13,6 @@ import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import "../globals.scss";
-
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
 
 const ReactScanMonitor =
 	process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_ENABLE_REACT_SCAN === "true"
@@ -67,12 +56,7 @@ export default async function LocaleLayout({
 	const dir = locale === "ar" ? "rtl" : "ltr";
 
 	return (
-		<html
-			lang={locale}
-			dir={dir}
-			className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-			suppressHydrationWarning
-		>
+		<html lang={locale} dir={dir} className="h-full antialiased" suppressHydrationWarning>
 			<body className="tl-surface-page min-h-full flex flex-col" suppressHydrationWarning>
 				<NextIntlClientProvider messages={messages}>
 					<a href="#main-content" className="skip-link">

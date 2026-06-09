@@ -43,16 +43,29 @@ flowchart LR
 
 ```text
 src/
-├── app/                    App Router pages, layouts, API routes, SCSS
-├── components/             Shared UI and wallet controls
-├── contexts/               Cross-cutting React context
-├── i18n/                   next-intl routing and navigation helpers
-├── lib/                    Chain, validation, storage, encryption, utility helpers
-├── messages/               Localized copy
-├── services/               Server-side health, email, notifications, oracle logic
-├── tests/                  Jest unit tests and Playwright specs
-├── public/                 Static assets
-├── .agents/                Frontend agent specialist guidance
+├── app/
+│   ├── [locale]/           Localized routes, layouts, and route-owned components
+│   ├── api/                Health, contract, magic-link, notification, oracle APIs
+│   ├── globals.scss        Tailwind v4 load, theme tokens, global utilities
+│   ├── helpers.css         Reusable surface, text, accessibility helper classes
+│   └── app-desktop.scss    Desktop shell, page, and workspace layout rules
+├── components/             Shared UI, navigation, theme, wallet, field controls
+├── contexts/               Role and cross-cutting React context providers
+├── hooks/                  Reusable client hooks for dispute and contract flows
+├── i18n/                   next-intl routing, request config, navigation helpers
+├── lib/                    ABI, chain config, storage, validation, crypto utilities
+├── messages/               Localized JSON copy for supported locales
+├── providers/              App-level client provider composition
+├── services/               Server health, email, notification, oracle modules
+├── store/                  Client persistence for arbitration draft state
+├── tests/
+│   ├── e2e/                Playwright route, accessibility, overflow checks
+│   ├── unit/               Jest unit tests and focused mocks
+│   └── unit/__mocks__/     Strict browser/API shims for deterministic tests
+├── types/                  Shared frontend TypeScript domain models
+├── utils/                  Small frontend utility modules
+├── public/                 Static images, icons, manifest, and public assets
+├── .agents/                Frontend agent specialist guidance and skills
 ├── .claude/                Frontend Claude skills
 └── skills/                 Reusable frontend development skills
 ```
@@ -90,7 +103,8 @@ All user-facing routes are locale-prefixed through `next-intl`.
 
 | Route                         | Service                                 | Notes                                           |
 | ----------------------------- | --------------------------------------- | ----------------------------------------------- |
-| `api/health`                  | `services/health.ts`                    | Reports config presence and URL validity.       |
+| `api/health/runtime`          | `services/health.ts`                    | Public runtime probe for containers.            |
+| `api/health`                  | `services/health.ts`                    | Admin-gated config presence and URL validity.   |
 | `api/contract/[id]`           | viem read in route                      | Returns JSON-safe contract aggregation.         |
 | `api/magic-link/send`         | `lib/magicLink.ts`, `services/email.ts` | Sends wallet-bound HMAC link.                   |
 | `api/magic-link/verify`       | `lib/magicLink.ts`                      | Verifies token signature and expiry.            |

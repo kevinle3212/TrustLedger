@@ -53,6 +53,13 @@ frontend contract address variables to Vercel before deploying the frontend.
 `continue-on-error`, so a warning or external service failure may not fail the
 whole workflow. Review job logs even when the workflow is green.
 
+## CodeRabbit Review
+
+`.coderabbit.yaml` configures strict automated PR review. CodeRabbit uses an
+assertive review profile, can request changes, ignores generated/cache/log
+paths, and has path-specific instructions for Solidity, TypeScript, workflows,
+Docker, Kubernetes, package metadata, and docs. See [CodeRabbit](CODERABBIT.md).
+
 ## Docs Workflow
 
 `docs.yml` builds MkDocs from `docs/` using `mkdocs.yml`. `wiki-sync.yml` copies

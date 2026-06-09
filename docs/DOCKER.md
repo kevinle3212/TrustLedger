@@ -99,6 +99,16 @@ Build the standalone frontend image directly:
 docker build -f docker/Dockerfile.frontend -t trustledger-frontend .
 ```
 
+The frontend image has a default public `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`
+build arg so Reown AppKit can prerender without placeholder network warnings.
+Override it for another Reown project:
+
+```bash
+docker build -f docker/Dockerfile.frontend \
+  --build-arg NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="$NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID" \
+  -t trustledger-frontend .
+```
+
 Run the happy-path demo:
 
 ```bash

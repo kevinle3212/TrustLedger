@@ -89,6 +89,7 @@
 		"docs:links:external": "node tools/check-doc-links.mjs --external",
 		"lint:cursor": "prettier --check \".cursor/**/*.md\" && prettier --check --parser markdown \".cursor/**/*.mdc\" && markdownlint-cli2 \".cursor/**/*.md\" \".cursor/**/*.mdc\"",
 		"lint:k8s": "prettier --check \"k8s/**/*.yaml\" && kubectl kustomize k8s >/dev/null",
+		"k8s:secret:generate": "node tools/generate-k8s-secret.mjs",
 		"lint:js": "eslint -c eslint.scripts.config.mjs 'scripts/**/*.js'",
 		"lint:ts": "eslint 'test/**/*.ts' 'scripts/**/*.ts' 'hardhat.config.ts'",
 		"lint:styles": "stylelint \"src/app/**/*.{css,scss}\"",

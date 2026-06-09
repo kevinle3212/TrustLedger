@@ -69,6 +69,7 @@ nav:
     - Environment: ENVIRONMENT.md
     - Sepolia Faucets: FAUCETS.md
     - CI/CD: CI-CD.md
+    - CodeRabbit: CODERABBIT.md
     - Contributing: CONTRIBUTING.md
     - Frontend: FRONTEND.md
     - Oracle: ORACLE.md
@@ -82,6 +83,10 @@ nav:
     - Kubernetes: KUBERNETES.md
     - GitHub Models: GITHUB_MODELS.md
     - Contract Reference: CONTRACTS.md
+    - Reports:
+          - Audit Report: reports/audit-report.md
+          - Coverage Gap Report: reports/coverage-gap-report.md
+          - Dependency Health Report: reports/dependency-health-report.md
     - Miscellaneous: MISCELLANEOUS.md
     - Presentation: PRESENTATION.md
     - Demo: DEMO.md

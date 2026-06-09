@@ -37,11 +37,25 @@ For a remote cluster, push the image to the registry configured in
 
 ## Configure
 
-Edit `k8s/configmap.yaml` for non-secret public values such as chain addresses
-or deploy blocks. Public `NEXT_PUBLIC_*` values are safe to expose because they
-are compiled or served to browsers.
+Edit `k8s/configmap.yaml` for non-secret public values such as chain addresses,
+deploy blocks, or `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`. Public `NEXT_PUBLIC_*`
+values are safe to expose because they are compiled or served to browsers; do
+not put bearer tokens or API keys there.
 
-Create secrets from the example template without committing real values:
+Create secrets from shell environment without committing real values:
+
+```bash
+export HEALTH_CHECK_TOKEN="$(openssl rand -hex 32)"
+export CRON_SECRET="$(openssl rand -hex 32)"
+export NOTIFICATIONS_SECRET="$(openssl rand -hex 32)"
+export MAGIC_LINK_SECRET="$(openssl rand -hex 32)"
+export SEPOLIA_RPC_URL="https://..."
+npm run k8s:secret:generate
+kubectl apply -f k8s/secret.yaml
+```
+
+`k8s/secret.yaml` is ignored by git. Create it from the example template only
+when you need manual editing:
 
 ```bash
 cp k8s/secret.example.yaml /tmp/trustledger-secret.yaml
@@ -88,12 +102,13 @@ kubectl -n trustledger get pods,svc,ingress,hpa
 kubectl -n trustledger port-forward service/trustledger-frontend 3000:80
 ```
 
-Then open <http://127.0.0.1:3000/api/health>.
+Then open <http://127.0.0.1:3000/api/health/runtime>.
 
 Kubernetes probes use `/api/health/runtime` so pods become ready when the
 Next.js server is accepting requests. The full `/api/health` endpoint remains
-strict and returns deployment configuration status for RPC, notification, cron,
-oracle, and app URL checks.
+admin-gated with `HEALTH_CHECK_TOKEN`, `ADMIN_API_TOKEN`, or
+`HEALTH_CHECK_ALLOWED_IPS`; it returns deployment configuration status for RPC,
+notification, cron, oracle, and app URL checks.
 
 ## Reproducibility Notes
 
@@ -102,6 +117,9 @@ oracle, and app URL checks.
 - The image runs `npm run vercel-build`, matching Vercel's build command.
 - Next.js standalone output keeps the runtime image limited to traced server
   files and static assets.
+- `src/next.config.ts` enables standalone output only outside Vercel. Vercel
+  still uses the same source and build script, but its builder owns serverless
+  packaging and does not consume the container runtime layout.
 - `k8s/secret.example.yaml` is intentionally excluded from
   `k8s/kustomization.yaml` so placeholder secrets are never applied by default.
 - Use Kustomize overlays outside the base for production-specific hostnames,

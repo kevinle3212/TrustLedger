@@ -4,7 +4,7 @@ language: "en-US"
 
 reviews:
     profile: "assertive"
-    request_changes_workflow: false
+    request_changes_workflow: true
     high_level_summary: true
     poem: false
     review_status: true
@@ -28,7 +28,11 @@ reviews:
         - "!dist/**"
         - "!node_modules/**"
         - "!coverage/**"
+        - "!logs/**"
+        - "!site/**"
         - "!trace/**"
+        - "!.vercel/**"
+        - "!src/.next/**"
         - "!*.cpuprofile"
 
     path_instructions:
@@ -78,6 +82,36 @@ reviews:
               - Secrets accessed via `${{ secrets.* }}` only, never hardcoded.
               - Least-privilege permissions (contents: read unless write is required).
               - No `--no-verify` or `--force` flags that bypass safety checks.
+
+        - path: "k8s/**/*.yaml"
+          instructions: |
+              Kubernetes manifests must be reproducible and safe by default:
+              - No real secrets or bearer tokens in committed manifests.
+              - Probes must use `/api/health/runtime`; `/api/health` is admin-gated.
+              - Security contexts should drop Linux capabilities and avoid privileged mode.
+              - Resource requests and limits should be explicit.
+              - Image tags must be intentional and documented.
+
+        - path: "docker/**"
+          instructions: |
+              Dockerfiles must keep runtime images minimal and reproducible:
+              - Do not copy `.env*`, logs, Vercel metadata, caches, or git history into the image.
+              - Preserve parity with the Vercel build command unless a documented exception exists.
+              - Keep health checks aligned with `/api/health/runtime`.
+
+        - path: "**/package.json"
+          instructions: |
+              Package changes must preserve strict quality gates:
+              - Do not weaken lint, typecheck, test, doctor, audit, or Kubernetes validation scripts.
+              - Document new scripts in the nearest README or docs page.
+              - Avoid adding dependencies when a small local script or platform feature is enough.
+
+        - path: "docs/**/*.md"
+          instructions: |
+              Documentation must stay operationally accurate:
+              - Mention new commands, environment variables, deployment behavior, and security gates.
+              - Keep examples free of real secrets.
+              - Prefer markdownlint-compliant tables and fenced code blocks.
 
 chat:
     auto_reply: true

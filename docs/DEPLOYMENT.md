@@ -143,6 +143,8 @@ Apply the Kubernetes base after setting non-secret values in
 `k8s/configmap.yaml` and creating `trustledger-frontend-secrets` when needed:
 
 ```bash
+npm run k8s:secret:generate
+kubectl apply -f k8s/secret.yaml
 kubectl kustomize k8s
 kubectl apply -k k8s
 kubectl -n trustledger rollout status deployment/trustledger-frontend
@@ -150,6 +152,11 @@ kubectl -n trustledger rollout status deployment/trustledger-frontend
 
 Read [Kubernetes](KUBERNETES.md) for image tagging, secrets, health checks,
 ingress, autoscaling, and reproducibility notes.
+
+Vercel builds the same `npm run vercel-build` script from `src/`, but the app
+intentionally disables Next.js `standalone` output when `VERCEL=1`. Vercel's
+builder performs its own serverless packaging, while Docker and Kubernetes need
+the traced standalone server copied into the runtime image.
 
 ## Verification Notes
 

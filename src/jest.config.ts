@@ -7,6 +7,7 @@ const createJestConfig = nextJest({
 
 const config: Config = {
 	coverageProvider: "v8",
+	roots: ["<rootDir>/tests"],
 	haste: {
 		throwOnModuleCollision: false,
 	},

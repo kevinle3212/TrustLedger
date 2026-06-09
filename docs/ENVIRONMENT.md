@@ -78,6 +78,18 @@ successful deploy.
 | `CRON_SECRET`          | Vercel deadline cron         | `/api/cron/deadline-reminders`     |
 | `NOTIFICATION_EMAILS`  | Stopgap address-to-email map | Deadline reminder service          |
 
+## Admin And Health Variables
+
+| Variable                   | Required For                 | Consumed By   |
+| -------------------------- | ---------------------------- | ------------- |
+| `HEALTH_CHECK_TOKEN`       | Admin operational health     | `/api/health` |
+| `HEALTH_CHECK_ALLOWED_IPS` | Optional health IP allowlist | `/api/health` |
+| `ADMIN_API_TOKEN`          | Shared admin fallback token  | `/api/health` |
+
+Use public `GET /api/health/runtime` for Kubernetes probes and basic runtime
+smoke checks. Use `GET /api/health` only from admin monitors with
+`Authorization: Bearer <HEALTH_CHECK_TOKEN>` or an allowlisted IP.
+
 ## Oracle Variables
 
 | Variable                  | Required For          | Consumed By                               | Notes                                                |

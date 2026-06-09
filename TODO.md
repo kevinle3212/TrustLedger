@@ -307,6 +307,18 @@ mainnet launch deliverables.
       runbooks with alert routing, escalation expectations, dashboards, and
       incident-response steps.
 
+- [ ] Build an admin dashboard for operators, similar in depth to Django Admin
+      or mature platform back offices.
+    - Include authenticated views for operational health, contract/dispute
+      lookup, juror status, reputation history, notification delivery status,
+      oracle freshness, cron history, dependency/security report summaries,
+      deployment metadata, feature flags, rate-limit events, and audit logs.
+    - Gate access behind wallet-based admin authorization plus server-side admin
+      tokens during the transition. Do not expose private keys, RPC credentials,
+      email API keys, or raw user documents.
+    - Add read-only mode first, then carefully scoped admin actions with
+      explicit confirmation, audit trails, and tests.
+
 - [ ] Add any other useful tools, libraries, APIs, or cloud services (for
       example GCP) that are free for development and testing and that can speed
       up development, improve the user experience, or enhance platform

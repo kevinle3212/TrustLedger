@@ -69,6 +69,11 @@ Agent run notes, dependency audits, Impeccable notes, and transient issue
 summaries belong in ignored `logs/` as Markdown. They should be useful
 summaries, not raw terminal dumps.
 
+npm is configured through `.npmrc` to write npm debug logs under `logs/npm`.
+Those files are ignored by git; summarize important npm failures in
+markdownlint-compliant `logs/*.md` notes when an agent run needs a durable local
+record.
+
 Check retention and Markdown policy:
 
 ```bash

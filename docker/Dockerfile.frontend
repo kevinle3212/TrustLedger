@@ -7,9 +7,14 @@
 #   docker run --rm -p 3000:3000 trustledger-frontend
 
 ARG NODE_VERSION=22.22.3
+ARG NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=6c6170df7553a4a46bc21e4dee335e8c
 
 FROM node:${NODE_VERSION}-bookworm-slim AS deps
 WORKDIR /repo/src
+ENV NPM_CONFIG_FUND=false
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_LOGS_DIR=/tmp/npm-logs
+ENV NPM_CONFIG_LOGLEVEL=error
 
 # Some optional websocket dependencies compile from source when a prebuilt
 # binary is unavailable for the target platform.
@@ -24,7 +29,13 @@ RUN npm ci
 
 FROM node:${NODE_VERSION}-bookworm-slim AS builder
 WORKDIR /repo/src
+ARG NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=${NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID}
+ENV NPM_CONFIG_FUND=false
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_LOGS_DIR=/tmp/npm-logs
+ENV NPM_CONFIG_LOGLEVEL=error
 
 COPY --from=deps /repo/src/node_modules ./node_modules
 COPY src ./

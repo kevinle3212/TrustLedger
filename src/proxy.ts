@@ -50,7 +50,7 @@ const SECURITY_HEADERS: Record<string, string> = {
 		"style-src 'self' 'unsafe-inline'",
 		// Wallet icons come from remote CDNs; data:/blob: for inline SVGs.
 		"img-src 'self' data: blob: https:",
-		// Geist is self-hosted by next/font; no external font CDN needed.
+		// Fonts use local system stacks; no external font CDN needed.
 		"font-src 'self'",
 		// Broad HTTPS/WSS allow for RPC providers, WalletConnect relay, Pinata, etc.
 		"connect-src 'self' https: wss:",
