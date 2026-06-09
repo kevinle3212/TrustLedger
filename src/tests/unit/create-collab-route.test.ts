@@ -1,5 +1,14 @@
-import { ReadableStream } from "node:stream/web";
 import type { GET as GetRoute, POST as PostRoute } from "@/app/api/create-collab/[roomId]/route";
+
+jest.mock("next/server", () => ({
+	NextResponse: {
+		json: (body: unknown, init?: ResponseInit): Response =>
+			({
+				json: async (): Promise<unknown> => await Promise.resolve(body),
+				status: init?.status ?? 200,
+			}) as Response,
+	},
+}));
 
 const ROOM_ID = "room_111111111111";
 
@@ -12,27 +21,14 @@ interface RouteModule {
 	readonly POST: typeof PostRoute;
 }
 
-async function installFetchPolyfill(): Promise<void> {
-	Object.assign(globalThis, { ReadableStream });
-	const { Headers, Request, Response } = await import("undici");
-	Object.assign(globalThis, { Headers, Request, Response });
-}
-
 async function loadRoute(): Promise<RouteModule> {
-	await installFetchPolyfill();
 	return await import("@/app/api/create-collab/[roomId]/route");
 }
 
 function request(body?: unknown): Request {
-	const init: RequestInit =
-		body === undefined
-			? { method: "GET" }
-			: {
-					method: "POST",
-					body: JSON.stringify(body),
-					headers: { "content-type": "application/json" },
-				};
-	return new Request(`http://localhost/api/create-collab/${ROOM_ID}`, init);
+	return {
+		json: async (): Promise<unknown> => await Promise.resolve(body),
+	} as Request;
 }
 
 function params(roomId = ROOM_ID): RouteParams {

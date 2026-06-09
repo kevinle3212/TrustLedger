@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 const password = process.env.ADMIN_BOOTSTRAP_PASSWORD;
 if (password === undefined || password.length < 12) {
@@ -14,26 +16,37 @@ const salt = crypto.randomBytes(16).toString("base64url");
 const iterations = 310_000;
 const hash = crypto.pbkdf2Sync(password, salt, iterations, 32, "sha256").toString("base64url");
 const passwordHash = ["pbkdf2_sha256", String(iterations), salt, hash].join("$");
+const outputPath = path.resolve(
+	process.env.ADMIN_BOOTSTRAP_OUTPUT ?? ".admin-bootstrap.generated.json",
+);
+
+const payload = {
+	ADMIN_BOOTSTRAP_EMAIL: email,
+	ADMIN_BOOTSTRAP_USERNAME: username,
+	ADMIN_BOOTSTRAP_PASSWORD_HASH: passwordHash,
+	...(walletAddress === undefined ? {} : { ADMIN_BOOTSTRAP_WALLET_ADDRESS: walletAddress }),
+	ADMIN_ACCOUNTS_JSON: [
+		{
+			email,
+			username,
+			passwordHash,
+			walletAddress,
+			roles: ["owner", "admin", "operator"],
+			nonDeletable: true,
+		},
+	],
+};
+
+fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2), { mode: 0o600 });
 
 console.log(
 	JSON.stringify(
 		{
-			ADMIN_BOOTSTRAP_EMAIL: email,
-			ADMIN_BOOTSTRAP_USERNAME: username,
-			ADMIN_BOOTSTRAP_PASSWORD_HASH: passwordHash,
-			...(walletAddress === undefined
-				? {}
-				: { ADMIN_BOOTSTRAP_WALLET_ADDRESS: walletAddress }),
-			ADMIN_ACCOUNTS_JSON: [
-				{
-					email,
-					username,
-					passwordHash,
-					walletAddress,
-					roles: ["owner", "admin", "operator"],
-					nonDeletable: true,
-				},
-			],
+			outputPath,
+			email,
+			username,
+			walletConfigured: walletAddress !== undefined,
+			secretFieldsWritten: ["ADMIN_BOOTSTRAP_PASSWORD_HASH", "ADMIN_ACCOUNTS_JSON"],
 		},
 		null,
 		2,

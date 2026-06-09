@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Runtime configuration for the Rust admin API.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct AdminApiConfig {
+pub struct ApiConfig {
     /// Socket address the service binds to.
     pub bind: String,
     /// Whether bearer-token auth is configured.
@@ -13,7 +13,7 @@ pub struct AdminApiConfig {
     pub environment: String,
 }
 
-impl AdminApiConfig {
+impl ApiConfig {
     /// Builds admin API config from environment-like key/value lookup.
     #[must_use]
     pub fn from_lookup(mut lookup: impl FnMut(&str) -> Option<String>) -> Self {
@@ -30,8 +30,8 @@ impl AdminApiConfig {
 
     /// Returns a redacted view suitable for health and admin summaries.
     #[must_use]
-    pub fn redacted(&self) -> RedactedAdminApiConfig {
-        RedactedAdminApiConfig {
+    pub fn redacted(&self) -> RedactedConfig {
+        RedactedConfig {
             bind: self.bind.clone(),
             token_configured: self.token_configured,
             environment: self.environment.clone(),
@@ -41,7 +41,7 @@ impl AdminApiConfig {
 
 /// Secret-free admin API config view.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct RedactedAdminApiConfig {
+pub struct RedactedConfig {
     /// Socket address the service binds to.
     pub bind: String,
     /// Whether bearer-token auth is configured.

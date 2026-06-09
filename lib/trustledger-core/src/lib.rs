@@ -6,8 +6,8 @@ pub mod config;
 
 use serde::{Deserialize, Serialize};
 
-pub use audit::{readonly_health_audit, AuditEvent, AuditSeverity};
-pub use config::{AdminApiConfig, RedactedAdminApiConfig};
+pub use audit::{readonly_health_event, Event, Severity};
+pub use config::{ApiConfig, RedactedConfig};
 
 /// High-level status returned by Rust service health probes.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -51,9 +51,7 @@ pub fn service_health(service: &str, configured: bool) -> ServiceHealth {
 
 #[cfg(test)]
 mod tests {
-    use super::{
-        readonly_health_audit, service_health, AdminApiConfig, AuditSeverity, ServiceStatus,
-    };
+    use super::{readonly_health_event, service_health, ApiConfig, ServiceStatus, Severity};
 
     #[test]
     fn service_health_reports_configuration_state() {
@@ -65,7 +63,7 @@ mod tests {
 
     #[test]
     fn config_redacts_token_presence() {
-        let config = AdminApiConfig::from_lookup(|key| match key {
+        let config = ApiConfig::from_lookup(|key| match key {
             "TRUSTLEDGER_ADMIN_API_TOKEN" => Some("secret".to_owned()),
             "TRUSTLEDGER_ENV" => Some("test".to_owned()),
             _ => None,
@@ -77,9 +75,9 @@ mod tests {
 
     #[test]
     fn audit_event_has_no_secret_payload() {
-        let event = readonly_health_audit("admin-api", false);
+        let event = readonly_health_event("admin-api", false);
 
-        assert_eq!(event.severity, AuditSeverity::Warning);
+        assert_eq!(event.severity, Severity::Warning);
         assert_eq!(event.metadata.get("authorized"), Some(&"false".to_owned()));
     }
 }

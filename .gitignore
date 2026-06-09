@@ -64,6 +64,7 @@ src/.swc/*
 !.env.local.example
 k8s/secret.yaml
 k8s/*.secret.yaml
+.admin-bootstrap.generated.json
 
 # ─── Package manager caches ───────────────────────────────────────────────────
 .npm
