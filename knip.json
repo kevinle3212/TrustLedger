@@ -66,8 +66,12 @@
 		"artifacts/**",
 		"contracts/**",
 		"contracts/lib/**",
+		".vercel/**",
 		"src/.next/**",
+		"src/.vercel/**",
 		"src/coverage/**",
+		"src/playwright-report/**",
+		"src/test-results/**",
 		"site/**",
 		"stubs/**"
 	],

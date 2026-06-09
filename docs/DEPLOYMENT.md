@@ -156,7 +156,10 @@ ingress, autoscaling, and reproducibility notes.
 Vercel builds the same `npm run vercel-build` script from `src/`, but the app
 intentionally disables Next.js `standalone` output when `VERCEL=1`. Vercel's
 builder performs its own serverless packaging, while Docker and Kubernetes need
-the traced standalone server copied into the runtime image.
+the traced standalone server copied into the runtime image. Keep
+`outputFileTracingRoot` disabled during Vercel builds; forcing it to the
+repository root from the nested `src/` app causes Vercel to look for duplicated
+paths such as `/vercel/path0/path0/.next/*` during packaging.
 
 ## Verification Notes
 

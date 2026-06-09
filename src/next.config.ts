@@ -72,7 +72,11 @@ function resolveArtifactValue(jsonKey: string, envKey: string): string {
 }
 
 function resolveEnvValue(envKey: string): string {
-	return process.env[envKey] ?? rootEnv[envKey] ?? "";
+	const envValue = process.env[envKey];
+	if (envValue !== undefined && envValue !== "") return envValue;
+
+	const rootValue = rootEnv[envKey];
+	return rootValue === undefined || rootValue === "" ? "" : rootValue;
 }
 
 const rootEnv = parseRootEnv();
@@ -97,13 +101,15 @@ const nextConfig: NextConfig = {
 	// Controls the URL prefix. Read from process.env first (set via Vercel project settings),
 	// then falls back to the root .env (parsed above), then to empty string (served at root).
 	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "",
-	// Must point to the repo root so Next.js traces node_modules relative to
-	// /vercel/path0/ rather than /vercel/path0/src/, matching where Vercel resolves them.
-	outputFileTracingRoot: path.resolve(__dirname, ".."),
-	// Docker and Kubernetes consume Next's standalone server output. Vercel's
-	// builder packages functions itself and can misresolve nested app paths when
-	// standalone output is enabled, so leave it off only for Vercel builds.
-	...(isVercelBuild ? {} : { output: "standalone" as const }),
+	// Docker and Kubernetes consume Next's standalone server output and need
+	// traces rooted at the repository root. Vercel builds from src/ directly, so
+	// leave both settings unset there to avoid double-rooted package paths.
+	...(isVercelBuild
+		? {}
+		: {
+				output: "standalone" as const,
+				outputFileTracingRoot: path.resolve(__dirname, ".."),
+			}),
 	env: {
 		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: resolveAddress(
 			"TrustLedger",
@@ -185,10 +191,9 @@ const nextConfig: NextConfig = {
 		NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_OPTIMISM: resolveEnvValue(
 			"NEXT_PUBLIC_TRUSTLEDGER_DEPLOY_BLOCK_OPTIMISM",
 		),
-		NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID:
-			process.env["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??
-			rootEnv["NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"] ??
-			"",
+		NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: resolveEnvValue(
+			"NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID",
+		),
 		NEXT_PUBLIC_GITHUB_URL: resolveGithubUrl(),
 	},
 };
