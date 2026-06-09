@@ -1,0 +1,12 @@
+---
+description: Backend API route guidance
+globs:
+    - "src/app/api/**/*"
+    - "src/services/**/*"
+alwaysApply: false
+---
+
+Validate every request boundary, return JSON-safe payloads, avoid stack/secret
+leaks, gate privileged routes with server-only secrets, and keep external calls
+bounded and observable. Prefer existing Next.js route patterns, viem clients,
+and service helpers over new dependencies.

@@ -1,51 +1,99 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Scan for macOS-style duplicate filenames and optionally remove them.
+#
+# Matches names like:
+#   file 2.txt, file (2).txt, file copy.txt, file copy 2.txt
+#
+# Usage:
+#   tools/remove-duplicates.sh [directory]
+#   tools/remove-duplicates.sh --delete --max-depth 5 .
+#   tools/remove-duplicates.sh --delete --yes --include-dirs .
 
-# Usage: remove-duplicates [directory]
-# Finds and removes macOS-style duplicate files/directories with names like:
-#   "file 2", "file (2)", "file copy", "file copy 2"
-# Defaults to current directory if no argument is given.
+set -Eeuo pipefail
 
-TARGET="${1:-.}"
+TARGET="."
+MAX_DEPTH=3
+DELETE=0
+ASSUME_YES=0
+INCLUDE_DIRS=0
 
-if [ ! -d "$TARGET" ]; then
-  echo "Error: '$TARGET' is not a directory."
-  exit 1
+usage() {
+    sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+fail() {
+    printf 'remove-duplicates: %s\n' "$1" >&2
+    exit "${2:-1}"
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --delete) DELETE=1 ;;
+        --yes|-y) ASSUME_YES=1 ;;
+        --include-dirs) INCLUDE_DIRS=1 ;;
+        --max-depth)
+            shift
+            [[ $# -gt 0 ]] || fail "--max-depth requires a value" 2
+            MAX_DEPTH="$1"
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        -*)
+            fail "unknown option '$1' (use --help)" 2
+            ;;
+        *)
+            TARGET="$1"
+            ;;
+    esac
+    shift
+done
+
+[[ -d "$TARGET" ]] || fail "'$TARGET' is not a directory" 2
+[[ "$MAX_DEPTH" =~ ^[0-9]+$ && "$MAX_DEPTH" -gt 0 ]] || fail "--max-depth must be a positive integer" 2
+
+PATTERN='( [0-9]+| \([0-9]+\)| copy( [0-9]+)?)(\.[^.]+)?$'
+FIND_TYPE=(-type f)
+if [[ "$INCLUDE_DIRS" -eq 1 ]]; then
+    FIND_TYPE=( "(" -type f -o -type d ")" )
 fi
 
-# Patterns:
-#   "name 2", "name 3", ... (space + digit)
-#   "name (2)", "name (3)", ... (space + parenthesized digit)
-#   "name copy", "name copy 2", ...
-PATTERN='( [0-9]+$| \([0-9]+\)$| copy( [0-9]+)?$)'
+mapfile -d '' MATCHES < <(
+    find "$TARGET" -mindepth 1 -maxdepth "$MAX_DEPTH" "${FIND_TYPE[@]}" -print0 2>/dev/null |
+        while IFS= read -r -d '' item; do
+            base="$(basename "$item")"
+            [[ "$base" =~ $PATTERN ]] && printf '%s\0' "$item"
+        done
+)
 
-found=0
-
-while IFS= read -r -d '' item; do
-  base="$(basename "$item")"
-  if echo "$base" | grep -qE "$PATTERN"; then
-    echo "  $item"
-    found=$((found + 1))
-  fi
-done < <(find "$TARGET" -mindepth 1 -maxdepth 3 -print0 2>/dev/null)
-
-if [ "$found" -eq 0 ]; then
-  echo "No duplicates found in '$TARGET'."
-  exit 0
+if [[ "${#MATCHES[@]}" -eq 0 ]]; then
+    printf 'No duplicate-looking paths found in %s (max depth %s).\n' "$TARGET" "$MAX_DEPTH"
+    exit 0
 fi
 
-echo ""
-echo "Found $found duplicate(s). Remove them? [y/N]"
-read -r answer
+printf 'Found %s duplicate-looking path(s):\n' "${#MATCHES[@]}"
+printf '  %s\n' "${MATCHES[@]}"
 
-if [[ "$answer" =~ ^[Yy]$ ]]; then
-  while IFS= read -r -d '' item; do
-    base="$(basename "$item")"
-    if echo "$base" | grep -qE "$PATTERN"; then
-      rm -rf "$item"
-      echo "Removed: $item"
+if [[ "$DELETE" -eq 0 ]]; then
+    printf '\nScan only. Re-run with --delete to remove these paths.\n'
+    exit 0
+fi
+
+if [[ "$ASSUME_YES" -ne 1 ]]; then
+    printf '\nRemove these %s path(s)? [y/N] ' "${#MATCHES[@]}"
+    read -r answer || exit 1
+    [[ "$answer" =~ ^[Yy]([Ee][Ss])?$ ]] || { printf 'Aborted.\n'; exit 0; }
+fi
+
+for item in "${MATCHES[@]}"; do
+    if [[ -d "$item" ]]; then
+        rm -rf -- "$item"
+    else
+        rm -f -- "$item"
     fi
-  done < <(find "$TARGET" -mindepth 1 -maxdepth 3 -print0 2>/dev/null)
-  echo "Done."
-else
-  echo "Aborted."
-fi
+    printf 'Removed: %s\n' "$item"
+done
+
+printf 'Done.\n'

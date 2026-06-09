@@ -11,9 +11,9 @@ export function Select({ error = false, className, ...props }: SelectProps): Rea
 	const fieldId = use(FieldIdContext);
 	return (
 		<select
-			id={props.id ?? fieldId}
-			aria-invalid={error}
 			{...props}
+			id={fieldId ?? props.id}
+			aria-invalid={error}
 			className={`${controlClass(SELECT_BG, error)}${className !== undefined && className !== "" ? ` ${className}` : ""}`}
 		/>
 	);

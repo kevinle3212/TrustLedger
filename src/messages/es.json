@@ -11,7 +11,8 @@
 		"logoAlt": "Logo de TrustLedger",
 		"viewGitHub": "Ver código en GitHub",
 		"changeLanguage": "Cambiar idioma",
-		"skipToMain": "Saltar al contenido principal"
+		"skipToMain": "Saltar al contenido principal",
+		"faq": "FAQ"
 	},
 	"FooterHelp": {
 		"buttonLabel": "Guía",

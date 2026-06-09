@@ -1,6 +1,7 @@
 # the name by which the project can be referenced within Serena
 project_name: "TrustLedger"
 
+
 # list of languages for which language servers are started; choose from:
 #   al                  angular             ansible             bash                clojure
 #   cpp                 cpp_ccls            crystal             csharp              csharp_omnisharp
@@ -31,13 +32,18 @@ project_name: "TrustLedger"
 # The first language is the default language and the respective language server will be used as a fallback.
 # Note that when using the JetBrains backend, language servers are not used and this list is correspondingly ignored.
 languages:
-    - typescript
-    - rust
-    - python
-    - bash
-    - markdown
-    - yaml
-    - json
+- typescript
+- rust
+- python
+- bash
+- markdown
+- yaml
+- json
+- cpp
+- html
+- matlab
+- scss
+- solidity
 
 # the encoding used by text files in the project
 # For a list of possible encodings, see https://docs.python.org/3.11/library/codecs.html#standard-encodings
@@ -113,7 +119,11 @@ default_modes:
 # list of mode names to be activated additionally for this project, e.g. ["query-projects"]
 # The full set of modes to be activated is base_modes (from global config) + default_modes + added_modes.
 # See https://oraios.github.io/serena/02-usage/050_configuration.html#modes
-added_modes:
+# Reviewed 2026-06-09: the previous list included valid but inactive/unused modes
+# (`planning`, `one-shot`, `query-projects`) and duplicated globally active modes
+# (`editing`, `interactive`). Keep this project override empty so Serena uses the
+# active global/context modes without stale project-specific additions.
+added_modes: []
 
 # initial prompt for the project. It will always be given to the LLM upon activating the project
 # (contrary to the memories, which are loaded on demand).

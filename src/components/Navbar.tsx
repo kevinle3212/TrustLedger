@@ -38,7 +38,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("client");
 				}}
-				className={`min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
+				className={`tl-button-motion min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
 					role === "client"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -52,7 +52,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("freelancer");
 				}}
-				className={`min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
+				className={`tl-button-motion min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
 					role === "freelancer"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -70,20 +70,20 @@ export function Navbar(): React.JSX.Element {
 	const t = useTranslations("Nav");
 
 	const linkClass = (href: string): string =>
-		`inline-flex min-h-10 items-center rounded-sm px-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-9 ${
+		`tl-nav-link inline-flex min-h-10 items-center rounded-sm px-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-9 ${
 			path === href
 				? "text-gray-900 dark:text-white"
 				: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
 		}`;
 
 	return (
-		<header className="border-b border-gray-200 dark:border-white/10 bg-white/80 dark:bg-gray-950/80 backdrop-blur sticky top-0 z-50">
+		<header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
 			<div className="tl-site-frame flex flex-col gap-3 py-3 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:py-0">
 				<div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
 					<Link
 						href="/"
 						aria-current={path === "/" ? "page" : undefined}
-						className="flex min-h-10 shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+						className="tl-button-motion flex min-h-10 shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
 					>
 						<Image
 							src="/logo.png"
@@ -127,6 +127,13 @@ export function Navbar(): React.JSX.Element {
 						>
 							{t("reputation")}
 						</Link>
+						<Link
+							href="/faq"
+							aria-current={path === "/faq" ? "page" : undefined}
+							className={linkClass("/faq")}
+						>
+							{t("faq")}
+						</Link>
 					</nav>
 				</div>
 				<div className="grid w-full min-w-0 grid-cols-3 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-3 lg:justify-end">
@@ -139,7 +146,7 @@ export function Navbar(): React.JSX.Element {
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label={t("viewGitHub")}
-							className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
+							className="tl-button-motion inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
 						>
 							<GitHubIcon />
 						</a>

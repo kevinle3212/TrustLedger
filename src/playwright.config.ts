@@ -11,6 +11,8 @@ const isCi = process.env["CI"] !== undefined && process.env["CI"] !== "";
 export default defineConfig({
 	// Keep E2E specs isolated from app and component source files.
 	testDir: "./tests",
+	// Jest owns component/unit tests under tests/unit.
+	testIgnore: ["**/unit/**"],
 	// Allow independent spec files to run in parallel when workers permit it.
 	fullyParallel: true,
 	// Fail CI if a committed test accidentally contains `test.only`.

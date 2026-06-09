@@ -610,6 +610,32 @@ describe("TrustLedger", function () {
 			);
 		});
 
+		it("should revert client rejection after the proposal is already funded", async function () {
+			const id = await createAndAccept();
+
+			await expect(
+				trustLedger.connect(client).rejectContract(id),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
+		it("should revert freelancer cancellation after the proposal is already funded", async function () {
+			const id = await createAndAccept();
+
+			await expect(
+				trustLedger.connect(freelancer).cancelProposal(id),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
+		it("should revert duplicate proof submission while already submitted", async function () {
+			const id = await createAcceptAndSubmit();
+
+			await expect(
+				trustLedger
+					.connect(freelancer)
+					.submitProofOfWork(id, POW_HASH, "ipfs://QmSecondPoW"),
+			).to.be.revertedWithCustomError(trustLedger, "InvalidStatus");
+		});
+
 		it("should revert executeRuling when not arbitration", async function () {
 			const id = await createAcceptAndSubmit();
 			await trustLedger.connect(client).disputeWork(id);

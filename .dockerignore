@@ -1,6 +1,7 @@
 # ─── JavaScript / Node ────────────────────────────────────────────────────────
 # Installed by npm ci inside the image; host copy would overwrite the wrong arch
 node_modules/
+src/node_modules/
 dist/
 *.tsbuildinfo
 
@@ -24,6 +25,9 @@ trace/
 
 # ─── Test coverage ────────────────────────────────────────────────────────────
 coverage/
+src/coverage/
+src/playwright-report/
+src/test-results/
 
 # ─── Package manager caches ───────────────────────────────────────────────────
 .npm
@@ -49,3 +53,7 @@ src/out/
 
 # ─── Local testing docs (not needed inside the image) ─────────────────────────
 testing/
+site/
+.serena/
+.nexus/
+.impeccable/

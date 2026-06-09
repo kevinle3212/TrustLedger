@@ -78,6 +78,13 @@ successful deploy.
 | `CRON_SECRET`          | Vercel deadline cron         | `/api/cron/deadline-reminders`     |
 | `NOTIFICATION_EMAILS`  | Stopgap address-to-email map | Deadline reminder service          |
 
+## Oracle Variables
+
+| Variable                  | Required For          | Consumed By           | Notes                                                |
+| ------------------------- | --------------------- | --------------------- | ---------------------------------------------------- |
+| `ORACLE_PRICE_SOURCE_URL` | Optional price source | `/api/oracle/rates`   | Defaults to CoinGecko simple price-compatible shape. |
+| `ORACLE_RATE_TTL_MS`      | Optional cache tuning | `src/services/oracle` | Defaults to `60000`; capped at `3600000`.            |
+
 ## Vercel Variables
 
 | Variable            | Required For    | Consumed By                    |

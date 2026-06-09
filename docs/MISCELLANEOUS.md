@@ -14,3 +14,5 @@ focused documents.
 | CI/CD                 | [CI/CD](CI-CD.md)                       |
 | Frontend              | [Frontend](FRONTEND.md)                 |
 | Security              | [Security](SECURITY.md)                 |
+| Sepolia faucets       | [Sepolia Faucets](FAUCETS.md)           |
+| GitHub Models scripts | [GitHub Models](GITHUB_MODELS.md)       |

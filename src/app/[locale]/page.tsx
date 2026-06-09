@@ -27,7 +27,7 @@ export default async function HomePage({
 	];
 
 	return (
-		<div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-20 sm:py-24">
+		<div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16 sm:py-24">
 			<section className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center">
 				<div className="max-w-2xl">
 					<p className="inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:border-indigo-400/20 dark:bg-indigo-400/10 dark:text-indigo-300">
@@ -45,20 +45,20 @@ export default async function HomePage({
 					<div className="mt-8 flex flex-col gap-3 sm:flex-row">
 						<Link
 							href="/create"
-							className="inline-flex min-h-12 items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
+							className="tl-button-motion inline-flex min-h-12 items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
 						>
 							{t("createContract")}
 						</Link>
 						<Link
 							href="/dashboard"
-							className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-200 px-6 py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white dark:focus-visible:ring-offset-gray-950"
+							className="tl-button-motion inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-200 px-6 py-3 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white dark:focus-visible:ring-offset-gray-950"
 						>
 							{t("viewContracts")}
 						</Link>
 					</div>
 				</div>
 
-				<div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
+				<div className="tl-motion-card rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
 					<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950">
 						<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 							<div className="min-w-0">
@@ -67,7 +67,7 @@ export default async function HomePage({
 									{t("featureEscrowTitle")}
 								</h2>
 							</div>
-							<span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
+							<span className="tl-status-badge tl-status-badge--active rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
 								{tStatus("ACTIVE")}
 							</span>
 						</div>
@@ -102,7 +102,7 @@ export default async function HomePage({
 						<span className="rounded-lg border border-gray-200 bg-white px-2 py-2 dark:border-white/10 dark:bg-gray-950">
 							{tStatus("PENDING")}
 						</span>
-						<span className="rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-2 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300">
+						<span className="tl-status-badge tl-status-badge--active rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-2 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300">
 							{tStatus("ACTIVE")}
 						</span>
 						<span className="rounded-lg border border-gray-200 bg-white px-2 py-2 dark:border-white/10 dark:bg-gray-950">
@@ -123,7 +123,10 @@ export default async function HomePage({
 				</div>
 				<div className="divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-gray-50 dark:divide-white/10 dark:border-white/10 dark:bg-white/5">
 					{features.map((feature, index) => (
-						<div key={feature.title} className="grid gap-4 p-5 sm:grid-cols-[3rem_1fr]">
+						<div
+							key={feature.title}
+							className="tl-motion-card grid gap-4 p-5 sm:grid-cols-[3rem_1fr]"
+						>
 							<span className="flex size-10 items-center justify-center rounded-full border border-gray-300 bg-white text-sm font-semibold text-gray-700 dark:border-white/15 dark:bg-gray-950 dark:text-gray-200">
 								{index + 1}
 							</span>

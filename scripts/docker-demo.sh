@@ -12,81 +12,124 @@
 #   DEMO=node    node only - useful for connecting MetaMask or Remix IDE
 set -euo pipefail
 
+NODE_URL="${NODE_URL:-http://127.0.0.1:8545}"
+NODE_LOG="${NODE_LOG:-/tmp/trustledger-docker-node.log}"
+VERBOSE="${VERBOSE:-0}"
+NODE_PID=""
+
+log() { echo "$*"; }
+die() { echo "docker-demo: $*" >&2; exit 1; }
+debug() { [[ "$VERBOSE" == "1" ]] && echo "debug: $*" >&2; }
+usage() {
+    cat <<'USAGE'
+Usage: DEMO=<mode> bash scripts/docker-demo.sh
+
+Modes:
+  good        Happy-path escrow demo.
+  bad         Dispute-flow demo.
+  jurors      Juror reputation demo.
+  stablecoin  ERC-20 escrow demo.
+  both        Run good and bad demos.
+  node        Start local Hardhat node only.
+
+Environment:
+  NODE_URL    JSON-RPC health URL. Default: http://127.0.0.1:8545
+  NODE_LOG    Hardhat node log path. Default: /tmp/trustledger-docker-node.log
+  VERBOSE=1   Enable debug messages.
+USAGE
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+    usage
+    exit 0
+fi
+
 cleanup() {
-    kill "$NODE_PID" 2>/dev/null || true
+    if [[ -n "${NODE_PID:-}" ]]; then
+        kill "$NODE_PID" 2>/dev/null || true
+    fi
 }
 trap cleanup EXIT INT TERM
 
-# ── Start the Hardhat node in the background ──────────────────────────────────
-npm run node &
-NODE_PID=$!
+command -v curl >/dev/null 2>&1 || die "curl is required in the container image."
+command -v npm >/dev/null 2>&1 || die "npm is required in the container image."
 
-echo ""
-echo "Waiting for Hardhat node at http://localhost:8545..."
-until curl -sf -X POST http://127.0.0.1:8545 \
+# ── Start the Hardhat node in the background ──────────────────────────────────
+npm run node > "$NODE_LOG" 2>&1 &
+NODE_PID=$!
+debug "node pid=$NODE_PID log=$NODE_LOG"
+
+log ""
+log "Waiting for Hardhat node at $NODE_URL..."
+for _ in $(seq 1 80); do
+    if curl -sf -X POST "$NODE_URL" \
     -H "Content-Type: application/json" \
     -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
-    > /dev/null 2>&1
-do
+    > /dev/null 2>&1; then
+        log "Node ready."
+        log ""
+        break
+    fi
     sleep 0.5
 done
-echo "Node ready."
-echo ""
+
+if ! curl -sf -X POST "$NODE_URL" -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' >/dev/null 2>&1; then
+    die "Hardhat node did not become ready. Check $NODE_LOG"
+fi
 
 # ── Run the requested demo ────────────────────────────────────────────────────
 case "${DEMO:-good}" in
     good)
-        echo "Deploying contracts..."
+        log "Deploying contracts..."
         npm run hardhat:deploy:local
-        echo ""
-        echo "Running happy-path demo (create → accept → submit → approve → payout)..."
+        log ""
+        log "Running happy-path demo (create, accept, submit, approve, payout)..."
         npm run demo:good
         ;;
     bad)
-        echo "Deploying contracts..."
+        log "Deploying contracts..."
         npm run hardhat:deploy:local
-        echo ""
-        echo "Running dispute-flow demo (create → accept → submit → dispute → vote → ruling)..."
+        log ""
+        log "Running dispute-flow demo (create, accept, submit, dispute, vote, ruling)..."
         npm run demo:bad
         ;;
     jurors)
-        echo "Deploying contracts..."
+        log "Deploying contracts..."
         npm run hardhat:deploy:local
-        echo ""
-        echo "Running juror reputation demo (register → vote → minority slash → before/after table)..."
+        log ""
+        log "Running juror reputation demo (register, vote, minority slash, before/after table)..."
         npm run demo:jurors
         ;;
     stablecoin)
-        echo "Deploying contracts..."
+        log "Deploying contracts..."
         npm run hardhat:deploy:local
-        echo ""
+        log ""
         echo "Running stablecoin escrow demo (ERC-20 escrow + gas comparison + reputation)..."
         npm run demo:stablecoin
         ;;
     both)
-        echo "Deploying contracts..."
+        log "Deploying contracts..."
         npm run hardhat:deploy:local
-        echo ""
-        echo "Running happy-path demo..."
+        log ""
+        log "Running happy-path demo..."
         npm run demo:good
-        echo ""
-        echo "Running dispute-flow demo..."
+        log ""
+        log "Running dispute-flow demo..."
         npm run demo:bad
         ;;
     node)
-        echo "Hardhat node is running at http://localhost:8545 (chain ID 31337)."
-        echo "Import any private key printed above into MetaMask to interact manually."
-        echo "Press Ctrl+C to stop."
+        log "Hardhat node is running at $NODE_URL (chain ID 31337)."
+        log "Read $NODE_LOG for local account private keys, then import one into MetaMask if needed."
+        log "Press Ctrl+C to stop."
         wait "$NODE_PID"
         exit 0
         ;;
     *)
-        echo "Unknown DEMO='${DEMO}'. Valid values: good | bad | jurors | stablecoin | both | node" >&2
-        exit 1
+        die "Unknown DEMO='${DEMO}'. Valid values: good | bad | jurors | stablecoin | both | node"
         ;;
 esac
 
-echo ""
-echo "Demo complete. Node is still running at http://localhost:8545."
-echo "Press Ctrl+C to stop."
+log ""
+log "Demo complete. Node is still running at $NODE_URL."
+log "Press Ctrl+C to stop."
 wait "$NODE_PID"

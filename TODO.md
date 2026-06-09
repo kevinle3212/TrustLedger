@@ -32,6 +32,12 @@ mainnet launch deliverables.
       `elliptic` from the tree and should clear them; re-run `npm audit`
       afterward to confirm. The high (`undici`) and moderate (`bn.js`) findings
       were already patched via `overrides` in `package.json`.
+    - **Remaining 2026-06-09:** Plan this as a dedicated migration branch. The
+      current production audit is clean, but the root dev-tool audit still shows
+      28 low-severity findings that require semver-major Hardhat/toolbox
+      upgrades. Verify `npm audit`, `npm audit --omit=dev`, Hardhat tests,
+      Foundry tests, deployment scripts, CI, and TypeChain behavior before
+      closing this item.
 
 ## Phase 3 — UI/UX Design and Polish
 
@@ -182,7 +188,7 @@ mainnet launch deliverables.
     - Implement the new provider in the authentication flow so users reliably
       receive their magic links and authenticate without issues.
 
-- [ ] Add an oracle service to fetch off-chain data relevant to contracts, such
+- [x] Add an oracle service to fetch off-chain data relevant to contracts, such
       as exchange rates for stablecoin payments or external data feeds that
       could trigger contract actions or disputes.
     - Set up a backend service that fetches and aggregates off-chain data and
@@ -193,6 +199,11 @@ mainnet launch deliverables.
       or dispute resolution, such as delivery confirmations or work-completion
       status from third-party platforms, to help automate parts of the contract
       lifecycle.
+    - **Completed 2026-06-09:** Added `src/services/oracle.ts`,
+      `GET /api/oracle/rates`, oracle environment documentation, stale-cache
+      observability, and unit coverage in `src/tests/unit/oracle.test.ts`.
+      Current oracle data is server-side display/support data only; any on-chain
+      oracle consumption still requires a separate audited design.
 
 - [ ] Evaluate and implement SOL (Solana) support as a second chain.
     - **Decision gate first:** determine whether SOL means (a) deploying an
@@ -313,19 +324,32 @@ mainnet launch deliverables.
       grammar, punctuation, capitalization, or syntax errors in every sentence,
       heading, and code block comment across all documentation files.
 
-- [ ] Create more tests for the features that will be implemented, and add tests
-      for the ones that are not yet covered, to ensure the platform is robust
-      and reliable before the mainnet launch.
+- [ ] Create tests for the features that haven't been done, and add tests needed
+      be added for any other areas of codebase, to ensure the platform is robust
+      and reliable before the mainnet launch (not coming soon, but we're
+      prepping).
     - Write unit tests for all frontend components, backend logic, and smart
       contract interactions, plus integration tests covering end-to-end user
       flows. Aim for high coverage to catch bugs before they reach production.
     - Consider Jest and React Testing Library for the frontend and Supertest for
       any backend API routes. For smart contracts, use Hardhat's testing
       framework to cover all contract functions and edge cases.
+    - **Status 2026-06-09:** Still open. Oracle unit tests improve coverage but
+      do not satisfy the original comprehensive requirement. See
+      `docs/reports/coverage-gap-report.md`.
 
 - [ ] Add error monitoring and analytics (for example Sentry for error tracking
       and a privacy-respecting analytics tool) to surface production issues and
       usage patterns.
+    - **Remaining 2026-06-09:** Choose and configure an external monitoring
+      provider such as Sentry, Better Stack, Datadog, Grafana Cloud, or an
+      equivalent service. Wire `GET /api/health` into uptime checks and alert on
+      unhealthy responses, API route failures, RPC/oracle freshness failures,
+      frontend runtime errors, and critical on-chain events.
+    - Add provider credentials only through deployment secrets. Update
+      `SECURITY.md`, `docs/CI-CD.md`, `docs/ENVIRONMENT.md`, and operational
+      runbooks with alert routing, escalation expectations, dashboards, and
+      incident-response steps.
 
 - [ ] Add any other useful tools, libraries, APIs, or cloud services (for
       example GCP) that are free for development and testing and that can speed
@@ -345,6 +369,16 @@ mainnet launch deliverables.
       `contractURI` so the document is not publicly linkable to either wallet.
 
 ## Phase 9 — Documentation and Mainnet Launch
+
+- [ ] Complete third-party smart contract audit readiness and obtain an external
+      audit report before mainnet.
+    - Prepare an auditor package with contract scope, deployment assumptions,
+      threat model, trust boundaries, invariants, test evidence, known risks,
+      dependency health report, oracle limitations, and remediation tracker.
+    - Engage an external auditor, track findings by severity, patch confirmed
+      issues, rerun Hardhat and Foundry validation, and add the final audit
+      report to the documentation before treating the contracts as
+      mainnet-ready.
 
 - [ ] Finalize the TrustLedger whitepaper and publish it as
       `docs/TrustLedger_Whitepaper_v1.0_2026.pdf`.
@@ -799,7 +833,7 @@ mainnet launch deliverables.
 
 - [x] Add Tailwind CSS for the frontend if needed, and make the frontend faster,
       more secure, and more aesthetically pleasing. — Tailwind v4 is confirmed
-      fully wired via `@import "tailwindcss"` in `globals.css` and
+      fully wired via `@use "tailwindcss"` in `globals.scss` and
       `@tailwindcss/postcss` in `postcss.config.mjs`; all pages and components
       use Tailwind classes consistently so no migration was needed. Three
       concrete improvements were landed in this pass:
@@ -829,7 +863,7 @@ mainnet launch deliverables.
       is a dev-only convenience — the JWT field is shown in the UI when the var
       is absent so users supply their own key at runtime.
     - **Aesthetics:** Added `prefers-reduced-motion` media query to
-      `globals.css` (collapses all transitions/animations to 0.01 ms for users
+      `globals.scss` (collapses all transitions/animations to 0.01 ms for users
       who opt out of motion). Added `--color-brand` and `--color-brand-hover`
       design tokens to the `@theme inline` block, making the indigo accent
       explicitly referenceable without hard-coded hex values. The existing UI
@@ -1058,7 +1092,7 @@ mainnet launch deliverables.
       role toggle with `aria-pressed` on each button; `aria-label` on the
       connected-wallet button; `role="region"` → `<section aria-label>` on the
       `SummaryBanner`; threaded `Field` id context so every `<label>` now has a
-      matching `htmlFor`; global `focus-visible` ring in `globals.css`;
+      matching `htmlFor`; global `focus-visible` ring in `globals.scss`;
       `ContrastToggle` component (half-circle icon in the navbar) that toggles
       the `high-contrast` CSS class via `useSyncExternalStore`, persists to
       `localStorage`, and auto-activates from `prefers-contrast: more`; high-

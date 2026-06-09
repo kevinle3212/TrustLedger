@@ -59,7 +59,7 @@ export function ContrastToggle(): React.JSX.Element {
 			aria-pressed={high}
 			aria-label={high ? t("disableHighContrast") : t("enableHighContrast")}
 			title={high ? t("highContrastOn") : t("highContrastOff")}
-			className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white sm:min-h-9 sm:min-w-9"
+			className="tl-button-motion inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white sm:min-h-9 sm:min-w-9"
 		>
 			{/* Half-filled circle signals contrast adjustment */}
 			<svg

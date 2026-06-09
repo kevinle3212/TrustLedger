@@ -13,7 +13,7 @@ import { routing } from "@/i18n/routing";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import "../globals.css";
+import "../globals.scss";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",

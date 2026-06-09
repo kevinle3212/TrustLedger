@@ -1,0 +1,15 @@
+---
+description: Testing guidance
+globs:
+    - "src/tests/**/*"
+    - "test/**/*"
+    - "contracts/test/**/*"
+    - "src/jest.config.ts"
+    - "src/playwright.config.ts"
+alwaysApply: false
+---
+
+Use focused unit tests for utilities/services, React Testing Library for
+components, Playwright for user flows, Hardhat for TypeScript contract
+workflows, and Foundry for Solidity unit/fuzz/fork coverage. Phase 7 Item 3
+remains open until comprehensive coverage evidence exists.

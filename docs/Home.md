@@ -14,8 +14,10 @@ and frontend contributors working on TrustLedger.
 | [Deployment](DEPLOYMENT.md)             | Local and Ethereum Sepolia deployment with current scripts.             |
 | [Testing](TESTING.md)                   | Foundry, Hardhat, frontend, fork, lint, and CI test commands.           |
 | [Environment](ENVIRONMENT.md)           | Required and optional environment variables.                            |
+| [Sepolia Faucets](FAUCETS.md)           | Current Sepolia ETH faucet options, rate limits, and debugging tips.    |
 | [CI/CD](CI-CD.md)                       | GitHub Actions workflow triggers, jobs, secrets, and gotchas.           |
 | [Frontend](FRONTEND.md)                 | Next.js app structure, wallet config, API routes, and services.         |
+| [GitHub Models](GITHUB_MODELS.md)       | AI helper scripts, prompt evaluation, and workflow notes.               |
 | [TypeScript SDK](TYPESCRIPT-SDK.md)     | ABI, TypeChain, helper exports, and TypeScript usage.                   |
 | [Security](SECURITY.md)                 | Access control, escrow risks, arbitration risks, and audit status.      |
 | [Contributing](CONTRIBUTING.md)         | Setup, style, linting, docs, and PR expectations.                       |

@@ -1,0 +1,14 @@
+---
+description: Solidity contract guidance
+globs:
+    - "contracts/src/**/*"
+    - "contracts/test/**/*"
+    - "contracts/script/**/*"
+    - "test/**/*"
+alwaysApply: false
+---
+
+Prioritize escrow safety, access control, reentrancy resistance, gas awareness,
+event coverage, and audit-ready clarity. Run Hardhat and Foundry tests after
+contract changes. Do not introduce upgradeability or oracle dependencies without
+a documented design and explicit tests.

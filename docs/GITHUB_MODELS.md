@@ -4,6 +4,9 @@ This document explains the GitHub Models helper scripts and workflow. Read it
 when changing model prompts, evaluation scripts, or the `github-models.yml`
 workflow.
 
+Script-level usage lives in
+[scripts/models/README.md](../scripts/models/README.md).
+
 ## Commands
 
 Install Python dependencies:

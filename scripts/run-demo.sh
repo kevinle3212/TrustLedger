@@ -17,8 +17,15 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-NODE_URL="http://127.0.0.1:8545"
+NODE_URL="${NODE_URL:-http://127.0.0.1:8545}"
+NODE_LOG="${NODE_LOG:-/tmp/trustledger-node.log}"
 NODE_PID=""
+VERBOSE=0
+
+log() { echo "$*"; }
+warn() { echo "warning: $*" >&2; }
+die() { echo "run-demo: $*" >&2; exit 1; }
+debug() { [[ "$VERBOSE" -eq 1 ]] && echo "debug: $*" >&2; }
 
 cleanup() {
     if [[ -n "$NODE_PID" ]]; then
@@ -36,42 +43,53 @@ node_running() {
         > /dev/null 2>&1
 }
 
+require_cmd() {
+    command -v "$1" >/dev/null 2>&1 || die "$1 is required but was not found on PATH."
+}
+
+check_prereqs() {
+    require_cmd curl
+    require_cmd npm
+    [[ -f "$PROJECT_DIR/package.json" ]] || die "package.json not found at $PROJECT_DIR"
+    [[ -d "$PROJECT_DIR/node_modules" ]] || die "root dependencies missing. Run: npm install"
+}
+
 ensure_node_and_contracts() {
     if node_running; then
-        echo "  ok Hardhat node already running at $NODE_URL"
+        log "  ok Hardhat node already running at $NODE_URL"
         # NODE_PID stays empty - we don't own this process, won't kill it on exit
         if [[ ! -f "$PROJECT_DIR/artifacts/deployed-addresses.json" ]]; then
-            echo "  .. Contracts not yet deployed - deploying now..."
+            log "  .. Contracts not yet deployed - deploying now..."
             cd "$PROJECT_DIR"
             npm run hardhat:deploy:local
-            echo "  ok Contracts deployed"
+            log "  ok Contracts deployed"
         else
-            echo "  ok Contracts already deployed"
+            log "  ok Contracts already deployed"
         fi
     else
-        echo "Starting Hardhat node..."
+        log "Starting Hardhat node..."
         cd "$PROJECT_DIR"
-        npm run node > /tmp/trustledger-node.log 2>&1 &
+        npm run node > "$NODE_LOG" 2>&1 &
         NODE_PID=$!
+        debug "node pid=$NODE_PID log=$NODE_LOG"
 
-        echo "Waiting for node at $NODE_URL..."
+        log "Waiting for node at $NODE_URL..."
         for _ in $(seq 1 40); do
             if node_running; then
-                echo "  ok Node ready"
+                log "  ok Node ready"
                 break
             fi
             sleep 0.5
         done
 
         if ! node_running; then
-            echo "ERROR: Node failed to start. Check /tmp/trustledger-node.log" >&2
-            exit 1
+            die "Hardhat node failed to start. Check $NODE_LOG"
         fi
 
-        echo ""
-        echo "Deploying contracts..."
+        log ""
+        log "Deploying contracts..."
         npm run hardhat:deploy:local
-        echo "  ok Contracts deployed"
+        log "  ok Contracts deployed"
     fi
 }
 
@@ -98,7 +116,7 @@ run_stablecoin() {
 }
 
 print_usage() {
-    echo "Usage: $0 [1-7]" >&2
+    echo "Usage: $0 [--verbose] [1-7]" >&2
     echo "" >&2
     echo "  1  Plaintiff (client) wins          - unanimous 0% ruling" >&2
     echo "  2  Defendant (freelancer) wins       - unanimous 100% ruling" >&2
@@ -110,6 +128,18 @@ print_usage() {
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --verbose|-v) VERBOSE=1; shift ;;
+        --help|-h) print_usage; exit 0 ;;
+        --) shift; break ;;
+        -*) print_usage; die "unknown option '$1'" ;;
+        *) break ;;
+    esac
+done
+
+check_prereqs
 
 if [[ $# -ge 1 ]]; then
     SCENARIO="$1"

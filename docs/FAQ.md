@@ -31,3 +31,13 @@ to Ethereum Sepolia, not Arbitrum Sepolia.
 Read [Environment](ENVIRONMENT.md). Required variables depend on whether you are
 deploying, running fork tests, using wallet connection, sending email, or
 deploying to Vercel.
+
+## Where Do I Get Sepolia ETH?
+
+Use [Sepolia Faucets](FAUCETS.md). Faucet limits and verification rules change
+often, so prefer the live faucet UI over stale third-party quota claims.
+
+## Where Are The GitHub Models Scripts Documented?
+
+Read [GitHub Models](GITHUB_MODELS.md) for workflow behavior and
+[scripts/models/README.md](../scripts/models/README.md) for script-level usage.

@@ -1,0 +1,13 @@
+---
+description: Documentation standards
+globs:
+    - "*.md"
+    - "docs/**/*.md"
+    - "src/README.md"
+alwaysApply: false
+---
+
+Keep docs accurate, concise, and command-copyable. Update README, environment,
+testing, CI, security, and roadmap docs whenever behavior, architecture, tools,
+security posture, or workflows change. Do not mark roadmap items complete
+without objective evidence.
