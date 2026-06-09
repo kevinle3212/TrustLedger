@@ -1,6 +1,7 @@
 import type { ArweaveJWK } from "@/lib/arweave";
 
 export type DocMode = "upload" | "manual";
+export type ContractTermsFormat = "markdown" | "html" | "plain";
 export type UploadStatus = "idle" | "working" | "done" | "error";
 
 export interface FormFields {
@@ -20,6 +21,9 @@ export interface CreateState {
 	proposerRole: "freelancer" | "client";
 	paymentToken: "eth" | "usdc";
 	form: FormFields;
+	termsBody: string;
+	termsFormat: ContractTermsFormat;
+	termsLastUpdatedAt: string | null;
 	reviewOpen: boolean;
 	magicLinkStatus: "idle" | "sending" | "sent" | "error";
 	docMode: DocMode;
@@ -42,6 +46,9 @@ export type CreateAction =
 	| { type: "SET_PROPOSER_ROLE"; role: "freelancer" | "client" }
 	| { type: "SET_PAYMENT_TOKEN"; token: "eth" | "usdc" }
 	| { type: "SET_FIELD"; key: keyof FormFields; value: string }
+	| { type: "SET_TERMS_BODY"; value: string }
+	| { type: "SET_TERMS_FORMAT"; format: ContractTermsFormat }
+	| { type: "HYDRATE_DRAFT"; draft: Partial<CreateState> }
 	| { type: "OPEN_REVIEW" }
 	| { type: "CLOSE_REVIEW" }
 	| { type: "SET_MAGIC_LINK_STATUS"; status: CreateState["magicLinkStatus"] }

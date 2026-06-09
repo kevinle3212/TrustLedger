@@ -1,5 +1,8 @@
 # Kubernetes
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger includes a Kubernetes base for running the production Next.js
 frontend alongside the Docker image in `docker/Dockerfile.frontend`.
 
@@ -116,6 +119,27 @@ Next.js server is accepting requests. The full `/api/health` endpoint remains
 admin-gated with `HEALTH_CHECK_TOKEN`, `ADMIN_API_TOKEN`, or
 `HEALTH_CHECK_ALLOWED_IPS`; it returns deployment configuration status for RPC,
 notification, cron, oracle, and app URL checks.
+
+## Rust Admin API
+
+The optional Rust companion service has its own base in `infra/rust-admin-api`.
+It is not part of the frontend Kustomize base so operators can deploy it only
+when they need the extra backend surface.
+
+```bash
+kubectl create secret generic trustledger-admin-api \
+  --from-literal=token="$(openssl rand -hex 32)"
+kubectl apply -k infra/rust-admin-api
+kubectl port-forward service/trustledger-admin-api 4100:4100
+```
+
+Probe it locally:
+
+```bash
+curl http://127.0.0.1:4100/health
+curl -H "Authorization: Bearer $TRUSTLEDGER_ADMIN_API_TOKEN" \
+  http://127.0.0.1:4100/admin/summary
+```
 
 ## Reproducibility Notes
 

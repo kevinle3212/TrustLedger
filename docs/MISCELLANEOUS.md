@@ -1,5 +1,8 @@
 # Miscellaneous
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This page is kept for existing links. Canonical technical content now lives in
 focused documents.
 

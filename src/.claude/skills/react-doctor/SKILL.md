@@ -6,6 +6,9 @@ version: "1.1.0"
 
 # React Doctor
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Scans React codebases for security, performance, correctness, and architecture issues. Outputs a 0–100 health score.
 
 ## After making React code changes

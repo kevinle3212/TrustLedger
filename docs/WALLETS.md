@@ -1,5 +1,8 @@
 # Wallets
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains wallet configuration for the TrustLedger frontend. Read
 it when changing Reown AppKit, supported chains, or wallet metadata.
 

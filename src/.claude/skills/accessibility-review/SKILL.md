@@ -5,6 +5,9 @@ description: Use when auditing or changing forms, navigation, buttons, dialogs, 
 
 # Accessibility Review
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 ## Checklist
 
 - Every form control has a visible label and programmatic association.

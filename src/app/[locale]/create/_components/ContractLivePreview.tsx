@@ -2,12 +2,15 @@
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import type { FormFields } from "../_lib/types";
+import type { ContractTermsFormat, FormFields } from "../_lib/types";
 
 interface Props {
 	form: FormFields;
 	paymentToken: "eth" | "usdc";
 	isClientProposing: boolean;
+	termsBody: string;
+	termsFormat: ContractTermsFormat;
+	termsLastUpdatedAt: string | null;
 }
 
 function fallback(value: string, label: string): string {
@@ -19,6 +22,9 @@ export function ContractLivePreview({
 	form,
 	paymentToken,
 	isClientProposing,
+	termsBody,
+	termsFormat,
+	termsLastUpdatedAt,
 }: Props): React.JSX.Element {
 	const t = useTranslations("Create");
 	const locale = useLocale();
@@ -28,6 +34,10 @@ export function ContractLivePreview({
 	const amountFormatter = useMemo(
 		() => new Intl.NumberFormat(locale, { maximumFractionDigits }),
 		[locale, maximumFractionDigits],
+	);
+	const dateTimeFormatter = useMemo(
+		() => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }),
+		[locale],
 	);
 	const amount =
 		form.amount.trim() === "" || !Number.isFinite(numericAmount)
@@ -43,6 +53,14 @@ export function ContractLivePreview({
 		form.holdBack === "none"
 			? t("holdbackNone")
 			: `${form.holdBack}% for ${warrantyPeriodDays} ${t("daysUnit")}`;
+	const termsExcerpt =
+		termsBody.trim() === ""
+			? t("previewNotSet")
+			: termsBody.trim().replace(/\s+/g, " ").slice(0, 180);
+	const lastUpdated =
+		termsLastUpdatedAt === null
+			? t("previewNotSet")
+			: dateTimeFormatter.format(new Date(termsLastUpdatedAt));
 
 	return (
 		<aside className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5 lg:sticky lg:top-24">
@@ -95,6 +113,22 @@ export function ContractLivePreview({
 
 				<span className="text-gray-500">{t("warrantyHoldback")}</span>
 				<span className="text-gray-900 dark:text-white">{holdBack}</span>
+
+				<span className="text-gray-500">Terms format</span>
+				<span className="capitalize text-gray-900 dark:text-white">{termsFormat}</span>
+
+				<span className="text-gray-500">Last updated</span>
+				<span className="text-gray-900 dark:text-white">{lastUpdated}</span>
+			</div>
+
+			<div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-950">
+				<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+					Editable terms excerpt
+				</p>
+				<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+					{termsExcerpt}
+					{termsBody.trim().length > 180 ? "..." : ""}
+				</p>
 			</div>
 
 			<p className="mt-6 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs leading-5 text-gray-600 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300">

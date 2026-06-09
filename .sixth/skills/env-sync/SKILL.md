@@ -1,5 +1,8 @@
 # Env Sync
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Use this skill whenever code, scripts, workflows, Docker, Kubernetes, or docs add,
 rename, remove, or require an environment variable.
 
@@ -12,11 +15,14 @@ rename, remove, or require an environment variable.
    - whether it is required,
    - whether it is safe to expose,
    - where to obtain or generate it.
-4. If the user permits local env edits, update ignored `.env` and/or
-   `src/.env.local` without printing secret values.
-5. If the variable is required in production and Vercel is the target, add or
-   update it through `vercel env` for the relevant environments. Prefer
-   comparing `vercel env pull` output before replacing values.
+4. If the user permits local env edits, run `node tools/sync-env-defaults.mjs`
+   to update ignored `.env`, `.env.local`, and `src/.env.local` without
+   printing or overwriting secret values. If a specialized sync script applies
+   (for example `scripts/sync-frontend-env.ts` after local deployment), run that
+   too.
+5. If the variable is required in production and Vercel is the target, run
+   `npm run env:sync:vercel` to add missing non-empty values. It intentionally
+   skips blank placeholders and does not overwrite existing Vercel values.
 6. Update `docs/ENVIRONMENT.md`, Docker docs, Kubernetes docs, and deployment
    docs when the variable affects those surfaces.
 7. Remove hardcoded defaults from Dockerfiles, Kubernetes manifests, workflows,

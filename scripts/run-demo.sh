@@ -18,7 +18,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 NODE_URL="${NODE_URL:-http://127.0.0.1:8545}"
-NODE_LOG="${NODE_LOG:-/tmp/trustledger-node.log}"
+NODE_LOG="${NODE_LOG:-${TMPDIR:-/tmp}/trustledger-node.log}"
 NODE_PID=""
 VERBOSE=0
 
@@ -74,7 +74,7 @@ ensure_node_and_contracts() {
         debug "node pid=$NODE_PID log=$NODE_LOG"
 
         log "Waiting for node at $NODE_URL..."
-        for _ in $(seq 1 40); do
+        for ((attempt = 1; attempt <= 40; attempt++)); do
             if node_running; then
                 log "  ok Node ready"
                 break

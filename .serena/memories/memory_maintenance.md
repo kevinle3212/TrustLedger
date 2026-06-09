@@ -1,5 +1,8 @@
 # Memory Maintenance
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 ## Discovery Model
 
 - Core principle: progressive discovery through references, building a graph of

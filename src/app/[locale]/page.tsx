@@ -106,7 +106,7 @@ export default async function HomePage({
 				/>
 			</section>
 
-			<section className="grid gap-8 border-t border-gray-200 pt-10 dark:border-white/10 lg:grid-cols-[18rem_1fr]">
+			<section className="tl-protection-section grid gap-8 border-t border-gray-200 pt-10 dark:border-white/10 lg:grid-cols-[18rem_1fr]">
 				<div>
 					<h2 className="text-2xl font-semibold tracking-[-0.015em] text-gray-950 dark:text-white">
 						{t("featureEscrowTitle")}

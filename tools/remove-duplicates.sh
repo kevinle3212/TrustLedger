@@ -60,12 +60,14 @@ if [[ "$INCLUDE_DIRS" -eq 1 ]]; then
     FIND_TYPE=( "(" -type f -o -type d ")" )
 fi
 
-mapfile -d '' MATCHES < <(
-    find "$TARGET" -mindepth 1 -maxdepth "$MAX_DEPTH" "${FIND_TYPE[@]}" -print0 2>/dev/null |
-        while IFS= read -r -d '' item; do
-            base="$(basename "$item")"
-            [[ "$base" =~ $PATTERN ]] && printf '%s\0' "$item"
-        done
+MATCHES=()
+while IFS= read -r -d '' item; do
+    base="$(basename "$item")"
+    if [[ "$base" =~ $PATTERN ]]; then
+        MATCHES+=("$item")
+    fi
+done < <(
+    find "$TARGET" -mindepth 1 -maxdepth "$MAX_DEPTH" "${FIND_TYPE[@]}" -print0 2>/dev/null
 )
 
 if [[ "${#MATCHES[@]}" -eq 0 ]]; then

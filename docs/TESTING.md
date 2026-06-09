@@ -1,5 +1,8 @@
 # Testing
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains how to run TrustLedger tests and quality gates. Use it
 before opening a PR or debugging a failing GitHub Actions job.
 

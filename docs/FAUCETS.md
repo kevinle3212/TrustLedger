@@ -1,5 +1,8 @@
 # Sepolia Faucets
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 The canonical faucet guide lives at `misc/FAUCETS.md` in the repository root so
 developers can find it beside other command-line helpers.
 

@@ -1,5 +1,8 @@
 # TrustLedger Type Stubs
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This directory contains first-party `.pyi` files for third-party Python packages
 that do not ship usable type information.
 

@@ -1,5 +1,8 @@
 # Security
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document summarizes TrustLedger's technical security model, access control,
 and known risk areas. Read it when reviewing contracts, threat modeling, or
 preparing an audit.
@@ -58,6 +61,13 @@ on bearer secrets. Rotate those secrets if they are exposed.
 runtime responds. `GET /api/health` is admin-gated with `HEALTH_CHECK_TOKEN`,
 `ADMIN_API_TOKEN`, or `HEALTH_CHECK_ALLOWED_IPS` because it reports operational
 configuration status.
+
+`/[locale]/admin` and `/api/admin/*` are restricted operator surfaces. The
+initial dashboard is read-only and uses signed HTTP-only sessions, PBKDF2
+password hashes, optional IP allowlisting, optional wallet allowlist binding,
+and a transition bearer token for server callers. Do not commit plaintext admin
+passwords or enable mutating admin actions without persistent audit trails,
+explicit confirmations, authorization tests, and updated threat modeling.
 
 ## CI Security Checks
 

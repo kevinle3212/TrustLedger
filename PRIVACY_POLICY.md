@@ -1,5 +1,8 @@
 # TrustLedger — Privacy Policy
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 **Effective Date:** June 9, 2026 **Last Updated:** June 9, 2026 **Version:**
 2.0.0
 

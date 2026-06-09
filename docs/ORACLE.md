@@ -1,5 +1,8 @@
 # Oracle Architecture
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger currently uses oracle data for display and workflow support only. No
 smart contract consumes off-chain price data in production paths.
 

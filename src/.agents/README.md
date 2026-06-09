@@ -1,5 +1,8 @@
 # TrustLedger Frontend Agents
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Use these specialist briefs when delegating or reviewing frontend work.
 
 ## Specialists

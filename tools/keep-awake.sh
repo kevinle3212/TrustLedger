@@ -4,10 +4,12 @@
 #
 # Usage:
 #   tools/keep-awake.sh --minutes 30 -- npm run foundry:test
+#   tools/keep-awake.sh --minutes 30 --caffeinate-flags "-d -i -m -s" -- npm run build
 #   tools/keep-awake.sh 30 npm run foundry:test
 #
-# macOS uses caffeinate. Linux falls back to systemd-inhibit when available,
-# then runs the command normally with a warning.
+# macOS uses caffeinate with default flags -d -i -m -s to keep the display,
+# idle system, disk, and AC-power system state awake. Linux falls back to
+# systemd-inhibit when available, then runs the command normally with a warning.
 
 set -Eeuo pipefail
 
@@ -21,6 +23,7 @@ fail() {
 }
 
 MINUTES=""
+CAFFEINATE_FLAGS=(-d -i -m -s)
 
 if [[ "${1:-}" == "--run-timer" ]]; then
     shift
@@ -49,6 +52,12 @@ while [[ $# -gt 0 ]]; do
             shift
             [[ $# -gt 0 ]] || fail "--minutes requires a value" 2
             MINUTES="$1"
+            ;;
+        --caffeinate-flags)
+            shift
+            [[ $# -gt 0 ]] || fail "--caffeinate-flags requires a quoted flag string" 2
+            read -r -a CAFFEINATE_FLAGS <<< "$1"
+            [[ "${#CAFFEINATE_FLAGS[@]}" -gt 0 ]] || fail "--caffeinate-flags cannot be empty" 2
             ;;
         --help|-h)
             usage
@@ -81,7 +90,7 @@ SECONDS_TO_RUN=$((MINUTES * 60))
 printf 'Running for up to %s minute(s): %s\n' "$MINUTES" "$*"
 
 if command -v caffeinate >/dev/null 2>&1; then
-    caffeinate -dims "$0" --run-timer "$SECONDS_TO_RUN" -- "$@"
+    caffeinate "${CAFFEINATE_FLAGS[@]}" "$0" --run-timer "$SECONDS_TO_RUN" -- "$@"
     exit $?
 fi
 

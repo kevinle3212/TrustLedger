@@ -1,5 +1,8 @@
 # Solana Support
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger's Solana path is **native-program first**. The project should build
 an equivalent Solana escrow experience before accepting bridged SOL on EVM
 chains.

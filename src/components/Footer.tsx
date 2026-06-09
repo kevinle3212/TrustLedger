@@ -45,7 +45,29 @@ export function Footer(): React.JSX.Element {
 	return (
 		<footer className="border-t border-gray-200 bg-white dark:border-white/10 dark:bg-gray-950">
 			<div className="tl-site-frame flex flex-col gap-4 py-6 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between dark:text-gray-400">
-				<p>&copy; 2026 TrustLedger</p>
+				<div className="grid gap-1">
+					<p>&copy; 2026 TrustLedger</p>
+					<p>
+						Authors &amp; Contributors:{" "}
+						<a
+							href="https://www.linkedin.com/in/lekevin1"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="font-medium text-gray-700 underline decoration-gray-300 underline-offset-4 hover:text-indigo-600 dark:text-gray-200 dark:decoration-white/20 dark:hover:text-indigo-300"
+						>
+							Kevin Le
+						</a>
+						{", "}
+						<a
+							href="https://www.linkedin.com/in/kellen-snider-683396256/"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="font-medium text-gray-700 underline decoration-gray-300 underline-offset-4 hover:text-indigo-600 dark:text-gray-200 dark:decoration-white/20 dark:hover:text-indigo-300"
+						>
+							Kellen Snider
+						</a>
+					</p>
+				</div>
 				<div className="flex w-full flex-col gap-3 sm:ms-auto sm:w-auto sm:flex-row sm:items-center">
 					<Link
 						href="/faq"

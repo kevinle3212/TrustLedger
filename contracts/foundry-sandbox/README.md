@@ -1,5 +1,8 @@
 # Foundry Sandbox
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This directory is an isolated Foundry project for minimal reproductions,
 experiments, and fork-test debugging. It is intentionally separate from the
 primary `contracts/` suite so contributors can build small cases without

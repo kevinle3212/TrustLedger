@@ -1,5 +1,8 @@
 # Frontend Claude Resources
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 These resources scope Claude sessions to the TrustLedger frontend and API
 surface under `src/`.
 

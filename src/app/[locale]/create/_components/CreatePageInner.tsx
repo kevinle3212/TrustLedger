@@ -7,6 +7,7 @@ import { ContractLivePreview } from "./ContractLivePreview";
 import { ContractFormFields } from "./ContractFormFields";
 import { CreateSuccessView } from "./CreateSuccessView";
 import { ReviewConfirmationPanel } from "./ReviewConfirmationPanel";
+import { SecureDraftSessionPanel } from "./SecureDraftSessionPanel";
 import { SubmitSummary } from "./SubmitSummary";
 
 export function CreatePageInner(): React.JSX.Element {
@@ -16,6 +17,7 @@ export function CreatePageInner(): React.JSX.Element {
 		state,
 		dispatch,
 		isConnected,
+		address,
 		isClientProposing,
 		isUsdc,
 		txHash,
@@ -39,6 +41,7 @@ export function CreatePageInner(): React.JSX.Element {
 		handleArweaveWalletLoad,
 		handleArweaveUpload,
 		handleConfirmDeploy,
+		applySharedDraft,
 	} = useCreatePageState();
 
 	const {
@@ -157,6 +160,18 @@ export function CreatePageInner(): React.JSX.Element {
 
 			<div className="tl-workspace-grid">
 				<form onSubmit={handleSubmit} className="flex flex-col gap-6">
+					<SecureDraftSessionPanel
+						state={state}
+						connectedWallet={address}
+						onTermsBodyChange={(value) => {
+							dispatch({ type: "SET_TERMS_BODY", value });
+						}}
+						onTermsFormatChange={(format) => {
+							dispatch({ type: "SET_TERMS_FORMAT", format });
+						}}
+						onImportDraft={applySharedDraft}
+					/>
+
 					<ContractFormFields
 						form={form}
 						set={set}
@@ -246,6 +261,9 @@ export function CreatePageInner(): React.JSX.Element {
 					form={form}
 					paymentToken={paymentToken}
 					isClientProposing={isClientProposing}
+					termsBody={state.termsBody}
+					termsFormat={state.termsFormat}
+					termsLastUpdatedAt={state.termsLastUpdatedAt}
 				/>
 			</div>
 		</div>

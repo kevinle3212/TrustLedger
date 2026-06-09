@@ -1,5 +1,8 @@
 # Cursor Settings
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Project-specific Cursor settings can live here when needed. The active routing
 behavior is defined by `.cursor/rules/*.mdc` and `.cursor/instructions/`.
 

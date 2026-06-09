@@ -6,6 +6,9 @@ version: "1.0.0"
 
 # CI Green Gate
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Use this skill before pushing, after fixing a failed GitHub Actions run, or
 before asking Vercel to redeploy.
 

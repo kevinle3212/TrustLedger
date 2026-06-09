@@ -1,5 +1,8 @@
 # GitHub Models prompts
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 `.prompt.yml` files for [GitHub Models](https://github.com/marketplace/models).
 Open in the Models playground or run via CI.
 

@@ -1,5 +1,8 @@
 # cleanup-commit
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Step-by-step agent guide for cleaning up code, resolving lint errors, and
 committing changes correctly in TrustLedger.
 

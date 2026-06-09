@@ -1,5 +1,8 @@
 # Frontend
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains the Next.js frontend under `src/`. Read it when changing
 wallet connection, contract calls, API routes, email flows, file handling, or
 frontend deployment.
@@ -69,6 +72,35 @@ JSON metadata with salt, IV, and ciphertext.
 
 IPFS upload support depends on `NEXT_PUBLIC_PINATA_JWT`. Legacy Pinata API key
 variables exist in `.env.example`, but current source does not consume them.
+
+## Live Contract Draft Collaboration
+
+The create-contract page supports encrypted draft sharing before deployment.
+`SecureDraftSessionPanel.tsx` lets parties write terms in Markdown, HTML, or
+plain text, apply small formatting helpers, and share a link plus a separate
+session key. The default share action creates a one-time encrypted draft link;
+live co-editing starts only when the user explicitly chooses **Start live
+room**.
+
+Collaboration is intentionally plaintext-blind:
+
+- The browser encrypts each draft snapshot with AES-GCM before it leaves the
+  device.
+- Snapshot share URLs contain `tl_draft` only; live-room URLs contain `tl_draft`
+  and `tl_room`. The separate session key is never sent to the server.
+- The connected wallet must match the encrypted allowlist before imported or
+  live room snapshots decrypt.
+- `useEncryptedDraftCollaboration.ts` debounces local edits, uses
+  `BroadcastChannel` for same-browser tab sync, and polls
+  `/api/create-collab/[roomId]` for cross-browser updates.
+- `/api/create-collab/[roomId]` stores only short-lived encrypted snapshots with
+  size limits, room validation, TTL pruning, and no plaintext contract terms.
+
+This is a production-shaped collaboration seam without committing the project to
+a vendor. For high-volume production rooms, replace the in-memory relay behind
+the same encrypted snapshot contract with Redis, Postgres realtime, Durable
+Objects, or a WebSocket service. Keep the browser-side encryption and wallet
+allowlist checks intact.
 
 ## Email And Notifications
 

@@ -1,5 +1,8 @@
 # Deployment
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains how to deploy TrustLedger locally, to Ethereum Sepolia,
 and as a containerized frontend with the current Foundry, Hardhat, GitHub
 Actions, Docker, and Kubernetes files.

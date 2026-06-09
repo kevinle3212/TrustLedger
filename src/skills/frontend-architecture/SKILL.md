@@ -7,6 +7,9 @@ description:
 
 # Frontend Architecture
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 - Keep route-specific components colocated with their route.
 - Keep shared primitives in `components/`.
 - Keep wallet setup and addresses in `lib/wagmi.ts`.

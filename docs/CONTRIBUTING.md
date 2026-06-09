@@ -1,5 +1,8 @@
 # Contributing
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains how to set up the repository, make changes, and pass the
 required checks. Read it before opening a pull request.
 

@@ -1,5 +1,8 @@
 # SWC And Generated Build Artifacts
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger relies on Next.js and its bundled SWC compiler for frontend builds.
 The repository does not use a root `.swcrc` because Next.js owns the runtime
 compiler pipeline, but the frontend now keeps an explicit SWC policy under

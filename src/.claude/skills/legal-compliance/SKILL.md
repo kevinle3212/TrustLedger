@@ -1,12 +1,22 @@
 # Legal Compliance Skill
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Use this Claude-facing skill when TrustLedger product, frontend, API, wallet,
 arbitration, risk, privacy, security, or user-policy changes could require legal
 document updates.
 
+This skill is mandatory whenever a change may affect user consent, funds custody
+expectations, wallet access, dispute resolution, privacy, cookies, sanctions,
+security disclosures, support paths, admin access, or user obligations.
+
 ## Workflow
 
 - Read `.sixth/skills/legal-compliance/SKILL.md` for the shared checklist.
+- Decide whether legal docs need owner review before release, and document the
+  affected files or surfaces in the task summary or an ignored `logs/*.md` note
+  when follow-up is needed.
 - Do not edit root legal draft markdown files without explicit user approval for
   those files.
 - Keep legal suggestions separate from committed edits when the drafts are under

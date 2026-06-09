@@ -1,5 +1,8 @@
 # GitHub Models
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains the GitHub Models helper scripts and workflow. Read it
 when changing model prompts, evaluation scripts, or the `github-models.yml`
 workflow.

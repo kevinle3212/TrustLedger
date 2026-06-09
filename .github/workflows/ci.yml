@@ -206,3 +206,37 @@ jobs:
 
             - name: Gas snapshot diff (informational, non-blocking)
               run: forge snapshot --check || true
+
+    rust:
+        name: Rust (build + lint + test)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Rust
+              uses: dtolnay/rust-toolchain@stable
+              with:
+                  toolchain: 1.82.0
+                  components: rustfmt, clippy
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - name: Install Node dependencies
+              run: npm ci
+
+            - name: Build Rust workspace
+              run: npm run rust:build
+
+            - name: Check Rust formatting
+              run: npm run rust:fmt
+
+            - name: Run Clippy
+              run: npm run rust:clippy
+
+            - name: Run Rust tests
+              run: npm run rust:test
