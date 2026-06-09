@@ -11,7 +11,8 @@
 		"logoAlt": "TrustLedger 标志",
 		"viewGitHub": "在 GitHub 上查看代码",
 		"changeLanguage": "切换语言",
-		"skipToMain": "跳转到主要内容"
+		"skipToMain": "跳转到主要内容",
+		"faq": "常见问题"
 	},
 	"FooterHelp": {
 		"buttonLabel": "Guide",

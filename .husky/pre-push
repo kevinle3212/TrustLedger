@@ -1,4 +1,13 @@
 set -e
+echo "pre-push: root lint"
+npm run lint
+echo "pre-push: frontend lint"
 npm run lint:frontend
+echo "pre-push: typecheck"
+npm run typecheck
+echo "pre-push: frontend unit tests"
+npm run test:frontend:unit
+echo "pre-push: frontend E2E"
 (cd src && npm run test:e2e)
+echo "pre-push: contracts"
 (cd contracts && FOUNDRY_PROFILE=ci forge build && FOUNDRY_PROFILE=ci forge test)

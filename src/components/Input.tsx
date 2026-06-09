@@ -10,12 +10,12 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & { error?: boolea
 export function Input({ error = false, className, ...props }: InputProps): React.JSX.Element {
 	const generatedId = useId();
 	const fieldId = use(FieldIdContext);
-	const id = props.id ?? fieldId ?? generatedId;
+	const id = fieldId ?? props.id ?? generatedId;
 	return (
 		<input
+			{...props}
 			id={id}
 			aria-invalid={error}
-			{...props}
 			className={`${controlClass(INPUT_BG, error)}${className !== undefined && className !== "" ? ` ${className}` : ""}`}
 		/>
 	);

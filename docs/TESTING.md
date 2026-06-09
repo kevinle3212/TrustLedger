@@ -52,6 +52,13 @@ chain.
 
 ## Frontend Tests
 
+Run unit tests:
+
+```bash
+cd src
+npm run test:unit
+```
+
 Install the Chromium browser used by Playwright:
 
 ```bash

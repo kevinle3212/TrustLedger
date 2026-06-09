@@ -5,7 +5,14 @@ required checks. Read it before opening a pull request.
 
 ## Setup
 
-Install root dependencies:
+Use the bootstrapper for a guided setup with selectable install groups:
+
+```bash
+bash tools/setup.sh --help
+bash tools/setup.sh
+```
+
+For manual setup, install root dependencies:
 
 ```bash
 npm install
@@ -28,11 +35,29 @@ cp .env.example .env
 
 Read [Environment](ENVIRONMENT.md) before filling secrets.
 
+### Serena Dashboard
+
+Serena's dashboard remains enabled for local code navigation logs, but it should
+not open automatically on startup. Configure this globally in
+`~/.serena/serena_config.yml`:
+
+```yaml
+web_dashboard: true
+web_dashboard_open_on_launch: false
+```
+
+Open the dashboard manually at
+[http://localhost:24282/dashboard/index.html](http://localhost:24282/dashboard/index.html).
+If that port is already in use, Serena may choose the next available port, such
+as `24283` or `24284`.
+
 ## Development Workflow
 
 Use small branches and keep generated build output out of commits. The
 repository ignores normal build artifacts such as `artifacts/`,
-`contracts/out/`, `contracts/cache/`, `src/.next/`, and `src/node_modules/`.
+`contracts/out/`, `contracts/cache/`, `src/.next/`, and `src/node_modules/`. The
+root `site/` directory is MkDocs generated output and remains ignored; edit
+source pages in `docs/` instead.
 
 Before opening a PR, run the relevant checks:
 

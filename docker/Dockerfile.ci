@@ -1,4 +1,4 @@
-ARG FOUNDRY_TAG=latest
+ARG FOUNDRY_TAG=v1.5.1
 ARG NODE_VERSION=22
 
 FROM ghcr.io/foundry-rs/foundry:${FOUNDRY_TAG} AS foundry-base
@@ -8,12 +8,17 @@ FROM node:${NODE_VERSION}-slim AS ci
 COPY --from=foundry-base /usr/local/bin/forge /usr/local/bin/forge
 COPY --from=foundry-base /usr/local/bin/cast  /usr/local/bin/cast
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash git ca-certificates python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
+
+COPY src/package.json src/package-lock.json ./src/
+RUN cd src && npm ci
 
 COPY . .
 RUN git submodule update --init --recursive 2>/dev/null || true
@@ -23,3 +28,5 @@ RUN npm run compile
 RUN npm run hardhat:test
 
 RUN cd contracts && forge test -vv
+
+RUN cd src && npm test -- --runInBand

@@ -72,7 +72,7 @@ export function ThemeToggle(): React.JSX.Element {
 				setTheme(isDark ? "light" : "dark");
 			}}
 			aria-label={isDark ? t("switchToLightMode") : t("switchToDarkMode")}
-			className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white sm:min-h-9 sm:min-w-9"
+			className="tl-button-motion inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white sm:min-h-9 sm:min-w-9"
 		>
 			{isDark ? <SunIcon /> : <MoonIcon />}
 		</button>

@@ -89,6 +89,7 @@ function ActionButton({
 	return (
 		<button
 			type="button"
+			aria-busy={isPending || isConfirming}
 			disabled={(disabled ?? false) || isPending || isConfirming}
 			onClick={() => {
 				writeContract({
@@ -99,9 +100,9 @@ function ActionButton({
 					...(value !== undefined ? { value } : {}),
 				});
 			}}
-			className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
+			className="tl-button-motion rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
 		>
-			{isPending || isConfirming ? "…" : label}
+			{isPending ? "Pending..." : isConfirming ? "Confirming..." : label}
 		</button>
 	);
 }
@@ -206,9 +207,10 @@ function TokenFundButton({
 	return (
 		<button
 			type="button"
+			aria-busy={busy}
 			disabled={(disabled ?? false) || busy}
 			onClick={handleClick}
-			className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
+			className="tl-button-motion rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
 		>
 			{buttonLabel}
 		</button>
@@ -284,10 +286,11 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 				/>
 				<button
 					type="submit"
+					aria-busy={isPending || isConfirming}
 					disabled={isPending || isConfirming || scoreError !== undefined}
-					className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-medium transition-colors"
+					className="tl-button-motion rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
 				>
-					{isPending || isConfirming ? "…" : t("submitRating")}
+					{isPending ? "Pending..." : isConfirming ? "Confirming..." : t("submitRating")}
 				</button>
 			</div>
 			{touched && scoreError !== undefined && (
@@ -371,8 +374,9 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 			)}
 			<button
 				type="submit"
+				aria-busy={isPending || isConfirming}
 				disabled={isPending || isConfirming || uriError !== undefined}
-				className="px-3 py-1.5 text-xs rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium transition-colors"
+				className="tl-button-motion rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
 			>
 				{isPending || isConfirming ? t("submitting") : t("submitWork")}
 			</button>
@@ -412,7 +416,7 @@ function ContractCard({
 	const statusLabel = tStatus(STATUS_KEYS[status] ?? "PENDING");
 
 	return (
-		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
+		<div className="tl-motion-card flex flex-col gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div className="min-w-0">
 					<span className="text-xs text-gray-500 font-mono">#{id.toString()}</span>
@@ -430,7 +434,7 @@ function ContractCard({
 					</span>
 				</div>
 				<span
-					className={`w-fit shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status] ?? ""}`}
+					className={`tl-status-badge ${status === 1 ? "tl-status-badge--active" : ""} w-fit shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status] ?? ""}`}
 				>
 					{statusLabel}
 				</span>
@@ -773,7 +777,7 @@ function SummaryBanner({
 			{chips.map((c) => (
 				<div
 					key={c.key}
-					className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 py-3"
+					className="tl-motion-card rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-white/10 dark:bg-white/5"
 				>
 					<p className="text-xs text-gray-500 uppercase tracking-wide font-medium">
 						{c.label}
@@ -805,7 +809,7 @@ function ExampleContractPreview(): React.JSX.Element {
 						{t("exampleSubtitle")}
 					</p>
 				</div>
-				<span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
+				<span className="tl-status-badge tl-status-badge--active shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
 					{t("active")}
 				</span>
 			</div>
@@ -833,7 +837,7 @@ function DashboardEmptyState({
 		role === "client" ? t("isClient").toLowerCase() : t("isFreelancer").toLowerCase();
 
 	return (
-		<section className="rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/5 sm:p-8">
+		<section className="tl-empty-panel rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/5 sm:p-8">
 			<div className="grid gap-8 lg:grid-cols-[1fr_18rem] lg:items-center">
 				<div className="max-w-xl">
 					<h2 className="text-2xl font-semibold tracking-[-0.015em] text-gray-900 dark:text-white">
@@ -845,14 +849,14 @@ function DashboardEmptyState({
 					<div className="mt-6 flex flex-col gap-3 sm:flex-row">
 						<Link
 							href="/create"
-							className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:focus-visible:ring-offset-gray-950"
+							className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:focus-visible:ring-offset-gray-950"
 						>
 							{t("createFirst")}
 						</Link>
 						<button
 							type="button"
 							onClick={onShowHelp}
-							className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white dark:focus-visible:ring-offset-gray-950"
+							className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white dark:focus-visible:ring-offset-gray-950"
 						>
 							{t("showWalkthrough")}
 						</button>
@@ -885,7 +889,7 @@ function DashboardHelpButton({ onClick }: { onClick: () => void }): React.JSX.El
 				type="button"
 				onClick={onClick}
 				aria-label={t("helpAriaLabel")}
-				className="group relative flex size-11 items-center justify-center rounded-full border border-gray-200 bg-white text-lg font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
+				className="tl-button-motion group relative flex size-11 items-center justify-center rounded-full border border-gray-200 bg-white text-lg font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
 			>
 				?
 				<span
@@ -1057,12 +1061,21 @@ function ContractList({
 
 	if (isLoading && visibleContracts.length === 0) {
 		return (
-			<div className="space-y-4" aria-label="Loading contracts">
+			<div className="space-y-4" aria-live="polite" aria-label="Loading contracts">
 				{[0, 1, 2].map((item) => (
 					<div
 						key={item}
-						className="h-36 animate-pulse rounded-2xl border border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-white/5"
-					/>
+						className="tl-skeleton-card rounded-2xl border border-gray-200 p-5 dark:border-white/10"
+					>
+						<div className="h-4 w-16 rounded-full bg-gray-200/80 dark:bg-white/10" />
+						<div className="mt-4 h-5 w-2/3 rounded-full bg-gray-200/80 dark:bg-white/10" />
+						<div className="mt-6 grid gap-3 sm:grid-cols-2">
+							<div className="h-4 rounded-full bg-gray-200/80 dark:bg-white/10" />
+							<div className="h-4 rounded-full bg-gray-200/80 dark:bg-white/10" />
+							<div className="h-4 rounded-full bg-gray-200/80 dark:bg-white/10" />
+							<div className="h-4 rounded-full bg-gray-200/80 dark:bg-white/10" />
+						</div>
+					</div>
 				))}
 			</div>
 		);

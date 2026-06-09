@@ -1,0 +1,15 @@
+---
+description: Frontend guidance for the Next.js app
+globs:
+    - "src/app/**/*"
+    - "src/components/**/*"
+    - "src/contexts/**/*"
+    - "src/lib/**/*"
+alwaysApply: false
+---
+
+Use React, Next.js App Router, strict TypeScript, accessible controls, stable
+responsive layouts, localized copy, and existing Tailwind conventions. Keep
+wallet logic isolated to wagmi/Reown helpers and avoid exposing non-`NEXT_PUBLIC_*`
+values to the browser. Run `cd src && npx tsc --noEmit`, `npm run lint:frontend`,
+and relevant Jest/Playwright tests after frontend changes.

@@ -67,6 +67,7 @@ nav:
     - Testing: TESTING.md
     - Security: SECURITY.md
     - Environment: ENVIRONMENT.md
+    - Sepolia Faucets: FAUCETS.md
     - CI/CD: CI-CD.md
     - Contributing: CONTRIBUTING.md
     - Frontend: FRONTEND.md

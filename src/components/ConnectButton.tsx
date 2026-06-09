@@ -67,7 +67,7 @@ function CheckIcon(): React.JSX.Element {
 }
 
 const BUTTON_CLASS =
-	"inline-flex min-h-10 max-w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-[44px] sm:px-4";
+	"tl-button-motion inline-flex min-h-10 max-w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-[44px] sm:px-4";
 
 // Hydration-safe "are we on the client yet?" flag. useSyncExternalStore returns
 // the server snapshot (false) during SSR and the first client render, then the
@@ -141,7 +141,7 @@ export function ConnectButton(): React.JSX.Element {
 					type="button"
 					onClick={openModal}
 					aria-label={t("connectedAs", { address })}
-					className="inline-flex min-h-10 min-w-0 items-center justify-center px-4 py-2 font-mono text-sm font-semibold transition-colors hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:px-5"
+					className="tl-button-motion inline-flex min-h-10 min-w-0 items-center justify-center px-4 py-2 font-mono text-sm font-semibold hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:px-5"
 				>
 					<span aria-hidden="true" className="truncate">
 						{formatAddress(address)}
@@ -152,7 +152,7 @@ export function ConnectButton(): React.JSX.Element {
 					onClick={copyAddress}
 					aria-label={copied ? t("addressCopied") : t("copyWalletAddress")}
 					title={copied ? t("copied") : t("copyAddress")}
-					className="inline-flex min-h-10 w-10 shrink-0 items-center justify-center border-l border-white/20 text-white/90 transition-colors hover:bg-indigo-500 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:w-11"
+					className="tl-button-motion inline-flex min-h-10 w-10 shrink-0 items-center justify-center border-l border-white/20 text-white/90 hover:bg-indigo-500 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:w-11"
 				>
 					{copied ? <CheckIcon /> : <CopyIcon />}
 				</button>

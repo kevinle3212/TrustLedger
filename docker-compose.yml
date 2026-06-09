@@ -9,44 +9,60 @@
 #   docker compose up demo-jurors     # reputation:  minority slash, before/after reputation table
 #   docker compose up demo-stablecoin # ERC-20 escrow, gas comparison, bidirectional reputation
 #   docker compose up node         # local chain only (port 8545 open for MetaMask / Remix)
-#   docker compose run test        # run all 73 Hardhat tests + Foundry unit + fuzz tests
+#   docker compose run test        # run Hardhat + Foundry tests
+#   docker compose run frontend-test # run frontend unit tests
+
+x-trustledger-build: &trustledger-build
+    context: .
+    dockerfile: Dockerfile
+
+x-demo-service: &demo-service
+    build: *trustledger-build
+    profiles: ["demo"]
+    ports:
+        - "${TRUSTLEDGER_RPC_PORT:-8545}:8545"
+    restart: "no"
 
 services:
     demo-good:
-        build: .
+        <<: *demo-service
         environment:
             DEMO: good
-        ports:
-            - "8545:8545"
 
     demo-bad:
-        build: .
+        <<: *demo-service
         environment:
             DEMO: bad
-        ports:
-            - "8545:8545"
 
     demo-jurors:
-        build: .
+        <<: *demo-service
         environment:
             DEMO: jurors
-        ports:
-            - "8545:8545"
 
     demo-stablecoin:
-        build: .
+        <<: *demo-service
         environment:
             DEMO: stablecoin
-        ports:
-            - "8545:8545"
 
     node:
-        build: .
+        build: *trustledger-build
+        profiles: ["dev"]
         environment:
             DEMO: node
         ports:
-            - "8545:8545"
+            - "${TRUSTLEDGER_RPC_PORT:-8545}:8545"
+        healthcheck:
+            test: ["CMD-SHELL", "cast block-number --rpc-url http://127.0.0.1:8545 >/dev/null 2>&1"]
+            interval: 5s
+            timeout: 5s
+            retries: 20
 
     test:
-        build: .
+        build: *trustledger-build
+        profiles: ["test"]
         entrypoint: ["/bin/bash", "-c", "npm run hardhat:test && npm run foundry:test"]
+
+    frontend-test:
+        build: *trustledger-build
+        profiles: ["test"]
+        entrypoint: ["/bin/bash", "-c", "cd src && npm test -- --runInBand"]

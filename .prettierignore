@@ -36,6 +36,7 @@ src/next-env.d.ts
 
 # ─── Tool local config ───────────────────────────────────────────────────────
 .claude/
+.serena/
 .sixth/
 
 # ─── Git hooks (no file extension — prettier cannot infer a parser) ───────────

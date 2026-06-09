@@ -1,6 +1,9 @@
 set -e
-prettier --write . && git add -u
-npm run lint && npm run lint:frontend
-(cd src && npx tsc --noEmit)
-(cd src && npm run test:e2e)
-(cd contracts && FOUNDRY_PROFILE=ci forge build && FOUNDRY_PROFILE=ci forge test)
+echo "pre-commit: formatting"
+npm run lint:prettier
+echo "pre-commit: root lint"
+npm run lint
+echo "pre-commit: frontend lint"
+npm run lint:frontend
+echo "pre-commit: typecheck"
+npm run typecheck

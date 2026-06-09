@@ -1,5 +1,7 @@
-@import "tailwindcss";
-@import "./app-desktop.css";
+@use "./app-desktop.scss";
+@use "sass:meta";
+
+@include meta.load-css("tailwindcss");
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -14,6 +16,172 @@
 
 body {
 	font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+}
+
+::selection {
+	background: rgb(99 102 241 / 0.18);
+	color: #111827;
+}
+
+.dark ::selection {
+	color: #ffffff;
+}
+
+$tl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+$tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+@keyframes tl-soft-float {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-0.375rem);
+	}
+}
+
+@keyframes tl-skeleton-shimmer {
+	0% {
+		background-position: 120% 0;
+	}
+	100% {
+		background-position: -120% 0;
+	}
+}
+
+@keyframes tl-status-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 rgb(99 102 241 / 0);
+	}
+	50% {
+		box-shadow: 0 0 0 0.25rem rgb(99 102 241 / 0.1);
+	}
+}
+
+@keyframes tl-panel-in {
+	from {
+		opacity: 0.88;
+		transform: translateY(0.375rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.tl-not-found-mark {
+	animation: tl-soft-float 5s ease-in-out infinite;
+}
+
+.tl-focus-ring {
+	outline: 2px solid transparent;
+	outline-offset: 2px;
+
+	&:focus-visible {
+		outline-color: #6366f1;
+	}
+}
+
+.tl-motion-card {
+	animation: tl-panel-in 220ms $tl-ease-out both;
+	transition:
+		border-color 180ms $tl-ease-standard,
+		background-color 180ms $tl-ease-standard,
+		transform 180ms $tl-ease-out;
+
+	&:hover {
+		border-color: #d1d5db;
+		transform: translateY(-1px);
+	}
+}
+
+.dark .tl-motion-card:hover {
+	border-color: rgb(255 255 255 / 0.18);
+}
+
+.tl-button-motion {
+	position: relative;
+	overflow: hidden;
+	transition:
+		background-color 160ms $tl-ease-standard,
+		border-color 160ms $tl-ease-standard,
+		color 160ms $tl-ease-standard,
+		transform 160ms $tl-ease-out;
+
+	&:not(:disabled):active {
+		transform: translateY(1px);
+	}
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+}
+
+.tl-nav-link {
+	position: relative;
+
+	&[aria-current="page"]::after {
+		position: absolute;
+		inset-inline: 0.25rem;
+		bottom: 0.25rem;
+		height: 2px;
+		border-radius: 9999px;
+		background: #6366f1;
+		content: "";
+	}
+}
+
+.tl-status-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+
+	&::before {
+		width: 0.375rem;
+		height: 0.375rem;
+		border-radius: 9999px;
+		background: currentColor;
+		content: "";
+	}
+}
+
+.tl-status-badge--active {
+	animation: tl-status-pulse 2.4s $tl-ease-out infinite;
+}
+
+.tl-skeleton-card {
+	overflow: hidden;
+	background:
+		linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.7) 50%, transparent 100%),
+		#f9fafb;
+	background-size:
+		240% 100%,
+		100% 100%;
+	animation: tl-skeleton-shimmer 1.4s $tl-ease-out infinite;
+}
+
+.dark .tl-skeleton-card {
+	background:
+		linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.08) 50%, transparent 100%),
+		rgb(255 255 255 / 0.05);
+	background-size:
+		240% 100%,
+		100% 100%;
+}
+
+.tl-empty-panel {
+	position: relative;
+	overflow: hidden;
+
+	&::before {
+		position: absolute;
+		inset-inline: 1rem;
+		top: 0;
+		height: 1px;
+		background: linear-gradient(90deg, transparent, rgb(99 102 241 / 0.35), transparent);
+		content: "";
+	}
 }
 
 .tl-kv-grid {
@@ -51,6 +219,17 @@ body {
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
+	}
+
+	.tl-not-found-mark {
+		animation: none !important;
+	}
+
+	.tl-motion-card,
+	.tl-status-badge--active,
+	.tl-skeleton-card {
+		animation: none !important;
+		transform: none !important;
 	}
 }
 
@@ -97,6 +276,11 @@ body {
 		border-color 150ms ease,
 		color 150ms ease,
 		box-shadow 150ms ease;
+
+	&:focus-visible {
+		outline: 2px solid #6366f1;
+		outline-offset: 2px;
+	}
 }
 
 .locale-switcher__button:hover {

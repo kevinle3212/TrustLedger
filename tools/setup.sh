@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# setup.sh — TrustLedger one-shot development environment bootstrapper.
+# tools/setup.sh — TrustLedger development environment bootstrapper.
 # =============================================================================
 #
 # WHAT THIS DOES
@@ -16,12 +16,16 @@
 #   • Other UNIX-likes (best effort; manual steps reported at the end)
 #
 # USAGE
-#   bash setup.sh                 # interactive (asks before each install)
-#   bash setup.sh --yes           # assume "yes" to every install prompt
-#   bash setup.sh --non-interactive   # never prompt; only verify + report
-#   bash setup.sh --skip-install      # verify tools + report, install nothing
-#   bash setup.sh --no-color          # disable ANSI colors (CI/log files)
-#   bash setup.sh --help              # show this help
+#   bash tools/setup.sh                    # interactive full setup
+#   bash tools/setup.sh --yes              # assume "yes" to install prompts
+#   bash tools/setup.sh --non-interactive  # verify + report; never prompt
+#   bash tools/setup.sh --skip-install     # verify only; install nothing
+#   bash tools/setup.sh --only node,npm    # run selected setup groups only
+#   bash tools/setup.sh --skip docker,env  # skip selected setup groups
+#   bash tools/setup.sh --list             # print available setup groups
+#   bash tools/setup.sh --debug            # print commands before execution
+#   bash tools/setup.sh --no-color         # disable ANSI colors (CI/log files)
+#   bash tools/setup.sh --help             # show this help
 #
 # EXIT CODES
 #   0  everything required is present (installs may have happened)
@@ -41,7 +45,9 @@ set -uo pipefail
 # Configuration — required tool versions (single source of truth).
 # -----------------------------------------------------------------------------
 readonly REQUIRED_NODE_MAJOR=22          # package.json engines.node = ">=22.0.0"
-readonly REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly SETUP_GROUPS=(platform git node foundry python rtk serena docker npm contracts env hooks smoke)
 
 # -----------------------------------------------------------------------------
 # Global state — populated as the script runs, printed in the final report.
@@ -53,6 +59,13 @@ ASSUME_YES=0
 INTERACTIVE=1
 SKIP_INSTALL=0
 USE_COLOR=1
+DEBUG=0
+ONLY_GROUPS=""
+SKIP_GROUPS=""
+OS="unknown"
+PKG="unknown"
+ARCH="unknown"
+IS_WSL=0
 
 # -----------------------------------------------------------------------------
 # Pretty output helpers.
@@ -73,6 +86,7 @@ ok()       { printf '%s✓%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
 warn()     { printf '%s!%s %s\n' "$C_YELLOW" "$C_RESET" "$*"; }
 err()      { printf '%s✗%s %s\n' "$C_RED" "$C_RESET" "$*"; }
 heading()  { printf '\n%s%s== %s ==%s\n' "$C_BOLD" "$C_CYAN" "$*" "$C_RESET"; }
+debug()    { [[ "$DEBUG" -eq 1 ]] && printf '%sdebug:%s %s\n' "$C_DIM" "$C_RESET" "$*"; }
 
 # Record a failed REQUIRED step (does not abort the run).
 fail_step()  { err "$1"; FAILURES+=("$1 :: $2"); }
@@ -98,6 +112,57 @@ ask() {
 # has <cmd> — true if a command exists on PATH.
 has() { command -v "$1" >/dev/null 2>&1; }
 
+run_cmd() {
+    debug "running: $*"
+    "$@"
+}
+
+print_groups() {
+    printf 'Available setup groups:\n'
+    printf '  %s\n' "${SETUP_GROUPS[@]}"
+}
+
+csv_contains() {
+    local csv="$1"
+    local needle="$2"
+    [[ ",${csv}," == *",${needle},"* ]]
+}
+
+validate_groups() {
+    local raw="$1"
+    local label="$2"
+    [[ -z "$raw" ]] && return 0
+    local value found
+    IFS=',' read -ra values <<< "$raw"
+    for value in "${values[@]}"; do
+        found=0
+        for group in "${SETUP_GROUPS[@]}"; do
+            [[ "$value" == "$group" ]] && found=1
+        done
+        if [[ "$found" -eq 0 ]]; then
+            printf 'Unknown %s group: %s\n\n' "$label" "$value" >&2
+            print_groups >&2
+            exit 2
+        fi
+    done
+}
+
+should_run() {
+    local group="$1"
+    if [[ -n "$ONLY_GROUPS" ]] && ! csv_contains "$ONLY_GROUPS" "$group"; then return 1; fi
+    if [[ -n "$SKIP_GROUPS" ]] && csv_contains "$SKIP_GROUPS" "$group"; then return 1; fi
+    return 0
+}
+
+run_group() {
+    local group="$1"; shift
+    if should_run "$group"; then
+        "$@"
+    else
+        debug "skipping group '${group}'"
+    fi
+}
+
 # -----------------------------------------------------------------------------
 # Argument parsing.
 # -----------------------------------------------------------------------------
@@ -108,11 +173,22 @@ parse_args() {
             --non-interactive) INTERACTIVE=0 ;;
             --skip-install)    SKIP_INSTALL=1 ;;
             --no-color)        USE_COLOR=0 ;;
-            --help|-h)         sed -n '2,40p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+            --debug|-d)        DEBUG=1 ;;
+            --list)            print_groups; exit 0 ;;
+            --only)            shift; [[ $# -gt 0 ]] || { printf '--only requires comma-separated groups\n' >&2; exit 2; }; ONLY_GROUPS="$1" ;;
+            --only=*)          ONLY_GROUPS="${1#--only=}" ;;
+            --skip)            shift; [[ $# -gt 0 ]] || { printf '--skip requires comma-separated groups\n' >&2; exit 2; }; SKIP_GROUPS="$1" ;;
+            --skip=*)          SKIP_GROUPS="${1#--skip=}" ;;
+            --help|-h)         sed -n '2,37p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
             *) printf 'Unknown option: %s (use --help)\n' "$1" >&2; exit 2 ;;
         esac
         shift
     done
+    validate_groups "$ONLY_GROUPS" "--only"
+    validate_groups "$SKIP_GROUPS" "--skip"
+    if [[ -n "$ONLY_GROUPS" && -n "$SKIP_GROUPS" ]]; then
+        printf 'Warning: --only and --skip were both provided; --skip is applied after --only.\n' >&2
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -145,7 +221,7 @@ detect_platform() {
     if [[ "$OS" == "windows" ]]; then
         warn "Native Windows shells (Git Bash/MSYS2) cannot run Foundry reliably."
         warn "Strongly recommended: install WSL2 (Ubuntu) and re-run this script there."
-        manual_step "Windows: install WSL2 — run in PowerShell (admin): 'wsl --install -d Ubuntu', reboot, then re-run setup.sh inside Ubuntu."
+        manual_step "Windows: install WSL2 — run in PowerShell (admin): 'wsl --install -d Ubuntu', reboot, then re-run tools/setup.sh inside Ubuntu."
     elif [[ "$OS" == "other" ]]; then
         warn "Unrecognized OS — tool installation will be skipped; you'll get manual instructions."
     fi
@@ -313,6 +389,28 @@ check_serena() {
     fi
 }
 
+# --- Docker (optional: local demos, CI parity, reproducible test containers) ---
+check_docker() {
+    heading "Docker (optional — demos and CI parity)"
+    if ! has docker; then
+        warn_step "docker missing (optional)" "Install Docker Desktop on macOS/Windows or Docker Engine on Linux. Then verify with 'docker --version'."
+        return
+    fi
+
+    ok "docker $(docker --version | sed 's/^Docker version //')"
+    if docker compose version >/dev/null 2>&1; then
+        ok "docker compose $(docker compose version --short 2>/dev/null || docker compose version)"
+    else
+        warn_step "docker compose plugin missing" "Install the Docker Compose v2 plugin. The project uses 'docker compose', not legacy 'docker-compose'."
+    fi
+
+    if docker info >/dev/null 2>&1; then
+        ok "Docker daemon is reachable."
+    else
+        warn_step "Docker daemon is not running" "Start Docker Desktop or the Docker service, then run: docker info"
+    fi
+}
+
 # =============================================================================
 # Project dependency installation.
 # =============================================================================
@@ -321,8 +419,8 @@ check_serena() {
 run_required() {
     local title="$1"; shift
     info "${title}…"
-    if "$@"; then ok "${title}"; else
-        fail_step "${title} failed" "Re-run manually: ( $* ) and read the error output above."
+    if run_cmd "$@"; then ok "${title}"; else
+        fail_step "${title} failed" "Re-run manually: ( cd '${PWD#"$REPO_ROOT"/}' && $* ) and inspect the error above. Use --debug for command tracing."
     fi
 }
 
@@ -454,18 +552,19 @@ main() {
     setup_colors
     printf '%s%sTrustLedger setup%s — %s\n' "$C_BOLD" "$C_CYAN" "$C_RESET" "$(date '+%Y-%m-%d %H:%M:%S')"
 
-    detect_platform
-    check_git
-    check_node
-    check_foundry
-    check_python
-    check_rtk
-    check_serena
-    install_npm_deps
-    install_contracts
-    setup_env_files
-    enable_git_hooks
-    smoke_check
+    run_group platform detect_platform
+    run_group git check_git
+    run_group node check_node
+    run_group foundry check_foundry
+    run_group python check_python
+    run_group rtk check_rtk
+    run_group serena check_serena
+    run_group docker check_docker
+    run_group npm install_npm_deps
+    run_group contracts install_contracts
+    run_group env setup_env_files
+    run_group hooks enable_git_hooks
+    run_group smoke smoke_check
     print_report
 }
 

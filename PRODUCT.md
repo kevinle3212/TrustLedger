@@ -74,4 +74,4 @@ WCAG AA minimum throughout. All color-conveyed state information (contract
 status badges, error/success indicators, action buttons) has a non-color
 fallback: icon, label, or shape. Palette verified at 4.5:1 body text contrast
 and 3:1 for large/bold text. Reduced-motion preference already honored globally
-in `globals.css`.
+in `globals.scss`.

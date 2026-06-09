@@ -34,5 +34,7 @@ declare namespace NodeJS {
 		NEXT_PUBLIC_APP_URL?: string;
 		NEXT_PUBLIC_GITHUB_URL?: string;
 		NEXT_PUBLIC_PINATA_JWT?: string;
+		ORACLE_PRICE_SOURCE_URL?: string;
+		ORACLE_RATE_TTL_MS?: string;
 	}
 }

@@ -1,4 +1,4 @@
-ARG FOUNDRY_TAG=latest
+ARG FOUNDRY_TAG=v1.5.1
 ARG NODE_VERSION=22
 
 FROM ghcr.io/foundry-rs/foundry:${FOUNDRY_TAG} AS foundry-base
@@ -9,12 +9,17 @@ COPY --from=foundry-base /usr/local/bin/forge /usr/local/bin/forge
 COPY --from=foundry-base /usr/local/bin/cast  /usr/local/bin/cast
 COPY --from=foundry-base /usr/local/bin/anvil /usr/local/bin/anvil
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash git curl ca-certificates python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
+
+COPY src/package.json src/package-lock.json ./src/
+RUN cd src && npm ci
 
 COPY . .
 
@@ -24,5 +29,8 @@ RUN npm run compile \
     && cd contracts && forge build
 
 EXPOSE 8545
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=12 \
+    CMD cast block-number --rpc-url http://127.0.0.1:8545 >/dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["bash", "scripts/docker-demo.sh"]
