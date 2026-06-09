@@ -20,6 +20,7 @@ and frontend contributors working on TrustLedger.
 | [GitHub Models](GITHUB_MODELS.md)       | AI helper scripts, prompt evaluation, and workflow notes.               |
 | [TypeScript SDK](TYPESCRIPT-SDK.md)     | ABI, TypeChain, helper exports, and TypeScript usage.                   |
 | [Security](SECURITY.md)                 | Access control, escrow risks, arbitration risks, and audit status.      |
+| [Legal And Compliance](LEGAL.md)        | Legal document inventory, review triggers, and jurisdiction caveats.    |
 | [Contributing](CONTRIBUTING.md)         | Setup, style, linting, docs, and PR expectations.                       |
 
 ## Compatibility Pages

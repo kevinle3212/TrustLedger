@@ -145,6 +145,10 @@ npm run doctor            # React Doctor (score + verbose findings)
 
 Use `src/.claude/skills/update-context/SKILL.md` after repository changes so
 docs, comments, visible project surfaces, and agent instructions stay current.
+Use `src/.claude/skills/legal-compliance/SKILL.md` when product behavior, copy,
+docs, wallet flows, arbitration, risk, privacy, or security disclosure changes
+could require legal document review. Do not edit root legal draft markdown files
+without explicit approval for those files.
 
 Add a brief doc comment above any new code element (feature, function,
 component, env var) when warranted: what it does, key params/returns, and an

@@ -131,3 +131,6 @@ cd src
 npm run build:frontend
 npm run start:frontend
 ```
+
+The canonical deployed frontend route is
+`https://trustledger-zeta.vercel.app/en`.

@@ -4,14 +4,22 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-function QuestionMarkIcon(): React.JSX.Element {
+function GuideBookIcon(): React.JSX.Element {
 	return (
-		<span
+		<svg
 			aria-hidden="true"
-			className="flex size-6 items-center justify-center rounded-full border border-current text-sm font-semibold leading-none"
+			viewBox="0 0 24 24"
+			className="size-5"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.8"
+			strokeLinecap="round"
+			strokeLinejoin="round"
 		>
-			?
-		</span>
+			<path d="M12 6.5v13" />
+			<path d="M5 4.5h4.5A2.5 2.5 0 0 1 12 7v12.5a2.5 2.5 0 0 0-2.5-2.5H5z" />
+			<path d="M19 4.5h-4.5A2.5 2.5 0 0 0 12 7v12.5a2.5 2.5 0 0 1 2.5-2.5H19z" />
+		</svg>
 	);
 }
 
@@ -61,7 +69,7 @@ export function FooterHelp(): React.JSX.Element {
 				aria-label={t("buttonAriaLabel")}
 				title={t("buttonTooltip")}
 			>
-				<QuestionMarkIcon />
+				<GuideBookIcon />
 				<span>{t("buttonLabel")}</span>
 			</button>
 			{open && (

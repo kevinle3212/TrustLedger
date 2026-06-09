@@ -15,6 +15,14 @@
 *.tsx text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+*.svg text eol=lf
+
+package-lock.json text eol=lf merge=union
+src/package-lock.json text eol=lf merge=union
+
+contracts/out/** -diff linguist-generated=true
+artifacts/** -diff linguist-generated=true
+src/.next/** -diff linguist-generated=true
 
 *.avif binary
 *.gif binary

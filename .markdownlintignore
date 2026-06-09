@@ -37,6 +37,17 @@ src/.claude/
 # These files may contain incomplete or unformatted content.
 
 NOTES.local.md
+ACCEPTABLE_USE_POLICY.md
+COMMUNITY_GUIDELINES.md
+CONTENT_POLICY.md
+COOKIE_POLICY.md
+DISCLAIMER.md
+DISCLAIMER 2.md
+DMCA_POLICY.md
+PRIVACY_POLICY.md
+RISK_DISCLOSURE.md
+TERMS_AND_CONDITIONS.md
+TRADEMARK_POLICY.md
 
 ## Non-Markdown Files With Hash Comments
 # These version-pin files use `#` comment headers that markdownlint would

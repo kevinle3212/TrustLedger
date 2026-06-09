@@ -11,6 +11,7 @@ contributors should run.
 - [Env Sync](env-sync/SKILL.md)
 - [Foundry Sandbox](foundry-sandbox/SKILL.md)
 - [Kubernetes](kubernetes/SKILL.md)
+- [Legal Compliance](legal-compliance/SKILL.md)
 - [Log Markdown](log-markdown/SKILL.md)
 - [React Doctor](react-doctor/SKILL.md)
 - [SWC Cache](swc-cache/SKILL.md)
