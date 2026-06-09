@@ -63,6 +63,12 @@ export default async function LegalPage({
 						<p className="mt-4 inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-800 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200">
 							{document.translationStatus}
 						</p>
+						<Link
+							href={`/legal/${document.slug}`}
+							className="tl-button-motion mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+						>
+							View document
+						</Link>
 					</article>
 				))}
 			</section>

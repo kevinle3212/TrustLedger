@@ -125,6 +125,10 @@ export const LEGAL_DOCUMENTS = [
 	},
 ] as const satisfies readonly LegalDocument[];
 
+export function getLegalDocumentBySlug(slug: string): LegalDocument | undefined {
+	return LEGAL_DOCUMENTS.find((document) => document.slug === slug);
+}
+
 function isLegalLocale(locale: string): locale is LegalLocale {
 	return LEGAL_LOCALES.includes(locale as LegalLocale);
 }

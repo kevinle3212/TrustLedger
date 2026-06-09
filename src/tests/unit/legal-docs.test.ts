@@ -1,5 +1,6 @@
 import {
 	buildLegalTranslationPrompt,
+	getLegalDocumentBySlug,
 	getLegalTranslationStatus,
 	LEGAL_DOCUMENTS,
 	resolveLegalLocale,
@@ -22,5 +23,11 @@ describe("legal docs helper", () => {
 		expect(prompt).toContain("TERMS_AND_CONDITIONS.md");
 		expect(prompt).toContain("Preserve headings");
 		expect(prompt).toContain("human review");
+	});
+
+	it("resolves registered legal document slugs", () => {
+		expect(LEGAL_DOCUMENTS.map((document) => document.slug)).toContain("terms");
+		expect(getLegalDocumentBySlug("terms")?.sourceFile).toBe("TERMS_AND_CONDITIONS.md");
+		expect(getLegalDocumentBySlug("missing")).toBeUndefined();
 	});
 });
