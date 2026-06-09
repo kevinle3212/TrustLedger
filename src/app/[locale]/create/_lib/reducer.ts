@@ -8,6 +8,29 @@ export function createReducer(state: CreateState, action: CreateAction): CreateS
 			return { ...state, paymentToken: action.token, form: { ...state.form, amount: "" } };
 		case "SET_FIELD":
 			return { ...state, form: { ...state.form, [action.key]: action.value } };
+		case "SET_TERMS_BODY":
+			return {
+				...state,
+				termsBody: action.value,
+				termsLastUpdatedAt: new Date().toISOString(),
+			};
+		case "SET_TERMS_FORMAT":
+			return {
+				...state,
+				termsFormat: action.format,
+				termsLastUpdatedAt: new Date().toISOString(),
+			};
+		case "HYDRATE_DRAFT":
+			return {
+				...state,
+				...action.draft,
+				form: { ...state.form, ...action.draft.form },
+				reviewOpen: false,
+				selectedFile: null,
+				uploadStatus: "idle",
+				uploadError: null,
+				arweaveStatus: "idle",
+			};
 		case "OPEN_REVIEW":
 			return { ...state, reviewOpen: true };
 		case "CLOSE_REVIEW":

@@ -1,5 +1,8 @@
 # AGENTS.md
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger agent guidance is intentionally layered to avoid contradictions.
 
 ## Precedence
@@ -21,6 +24,11 @@ commands with `rtk` when available.
 - Frontend work: `src/app`, `src/components`, `src/contexts`, `src/lib`, and
   `.cursor/rules/frontend.mdc`.
 - Backend work: `src/app/api`, `src/services`, and `.cursor/rules/backend.mdc`.
+- Admin dashboard work: `src/app/[locale]/admin`, `src/app/api/admin`,
+  `src/services/admin*`, `docs/ADMIN.md`, and
+  `.sixth/skills/admin-dashboard/SKILL.md`.
+- Rust backend work: `.cargo/`, `Cargo.toml`, `lib/`, `programs/`, `infra/`,
+  `docs/ADMIN.md`, and `.sixth/skills/rust-backend/SKILL.md`.
 - Contract work: `contracts`, `test`, and `.cursor/rules/contracts.mdc`.
 - Security work: `SECURITY.md`, `docs/SECURITY.md`, workflows, API routes,
   contracts, and `.cursor/rules/security.mdc`.

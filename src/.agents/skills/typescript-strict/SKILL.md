@@ -8,6 +8,9 @@ version: "1.0.0"
 
 # TypeScript Strict
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Run from the repository root:
 
 ```bash

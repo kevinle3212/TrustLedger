@@ -1,8 +1,16 @@
 # Legal Compliance Skill
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Use this skill when a change affects TrustLedger legal, compliance, policy,
 risk, privacy, cookie, content, marketplace, security disclosure, sanctions,
 payments, arbitration, wallet, or user-obligation language.
+
+This skill is mandatory whenever a product, API, contract, wallet, payment,
+arbitration, data-retention, admin, security, marketing, or documentation change
+could alter what users are told, what users consent to, how funds are handled, or
+what risks TrustLedger discloses.
 
 ## Review Stance
 
@@ -22,6 +30,14 @@ related, or privacy-rights-specific for qualified counsel review.
 - Check for product changes that affect user duties, fees, funds custody, wallet
   connections, arbitration, juror incentives, risk disclosures, support paths, or
   data retention.
+- Check whether root legal files under `legal/` or root legal markdown files
+  need owner review before release. If legal docs are intentionally not edited,
+  record the reason in the task summary or an ignored markdown note under
+  `logs/`.
+- When adding or changing user-visible copy about payments, wallets, dispute
+  resolution, admin access, privacy, cookies, security, generated content,
+  sanctions, availability, or support, explicitly state whether legal docs need
+  follow-up.
 - Check for compliance-sensitive claims such as "guaranteed", "insured",
   "risk-free", "legal advice", "investment advice", and "available everywhere".
 - Keep recommendations concrete and separated from edits.

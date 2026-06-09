@@ -1,5 +1,8 @@
 # Arbitration
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains the arbitration system in `Arbitration.sol` and
 `JurorRegistry.sol`. Read it before changing dispute resolution, juror
 incentives, or appeal behavior.

@@ -1,5 +1,8 @@
 # Codex Agent Notes
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
 
 ## Shell
@@ -34,6 +37,11 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
 - Legal and compliance-sensitive changes: use
   `src/.agents/skills/legal-compliance/SKILL.md`; do not edit root legal drafts
   without explicit approval for those files.
+- Admin dashboard changes: use `.sixth/skills/admin-dashboard/SKILL.md`, keep
+  admin mode read-only unless explicit audited actions are requested, and never
+  commit plaintext admin credentials.
+- Rust backend changes: use `.sixth/skills/rust-backend/SKILL.md`, then run
+  `npm run rust:fmt`, `npm run rust:clippy`, and `npm run rust:test`.
 - Context sync: after repository changes, use
   `src/.agents/skills/update-context/SKILL.md` so docs, comments, visible
   project surfaces, and agent instructions stay current without duplicated

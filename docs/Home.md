@@ -1,5 +1,8 @@
 # TrustLedger Documentation
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This page is the documentation entry point for developers, reviewers, operators,
 and frontend contributors working on TrustLedger.
 

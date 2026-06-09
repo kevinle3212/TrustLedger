@@ -1,0 +1,30 @@
+[workspace]
+members = ["lib/trustledger-core", "programs/admin-api"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/kevinle3212/TrustLedger"
+rust-version = "1.82"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unused_must_use = "deny"
+missing_docs = "deny"
+
+[workspace.lints.clippy]
+all = "deny"
+pedantic = "deny"
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+
+[workspace.dependencies]
+axum = "0.7"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["trace"] }
+trustledger-core = { path = "lib/trustledger-core" }

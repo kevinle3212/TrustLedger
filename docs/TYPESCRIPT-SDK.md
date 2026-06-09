@@ -1,5 +1,8 @@
 # TypeScript SDK
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains the TypeScript integration surfaces available in
 TrustLedger. Read it when writing scripts, tests, frontend calls, or external
 TypeScript clients.

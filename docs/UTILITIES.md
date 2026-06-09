@@ -1,5 +1,8 @@
 # Utilities
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document covers utility scripts and helper assets outside the main frontend
 and contract packages.
 
@@ -99,3 +102,35 @@ Default retention limits:
 `logs:check` is non-destructive and fails when `logs/` exceeds policy.
 `logs:prune` removes stale, oversized, and oldest excess files until the local
 directory is back under the same limits.
+
+## Cross-Platform Script Support
+
+TrustLedger's primary automation uses Bash because the project depends on
+Foundry, Hardhat, Docker, and Unix-like CI runners. Supported runtimes:
+
+- macOS Terminal or zsh with Bash available.
+- Linux shells.
+- Windows WSL2, recommended for full contract/backend workflows.
+- Windows Git Bash/MSYS2, supported for utility scripts when dependencies are
+  installed.
+- Windows PowerShell, supported for selected utility wrappers.
+
+Bash utilities:
+
+```bash
+bash tools/keep-awake.sh --minutes 30 -- npm run foundry:test
+bash tools/remove-duplicates.sh --max-depth 3 .
+```
+
+PowerShell equivalents:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/keep-awake.ps1 -Minutes 30 npm run foundry:test
+powershell -ExecutionPolicy Bypass -File tools/remove-duplicates.ps1 -MaxDepth 3 .
+```
+
+For full setup on Windows, use WSL2:
+
+```powershell
+wsl --install -d Ubuntu
+```

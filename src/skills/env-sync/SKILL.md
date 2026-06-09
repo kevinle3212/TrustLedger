@@ -1,5 +1,8 @@
 # Env Sync
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Use this skill whenever TrustLedger gains or changes an environment variable.
 
 ## Procedure

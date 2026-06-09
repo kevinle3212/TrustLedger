@@ -1,5 +1,8 @@
 # Arbitration Agent Checklist
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 - Verify both parties can submit evidence before marking a dispute-ready UI
   complete.
 - Confirm juror views show contract amount, fee pool, phase, selected jurors,

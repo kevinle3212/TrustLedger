@@ -1,5 +1,8 @@
 # Environment
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document lists environment variables consumed by TrustLedger contracts,
 scripts, workflows, and frontend code. Read it before deploying, running fork
 tests, or configuring Vercel.
@@ -81,15 +84,55 @@ whenever a new environment variable is introduced.
 
 ## Admin And Health Variables
 
-| Variable                   | Required For                 | Consumed By   |
-| -------------------------- | ---------------------------- | ------------- |
-| `HEALTH_CHECK_TOKEN`       | Admin operational health     | `/api/health` |
-| `HEALTH_CHECK_ALLOWED_IPS` | Optional health IP allowlist | `/api/health` |
-| `ADMIN_API_TOKEN`          | Shared admin fallback token  | `/api/health` |
+| Variable                         | Required For                            | Consumed By                         |
+| -------------------------------- | --------------------------------------- | ----------------------------------- |
+| `HEALTH_CHECK_TOKEN`             | Admin operational health                | `/api/health`                       |
+| `HEALTH_CHECK_ALLOWED_IPS`       | Optional health IP allowlist            | `/api/health`                       |
+| `ADMIN_API_TOKEN`                | Shared admin fallback token             | `/api/health`, `/api/admin/summary` |
+| `ADMIN_SESSION_SECRET`           | Admin session HMAC key                  | `/[locale]/admin`, `/api/admin/*`   |
+| `ADMIN_ALLOWED_IPS`              | Admin dashboard IP allowlist            | `/[locale]/admin`, `/api/admin/*`   |
+| `ADMIN_WALLET_ADDRESSES`         | Optional admin wallet allowlist         | `/[locale]/admin/sign-in`           |
+| `ADMIN_BOOTSTRAP_EMAIL`          | Bootstrap owner email                   | `/[locale]/admin/sign-in`           |
+| `ADMIN_BOOTSTRAP_USERNAME`       | Bootstrap owner username                | `/[locale]/admin/sign-in`           |
+| `ADMIN_BOOTSTRAP_PASSWORD_HASH`  | Bootstrap owner password hash           | `/[locale]/admin/sign-in`           |
+| `ADMIN_BOOTSTRAP_WALLET_ADDRESS` | Optional bootstrap owner wallet binding | `/[locale]/admin/sign-in`           |
+| `ADMIN_ACCOUNTS_JSON`            | Additional hashed admin accounts        | `/[locale]/admin/sign-in`           |
 
 Use public `GET /api/health/runtime` for Kubernetes probes and basic runtime
 smoke checks. Use `GET /api/health` only from admin monitors with
 `Authorization: Bearer <HEALTH_CHECK_TOKEN>` or an allowlisted IP.
+
+Generate admin password hashes with:
+
+```bash
+ADMIN_BOOTSTRAP_PASSWORD='replace-with-a-long-password' npm run admin:bootstrap
+```
+
+## Rust Admin API Variables
+
+The Rust companion API in `programs/admin-api` is optional, read-only, and
+separate from the Next.js admin dashboard. It is useful for operator-side
+health, summaries, and future backend workloads that should not live in the
+frontend server.
+
+| Variable                      | Required For              | Consumed By                  |
+| ----------------------------- | ------------------------- | ---------------------------- |
+| `TRUSTLEDGER_ADMIN_API_BIND`  | Rust API bind address     | `programs/admin-api`         |
+| `TRUSTLEDGER_ADMIN_API_TOKEN` | Protected Rust API routes | `/admin/summary`             |
+| `TRUSTLEDGER_ENV`             | Redacted environment tag  | Rust health and summary JSON |
+
+Local defaults can be inserted without overwriting existing secrets:
+
+```bash
+npm run env:sync
+```
+
+This command is intentionally manual. Build commands must not create or
+overwrite environment state, and `npm run env:sync:vercel` must never run from
+build because it mutates remote Vercel configuration.
+
+For Kubernetes, create the token as a Secret and keep
+`TRUSTLEDGER_ADMIN_API_BIND=0.0.0.0:4100` in the deployment environment.
 
 ## Oracle Variables
 

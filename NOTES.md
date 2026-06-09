@@ -1,5 +1,8 @@
 # Notes
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Public, shareable working notes for TrustLedger: ideas, research findings, and
 decisions that are worth recording but are not yet ready for the formal
 documentation in [`docs/`](docs/). Move anything here that the broader community

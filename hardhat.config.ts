@@ -17,6 +17,24 @@ import "@nomicfoundation/hardhat-toolbox";
 import { config as conf } from "dotenv";
 conf();
 
+function readOptionalEnv(name: string): string | undefined {
+	const value = process.env[name]?.trim();
+	return value === undefined || value === "" ? undefined : value;
+}
+
+function readOptionalIntegerEnv(name: string): number | undefined {
+	const value = readOptionalEnv(name);
+	if (value === undefined) return undefined;
+	const parsed = Number.parseInt(value, 10);
+	if (!Number.isSafeInteger(parsed) || parsed < 0) {
+		throw new Error(`${name} must be a non-negative safe integer when set.`);
+	}
+	return parsed;
+}
+
+const forkUrl = readOptionalEnv("FORK_URL");
+const forkBlockNumber = readOptionalIntegerEnv("FORK_BLOCK_NUMBER");
+
 const config: HardhatUserConfig = {
 	// ─── Solidity compiler settings ──────────────────────────────────────────────
 	solidity: {
@@ -54,12 +72,12 @@ const config: HardhatUserConfig = {
 		// history, closely mimicking what production looks like.
 		hardhat: {
 			chainId: 31337, // standard local chain ID; tools like MetaMask recognise it
-			...(process.env.FORK_URL !== undefined
+			...(forkUrl !== undefined
 				? {
 						forking: {
-							url: process.env.FORK_URL,
-							...(process.env.FORK_BLOCK_NUMBER !== undefined
-								? { blockNumber: parseInt(process.env.FORK_BLOCK_NUMBER, 10) }
+							url: forkUrl,
+							...(forkBlockNumber !== undefined
+								? { blockNumber: forkBlockNumber }
 								: {}),
 						},
 					}

@@ -1,5 +1,8 @@
 # FAQ
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This page answers common repository questions and links to canonical docs for
 implementation details.
 

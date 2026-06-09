@@ -34,7 +34,21 @@
 		"url": "git+https://github.com/kevinle3212/TrustLedger.git"
 	},
 	"license": "Apache-2.0",
-	"author": "Kevin Le, Kellen Snider",
+	"author": "Kevin Le <https://www.linkedin.com/in/lekevin1>",
+	"contributors": [
+		"Kevin Le <https://www.linkedin.com/in/lekevin1>",
+		"Kellen Snider <https://www.linkedin.com/in/kellen-snider-683396256/>"
+	],
+	"authorsAndContributors": [
+		{
+			"name": "Kevin Le",
+			"url": "https://www.linkedin.com/in/lekevin1"
+		},
+		{
+			"name": "Kellen Snider",
+			"url": "https://www.linkedin.com/in/kellen-snider-683396256/"
+		}
+	],
 	"engines": {
 		"node": ">=22.0.0"
 	},

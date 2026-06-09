@@ -1,5 +1,8 @@
 # Legal And Compliance
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger legal documents are owner-controlled drafts until they are approved
 for publication. This page tracks the committed legal and compliance surfaces so
 engineering, documentation, and website changes stay synchronized.

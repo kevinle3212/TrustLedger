@@ -8,6 +8,9 @@ version: "1.0.0"
 
 # Update Context
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Use this skill after a prompt causes repository changes, especially when the
 change affects behavior, commands, dependencies, deployment, security,
 configuration, tests, user-facing copy, or agent guidance.

@@ -7,6 +7,9 @@ description:
 
 # Responsive Design
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 - Prefer stable shell classes from `app/app-desktop.scss`.
 - Prevent horizontal overflow on every public route.
 - Keep fixed-format controls at stable dimensions.

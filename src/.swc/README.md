@@ -1,5 +1,8 @@
 # SWC Configuration Policy
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Next.js owns runtime SWC compilation for the TrustLedger frontend. This
 directory records the project SWC policy and keeps generated platform plugin
 caches out of source control.

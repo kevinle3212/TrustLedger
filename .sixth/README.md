@@ -1,5 +1,8 @@
 # Sixth
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Sixth is an AI coding assistant and autonomous coding agent for VS Code. It is
 used here as another agent surface for TrustLedger contributors who want local,
 repo-specific instructions without copying long prompts between sessions.
@@ -61,10 +64,13 @@ or documenting budget expectations. Product details are available at
 Local skills live in `.sixth/skills/`:
 
 - `ci-green-gate`: end-to-end local and GitHub Actions validation.
+- `admin-dashboard`: restricted operator dashboard, auth, and audit-safe admin
+  action rules.
 - `dependency-audit`: dependency freshness and vulnerability audit workflow.
 - `foundry-sandbox`: sandbox-safe Foundry and fork-test routing.
 - `log-markdown`: markdownlint-compliant files under `logs/`.
 - `react-doctor`: React Doctor and frontend maintainability checks.
+- `rust-backend`: strict Cargo workspace and backend service rules.
 - `swc-cache`: SWC cache population and `.swc/` policy.
 - `update-context`: docs, comments, website, config, and agent guidance sync
   after repository changes.

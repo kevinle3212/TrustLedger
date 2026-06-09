@@ -9,10 +9,21 @@
 
 # TrustLedger
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger is a decentralized escrow, arbitration, and reputation system for
 freelance agreements on EVM chains. It helps a client lock funds, a freelancer
 submit work, and both parties resolve approval, warranty, rating, and dispute
 outcomes through audited code paths instead of platform custody.
+
+**Repository description:** Decentralized freelance escrow with encrypted
+contract drafting, optional live co-editing, EVM smart-contract custody, juror
+arbitration, reputation, notifications, and production-grade Next.js tooling.
+
+**Links:** [Website](https://trustledger-zeta.vercel.app/en) ·
+[Docs](https://kevinle3212.github.io/TrustLedger) ·
+[Source](https://github.com/kevinle3212/TrustLedger)
 
 > Status: testnet-focused software. Contracts are unaudited and should not be
 > used for production custody until an independent audit and mainnet readiness
@@ -59,15 +70,15 @@ accessible controls, and visible transaction progress.
 
 ## Feature Breakdown
 
-| Area           | Capabilities                                                                                                                                                                       |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Escrow         | Freelancer-proposed and client-proposed contracts, ETH or ERC-20 funding, project deadlines, acceptance windows, warranty holds, cancellation, reclaim, and payout.                |
-| Arbitration    | Staked juror registry, random juror selection, commit-reveal voting, median ruling, appeals, rewards, and slashing.                                                                |
-| Reputation     | Bidirectional ratings, recovery tracking, and frontend reputation history.                                                                                                         |
-| Frontend       | Localized Next.js App Router UI, wallet connection, role switching, contract creation, dashboard actions, juror views, FAQ, dark mode, high-contrast mode, and responsive layouts. |
-| Backend Routes | Contract aggregation, health checks, magic links, notifications, deadline cron, oracle rates, and oracle status metadata.                                                          |
-| Storage        | IPFS links, optional Arweave support, client-side AES-GCM document encryption helpers.                                                                                             |
-| Tooling        | Hardhat, Foundry, Jest, Playwright, React Doctor, mypy, Solhint, markdownlint, Prettier, Docker, Kubernetes, MkDocs, and GitHub Actions.                                           |
+| Area           | Capabilities                                                                                                                                                                                                                             |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Escrow         | Freelancer-proposed and client-proposed contracts, ETH or ERC-20 funding, project deadlines, acceptance windows, warranty holds, cancellation, reclaim, and payout.                                                                      |
+| Arbitration    | Staked juror registry, random juror selection, commit-reveal voting, median ruling, appeals, rewards, and slashing.                                                                                                                      |
+| Reputation     | Bidirectional ratings, recovery tracking, and frontend reputation history.                                                                                                                                                               |
+| Frontend       | Localized Next.js App Router UI, wallet connection, role switching, encrypted contract drafting with optional live rooms, contract creation, dashboard actions, juror views, FAQ, dark mode, high-contrast mode, and responsive layouts. |
+| Backend Routes | Contract aggregation, health checks, magic links, notifications, deadline cron, oracle rates, and oracle status metadata.                                                                                                                |
+| Storage        | IPFS links, optional Arweave support, client-side AES-GCM document encryption helpers.                                                                                                                                                   |
+| Tooling        | Hardhat, Foundry, Jest, Playwright, React Doctor, mypy, Solhint, markdownlint, Prettier, Docker, Kubernetes, MkDocs, and GitHub Actions.                                                                                                 |
 
 ## Architecture
 
@@ -115,7 +126,7 @@ flowchart TB
 │   ├── contexts/           Role and cross-cutting React context
 │   ├── hooks/              Client hooks for contract/dispute helpers
 │   ├── lib/                ABI, chain config, validation, storage, crypto helpers
-│   ├── services/           Server health, email, notification, oracle logic
+│   ├── services/           Server health, email, notification, oracle, admin logic
 │   ├── store/              Client persistence for arbitration drafts
 │   ├── tests/              Jest unit tests, mocks, Playwright E2E specs
 │   ├── types/              Shared frontend TypeScript domain models
@@ -123,6 +134,9 @@ flowchart TB
 │   └── README.md           Frontend/API architecture map
 ├── k8s/                    Kustomize base, probes, secrets template, HPA, ingress
 ├── docker/                 Frontend runtime Dockerfile and local service images
+├── lib/                    Rust shared backend crates
+├── programs/               Rust backend service binaries
+├── infra/                  Backend service infrastructure examples
 ├── docs/                   MkDocs guides, deployment, security, reports, runbooks
 ├── scripts/                Hardhat deploy/demo scripts and GitHub Models tooling
 ├── test/                   Hardhat TypeScript contract tests
@@ -160,6 +174,7 @@ src/
 │   │   ├── legal/                 Legal, policy, and compliance publication index.
 │   │   └── reputation/            Reputation lookup and history UI.
 │   ├── api/
+│   │   ├── admin/                 Restricted operator dashboard APIs.
 │   │   ├── contract/[id]/         JSON-safe on-chain contract aggregation.
 │   │   ├── cron/                  Vercel Cron endpoints.
 │   │   ├── health/                Runtime and admin health probes.
@@ -178,7 +193,7 @@ src/
 ├── lib/                           ABI, chain config, validation, encryption, storage helpers.
 ├── messages/                      Locale JSON dictionaries.
 ├── providers/                     External provider adapters and chain-facing constants.
-├── services/                      Server-only health, email, notification, oracle logic.
+├── services/                      Server-only health, email, notification, oracle, admin logic.
 ├── store/                         Client persistence for arbitration drafts.
 ├── tests/                         Jest unit tests and Playwright route/a11y checks.
 ├── types/                         Frontend domain model exports.

@@ -1,5 +1,8 @@
 # CodeRabbit
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger uses `.coderabbit.yaml` for automated pull-request review guidance.
 The configuration is intentionally strict so review comments line up with the
 same quality gates enforced by CI.

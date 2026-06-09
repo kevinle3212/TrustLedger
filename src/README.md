@@ -1,5 +1,8 @@
 # TrustLedger Frontend And API
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 `src/` is the TrustLedger Next.js application. It contains the localized browser
 UI, wallet wiring, API routes, server-side services, tests, public assets, and
 frontend-specific developer tooling.
@@ -46,7 +49,7 @@ flowchart LR
 src/
 ├── app/
 │   ├── [locale]/           Localized routes, layouts, and route-owned components
-│   ├── api/                Health, contract, magic-link, notification, oracle APIs
+│   ├── api/                Admin, health, contract, magic-link, notification, oracle APIs
 │   ├── globals.scss        Tailwind v4 load, theme tokens, global utilities
 │   ├── helpers.css         Reusable surface, text, accessibility helper classes
 │   └── app-desktop.scss    Desktop shell, page, and workspace layout rules
@@ -57,7 +60,7 @@ src/
 ├── lib/                    ABI, chain config, storage, validation, crypto utilities
 ├── messages/               Localized JSON copy for supported locales
 ├── providers/              App-level client provider composition
-├── services/               Server health, email, notification, oracle modules
+├── services/               Server health, email, notification, oracle, admin modules
 ├── store/                  Client persistence for arbitration draft state
 ├── tests/
 │   ├── e2e/                Playwright route, accessibility, overflow checks
@@ -79,6 +82,7 @@ app/
 ├── [locale]/
 │   ├── layout.tsx                       Locale shell, providers, navbar, footer.
 │   ├── page.tsx                         Home page, animated escrow preview, CTAs.
+│   ├── admin/                           Restricted read-only operator dashboard.
 │   ├── legal/page.tsx                   Legal center backed by helpers/legal-docs.
 │   ├── faq/page.tsx                     User-facing wallet, faucet, and recovery FAQ.
 │   ├── dashboard/page.tsx               Contract cards, lifecycle actions, document tools.
@@ -135,6 +139,8 @@ lib/
 └── utils.ts                   Formatting, time, amount, and URI utilities.
 
 services/
+├── adminAuth.ts                Admin credentials, sessions, IP, and wallet gating.
+├── adminReport.ts              Sanitized read-only operator dashboard report.
 ├── email.ts                   Resend wrapper and HTML email shell.
 ├── notifications.ts           Lifecycle notification renderer and deadline scan logic.
 ├── oracle.ts                  Display exchange-rate fetch/cache/status service.
@@ -200,6 +206,8 @@ All user-facing routes are locale-prefixed through `next-intl`.
 
 | Route                         | Service                                 | Notes                                           |
 | ----------------------------- | --------------------------------------- | ----------------------------------------------- |
+| `api/admin/session`           | `services/adminAuth.ts`                 | Creates or clears signed admin sessions.        |
+| `api/admin/summary`           | `services/adminReport.ts`               | Admin-gated read-only operator report.          |
 | `api/health/runtime`          | `services/health.ts`                    | Public runtime probe for containers.            |
 | `api/health`                  | `services/health.ts`                    | Admin-gated config presence and URL validity.   |
 | `api/contract/[id]`           | viem read in route                      | Returns JSON-safe contract aggregation.         |

@@ -13,7 +13,7 @@
 set -euo pipefail
 
 NODE_URL="${NODE_URL:-http://127.0.0.1:8545}"
-NODE_LOG="${NODE_LOG:-/tmp/trustledger-docker-node.log}"
+NODE_LOG="${NODE_LOG:-${TMPDIR:-/tmp}/trustledger-docker-node.log}"
 VERBOSE="${VERBOSE:-0}"
 NODE_PID=""
 
@@ -34,7 +34,7 @@ Modes:
 
 Environment:
   NODE_URL    JSON-RPC health URL. Default: http://127.0.0.1:8545
-  NODE_LOG    Hardhat node log path. Default: /tmp/trustledger-docker-node.log
+  NODE_LOG    Hardhat node log path. Default: ${TMPDIR:-/tmp}/trustledger-docker-node.log
   VERBOSE=1   Enable debug messages.
 USAGE
 }
@@ -61,7 +61,7 @@ debug "node pid=$NODE_PID log=$NODE_LOG"
 
 log ""
 log "Waiting for Hardhat node at $NODE_URL..."
-for _ in $(seq 1 80); do
+for ((attempt = 1; attempt <= 80; attempt++)); do
     if curl -sf -X POST "$NODE_URL" \
     -H "Content-Type: application/json" \
     -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \

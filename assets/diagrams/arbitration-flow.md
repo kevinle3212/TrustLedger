@@ -1,5 +1,8 @@
 # Arbitration Flow
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 1. Client disputes submitted work in TrustLedger.
 2. TrustLedger forwards the fee pool to Arbitration and records the dispute ID.
 3. Client and freelancer submit evidence summaries plus off-chain evidence URIs.

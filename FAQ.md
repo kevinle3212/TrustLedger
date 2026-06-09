@@ -1,5 +1,8 @@
 # TrustLedger FAQ
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This FAQ is the product-facing companion to the developer docs in `docs/`.
 
 ## What Is TrustLedger?

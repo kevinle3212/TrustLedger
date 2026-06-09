@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import type { ReactNode } from "react";
 import { setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
@@ -35,19 +34,26 @@ function legalMarkdownPath(relativePath: string): string {
 }
 
 const LEGAL_MARKDOWN_READERS: Record<LegalDocument["slug"], () => Promise<string>> = {
-	"acceptable-use": () =>
-		readFile(legalMarkdownPath("../../../../../ACCEPTABLE_USE_POLICY.md"), "utf8"),
-	"community": () =>
-		readFile(legalMarkdownPath("../../../../../COMMUNITY_GUIDELINES.md"), "utf8"),
-	"content": () => readFile(legalMarkdownPath("../../../../../CONTENT_POLICY.md"), "utf8"),
-	"cookies": () => readFile(legalMarkdownPath("../../../../../COOKIE_POLICY.md"), "utf8"),
-	"disclaimer": () => readFile(legalMarkdownPath("../../../../../DISCLAIMER.md"), "utf8"),
-	"dmca": () => readFile(legalMarkdownPath("../../../../../DMCA_POLICY.md"), "utf8"),
-	"privacy": () => readFile(legalMarkdownPath("../../../../../PRIVACY_POLICY.md"), "utf8"),
-	"risk": () => readFile(legalMarkdownPath("../../../../../RISK_DISCLOSURE.md"), "utf8"),
-	"security": () => readFile(legalMarkdownPath("../../../../../SECURITY.md"), "utf8"),
-	"terms": () => readFile(legalMarkdownPath("../../../../../TERMS_AND_CONDITIONS.md"), "utf8"),
-	"trademark": () => readFile(legalMarkdownPath("../../../../../TRADEMARK_POLICY.md"), "utf8"),
+	"acceptable-use": async () =>
+		await readFile(legalMarkdownPath("../../../../../ACCEPTABLE_USE_POLICY.md"), "utf8"),
+	"community": async () =>
+		await readFile(legalMarkdownPath("../../../../../COMMUNITY_GUIDELINES.md"), "utf8"),
+	"content": async () =>
+		await readFile(legalMarkdownPath("../../../../../CONTENT_POLICY.md"), "utf8"),
+	"cookies": async () =>
+		await readFile(legalMarkdownPath("../../../../../COOKIE_POLICY.md"), "utf8"),
+	"disclaimer": async () =>
+		await readFile(legalMarkdownPath("../../../../../DISCLAIMER.md"), "utf8"),
+	"dmca": async () => await readFile(legalMarkdownPath("../../../../../DMCA_POLICY.md"), "utf8"),
+	"privacy": async () =>
+		await readFile(legalMarkdownPath("../../../../../PRIVACY_POLICY.md"), "utf8"),
+	"risk": async () =>
+		await readFile(legalMarkdownPath("../../../../../RISK_DISCLOSURE.md"), "utf8"),
+	"security": async () => await readFile(legalMarkdownPath("../../../../../SECURITY.md"), "utf8"),
+	"terms": async () =>
+		await readFile(legalMarkdownPath("../../../../../TERMS_AND_CONDITIONS.md"), "utf8"),
+	"trademark": async () =>
+		await readFile(legalMarkdownPath("../../../../../TRADEMARK_POLICY.md"), "utf8"),
 };
 
 export function generateStaticParams(): LegalDocPageParams[] {
@@ -77,7 +83,7 @@ export async function generateMetadata({
 }
 
 async function readLegalMarkdown(document: LegalDocument): Promise<string> {
-	return LEGAL_MARKDOWN_READERS[document.slug]();
+	return await LEGAL_MARKDOWN_READERS[document.slug]();
 }
 
 function isTableSeparator(line: string): boolean {
@@ -200,8 +206,14 @@ function keyPart(value: number): string {
 	return String(value);
 }
 
-function renderStrong(text: string, keyPrefix: string): ReactNode[] {
-	const nodes: ReactNode[] = [];
+function StrongText({
+	text,
+	keyPrefix,
+}: {
+	readonly text: string;
+	readonly keyPrefix: string;
+}): React.JSX.Element {
+	const nodes: React.ReactNode[] = [];
 	const strongPattern = /\*\*([^*]+)\*\*/g;
 	let cursor = 0;
 	let match: RegExpExecArray | null;
@@ -213,11 +225,17 @@ function renderStrong(text: string, keyPrefix: string): ReactNode[] {
 	}
 	if (cursor < text.length) nodes.push(text.slice(cursor));
 
-	return nodes;
+	return <>{nodes}</>;
 }
 
-function renderInline(text: string, keyPrefix: string): ReactNode[] {
-	const nodes: ReactNode[] = [];
+function InlineText({
+	text,
+	keyPrefix,
+}: {
+	readonly text: string;
+	readonly keyPrefix: string;
+}): React.JSX.Element {
+	const nodes: React.ReactNode[] = [];
 	const linkPattern = /\[([^\]]+)]\(([^)]+)\)/g;
 	let cursor = 0;
 	let match: RegExpExecArray | null;
@@ -225,10 +243,11 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
 	while ((match = linkPattern.exec(text)) !== null) {
 		if (match.index > cursor) {
 			nodes.push(
-				...renderStrong(
-					text.slice(cursor, match.index),
-					`${keyPrefix}-t${keyPart(cursor)}`,
-				),
+				<StrongText
+					key={`${keyPrefix}-t${keyPart(cursor)}`}
+					text={text.slice(cursor, match.index)}
+					keyPrefix={`${keyPrefix}-t${keyPart(cursor)}`}
+				/>,
 			);
 		}
 		const label = match[1] ?? "";
@@ -240,7 +259,10 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
 					href={href}
 					className="font-semibold text-indigo-700 underline decoration-indigo-300 underline-offset-4 hover:text-indigo-600 dark:text-indigo-300 dark:decoration-indigo-400/60 dark:hover:text-indigo-200"
 				>
-					{renderStrong(label, `${keyPrefix}-label-${keyPart(match.index)}`)}
+					<StrongText
+						text={label}
+						keyPrefix={`${keyPrefix}-label-${keyPart(match.index)}`}
+					/>
 				</a>
 			) : (
 				label
@@ -248,67 +270,68 @@ function renderInline(text: string, keyPrefix: string): ReactNode[] {
 		);
 		cursor = match.index + match[0].length;
 	}
-	if (cursor < text.length) nodes.push(...renderStrong(text.slice(cursor), `${keyPrefix}-tail`));
+	if (cursor < text.length) {
+		nodes.push(
+			<StrongText
+				key={`${keyPrefix}-tail`}
+				text={text.slice(cursor)}
+				keyPrefix={`${keyPrefix}-tail`}
+			/>,
+		);
+	}
 
-	return nodes;
+	return <>{nodes}</>;
 }
 
-function renderHeading(block: Extract<MarkdownBlock, { type: "heading" }>, key: string): ReactNode {
+function MarkdownHeading({
+	block,
+	blockKey,
+}: {
+	readonly block: Extract<MarkdownBlock, { type: "heading" }>;
+	readonly blockKey: string;
+}): React.JSX.Element {
 	const className =
 		"mt-10 text-pretty font-semibold tracking-tight text-gray-950 dark:text-white";
-	const content = renderInline(block.text, key);
+	const content = <InlineText text={block.text} keyPrefix={blockKey} />;
 	switch (block.depth) {
 		case 1:
-			return (
-				<h1 key={key} className={`${className} text-3xl`}>
-					{content}
-				</h1>
-			);
+			return <h1 className={`${className} text-3xl`}>{content}</h1>;
 		case 2:
-			return (
-				<h2 key={key} className={`${className} text-2xl`}>
-					{content}
-				</h2>
-			);
+			return <h2 className={`${className} text-2xl`}>{content}</h2>;
 		case 3:
-			return (
-				<h3 key={key} className={`${className} text-xl`}>
-					{content}
-				</h3>
-			);
+			return <h3 className={`${className} text-xl`}>{content}</h3>;
 		default:
-			return (
-				<h4 key={key} className={`${className} text-lg`}>
-					{content}
-				</h4>
-			);
+			return <h4 className={`${className} text-lg`}>{content}</h4>;
 	}
 }
 
-function renderMarkdownBlock(block: MarkdownBlock, index: number): ReactNode {
-	const key = `legal-block-${keyPart(index)}`;
+function MarkdownBlockView({
+	block,
+	index,
+}: {
+	readonly block: MarkdownBlock;
+	readonly index: number;
+}): React.JSX.Element {
+	const blockKey = `legal-block-${keyPart(index)}`;
 
 	switch (block.type) {
 		case "heading":
-			return renderHeading(block, key);
+			return <MarkdownHeading block={block} blockKey={blockKey} />;
 		case "paragraph":
 			return (
-				<p
-					key={key}
-					className="mt-4 max-w-3xl text-pretty leading-7 text-gray-700 dark:text-gray-300"
-				>
-					{renderInline(block.text, key)}
+				<p className="mt-4 max-w-3xl text-pretty leading-7 text-gray-700 dark:text-gray-300">
+					<InlineText text={block.text} keyPrefix={blockKey} />
 				</p>
 			);
 		case "blockquote":
 			return (
-				<blockquote
-					key={key}
-					className="mt-6 max-w-3xl rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-sm leading-6 text-indigo-950 dark:border-indigo-400/20 dark:bg-indigo-400/10 dark:text-indigo-100"
-				>
+				<blockquote className="mt-6 max-w-3xl rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-sm leading-6 text-indigo-950 dark:border-indigo-400/20 dark:bg-indigo-400/10 dark:text-indigo-100">
 					{block.lines.map((line, lineIndex) => (
-						<p key={`${key}-${keyPart(lineIndex)}`}>
-							{renderInline(line, `${key}-${keyPart(lineIndex)}`)}
+						<p key={`${blockKey}-${keyPart(lineIndex)}`}>
+							<InlineText
+								text={line}
+								keyPrefix={`${blockKey}-${keyPart(lineIndex)}`}
+							/>
 						</p>
 					))}
 				</blockquote>
@@ -317,14 +340,16 @@ function renderMarkdownBlock(block: MarkdownBlock, index: number): ReactNode {
 			const ListTag = block.ordered ? "ol" : "ul";
 			return (
 				<ListTag
-					key={key}
 					className={`mt-4 max-w-3xl space-y-2 ps-6 text-gray-700 dark:text-gray-300 ${
 						block.ordered ? "list-decimal" : "list-disc"
 					}`}
 				>
 					{block.items.map((item, itemIndex) => (
-						<li key={`${key}-${keyPart(itemIndex)}`} className="leading-7">
-							{renderInline(item, `${key}-${keyPart(itemIndex)}`)}
+						<li key={`${blockKey}-${keyPart(itemIndex)}`} className="leading-7">
+							<InlineText
+								text={item}
+								keyPrefix={`${blockKey}-${keyPart(itemIndex)}`}
+							/>
 						</li>
 					))}
 				</ListTag>
@@ -332,35 +357,35 @@ function renderMarkdownBlock(block: MarkdownBlock, index: number): ReactNode {
 		}
 		case "table":
 			return (
-				<div
-					key={key}
-					className="mt-6 overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10"
-				>
+				<div className="mt-6 overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10">
 					<table className="min-w-full divide-y divide-gray-200 text-left text-sm dark:divide-white/10">
 						<thead className="bg-gray-50 text-gray-950 dark:bg-white/5 dark:text-white">
 							<tr>
 								{block.headers.map((header, headerIndex) => (
 									<th
-										key={`${key}-h-${keyPart(headerIndex)}`}
+										key={`${blockKey}-h-${keyPart(headerIndex)}`}
 										className="px-4 py-3 font-semibold"
 									>
-										{renderInline(header, `${key}-h-${keyPart(headerIndex)}`)}
+										<InlineText
+											text={header}
+											keyPrefix={`${blockKey}-h-${keyPart(headerIndex)}`}
+										/>
 									</th>
 								))}
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-gray-200 bg-white text-gray-700 dark:divide-white/10 dark:bg-gray-950 dark:text-gray-300">
 							{block.rows.map((row, rowIndex) => (
-								<tr key={`${key}-r-${keyPart(rowIndex)}`}>
+								<tr key={`${blockKey}-r-${keyPart(rowIndex)}`}>
 									{row.map((cell, cellIndex) => (
 										<td
-											key={`${key}-r-${keyPart(rowIndex)}-${keyPart(cellIndex)}`}
+											key={`${blockKey}-r-${keyPart(rowIndex)}-${keyPart(cellIndex)}`}
 											className="px-4 py-3 align-top"
 										>
-											{renderInline(
-												cell,
-												`${key}-r-${keyPart(rowIndex)}-${keyPart(cellIndex)}`,
-											)}
+											<InlineText
+												text={cell}
+												keyPrefix={`${blockKey}-r-${keyPart(rowIndex)}-${keyPart(cellIndex)}`}
+											/>
 										</td>
 									))}
 								</tr>
@@ -370,7 +395,7 @@ function renderMarkdownBlock(block: MarkdownBlock, index: number): ReactNode {
 				</div>
 			);
 		case "rule":
-			return <hr key={key} className="my-8 border-gray-200 dark:border-white/10" />;
+			return <hr className="my-8 border-gray-200 dark:border-white/10" />;
 	}
 }
 
@@ -415,7 +440,13 @@ export default async function LegalDocumentPage({
 			</header>
 
 			<article className="mt-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-gray-950 sm:p-8">
-				{blocks.map(renderMarkdownBlock)}
+				{blocks.map((block, index) => (
+					<MarkdownBlockView
+						key={`legal-block-${keyPart(index)}`}
+						block={block}
+						index={index}
+					/>
+				))}
 			</article>
 		</main>
 	);

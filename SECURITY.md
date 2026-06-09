@@ -1,5 +1,8 @@
 # Security Policy
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 TrustLedger is unaudited testnet software. Do not deploy mainnet funds until the
 contract, frontend, backend routes, dependencies, and operational controls have
 passed independent review.

@@ -1,5 +1,8 @@
 # Demo Guide
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains the local demo scripts included with TrustLedger. Read it
 when preparing a contract lifecycle or arbitration demonstration.
 

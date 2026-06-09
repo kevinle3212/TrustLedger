@@ -1,5 +1,8 @@
 # Changelog
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This file records source-confirmed project history. Use `Unreleased` for changes
 that are present in the working tree but not tied to a tagged release.
 

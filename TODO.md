@@ -1,5 +1,8 @@
 # To-Do List
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 Tasks are grouped into phases and ordered so that earlier work unblocks later
 work. Complete each phase roughly in order: tooling and architecture come first,
 followed by user-facing features, backend services, quality, and finally the
@@ -144,67 +147,6 @@ mainnet launch deliverables.
     - Implement the new provider in the authentication flow so users reliably
       receive their magic links and authenticate without issues.
 
-- [x] Add an oracle service to fetch off-chain data relevant to contracts, such
-      as exchange rates for stablecoin payments or external data feeds that
-      could trigger contract actions or disputes.
-    - Set up a backend service that fetches and aggregates off-chain data and
-      makes it available to the frontend and smart contracts. For example, if
-      the platform supports stablecoin payments, the oracle could fetch
-      real-time exchange rates to ensure accurate payment amounts.
-    - The oracle could also fetch external data relevant to contract execution
-      or dispute resolution, such as delivery confirmations or work-completion
-      status from third-party platforms, to help automate parts of the contract
-      lifecycle.
-    - **Completed 2026-06-09:** Added `src/services/oracle.ts`,
-      `GET /api/oracle/rates`, oracle environment documentation, stale-cache
-      observability, and unit coverage in `src/tests/unit/oracle.test.ts`.
-      Current oracle data is server-side display/support data only; any on-chain
-      oracle consumption still requires a separate audited design.
-
-- [x] Evaluate and implement SOL (Solana) support as a second-chain foundation.
-    - **Decision gate first:** determine whether SOL means (a) deploying an
-      equivalent Anchor program on Solana so users on Solana can use TrustLedger
-      natively, or (b) accepting SOL as a payment token on an EVM chain via a
-      bridge (e.g. Wormhole). Document the chosen approach and its trade-offs in
-      `NOTES.md` before writing any code.
-    - **Completed 2026-06-09:** Chose option (a), native Solana program support,
-      as the primary path. Bridged SOL remains deferred because it adds bridge
-      and wrapped-asset risk before the Solana product has audited native
-      semantics.
-    - Added `docs/SOLANA.md` with the native-program-first decision, safety
-      rules, and future Anchor/LiteSVM milestones.
-    - Added `src/helpers/solana.ts` with strict cluster resolution, RPC/Explorer
-      defaults, native support mode, conservative public-key shape validation,
-      and Explorer URL construction.
-    - Added `src/tests/unit/solana-helper.test.ts` so the Solana helper behavior
-      is validated before wallet or transaction code is introduced.
-    - **Future custody work:** implement the escrow, reputation, and arbitration
-      programs in Anchor, generate a typed client, add transaction simulation,
-      wire wallet-standard Solana discovery, and audit the native program path
-      before enabling real Solana funds.
-
-- [ ] Add backend services in additional languages such as Rust or Python, to
-      allow more flexibility and performance for complex logic or integrations
-      not well suited to JavaScript/TypeScript.
-    - Set up a separate backend service (for example FastAPI for Python or Actix
-      for Rust) to handle specific tasks such as interacting with the
-      blockchain, processing data, or integrating with external services.
-    - The frontend communicates with this backend over API calls, allowing a
-      more robust and scalable architecture that leverages the strengths of each
-      language.
-    - For example, a Rust backend could handle performance-critical work such as
-      processing large data sets or complex cryptographic operations, while a
-      Python backend could handle work that benefits from its rich ecosystem,
-      such as AI integrations and data analysis.
-    - Add directories such as `.cargo/`, `infra/`, `lib/`, and `programs/` to
-      set up the Rust backend and keep its code organized and modular. —
-      `.cargo/` — the `Cargo.toml` file and any other Rust configuration. —
-      `infra/` — infrastructure code and configuration, such as Dockerfiles,
-      Kubernetes manifests, or Terraform scripts for deploying the backend
-      services. — `lib/` — shared libraries and modules used across the Rust
-      backend. — `programs/` — the main application logic, such as the API
-      server and blockchain interaction code.
-
 - [ ] If needed, add C or C++ for performance-critical math, cryptography, or
       other features that benefit from a low-level, compiled language.
     - Consider C/C++ for heavy numeric or cryptographic work that is too slow in
@@ -299,23 +241,13 @@ mainnet launch deliverables.
       runbooks with alert routing, escalation expectations, dashboards, and
       incident-response steps.
 
-- [ ] Build an admin dashboard for operators, similar in depth to Django Admin
-      or mature platform back offices.
-    - Include authenticated views for operational health, contract/dispute
-      lookup, juror status, reputation history, notification delivery status,
-      oracle freshness, cron history, dependency/security report summaries,
-      deployment metadata, feature flags, rate-limit events, and audit logs.
-    - Gate access behind wallet-based admin authorization plus server-side admin
-      tokens during the transition. Do not expose private keys, RPC credentials,
-      email API keys, or raw user documents.
-    - Add read-only mode first, then carefully scoped admin actions with
-      explicit confirmation, audit trails, and tests.
-
-- [ ] Add any other useful tools, libraries, APIs, or cloud services that are
-      100% free or have a generous free tier for development and testing and
-      that can speed up development, improve the user experience, or enhance
-      platform functionality and implement them with the strictest configuration
-      possible to minimize errors and security risks.
+- [ ] Find and research any other useful tools, libraries, APIs, or cloud
+      services or any other integrations that are 100% free or have a generous
+      free tier for development and testing and that can speed up development,
+      improve the user experience, or enhance platform functionality and
+      implement them with the strictest configuration possible to minimize
+      errors and security risks. I want to be able to use these tools during
+      productiona and have it be easily scalable.
 
 ## Phase 8 — Privacy (Post-Launch)
 
@@ -365,6 +297,84 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Add an oracle service to fetch off-chain data relevant to contracts, such
+      as exchange rates for stablecoin payments or external data feeds that
+      could trigger contract actions or disputes.
+    - Set up a backend service that fetches and aggregates off-chain data and
+      makes it available to the frontend and smart contracts. For example, if
+      the platform supports stablecoin payments, the oracle could fetch
+      real-time exchange rates to ensure accurate payment amounts.
+    - The oracle could also fetch external data relevant to contract execution
+      or dispute resolution, such as delivery confirmations or work-completion
+      status from third-party platforms, to help automate parts of the contract
+      lifecycle.
+    - **Completed 2026-06-09:** Added `src/services/oracle.ts`,
+      `GET /api/oracle/rates`, oracle environment documentation, stale-cache
+      observability, and unit coverage in `src/tests/unit/oracle.test.ts`.
+      Current oracle data is server-side display/support data only; any on-chain
+      oracle consumption still requires a separate audited design.
+
+- [x] Build an admin dashboard for operators, similar in depth to Django Admin
+      or mature platform back offices.
+    - Completed 2026-06-09: added restricted read-only admin routes at
+      `/[locale]/admin` and `/[locale]/admin/sign-in`, plus
+      `GET /api/admin/summary` and `POST /api/admin/session`.
+    - Added `src/services/adminAuth.ts` with PBKDF2 password verification,
+      signed HTTP-only admin sessions, transition bearer-token access, optional
+      IP allowlisting, wallet allowlist binding, and a non-deletable bootstrap
+      owner identity for `kevinle3212@gmail.com` / `kevinle` when
+      `ADMIN_BOOTSTRAP_PASSWORD_HASH` is configured.
+    - Added `scripts/admin-bootstrap.mjs` and `npm run admin:bootstrap` so admin
+      password hashes can be generated locally without committing plaintext
+      passwords.
+    - Added `src/services/adminReport.ts` and unit coverage in
+      `src/tests/unit/admin-auth.test.ts` for auth, IP allowlisting, session
+      signing, bootstrap account loading, and read-only report coverage.
+    - The first dashboard version intentionally exposes only sanitized
+      operational status. Private keys, RPC credentials, email API keys, raw
+      user documents, and mutating admin actions remain unavailable. Future
+      admin mutations require explicit confirmation, persistent audit trails,
+      server-side authorization checks, and tests.
+
+- [x] Add backend services in additional languages such as Rust or Python, to
+      allow more flexibility and performance for complex logic or integrations
+      not well suited to JavaScript/TypeScript.
+    - Completed 2026-06-09: added a strict Rust workspace with `.cargo/`,
+      `Cargo.toml`, `lib/trustledger-core`, `programs/admin-api`, and
+      `infra/rust-admin-api`.
+    - Added `trustledger-core` shared Rust health models and a read-only Axum
+      `trustledger-admin-api` service exposing `GET /health`.
+    - Added Docker and Kubernetes examples for the Rust admin API in
+      `infra/rust-admin-api/`, with secrets referenced through Kubernetes
+      `Secret` values rather than hardcoded credentials.
+    - Added strict scripts `npm run rust:fmt`, `npm run rust:clippy`, and
+      `npm run rust:test`, and documented the service in `docs/ADMIN.md`.
+    - Added `.sixth/skills/admin-dashboard/SKILL.md` and
+      `.sixth/skills/rust-backend/SKILL.md` so future agent work follows the new
+      admin and Rust backend rules.
+
+- [x] Evaluate and implement SOL (Solana) support as a second-chain foundation.
+    - **Decision gate first:** determine whether SOL means (a) deploying an
+      equivalent Anchor program on Solana so users on Solana can use TrustLedger
+      natively, or (b) accepting SOL as a payment token on an EVM chain via a
+      bridge (e.g. Wormhole). Document the chosen approach and its trade-offs in
+      `NOTES.md` before writing any code.
+    - **Completed 2026-06-09:** Chose option (a), native Solana program support,
+      as the primary path. Bridged SOL remains deferred because it adds bridge
+      and wrapped-asset risk before the Solana product has audited native
+      semantics.
+    - Added `docs/SOLANA.md` with the native-program-first decision, safety
+      rules, and future Anchor/LiteSVM milestones.
+    - Added `src/helpers/solana.ts` with strict cluster resolution, RPC/Explorer
+      defaults, native support mode, conservative public-key shape validation,
+      and Explorer URL construction.
+    - Added `src/tests/unit/solana-helper.test.ts` so the Solana helper behavior
+      is validated before wallet or transaction code is introduced.
+    - **Future custody work:** implement the escrow, reputation, and arbitration
+      programs in Anchor, generate a typed client, add transaction simulation,
+      wire wallet-standard Solana discovery, and audit the native program path
+      before enabling real Solana funds.
 
 - [x] Phase 7 Item 3 — Create missing tests and add coverage for new support
       areas.
@@ -443,6 +453,15 @@ mainnet launch deliverables.
       wallet write. The panel asks whether the user is sure they want to send
       the proposal to the opposite role and keeps "Keep editing" available until
       confirmation.
+    - Enhanced 2026-06-09: added `SecureDraftSessionPanel.tsx` so parties can
+      draft terms in Markdown, HTML, or plain text; apply basic formatting
+      snippets; see a last-updated timestamp; and exchange encrypted draft
+      snapshots before deployment.
+    - Secure draft links now store only encrypted payloads in the URL. The
+      session key is copied separately, and importing checks the connected
+      wallet against the sender/counterparty allowlist before decrypting. This
+      creates a notary-style review session without adding a backend
+      collaboration server or changing the on-chain contract interface.
     - Verified with `npm run doctor`,
       `npx react-doctor@latest --verbose --diff`, `npm run lint:frontend`,
       `npm run build:frontend`, and root `npm run lint`.

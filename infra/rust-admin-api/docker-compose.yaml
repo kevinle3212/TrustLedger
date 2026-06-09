@@ -1,0 +1,18 @@
+services:
+    trustledger-admin-api:
+        build:
+            context: ../..
+            dockerfile: infra/rust-admin-api/Dockerfile
+        image: trustledger-admin-api:local
+        environment:
+            TRUSTLEDGER_ADMIN_API_BIND: 0.0.0.0:4100
+            TRUSTLEDGER_ENV: local
+        env_file:
+            - ../../.env
+        ports:
+            - "4100:4100"
+        read_only: true
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL

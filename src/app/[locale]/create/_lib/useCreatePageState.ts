@@ -33,6 +33,7 @@ import { useRole } from "@/contexts/RoleContext";
 import { decodeContractError, type DecodedContractError } from "@/lib/contractErrors";
 import type { CreateState, FormFields } from "./types";
 import { createReducer } from "./reducer";
+import type { ShareableDraft } from "./secureDraftShare";
 
 const DRAFT_STORAGE_KEY = "tl_create_contract_draft";
 
@@ -74,6 +75,7 @@ export function useCreatePageState(): {
 	state: CreateState;
 	dispatch: React.Dispatch<Parameters<typeof createReducer>[1]>;
 	isConnected: boolean;
+	address: `0x${string}` | undefined;
 	chainId: number;
 	usdcAddress: `0x${string}` | undefined;
 	isClientProposing: boolean;
@@ -103,8 +105,9 @@ export function useCreatePageState(): {
 	handleUploadToIPFS: () => Promise<void>;
 	handleArweaveWalletLoad: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	handleArweaveUpload: () => Promise<void>;
+	applySharedDraft: (draft: ShareableDraft) => void;
 } {
-	const { isConnected } = useAccount();
+	const { address, isConnected } = useAccount();
 	const chainId = useChainId();
 	const usdcAddress = getUsdcAddress(chainId);
 	const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
@@ -133,6 +136,10 @@ export function useCreatePageState(): {
 				holdBack: "none" as const,
 				warrantyPeriodDays: "30",
 			},
+			termsBody:
+				"# Scope of work\n\n- Deliver the agreed milestone.\n- Share acceptance criteria before funding.\n\n## Payment\n\nEscrow releases after approval or dispute resolution.",
+			termsFormat: "markdown" as const,
+			termsLastUpdatedAt: new Date().toISOString(),
 			reviewOpen: false,
 			magicLinkStatus: "idle" as const,
 			docMode: "upload",
@@ -172,6 +179,7 @@ export function useCreatePageState(): {
 
 	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
 	const uploadedMime = useRef("application/octet-stream");
+	const skippedInitialDraftSave = useRef(false);
 
 	function set(key: keyof FormFields, value: string): void {
 		dispatch({ type: "SET_FIELD", key, value });
@@ -311,19 +319,64 @@ export function useCreatePageState(): {
 	}, []);
 
 	useEffect(() => {
+		try {
+			const rawDraft = window.localStorage.getItem(DRAFT_STORAGE_KEY);
+			if (rawDraft === null) return;
+			dispatch({
+				type: "HYDRATE_DRAFT",
+				draft: JSON.parse(rawDraft) as Partial<CreateState>,
+			});
+		} catch {
+			// Browsers can deny localStorage in private or sandboxed contexts.
+		}
+	}, []);
+
+	function applySharedDraft(draft: ShareableDraft): void {
+		dispatch({
+			type: "HYDRATE_DRAFT",
+			draft: {
+				proposerRole: draft.proposerRole,
+				paymentToken: draft.paymentToken,
+				form: draft.form,
+				docMode: draft.docMode,
+				encryptEnabled: draft.encryptEnabled,
+				termsBody: draft.termsBody,
+				termsFormat: draft.termsFormat,
+				termsLastUpdatedAt: draft.termsLastUpdatedAt ?? new Date().toISOString(),
+			},
+		});
+	}
+
+	useEffect(() => {
+		if (!skippedInitialDraftSave.current) {
+			skippedInitialDraftSave.current = true;
+			return;
+		}
 		const draft = {
 			proposerRole: state.proposerRole,
 			paymentToken: state.paymentToken,
 			form: state.form,
 			docMode: state.docMode,
 			encryptEnabled: state.encryptEnabled,
+			termsBody: state.termsBody,
+			termsFormat: state.termsFormat,
+			termsLastUpdatedAt: state.termsLastUpdatedAt,
 		};
 		try {
 			window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
 		} catch {
 			// Browsers can deny localStorage in private or sandboxed contexts.
 		}
-	}, [state.proposerRole, state.paymentToken, state.form, state.docMode, state.encryptEnabled]);
+	}, [
+		state.proposerRole,
+		state.paymentToken,
+		state.form,
+		state.docMode,
+		state.encryptEnabled,
+		state.termsBody,
+		state.termsFormat,
+		state.termsLastUpdatedAt,
+	]);
 
 	useEffect(() => {
 		if (!isSuccess) return;
@@ -450,6 +503,7 @@ export function useCreatePageState(): {
 		state,
 		dispatch,
 		isConnected,
+		address,
 		chainId,
 		usdcAddress,
 		isClientProposing,
@@ -474,5 +528,6 @@ export function useCreatePageState(): {
 		handleUploadToIPFS,
 		handleArweaveWalletLoad,
 		handleArweaveUpload,
+		applySharedDraft,
 	};
 }

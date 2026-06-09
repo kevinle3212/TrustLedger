@@ -1,5 +1,8 @@
 # CI/CD
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains the GitHub Actions workflows in `.github/workflows`. Read
 it when adding a job, debugging CI, or changing deployment secrets.
 

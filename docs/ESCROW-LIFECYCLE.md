@@ -1,5 +1,8 @@
 # Escrow Lifecycle
 
+**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+
 This document explains TrustLedger escrow state transitions. Read it when
 reviewing user flows, testing lifecycle behavior, or integrating a client with
 `TrustLedger.sol`.

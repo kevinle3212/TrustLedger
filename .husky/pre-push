@@ -11,6 +11,10 @@ echo "pre-push: impeccable checks"
 npm run impeccable
 echo "pre-push: frontend build"
 npm run build:frontend
+echo "pre-push: Rust backend"
+npm run rust:fmt
+npm run rust:clippy
+npm run rust:test
 echo "pre-push: contracts"
 FOUNDRY_PROFILE=ci node tools/foundry-sandbox.mjs build
 FOUNDRY_PROFILE=ci node tools/foundry-sandbox.mjs test
