@@ -80,7 +80,7 @@
 		"lint:config": "eslint eslint.config.mjs eslint.scripts.config.mjs commitlint.config.js",
 		"lint:sol": "solhint --disc --max-warnings 0 'contracts/src/**/*.sol' 'contracts/test/**/*.sol' 'contracts/script/**/*.sol'",
 		"lint:forge": "cd contracts && forge fmt --check && forge lint src test script",
-		"lint:md": "markdownlint-cli2 \"**/*.md\" \"#NOTES.local.md\" \"#ACCEPTABLE_USE_POLICY.md\" \"#COMMUNITY_GUIDELINES.md\" \"#CONTENT_POLICY.md\" \"#COOKIE_POLICY.md\" \"#DISCLAIMER.md\" \"#DISCLAIMER 2.md\" \"#DMCA_POLICY.md\" \"#PRIVACY_POLICY.md\" \"#RISK_DISCLOSURE.md\" \"#TERMS_AND_CONDITIONS.md\" \"#TRADEMARK_POLICY.md\" \"#contracts/lib\" \"#contracts/out\" \"#contracts/cache\" \"#artifacts\" \"#dist\" \"#node_modules\" \"#src/node_modules\" \"#.next\" \"#src/.next\" \"#.vercel/output\" \"#.venv-docs\" \"#.claude\" \"#.sixth\" \"#site\" \"#testing\" \"#src/skills\" \"#src/.agents\" \"#src/.claude\"",
+		"lint:md": "markdownlint-cli2 \"**/*.md\" \"#NOTES.local.md\" \"#contracts/lib\" \"#contracts/out\" \"#contracts/cache\" \"#artifacts\" \"#dist\" \"#node_modules\" \"#src/node_modules\" \"#.next\" \"#src/.next\" \"#.vercel/output\" \"#.venv-docs\" \"#.claude\" \"#.sixth\" \"#site\" \"#testing\" \"#src/skills\" \"#src/.agents\" \"#src/.claude\"",
 		"lint:logs": "markdownlint-cli2 \"logs/**/*.md\" \"#logs/**/node_modules\"",
 		"logs:check": "node tools/check-logs.mjs",
 		"logs:prune": "node tools/check-logs.mjs --prune",

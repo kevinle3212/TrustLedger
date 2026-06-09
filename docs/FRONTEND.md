@@ -97,6 +97,21 @@ The frontend package exposes display-rate oracle routes:
 Read [Oracle Architecture](ORACLE.md) before adding assets, providers, or
 on-chain oracle consumption.
 
+## Solana Helpers
+
+`src/helpers/solana.ts` records the current Solana decision:
+native-program-first support. It provides cluster defaults, Explorer URL
+construction, and conservative public-key shape checks. Read
+[Solana Support](SOLANA.md) before adding wallet or transaction code.
+
+## Legal Localization Helpers
+
+`src/helpers/legal-docs.ts` is the registry for legal document metadata. It
+tracks source files, supported locales, translation status, and a constrained
+translation prompt for machine-assisted drafts. Legal translations should remain
+human-reviewed before publication; the helper exists to preserve Markdown shape
+and prevent accidental changes to legal meaning.
+
 ## Internationalization
 
 The frontend uses `next-intl`. Keep user-visible strings in the established
@@ -111,6 +126,12 @@ responsive clusters, and high-contrast behavior. `app-desktop.scss` owns shared
 layout widths, page headers, workspace grids, and responsive shell behavior. Use
 Tailwind for component structure and helper classes for repeated theme,
 interaction, and motion states.
+
+Home-page motion currently includes contract phase transitions, progress
+feedback, signature verification feedback, CTA hover treatment, value lift,
+status pulse, document hash shimmer, orbit motion, link underline motion, and
+protection-list interaction. Every new animation must keep content visible by
+default and honor `prefers-reduced-motion`.
 
 ## FAQ And Recovery Routes
 

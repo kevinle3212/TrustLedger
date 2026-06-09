@@ -161,21 +161,27 @@ mainnet launch deliverables.
       Current oracle data is server-side display/support data only; any on-chain
       oracle consumption still requires a separate audited design.
 
-- [ ] Evaluate and implement SOL (Solana) support as a second chain.
+- [x] Evaluate and implement SOL (Solana) support as a second-chain foundation.
     - **Decision gate first:** determine whether SOL means (a) deploying an
       equivalent Anchor program on Solana so users on Solana can use TrustLedger
       natively, or (b) accepting SOL as a payment token on an EVM chain via a
       bridge (e.g. Wormhole). Document the chosen approach and its trade-offs in
       `NOTES.md` before writing any code.
-    - If option (a): implement the escrow, reputation, and arbitration programs
-      in Anchor, wire a Solana wallet adapter (e.g. `@solana/wallet-adapter`)
-      into the frontend, and add chain-switching logic so the UI routes to the
-      correct program depending on the connected wallet's chain.
-    - If option (b): integrate a bridge SDK, add SOL to the currency selector
-      alongside ETH and USDC, and validate lock/unlock flows end-to-end on
-      testnet before mainnet.
-    - Either path requires updating `README.md`, `.env.example`, and the docs
-      with new network addresses, setup steps, and any new tooling requirements.
+    - **Completed 2026-06-09:** Chose option (a), native Solana program support,
+      as the primary path. Bridged SOL remains deferred because it adds bridge
+      and wrapped-asset risk before the Solana product has audited native
+      semantics.
+    - Added `docs/SOLANA.md` with the native-program-first decision, safety
+      rules, and future Anchor/LiteSVM milestones.
+    - Added `src/helpers/solana.ts` with strict cluster resolution, RPC/Explorer
+      defaults, native support mode, conservative public-key shape validation,
+      and Explorer URL construction.
+    - Added `src/tests/unit/solana-helper.test.ts` so the Solana helper behavior
+      is validated before wallet or transaction code is introduced.
+    - **Future custody work:** implement the escrow, reputation, and arbitration
+      programs in Anchor, generate a typed client, add transaction simulation,
+      wire wallet-standard Solana discovery, and audit the native program path
+      before enabling real Solana funds.
 
 - [ ] Add backend services in additional languages such as Rust or Python, to
       allow more flexibility and performance for complex logic or integrations
@@ -280,20 +286,6 @@ mainnet launch deliverables.
       grammar, punctuation, capitalization, or syntax errors in every sentence,
       heading, and code block comment across all documentation files.
 
-- [ ] Create tests for the features that haven't been done, and add tests needed
-      be added for any other areas of codebase, to ensure the platform is robust
-      and reliable before the mainnet launch (not coming soon, but we're
-      prepping).
-    - Write unit tests for all frontend components, backend logic, and smart
-      contract interactions, plus integration tests covering end-to-end user
-      flows. Aim for high coverage to catch bugs before they reach production.
-    - Consider Jest and React Testing Library for the frontend and Supertest for
-      any backend API routes. For smart contracts, use Hardhat's testing
-      framework to cover all contract functions and edge cases.
-    - **Status 2026-06-09:** Still open. Oracle unit tests improve coverage but
-      do not satisfy the original comprehensive requirement. See
-      `docs/reports/coverage-gap-report.md`.
-
 - [ ] Add error monitoring and analytics (for example Sentry for error tracking
       and a privacy-respecting analytics tool) to surface production issues and
       usage patterns.
@@ -319,10 +311,11 @@ mainnet launch deliverables.
     - Add read-only mode first, then carefully scoped admin actions with
       explicit confirmation, audit trails, and tests.
 
-- [ ] Add any other useful tools, libraries, APIs, or cloud services (for
-      example GCP) that are free for development and testing and that can speed
-      up development, improve the user experience, or enhance platform
-      functionality.
+- [ ] Add any other useful tools, libraries, APIs, or cloud services that are
+      100% free or have a generous free tier for development and testing and
+      that can speed up development, improve the user experience, or enhance
+      platform functionality and implement them with the strictest configuration
+      possible to minimize errors and security risks.
 
 ## Phase 8 — Privacy (Post-Launch)
 
@@ -372,6 +365,25 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Phase 7 Item 3 — Create missing tests and add coverage for new support
+      areas.
+    - Completed 2026-06-09: added unit coverage for the legal document
+      localization helper in `src/tests/unit/legal-docs.test.ts`, including
+      locale fallback, non-source review status, and constrained translation
+      prompt behavior.
+    - Added unit coverage for Solana support helpers in
+      `src/tests/unit/solana-helper.test.ts`, including native support mode,
+      cluster fallback, RPC defaults, conservative address validation, and
+      Explorer URL generation.
+    - Added React Testing Library coverage for the home-page interactive
+      contract preview in
+      `src/tests/unit/interactive-contract-preview.test.tsx`, including direct
+      status selection and CTA phase advancement.
+    - Existing suites continue to cover validation, wallet hint storage, health,
+      oracle behavior, route accessibility, public route rendering, Hardhat
+      tests, and Foundry tests. Run `npm run quality` plus `npm run impeccable`
+      before merging feature work.
 
 - [x] Phase 5 — Dispute Resolution and Arbitration.
     - Completed 2026-06-09: added party evidence storage to

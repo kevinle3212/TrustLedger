@@ -37,6 +37,14 @@ Use `.sixth/skills/legal-compliance/SKILL.md` for any legal or
 compliance-sensitive change. Do not edit root legal draft files unless the
 active user request explicitly authorizes edits to those files.
 
+## Translation Workflow
+
+The frontend helper `src/helpers/legal-docs.ts` lists legal documents, supported
+locales, source files, and translation status. It also exposes a constrained
+machine-translation prompt that tells reviewers to preserve headings, numbering,
+defined terms, links, and Markdown structure. Machine-assisted translations
+should remain marked as needing review until a qualified reviewer approves them.
+
 ## Jurisdiction Note
 
 A single SaaS policy set can provide a global baseline, but it cannot reliably

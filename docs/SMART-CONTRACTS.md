@@ -23,6 +23,17 @@ move only through an intentional dependency-review change.
 `contracts/lib/forge-std` is vendored as regular tracked files, so it is
 intentionally not listed as a submodule in `.gitmodules`.
 
+`contracts/foundry-sandbox` is a separate Foundry project for minimal
+reproductions and fork-test debugging. Keep production regression tests in
+`contracts/test/`; use the sandbox for isolated compiler, dependency, or fork
+cases that need a smaller surface.
+
+Run it from the repository root with:
+
+```bash
+node tools/foundry-sandbox.mjs test --root foundry-sandbox --offline
+```
+
 ## TrustLedger
 
 `TrustLedger` inherits `ReentrancyGuard` and `Pausable`. It stores escrow terms

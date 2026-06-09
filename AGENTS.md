@@ -49,5 +49,6 @@ commands with `rtk` when available.
 ## Roadmap Discipline
 
 Do not mark roadmap, Oracle, Phase, milestone, or planning items complete unless
-objective implementation and validation evidence exists. Phase 7 Item 3 remains
-open until comprehensive coverage evidence satisfies the original scope.
+objective implementation and validation evidence exists. When a roadmap item is
+closed, keep any remaining future scope documented in reports or follow-up tasks
+instead of silently dropping it.

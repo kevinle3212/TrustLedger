@@ -97,6 +97,17 @@ cd src
 npm run test:e2e:headed
 ```
 
+## Current Added Coverage
+
+The current testing sweep added focused frontend tests for:
+
+- Legal document localization and translation prompt guardrails.
+- Solana cluster resolution, address-shape validation, and Explorer URLs.
+- Home-page interactive contract preview phase selection and CTA advancement.
+
+These tests complement existing wallet, validation, health, oracle, route,
+contract-error, and public route checks.
+
 ## Linting
 
 Run all root lint checks:

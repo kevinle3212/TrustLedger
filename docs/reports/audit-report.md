@@ -84,7 +84,9 @@ metadata, never secret values.
 
 ## Remaining Risks
 
-- Comprehensive Phase 7 coverage is not complete.
+- Phase 7 Item 3 has current sweep coverage for legal helpers, Solana helpers,
+  and the interactive home preview; deeper future coverage gaps remain tracked
+  in `docs/reports/coverage-gap-report.md`.
 - Mainnet requires a third-party contract audit and a signed audit report.
 - Production monitoring still needs an external alert sink such as Sentry,
   Datadog, Grafana Cloud, Better Stack, or an equivalent service.

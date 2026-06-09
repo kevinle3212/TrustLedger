@@ -1,0 +1,7 @@
+# Foundry build output
+out/
+cache/
+
+# Local broadcast/debug output
+broadcast/
+trace/

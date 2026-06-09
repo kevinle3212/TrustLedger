@@ -1,5 +1,16 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import type { CSSProperties } from "react";
 import { Link } from "@/i18n/navigation";
+import { InteractiveContractPreview } from "@/app/[locale]/_components/InteractiveContractPreview";
+import {
+	getSolanaExplorerAddressUrl,
+	getSolanaNetworkConfig,
+	isLikelySolanaAddress,
+	isSolanaCluster,
+	resolveSolanaCluster,
+	SOLANA_NETWORKS,
+	SOLANA_SUPPORT_MODE,
+} from "@/helpers/solana";
 
 export const metadata = {
 	title: "TrustLedger",
@@ -25,6 +36,17 @@ export default async function HomePage({
 		{ title: t("featureArbitrationTitle"), desc: t("featureArbitrationDesc") },
 		{ title: t("featureWarrantyTitle"), desc: t("featureWarrantyDesc") },
 	];
+	const solanaCluster = resolveSolanaCluster(process.env["NEXT_PUBLIC_SOLANA_CLUSTER"]);
+	const solanaNetwork = getSolanaNetworkConfig(solanaCluster);
+	const solanaSystemProgramAddress = "11111111111111111111111111111111";
+	const solanaExplorerUrl = getSolanaExplorerAddressUrl(
+		solanaSystemProgramAddress,
+		solanaCluster,
+	);
+	const solanaStatusIsValid =
+		isSolanaCluster(solanaNetwork.cluster) &&
+		isLikelySolanaAddress(solanaSystemProgramAddress) &&
+		SOLANA_NETWORKS[solanaCluster].rpcUrl === solanaNetwork.rpcUrl;
 
 	return (
 		<div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16 sm:py-24">
@@ -42,6 +64,16 @@ export default async function HomePage({
 					<p className="mt-6 max-w-xl text-lg leading-8 text-gray-600 dark:text-gray-300">
 						{t("subtext")}
 					</p>
+					<a
+						href={solanaExplorerUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label={`View Solana system program on ${solanaNetwork.label}`}
+						className="tl-link-underline mt-4 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200"
+					>
+						Solana {SOLANA_SUPPORT_MODE}: {solanaNetwork.label}
+						{solanaStatusIsValid ? "" : " (check config)"}
+					</a>
 					<div className="mt-8 flex flex-col gap-3 sm:flex-row">
 						<Link
 							href="/create"
@@ -58,58 +90,20 @@ export default async function HomePage({
 					</div>
 				</div>
 
-				<div className="tl-motion-card rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
-					<div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950">
-						<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-							<div className="min-w-0">
-								<p className="font-mono text-xs text-gray-500">#18</p>
-								<h2 className="mt-1 text-lg font-semibold text-gray-950 dark:text-white">
-									{t("featureEscrowTitle")}
-								</h2>
-							</div>
-							<span className="tl-status-badge tl-status-badge--active rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
-								{tStatus("ACTIVE")}
-							</span>
-						</div>
-
-						<div className="tl-kv-grid mt-6 text-sm">
-							<span className="text-gray-500 dark:text-gray-400">
-								{tDashboard("amount")}
-							</span>
-							<span className="font-medium text-gray-950 dark:text-white">
-								0.75 ETH
-							</span>
-							<span className="text-gray-500 dark:text-gray-400">
-								{tDashboard("deadline")}
-							</span>
-							<span className="font-medium text-gray-950 dark:text-white">
-								{tDashboard("exampleDeadline")}
-							</span>
-							<span className="text-gray-500 dark:text-gray-400">
-								{tDashboard("holdBack")}
-							</span>
-							<span className="font-medium text-gray-950 dark:text-white">10%</span>
-							<span className="text-gray-500 dark:text-gray-400">
-								{tDashboard("document")}
-							</span>
-							<span className="font-medium text-indigo-600 dark:text-indigo-400">
-								{tDashboard("view")}
-							</span>
-						</div>
-					</div>
-
-					<div className="mt-4 flex flex-wrap gap-2 text-center text-xs font-medium text-gray-600 dark:text-gray-300">
-						<span className="rounded-lg border border-gray-200 bg-white px-2 py-2 dark:border-white/10 dark:bg-gray-950">
-							{tStatus("PENDING")}
-						</span>
-						<span className="tl-status-badge tl-status-badge--active rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-2 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-300">
-							{tStatus("ACTIVE")}
-						</span>
-						<span className="rounded-lg border border-gray-200 bg-white px-2 py-2 dark:border-white/10 dark:bg-gray-950">
-							{tStatus("APPROVED")}
-						</span>
-					</div>
-				</div>
+				<InteractiveContractPreview
+					title={t("featureEscrowTitle")}
+					amountLabel={tDashboard("amount")}
+					deadlineLabel={tDashboard("deadline")}
+					deadlineValue={tDashboard("exampleDeadline")}
+					holdBackLabel={tDashboard("holdBack")}
+					documentLabel={tDashboard("document")}
+					viewLabel={tDashboard("view")}
+					statuses={{
+						PENDING: tStatus("PENDING"),
+						ACTIVE: tStatus("ACTIVE"),
+						APPROVED: tStatus("APPROVED"),
+					}}
+				/>
 			</section>
 
 			<section className="grid gap-8 border-t border-gray-200 pt-10 dark:border-white/10 lg:grid-cols-[18rem_1fr]">
@@ -121,11 +115,12 @@ export default async function HomePage({
 						{t("featureEscrowDesc")}
 					</p>
 				</div>
-				<div className="divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-gray-50 dark:divide-white/10 dark:border-white/10 dark:bg-white/5">
+				<div className="tl-protection-list rounded-2xl border border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-white/5">
 					{features.map((feature, index) => (
 						<div
 							key={feature.title}
-							className="tl-motion-card grid gap-4 p-5 sm:grid-cols-[3rem_1fr]"
+							className="tl-protection-item grid gap-4 p-5 sm:grid-cols-[3rem_1fr]"
+							style={{ "--tl-item-index": index } as CSSProperties}
 						>
 							<span className="flex size-10 items-center justify-center rounded-full border border-gray-300 bg-white text-sm font-semibold text-gray-700 dark:border-white/15 dark:bg-gray-950 dark:text-gray-200">
 								{index + 1}

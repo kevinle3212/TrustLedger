@@ -11,5 +11,6 @@ alwaysApply: false
 
 Use focused unit tests for utilities/services, React Testing Library for
 components, Playwright for user flows, Hardhat for TypeScript contract
-workflows, and Foundry for Solidity unit/fuzz/fork coverage. Phase 7 Item 3
-remains open until comprehensive coverage evidence exists.
+workflows, and Foundry for Solidity unit/fuzz/fork coverage. Keep roadmap
+testing completions tied to concrete test files, coverage output, and follow-up
+gap reports.
