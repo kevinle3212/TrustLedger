@@ -41,13 +41,12 @@
 		"incremental": true,
 
 		/* ── Next.js plugin + path aliases ──────────────────────────────────── */
-		/* `@/types/*` resolves to the repo-root `types/` directory of shared,
-		   framework-agnostic types (the more specific pattern wins over `@/*`);
-		   `@/*` resolves to files inside `src/`. */
+		/* `@/types/*` resolves inside `src/types` so local, GitHub Actions,
+		   and Vercel builds all use files within the frontend project root. */
 		"plugins": [{ "name": "next" }],
 		"paths": {
-			"@/types": ["../types/index.ts"],
-			"@/types/*": ["../types/*"],
+			"@/types": ["./types/index.ts"],
+			"@/types/*": ["./types/*"],
 			"@/*": ["./*"]
 		}
 	},
@@ -55,7 +54,6 @@
 		"next-env.d.ts",
 		"**/*.ts",
 		"**/*.tsx",
-		"../types/**/*.ts",
 		".next/types/**/*.ts",
 		".next/dev/types/**/*.ts"
 	],

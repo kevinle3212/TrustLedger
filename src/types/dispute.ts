@@ -4,65 +4,21 @@
 import type { Address } from "./common";
 
 /**
- * Voting phase of a dispute. The numeric values mirror the on-chain `Phase`
- * enum exactly, so an enum member can be compared directly against the `number`
- * returned by `getDispute()`. `COMMIT`/`REVEAL` apply to original disputes;
- * the `APPEAL_*` phases apply to re-tried disputes after an appeal.
- *
- * @example
- * if (dispute.phase === DisputePhase.Reveal) {
- *   // jurors are revealing their committed votes
- * }
- */
-export enum DisputePhase {
-	/** Jurors submit hidden vote commitments. */
-	Commit = 0,
-	/** Jurors reveal their actual votes. */
-	Reveal = 1,
-	/** Median computed; the appeal window is open. */
-	Finalized = 2,
-	/** An appeal was filed; the dispute is frozen pending the appeal outcome. */
-	Appealed = 3,
-	/** Appeal dispute: commit phase. */
-	AppealCommit = 4,
-	/** Appeal dispute: reveal phase. */
-	AppealReveal = 5,
-	/** Appeal dispute finalized; the ruling is binding. */
-	AppealFinalized = 6,
-}
-
-/**
- * Human-readable labels indexed by {@link DisputePhase}.
- *
- * @example
- * DISPUTE_PHASE_LABELS[DisputePhase.Commit]; // "Commit"
- */
-export const DISPUTE_PHASE_LABELS = [
-	"Commit",
-	"Reveal",
-	"Finalized",
-	"Appealed",
-	"Appeal Commit",
-	"Appeal Reveal",
-	"Appeal Finalized",
-] as const;
-
-/**
  * A dispute opened against an escrow contract. This is a faithful mirror of the
  * `Dispute` struct returned by `Arbitration.getDispute()`. Original disputes and
  * appeal disputes share this shape and differ by `parentDisputeId`.
  *
  * Integer widths follow viem's ABI decoding: `uint64` and `uint256` fields
- * decode to `bigint`. `phase` is typed as `number` (rather than
- * {@link DisputePhase}) to stay assignable from the value returned on-chain;
- * compare it against `DisputePhase` members.
+ * decode to `bigint`. `phase` is typed as `number` to stay assignable from the
+ * value returned on-chain; compare it against the `Phase` enum values in
+ * `contracts/src/Arbitration.sol`.
  */
 export interface Dispute {
 	/** TrustLedger escrow ID this dispute belongs to. */
 	contractId: bigint;
 	/** Client address, copied from TrustLedger for convenience. */
 	client: Address;
-	/** Current voting phase; see {@link DisputePhase}. */
+	/** Current voting phase; mirrors `Arbitration.Phase`. */
 	phase: number;
 	/** True once `finalizeDispute()` has succeeded. */
 	finalized: boolean;

@@ -6,56 +6,13 @@
 import type { Address, Bytes32 } from "./common";
 
 /**
- * Lifecycle state of an escrow contract. The numeric values mirror the on-chain
- * `Status` enum exactly, so an enum member can be compared directly against the
- * `number` returned by `getContract()`.
- *
- * @example
- * if (contract.status === ContractStatus.Active) {
- *   // project deadline is counting down
- * }
- */
-export enum ContractStatus {
-	/** Contract created; the freelancer has not responded yet. */
-	Pending = 0,
-	/** Freelancer accepted; the project deadline is counting down. */
-	Active = 1,
-	/** Freelancer submitted proof-of-work; the acceptance window is running. */
-	Submitted = 2,
-	/** Client approved, or the acceptance window elapsed (auto-release). */
-	Approved = 3,
-	/** Client opened a dispute; awaiting arbitration. */
-	Disputed = 4,
-	/** Arbitration finalized and the ruling was executed. */
-	Resolved = 5,
-	/** Freelancer rejected, client cancelled, or client reclaimed after a missed deadline. */
-	Cancelled = 6,
-}
-
-/**
- * Human-readable labels indexed by {@link ContractStatus}.
- *
- * @example
- * CONTRACT_STATUS_LABELS[ContractStatus.Active]; // "Active"
- */
-export const CONTRACT_STATUS_LABELS = [
-	"Pending",
-	"Active",
-	"Submitted",
-	"Approved",
-	"Disputed",
-	"Resolved",
-	"Cancelled",
-] as const;
-
-/**
  * A single freelance agreement. This is a faithful mirror of the
  * `EscrowContract` struct returned by `TrustLedger.getContract()`.
  *
  * Integer widths follow viem's ABI decoding: `uint8`/`uint16` fields decode to
  * `number`, while `uint64`/`uint256` fields decode to `bigint`. `status` is
- * typed as `number` (rather than {@link ContractStatus}) to stay assignable
- * from the value returned on-chain; compare it against `ContractStatus` members.
+ * typed as `number` to stay assignable from the value returned on-chain; compare
+ * it against the `Status` enum values in `contracts/src/TrustLedger.sol`.
  */
 export interface Contract {
 	/** Who hired the freelancer and deposited the funds. */
@@ -64,7 +21,7 @@ export interface Contract {
 	arbitrationFeeBps: number;
 	/** Warranty holdback portion, in basis points (0 or 500–1500). */
 	holdBackBps: number;
-	/** Current lifecycle state; see {@link ContractStatus}. */
+	/** Current lifecycle state; mirrors `TrustLedger.Status`. */
 	status: number;
 	/** Who does the work and receives payment. */
 	freelancer: Address;

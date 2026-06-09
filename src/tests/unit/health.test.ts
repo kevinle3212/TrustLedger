@@ -1,4 +1,4 @@
-import { buildHealthReport } from "@/services/health";
+import { buildHealthReport, buildRuntimeHealthReport } from "@/services/health";
 
 describe("health report", () => {
 	const originalEnv = process.env;
@@ -39,6 +39,22 @@ describe("health report", () => {
 				}),
 			]),
 		);
+	});
+
+	it("keeps runtime health independent from operational configuration", () => {
+		delete process.env["SEPOLIA_RPC_URL"];
+		delete process.env["NOTIFICATIONS_SECRET"];
+		delete process.env["CRON_SECRET"];
+
+		const report = buildRuntimeHealthReport();
+
+		expect(report.ok).toBe(true);
+		expect(report.checks).toEqual([
+			expect.objectContaining({
+				name: "runtime",
+				ok: true,
+			}),
+		]);
 	});
 
 	it("rejects invalid public app URLs", () => {

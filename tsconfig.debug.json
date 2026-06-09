@@ -6,8 +6,14 @@
 	// Disable the ones you don't need before running.
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
+		"noEmit": true,
+		"pretty": true,
+		"preserveWatchOutput": true,
+		"tsBuildInfoFile": "./.tsbuildinfo.debug",
+
 		// ── Lightweight: safe to enable together ─────────────────────────────
 		"extendedDiagnostics": true, // memory, time, file/line/identifier counts after compile
+		"diagnostics": true, // concise parser/binder/checker timing summary
 		"listEmittedFiles": true, // absolute path of every emitted file
 
 		// ── Heavy: enable ONE at a time - each can produce 10k+ lines ────────

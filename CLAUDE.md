@@ -143,6 +143,9 @@ npm run doctor            # React Doctor (score + verbose findings)
 
 ## 8. Documentation
 
+Use `src/.claude/skills/update-context/SKILL.md` after repository changes so
+docs, comments, visible project surfaces, and agent instructions stay current.
+
 Add a brief doc comment above any new code element (feature, function,
 component, env var) when warranted: what it does, key params/returns, and an
 example if relevant.

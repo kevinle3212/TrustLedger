@@ -1,0 +1,29 @@
+# Requires an ingress controller such as nginx, Traefik, or a cloud load
+# balancer. Patch host and TLS secret per environment before applying.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: trustledger-frontend
+    namespace: trustledger
+    labels:
+        app.kubernetes.io/name: trustledger-frontend
+        app.kubernetes.io/part-of: trustledger
+    annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: "2m"
+spec:
+    ingressClassName: nginx
+    tls:
+        - hosts:
+              - trustledger.example.com
+          secretName: trustledger-frontend-tls
+    rules:
+        - host: trustledger.example.com
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: trustledger-frontend
+                            port:
+                                name: http

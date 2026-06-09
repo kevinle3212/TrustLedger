@@ -11,6 +11,8 @@ path routing context.
   vulnerabilities, devDependencies, and overrides.
 - Use `src/.agents/skills/swc-config/SKILL.md` before changing `.swc/` policy or
   compiler settings.
+- Use `src/.agents/skills/update-context/SKILL.md` after repository changes so
+  docs, comments, visible project surfaces, and agent instructions stay current.
 - Do not include secrets, `.env` values, tokens, mnemonics, private keys, or raw
   credentials in instructions, logs, prompts, or generated files.
 - Prefer targeted tests and the existing project scripts over ad hoc commands.

@@ -735,20 +735,19 @@ mainnet launch deliverables.
 
 - [x] Add a `types/` directory for shared TypeScript types and interfaces that
       can be imported across the frontend and backend, ensuring type safety and
-      consistency. — Added a root `types/` directory with `common.ts`
-      (`Address`/`Hex`/`Bytes32` aliases), `contract.ts` (`Contract` +
-      `ContractStatus` mirroring `EscrowContract`), `dispute.ts` (`Dispute` +
-      `DisputePhase` mirroring the `Dispute` struct), `rating.ts` (`Rating`,
-      `ReputationSummary`, `ReputationHistoryEntry`), and an `index.ts` barrel.
-      Wired a `@/types` / `@/types/*` path alias in `src/tsconfig.json` (the
-      repo-root `types/` is also added to `include`) and adopted the shared
-      types in the frontend: `dashboard/page.tsx` now imports `Contract` and
+      consistency. — Added `src/types/` with `common.ts`
+      (`Address`/`Hex`/`Bytes32` aliases), `contract.ts` (`Contract` mirroring
+      `EscrowContract`), `dispute.ts` (`Dispute` mirroring the `Dispute`
+      struct), `rating.ts` (`Rating`, `ReputationSummary`,
+      `ReputationHistoryEntry`), and an `index.ts` barrel. Wired a `@/types` /
+      `@/types/*` path alias in `src/tsconfig.json` so local, CI, and Vercel
+      builds resolve the same frontend-owned files. Adopted the shared types in
+      the frontend: `dashboard/page.tsx` now imports `Contract` and
       `reputation/page.tsx` imports `ReputationHistoryEntry`, replacing their
       local interface copies. `tsc`, ESLint, Prettier, and `next build` all
       pass.
-    - Create a `types/` directory at the project root and define shared types
-      such as `Contract`, `Dispute`, and `Rating` in separate files (for example
-      `types/contract.ts` and `types/dispute.ts`).
+    - Create a frontend-owned `src/types/` directory and define shared types
+      such as `Contract`, `Dispute`, and `Rating` in separate files.
     - Import these types into both the frontend components and any backend logic
       (for example API routes) so data structures stay consistent and type-safe
       across the entire codebase.

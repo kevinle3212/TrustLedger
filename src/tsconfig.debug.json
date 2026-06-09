@@ -7,9 +7,13 @@
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
 		"noEmit": true,
+		"pretty": true,
+		"preserveWatchOutput": true,
+		"tsBuildInfoFile": "./tsconfig.debug.tsbuildinfo",
 
 		// -- Lightweight: safe to enable together --
 		"extendedDiagnostics": true, // memory, time, file/line/identifier counts after compile
+		"diagnostics": true, // concise parser/binder/checker timing summary
 		"listEmittedFiles": true, // absolute path of every emitted file
 
 		// -- Heavy: enable ONE at a time (can produce 10k+ lines) --

@@ -59,6 +59,8 @@ src/.swc/*
 .env.*
 !.env.example
 !.env.local.example
+k8s/secret.yaml
+k8s/*.secret.yaml
 
 # ─── Package manager caches ───────────────────────────────────────────────────
 .npm

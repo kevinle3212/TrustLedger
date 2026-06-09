@@ -6,14 +6,14 @@ TypeScript clients.
 
 ## Integration Surfaces
 
-| Surface                | Path                        | Use                                                        |
-| ---------------------- | --------------------------- | ---------------------------------------------------------- |
-| Hardhat scripts        | `scripts/*.ts`              | Deploy, wire contracts, check balances, sync frontend env. |
-| Hardhat tests          | `test/TrustLedger.test.ts`  | Ethers v6 TypeScript contract tests.                       |
-| Shared types           | `types/*.ts`                | Repository-level TypeScript type helpers.                  |
-| Frontend ABI           | `src/lib/abi.ts`            | ABI exports used by the Next.js app.                       |
-| Frontend wagmi helpers | `src/lib/wagmi.ts`          | Network, address, explorer, and USDC helper functions.     |
-| TypeChain output       | `artifacts/typechain-types` | Generated after Hardhat compile.                           |
+| Surface                | Path                        | Use                                                            |
+| ---------------------- | --------------------------- | -------------------------------------------------------------- |
+| Hardhat scripts        | `scripts/*.ts`              | Deploy, wire contracts, check balances, sync frontend env.     |
+| Hardhat tests          | `test/TrustLedger.test.ts`  | Ethers v6 TypeScript contract tests.                           |
+| Shared frontend types  | `src/types/*.ts`            | Frontend TypeScript domain helpers exported through `@/types`. |
+| Frontend ABI           | `src/lib/abi.ts`            | ABI exports used by the Next.js app.                           |
+| Frontend wagmi helpers | `src/lib/wagmi.ts`          | Network, address, explorer, and USDC helper functions.         |
+| TypeChain output       | `artifacts/typechain-types` | Generated after Hardhat compile.                               |
 
 ## Compile Before Using TypeChain
 

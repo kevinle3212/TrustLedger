@@ -66,7 +66,7 @@ accessible controls, and visible transaction progress.
 | Frontend       | Localized Next.js App Router UI, wallet connection, role switching, contract creation, dashboard actions, juror views, FAQ, dark mode, high-contrast mode, and responsive layouts. |
 | Backend Routes | Contract aggregation, health checks, magic links, notifications, deadline cron, oracle rates, and oracle status metadata.                                                          |
 | Storage        | IPFS links, optional Arweave support, client-side AES-GCM document encryption helpers.                                                                                             |
-| Tooling        | Hardhat, Foundry, Jest, Playwright, React Doctor, mypy, Solhint, markdownlint, Prettier, Docker, MkDocs, and GitHub Actions.                                                       |
+| Tooling        | Hardhat, Foundry, Jest, Playwright, React Doctor, mypy, Solhint, markdownlint, Prettier, Docker, Kubernetes, MkDocs, and GitHub Actions.                                           |
 
 ## Architecture
 
@@ -106,12 +106,13 @@ flowchart TB
 ├── src/                    Next.js app, API routes, services, frontend tests
 ├── scripts/                Hardhat deploy/demo scripts and GitHub Models tools
 ├── test/                   Hardhat TypeScript contract tests
-├── types/                  Shared TypeScript domain models
+├── k8s/                    Kubernetes base for the production frontend image
 ├── utils/                  Python contract-template PDF utility
 ├── stubs/                  Hand-written Python type stubs
 ├── docs/                   MkDocs source and architecture guides
 ├── assets/                 Canonical project assets and placeholders
-├── docker/                 Development and CI Docker files
+├── docker/                 Development, CI, and frontend Docker files
+├── src/types/              Shared frontend TypeScript domain models
 ├── tools/                  Local setup and maintenance helpers
 ├── .github/                Workflows, prompts, Dependabot config
 ├── .claude/                Claude settings and commands

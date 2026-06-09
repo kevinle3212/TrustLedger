@@ -1,0 +1,16 @@
+# Reproducible base. Use `kubectl kustomize k8s` to render or
+# `kubectl apply -k k8s` to apply.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: trustledger
+resources:
+    - namespace.yaml
+    - configmap.yaml
+    - deployment.yaml
+    - service.yaml
+    - ingress.yaml
+    - hpa.yaml
+    - networkpolicy.yaml
+images:
+    - name: ghcr.io/kevinle3212/trustledger-frontend
+      newTag: main

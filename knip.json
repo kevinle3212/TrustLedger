@@ -19,8 +19,7 @@
 				"scripts/**/*.ts",
 				"scripts/**/*.js",
 				"test/**/*.ts",
-				"tools/**/*.mjs",
-				"types/**/*.ts"
+				"tools/**/*.mjs"
 			]
 		},
 		"src": {
@@ -34,7 +33,12 @@
 				"i18n/**/*.ts",
 				"lib/**/*.ts",
 				"services/**/*.ts",
+				"store/**/*.ts",
 				"tests/**/*.{ts,tsx}",
+				"types/index.ts",
+				"utils/**/*.ts",
+				"hooks/**/*.ts",
+				"providers/**/*.tsx",
 				"proxy.ts",
 				"next.config.ts",
 				"playwright.config.ts",
@@ -48,7 +52,12 @@
 				"i18n/**/*.ts",
 				"lib/**/*.ts",
 				"services/**/*.ts",
+				"store/**/*.ts",
 				"tests/**/*.{ts,tsx}",
+				"types/**/*.ts",
+				"utils/**/*.ts",
+				"hooks/**/*.ts",
+				"providers/**/*.tsx",
 				"*.ts"
 			]
 		}

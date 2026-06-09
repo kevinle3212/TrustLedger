@@ -7,6 +7,10 @@ const createJestConfig = nextJest({
 
 const config: Config = {
 	coverageProvider: "v8",
+	haste: {
+		throwOnModuleCollision: false,
+	},
+	modulePathIgnorePatterns: ["<rootDir>/.next/"],
 	moduleNameMapper: {
 		"^@/(.*)$": "<rootDir>/$1",
 	},

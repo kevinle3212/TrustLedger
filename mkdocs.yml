@@ -79,6 +79,7 @@ nav:
     - Wallets: WALLETS.md
     - FAQ: FAQ.md
     - Docker: DOCKER.md
+    - Kubernetes: KUBERNETES.md
     - GitHub Models: GITHUB_MODELS.md
     - Contract Reference: CONTRACTS.md
     - Miscellaneous: MISCELLANEOUS.md

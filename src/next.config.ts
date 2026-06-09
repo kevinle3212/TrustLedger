@@ -99,6 +99,8 @@ const nextConfig: NextConfig = {
 	// Must point to the repo root so Next.js traces node_modules relative to
 	// /vercel/path0/ rather than /vercel/path0/src/, matching where Vercel resolves them.
 	outputFileTracingRoot: path.resolve(__dirname, ".."),
+	// Emit a minimal self-hostable server for Docker and Kubernetes images.
+	output: "standalone",
 	env: {
 		NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: resolveAddress(
 			"TrustLedger",

@@ -30,6 +30,10 @@ src/.next/
 src/out/
 src/next-env.d.ts
 
+# ─── Vercel local metadata ───────────────────────────────────────────────────
+.vercel/
+src/.vercel/
+
 # ─── Environment / secrets ───────────────────────────────────────────────────
 .env
 .env.*

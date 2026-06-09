@@ -66,6 +66,8 @@ Local skills live in `.sixth/skills/`:
 - `log-markdown`: markdownlint-compliant files under `logs/`.
 - `react-doctor`: React Doctor and frontend maintainability checks.
 - `swc-cache`: SWC cache population and `.swc/` policy.
+- `update-context`: docs, comments, website, config, and agent guidance sync
+  after repository changes.
 - `vercel-deploy`: Vercel build/deploy triage and redeploy checks.
 
 When a skill writes output to `logs/`, the output must be Markdown and pass:

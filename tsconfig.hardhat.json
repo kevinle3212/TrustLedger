@@ -17,5 +17,5 @@
 		"resolveJsonModule": true,
 		"noEmit": true
 	},
-	"include": ["hardhat.config.ts", "test/**/*.ts", "scripts/**/*.ts", "types/**/*.ts"]
+	"include": ["hardhat.config.ts", "test/**/*.ts", "scripts/**/*.ts"]
 }

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: trustledger-frontend
+    namespace: trustledger
+    labels:
+        app.kubernetes.io/name: trustledger-frontend
+        app.kubernetes.io/part-of: trustledger
+spec:
+    type: ClusterIP
+    selector:
+        app.kubernetes.io/name: trustledger-frontend
+    ports:
+        - name: http
+          port: 80
+          targetPort: http

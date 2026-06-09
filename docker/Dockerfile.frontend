@@ -1,0 +1,54 @@
+# TrustLedger production frontend image.
+#
+# Build from the repository root:
+#   docker build -f docker/Dockerfile.frontend -t trustledger-frontend .
+#
+# Run locally:
+#   docker run --rm -p 3000:3000 trustledger-frontend
+
+ARG NODE_VERSION=22.22.3
+
+FROM node:${NODE_VERSION}-bookworm-slim AS deps
+WORKDIR /repo/src
+
+# Some optional websocket dependencies compile from source when a prebuilt
+# binary is unavailable for the target platform.
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends python3 make g++ \
+	&& rm -rf /var/lib/apt/lists/*
+
+# Install only the frontend dependency graph. Root files are copied separately so
+# Docker cache invalidation stays scoped to lockfile changes.
+COPY src/package.json src/package-lock.json ./
+RUN npm ci
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
+WORKDIR /repo/src
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY --from=deps /repo/src/node_modules ./node_modules
+COPY src ./
+
+# Vercel runs `npm run vercel-build`; use the same command here for parity.
+RUN npm run vercel-build
+
+FROM node:${NODE_VERSION}-bookworm-slim AS runner
+WORKDIR /app/src
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Keep only Next's traced standalone runtime plus static assets.
+COPY --from=builder /repo/src/.next/standalone /app
+COPY --from=builder /repo/src/.next/static /app/src/.next/static
+COPY --from=builder /repo/src/public /app/src/public
+
+USER node
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+	CMD node -e "fetch('http://127.0.0.1:3000/api/health/runtime').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+CMD ["node", "server.js"]

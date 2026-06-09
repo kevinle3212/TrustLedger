@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { buildHealthReport } from "@/services/health";
+import { buildHealthReport, buildRuntimeHealthReport } from "@/services/health";
 
 // GET /api/health
 //
@@ -8,7 +8,8 @@ import { buildHealthReport } from "@/services/health";
 
 export const dynamic = "force-dynamic";
 
-export function GET(): NextResponse {
-	const report = buildHealthReport();
+export function GET(request: Request): NextResponse {
+	const scope = new URL(request.url).searchParams.get("scope");
+	const report = scope === "runtime" ? buildRuntimeHealthReport() : buildHealthReport();
 	return NextResponse.json(report, { status: report.ok ? 200 : 503 });
 }

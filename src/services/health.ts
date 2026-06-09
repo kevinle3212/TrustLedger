@@ -41,13 +41,23 @@ function checkPublicAppUrl(): HealthCheck {
 	}
 }
 
+export function buildRuntimeHealthReport(): HealthReport {
+	return {
+		ok: true,
+		checkedAt: new Date().toISOString(),
+		checks: [
+			{
+				name: "runtime",
+				ok: true,
+				detail: "Next.js API runtime is responding.",
+			},
+		],
+	};
+}
+
 export function buildHealthReport(): HealthReport {
 	const checks: HealthCheck[] = [
-		{
-			name: "runtime",
-			ok: true,
-			detail: "Next.js API runtime is responding.",
-		},
+		...buildRuntimeHealthReport().checks,
 		{
 			name: "sepolia-rpc",
 			ok: hasEnv("SEPOLIA_RPC_URL"),

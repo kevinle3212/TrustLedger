@@ -79,11 +79,14 @@ jobs:
             - name: TypeScript typecheck
               run: npx tsc -p tsconfig.hardhat.json --noEmit
 
+            - name: Setup kubectl
+              uses: azure/setup-kubectl@v4
+
             # Foundry is not installed in this job, so skip lint:forge (forge
             # fmt/lint is owned by the Solidity job). Run only the node-based
-            # linters here: ESLint, Solhint, and markdownlint.
+            # linters here plus Kubernetes manifest validation.
             - name: ESLint + Solhint + markdownlint
-              run: npm run lint:config && npm run lint:ts && npm run lint:js && npm run lint:sol && npm run lint:md && npm run lint:cursor && npm run lint:logs
+              run: npm run lint:config && npm run lint:ts && npm run lint:js && npm run lint:sol && npm run lint:md && npm run lint:cursor && npm run lint:k8s && npm run lint:logs
 
             - name: Prettier check
               run: npx prettier --check .

@@ -23,6 +23,7 @@ Use these specialist briefs when delegating or reviewing frontend work.
 - [SWC Config](skills/swc-config/SKILL.md)
 - [Dependency Audit](skills/dependency-audit/SKILL.md)
 - [Log Markdown](skills/log-markdown/SKILL.md)
+- [Update Context](skills/update-context/SKILL.md)
 
 Each specialist must keep changes consistent with `PRODUCT.md`, `DESIGN.md`,
 `src/README.md`, and `.cursor/rules/frontend.mdc`.

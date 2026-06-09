@@ -17,7 +17,11 @@ contracts/broadcast/
 # ─── Secrets - never bake into an image ───────────────────────────────────────
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
+!**/.env.example
+!**/.env.local.example
 
 # ─── Debug / profiling output ─────────────────────────────────────────────────
 *.cpuprofile

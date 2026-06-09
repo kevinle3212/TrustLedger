@@ -18,7 +18,7 @@ owns the frontend package and Next.js API routes. `contracts/` owns Foundry.
   not hit `tsconfig.hardhat.json` parser-project errors.
 - `tsconfig.hardhat.json` covers Hardhat config, tests, scripts, and shared
   types.
-- `src/tsconfig.json` covers the Next app and shared root `types/`.
+- `src/tsconfig.json` covers the Next app and shared frontend `src/types/`.
 
 ## Hooks And CI
 

@@ -1,0 +1,21 @@
+# Restrict ingress to the frontend pods to HTTP traffic only. Egress stays open
+# because the app may call public RPC, wallet, email, or oracle endpoints
+# depending on environment.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    name: trustledger-frontend-ingress
+    namespace: trustledger
+    labels:
+        app.kubernetes.io/name: trustledger-frontend
+        app.kubernetes.io/part-of: trustledger
+spec:
+    podSelector:
+        matchLabels:
+            app.kubernetes.io/name: trustledger-frontend
+    policyTypes:
+        - Ingress
+    ingress:
+        - ports:
+              - protocol: TCP
+                port: 3000

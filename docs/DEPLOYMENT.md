@@ -1,7 +1,8 @@
 # Deployment
 
-This document explains how to deploy TrustLedger locally and to Ethereum Sepolia
-with the current Foundry, Hardhat, and GitHub Actions scripts.
+This document explains how to deploy TrustLedger locally, to Ethereum Sepolia,
+and as a containerized frontend with the current Foundry, Hardhat, GitHub
+Actions, Docker, and Kubernetes files.
 
 ## Network Status
 
@@ -128,6 +129,27 @@ npm run sync:frontend:env
 For Sepolia deployments, `deploy.yml` sets both default and `_SEPOLIA` frontend
 variables in Vercel. See [Environment](ENVIRONMENT.md) for all address variable
 names.
+
+## Container Frontend Deployment
+
+Build the standalone frontend image:
+
+```bash
+docker build -f docker/Dockerfile.frontend \
+  -t ghcr.io/kevinle3212/trustledger-frontend:main .
+```
+
+Apply the Kubernetes base after setting non-secret values in
+`k8s/configmap.yaml` and creating `trustledger-frontend-secrets` when needed:
+
+```bash
+kubectl kustomize k8s
+kubectl apply -k k8s
+kubectl -n trustledger rollout status deployment/trustledger-frontend
+```
+
+Read [Kubernetes](KUBERNETES.md) for image tagging, secrets, health checks,
+ingress, autoscaling, and reproducibility notes.
 
 ## Verification Notes
 

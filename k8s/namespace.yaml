@@ -1,0 +1,9 @@
+# Dedicated namespace keeps TrustLedger runtime objects separate from cluster
+# defaults and makes cleanup reproducible: kubectl delete namespace trustledger.
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: trustledger
+    labels:
+        app.kubernetes.io/name: trustledger
+        app.kubernetes.io/part-of: trustledger

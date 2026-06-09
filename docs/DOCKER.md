@@ -8,10 +8,12 @@ running demo, local-chain, or containerized test workflows.
 | File                            | Purpose                                                                                                     |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `Dockerfile`                    | Demo/test image with Node 22, Foundry, root dependencies, frontend dependencies, and precompiled contracts. |
-| `docker-compose.yml`            | Root demo, local node, contract test, and frontend test services.                                           |
+| `docker-compose.yml`            | Root demo, local node, contract test, frontend test, and production frontend services.                      |
 | `docker/Dockerfile.dev`         | Development image used by `docker/docker-compose.dev.yml`.                                                  |
 | `docker/Dockerfile.ci`          | CI-style image that compiles and runs Hardhat, Foundry, and frontend unit tests at build time.              |
+| `docker/Dockerfile.frontend`    | Standalone production Next.js image used by Compose and Kubernetes.                                         |
 | `docker/docker-compose.dev.yml` | Development compose file that mounts the repository into `/app`.                                            |
+| `k8s/`                          | Kubernetes base for the production frontend image. See [Kubernetes](KUBERNETES.md).                         |
 
 ## Root Compose Commands
 
@@ -55,6 +57,20 @@ The root compose file uses profiles. Include `--profile demo`, `--profile dev`,
 or `--profile test` when you want `docker compose config` to show those
 services.
 
+Run the production frontend container locally:
+
+```bash
+docker compose --profile frontend up --build frontend
+```
+
+Override the host port with `TRUSTLEDGER_FRONTEND_PORT=3001`.
+
+Validate the Kubernetes base used by the frontend image:
+
+```bash
+npm run lint:k8s
+```
+
 ## Development Compose
 
 Run the development compose file:
@@ -77,10 +93,22 @@ Build the root Docker image directly:
 docker build -t trustledger .
 ```
 
+Build the standalone frontend image directly:
+
+```bash
+docker build -f docker/Dockerfile.frontend -t trustledger-frontend .
+```
+
 Run the happy-path demo:
 
 ```bash
 docker run -e DEMO=good -p 8545:8545 trustledger
+```
+
+Run the standalone frontend image:
+
+```bash
+docker run --rm -p 3000:3000 trustledger-frontend
 ```
 
 ## Notes
@@ -97,3 +125,8 @@ issues.
 Do not add `env_file: ../.env` to shared compose files. `docker compose config`
 prints expanded environment values, so secrets should be passed explicitly only
 for local workflows that require them.
+
+The frontend image uses Next.js standalone output. Container probes call
+`/api/health/runtime`; use `/api/health` for the stricter operational
+configuration report. If startup fails in Kubernetes, verify that the image tag
+in `k8s/kustomization.yaml` matches the image you built or pushed.
