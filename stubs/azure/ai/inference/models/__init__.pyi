@@ -2,7 +2,7 @@
 
 Models only the message types ``scripts/models/github_models.py`` uses. The
 Azure AI Inference SDK ships no ``py.typed`` marker and no stubs, so these are
-hand-written to cover only the surface this repository exercises — enough for
+hand-written to cover only the surface this repository exercises  -  enough for
 the strict mypy config to type-check our code without an
 ``ignore_missing_imports`` escape hatch. Extend as needed if the script starts
 using more of the SDK.

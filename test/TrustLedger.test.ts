@@ -437,6 +437,63 @@ describe("TrustLedger", function () {
 			expect(dispute.client).to.equal(await client.getAddress());
 			expect(dispute.freelancer).to.equal(await freelancer.getAddress());
 		});
+
+		it("should allow both parties to submit arbitration evidence", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+
+			await expect(
+				arbitration
+					.connect(client)
+					.submitEvidence(
+						0n,
+						"Milestones were incomplete.",
+						"ipfs://QmClientEvidence",
+						20n,
+					),
+			)
+				.to.emit(arbitration, "EvidenceSubmitted")
+				.withArgs(0n, await client.getAddress(), 20n, "ipfs://QmClientEvidence");
+
+			await expect(
+				arbitration
+					.connect(freelancer)
+					.submitEvidence(
+						0n,
+						"Work matches the agreed scope.",
+						"ar://freelancer-evidence",
+						90n,
+					),
+			)
+				.to.emit(arbitration, "EvidenceSubmitted")
+				.withArgs(0n, await freelancer.getAddress(), 90n, "ar://freelancer-evidence");
+
+			expect(await arbitration.getEvidenceCount(0n)).to.equal(2n);
+			const clientEvidence = await arbitration.getEvidence(0n, 0n);
+			expect(clientEvidence.submitter).to.equal(await client.getAddress());
+			expect(clientEvidence.summary).to.equal("Milestones were incomplete.");
+			expect(clientEvidence.uri).to.equal("ipfs://QmClientEvidence");
+			expect(clientEvidence.requestedCompletionPct).to.equal(20n);
+		});
+
+		it("should reject evidence from non-parties or invalid evidence payloads", async function () {
+			const id = await createAcceptAndSubmit();
+			await trustLedger.connect(client).disputeWork(id);
+
+			await expect(
+				arbitration
+					.connect(stranger)
+					.submitEvidence(0n, "Unrelated evidence.", "ipfs://QmStranger", 50n),
+			).to.be.revertedWithCustomError(arbitration, "NotParty");
+			await expect(
+				arbitration.connect(client).submitEvidence(0n, "", "ipfs://QmClientEvidence", 50n),
+			).to.be.revertedWithCustomError(arbitration, "EmptyEvidence");
+			await expect(
+				arbitration
+					.connect(client)
+					.submitEvidence(0n, "Overstated request.", "ipfs://QmClientEvidence", 101n),
+			).to.be.revertedWithCustomError(arbitration, "CompletionPctOutOfRange");
+		});
 	});
 
 	// ─── executeRuling ────────────────────────────────────────────────────────

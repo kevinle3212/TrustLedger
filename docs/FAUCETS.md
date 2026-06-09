@@ -1,6 +1,6 @@
 # Sepolia Faucets
 
-The canonical faucet guide lives at [`misc/FAUCETS.md`](../misc/FAUCETS.md) so
+The canonical faucet guide lives at `misc/FAUCETS.md` in the repository root so
 developers can find it beside other command-line helpers.
 
 Use it for:

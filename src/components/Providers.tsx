@@ -41,8 +41,8 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 	return (
 		<ThemeProvider
 			attribute="class"
-			defaultTheme="dark"
-			enableSystem={false}
+			defaultTheme="light"
+			enableSystem
 			disableTransitionOnChange
 		>
 			<RoleProvider>

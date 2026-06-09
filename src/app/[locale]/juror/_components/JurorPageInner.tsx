@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import {
+	useAccount,
+	useReadContract,
+	useReadContracts,
+	useWriteContract,
+	useWaitForTransactionReceipt,
+} from "wagmi";
 import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
 import { ConnectButton } from "@/components/ConnectButton";
 import { formatEther, parseEther } from "viem";
-import { JUROR_REGISTRY_ABI } from "@/lib/abi";
-import { JUROR_REGISTRY_ADDRESS } from "@/lib/wagmi";
-import { formatAddress } from "@/lib/utils";
+import { ARBITRATION_ABI, JUROR_REGISTRY_ABI } from "@/lib/abi";
+import { ARBITRATION_ADDRESS, JUROR_REGISTRY_ADDRESS } from "@/lib/wagmi";
+import { formatAddress, formatDeadline } from "@/lib/utils";
 import { validateEthAmount } from "@/lib/validation";
+import { getRecentDisputeIds } from "@/hooks/useRecentDisputeIds";
+import { calculateLinearPayout, isActionableJurorPhase, isRulingSet } from "@/utils/arbitration";
 
 // Minimum stake to register or top up, in ETH (mirrors the JurorRegistry contract).
 const MIN_STAKE_ETH = 0.01;
@@ -24,6 +33,26 @@ const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 
 // Captured at module load; avoids calling Date.now() during render
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
+
+interface DisputeRecord {
+	contractId: bigint;
+	client: `0x${string}`;
+	phase: number;
+	finalized: boolean;
+	appealed: boolean;
+	vrfFulfilled: boolean;
+	phaseDeadline: bigint;
+	freelancer: `0x${string}`;
+	contractAmount: bigint;
+	feePool: bigint;
+	ruling: bigint;
+	appealer: `0x${string}`;
+	appealBond: bigint;
+	appealDisputeId: bigint;
+	parentDisputeId: bigint;
+	maxJurors: bigint;
+	jurorCount: bigint;
+}
 
 function formatTimestamp(ts: bigint, locale?: string): string {
 	if (ts === 0n) return "-";
@@ -435,6 +464,128 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 	);
 }
 
+function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.Element {
+	const locale = useLocale();
+	const { data: nextDisputeId } = useReadContract({
+		address: ARBITRATION_ADDRESS,
+		abi: ARBITRATION_ABI,
+		functionName: "nextDisputeId",
+	});
+	const disputeIds = getRecentDisputeIds(nextDisputeId);
+	const { data: disputeReads } = useReadContracts({
+		contracts: disputeIds.flatMap((disputeId) => [
+			{
+				address: ARBITRATION_ADDRESS,
+				abi: ARBITRATION_ABI,
+				functionName: "getDispute",
+				args: [disputeId],
+			},
+			{
+				address: ARBITRATION_ADDRESS,
+				abi: ARBITRATION_ABI,
+				functionName: "getJurors",
+				args: [disputeId],
+			},
+			{
+				address: ARBITRATION_ADDRESS,
+				abi: ARBITRATION_ABI,
+				functionName: "getEvidenceCount",
+				args: [disputeId],
+			},
+		]),
+		query: { enabled: disputeIds.length > 0 },
+	});
+
+	const assigned = disputeIds
+		.map((disputeId, index) => {
+			const base = index * 3;
+			const disputeResult = disputeReads?.[base];
+			const jurorsResult = disputeReads?.[base + 1];
+			const evidenceResult = disputeReads?.[base + 2];
+			if (disputeResult?.status !== "success" || jurorsResult?.status !== "success") {
+				return undefined;
+			}
+			const jurors = jurorsResult.result as unknown as `0x${string}`[];
+			const selected = jurors.some((juror) => juror.toLowerCase() === address.toLowerCase());
+			if (!selected) return undefined;
+			return {
+				disputeId,
+				dispute: disputeResult.result as unknown as DisputeRecord,
+				evidenceCount: evidenceResult?.status === "success" ? evidenceResult.result : 0n,
+			};
+		})
+		.filter(
+			(item): item is { disputeId: bigint; dispute: DisputeRecord; evidenceCount: bigint } =>
+				item !== undefined,
+		);
+
+	return (
+		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
+			<div>
+				<h2 className="font-semibold text-gray-900 dark:text-white">Assigned Disputes</h2>
+				<p className="text-xs text-gray-500 mt-1">
+					Recent selected juror cases from the arbitration contract.
+				</p>
+			</div>
+			{assigned.length === 0 ? (
+				<p className="text-sm text-gray-500 dark:text-gray-400">
+					No assigned disputes found in the recent on-chain window.
+				</p>
+			) : (
+				<div className="flex flex-col gap-3">
+					{assigned.map(({ disputeId, dispute, evidenceCount }) => {
+						const phaseOpen = isActionableJurorPhase(dispute.phase);
+						const rulingReady = isRulingSet(dispute.ruling);
+						return (
+							<div
+								key={disputeId.toString()}
+								className="rounded-xl border border-gray-200 dark:border-white/10 bg-white/70 dark:bg-black/10 p-4 flex flex-col gap-3"
+							>
+								<div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+									<div>
+										<p className="text-sm font-semibold text-gray-900 dark:text-white">
+											Dispute #{disputeId.toString()}
+										</p>
+										<p className="text-xs text-gray-500">
+											Contract #{dispute.contractId.toString()} ·{" "}
+											{evidenceCount.toString()} evidence items
+										</p>
+									</div>
+									<span className="text-xs text-gray-500">
+										{formatDeadline(dispute.phaseDeadline, locale)}
+									</span>
+								</div>
+								<div className="tl-kv-grid text-xs">
+									<span className="text-gray-500">Fee pool</span>
+									<span className="text-gray-900 dark:text-white">
+										{formatEther(dispute.feePool)} ETH
+									</span>
+									<span className="text-gray-500">Potential outcome</span>
+									<span className="text-gray-900 dark:text-white">
+										{rulingReady
+											? `${formatEther(calculateLinearPayout(dispute.ruling, dispute.contractAmount))} ETH to freelancer`
+											: "Pending juror ruling"}
+									</span>
+								</div>
+								<Link
+									href={`/arbitration/${disputeId.toString()}`}
+									className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors self-start ${
+										phaseOpen
+											? "bg-indigo-600 hover:bg-indigo-500 text-white"
+											: "bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-900 dark:text-white"
+									}`}
+								>
+									{phaseOpen ? "Open Voting Flow" : "Review Dispute"}
+								</Link>
+							</div>
+						);
+					})}
+				</div>
+			)}
+		</div>
+	);
+}
+
 export function JurorPageInner(): React.JSX.Element {
 	const t = useTranslations("Juror");
 	const { address, isConnected } = useAccount();
@@ -460,6 +611,7 @@ export function JurorPageInner(): React.JSX.Element {
 			</div>
 			<div className="tl-two-column-stack">
 				<div className="tl-stack-main">
+					<OpenDisputesPanel address={address} />
 					<StatusCard address={address} />
 					<ManageStakePanel address={address} />
 				</div>

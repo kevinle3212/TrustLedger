@@ -203,16 +203,18 @@ export default [
 	{
 		// Root JavaScript/MJS config files are linted by the root config, but they
 		// are intentionally not part of tsconfig.hardhat.json. Keep them on core JS
-		// rules so `eslint eslint.scripts.config.mjs` and CI config sweeps do not
-		// hit a type-aware parser project error.
-		files: ["*.config.js", "eslint*.config.mjs"],
+		// rules so config/tool sweeps do not hit a type-aware parser project error.
+		files: ["*.config.js", "eslint*.config.mjs", "tools/**/*.mjs"],
 		languageOptions: {
 			sourceType: "module",
 			parserOptions: {
 				project: false,
 			},
 			globals: {
+				Buffer: "readonly",
 				module: "readonly",
+				process: "readonly",
+				URL: "readonly",
 			},
 		},
 		rules: {

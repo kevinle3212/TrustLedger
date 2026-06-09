@@ -39,11 +39,8 @@ jobs:
             - name: Install Playwright browser
               run: npx playwright install --with-deps chromium
 
-            - name: TypeScript typecheck
-              run: npx tsc --noEmit
-
-            - name: Lint (ESLint + Prettier)
-              run: npm run lint:frontend
+            - name: Frontend quality command
+              run: npm run quality
 
             - name: Build
               run: npm run build:frontend
@@ -83,7 +80,7 @@ jobs:
             # fmt/lint is owned by the Solidity job). Run only the node-based
             # linters here: ESLint, Solhint, and markdownlint.
             - name: ESLint + Solhint + markdownlint
-              run: npm run lint:ts && npm run lint:sol && npm run lint:md
+              run: npm run lint:config && npm run lint:ts && npm run lint:js && npm run lint:sol && npm run lint:md && npm run lint:cursor
 
             - name: Prettier check
               run: npx prettier --check .

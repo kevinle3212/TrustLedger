@@ -70,7 +70,7 @@ export function Navbar(): React.JSX.Element {
 	const t = useTranslations("Nav");
 
 	const linkClass = (href: string): string =>
-		`tl-nav-link inline-flex min-h-10 items-center rounded-sm px-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-9 ${
+		`tl-link-underline inline-flex min-h-10 shrink-0 items-center rounded-sm px-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-9 ${
 			path === href
 				? "text-gray-900 dark:text-white"
 				: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -78,26 +78,26 @@ export function Navbar(): React.JSX.Element {
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
-			<div className="tl-site-frame flex flex-col gap-3 py-3 lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:py-0">
-				<div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:gap-8">
+			<div className="tl-site-frame flex flex-col gap-3 py-3 xl:min-h-16 xl:flex-row xl:items-center xl:justify-between xl:py-0">
+				<div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:gap-8">
 					<Link
 						href="/"
 						aria-current={path === "/" ? "page" : undefined}
-						className="tl-button-motion flex min-h-10 shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+						className="tl-button-motion flex min-h-10 w-fit shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
 					>
 						<Image
-							src="/logo.png"
+							src="/trustledger-mark.svg"
 							alt={t("logoAlt")}
-							width={28}
-							height={28}
-							className="rounded"
+							width={32}
+							height={32}
+							className="rounded-lg"
 							style={{ height: "auto" }}
 						/>
 						TrustLedger
 					</Link>
 					<nav
 						aria-label={t("mainNav")}
-						className="-mx-1 flex max-w-full flex-wrap items-center gap-x-4 gap-y-1 px-1 sm:gap-x-6 lg:mx-0 lg:px-0"
+						className="tl-nav-scroller -mx-1 flex max-w-full items-center gap-x-4 overflow-x-auto px-1 pb-1 sm:gap-x-6 xl:mx-0 xl:px-0 xl:pb-0"
 					>
 						<Link
 							href="/create"
@@ -136,7 +136,7 @@ export function Navbar(): React.JSX.Element {
 						</Link>
 					</nav>
 				</div>
-				<div className="grid w-full min-w-0 grid-cols-3 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-3 lg:justify-end">
+				<div className="grid w-full min-w-0 grid-cols-3 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-3 xl:justify-end">
 					<div className="col-span-full w-full sm:col-span-1 sm:w-auto [&>fieldset]:w-full sm:[&>fieldset]:w-auto">
 						<RoleToggle />
 					</div>

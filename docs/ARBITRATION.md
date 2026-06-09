@@ -61,6 +61,47 @@ Anyone can call `advanceToReveal` after the commit deadline or after the minimum
 juror threshold has committed. Anyone can call `finalizeDispute` after the
 reveal deadline.
 
+## Evidence Submission
+
+Clients and freelancers can call `submitEvidence` while a dispute exists. Each
+evidence record stores:
+
+| Field                    | Purpose                                                                   |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `submitter`              | The client or freelancer wallet that submitted the record.                |
+| `summary`                | Party-written dispute summary for jurors.                                 |
+| `uri`                    | Off-chain supporting evidence URI. Use `ipfs://`, `ar://`, or `https://`. |
+| `requestedCompletionPct` | The party's requested ruling from `0` to `100`.                           |
+| `submittedAt`            | Block timestamp when evidence was submitted.                              |
+
+Evidence is metadata only. Large or private documents should remain off-chain
+and should be encrypted before upload when they contain sensitive contract
+material. Jurors read records with `getEvidenceCount(disputeId)` and
+`getEvidence(disputeId, index)`.
+
+The frontend dispute page at `/arbitration/[id]` renders all submitted evidence
+in chronological index order and shows a party-only submission form until the
+dispute finalizes. Draft evidence is kept locally in
+`src/store/arbitrationDrafts.ts` so a wallet confirmation interruption does not
+wipe the user's text.
+
+## Juror Interface
+
+The juror page reads `nextDisputeId`, scans the recent dispute window, filters
+for disputes whose selected committee includes the connected wallet, and shows a
+work queue with:
+
+- Dispute and contract IDs.
+- Fee pool and evidence count.
+- Phase deadline.
+- Ruling payout context once a ruling exists.
+- A direct link into the commit/reveal/finalize flow for that dispute.
+
+Shared frontend helpers live in `src/utils/arbitration.ts` and
+`src/hooks/useRecentDisputeIds.ts`. The current scan is intentionally bounded so
+the client does not attempt unbounded on-chain reads; a production indexer can
+replace it later without changing the contract interface.
+
 ## Ruling Execution
 
 The final completion percentage is passed back into `TrustLedger.executeRuling`.

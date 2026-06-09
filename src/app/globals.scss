@@ -1,8 +1,7 @@
 @use "./app-desktop.scss";
 @use "sass:meta";
-
 @include meta.load-css("tailwindcss");
-
+@include meta.load-css("./helpers.css");
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
@@ -18,13 +17,21 @@ body {
 	font-family: var(--font-sans, Arial, Helvetica, sans-serif);
 }
 
+html {
+	color-scheme: light;
+}
+
+html.dark {
+	color-scheme: dark;
+}
+
 ::selection {
-	background: rgb(99 102 241 / 0.18);
+	background: rgb(99 102 241 / 18%);
 	color: #111827;
 }
 
 .dark ::selection {
-	color: #ffffff;
+	color: #fff;
 }
 
 $tl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -35,6 +42,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	100% {
 		transform: translateY(0);
 	}
+
 	50% {
 		transform: translateY(-0.375rem);
 	}
@@ -44,6 +52,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	0% {
 		background-position: 120% 0;
 	}
+
 	100% {
 		background-position: -120% 0;
 	}
@@ -52,10 +61,11 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 @keyframes tl-status-pulse {
 	0%,
 	100% {
-		box-shadow: 0 0 0 0 rgb(99 102 241 / 0);
+		box-shadow: 0 0 0 0 rgb(99 102 241 / 0%);
 	}
+
 	50% {
-		box-shadow: 0 0 0 0.25rem rgb(99 102 241 / 0.1);
+		box-shadow: 0 0 0 0.25rem rgb(99 102 241 / 10%);
 	}
 }
 
@@ -64,6 +74,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 		opacity: 0.88;
 		transform: translateY(0.375rem);
 	}
+
 	to {
 		opacity: 1;
 		transform: translateY(0);
@@ -97,7 +108,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .dark .tl-motion-card:hover {
-	border-color: rgb(255 255 255 / 0.18);
+	border-color: rgb(255 255 255 / 18%);
 }
 
 .tl-button-motion {
@@ -132,6 +143,14 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	}
 }
 
+.tl-nav-scroller {
+	scrollbar-width: none;
+}
+
+.tl-nav-scroller::-webkit-scrollbar {
+	display: none;
+}
+
 .tl-status-badge {
 	display: inline-flex;
 	align-items: center;
@@ -153,7 +172,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 .tl-skeleton-card {
 	overflow: hidden;
 	background:
-		linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.7) 50%, transparent 100%),
+		linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 70%) 50%, transparent 100%),
 		#f9fafb;
 	background-size:
 		240% 100%,
@@ -163,8 +182,8 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .dark .tl-skeleton-card {
 	background:
-		linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.08) 50%, transparent 100%),
-		rgb(255 255 255 / 0.05);
+		linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 8%) 50%, transparent 100%),
+		rgb(255 255 255 / 5%);
 	background-size:
 		240% 100%,
 		100% 100%;
@@ -179,7 +198,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 		inset-inline: 1rem;
 		top: 0;
 		height: 1px;
-		background: linear-gradient(90deg, transparent, rgb(99 102 241 / 0.35), transparent);
+		background: linear-gradient(90deg, transparent, rgb(99 102 241 / 35%), transparent);
 		content: "";
 	}
 }
@@ -240,6 +259,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	left: -9999px;
 	z-index: 100;
 }
+
 .skip-link:focus {
 	top: 1rem;
 	left: 1rem;
@@ -267,10 +287,10 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	gap: 0.625rem;
 	border: 1px solid #e5e7eb;
 	border-radius: 0.75rem;
-	background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+	background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
 	color: #374151;
 	padding: 0.5rem 0.875rem;
-	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8);
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 80%);
 	transition:
 		background-color 150ms ease,
 		border-color 150ms ease,
@@ -285,15 +305,15 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .locale-switcher__button:hover {
 	border-color: #d1d5db;
-	background: #ffffff;
+	background: #fff;
 	color: #111827;
 }
 
 .locale-switcher__button[aria-expanded="true"] {
 	border-color: #6366f1;
 	box-shadow:
-		0 0 0 3px rgb(99 102 241 / 0.12),
-		inset 0 1px 0 rgb(255 255 255 / 0.8);
+		0 0 0 3px rgb(99 102 241 / 12%),
+		inset 0 1px 0 rgb(255 255 255 / 80%);
 }
 
 .locale-switcher__icon {
@@ -334,11 +354,11 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	gap: 0.125rem;
 	border: 1px solid #e5e7eb;
 	border-radius: 0.875rem;
-	background: #ffffff;
+	background: #fff;
 	padding: 0.25rem;
 	box-shadow:
-		0 12px 28px rgb(17 24 39 / 0.12),
-		0 2px 6px rgb(17 24 39 / 0.08);
+		0 12px 28px rgb(17 24 39 / 12%),
+		0 2px 6px rgb(17 24 39 / 8%);
 }
 
 .locale-switcher__option {
@@ -386,23 +406,23 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .dark .locale-switcher__button {
-	border-color: rgb(255 255 255 / 0.1);
-	background: rgb(255 255 255 / 0.04);
+	border-color: rgb(255 255 255 / 10%);
+	background: rgb(255 255 255 / 4%);
 	color: #d1d5db;
-	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+	box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
 .dark .locale-switcher__button:hover {
-	border-color: rgb(255 255 255 / 0.2);
-	background: rgb(255 255 255 / 0.06);
-	color: #ffffff;
+	border-color: rgb(255 255 255 / 20%);
+	background: rgb(255 255 255 / 6%);
+	color: #fff;
 }
 
 .dark .locale-switcher__button[aria-expanded="true"] {
 	border-color: #818cf8;
 	box-shadow:
-		0 0 0 3px rgb(129 140 248 / 0.18),
-		inset 0 1px 0 rgb(255 255 255 / 0.04);
+		0 0 0 3px rgb(129 140 248 / 18%),
+		inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
 .dark .locale-switcher__icon {
@@ -414,11 +434,11 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .dark .locale-switcher__menu {
-	border-color: rgb(255 255 255 / 0.12);
+	border-color: rgb(255 255 255 / 12%);
 	background: #111827;
 	box-shadow:
-		0 14px 32px rgb(0 0 0 / 0.36),
-		0 2px 8px rgb(0 0 0 / 0.28);
+		0 14px 32px rgb(0 0 0 / 36%),
+		0 2px 8px rgb(0 0 0 / 28%);
 }
 
 .dark .locale-switcher__option {
@@ -427,13 +447,13 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .dark .locale-switcher__option:hover,
 .dark .locale-switcher__option:focus-visible {
-	background: rgb(255 255 255 / 0.08);
-	color: #ffffff;
+	background: rgb(255 255 255 / 8%);
+	color: #fff;
 }
 
 .dark .locale-switcher__option[aria-current="true"] {
-	background: rgb(99 102 241 / 0.22);
-	color: #ffffff;
+	background: rgb(99 102 241 / 22%);
+	color: #fff;
 }
 
 .dark .locale-switcher__check {
@@ -462,6 +482,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 		--hc: 1;
 	}
 }
+
 html.high-contrast {
 	--hc: 1;
 }
@@ -469,12 +490,12 @@ html.high-contrast {
 html[style*="--hc"],
 html.high-contrast {
 	/* Force white background and black text in light mode; invert in dark. */
-	--hc-bg: #ffffff;
-	--hc-fg: #000000;
+	--hc-bg: #fff;
+	--hc-fg: #000;
 	--hc-muted: #1a1a1a;
 	--hc-brand: #3730a3;
 	--hc-brand-hover: #312e81;
-	--hc-border: #000000;
+	--hc-border: #000;
 }
 
 html.high-contrast body {

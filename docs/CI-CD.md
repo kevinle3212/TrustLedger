@@ -57,19 +57,32 @@ whole workflow. Review job logs even when the workflow is green.
 markdown files from `docs/` to the GitHub wiki. Keep canonical docs in `docs/`
 when they should appear in both published docs and the wiki.
 
-### MkDocs Dependency Warning
+Local docs checks:
 
-`mkdocs build --strict` currently prints an upstream Material for MkDocs warning
-about proposed backward-incompatible changes in MkDocs 2.0. The build still
-passes with the current `requirements-docs.txt` constraint:
+| Check                   | Command                       |
+| ----------------------- | ----------------------------- |
+| Strict MkDocs build     | `npm run docs:build`          |
+| Relative Markdown links | `npm run docs:links`          |
+| External Markdown links | `npm run docs:links:external` |
+
+### MkDocs Dependency Pinning
+
+TrustLedger pins MkDocs below 2.0 and Material for MkDocs below 9.7. Material
+9.7 emits an upstream advisory about proposed MkDocs 2.0 changes on every build.
+Using the latest 9.6 release keeps strict docs builds clean without suppressing
+warnings.
+
+Current `requirements-docs.txt` constraints:
 
 ```text
-mkdocs-material>=9.7,<10
+mkdocs>=1.6,<2
+mkdocs-material>=9.6,<9.7
 ```
 
 Track Material for MkDocs release notes before changing this constraint. Upgrade
-the documentation toolchain only after Material publishes a compatible path for
-MkDocs 2.0 or pins a safe pre-2.0 dependency range.
+the documentation toolchain only after the upstream advisory no longer prints
+during ordinary strict builds or after the project intentionally adopts the new
+MkDocs major version.
 
 ## Known Gotchas
 

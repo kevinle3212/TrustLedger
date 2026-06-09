@@ -1,0 +1,7 @@
+{
+	"owner": "root-tooling",
+	"runtime": "none",
+	"description": "Root TypeScript is compiled by tsc/Hardhat. SWC is documented here only as a cache boundary.",
+	"generatedBinariesCommitted": false,
+	"frontendPolicy": "src/.swc/config.json"
+}

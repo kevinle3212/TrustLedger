@@ -85,6 +85,18 @@ reminders are scheduled by `src/vercel.json` at:
 
 The cron endpoint is `/api/cron/deadline-reminders`.
 
+## Oracle Routes
+
+The frontend package exposes display-rate oracle routes:
+
+| Route                                  | Purpose                                                             |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `/api/oracle/rates?base=eth&quote=usd` | Validated exchange-rate lookup with TTL caching and stale fallback. |
+| `/api/oracle/status`                   | Provider URL, TTL, supported pairs, and cache metadata.             |
+
+Read [Oracle Architecture](ORACLE.md) before adding assets, providers, or
+on-chain oracle consumption.
+
 ## Internationalization
 
 The frontend uses `next-intl`. Keep user-visible strings in the established
@@ -92,11 +104,13 @@ message structure and verify locale routing before moving text into components.
 
 ## Styling And Motion
 
-Global styling lives in `src/app/globals.scss` and imports
-`src/app/app-desktop.scss`. The SCSS layer owns shared layout widths, focus
-treatments, skeleton shimmer, active status emphasis, and reduced-motion
-fallbacks. Use the existing Tailwind utility vocabulary for component structure
-and the SCSS utility classes for shared interaction and motion states.
+Global styling lives in `src/app/globals.scss` and imports Tailwind v4,
+`src/app/helpers.css`, and `src/app/app-desktop.scss`. The helper layer owns
+reusable surfaces, text helpers, link underlines, accessibility helpers,
+responsive clusters, and high-contrast behavior. `app-desktop.scss` owns shared
+layout widths, page headers, workspace grids, and responsive shell behavior. Use
+Tailwind for component structure and helper classes for repeated theme,
+interaction, and motion states.
 
 ## FAQ And Recovery Routes
 

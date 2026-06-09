@@ -94,50 +94,6 @@ mainnet launch deliverables.
       the contract details and documents, preventing broad public access to
       potentially sensitive information.
 
-## Phase 5 — Dispute Resolution and Arbitration
-
-- [ ] Allow both the client and freelancer to submit evidence during
-      arbitration, and let jurors view all submitted evidence in a structured
-      way when making a ruling.
-    - Add functions to `EscrowContract` for evidence submission (for example
-      `submitEvidence(string calldata uri)`) that both parties can call, and
-      store the evidence URIs so they can be retrieved and displayed on the
-      frontend.
-    - Update the arbitration detail page to show all submitted evidence from
-      both parties in a clear, organized layout, so jurors can review it easily
-      when making a decision.
-
-- [ ] Implement a more robust and user-friendly dispute resolution interface for
-      jurors, including the ability to view all relevant contract details and
-      evidence and a clear flow for submitting a ruling.
-    - Enhance the juror dashboard to display all open disputes assigned to the
-      juror, with links to the contract details and any submitted evidence. The
-      juror should be able to cast a ruling directly from this interface, with
-      clear options for selecting the completion percentage and submitting the
-      vote.
-    - After the ruling is executed, clearly display the outcome to all parties,
-      including the distribution of funds and any reputation changes, to make
-      the dispute resolution process transparent.
-
-- [ ] Build out the arbitration and juror UI so the dispute resolution flow is
-      fully self-serve for all parties.
-    - **Evidence submission:** Add a structured form to the arbitration detail
-      page (`/arbitration/[id]`) where clients and freelancers can submit a
-      written dispute summary, supporting documents (linked via an IPFS or
-      Arweave URI), and a requested completion percentage.
-    - **Juror voting interface:** Extend the juror page (`/juror`) so jurors can
-      view all open disputes assigned to them, read evidence from both parties,
-      and cast a completion-percentage ruling directly from the UI. This
-      currently requires a manual contract call.
-    - **Ruling status and outcome display:** Once `executeRuling()` resolves a
-      dispute, display the final outcome — including the funds distribution
-      breakdown, any automatic reputation penalties, and a summary of the juror
-      votes when there are multiple jurors. This adds transparency and helps
-      users understand how rulings are determined.
-    - **Juror fee visibility:** Surface the expected juror fee reward on the
-      juror page so participants know what they stand to earn before accepting a
-      case.
-
 ## Phase 6 — Backend Services and Off-Chain Infrastructure (Mainnet)
 
 - [ ] Add off-chain user accounts to support profile data, notifications, and
@@ -404,6 +360,24 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Phase 5 — Dispute Resolution and Arbitration.
+    - Completed 2026-06-09: added party evidence storage to
+      `contracts/src/Arbitration.sol` via `submitEvidence`, `getEvidenceCount`,
+      and `getEvidence`, including party authorization, empty-payload checks,
+      requested-completion validation, and the `EvidenceSubmitted` event.
+    - Added Hardhat coverage in `test/TrustLedger.test.ts` for client and
+      freelancer evidence submission plus non-party, empty evidence, and
+      out-of-range rejection cases.
+    - Updated `src/lib/abi.ts`, `/arbitration/[id]`, and `/juror` so parties can
+      submit evidence summaries and URIs, jurors can review structured evidence,
+      selected jurors can find recent assigned disputes, fee pool visibility is
+      shown, and ruling payout details remain visible once a ruling exists.
+    - Populated the formerly empty `src/store`, `src/utils`, `src/hooks`,
+      `src/providers`, and `src/agent` directories with arbitration helpers,
+      local draft persistence, recent dispute scanning, provider metadata, and
+      an arbitration checklist.
+    - Documented the evidence and juror UI flow in `docs/ARBITRATION.md`.
 
 - [x] `NOTES.md` cost optimization and alternatives research.
     - Completed 2026-06-08: added the "Cost Optimization and Alternatives

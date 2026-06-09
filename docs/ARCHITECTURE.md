@@ -81,6 +81,8 @@ Optimism. It also includes:
 - A Vercel cron endpoint at `/api/cron/deadline-reminders`.
 
 Read [Frontend](FRONTEND.md) for routes, services, and environment requirements.
+Read [Oracle Architecture](ORACLE.md) for display-rate data flow and
+[Utilities](UTILITIES.md) for the reusable contract-template generator.
 
 ## Network Support
 

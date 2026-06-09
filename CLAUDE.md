@@ -162,6 +162,16 @@ Final pass on every doc change: correct capitalization, grammar, punctuation,
 clarity. Short unambiguous sentences, consistent terminology, backtick-wrap all
 code/paths/identifiers.
 
+## 8.1 Agent Logs
+
+- Write agent run notes, audit output, Impeccable findings, dependency scan
+  summaries, errors, and issue triage notes to `logs/`.
+- Format `logs/*.md` with `src/.agents/skills/log-markdown/SKILL.md` and keep
+  the result markdownlint-compliant.
+- `logs/` is ignored by git. Keep committed docs free of transient run output.
+- Dependency and vulnerability reviews should use
+  `src/.agents/agents/dependency-auditor.md`.
+
 ---
 
 ## 9. Directory or File Deletion

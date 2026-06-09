@@ -88,7 +88,7 @@ def parse_json_response(raw: str, scenario: str) -> dict[str, object]:
     try:
         parsed: object = json.loads(text)
     except json.JSONDecodeError as exc:
-        raise SystemExit(f"{scenario}: invalid JSON response — {exc}\n\nRaw:\n{raw}") from exc
+        raise SystemExit(f"{scenario}: invalid JSON response  -  {exc}\n\nRaw:\n{raw}") from exc
     if not isinstance(parsed, dict):
         raise SystemExit(f"{scenario}: expected a JSON object, got {type(parsed).__name__}")
     return parsed
@@ -136,7 +136,7 @@ SAMPLE_DISPUTE: dict[str, object] = {
         "The submitted audit report missed a critical re-entrancy vulnerability in "
         "harvest() that was later found by a third-party auditor. The report also has "
         "no coverage of the MasterChef fork logic, which was explicitly in scope. "
-        "I am requesting 40 % completion — only basic checks were performed."
+        "I am requesting 40 % completion  -  only basic checks were performed."
     ),
     "freelancer_defense": (
         "The harvest() function follows checks-effects-interactions and uses "
@@ -191,7 +191,7 @@ SAMPLE_REPUTATION: ReputationSample = {
 SAMPLE_CONTRACT_DESCRIPTION = (
     "I need someone to build a platform for my business. "
     "It should have a website and some backend stuff. "
-    "Payment is $3,000 total — half upfront. "
+    "Payment is $3,000 total  -  half upfront. "
     "Just get it done as fast as possible."
 )
 
@@ -302,12 +302,12 @@ def scenario_dispute(c: ChatCompletionsClient, model: str) -> None:
         system=(
             "You are a neutral TrustLedger arbitration assistant helping jurors analyze disputes. "
             "Output ONLY valid JSON (no markdown fences) with exactly these keys:\n"
-            "  summary               : string  — 1-sentence dispute overview\n"
-            "  client_strength       : integer — 1 (weak) to 5 (strong)\n"
-            "  freelancer_strength   : integer — 1 (weak) to 5 (strong)\n"
-            "  suggested_completion_pct : integer — 0-100\n"
+            "  summary               : string   -  1-sentence dispute overview\n"
+            "  client_strength       : integer  -  1 (weak) to 5 (strong)\n"
+            "  freelancer_strength   : integer  -  1 (weak) to 5 (strong)\n"
+            "  suggested_completion_pct : integer  -  0-100\n"
             "  key_questions         : array of 2-3 strings jurors should consider\n"
-            "  reasoning             : string  — 2-3 sentences explaining the suggested pct\n"
+            "  reasoning             : string   -  2-3 sentences explaining the suggested pct\n"
             "Base analysis only on the provided evidence. Be objective."
         ),
         user=f"Analyze this TrustLedger dispute:\n\n{context}",
@@ -336,9 +336,9 @@ def scenario_risk(c: ChatCompletionsClient, model: str) -> None:
             "description for potential problems: ambiguous deliverables, missing deadlines, "
             "scope creep exposure, payment dispute risk, and IP ownership gaps. "
             "Output ONLY valid JSON (no markdown fences) with exactly these keys:\n"
-            "  risk_level      : string — 'low' | 'medium' | 'high'\n"
-            "  issues          : array of strings — specific problems found\n"
-            "  recommendations : array of strings — concrete improvements\n"
+            "  risk_level      : string  -  'low' | 'medium' | 'high'\n"
+            "  issues          : array of strings  -  specific problems found\n"
+            "  recommendations : array of strings  -  concrete improvements\n"
             "Only flag genuine risks. If none, return an empty issues array."
         ),
         user=f"Assess this contract description before it is deployed on-chain:\n\n{SAMPLE_CONTRACT_DESCRIPTION}",
@@ -356,7 +356,7 @@ def scenario_risk(c: ChatCompletionsClient, model: str) -> None:
 def scenario_reputation(c: ChatCompletionsClient, model: str) -> None:
     """Write a reputation narrative from an address's rating history."""
     history = "\n".join(
-        f"  score {r['score']}/100 as {r['role']} — contract #{r['contract_id']} ({r['date']})"
+        f"  score {r['score']}/100 as {r['role']}  -  contract #{r['contract_id']} ({r['date']})"
         for r in SAMPLE_REPUTATION["ratings"]
     )
     context = (
@@ -414,7 +414,7 @@ def scenario_rate_limit_probe(c: ChatCompletionsClient, model: str, *, burst: in
             print(f"[rate_limit_probe] {i}: {out[:40]}")
         except HttpResponseError as err:
             if err.status_code == 429:
-                print(f"[rate_limit_probe] {i}: HTTP 429 (rate limited) — expected in burst tests")
+                print(f"[rate_limit_probe] {i}: HTTP 429 (rate limited)  -  expected in burst tests")
                 hit_429 = True
                 break
             raise

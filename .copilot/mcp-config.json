@@ -4,7 +4,20 @@
 			"type": "stdio",
 			"command": "serena",
 			"tools": ["*"],
-			"args": ["start-mcp-server", "--context=copilot-cli", "--project-from-cwd"]
+			"args": ["start-mcp-server", "--context=copilot-cli", "--project-from-cwd"],
+			"env": {
+				"NO_COLOR": "1"
+			}
+		},
+		"nexus": {
+			"type": "stdio",
+			"command": "./node_modules/.bin/nexus-graph",
+			"tools": ["*"],
+			"args": ["server", "--project", "."],
+			"env": {
+				"NODE_ENV": "development",
+				"NO_COLOR": "1"
+			}
 		}
 	}
 }

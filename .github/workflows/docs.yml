@@ -7,6 +7,7 @@ on:
             - "docs/**"
             - "mkdocs.yml"
             - "requirements-docs.txt"
+            - "tools/mkdocs-build-strict.sh"
     workflow_dispatch:
 
 # Allow one concurrent Pages deployment; let in-progress runs finish.
@@ -39,7 +40,7 @@ jobs:
               run: pip install -r requirements-docs.txt
 
             - name: Build site
-              run: mkdocs build
+              run: python -m mkdocs build --strict
 
             - name: Upload Pages artifact
               uses: actions/upload-pages-artifact@v5

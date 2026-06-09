@@ -1,0 +1,7 @@
+{
+	"trustledger.logs.format": "markdownlint",
+	"trustledger.logs.skill": "src/.agents/skills/log-markdown/SKILL.md",
+	"trustledger.dependencyAudit.agent": "src/.agents/agents/dependency-auditor.md",
+	"trustledger.swc.skill": "src/.agents/skills/swc-config/SKILL.md",
+	"trustledger.strict.secretsInLogs": false
+}

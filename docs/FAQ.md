@@ -39,5 +39,5 @@ often, so prefer the live faucet UI over stale third-party quota claims.
 
 ## Where Are The GitHub Models Scripts Documented?
 
-Read [GitHub Models](GITHUB_MODELS.md) for workflow behavior and
-[scripts/models/README.md](../scripts/models/README.md) for script-level usage.
+Read [GitHub Models](GITHUB_MODELS.md) for workflow behavior and script-level
+usage.

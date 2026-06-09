@@ -1,0 +1,36 @@
+{
+	"$schema": "https://json.schemastore.org/claude-code-settings.json",
+	"permissions": {
+		"allow": [
+			"Bash(rtk pwd)",
+			"Bash(rtk ls *)",
+			"Bash(rtk find *)",
+			"Bash(rtk rg *)",
+			"Bash(rtk sed *)",
+			"Bash(rtk npm run docs:build)",
+			"Bash(rtk npm run docs:links)",
+			"Bash(rtk npm run lint:frontend)",
+			"Bash(rtk npm run lint:styles)",
+			"Bash(rtk npm run lint:knip)",
+			"Bash(rtk npm run test:unit)",
+			"Bash(rtk npm run typecheck)",
+			"Bash(rtk npm run build:frontend)",
+			"Bash(rtk npm run lint:py)",
+			"Bash(rtk npm run hardhat:test)",
+			"Bash(rtk npm run foundry:test)",
+			"Bash(rtk npx react-doctor@latest --verbose --diff)",
+			"Bash(rtk npx stylelint \"src/app/**/*.{css,scss}\")",
+			"Bash(rtk npx knip --production --strict)"
+		],
+		"deny": [
+			"Bash(rm -rf *)",
+			"Bash(git reset *)",
+			"Bash(git checkout -- *)",
+			"Bash(git clean *)",
+			"Bash(open *)"
+		]
+	},
+	"enabledMcpjsonServers": ["nexus", "serena"],
+	"disabledMcpjsonServers": [],
+	"enableAllProjectMcpServers": false
+}

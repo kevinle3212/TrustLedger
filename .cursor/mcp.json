@@ -1,0 +1,19 @@
+{
+	"mcpServers": {
+		"serena": {
+			"command": "serena",
+			"args": ["start-mcp-server", "--context=cursor", "--project-from-cwd"],
+			"env": {
+				"NO_COLOR": "1"
+			}
+		},
+		"nexus": {
+			"command": "./node_modules/.bin/nexus-graph",
+			"args": ["server", "--project", "."],
+			"env": {
+				"NODE_ENV": "development",
+				"NO_COLOR": "1"
+			}
+		}
+	}
+}

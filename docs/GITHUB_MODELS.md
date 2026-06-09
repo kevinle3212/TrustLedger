@@ -4,8 +4,8 @@ This document explains the GitHub Models helper scripts and workflow. Read it
 when changing model prompts, evaluation scripts, or the `github-models.yml`
 workflow.
 
-Script-level usage lives in
-[scripts/models/README.md](../scripts/models/README.md).
+Script-level usage also lives in `scripts/models/README.md` in the repository
+root. The commands below are mirrored here for the docs site.
 
 ## Commands
 

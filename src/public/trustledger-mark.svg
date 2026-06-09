@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title desc">
+	<title id="title">TrustLedger mark</title>
+	<desc id="desc">A ledger page inside a shield.</desc>
+	<rect width="48" height="48" rx="12" fill="#4f46e5"/>
+	<path d="M24 8 36 13v9c0 8.2-4.7 14-12 18-7.3-4-12-9.8-12-18v-9l12-5Z" fill="#fff"/>
+	<path d="M18 19h12M18 24h12M18 29h7" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

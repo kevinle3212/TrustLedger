@@ -1,0 +1,14 @@
+# ─── SWC generated cache output ───────────────────────────────────────────────
+*
+
+# ─── SWC policy files ─────────────────────────────────────────────────────────
+!.gitignore
+!README.md
+!config.json
+
+# ─── SWC plugin cache manifests ───────────────────────────────────────────────
+!plugins/
+!plugins/README.md
+!plugins/*/
+!plugins/*/README.md
+!plugins/*/manifest.json

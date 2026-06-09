@@ -16,11 +16,11 @@ TrustLedger AI integration via GitHub Models.
 | --------------- | ----------------------------------------------------------------------------- |
 | `summarize`     | 2-3 sentence dashboard summary of an `EscrowContract`                         |
 | `generate`      | User-facing release notes generated from the live `git log`                   |
-| `qa`            | Q&A grounded in contract data — no hallucination outside the provided context |
+| `qa`            | Q&A grounded in contract data - no hallucination outside the provided context |
 | `dispute`       | Structured juror guidance (JSON) from a DISPUTED contract's evidence          |
 | `risk`          | Pre-creation risk assessment (JSON) of a contract description                 |
 | `reputation`    | Narrative reputation summary from a user's rating history                     |
-| `invalid_model` | CI smoke test — confirms `HttpResponseError` on a bad model id                |
+| `invalid_model` | CI smoke test - confirms `HttpResponseError` on a bad model id                |
 | `rate_limit`    | Optional burst probe; passes if any HTTP 429 is seen or all succeed           |
 
 ## Quick start

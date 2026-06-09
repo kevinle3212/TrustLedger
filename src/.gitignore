@@ -1,5 +1,7 @@
-# ─── Playwright test output and local browser state ──────────────────────────
+# ─── TypeScript / Node ────────────────────────────────────────────────────────
 node_modules/
+
+# ─── Playwright test output and local browser state ──────────────────────────
 /test-results/
 /playwright-report/
 /blob-report/

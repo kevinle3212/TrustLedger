@@ -1,0 +1,8 @@
+{
+	"platform": "macos_aarch64_24.0.0",
+	"sourcePackage": "@next/swc-darwin-arm64",
+	"binary": "next-swc.darwin-arm64.node",
+	"sha256": "6feb40911947b3b3c8e8a7210681ab3e1275e2ae842884361159cb12d4e44717",
+	"committedBinary": false,
+	"repopulateCommand": "npm run swc:populate"
+}

@@ -1,0 +1,19 @@
+{
+	"$schema": "https://unpkg.com/knip@6/schema.json",
+	"paths": {
+		"@/*": ["./*"]
+	},
+	"ignoreFiles": [
+		"app/helpers.css",
+		"components/ReactScanMonitor.tsx",
+		"doctor.config.ts",
+		"env.d.ts",
+		"jest.setup.ts"
+	],
+	"ignoreIssues": {
+		"components/ReactScanMonitor.tsx": ["unlisted"],
+		"lib/wagmi.ts": ["exports"],
+		"services/health.ts": ["types"],
+		"services/oracle.ts": ["exports", "types"]
+	}
+}

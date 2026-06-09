@@ -80,10 +80,10 @@ successful deploy.
 
 ## Oracle Variables
 
-| Variable                  | Required For          | Consumed By           | Notes                                                |
-| ------------------------- | --------------------- | --------------------- | ---------------------------------------------------- |
-| `ORACLE_PRICE_SOURCE_URL` | Optional price source | `/api/oracle/rates`   | Defaults to CoinGecko simple price-compatible shape. |
-| `ORACLE_RATE_TTL_MS`      | Optional cache tuning | `src/services/oracle` | Defaults to `60000`; capped at `3600000`.            |
+| Variable                  | Required For          | Consumed By                               | Notes                                                |
+| ------------------------- | --------------------- | ----------------------------------------- | ---------------------------------------------------- |
+| `ORACLE_PRICE_SOURCE_URL` | Optional price source | `/api/oracle/rates`, `/api/oracle/status` | Defaults to CoinGecko simple price-compatible shape. |
+| `ORACLE_RATE_TTL_MS`      | Optional cache tuning | `src/services/oracle`                     | Defaults to `60000`; capped at `3600000`.            |
 
 ## Vercel Variables
 

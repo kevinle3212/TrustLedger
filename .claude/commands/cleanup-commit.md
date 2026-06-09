@@ -18,7 +18,7 @@ Do not skip phases or commit before all linters exit clean.
 
 ---
 
-## Phase 1 — Run All Linters
+## Phase 1  -  Run All Linters
 
 Run from the repo root. Collect all output before fixing anything.
 
@@ -47,7 +47,7 @@ npm run lint
 
 ---
 
-## Phase 2 — Auto-Fix What Can Be Fixed
+## Phase 2  -  Auto-Fix What Can Be Fixed
 
 Fix Prettier violations across the entire repo:
 
@@ -67,9 +67,9 @@ remaining errors in Phase 3.
 
 ---
 
-## Phase 3 — Resolve ESLint and Solhint Errors Manually
+## Phase 3  -  Resolve ESLint and Solhint Errors Manually
 
-### TypeScript ESLint — common violations
+### TypeScript ESLint  -  common violations
 
 | Rule | Fix |
 | --- | --- |
@@ -77,17 +77,17 @@ remaining errors in Phase 3.
 | `@typescript-eslint/no-floating-promises` | `await` the promise, or prefix with `void` if intentionally fire-and-forget. |
 | `@typescript-eslint/explicit-function-return-type` | Add an explicit return type to every function, including arrow functions. |
 | `@typescript-eslint/no-non-null-assertion` | Replace `x!` with an explicit null check (`if (x === null) throw ...`). |
-| `@typescript-eslint/strict-boolean-expressions` | Use explicit comparisons — `=== null`, `=== undefined`, `=== ""` — not implicit truthiness. |
+| `@typescript-eslint/strict-boolean-expressions` | Use explicit comparisons  -  `=== null`, `=== undefined`, `=== ""`  -  not implicit truthiness. |
 | `@typescript-eslint/no-unsafe-assignment` | Type-narrow or cast via `as`, but prefer typing the source correctly. |
 | `@typescript-eslint/promise-function-async` | Add `async` to any function that returns a `Promise`. |
-| `@typescript-eslint/return-await` | Always `return await` inside `try`/`catch` — bare `return promise` skips the catch block. |
-| `@typescript-eslint/no-unnecessary-condition` | Remove the condition — the type guarantees it is always truthy or always falsy. |
+| `@typescript-eslint/return-await` | Always `return await` inside `try`/`catch`  -  bare `return promise` skips the catch block. |
+| `@typescript-eslint/no-unnecessary-condition` | Remove the condition  -  the type guarantees it is always truthy or always falsy. |
 | `@typescript-eslint/prefer-readonly` | Add `readonly` to class properties that are never reassigned after construction. |
 | `no-console` | Remove `console.*` calls outside `scripts/`. In scripts, `no-console` is disabled by the per-file override. |
 | `prefer-const` | Change `let` to `const` for bindings that are never reassigned. |
 | `eqeqeq` | Replace `==` / `!=` with `===` / `!==`. |
 
-### Solhint — common violations
+### Solhint  -  common violations
 
 | Rule | Fix |
 | --- | --- |
@@ -109,7 +109,7 @@ Both must exit with code 0 before moving to Phase 4.
 
 ---
 
-## Phase 4 — Stage and Commit
+## Phase 4  -  Stage and Commit
 
 ### Stage only intended files
 
@@ -145,8 +145,8 @@ project follows
 | `feat` | New feature or on-chain capability |
 | `fix` | Bug fix |
 | `docs` | Documentation only |
-| `style` | Formatting, whitespace — no logic change |
-| `refactor` | Code restructuring — no behavior change |
+| `style` | Formatting, whitespace  -  no logic change |
+| `refactor` | Code restructuring  -  no behavior change |
 | `test` | Adding or correcting tests |
 | `chore` | Dependency updates, tooling, scripts |
 | `build` | Build system or compilation changes |
@@ -160,7 +160,7 @@ project follows
 **Rules enforced by commitlint:**
 
 - Type is required
-- Description is required — imperative mood, no trailing period
+- Description is required  -  imperative mood, no trailing period
 - Max subject line length: 100 characters
 - No `Co-Authored-By` footer
 
@@ -210,11 +210,11 @@ git commit --amend
 
 ## Checklist
 
-- [ ] `npm run lint` — exits 0
-- [ ] `npm run lint:prettier` — exits 0
-- [ ] `cd contracts && forge fmt --check` — exits 0
-- [ ] `cd src && npm run lint:frontend` — exits 0
-- [ ] `git diff --staged` reviewed — no `.env`, secrets, or unintended files
+- [ ] `npm run lint`  -  exits 0
+- [ ] `npm run lint:prettier`  -  exits 0
+- [ ] `cd contracts && forge fmt --check`  -  exits 0
+- [ ] `cd src && npm run lint:frontend`  -  exits 0
+- [ ] `git diff --staged` reviewed  -  no `.env`, secrets, or unintended files
 - [ ] Commit message follows Conventional Commits format
 - [ ] Pre-commit hook passed without `--no-verify`
 
@@ -225,10 +225,10 @@ git commit --amend
 | Tool | Role | Docs |
 | --- | --- | --- |
 | **ESLint 9** | TypeScript linting, flat config in `eslint.config.mjs`, type-aware, strict | [eslint.org](https://eslint.org) |
-| **Prettier** | Formatting — config in `.prettierrc.json` | [prettier.io](https://prettier.io) |
-| **Solhint** | Solidity security and style rules — config in `.solhint.json` | [protofire.github.io/solhint](https://protofire.github.io/solhint/) |
+| **Prettier** | Formatting  -  config in `.prettierrc.json` | [prettier.io](https://prettier.io) |
+| **Solhint** | Solidity security and style rules  -  config in `.solhint.json` | [protofire.github.io/solhint](https://protofire.github.io/solhint/) |
 | **forge fmt** | Solidity auto-formatter built into Foundry | [book.getfoundry.sh](https://book.getfoundry.sh/reference/forge/forge-fmt) |
 | **commitlint** | Enforces Conventional Commits on every commit message via the `commit-msg` hook | [commitlint.js.org](https://commitlint.js.org) |
 | **Husky** | Manages `pre-commit` and `commit-msg` git hooks | [typicode.github.io/husky](https://typicode.github.io/husky/) |
-| **rtk** | Token-optimized Claude Code CLI proxy — transparently wraps shell commands to reduce context usage | `rtk gain` to inspect savings |
+| **rtk** | Token-optimized Claude Code CLI proxy  -  transparently wraps shell commands to reduce context usage | `rtk gain` to inspect savings |
 | **Nexus Graph** | Indexes TypeScript/JS source as a symbol graph for token-budgeted MCP context (`npm run nexus:index`) | `.mcp.json` |

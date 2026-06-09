@@ -97,6 +97,17 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         uint256 jurorCount; // how many jurors have committed so far
     }
 
+    /// @notice Evidence submitted by a dispute party for juror review.
+    /// @dev `summary` is a concise party-written statement; `uri` should point
+    ///      to supporting material on IPFS, Arweave, or HTTPS storage.
+    struct Evidence {
+        address submitter;
+        uint64 submittedAt;
+        uint256 requestedCompletionPct;
+        string summary;
+        string uri;
+    }
+
     // ─── Constants
     // ────────────────────────────────────────────────────────────
 
@@ -158,6 +169,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     mapping(uint256 id => mapping(address juror => bool revealed)) private _revealed;
     mapping(uint256 id => mapping(address juror => bool majority)) private _isMajority;
     mapping(uint256 id => mapping(address juror => bool claimed)) private _rewardClaimed;
+    mapping(uint256 id => Evidence[] evidence) private _evidence;
 
     // Used to prevent original jurors from also voting in the appeal dispute.
     // A fresh set of jurors ensures the appeal gets an unbiased second opinion.
@@ -224,6 +236,15 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param juror     The claiming juror's address.
     /// @param amount    ETH rewarded.
     event RewardClaimed(uint256 indexed disputeId, address indexed juror, uint256 indexed amount);
+
+    /// @notice Emitted when a client or freelancer submits evidence for a dispute.
+    /// @param disputeId The dispute ID.
+    /// @param submitter The client or freelancer submitting the evidence.
+    /// @param requestedCompletionPct The party's requested completion percentage.
+    /// @param uri Off-chain evidence URI.
+    event EvidenceSubmitted(
+        uint256 indexed disputeId, address indexed submitter, uint256 indexed requestedCompletionPct, string uri
+    );
 
     // ─── Errors
     // ──────────────────────────────────────────────────────────────
@@ -293,6 +314,9 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     /// @notice completionPct is greater than 100.
     error CompletionPctOutOfRange();
+
+    /// @notice Evidence summary or URI is empty.
+    error EmptyEvidence();
 
     /// @notice Low-level ETH transfer to the recipient failed.
     error EthTransferFailed();
@@ -435,6 +459,44 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     // ─── Juror actions
     // ────────────────────────────────────────────────────────
+
+    /// @notice Submit party evidence for jurors to review during arbitration.
+    /// @param disputeId The dispute ID.
+    /// @param summary Party-written evidence summary.
+    /// @param uri IPFS, Arweave, or HTTPS URI for supporting evidence.
+    /// @param requestedCompletionPct Requested completion percentage (0-100).
+    function submitEvidence(
+        uint256 disputeId,
+        string calldata summary,
+        string calldata uri,
+        uint256 requestedCompletionPct
+    )
+        external
+    {
+        Dispute storage d = _disputes[disputeId];
+        if (msg.sender != d.client && msg.sender != d.freelancer) {
+            revert NotParty();
+        }
+        if (bytes(summary).length == 0 || bytes(uri).length == 0) {
+            revert EmptyEvidence();
+        }
+        if (requestedCompletionPct > 100) {
+            revert CompletionPctOutOfRange();
+        }
+
+        _evidence[disputeId].push(
+            Evidence({
+                submitter: msg.sender,
+                // forge-lint: disable-next-line(unsafe-typecast)
+                submittedAt: uint64(block.timestamp),
+                requestedCompletionPct: requestedCompletionPct,
+                summary: summary,
+                uri: uri
+            })
+        );
+
+        emit EvidenceSubmitted(disputeId, msg.sender, requestedCompletionPct, uri);
+    }
 
     // Step 1 of the commit-reveal scheme: juror submits a hash of their vote.
     // They don't reveal the actual number yet - this prevents jurors from copying
@@ -794,6 +856,21 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @return result Array of juror addresses.
     function getJurors(uint256 disputeId) external view returns (address[] memory result) {
         return _jurors[disputeId];
+    }
+
+    /// @notice Returns how many evidence items exist for a dispute.
+    /// @param disputeId The dispute ID.
+    /// @return result Number of submitted evidence records.
+    function getEvidenceCount(uint256 disputeId) external view returns (uint256 result) {
+        return _evidence[disputeId].length;
+    }
+
+    /// @notice Returns one evidence record by index.
+    /// @param disputeId The dispute ID.
+    /// @param index Evidence index.
+    /// @return result Evidence metadata.
+    function getEvidence(uint256 disputeId, uint256 index) external view returns (Evidence memory result) {
+        return _evidence[disputeId][index];
     }
 
     /// @notice Returns whether a juror voted in the majority for a given dispute.

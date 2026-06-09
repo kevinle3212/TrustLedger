@@ -29,3 +29,10 @@ NO_COLOR = "1"
 [features]
 hooks = true
 js_repl = false
+
+# Project policy:
+# - Write run notes and audit summaries to ignored `logs/`.
+# - Format `logs/*.md` with `src/.agents/skills/log-markdown/SKILL.md`.
+# - Use `src/.agents/agents/dependency-auditor.md` for npm audit/outdated work.
+# - Request escalation for npm audit only when the user explicitly approves the
+#   registry disclosure risk.

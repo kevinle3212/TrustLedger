@@ -1,0 +1,92 @@
+{
+	"$schema": "https://unpkg.com/knip@6/schema.json",
+	"workspaces": {
+		".": {
+			"entry": [
+				"hardhat.config.ts",
+				"eslint.config.mjs",
+				"eslint.scripts.config.mjs",
+				"commitlint.config.js",
+				"scripts/**/*.ts",
+				"scripts/**/*.js",
+				"test/**/*.ts",
+				"tools/**/*.mjs"
+			],
+			"project": [
+				"*.ts",
+				"*.js",
+				"*.mjs",
+				"scripts/**/*.ts",
+				"scripts/**/*.js",
+				"test/**/*.ts",
+				"tools/**/*.mjs",
+				"types/**/*.ts"
+			]
+		},
+		"src": {
+			"paths": {
+				"@/*": ["./*"]
+			},
+			"entry": [
+				"app/**/*.{ts,tsx}",
+				"components/**/*.{ts,tsx}",
+				"contexts/**/*.{ts,tsx}",
+				"i18n/**/*.ts",
+				"lib/**/*.ts",
+				"services/**/*.ts",
+				"tests/**/*.{ts,tsx}",
+				"proxy.ts",
+				"next.config.ts",
+				"playwright.config.ts",
+				"jest.config.ts",
+				"doctor.config.ts"
+			],
+			"project": [
+				"app/**/*.{ts,tsx}",
+				"components/**/*.{ts,tsx}",
+				"contexts/**/*.{ts,tsx}",
+				"i18n/**/*.ts",
+				"lib/**/*.ts",
+				"services/**/*.ts",
+				"tests/**/*.{ts,tsx}",
+				"*.ts"
+			]
+		}
+	},
+	"ignoreFiles": [
+		"artifacts/**",
+		"contracts/**",
+		"contracts/lib/**",
+		"src/.next/**",
+		"src/coverage/**",
+		"site/**",
+		"stubs/**"
+	],
+	"ignoreWorkspaces": ["contracts/lib/openzeppelin-contracts"],
+	"ignoreDependencies": [
+		"@openzeppelin/contracts",
+		"@commitlint/cli",
+		"@commitlint/config-conventional",
+		"@costline/nexus-graph",
+		"@types/node",
+		"eslint-config-prettier",
+		"husky",
+		"markdownlint-cli2",
+		"prettier",
+		"solhint",
+		"stylelint",
+		"stylelint-config-standard-scss",
+		"knip",
+		"@axe-core/playwright",
+		"@testing-library/jest-dom",
+		"@types/jest",
+		"@types/react",
+		"@types/react-dom",
+		"jest-environment-jsdom",
+		"playwright",
+		"react-doctor",
+		"react-scan",
+		"sass",
+		"tailwindcss"
+	]
+}

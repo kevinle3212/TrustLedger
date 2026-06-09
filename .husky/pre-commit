@@ -1,9 +1,5 @@
 set -e
 echo "pre-commit: formatting"
 npm run lint:prettier
-echo "pre-commit: root lint"
-npm run lint
-echo "pre-commit: frontend lint"
-npm run lint:frontend
-echo "pre-commit: typecheck"
-npm run typecheck
+echo "pre-commit: quality"
+npm run quality

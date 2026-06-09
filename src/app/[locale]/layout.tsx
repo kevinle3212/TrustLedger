@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 const ReactScanMonitor =
-	process.env.NODE_ENV === "development"
+	process.env.NODE_ENV === "development" && process.env.NEXT_PUBLIC_ENABLE_REACT_SCAN === "true"
 		? dynamic(async () => {
 				const m = await import("../../components/ReactScanMonitor");
 				return { default: m.ReactScanMonitor };
@@ -73,10 +73,7 @@ export default async function LocaleLayout({
 			className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
 			suppressHydrationWarning
 		>
-			<body
-				className="min-h-full flex flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100"
-				suppressHydrationWarning
-			>
+			<body className="tl-surface-page min-h-full flex flex-col" suppressHydrationWarning>
 				<NextIntlClientProvider messages={messages}>
 					<a href="#main-content" className="skip-link">
 						{t("skipToMain")}

@@ -1,0 +1,52 @@
+{
+	"extends": ["stylelint-config-standard-scss"],
+	"rules": {
+		"at-rule-no-unknown": null,
+		"color-function-notation": "modern",
+		"custom-property-pattern": [
+			"^([a-z][a-z0-9]*)(-[a-z0-9]+)*$",
+			{
+				"message": "Expected custom property names to be kebab-case."
+			}
+		],
+		"declaration-block-no-redundant-longhand-properties": true,
+		"declaration-property-value-disallowed-list": {
+			"transition": ["/\\ball\\b/"]
+		},
+		"max-nesting-depth": 3,
+		"media-feature-range-notation": null,
+		"no-duplicate-selectors": true,
+		"scss/load-partial-extension": null,
+		"scss/at-rule-no-unknown": [
+			true,
+			{
+				"ignoreAtRules": [
+					"apply",
+					"config",
+					"custom-variant",
+					"layer",
+					"plugin",
+					"source",
+					"tailwind",
+					"theme",
+					"utility",
+					"variant"
+				]
+			}
+		],
+		"selector-class-pattern": [
+			"^[a-z][a-z0-9_:\\\\/-]*(--[a-z0-9_:\\\\/-]+)?$",
+			{
+				"message": "Expected class selectors to use kebab-case, BEM suffixes, or escaped Tailwind utility names."
+			}
+		],
+		"selector-max-id": 0,
+		"selector-no-qualifying-type": null,
+		"value-keyword-case": [
+			"lower",
+			{
+				"ignoreKeywords": ["currentColor"]
+			}
+		]
+	}
+}

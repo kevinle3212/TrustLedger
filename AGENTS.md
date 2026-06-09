@@ -28,6 +28,16 @@ commands with `rtk` when available.
   `.cursor/rules/testing.mdc`.
 - Documentation work: root markdown, `docs/`, `src/README.md`, and
   `.cursor/rules/docs.mdc`.
+- Dependency and vulnerability review: use
+  `src/.agents/agents/dependency-auditor.md`; write scan summaries and
+  recommendations to `logs/`.
+- Agentic run logs, Impeccable notes, audit results, errors, and issue triage
+  notes belong in `logs/`. The directory is intentionally ignored by git. Format
+  every `logs/*.md` file with `src/.agents/skills/log-markdown/SKILL.md` so
+  ignored logs still comply with markdownlint.
+- SWC cache/policy work: use `src/.agents/skills/swc-config/SKILL.md`, keep
+  generated native binaries ignored, and run `npm run swc:populate` before
+  frontend builds or push-time checks.
 
 ## Roadmap Discipline
 

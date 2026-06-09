@@ -1,0 +1,123 @@
+@layer utilities {
+	.tl-surface-page {
+		background:
+			radial-gradient(circle at 18% 0%, rgb(99 102 241 / 8%), transparent 28rem), #fff;
+		color: #111827;
+	}
+
+	.dark .tl-surface-page {
+		background:
+			radial-gradient(circle at 18% 0%, rgb(129 140 248 / 10%), transparent 30rem), #030712;
+		color: #f9fafb;
+	}
+
+	.tl-surface-raised {
+		border: 1px solid #e5e7eb;
+		background: #f9fafb;
+		color: #111827;
+	}
+
+	.dark .tl-surface-raised {
+		border-color: rgb(255 255 255 / 10%);
+		background: rgb(255 255 255 / 5%);
+		color: #f9fafb;
+	}
+
+	.tl-surface-inset {
+		border: 1px solid #e5e7eb;
+		background: #fff;
+		color: #111827;
+	}
+
+	.dark .tl-surface-inset {
+		border-color: rgb(255 255 255 / 10%);
+		background: #030712;
+		color: #f9fafb;
+	}
+
+	.tl-text-muted {
+		color: #4b5563;
+	}
+
+	.dark .tl-text-muted {
+		color: #d1d5db;
+	}
+
+	.tl-link-underline {
+		position: relative;
+		text-decoration: none;
+	}
+
+	.tl-link-underline::after {
+		position: absolute;
+		inset-inline: 0;
+		bottom: -0.125rem;
+		height: 1px;
+		transform: scaleX(0);
+		transform-origin: left;
+		background: currentColor;
+		content: "";
+		transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	.tl-link-underline:hover::after,
+	.tl-link-underline:focus-visible::after,
+	.tl-link-underline[aria-current="page"]::after {
+		transform: scaleX(1);
+	}
+
+	[dir="rtl"] .tl-link-underline::after {
+		transform-origin: right;
+	}
+
+	.tl-touch-target {
+		min-width: 2.75rem;
+		min-height: 2.75rem;
+	}
+
+	.tl-scroll-fade {
+		scrollbar-width: thin;
+		scrollbar-color: rgb(99 102 241 / 35%) transparent;
+	}
+
+	.tl-responsive-cluster {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.tl-readable {
+		max-width: 70ch;
+		text-wrap: pretty;
+	}
+
+	.tl-balanced {
+		text-wrap: balance;
+	}
+
+	.tl-high-contrast-border {
+		border-color: #9ca3af;
+	}
+
+	.high-contrast .tl-surface-page {
+		background: #fff;
+		color: #030712;
+	}
+
+	.high-contrast.dark .tl-surface-page {
+		background: #000;
+		color: #fff;
+	}
+
+	.high-contrast .tl-surface-raised,
+	.high-contrast .tl-surface-inset {
+		border-color: currentColor;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tl-link-underline::after {
+		transition: none;
+	}
+}

@@ -1307,6 +1307,7 @@ export const ARBITRATION_ABI = [
 	{ inputs: [], name: "AppealWindowElapsed", type: "error" },
 	{ inputs: [], name: "AppealWindowNotElapsed", type: "error" },
 	{ inputs: [], name: "DisputeNotFinalized", type: "error" },
+	{ inputs: [], name: "EmptyEvidence", type: "error" },
 	{ inputs: [], name: "EthTransferFailed", type: "error" },
 	{ inputs: [], name: "InsufficientAppealBond", type: "error" },
 	{ inputs: [], name: "InvalidCommitment", type: "error" },
@@ -1320,6 +1321,22 @@ export const ARBITRATION_ABI = [
 	{ inputs: [], name: "PhaseEnded", type: "error" },
 	{ inputs: [], name: "PhaseNotEnded", type: "error" },
 	{ inputs: [], name: "RewardAlreadyClaimed", type: "error" },
+	{
+		anonymous: false,
+		inputs: [
+			{ indexed: true, internalType: "uint256", name: "disputeId", type: "uint256" },
+			{ indexed: true, internalType: "address", name: "submitter", type: "address" },
+			{
+				indexed: true,
+				internalType: "uint256",
+				name: "requestedCompletionPct",
+				type: "uint256",
+			},
+			{ indexed: false, internalType: "string", name: "uri", type: "string" },
+		],
+		name: "EvidenceSubmitted",
+		type: "event",
+	},
 	{
 		inputs: [{ internalType: "uint256", name: "disputeId", type: "uint256" }],
 		name: "advanceToReveal",
@@ -1398,6 +1415,40 @@ export const ARBITRATION_ABI = [
 		type: "function",
 	},
 	{
+		inputs: [
+			{ internalType: "uint256", name: "disputeId", type: "uint256" },
+			{ internalType: "uint256", name: "index", type: "uint256" },
+		],
+		name: "getEvidence",
+		outputs: [
+			{
+				components: [
+					{ internalType: "address", name: "submitter", type: "address" },
+					{ internalType: "uint64", name: "submittedAt", type: "uint64" },
+					{
+						internalType: "uint256",
+						name: "requestedCompletionPct",
+						type: "uint256",
+					},
+					{ internalType: "string", name: "summary", type: "string" },
+					{ internalType: "string", name: "uri", type: "string" },
+				],
+				internalType: "struct Arbitration.Evidence",
+				name: "",
+				type: "tuple",
+			},
+		],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
+		inputs: [{ internalType: "uint256", name: "disputeId", type: "uint256" }],
+		name: "getEvidenceCount",
+		outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+		stateMutability: "view",
+		type: "function",
+	},
+	{
 		inputs: [{ internalType: "uint256", name: "disputeId", type: "uint256" }],
 		name: "getJurors",
 		outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
@@ -1428,6 +1479,22 @@ export const ARBITRATION_ABI = [
 			{ internalType: "bytes32", name: "salt", type: "bytes32" },
 		],
 		name: "revealVote",
+		outputs: [],
+		stateMutability: "nonpayable",
+		type: "function",
+	},
+	{
+		inputs: [
+			{ internalType: "uint256", name: "disputeId", type: "uint256" },
+			{ internalType: "string", name: "summary", type: "string" },
+			{ internalType: "string", name: "uri", type: "string" },
+			{
+				internalType: "uint256",
+				name: "requestedCompletionPct",
+				type: "uint256",
+			},
+		],
+		name: "submitEvidence",
 		outputs: [],
 		stateMutability: "nonpayable",
 		type: "function",

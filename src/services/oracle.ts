@@ -10,6 +10,25 @@ export interface OracleRate {
 export type OracleAsset = "eth" | "usdc";
 export type OracleQuote = "usd";
 
+export interface OraclePair {
+	readonly base: OracleAsset;
+	readonly quote: OracleQuote;
+	readonly providerId: string;
+}
+
+export interface OracleStatus {
+	readonly source: string;
+	readonly ttlMs: number;
+	readonly maxTtlMs: number;
+	readonly supportedPairs: readonly OraclePair[];
+	readonly cache: {
+		readonly populated: boolean;
+		readonly base: OracleAsset | null;
+		readonly quote: OracleQuote | null;
+		readonly expiresAt: string | null;
+	};
+}
+
 interface CachedRate {
 	readonly rate: OracleRate;
 	readonly expiresAtMs: number;
@@ -20,7 +39,7 @@ const ASSET_IDS: Record<OracleAsset, string> = {
 	usdc: "usd-coin",
 };
 
-const DEFAULT_SOURCE_URL = "https://api.coingecko.com/api/v3/simple/price";
+export const DEFAULT_ORACLE_SOURCE_URL = "https://api.coingecko.com/api/v3/simple/price";
 const DEFAULT_TTL_MS = 60_000;
 const MAX_TTL_MS = 3_600_000;
 
@@ -35,7 +54,7 @@ function readTtlMs(): number {
 }
 
 function buildOracleUrl(base: OracleAsset, quote: OracleQuote): URL {
-	const url = new URL(process.env.ORACLE_PRICE_SOURCE_URL ?? DEFAULT_SOURCE_URL);
+	const url = new URL(process.env.ORACLE_PRICE_SOURCE_URL ?? DEFAULT_ORACLE_SOURCE_URL);
 	url.searchParams.set("ids", ASSET_IDS[base]);
 	url.searchParams.set("vs_currencies", quote);
 	return url;
@@ -81,6 +100,26 @@ export function isOracleQuote(value: string): value is OracleQuote {
 
 export function resetOracleCacheForTests(): void {
 	cache = undefined;
+}
+
+export function getOracleStatus(): OracleStatus {
+	const source = process.env.ORACLE_PRICE_SOURCE_URL ?? DEFAULT_ORACLE_SOURCE_URL;
+	return {
+		source,
+		ttlMs: readTtlMs(),
+		maxTtlMs: MAX_TTL_MS,
+		supportedPairs: Object.entries(ASSET_IDS).map(([base, providerId]) => ({
+			base: base as OracleAsset,
+			quote: "usd",
+			providerId,
+		})),
+		cache: {
+			populated: cache !== undefined,
+			base: cache?.rate.base ?? null,
+			quote: cache?.rate.quote ?? null,
+			expiresAt: cache === undefined ? null : new Date(cache.expiresAtMs).toISOString(),
+		},
+	};
 }
 
 export async function fetchOracleRate(base: OracleAsset, quote: OracleQuote): Promise<OracleRate> {

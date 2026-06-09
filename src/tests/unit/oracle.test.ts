@@ -1,5 +1,6 @@
 import {
 	fetchOracleRate,
+	getOracleStatus,
 	isOracleAsset,
 	isOracleQuote,
 	resetOracleCacheForTests,
@@ -79,5 +80,34 @@ describe("oracle service", () => {
 		});
 
 		await expect(fetchOracleRate("eth", "usd")).rejects.toThrow(/positive usd price/);
+	});
+
+	it("reports supported oracle pairs and cache state without fetching", async () => {
+		const fetchMock = jest.fn().mockResolvedValue({
+			ok: true,
+			json: async () => await Promise.resolve({ ethereum: { usd: 2800 } }),
+		});
+		global.fetch = fetchMock;
+
+		expect(getOracleStatus()).toMatchObject({
+			source: "https://api.coingecko.com/api/v3/simple/price",
+			ttlMs: 60000,
+			cache: { populated: false, base: null, quote: null },
+		});
+
+		await fetchOracleRate("eth", "usd");
+
+		const status = getOracleStatus();
+		expect(status.supportedPairs).toContainEqual({
+			base: "eth",
+			quote: "usd",
+			providerId: "ethereum",
+		});
+		expect(status.cache).toMatchObject({
+			populated: true,
+			base: "eth",
+			quote: "usd",
+		});
+		expect(fetchMock).toHaveBeenCalledTimes(1);
 	});
 });

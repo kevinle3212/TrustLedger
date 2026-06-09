@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+	<title id="title">TrustLedger shield icon</title>
+	<desc id="desc">A shield with ledger lines and a check mark.</desc>
+	<rect width="128" height="128" rx="16" fill="#111827"/>
+	<path d="M64 16 102 30v28c0 25-15 43-38 54-23-11-38-29-38-54V30l38-14Z" fill="#4F46E5"/>
+	<path d="M42 47h40M42 60h28M42 73h22" stroke="#E0E7FF" stroke-width="6" stroke-linecap="round"/>
+	<path d="m72 78 8 8 18-22" fill="none" stroke="#34D399" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
