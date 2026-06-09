@@ -1,5 +1,6 @@
-# Non-secret frontend configuration. Replace placeholder addresses with deployed
-# values or use a deployment pipeline to patch this ConfigMap per environment.
+# Non-secret frontend configuration. Values are blank unless they are chain
+# placeholders so overlays, Helm values, or deployment automation own the real
+# environment-specific settings.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,8 +10,10 @@ metadata:
         app.kubernetes.io/name: trustledger-frontend
         app.kubernetes.io/part-of: trustledger
 data:
-    NEXT_PUBLIC_GITHUB_URL: "https://github.com/kevinle3212/TrustLedger"
-    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: "6c6170df7553a4a46bc21e4dee335e8c"
+    NEXT_PUBLIC_APP_URL: ""
+    NEXT_PUBLIC_SITE_URL: ""
+    NEXT_PUBLIC_GITHUB_URL: ""
+    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
     NEXT_PUBLIC_TRUSTLEDGER_ADDRESS: "0x0000000000000000000000000000000000000000"
     NEXT_PUBLIC_ARBITRATION_ADDRESS: "0x0000000000000000000000000000000000000000"
     NEXT_PUBLIC_JUROR_REGISTRY_ADDRESS: "0x0000000000000000000000000000000000000000"

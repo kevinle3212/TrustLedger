@@ -94,7 +94,7 @@ function useMounted(): boolean {
  * ("Connect Wallet"), avoiding the React #418 hydration mismatch that occurred
  * when wagmi rehydrated `isConnected` from storage before hydration completed.
  */
-export function ConnectButton(): React.JSX.Element {
+export function ConnectButton({ compact = false }: { compact?: boolean } = {}): React.JSX.Element {
 	const { open } = useAppKit();
 	const { address, isConnected, connector } = useAccount();
 	const t = useTranslations("Common");
@@ -118,9 +118,15 @@ export function ConnectButton(): React.JSX.Element {
 	// Until mounted, render the deterministic server markup to avoid #418.
 	if (!mounted) {
 		return (
-			<button type="button" onClick={openModal} className={BUTTON_CLASS}>
+			<button
+				type="button"
+				onClick={openModal}
+				className={compact ? `${BUTTON_CLASS} sm:px-3` : BUTTON_CLASS}
+			>
 				<WalletIcon />
-				<span className="truncate">{t("connectWallet")}</span>
+				<span className={compact ? "max-w-[8rem] truncate sm:max-w-[9rem]" : "truncate"}>
+					{t("connectWallet")}
+				</span>
 			</button>
 		);
 	}
@@ -141,7 +147,9 @@ export function ConnectButton(): React.JSX.Element {
 					type="button"
 					onClick={openModal}
 					aria-label={t("connectedAs", { address })}
-					className="tl-button-motion inline-flex min-h-10 min-w-0 items-center justify-center px-4 py-2 font-mono text-sm font-semibold hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 sm:px-5"
+					className={`tl-button-motion inline-flex min-h-10 min-w-0 items-center justify-center py-2 font-mono text-sm font-semibold hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-11 ${
+						compact ? "px-3 sm:px-3.5" : "px-4 sm:px-5"
+					}`}
 				>
 					<span aria-hidden="true" className="truncate">
 						{formatAddress(address)}
@@ -168,9 +176,21 @@ export function ConnectButton(): React.JSX.Element {
 			: t("connectWallet");
 
 	return (
-		<button type="button" onClick={openModal} className={BUTTON_CLASS}>
+		<button
+			type="button"
+			onClick={openModal}
+			className={compact ? `${BUTTON_CLASS} sm:px-3` : BUTTON_CLASS}
+		>
 			<WalletIcon />
-			<span className="max-w-[12rem] truncate sm:max-w-[14rem]">{label}</span>
+			<span
+				className={
+					compact
+						? "max-w-[8rem] truncate sm:max-w-[9rem]"
+						: "max-w-[12rem] truncate sm:max-w-[14rem]"
+				}
+			>
+				{label}
+			</span>
 		</button>
 	);
 }

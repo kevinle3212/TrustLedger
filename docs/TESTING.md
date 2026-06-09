@@ -41,6 +41,9 @@ npm run foundry:test:fork:live
 
 Live Foundry fork tests read `SEPOLIA_RPC_URL` and `FORK_BLOCK_NUMBER` directly.
 Set `SEPOLIA_RPC_URL` before running fork tests that require live Sepolia state.
+`tools/foundry-sandbox.mjs` strips proxy-related environment variables before
+invoking `forge`, which avoids macOS system proxy access panics in sandboxed
+agent sessions.
 
 Run Hardhat tests:
 

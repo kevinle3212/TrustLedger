@@ -63,9 +63,9 @@ successful deploy.
 | `NEXT_PUBLIC_USDC_ADDRESS_BASE`           | Optional Base USDC override.                              |
 | `NEXT_PUBLIC_USDC_ADDRESS_OPTIMISM`       | Optional Optimism USDC override.                          |
 
-> **TODO:** The contract address variables and USDC override variables are
-> declared in `src/env.d.ts` and consumed by `src/lib/wagmi.ts`, but
-> `.env.example` does not list them as of 2026-06-08.
+These variables are listed in `.env.example` and `src/.env.local.example`. Keep
+those files, `docs/ENVIRONMENT.md`, local ignored env files, and Vercel in sync
+whenever a new environment variable is introduced.
 
 ## Email And Notification Variables
 

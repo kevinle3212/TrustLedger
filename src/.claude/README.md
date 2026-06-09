@@ -11,6 +11,7 @@ surface under `src/`.
 - [Documentation Review](skills/documentation-review/SKILL.md)
 - [React Doctor](skills/react-doctor/SKILL.md)
 - [Dependency Audit](skills/dependency-audit/SKILL.md)
+- [Env Sync](skills/env-sync/SKILL.md)
 - [Log Markdown](skills/log-markdown/SKILL.md)
 
 ## Operating Rules

@@ -1,13 +1,13 @@
 # TrustLedger production frontend image.
 #
 # Build from the repository root:
-#   docker build -f docker/Dockerfile.frontend -t trustledger-frontend .
+#   docker build --build-arg NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID="$NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID" -f docker/Dockerfile.frontend -t trustledger-frontend .
 #
 # Run locally:
 #   docker run --rm -p 3000:3000 trustledger-frontend
 
 ARG NODE_VERSION=22.22.3
-ARG NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=6c6170df7553a4a46bc21e4dee335e8c
+ARG NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
 
 FROM node:${NODE_VERSION}-bookworm-slim AS deps
 WORKDIR /repo/src

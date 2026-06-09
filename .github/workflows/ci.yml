@@ -80,7 +80,14 @@ jobs:
               run: npx tsc -p tsconfig.hardhat.json --noEmit
 
             - name: Setup kubectl
-              uses: azure/setup-kubectl@v4
+              env:
+                  KUBECTL_VERSION: v1.34.2
+              run: |
+                  curl -fsSLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+                  curl -fsSLO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256"
+                  echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+                  sudo install -m 0755 kubectl /usr/local/bin/kubectl
+                  kubectl version --client=true
 
             # Foundry is not installed in this job, so skip lint:forge (forge
             # fmt/lint is owned by the Solidity job). Run only the node-based

@@ -117,6 +117,23 @@ run_cmd() {
     "$@"
 }
 
+run_downloaded_installer() {
+    local label="$1"
+    local url="$2"
+    local tmp_file
+
+    tmp_file="$(mktemp "${TMPDIR:-/tmp}/trustledger-${label}.XXXXXXXX.sh")" || return 1
+    if ! curl -fsSL "$url" -o "$tmp_file"; then
+        rm -f "$tmp_file"
+        return 1
+    fi
+
+    bash "$tmp_file"
+    local status=$?
+    rm -f "$tmp_file"
+    return "$status"
+}
+
 print_groups() {
     printf 'Available setup groups:\n'
     printf '  %s\n' "${SETUP_GROUPS[@]}"
@@ -278,7 +295,7 @@ check_node() {
 
     if ! has nvm && [[ "$OS" != "windows" ]]; then
         if ask "Install nvm (Node Version Manager)?"; then
-            curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash # nosemgrep: bash.curl.security.curl-pipe-bash.curl-pipe-bash
+            run_downloaded_installer "nvm" "https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh"
             export NVM_DIR="$HOME/.nvm"
             # shellcheck disable=SC1091
             [[ -s "$NVM_DIR/nvm.sh" ]] && . "$NVM_DIR/nvm.sh"
@@ -312,13 +329,13 @@ check_foundry() {
     if has forge; then ok "forge $(forge --version | head -1)"; return; fi
     err "Foundry is not installed."
     if [[ "$OS" == "windows" && "$IS_WSL" -eq 0 ]]; then
-        fail_step "Foundry missing" "Foundry needs WSL2 on Windows. Install WSL2, then inside it run: curl -L https://foundry.paradigm.xyz | bash && foundryup"
+        fail_step "Foundry missing" "Foundry needs WSL2 on Windows. Install WSL2, then run the downloaded foundryup installer from https://foundry.paradigm.xyz and execute foundryup."
         return
     fi
-    [[ "$SKIP_INSTALL" -eq 1 ]] && { fail_step "Foundry missing" "Install with: curl -L https://foundry.paradigm.xyz | bash && foundryup"; return; }
+    [[ "$SKIP_INSTALL" -eq 1 ]] && { fail_step "Foundry missing" "Install the foundryup script from https://foundry.paradigm.xyz, then run foundryup."; return; }
 
     if ask "Install Foundry via the official foundryup installer?"; then
-        curl -L https://foundry.paradigm.xyz | bash # nosemgrep: bash.curl.security.curl-pipe-bash.curl-pipe-bash
+        run_downloaded_installer "foundryup" "https://foundry.paradigm.xyz"
         # foundryup is installed to ~/.foundry/bin; add it to PATH for this run.
         export PATH="$HOME/.foundry/bin:$PATH"
         if has foundryup; then foundryup; fi
@@ -326,7 +343,7 @@ check_foundry() {
     if has forge; then
         ok "forge $(forge --version | head -1)"
     else
-        fail_step "Foundry missing" "Run: curl -L https://foundry.paradigm.xyz | bash ; then restart your shell and run 'foundryup'."
+        fail_step "Foundry missing" "Download and run the official foundryup installer from https://foundry.paradigm.xyz, then restart your shell and run 'foundryup'."
         manual_step "Add Foundry to PATH permanently: ensure 'export PATH=\"\$HOME/.foundry/bin:\$PATH\"' is in your shell profile (~/.bashrc or ~/.zshrc)."
     fi
 }

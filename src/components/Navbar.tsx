@@ -78,68 +78,64 @@ export function Navbar(): React.JSX.Element {
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
-			<div className="tl-site-frame flex flex-col gap-3 py-3 xl:min-h-16 xl:flex-row xl:items-center xl:justify-between xl:py-0">
-				<div className="flex min-w-0 flex-col gap-3 xl:flex-row xl:items-center xl:gap-8">
+			<div className="tl-site-frame grid gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)] lg:min-h-16 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:py-0">
+				<Link
+					href="/"
+					aria-current={path === "/" ? "page" : undefined}
+					className="tl-button-motion flex min-h-10 w-fit shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+				>
+					<Image
+						src="/trustledger-mark.svg"
+						alt={t("logoAlt")}
+						width={32}
+						height={32}
+						className="rounded-lg"
+						style={{ height: "auto" }}
+					/>
+					TrustLedger
+				</Link>
+				<nav
+					aria-label={t("mainNav")}
+					className="tl-nav-scroller order-3 -mx-1 flex max-w-full items-center gap-x-4 overflow-x-auto px-1 pb-1 sm:col-span-2 sm:gap-x-6 lg:order-none lg:col-span-1 lg:mx-0 lg:justify-center lg:px-0 lg:pb-0"
+				>
 					<Link
-						href="/"
-						aria-current={path === "/" ? "page" : undefined}
-						className="tl-button-motion flex min-h-10 w-fit shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+						href="/create"
+						aria-current={path === "/create" ? "page" : undefined}
+						className={linkClass("/create")}
 					>
-						<Image
-							src="/trustledger-mark.svg"
-							alt={t("logoAlt")}
-							width={32}
-							height={32}
-							className="rounded-lg"
-							style={{ height: "auto" }}
-						/>
-						TrustLedger
+						{t("newContract")}
 					</Link>
-					<nav
-						aria-label={t("mainNav")}
-						className="tl-nav-scroller -mx-1 flex max-w-full items-center gap-x-4 overflow-x-auto px-1 pb-1 sm:gap-x-6 xl:mx-0 xl:px-0 xl:pb-0"
+					<Link
+						href="/dashboard"
+						aria-current={path === "/dashboard" ? "page" : undefined}
+						className={linkClass("/dashboard")}
 					>
-						<Link
-							href="/create"
-							aria-current={path === "/create" ? "page" : undefined}
-							className={linkClass("/create")}
-						>
-							{t("newContract")}
-						</Link>
-						<Link
-							href="/dashboard"
-							aria-current={path === "/dashboard" ? "page" : undefined}
-							className={linkClass("/dashboard")}
-						>
-							{t("dashboard")}
-						</Link>
-						<Link
-							href="/juror"
-							aria-current={path === "/juror" ? "page" : undefined}
-							className={linkClass("/juror")}
-						>
-							{t("juror")}
-						</Link>
-						<Link
-							href="/reputation"
-							aria-current={path === "/reputation" ? "page" : undefined}
-							className={linkClass("/reputation")}
-						>
-							{t("reputation")}
-						</Link>
-						<Link
-							href="/faq"
-							aria-current={path === "/faq" ? "page" : undefined}
-							className={linkClass("/faq")}
-						>
-							{t("faq")}
-						</Link>
-					</nav>
-				</div>
-				<div className="grid w-full min-w-0 grid-cols-3 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap sm:gap-3 xl:justify-end">
-					<div className="col-span-full w-full sm:col-span-1 sm:w-auto [&>fieldset]:w-full sm:[&>fieldset]:w-auto">
-						<RoleToggle />
-					</div>
+						{t("dashboard")}
+					</Link>
+					<Link
+						href="/juror"
+						aria-current={path === "/juror" ? "page" : undefined}
+						className={linkClass("/juror")}
+					>
+						{t("juror")}
+					</Link>
+					<Link
+						href="/reputation"
+						aria-current={path === "/reputation" ? "page" : undefined}
+						className={linkClass("/reputation")}
+					>
+						{t("reputation")}
+					</Link>
+					<Link
+						href="/faq"
+						aria-current={path === "/faq" ? "page" : undefined}
+						className={linkClass("/faq")}
+					>
+						{t("faq")}
+					</Link>
+				</nav>
+				<div className="tl-nav-scroller -mx-1 flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto px-1 pb-1 sm:justify-end lg:mx-0 lg:justify-end lg:px-0 lg:pb-0">
+					<RoleToggle />
 					{githubUrl !== undefined && githubUrl !== "" && (
 						<a
 							href={githubUrl}
@@ -153,8 +149,8 @@ export function Navbar(): React.JSX.Element {
 					)}
 					<ContrastToggle />
 					<ThemeToggle />
-					<div className="col-span-full w-full sm:col-span-1 sm:w-auto [&>button]:w-full [&>div]:w-full sm:[&>button]:w-auto sm:[&>div]:w-auto">
-						<ConnectButton />
+					<div className="min-w-0 [&>button]:max-w-full [&>div]:max-w-full">
+						<ConnectButton compact />
 					</div>
 				</div>
 			</div>
