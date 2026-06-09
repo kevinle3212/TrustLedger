@@ -67,7 +67,7 @@ function CheckIcon(): React.JSX.Element {
 }
 
 const BUTTON_CLASS =
-	"tl-button-motion inline-flex min-h-10 max-w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-[44px] sm:px-4";
+	"tl-button-motion inline-flex min-h-10 max-w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 sm:min-h-[44px] sm:px-4";
 
 // Hydration-safe "are we on the client yet?" flag. useSyncExternalStore returns
 // the server snapshot (false) during SSR and the first client render, then the
@@ -106,10 +106,10 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 	// connection is active, so the reconnect hint survives logout / session expiry.
 	useEffect(() => {
 		const name = connector?.name;
-		if (isConnected && name !== undefined && name !== "") {
+		if (mounted && isConnected && name !== undefined && name !== "") {
 			setLastWallet(name);
 		}
-	}, [isConnected, connector]);
+	}, [isConnected, mounted, connector?.name]);
 
 	function openModal(): void {
 		void open();
@@ -142,7 +142,7 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 		};
 
 		return (
-			<div className="grid max-w-full grid-cols-[minmax(0,1fr)_2.5rem] items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white sm:inline-grid sm:grid-cols-[minmax(0,1fr)_2.75rem]">
+			<div className="grid max-w-full shrink-0 grid-cols-[minmax(0,1fr)_2.5rem] items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white sm:inline-grid sm:grid-cols-[minmax(0,1fr)_2.75rem]">
 				<button
 					type="button"
 					onClick={openModal}

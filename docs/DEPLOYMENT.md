@@ -130,6 +130,13 @@ For Sepolia deployments, `deploy.yml` sets both default and `_SEPOLIA` frontend
 variables in Vercel. See [Environment](ENVIRONMENT.md) for all address variable
 names.
 
+## Production Frontend URL
+
+Use `https://trustledger-zeta.vercel.app/en` as the canonical production
+frontend URL for manual checks, documentation references, and agent runs. Do not
+reintroduce the previous `src-trustledger.vercel.app` hostname unless historical
+deployment context is explicitly needed.
+
 ## Container Frontend Deployment
 
 Build the standalone frontend image:

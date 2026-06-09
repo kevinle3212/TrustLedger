@@ -82,14 +82,14 @@ export function Navbar(): React.JSX.Element {
 				<Link
 					href="/"
 					aria-current={path === "/" ? "page" : undefined}
-					className="tl-button-motion flex min-h-10 w-fit shrink-0 items-center gap-2 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400"
+					className="tl-button-motion flex min-h-11 w-fit shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400 sm:text-xl"
 				>
 					<Image
 						src="/trustledger-mark.svg"
 						alt={t("logoAlt")}
-						width={32}
-						height={32}
-						className="rounded-lg"
+						width={44}
+						height={44}
+						className="size-10 sm:size-11"
 						style={{ height: "auto" }}
 					/>
 					TrustLedger
@@ -142,14 +142,14 @@ export function Navbar(): React.JSX.Element {
 							target="_blank"
 							rel="noopener noreferrer"
 							aria-label={t("viewGitHub")}
-							className="tl-button-motion inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white"
+							className="tl-button-motion hidden min-h-10 min-w-10 items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white sm:inline-flex"
 						>
 							<GitHubIcon />
 						</a>
 					)}
 					<ContrastToggle />
 					<ThemeToggle />
-					<div className="min-w-0 [&>button]:max-w-full [&>div]:max-w-full">
+					<div className="shrink-0 [&>button]:max-w-full [&>div]:max-w-full">
 						<ConnectButton compact />
 					</div>
 				</div>

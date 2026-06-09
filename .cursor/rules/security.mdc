@@ -3,6 +3,7 @@ description: Security guidance
 globs:
     - "SECURITY.md"
     - "docs/SECURITY.md"
+    - "docs/LEGAL.md"
     - ".github/workflows/**/*"
     - "src/app/api/**/*"
     - "contracts/src/**/*"
@@ -13,3 +14,6 @@ Treat wallets, bearer secrets, private keys, RPC credentials, email tokens, and
 deployment credentials as sensitive. Model trust boundaries explicitly, document
 new risks, and update `SECURITY.md` for auth, authorization, encryption, oracle,
 dependency, or incident-response changes.
+
+Use `.sixth/skills/legal-compliance/SKILL.md` when the change also affects legal,
+privacy, compliance, risk, wallet, arbitration, or user-policy language.

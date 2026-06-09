@@ -85,6 +85,7 @@ All user-facing routes are locale-prefixed through `next-intl`.
 | `/[locale]/juror`             | Juror staking and voting workflows.         |
 | `/[locale]/reputation`        | Reputation lookup and history.              |
 | `/[locale]/faq`               | Recovery and support content.               |
+| `/[locale]/legal`             | Legal document and compliance index.        |
 
 ## Frontend Architecture
 
@@ -126,6 +127,13 @@ All user-facing routes are locale-prefixed through `next-intl`.
 | Wallet hint       | `lib/lastWallet.ts`                              |
 
 Keep new state local unless it crosses a provider or route boundary.
+
+## Legal And Security References
+
+Frontend changes that affect wallet flows, arbitration, dispute copy, privacy,
+risk, or policy language should use `.sixth/skills/legal-compliance/SKILL.md`
+and check [Legal And Compliance](../docs/LEGAL.md), [Security](../SECURITY.md),
+and [Security Docs](../docs/SECURITY.md).
 
 ## Styling Architecture
 

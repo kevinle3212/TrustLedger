@@ -39,6 +39,7 @@ outcomes through audited code paths instead of platform custody.
 - [Oracle Architecture](#oracle-architecture)
 - [Deployment](#deployment)
 - [Security](#security)
+- [Legal And Compliance](#legal-and-compliance)
 - [Testing Strategy](#testing-strategy)
 - [CI/CD](#cicd)
 - [Documentation](#documentation)
@@ -280,7 +281,9 @@ and marks stale cache fallback responses. Read
 
 The frontend targets Vercel. Contracts can be deployed locally or to configured
 networks through Hardhat and Foundry. The manual Sepolia deploy workflow writes
-contract addresses into Vercel before triggering a frontend redeploy.
+contract addresses into Vercel before triggering a frontend redeploy. Use
+`https://trustledger-zeta.vercel.app/en` as the canonical production frontend
+URL.
 
 Read [Deployment](docs/DEPLOYMENT.md) and [CI/CD](docs/CI-CD.md).
 
@@ -293,6 +296,13 @@ prioritize access control, reentrancy resistance, event coverage, gas awareness,
 and audit-ready clarity.
 
 Read [Security](SECURITY.md) and [Security Docs](docs/SECURITY.md).
+
+## Legal And Compliance
+
+Legal and compliance-sensitive changes are tracked through
+[Legal And Compliance](docs/LEGAL.md), the root legal draft inventory, and the
+website legal center at `/en/legal`. Root legal drafts remain owner-controlled
+until explicitly approved for editing and publication.
 
 ## Testing Strategy
 

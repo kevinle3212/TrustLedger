@@ -31,6 +31,9 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
   `npm run swc:populate` and the relevant build.
 - React diagnostics: use `src/skills/react-doctor/SKILL.md` and keep the score
   from regressing.
+- Legal and compliance-sensitive changes: use
+  `src/.agents/skills/legal-compliance/SKILL.md`; do not edit root legal drafts
+  without explicit approval for those files.
 - Context sync: after repository changes, use
   `src/.agents/skills/update-context/SKILL.md` so docs, comments, visible
   project surfaces, and agent instructions stay current without duplicated

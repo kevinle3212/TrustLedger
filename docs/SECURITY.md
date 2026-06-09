@@ -78,4 +78,6 @@ installed, so local ignored audit logs do not grow without a visible policy.
 
 Use the root
 [Security Policy](https://github.com/kevinle3212/TrustLedger/blob/main/SECURITY.md)
-for vulnerability reporting instructions.
+for vulnerability reporting instructions. Use [Legal And Compliance](LEGAL.md)
+when a security-sensitive change also affects privacy, user obligations, content
+handling, risk disclosures, or other compliance-sensitive policy language.

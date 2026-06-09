@@ -1,8 +1,7 @@
-# Foundry's standard Solidity test helpers, used by `contracts/test/**` and
-# required for local/CI `forge build` and `forge test` runs.
-[submodule "contracts/lib/forge-std"]
-	path = contracts/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
+# Foundry's standard Solidity test helpers live under `contracts/lib/forge-std`,
+# but that directory is vendored in this repository rather than tracked as a
+# git submodule. Keep it out of this file unless it is intentionally converted
+# back to a 160000 gitlink.
 
 # OpenZeppelin contract library used by TrustLedger Solidity contracts and
 # mocks. Keep this pinned through the git submodule commit, not a floating tag.

@@ -66,6 +66,7 @@ nav:
     - Deployment: DEPLOYMENT.md
     - Testing: TESTING.md
     - Security: SECURITY.md
+    - Legal And Compliance: LEGAL.md
     - Environment: ENVIRONMENT.md
     - Sepolia Faucets: FAUCETS.md
     - CI/CD: CI-CD.md

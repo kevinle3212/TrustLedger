@@ -23,6 +23,7 @@ Use these specialist briefs when delegating or reviewing frontend work.
 - [SWC Config](skills/swc-config/SKILL.md)
 - [Dependency Audit](skills/dependency-audit/SKILL.md)
 - [Env Sync](skills/env-sync/SKILL.md)
+- [Legal Compliance](skills/legal-compliance/SKILL.md)
 - [Log Markdown](skills/log-markdown/SKILL.md)
 - [Update Context](skills/update-context/SKILL.md)
 

@@ -16,6 +16,13 @@ on-chain API.
 | `MockPriceFeed`      | Test price feed.                                                                                                |
 | `MockVRFCoordinator` | Test VRF coordinator.                                                                                           |
 
+## Contract Dependencies
+
+`contracts/lib/openzeppelin-contracts` is pinned as a git submodule and should
+move only through an intentional dependency-review change.
+`contracts/lib/forge-std` is vendored as regular tracked files, so it is
+intentionally not listed as a submodule in `.gitmodules`.
+
 ## TrustLedger
 
 `TrustLedger` inherits `ReentrancyGuard` and `Pausable`. It stores escrow terms

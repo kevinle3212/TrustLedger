@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 
-const routes = ["/en", "/en/create", "/en/dashboard", "/en/juror", "/en/reputation", "/en/faq"];
+const routes = [
+	"/en",
+	"/en/create",
+	"/en/dashboard",
+	"/en/juror",
+	"/en/reputation",
+	"/en/faq",
+	"/en/legal",
+];
 
 test.describe("public app routes", () => {
 	for (const route of routes) {

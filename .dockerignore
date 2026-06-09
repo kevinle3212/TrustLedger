@@ -41,6 +41,19 @@ src/test-results/
 logs/
 *.log
 
+# ─── Owner-reviewed legal drafts - publish only after approval ───────────────
+ACCEPTABLE_USE_POLICY.md
+COMMUNITY_GUIDELINES.md
+CONTENT_POLICY.md
+COOKIE_POLICY.md
+DISCLAIMER.md
+DISCLAIMER 2.md
+DMCA_POLICY.md
+PRIVACY_POLICY.md
+RISK_DISCLOSURE.md
+TERMS_AND_CONDITIONS.md
+TRADEMARK_POLICY.md
+
 # ─── Git internals - not needed in the image; submodule content is in contracts/lib/
 .git/
 .gitmodules

@@ -24,6 +24,9 @@ commands with `rtk` when available.
 - Contract work: `contracts`, `test`, and `.cursor/rules/contracts.mdc`.
 - Security work: `SECURITY.md`, `docs/SECURITY.md`, workflows, API routes,
   contracts, and `.cursor/rules/security.mdc`.
+- Legal or compliance-sensitive work: root legal draft markdown files,
+  `docs/LEGAL.md`, the website legal center, `SECURITY.md`, and
+  `.sixth/skills/legal-compliance/SKILL.md`.
 - Testing work: `src/tests`, `test`, `contracts/test`, and
   `.cursor/rules/testing.mdc`.
 - Documentation work: root markdown, `docs/`, `src/README.md`, and
