@@ -45,12 +45,10 @@ src/out/
 # ─── Documentation site and project docs ──────────────────────────────────────
 /docs/
 /site/
-/assets/
+/assets/*
 !/assets/analytics/
-!/assets/analytics/wallet-analytics-bokeh.json
-!/assets/analytics/wallet-analytics-plotly.json
-!/assets/analytics/wallet-analytics-preview.svg
-!/assets/analytics/wallet-analytics-report.json
+!/assets/analytics/*.json
+!/assets/analytics/*.svg
 /mkdocs.yml
 /requirements-docs.txt
 
