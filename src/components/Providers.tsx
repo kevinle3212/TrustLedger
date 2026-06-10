@@ -1,34 +1,12 @@
 "use client";
 
-import { useAppKitTheme } from "@reown/appkit/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider, useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { ThemeProvider } from "next-themes";
+import { useState } from "react";
 import { WagmiProvider } from "wagmi";
-import { APPKIT_FONT_FAMILY, config } from "@/lib/wagmi";
+import { config } from "@/lib/wagmi";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
 import { RoleProvider } from "@/contexts/RoleContext";
-
-/**
- * Keeps the AppKit modal's light/dark mode in sync with next-themes.
- *
- * AppKit is a singleton (created in `@/lib/wagmi`), so this renders nothing and
- * only pushes the resolved theme into AppKit whenever it changes.
- */
-function AppKitThemeSync(): null {
-	const { resolvedTheme } = useTheme();
-	const { setThemeMode, setThemeVariables } = useAppKitTheme();
-
-	useEffect(() => {
-		setThemeMode(resolvedTheme === "light" ? "light" : "dark");
-		setThemeVariables({
-			"--w3m-accent": "#6366f1",
-			"--w3m-font-family": APPKIT_FONT_FAMILY,
-		});
-	}, [resolvedTheme, setThemeMode, setThemeVariables]);
-
-	return null;
-}
 
 /**
  * Drives the app-wide inactivity auto-logout. Renders nothing; lives inside
@@ -52,7 +30,6 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 			<RoleProvider>
 				<WagmiProvider config={config}>
 					<QueryClientProvider client={queryClient}>
-						<AppKitThemeSync />
 						<InactivityWatcher />
 						{children}
 					</QueryClientProvider>

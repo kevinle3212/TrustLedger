@@ -1,6 +1,5 @@
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { arbitrum, type AppKitNetwork, base, optimism, sepolia } from "@reown/appkit/networks";
-import { createAppKit, type CreateAppKit } from "@reown/appkit/react";
 import { FEATURED_WALLET_IDS } from "./walletIds";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -204,7 +203,7 @@ const hasWcProjectId = wcProjectId !== undefined && wcProjectId !== "";
 // project ID during prerender because AppKit hooks read the singleton on SSR.
 // This is a NEXT_PUBLIC value, not a secret; Docker/Kubernetes provide it
 // through build/runtime config so builds do not fall back to placeholders.
-const projectId = wcProjectId ?? "";
+export const projectId = wcProjectId ?? "";
 
 // Relay-based wallets (Tangem, Phantom, MetaMask-mobile via QR, WalletConnect)
 // silently fail to pair without a real project ID - especially on mobile, where
@@ -220,10 +219,10 @@ if (!hasWcProjectId && typeof window !== "undefined") {
 
 // Sepolia: testing and development only.
 // Arbitrum / Base / Optimism: production L2s with gas costs proportional to typical contract values.
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, arbitrum, base, optimism];
+export const networks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, arbitrum, base, optimism];
 
 // Brand accent shared with the rest of the UI (indigo-500).
-const ACCENT_COLOR = "#6366f1";
+export const ACCENT_COLOR = "#6366f1";
 export const APPKIT_FONT_FAMILY =
 	'var(--font-sans), ui-sans-serif, system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", sans-serif';
 
@@ -233,14 +232,14 @@ export const APPKIT_FONT_FAMILY =
 // fall back to the configured site URL. NEXT_PUBLIC_SITE_URL is preferred;
 // NEXT_PUBLIC_APP_URL is accepted as an alias so a single deployment URL var works.
 const configuredAppUrl = PUBLIC_ENV.NEXT_PUBLIC_SITE_URL ?? PUBLIC_ENV.NEXT_PUBLIC_APP_URL;
-const appUrl =
+export const appUrl =
 	typeof window !== "undefined"
 		? window.location.origin
 		: (configuredAppUrl ?? "https://trustledger.vercel.app");
 
 // The wagmi adapter builds the wagmi config AppKit drives. `ssr: true` mirrors
 // the previous getDefaultConfig setup so Next.js server rendering stays correct.
-const wagmiAdapter = new WagmiAdapter({
+export const wagmiAdapter = new WagmiAdapter({
 	networks,
 	projectId,
 	ssr: true,
@@ -253,37 +252,7 @@ const wagmiAdapter = new WagmiAdapter({
  * Phantom, Tangem, and every other WalletConnect-registry wallet.
  */
 export const config = wagmiAdapter.wagmiConfig;
-
-/**
- * The AppKit modal singleton. Created here as an import side effect so AppKit
- * hooks are registered during SSR and client rendering.
- */
-createAppKit({
-	// AppKit types an adapter's `namespace` as optional, but the adapters array
-	// requires it; under `exactOptionalPropertyTypes` that surfaces as a mismatch.
-	// The wagmi adapter is a valid ChainAdapter, so assert the expected element type.
-	adapters: [wagmiAdapter] as NonNullable<CreateAppKit["adapters"]>,
-	networks,
-	projectId,
-	metadata: {
-		name: "TrustLedger",
-		description:
-			"Decentralized freelance escrow with on-chain reputation and juror arbitration.",
-		url: appUrl,
-		icons: [`${appUrl}/logo.png`],
-	},
-	featuredWalletIds: FEATURED_WALLET_IDS,
-	themeMode: "dark",
-	themeVariables: {
-		"--w3m-accent": ACCENT_COLOR,
-		"--w3m-font-family": APPKIT_FONT_FAMILY,
-	},
-	features: {
-		analytics: false,
-		email: false,
-		socials: false,
-	},
-});
+export { FEATURED_WALLET_IDS };
 
 const EXPLORERS: Record<number, string> = {
 	11155111: "https://sepolia.etherscan.io", // Sepolia

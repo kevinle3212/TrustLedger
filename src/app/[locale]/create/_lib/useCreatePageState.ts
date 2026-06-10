@@ -162,7 +162,7 @@ export function useCreatePageState(): {
 			},
 			termsBody: DEFAULT_CONTRACT_TERMS.markdown,
 			termsFormat: "markdown" as const,
-			termsLastUpdatedAt: new Date().toISOString(),
+			termsLastUpdatedAt: null,
 			reviewOpen: false,
 			magicLinkStatus: "idle" as const,
 			docMode: "upload",
