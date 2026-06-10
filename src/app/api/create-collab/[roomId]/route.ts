@@ -35,7 +35,9 @@ function pruneExpiredRooms(now = Date.now()): void {
 	}
 
 	if (snapshots.size <= MAX_ROOMS) return;
-	const ordered = [...snapshots.entries()].sort(([, a], [, b]) => a.storedAt - b.storedAt);
+	const ordered = Array.from(snapshots.entries()).toSorted(
+		([, a], [, b]) => a.storedAt - b.storedAt,
+	);
 	for (const [roomId] of ordered.slice(0, snapshots.size - MAX_ROOMS)) {
 		snapshots.delete(roomId);
 	}

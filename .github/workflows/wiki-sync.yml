@@ -5,6 +5,8 @@ on:
         branches: [main]
         paths:
             - "docs/**"
+            - "mkdocs.yml"
+            - ".github/workflows/wiki-sync.yml"
     workflow_dispatch:
 
 concurrency:
@@ -16,7 +18,7 @@ permissions:
 
 jobs:
     sync:
-        name: Sync docs/ to GitHub Wiki
+        name: Sync rendered docs table of contents to GitHub Wiki
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -26,9 +28,13 @@ jobs:
               run: |
                   git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git wiki
 
-            - name: Copy docs to wiki
+            - name: Generate wiki home
               run: |
-                  cp docs/*.md wiki/
+                  node tools/generate-wiki-home.mjs > wiki/Home.md
+
+            - name: Remove raw synced docs
+              run: |
+                  find wiki -maxdepth 1 -type f -name '*.md' ! -name 'Home.md' -delete
 
             - name: Commit and push
               run: |

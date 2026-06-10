@@ -41,6 +41,9 @@
 # `set -e`: we want to keep going after a failed step and report everything.
 set -uo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 # -----------------------------------------------------------------------------
 # Configuration — required tool versions (single source of truth).
 # -----------------------------------------------------------------------------
@@ -121,8 +124,10 @@ run_downloaded_installer() {
     local label="$1"
     local url="$2"
     local tmp_file
+    local repo_tmp_dir="${TRUSTLEDGER_TMP_DIR:-$PROJECT_ROOT/tmp}"
 
-    tmp_file="$(mktemp "${TMPDIR:-/tmp}/trustledger-${label}.XXXXXXXX.sh")" || return 1
+    mkdir -p "$repo_tmp_dir"
+    tmp_file="$(mktemp "$repo_tmp_dir/trustledger-${label}.XXXXXXXX.sh")" || return 1
     if ! curl -fsSL "$url" -o "$tmp_file"; then
         rm -f "$tmp_file"
         return 1

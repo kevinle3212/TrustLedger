@@ -71,7 +71,9 @@ async function fetchSnapshot(roomId: string): Promise<RelaySnapshot | null> {
 		cache: "no-store",
 	});
 	if (!response.ok) {
-		throw new Error("Unable to load the live draft room.");
+		throw new Error(
+			"Unable To Load The Live Draft Room. Check The Session Link, Session Key, Wallet, Or Room Expiration.",
+		);
 	}
 	const body = (await response.json()) as RelayResponse;
 	return body.snapshot;
@@ -92,6 +94,7 @@ export function useEncryptedDraftCollaboration(input: {
 	const [lastError, setLastError] = useState<string | null>(null);
 	const lastSentEventId = useRef<string | null>(null);
 	const lastAppliedEventId = useRef<string | null>(null);
+	const newestAppliedAt = useRef(0);
 	const suppressNextPublish = useRef(false);
 	const isLive = roomId !== null && sessionKey !== "" && allowedWallets.length > 0;
 	const draft = useMemo(() => shareableDraftFromState(state), [state]);
@@ -108,28 +111,34 @@ export function useEncryptedDraftCollaboration(input: {
 			void (async (): Promise<void> => {
 				const eventId = generateEventId();
 				try {
+					if (controller.signal.aborted) return;
 					setIsPublishing(true);
 					const encryptedDraft = await encryptDraftForShare({
 						draft,
 						sessionKey,
 						allowedWallets,
 					});
-					if (controller.signal.aborted) return;
+					controller.signal.throwIfAborted();
 					lastSentEventId.current = eventId;
 					lastAppliedEventId.current = eventId;
+					const updatedAt = new Date().toISOString();
 					await postSnapshot({
 						roomId: activeRoomId,
 						eventId,
 						encryptedDraft,
 						authorWallet: connectedWallet,
-						updatedAt: new Date().toISOString(),
+						updatedAt,
 					});
+					newestAppliedAt.current = Math.max(
+						newestAppliedAt.current,
+						Date.parse(updatedAt),
+					);
 					if (typeof BroadcastChannel !== "undefined") {
 						const channel = new BroadcastChannel(channelName(activeRoomId));
 						channel.postMessage({
 							eventId,
 							encryptedDraft,
-							updatedAt: new Date().toISOString(),
+							updatedAt,
 						});
 						channel.close();
 					}
@@ -161,12 +170,15 @@ export function useEncryptedDraftCollaboration(input: {
 			if (closed) return;
 			if (snapshot.eventId === lastSentEventId.current) return;
 			if (snapshot.eventId === lastAppliedEventId.current) return;
+			const snapshotTime = Date.parse(snapshot.updatedAt);
+			if (Number.isFinite(snapshotTime) && snapshotTime < newestAppliedAt.current) return;
 			const remoteDraft = await decryptSharedDraft({
 				encryptedDraft: snapshot.encryptedDraft,
 				sessionKey,
 				walletAddress: connectedWallet,
 			});
 			lastAppliedEventId.current = snapshot.eventId;
+			if (Number.isFinite(snapshotTime)) newestAppliedAt.current = snapshotTime;
 			suppressNextPublish.current = true;
 			onRemoteDraft(remoteDraft);
 			setLastRemoteUpdateAt(snapshot.updatedAt);

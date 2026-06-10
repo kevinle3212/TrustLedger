@@ -167,6 +167,8 @@ whether the change touches:
   `NOTES.md`.
 - **Scripts/commands** → update the documented command reference so it is
   copy-paste correct.
+- **Moved or renamed files/assets/routes** → remove or update stale references
+  in docs, comments, config, website copy, tests, and agent instructions.
 
 Final pass on every doc change: correct capitalization, grammar, punctuation,
 clarity. Short unambiguous sentences, consistent terminology, backtick-wrap all
@@ -179,6 +181,15 @@ code/paths/identifiers.
 - Format `logs/*.md` with `src/.agents/skills/log-markdown/SKILL.md` and keep
   the result markdownlint-compliant.
 - `logs/` is ignored by git. Keep committed docs free of transient run output.
+- Keep temporary scratch files in project-local `tmp/` instead of system `/tmp`
+  unless an external tool requires otherwise. Use `TRUSTLEDGER_TMP_DIR=./tmp`
+  when a command accepts an explicit temporary root. Run `npm run tmp:check`
+  after creating scratch files and `npm run tmp:prune` when retention limits are
+  exceeded.
+- Localhost browser checks are allowed when UI validation is requested. Start
+  the frontend with `rtk npm run dev:frontend`; if sandboxed binding blocks the
+  check, rerun the same command with escalation and cite the user's
+  pre-authorization for localhost browser validation.
 - Dependency and vulnerability reviews should use
   `src/.agents/agents/dependency-auditor.md`.
 

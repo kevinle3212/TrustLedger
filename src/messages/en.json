@@ -34,7 +34,7 @@
 		"primaryLink": "Start a contract"
 	},
 	"Home": {
-		"builtOn": "Built on Ethereum Sepolia",
+		"builtOn": "Built On Ethereum Sepolia",
 		"headline1": "Freelance without",
 		"headline2": "trusting anyone.",
 		"subtext": "TrustLedger holds your ETH in a smart contract escrow. Funds release on client approval - or via decentralized juror arbitration if there's a dispute.",

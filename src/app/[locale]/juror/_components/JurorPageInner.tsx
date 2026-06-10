@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	useAccount,
 	useReadContract,
@@ -18,6 +18,7 @@ import { formatAddress, formatDeadline } from "@/lib/utils";
 import { validateEthAmount } from "@/lib/validation";
 import { getRecentDisputeIds } from "@/hooks/useRecentDisputeIds";
 import { calculateLinearPayout, isActionableJurorPhase, isRulingSet } from "@/utils/arbitration";
+import { readEvidenceDraftHistory, type EvidenceDraftHistoryItem } from "@/store/arbitrationDrafts";
 
 // Minimum stake to register or top up, in ETH (mirrors the JurorRegistry contract).
 const MIN_STAKE_ETH = 0.01;
@@ -586,6 +587,74 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 	);
 }
 
+function LocalDraftHistoryPanel(): React.JSX.Element {
+	const locale = useLocale();
+	const dateTimeFormatter = useMemo(
+		() => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }),
+		[locale],
+	);
+	const [drafts, setDrafts] = useState<EvidenceDraftHistoryItem[]>([]);
+
+	useEffect(() => {
+		const timer = window.setTimeout(() => {
+			setDrafts(readEvidenceDraftHistory());
+		}, 0);
+		return (): void => {
+			window.clearTimeout(timer);
+		};
+	}, []);
+
+	return (
+		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
+			<div>
+				<h2 className="font-semibold text-gray-900 dark:text-white">
+					Local Arbitration Draft History
+				</h2>
+				<p className="text-xs text-gray-500 mt-1">
+					Unsubmitted evidence drafts saved in this browser for juror and party review.
+				</p>
+			</div>
+			{drafts.length === 0 ? (
+				<p className="text-sm text-gray-500 dark:text-gray-400">
+					No local arbitration drafts found on this device.
+				</p>
+			) : (
+				<div className="flex flex-col gap-3">
+					{drafts.map((draft) => (
+						<div
+							key={`${draft.disputeId}-${draft.updatedAt.toString()}`}
+							className="rounded-xl border border-gray-200 bg-white/70 p-4 dark:border-white/10 dark:bg-black/10"
+						>
+							<div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+								<p className="text-sm font-semibold text-gray-900 dark:text-white">
+									Dispute #{draft.disputeId}
+								</p>
+								<span className="text-xs text-gray-500">
+									{draft.updatedAt > 0
+										? dateTimeFormatter.format(new Date(draft.updatedAt))
+										: "Not Timestamped"}
+								</span>
+							</div>
+							<p className="mt-2 line-clamp-3 text-sm text-gray-600 dark:text-gray-300">
+								{draft.summary}
+							</p>
+							<p className="mt-2 text-xs text-gray-500">
+								Requested Completion: {draft.requestedCompletionPct.toString()}%
+							</p>
+							<Link
+								href={`/arbitration/${draft.disputeId}`}
+								className="mt-3 inline-flex rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500"
+							>
+								Open Draft Case
+							</Link>
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
 export function JurorPageInner(): React.JSX.Element {
 	const t = useTranslations("Juror");
 	const { address, isConnected } = useAccount();
@@ -612,6 +681,7 @@ export function JurorPageInner(): React.JSX.Element {
 			<div className="tl-two-column-stack">
 				<div className="tl-stack-main">
 					<OpenDisputesPanel address={address} />
+					<LocalDraftHistoryPanel />
 					<StatusCard address={address} />
 					<ManageStakePanel address={address} />
 				</div>

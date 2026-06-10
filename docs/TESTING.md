@@ -148,6 +148,7 @@ Run log retention checks:
 
 ```bash
 npm run logs:check
+npm run tmp:check
 ```
 
 Run Python type checks for the model helper scripts:

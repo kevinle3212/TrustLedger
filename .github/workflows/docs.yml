@@ -53,6 +53,7 @@ jobs:
                   if [ -f package.json ]; then
                     npm ci
                     npm run logs:check
+                    npm run tmp:check
                     npm run lint:logs
                   fi
 

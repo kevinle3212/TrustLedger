@@ -1,4 +1,4 @@
-name: Log Hygiene
+name: Local Hygiene
 
 on:
     pull_request:
@@ -6,8 +6,8 @@ on:
     push:
         branches: [main]
     schedule:
-        # Weekly policy check so the log tooling stays healthy even when no
-        # local hooks run.
+        # Weekly policy check so ignored local hygiene tooling stays healthy
+        # even when no local hooks run.
         - cron: "0 14 * * 1"
     workflow_dispatch:
 
@@ -19,8 +19,8 @@ permissions:
     contents: read
 
 jobs:
-    logs:
-        name: Logs (retention + markdownlint)
+    local-hygiene:
+        name: Logs and tmp retention
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -37,6 +37,9 @@ jobs:
 
             - name: Check log retention
               run: npm run logs:check
+
+            - name: Check tmp retention
+              run: npm run tmp:check
 
             - name: Check log Markdown
               run: npm run lint:logs

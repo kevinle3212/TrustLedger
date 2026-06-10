@@ -17,10 +17,13 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+TRUSTLEDGER_TMP_DIR="${TRUSTLEDGER_TMP_DIR:-$PROJECT_DIR/tmp}"
 NODE_URL="${NODE_URL:-http://127.0.0.1:8545}"
-NODE_LOG="${NODE_LOG:-${TMPDIR:-/tmp}/trustledger-node.log}"
+NODE_LOG="${NODE_LOG:-$TRUSTLEDGER_TMP_DIR/trustledger-node.log}"
 NODE_PID=""
 VERBOSE=0
+
+mkdir -p "$TRUSTLEDGER_TMP_DIR"
 
 log() { echo "$*"; }
 warn() { echo "warning: $*" >&2; }

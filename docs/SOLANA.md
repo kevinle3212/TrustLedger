@@ -33,6 +33,18 @@ Unit coverage for the helper lives in `src/tests/unit/solana-helper.test.ts`.
 Any future wallet or program integration should add transaction simulation and
 provider-mock tests before exposing the UX.
 
+The homepage now exposes an explicit chain-mode cue:
+
+- **EVM Escrow Live** is the active custody path backed by the deployed
+  TrustLedger escrow contracts.
+- **Solana Devnet Preview** is a native-program planning surface, linked to the
+  Solana Explorer system program on the configured cluster for safe devnet
+  orientation.
+
+Do not label Solana as production escrow until a native program, IDL/client,
+wallet flow, simulation coverage, deployment instructions, and audit scope are
+merged.
+
 ## Next Native Program Milestones
 
 1. Add an Anchor workspace under a dedicated Solana program directory.

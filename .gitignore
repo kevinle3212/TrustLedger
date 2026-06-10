@@ -117,6 +117,10 @@ src/next-env.d.ts
 # ─── Local testing ────────────────────────────────────────────────────────────
 testing/
 
+# ─── Project-local temporary files ────────────────────────────────────────────
+# Agents and scripts should prefer ./tmp over system /tmp for reproducibility.
+tmp/
+
 # ─── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]

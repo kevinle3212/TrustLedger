@@ -70,6 +70,17 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	}
 }
 
+@keyframes tl-live-sync-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 rgb(16 185 129 / 0%);
+	}
+
+	50% {
+		box-shadow: 0 0 0 0.45rem rgb(16 185 129 / 14%);
+	}
+}
+
 @keyframes tl-panel-in {
 	from {
 		opacity: 0.88;
@@ -328,12 +339,13 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 		border-radius: 9999px;
 		background: radial-gradient(
 			ellipse at 45% 38%,
-			rgb(99 102 241 / 12%),
-			rgb(168 85 247 / 7%) 42%,
+			rgb(99 102 241 / 16%),
+			rgb(168 85 247 / 10%) 44%,
+			rgb(14 165 233 / 6%) 62%,
 			transparent 74%
 		);
-		filter: blur(18px);
-		opacity: 0;
+		filter: blur(22px);
+		opacity: 1;
 		pointer-events: none;
 		content: "";
 		transform: translate3d(0, 0, 0);
@@ -428,6 +440,24 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	animation: tl-status-pulse 2.4s $tl-ease-out infinite;
 }
 
+.tl-live-sync-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+
+	&::before {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 9999px;
+		background: currentColor;
+		content: "";
+	}
+}
+
+.tl-live-sync-pill--on::before {
+	animation: tl-live-sync-pulse 2s $tl-ease-out infinite;
+}
+
 .tl-skeleton-card {
 	overflow: hidden;
 	background:
@@ -505,6 +535,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 	.tl-motion-card,
 	.tl-status-badge--active,
+	.tl-live-sync-pill--on::before,
 	.tl-skeleton-card,
 	.tl-contract-orbit,
 	.tl-contract-progress,

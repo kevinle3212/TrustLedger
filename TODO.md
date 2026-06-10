@@ -1041,8 +1041,8 @@ mainnet launch deliverables.
           via `git.deploymentEnabled.gh-pages: false` in `src/vercel.json`.
     - [x] Fix the `/` endpoint to point to Home instead of the default GitHub
           Pages landing page, which returned a 404. — added a `docs/index.html`
-          meta-refresh redirect to `Home/` (not synced to the wiki, since
-          `wiki-sync` only copies `*.md`).
+          meta-refresh redirect to `Home/`; the wiki now receives a generated
+          `Home.md` table of contents that links to rendered GitHub Pages docs.
     - [x] Pages were broken and all returned a 404. — The root cause was
           `Home.md` using bare links like `[Architecture](ARCHITECTURE)`; MkDocs
           only rewrites links ending in `.md`, so they resolved to
@@ -1051,15 +1051,15 @@ mainnet launch deliverables.
     - [x] Add a Jekyll or MkDocs theme to the GitHub Pages site to improve the
           appearance and navigation of the documentation.
         - Enhanced the existing MkDocs Material theme in `mkdocs.yml`:
-          light/dark palette toggle, logo and favicon (`docs/assets/`), GitHub
-          repo icon, edit and view links (`edit_uri`), expanded navigation
-          (instant loading, tracking, footer, `toc.follow`), search (suggest and
-          share), and content features (code annotations, linked tabs,
-          tooltips).
+          light/dark palette toggle, centralized logo and favicon under
+          `assets/` with MkDocs hook publishing, GitHub repo icon, edit and view
+          links (`edit_uri`), expanded navigation (instant loading, tracking,
+          footer, `toc.follow`), search (suggest and share), and content
+          features (code annotations, linked tabs, tooltips).
         - Added richer markdown extensions (details, tasklist, emoji, snippets,
           footnotes, attr_list). Pinned dependencies in `requirements-docs.txt`
           and pointed `docs.yml` at it. Small brand polish in
-          `docs/assets/extra.css`.
+          `docs/css/extra.css`.
 
 - [x] Set up GitHub Pages for documentation — deployed via MkDocs Material
       (`mkdocs.yml` + `.github/workflows/docs.yml`).

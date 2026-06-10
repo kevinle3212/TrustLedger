@@ -90,6 +90,11 @@ export function ContractDocumentSection({
 					))}
 				</div>
 			</div>
+			<p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
+				Upload an encrypted contract PDF or enter an existing URI after drafting. If you
+				also wrote terms above, keep both copies aligned before preview and submission; the
+				uploaded or manual URI is the document source hashed for the on-chain proposal.
+			</p>
 
 			{docMode === "upload" ? (
 				<FileUploadPanel

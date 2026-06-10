@@ -19,6 +19,15 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
 - Format `logs/*.md` with `src/.agents/skills/log-markdown/SKILL.md`.
 - Run `npm run logs:check` after writing logs; use `npm run logs:prune` when
   retention limits are exceeded.
+- Keep temporary scratch files in project-local `tmp/` instead of system `/tmp`
+  unless an external tool requires otherwise. Use `TRUSTLEDGER_TMP_DIR=./tmp`
+  for commands that accept an explicit temp root. Run `npm run tmp:check` after
+  creating scratch files and `npm run tmp:prune` when retention limits are
+  exceeded.
+- Localhost browser checks are allowed for requested UI validation. Start the
+  frontend with `rtk npm run dev:frontend`; if sandboxed binding blocks the
+  check, rerun that command with escalation using the user's repository-level
+  pre-authorization for localhost browser validation.
 - For frontend specialist context, read `src/.agents/README.md` and the matching
   skill under `src/.agents/skills/` before editing.
 
@@ -45,4 +54,5 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
 - Context sync: after repository changes, use
   `src/.agents/skills/update-context/SKILL.md` so docs, comments, visible
   project surfaces, and agent instructions stay current without duplicated
-  guidance.
+  guidance. Remove or update stale references to moved or renamed code, assets,
+  commands, environment variables, and docs.

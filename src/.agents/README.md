@@ -31,4 +31,6 @@ Use these specialist briefs when delegating or reviewing frontend work.
 - [Update Context](skills/update-context/SKILL.md)
 
 Each specialist must keep changes consistent with `PRODUCT.md`, `DESIGN.md`,
-`src/README.md`, and `.cursor/rules/frontend.mdc`.
+`src/README.md`, and `.cursor/rules/frontend.mdc`. When frontend work creates
+project-local scratch files, keep them under root `tmp/`, then run
+`npm run tmp:check` and `npm run tmp:prune` if retention limits are exceeded.

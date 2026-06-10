@@ -138,6 +138,9 @@ jobs:
             - name: Log retention check
               run: npm run logs:check
 
+            - name: Tmp retention check
+              run: npm run tmp:check
+
             - name: Run audit
               # --omit=dev scans prod deps only. High threshold avoids noise from
               # informational advisories. Bump to 'moderate' once you're stable.
