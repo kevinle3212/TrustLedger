@@ -50,7 +50,7 @@
 		}
 	],
 	"engines": {
-		"node": ">=22.0.0"
+		"node": ">=22.0.0 <23"
 	},
 	"packageManager": "npm@11.12.1",
 	"scripts": {
