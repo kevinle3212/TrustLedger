@@ -369,25 +369,30 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .tl-protection-section {
 	position: relative;
-	overflow: clip;
+	overflow: visible;
 	isolation: isolate;
 
 	&::before {
 		position: absolute;
 		z-index: -1;
-		inset-block-start: -4.5rem;
-		inset-inline: -2.5rem;
-		height: min(26rem, 72vw);
-		border-radius: 9999px;
-		background: radial-gradient(
-			ellipse at 42% 28%,
-			rgb(99 102 241 / 18%),
-			rgb(168 85 247 / 13%) 42%,
-			rgb(14 165 233 / 8%) 64%,
-			transparent 74%
-		);
-		filter: blur(28px);
-		opacity: 1;
+		inset: -2.75rem -3rem -2.25rem;
+		border-radius: 2.5rem;
+		background:
+			radial-gradient(
+				ellipse 62% 70% at 19% 22%,
+				rgb(99 102 241 / 19%),
+				rgb(168 85 247 / 13%) 39%,
+				rgb(14 165 233 / 7%) 58%,
+				transparent 76%
+			),
+			radial-gradient(
+				ellipse 48% 58% at 72% 42%,
+				rgb(14 165 233 / 8%),
+				rgb(99 102 241 / 6%) 44%,
+				transparent 72%
+			);
+		filter: blur(22px);
+		opacity: 0.95;
 		pointer-events: none;
 		content: "";
 		transform: translate3d(0, 0, 0);
@@ -395,20 +400,29 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .dark .tl-protection-section::before {
-	background: radial-gradient(
-		ellipse at 44% 30%,
-		rgb(129 140 248 / 32%),
-		rgb(168 85 247 / 18%) 46%,
-		rgb(34 211 238 / 8%) 66%,
-		transparent 80%
-	);
+	background:
+		radial-gradient(
+			ellipse 64% 74% at 20% 24%,
+			rgb(129 140 248 / 34%),
+			rgb(168 85 247 / 22%) 42%,
+			rgb(34 211 238 / 10%) 62%,
+			transparent 80%
+		),
+		radial-gradient(
+			ellipse 52% 62% at 74% 43%,
+			rgb(34 211 238 / 13%),
+			rgb(129 140 248 / 9%) 46%,
+			transparent 74%
+		);
 	opacity: 1;
 }
 
 .tl-protection-list {
 	position: relative;
 	overflow: hidden;
-	background: linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(255 255 255 / 0%)), #f9fafb;
+	background:
+		linear-gradient(180deg, rgb(255 255 255 / 88%), rgb(249 250 251 / 94%)),
+		linear-gradient(135deg, rgb(99 102 241 / 8%), rgb(14 165 233 / 5%));
 }
 
 .tl-protection-item {
@@ -439,7 +453,8 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .dark .tl-protection-list {
 	background:
-		linear-gradient(180deg, rgb(255 255 255 / 9%), rgb(255 255 255 / 3%)), rgb(255 255 255 / 5%);
+		linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 4%)),
+		linear-gradient(135deg, rgb(129 140 248 / 18%), rgb(34 211 238 / 7%)), rgb(255 255 255 / 5%);
 }
 
 .tl-nav-link {
