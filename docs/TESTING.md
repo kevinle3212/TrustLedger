@@ -82,20 +82,20 @@ Set `SEPOLIA_RPC_URL` before running fork tests that require live Sepolia state.
 invoking `forge`, which avoids macOS system proxy access panics in sandboxed
 agent sessions.
 
-Run Hardhat tests:
+Run Hardhat TypeScript/Mocha tests:
 
 ```bash
 npm run hardhat:test
 ```
 
-Run Hardhat tests with gas reporting:
-
-```bash
-npm run hardhat:gas
-```
-
 Hardhat forks only when `FORK_URL` is set. Otherwise it uses a fresh in-memory
-chain.
+chain. Foundry owns Solidity `.t.sol` execution; `npm run hardhat:test` runs the
+Hardhat Mocha subtask so the same Solidity suites are not double-run through
+Hardhat. Use `npm run foundry:gas` for gas reports; `hardhat-gas-reporter` still
+peers on Hardhat 2 and is intentionally not installed in the Hardhat 3
+toolchain. Use Foundry deploy scripts with `--verify` for explorer verification
+because the Hardhat 3 verify plugin currently reintroduces unfixed ethers v5
+advisories.
 
 ## Frontend Tests
 

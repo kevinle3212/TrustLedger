@@ -3,9 +3,13 @@
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { ethers } from "hardhat";
+import { fileURLToPath } from "node:url";
+import { network } from "hardhat";
 import type { LogDescription } from "ethers";
 import type { TrustLedger, Arbitration, JurorRegistry } from "../../artifacts/typechain-types";
+
+const { ethers } = await network.create();
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 interface DeployedAddresses {
 	TrustLedger: string;

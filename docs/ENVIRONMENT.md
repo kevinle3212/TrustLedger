@@ -47,10 +47,9 @@ tests, or configuring Vercel.
 | `SEPOLIA_RPC_URL`         | Sepolia deploys and fork tests | `hardhat.config.ts`, `contracts/foundry.toml`, Foundry fork tests, API reads | Ethereum Sepolia chain ID `11155111`. |
 | `DEPLOYER_PRIVATE_KEY`    | Deploys                        | `hardhat.config.ts`, deploy scripts, deploy workflow                         | Keep secret.                          |
 | `DEPLOYER_PUBLIC_ADDRESS` | Reference only                 | `.env.example`                                                               | Not consumed by source.               |
-| `ETHERSCAN_API_KEY`       | Sepolia verification           | `hardhat.config.ts`, `contracts/foundry.toml`, deploy workflow               | Required for `--verify`.              |
+| `ETHERSCAN_API_KEY`       | Sepolia verification           | `contracts/foundry.toml`, deploy workflow                                    | Required for Foundry `--verify`.      |
 | `FORK_URL`                | Hardhat fork tests             | `hardhat.config.ts`                                                          | Optional.                             |
 | `FORK_BLOCK_NUMBER`       | Pinned forks                   | `hardhat.config.ts`, Foundry fork tests                                      | Optional.                             |
-| `REPORT_GAS`              | Hardhat gas report             | `hardhat.config.ts`                                                          | Set by `npm run hardhat:gas`.         |
 
 ## L2 Variables
 
@@ -65,9 +64,9 @@ tests, or configuring Vercel.
 | `ARBITRUM_RPC_URL`           | Arbitrum One `42161` | `hardhat.config.ts`, `contracts/foundry.toml` | Not Arbitrum Sepolia.                  |
 | `BASE_RPC_URL`               | Base `8453`          | `hardhat.config.ts`, `contracts/foundry.toml` | Optional unless deploying to Base.     |
 | `OPTIMISM_RPC_URL`           | Optimism `10`        | `hardhat.config.ts`, `contracts/foundry.toml` | Optional unless deploying to Optimism. |
-| `ARBISCAN_API_KEY`           | Arbitrum One         | `hardhat.config.ts`, `contracts/foundry.toml` | Explorer verification.                 |
-| `BASESCAN_API_KEY`           | Base                 | `hardhat.config.ts`, `contracts/foundry.toml` | Explorer verification.                 |
-| `OPTIMISM_ETHERSCAN_API_KEY` | Optimism             | `hardhat.config.ts`, `contracts/foundry.toml` | Explorer verification.                 |
+| `ARBISCAN_API_KEY`           | Arbitrum One         | `contracts/foundry.toml`                      | Explorer verification.                 |
+| `BASESCAN_API_KEY`           | Base                 | `contracts/foundry.toml`                      | Explorer verification.                 |
+| `OPTIMISM_ETHERSCAN_API_KEY` | Optimism             | `contracts/foundry.toml`                      | Explorer verification.                 |
 
 ## Frontend Public Variables
 

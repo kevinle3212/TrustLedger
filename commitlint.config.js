@@ -1,5 +1,5 @@
 /** @type {import('@commitlint/types').UserConfig} */
-module.exports = {
+const config = {
 	extends: ["@commitlint/config-conventional"],
 	defaultIgnores: true,
 	helpUrl: "https://www.conventionalcommits.org/en/v1.0.0/",
@@ -58,3 +58,5 @@ module.exports = {
 		],
 	},
 };
+
+export default config;

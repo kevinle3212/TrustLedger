@@ -1,4 +1,6 @@
-import { ethers } from "hardhat";
+import { network } from "hardhat";
+
+const { ethers } = await network.create();
 
 async function main(): Promise<void> {
 	// Get the first signer (deployer) from the list of available signers.

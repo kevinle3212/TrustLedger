@@ -146,8 +146,8 @@ Before sending this package to an auditor, attach current outputs from:
 - The final external audit report is not yet present.
 - Mainnet readiness depends on provider secrets, monitoring, and deployment
   controls outside this repository.
-- Hardhat 3.x migration remains tracked separately because it is a semver-major
-  toolchain change.
+- Hardhat 3.x migration is complete, but external auditor engagement and a
+  signed final report remain launch-blocking work outside this repository.
 
 ## Remediation Tracker
 

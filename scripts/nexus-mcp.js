@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-"use strict";
 
-const fs = require("node:fs");
-const path = require("node:path");
+import { createRequire } from "node:module";
+import fs from "node:fs";
+import path from "node:path";
+
+const require = createRequire(import.meta.url);
 
 const DEFAULT_MAX_TREE_SITTER_TS_BYTES = 35_000;
 const DEFAULT_MCP_TIMEOUT_MS = 120_000;

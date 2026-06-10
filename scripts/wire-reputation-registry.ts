@@ -8,7 +8,12 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { ethers, network } from "hardhat";
+import { fileURLToPath } from "node:url";
+import { network } from "hardhat";
+
+const connection = await network.create();
+const { ethers } = connection;
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -39,7 +44,7 @@ async function main(): Promise<void> {
 		);
 	}
 
-	console.log(`Network: ${network.name} (${chain.chainId.toString()})`);
+	console.log(`Network: ${connection.networkName} (${chain.chainId.toString()})`);
 	console.log(`Deployer: ${deployer.address}`);
 	console.log(`TrustLedger: ${trustLedgerAddress}`);
 
@@ -70,7 +75,7 @@ async function main(): Promise<void> {
 		resolve(outDir, "reputation-registry-wire.json"),
 		JSON.stringify(
 			{
-				network: network.name,
+				network: connection.networkName,
 				chainId: chain.chainId.toString(),
 				TrustLedger: trustLedgerAddress,
 				ReputationRegistry: reputationRegistryAddress,
