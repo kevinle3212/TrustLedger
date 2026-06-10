@@ -33,6 +33,9 @@ DEFAULT_OUTPUT = pathlib.Path("assets/analytics/wallet-analytics-preview.svg")
 DEFAULT_REPORT_OUTPUT = pathlib.Path("assets/analytics/wallet-analytics-report.json")
 DEFAULT_PLOTLY_OUTPUT = pathlib.Path("assets/analytics/wallet-analytics-plotly.json")
 DEFAULT_BOKEH_OUTPUT = pathlib.Path("assets/analytics/wallet-analytics-bokeh.json")
+DEFAULT_FRONTEND_REPORT_OUTPUT = pathlib.Path(
+    "src/lib/generated/wallet-analytics-report.json"
+)
 
 
 @dataclass(frozen=True)
@@ -248,6 +251,10 @@ def generate_artifacts() -> dict[pathlib.Path, str]:
         DEFAULT_OUTPUT: build_svg(frame, metrics),
         DEFAULT_REPORT_OUTPUT: json.dumps(build_report(frame, metrics), indent=2, sort_keys=True)
         + "\n",
+        DEFAULT_FRONTEND_REPORT_OUTPUT: json.dumps(
+            build_report(frame, metrics), indent="\t", sort_keys=True
+        )
+        + "\n",
         DEFAULT_PLOTLY_OUTPUT: json.dumps(
             build_plotly_spec(frame, metrics),
             cls=PlotlyJSONEncoder,
@@ -266,6 +273,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=pathlib.Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--report-output", type=pathlib.Path, default=DEFAULT_REPORT_OUTPUT)
+    parser.add_argument(
+        "--frontend-report-output",
+        type=pathlib.Path,
+        default=DEFAULT_FRONTEND_REPORT_OUTPUT,
+    )
     parser.add_argument("--plotly-output", type=pathlib.Path, default=DEFAULT_PLOTLY_OUTPUT)
     parser.add_argument("--bokeh-output", type=pathlib.Path, default=DEFAULT_BOKEH_OUTPUT)
     parser.add_argument("--check", action="store_true")
@@ -280,6 +292,7 @@ def main() -> int:
     artifacts = {
         args.output: generated[DEFAULT_OUTPUT],
         args.report_output: generated[DEFAULT_REPORT_OUTPUT],
+        args.frontend_report_output: generated[DEFAULT_FRONTEND_REPORT_OUTPUT],
         args.plotly_output: generated[DEFAULT_PLOTLY_OUTPUT],
         args.bokeh_output: generated[DEFAULT_BOKEH_OUTPUT],
     }

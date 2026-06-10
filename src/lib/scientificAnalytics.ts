@@ -1,4 +1,4 @@
-import report from "../../assets/analytics/wallet-analytics-report.json";
+import report from "./generated/wallet-analytics-report.json";
 
 interface ScientificAnalyticsArtifact {
 	readonly label: string;
