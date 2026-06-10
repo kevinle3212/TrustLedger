@@ -74,6 +74,7 @@ nav:
     - CodeRabbit: CODERABBIT.md
     - Contributing: CONTRIBUTING.md
     - Frontend: FRONTEND.md
+    - Analytics And Native Kernels: ANALYTICS.md
     - Oracle: ORACLE.md
     - Solana: SOLANA.md
     - Utilities: UTILITIES.md

@@ -15,10 +15,14 @@
 }
 
 body {
+	max-width: 100%;
+	overflow-x: clip;
 	font-family: var(--font-sans);
 }
 
 html {
+	max-width: 100%;
+	overflow-x: clip;
 	color-scheme: light;
 }
 
@@ -81,6 +85,17 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	}
 }
 
+@keyframes tl-bar-sheen {
+	0%,
+	55% {
+		transform: translateX(-100%);
+	}
+
+	100% {
+		transform: translateX(100%);
+	}
+}
+
 @keyframes tl-panel-in {
 	from {
 		opacity: 0.88;
@@ -137,6 +152,17 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 	100% {
 		background-position: -120% 0;
+	}
+}
+
+@keyframes tl-install-progress {
+	0% {
+		transform: scaleX(0);
+	}
+
+	92%,
+	100% {
+		transform: scaleX(1);
 	}
 }
 
@@ -216,9 +242,9 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .tl-contract-orbit {
 	position: absolute;
-	inset: -35% auto auto 58%;
+	inset: -4rem 0.5rem auto auto;
 	z-index: -1;
-	width: 14rem;
+	width: min(11rem, 46vw);
 	aspect-ratio: 1;
 	border: 1px solid rgb(99 102 241 / 18%);
 	border-radius: 9999px;
@@ -241,6 +267,13 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	&::after {
 		inset: auto 2.75rem 1.5rem auto;
 		background: #10b981;
+	}
+}
+
+@media (min-width: 40rem) {
+	.tl-contract-orbit {
+		inset: -35% auto auto 58%;
+		width: 14rem;
 	}
 }
 
@@ -310,11 +343,19 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .tl-contract-hash {
+	position: relative;
+	overflow: hidden;
 	background: linear-gradient(90deg, transparent, rgb(99 102 241 / 28%), transparent), #e5e7eb;
 	background-size:
 		220% 100%,
 		100% 100%;
 	animation: tl-hash-scan 1.8s $tl-ease-out infinite;
+}
+
+.tl-contract-install-progress {
+	transform-origin: left center;
+	background: linear-gradient(90deg, #6366f1, #10b981);
+	animation: tl-install-progress 7.6s $tl-ease-standard infinite;
 }
 
 .dark .tl-contract-hash {
@@ -328,23 +369,24 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .tl-protection-section {
 	position: relative;
+	overflow: clip;
 	isolation: isolate;
 
 	&::before {
 		position: absolute;
 		z-index: -1;
-		inset-block-start: -2.75rem;
-		inset-inline: -1.5rem;
-		height: min(18rem, 58vw);
+		inset-block-start: -4.5rem;
+		inset-inline: -2.5rem;
+		height: min(26rem, 72vw);
 		border-radius: 9999px;
 		background: radial-gradient(
-			ellipse at 45% 38%,
-			rgb(99 102 241 / 16%),
-			rgb(168 85 247 / 10%) 44%,
-			rgb(14 165 233 / 6%) 62%,
+			ellipse at 42% 28%,
+			rgb(99 102 241 / 18%),
+			rgb(168 85 247 / 13%) 42%,
+			rgb(14 165 233 / 8%) 64%,
 			transparent 74%
 		);
-		filter: blur(22px);
+		filter: blur(28px);
 		opacity: 1;
 		pointer-events: none;
 		content: "";
@@ -354,11 +396,11 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .dark .tl-protection-section::before {
 	background: radial-gradient(
-		ellipse at 46% 34%,
-		rgb(129 140 248 / 28%),
-		rgb(168 85 247 / 16%) 44%,
-		rgb(34 211 238 / 6%) 62%,
-		transparent 78%
+		ellipse at 44% 30%,
+		rgb(129 140 248 / 32%),
+		rgb(168 85 247 / 18%) 46%,
+		rgb(34 211 238 / 8%) 66%,
+		transparent 80%
 	);
 	opacity: 1;
 }
@@ -415,6 +457,9 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .tl-nav-scroller {
+	min-width: 0;
+	max-width: 100%;
+	overscroll-behavior-x: contain;
 	scrollbar-width: none;
 }
 
@@ -456,6 +501,55 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 .tl-live-sync-pill--on::before {
 	animation: tl-live-sync-pulse 2s $tl-ease-out infinite;
+}
+
+.tl-analytics-bar {
+	position: relative;
+	overflow: hidden;
+	transition: width 420ms $tl-ease-out;
+}
+
+.tl-analytics-bar::after {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(90deg, transparent, rgb(255 255 255 / 28%), transparent);
+	content: "";
+	transform: translateX(-100%);
+	animation: tl-bar-sheen 3s $tl-ease-out infinite;
+}
+
+.tl-wallet-chip {
+	transition:
+		border-color 180ms $tl-ease-standard,
+		box-shadow 180ms $tl-ease-standard,
+		transform 180ms $tl-ease-out;
+
+	&:hover,
+	&:focus-within {
+		box-shadow: 0 0.75rem 1.5rem rgb(79 70 229 / 8%);
+		transform: translateY(-0.0625rem);
+	}
+}
+
+.tl-faq-answer {
+	display: grid;
+	grid-template-rows: 0fr;
+	opacity: 0;
+	transition:
+		grid-template-rows 260ms $tl-ease-out,
+		opacity 180ms $tl-ease-standard,
+		margin-block-start 260ms $tl-ease-out;
+}
+
+.tl-faq-answer > * {
+	min-height: 0;
+	overflow: hidden;
+}
+
+details[open] .tl-faq-answer {
+	grid-template-rows: 1fr;
+	margin-block-start: 1rem;
+	opacity: 1;
 }
 
 .tl-skeleton-card {
@@ -534,11 +628,13 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	}
 
 	.tl-motion-card,
+	.tl-analytics-bar::after,
 	.tl-status-badge--active,
 	.tl-live-sync-pill--on::before,
 	.tl-skeleton-card,
 	.tl-contract-orbit,
 	.tl-contract-progress,
+	.tl-contract-install-progress,
 	.tl-signature-stamp,
 	.tl-contract-hash {
 		animation: none !important;
@@ -555,14 +651,20 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 /* Skip-to-main-content link — visually hidden until focused. */
 .skip-link {
 	position: absolute;
-	top: -9999px;
-	left: -9999px;
+	width: 1px;
+	height: 1px;
+	clip-path: inset(50%);
+	overflow: hidden;
+	white-space: nowrap;
 	z-index: 100;
 }
 
 .skip-link:focus {
 	top: 1rem;
 	left: 1rem;
+	width: auto;
+	height: auto;
+	clip-path: none;
 	padding: 0.5rem 1rem;
 	border-radius: 0.5rem;
 	background: white;

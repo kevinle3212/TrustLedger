@@ -27,13 +27,13 @@ describe("InteractiveContractPreview", () => {
 			"true",
 		);
 
-		fireEvent.click(screen.getByRole("button", { name: /Submit work/u }));
+		fireEvent.click(screen.getByRole("button", { name: /Submit Work/u }));
 
 		expect(screen.getByRole("button", { name: /03 Approved/u })).toHaveAttribute(
 			"aria-pressed",
 			"true",
 		);
-		expect(screen.getByText("Payout receipt ready")).toBeInTheDocument();
+		expect(screen.getByText("Payout Receipt Ready!")).toBeInTheDocument();
 	});
 
 	it("allows direct phase selection", () => {
@@ -45,6 +45,6 @@ describe("InteractiveContractPreview", () => {
 			"aria-pressed",
 			"true",
 		);
-		expect(screen.getByText("Draft hash queued")).toBeInTheDocument();
+		expect(screen.getByText("Draft Hash Queued!")).toBeInTheDocument();
 	});
 });

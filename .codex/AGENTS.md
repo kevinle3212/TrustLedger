@@ -28,6 +28,8 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
   frontend with `rtk npm run dev:frontend`; if sandboxed binding blocks the
   check, rerun that command with escalation using the user's repository-level
   pre-authorization for localhost browser validation.
+- Prefer targeted checks before broad gates, and check for duplicate
+  build/dev/doctor processes when commands appear stuck.
 - For frontend specialist context, read `src/.agents/README.md` and the matching
   skill under `src/.agents/skills/` before editing.
 
@@ -56,3 +58,6 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
   project surfaces, and agent instructions stay current without duplicated
   guidance. Remove or update stale references to moved or renamed code, assets,
   commands, environment variables, and docs.
+- UI copy follows root `AGENTS.md`: Title Case for labels/buttons/headings and
+  sentence case for complete explanatory sentences, while preserving acronyms
+  such as `HTML`, `FAQ`, `URL`, `ETH`, `USDC`, and `IPFS`.

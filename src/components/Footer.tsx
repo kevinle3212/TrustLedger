@@ -68,7 +68,7 @@ export function Footer(): React.JSX.Element {
 						</a>
 					</p>
 				</div>
-				<div className="flex w-full flex-col gap-3 sm:ms-auto sm:w-auto sm:flex-row sm:items-center">
+				<div className="flex w-full min-w-0 flex-wrap gap-3 sm:ms-auto sm:w-auto sm:flex-row sm:items-center sm:justify-end">
 					<Link
 						href="/faq"
 						className="tl-button-motion inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white sm:w-auto"

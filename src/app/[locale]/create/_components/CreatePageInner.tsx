@@ -149,12 +149,24 @@ export function CreatePageInner(): React.JSX.Element {
 							{token}
 						</button>
 					))}
+					<button
+						type="button"
+						disabled
+						title="Preview the native-program direction for Solana Devnet; custody remains disabled until the program, wallet flow, and audit scope are complete."
+						className="px-4 py-1.5 rounded-md text-sm font-medium uppercase text-emerald-700 opacity-70 ring-1 ring-emerald-200 dark:text-emerald-200 dark:ring-emerald-400/20"
+					>
+						SOL
+					</button>
 				</div>
 				{isUsdc && usdcAddress === undefined && (
 					<span className="text-xs text-red-500 dark:text-red-400">
 						{t("usdcNotSupported")}
 					</span>
 				)}
+				<span className="hidden max-w-md text-xs leading-5 text-emerald-700 dark:text-emerald-300 md:inline">
+					Preview The Native-Program Direction For Solana Devnet; Custody Remains Disabled
+					Until The Program, Wallet Flow, And Audit Scope Are Complete.
+				</span>
 			</div>
 
 			<div className="tl-workspace-grid">

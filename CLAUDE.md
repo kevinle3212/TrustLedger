@@ -24,6 +24,9 @@ tasks, use judgment.
 - Surface tradeoffs. Push back when a simpler approach exists.
 - Apply a final grammar, punctuation, and clarity pass to every prose change
   (comments, docs, UI copy, commit messages).
+- Follow root `AGENTS.md` UI copy rules: Title Case for labels, buttons, badges,
+  menus, and headings; sentence case for complete explanatory sentences;
+  preserve acronyms such as `HTML`, `FAQ`, `URL`, `ETH`, `USDC`, and `IPFS`.
 
 ---
 
@@ -118,6 +121,9 @@ the agent and user. For example:
 - Only explain the non-obvious: hidden constraints, subtle invariants, or
   decisions that will confuse a future reader without context.
 - Reference existing instructions rather than restating them inline.
+- Prefer targeted checks before full-project gates. If a build, dev server, or
+  analyzer hangs, check for duplicate processes or stale generated locks before
+  starting another copy.
 
 ---
 

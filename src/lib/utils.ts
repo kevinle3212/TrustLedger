@@ -60,14 +60,26 @@ export function formatTokenAmount(amount: bigint, tokenAddress: string, locale?:
 
 /** Returns "ETH" or "USDC" for display in labels/hints. */
 
-export function formatDeadline(ts: bigint, locale?: string): string {
+export function formatDeadline(ts: bigint, _locale?: string): string {
 	if (ts === BigInt(0)) return "-";
-	return new Date(Number(ts) * 1000).toLocaleDateString(locale, {
-		timeZone: "UTC",
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-	});
+	return formatDateMMDDYYYY(new Date(Number(ts) * 1000));
+}
+
+function formatDateMMDDYYYY(date: Date): string {
+	const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+	const day = String(date.getUTCDate()).padStart(2, "0");
+	const year = String(date.getUTCFullYear());
+	return `${month}/${day}/${year}`;
+}
+
+function formatFutureDateFromDays(days: number): string {
+	const date = new Date();
+	date.setUTCDate(date.getUTCDate() + Math.max(0, Math.round(days)));
+	return formatDateMMDDYYYY(date);
+}
+
+export function formatDeadlineWithRelativeDays(days: number, relativeLabel: string): string {
+	return `${relativeLabel} (${formatFutureDateFromDays(days)})`;
 }
 
 export const STATUS_COLORS: Record<number, string> = {

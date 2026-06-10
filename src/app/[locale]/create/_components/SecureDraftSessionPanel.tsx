@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useReducer, useRef } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { CreateState, ContractTermsFormat } from "../_lib/types";
 import { convertContractTerms, DEFAULT_CONTRACT_TERMS } from "../_lib/contractTerms";
 import {
@@ -38,6 +38,8 @@ interface PanelState {
 	readonly isSharing: boolean;
 	readonly isStartingLiveRoom: boolean;
 	readonly isImporting: boolean;
+	readonly cooldownUntil: number;
+	readonly generationCount: number;
 	readonly status: PanelStatus | null;
 }
 
@@ -55,7 +57,10 @@ type PanelAction =
 	| { readonly type: "SET_SHARING"; readonly isSharing: boolean }
 	| { readonly type: "SET_STARTING_LIVE_ROOM"; readonly isStartingLiveRoom: boolean }
 	| { readonly type: "SET_IMPORTING"; readonly isImporting: boolean }
+	| { readonly type: "SET_COOLDOWN"; readonly cooldownUntil: number }
 	| { readonly type: "SET_STATUS"; readonly status: PanelStatus | null };
+
+const SHARE_ACTION_COOLDOWN_MS = 10_000;
 
 function panelReducer(state: PanelState, action: PanelAction): PanelState {
 	switch (action.type) {
@@ -65,6 +70,7 @@ function panelReducer(state: PanelState, action: PanelAction): PanelState {
 				roomId: null,
 				shareUrl: action.shareUrl,
 				sessionKey: action.sessionKey,
+				generationCount: state.generationCount + 1,
 			};
 		case "SET_LIVE_ROOM":
 			return {
@@ -72,6 +78,7 @@ function panelReducer(state: PanelState, action: PanelAction): PanelState {
 				roomId: action.roomId,
 				shareUrl: action.shareUrl,
 				sessionKey: action.sessionKey,
+				generationCount: state.generationCount + 1,
 			};
 		case "SET_IMPORT_KEY":
 			return { ...state, importKey: action.importKey };
@@ -85,6 +92,8 @@ function panelReducer(state: PanelState, action: PanelAction): PanelState {
 			return { ...state, isStartingLiveRoom: action.isStartingLiveRoom };
 		case "SET_IMPORTING":
 			return { ...state, isImporting: action.isImporting };
+		case "SET_COOLDOWN":
+			return { ...state, cooldownUntil: action.cooldownUntil };
 		case "SET_STATUS":
 			return { ...state, status: action.status };
 	}
@@ -95,32 +104,145 @@ function normalizeWallet(value: string | undefined): string | undefined {
 	return trimmed !== undefined && /^0x[0-9a-f]{40}$/.test(trimmed) ? trimmed : undefined;
 }
 
-function formatUpdatedAt(value: string | null, formatter: Intl.DateTimeFormat): string {
+function formatUpdatedAt(
+	value: string | null,
+	formatter: Intl.DateTimeFormat,
+	nowMs: number,
+): string {
 	if (value === null) return "Not saved yet";
 	const date = new Date(value);
-	return Number.isNaN(date.getTime()) ? "Not saved yet" : formatter.format(date);
+	if (Number.isNaN(date.getTime())) return "Not saved yet";
+	const diffMinutes = Math.max(0, Math.floor((nowMs - date.getTime()) / 60_000));
+	const relative =
+		diffMinutes === 0
+			? "Updated Less Than 1 Minute Ago"
+			: `Updated ${diffMinutes.toString()} ${diffMinutes === 1 ? "Minute" : "Minutes"} Ago`;
+	return `${formatter.format(date)} (${relative})`;
 }
 
-function snippetFor(format: ContractTermsFormat, action: "bold" | "italic" | "heading"): string {
+type EditorSnippet =
+	| "bold"
+	| "italic"
+	| "h1"
+	| "h2"
+	| "h3"
+	| "h4"
+	| "paragraph"
+	| "link"
+	| "image"
+	| "list"
+	| "quote"
+	| "code";
+
+const MARKDOWN_SNIPPETS = [
+	["bold", "Bold"],
+	["italic", "Italics"],
+	["h1", "H1"],
+	["h2", "H2"],
+	["h3", "H3"],
+	["h4", "H4"],
+	["link", "Link"],
+	["image", "Image"],
+	["list", "List"],
+	["quote", "Quote"],
+	["code", "Code"],
+] as const satisfies readonly (readonly [EditorSnippet, string])[];
+
+const HTML_SNIPPETS = [
+	["paragraph", "<p>"],
+	["bold", "<strong>"],
+	["italic", "<em>"],
+	["h1", "<h1>"],
+	["h2", "<h2>"],
+	["h3", "<h3>"],
+	["h4", "<h4>"],
+	["link", "<a>"],
+	["image", "<img>"],
+	["list", "<ul>"],
+	["quote", "<blockquote>"],
+] as const satisfies readonly (readonly [EditorSnippet, string])[];
+
+function snippetFor(format: ContractTermsFormat, action: EditorSnippet): string {
 	if (format === "html") {
-		if (action === "bold") return "<strong>important term</strong>";
-		if (action === "italic") return "<em>clarifying note</em>";
-		return "<h2>Section heading</h2>";
+		const htmlSnippets = {
+			bold: "<strong>Important Term</strong>",
+			italic: "<em>Clarifying Note</em>",
+			h1: "<h1>Primary Heading</h1>",
+			h2: "<h2>Section Heading</h2>",
+			h3: "<h3>Subsection Heading</h3>",
+			h4: "<h4>Detail Heading</h4>",
+			paragraph: "<p>Contract paragraph goes here.</p>",
+			link: '<a href="https://example.com">Reference Link</a>',
+			image: '<img src="https://example.com/image.png" alt="Contract Attachment" />',
+			list: "<ul>\n  <li>Contract Obligation</li>\n</ul>",
+			quote: "<blockquote>Quoted contract language.</blockquote>",
+			code: "<code>Defined Term</code>",
+		} satisfies Record<EditorSnippet, string>;
+		return htmlSnippets[action];
 	}
 	if (format === "markdown") {
-		if (action === "bold") return "**important term**";
-		if (action === "italic") return "_clarifying note_";
-		return "## Section heading";
+		const markdownSnippets = {
+			bold: "**Important Term**",
+			italic: "_Clarifying Note_",
+			h1: "# Primary Heading",
+			h2: "## Section Heading",
+			h3: "### Subsection Heading",
+			h4: "#### Detail Heading",
+			paragraph: "Contract paragraph goes here.",
+			link: "[Reference Link](https://example.com)",
+			image: "![Contract Attachment](https://example.com/image.png)",
+			list: "- Contract Obligation",
+			quote: "> Quoted contract language.",
+			code: "`Defined Term`",
+		} satisfies Record<EditorSnippet, string>;
+		return markdownSnippets[action];
 	}
 	if (action === "bold") return "IMPORTANT TERM";
-	if (action === "italic") return "clarifying note";
-	return "Section heading";
+	if (action === "italic") return "Clarifying Note";
+	if (action === "paragraph") return "Contract paragraph goes here.";
+	return "Section Heading";
+}
+
+function formatLabel(format: ContractTermsFormat): string {
+	if (format === "html") return "HTML";
+	if (format === "plain") return "Plain Text";
+	return "Markdown";
+}
+
+function cooldownSeconds(cooldownUntil: number, nowMs: number): number {
+	return Math.max(0, Math.ceil((cooldownUntil - nowMs) / 1000));
+}
+
+function buildDraftEmailHref(input: {
+	readonly to: string;
+	readonly shareUrl: string;
+	readonly sessionKey: string;
+	readonly roomId: string | null;
+}): string {
+	const subject =
+		input.roomId === null ? "TrustLedger Encrypted Draft Link" : "TrustLedger Live Draft Room";
+	const body = [
+		"Hello,",
+		"",
+		"I am sharing a TrustLedger encrypted contract draft with you.",
+		"",
+		`Share Link: ${input.shareUrl}`,
+		`Session Key: ${input.sessionKey}`,
+		input.roomId === null ? null : `Live Room ID: ${input.roomId}`,
+		"",
+		"Open the link, connect the allowed wallet, and use the session key to decrypt the draft.",
+		"Please do not forward this email unless both parties agree.",
+		"",
+		"Thank you.",
+	].filter((line): line is string => line !== null);
+	return `mailto:${encodeURIComponent(input.to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.join("\n"))}`;
 }
 
 function DraftTermsEditor({
 	state,
 	collaboration,
 	updatedAtFormatter,
+	nowMs,
 	onTermsBodyChange,
 	onTermsFormatChange,
 	onInsertSnippet,
@@ -128,10 +250,18 @@ function DraftTermsEditor({
 	readonly state: CreateState;
 	readonly collaboration: ReturnType<typeof useEncryptedDraftCollaboration>;
 	readonly updatedAtFormatter: Intl.DateTimeFormat;
+	readonly nowMs: number;
 	readonly onTermsBodyChange: (value: string) => void;
 	readonly onTermsFormatChange: (format: ContractTermsFormat) => void;
-	readonly onInsertSnippet: (action: "bold" | "italic" | "heading") => void;
+	readonly onInsertSnippet: (action: EditorSnippet) => void;
 }): React.JSX.Element {
+	const visibleSnippets =
+		state.termsFormat === "markdown"
+			? MARKDOWN_SNIPPETS
+			: state.termsFormat === "html"
+				? HTML_SNIPPETS
+				: [];
+
 	return (
 		<>
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -152,7 +282,7 @@ function DraftTermsEditor({
 				<div className="flex flex-wrap gap-2">
 					<p className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300">
 						Last Updated:{" "}
-						{formatUpdatedAt(state.termsLastUpdatedAt, updatedAtFormatter)}
+						{formatUpdatedAt(state.termsLastUpdatedAt, updatedAtFormatter, nowMs)}
 					</p>
 					<p
 						className={`tl-live-sync-pill rounded-full border px-3 py-1 text-xs font-semibold ${
@@ -184,13 +314,13 @@ function DraftTermsEditor({
 							onTermsBodyChange(converted);
 							onTermsFormatChange(format);
 						}}
-						className={`rounded-lg border px-3 py-2 text-xs font-semibold capitalize transition-colors ${
+						className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
 							state.termsFormat === format
 								? "border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200"
 								: "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-950 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300 dark:hover:border-white/20 dark:hover:text-white"
 						}`}
 					>
-						{format}
+						{formatLabel(format)}
 					</button>
 				))}
 				<button
@@ -202,15 +332,15 @@ function DraftTermsEditor({
 				>
 					Insert Default Template
 				</button>
-				{(["bold", "italic", "heading"] as const).map((action) => (
+				{visibleSnippets.map(([action, label]) => (
 					<button
 						key={action}
 						type="button"
-						aria-label={`Insert ${action === "heading" ? "section heading" : action} terms snippet`}
+						aria-label={`Insert ${label} terms snippet`}
 						onClick={() => {
 							onInsertSnippet(action);
 						}}
-						className={`rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 hover:border-gray-300 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 ${
+						className={`rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 ${
 							action === "bold"
 								? "font-bold"
 								: action === "italic"
@@ -218,7 +348,7 @@ function DraftTermsEditor({
 									: "font-semibold"
 						}`}
 					>
-						{action === "bold" ? "B" : action === "italic" ? "I" : "H2"}
+						{label}
 					</button>
 				))}
 			</div>
@@ -247,6 +377,8 @@ function DraftShareControls({
 	urlAllowedWallets,
 	liveRoomLocked,
 	updatedAtFormatter,
+	nowMs,
+	emailAddress,
 	onCreateShare,
 	onStartLiveRoom,
 	onCopy,
@@ -261,41 +393,72 @@ function DraftShareControls({
 	readonly urlAllowedWallets: readonly string[];
 	readonly liveRoomLocked: boolean;
 	readonly updatedAtFormatter: Intl.DateTimeFormat;
+	readonly nowMs: number;
+	readonly emailAddress: string;
 	readonly onCreateShare: () => void;
 	readonly onStartLiveRoom: () => void;
 	readonly onCopy: (value: string, label: string) => void;
 	readonly onImport: () => void;
 	readonly onImportKeyChange: (value: string) => void;
 }): React.JSX.Element {
+	const secondsRemaining = cooldownSeconds(panel.cooldownUntil, nowMs);
+	const cooldownActive = secondsRemaining > 0;
+	const emailHref =
+		panel.shareUrl !== "" && panel.sessionKey !== ""
+			? buildDraftEmailHref({
+					to: emailAddress,
+					shareUrl: panel.shareUrl,
+					sessionKey: panel.sessionKey,
+					roomId: panel.roomId,
+				})
+			: "";
+
 	return (
 		<div className="mt-5 grid gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-950">
-			<div className="grid gap-2 text-xs text-gray-600 dark:text-gray-300 sm:grid-cols-2">
-				<p>Allowed Wallet: {connected ?? "Connect Your Wallet"}</p>
-				<p>
-					Counterparty Wallet:{" "}
-					{counterparty ?? "Enter The Counterparty Wallet In Contract Details Below"}
-				</p>
+			<div className="grid gap-3 text-xs text-gray-600 dark:text-gray-300 sm:grid-cols-2">
+				<div className="tl-wallet-chip rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-400/20 dark:bg-emerald-400/10">
+					<p className="font-semibold uppercase tracking-[0.12em] text-emerald-700 dark:text-emerald-200">
+						Allowed Wallet
+					</p>
+					<p className="mt-1 break-all font-mono text-gray-800 dark:text-gray-100">
+						{connected ?? "Connect Your Wallet"}
+					</p>
+				</div>
+				<div className="tl-wallet-chip rounded-xl border border-indigo-200 bg-indigo-50/70 p-3 dark:border-indigo-400/20 dark:bg-indigo-400/10">
+					<p className="font-semibold uppercase tracking-[0.12em] text-indigo-700 dark:text-indigo-200">
+						Counterparty Wallet
+					</p>
+					<p className="mt-1 break-all font-mono text-gray-800 dark:text-gray-100">
+						{counterparty ?? "Enter The Counterparty Wallet In Contract Details Below"}
+					</p>
+				</div>
 			</div>
 			<div className="flex flex-col gap-2 sm:flex-row">
 				<button
 					type="button"
 					onClick={onCreateShare}
-					disabled={panel.isSharing}
+					disabled={panel.isSharing || cooldownActive}
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
 				>
-					{panel.isSharing ? "Creating Encrypted Link..." : "Create Encrypted Share Link"}
+					{panel.isSharing
+						? "Creating Encrypted Link..."
+						: cooldownActive
+							? `Create Link In ${secondsRemaining.toString()}s`
+							: "Create Encrypted Share Link"}
 				</button>
 				<button
 					type="button"
 					onClick={onStartLiveRoom}
-					disabled={panel.isStartingLiveRoom || liveRoomLocked}
+					disabled={panel.isStartingLiveRoom || liveRoomLocked || cooldownActive}
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 hover:border-indigo-300 hover:text-indigo-900 disabled:opacity-50 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200 dark:hover:border-indigo-300/50"
 				>
 					{panel.isStartingLiveRoom
 						? "Starting Live Room..."
-						: liveRoomLocked
-							? "Live Room Started"
-							: "Start Live Room"}
+						: cooldownActive
+							? `Start Live Room In ${secondsRemaining.toString()}s`
+							: liveRoomLocked
+								? "Live Room Started"
+								: "Start Live Room"}
 				</button>
 				<button
 					type="button"
@@ -317,17 +480,38 @@ function DraftShareControls({
 				>
 					Copy Session Key
 				</button>
+				<a
+					href={emailHref}
+					aria-disabled={emailHref === ""}
+					className={`tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:border-emerald-300 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-100 ${
+						emailHref === "" ? "pointer-events-none opacity-50" : ""
+					}`}
+				>
+					Email Link And Key
+				</a>
 			</div>
-			{panel.shareUrl !== "" && (
-				<p className="break-all rounded-lg bg-gray-50 p-3 font-mono text-xs text-gray-600 dark:bg-white/5 dark:text-gray-300">
-					{panel.shareUrl}
+			{panel.generationCount > 0 && (
+				<p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
+					Creating another link replaces the active link and key shown here. Do not use
+					older links or keys after generating a newer one; encrypted snapshot URLs that
+					were already shared cannot be revoked without a backend revocation service.
 				</p>
+			)}
+			{panel.shareUrl !== "" && (
+				<div className="grid gap-2 rounded-lg bg-gray-50 p-3 dark:bg-white/5">
+					<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+						Share Link
+					</p>
+					<p className="break-all font-mono text-xs text-gray-600 dark:text-gray-300">
+						{panel.shareUrl}
+					</p>
+				</div>
 			)}
 			{collaboration.isLive && (
 				<p className="text-xs text-gray-600 dark:text-gray-300">
 					Live Room {panel.roomId}: edits are encrypted before leaving the browser. Last
 					Remote Update:{" "}
-					{formatUpdatedAt(collaboration.lastRemoteUpdateAt, updatedAtFormatter)}.
+					{formatUpdatedAt(collaboration.lastRemoteUpdateAt, updatedAtFormatter, nowMs)}.
 				</p>
 			)}
 			{collaboration.lastError !== null && (
@@ -404,10 +588,13 @@ export function SecureDraftSessionPanel({
 			isSharing: false,
 			isStartingLiveRoom: false,
 			isImporting: false,
+			cooldownUntil: 0,
+			generationCount: 0,
 			status: null,
 		}),
 	);
 	const lastRoomStartAt = useRef(0);
+	const [nowMs, setNowMs] = useState(() => Date.now());
 	const encryptedDraftFromUrl = getEncryptedDraftFromUrl();
 	const updatedAtFormatter = useMemo(
 		() => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }),
@@ -433,7 +620,16 @@ export function SecureDraftSessionPanel({
 	});
 	const liveRoomLocked = panel.roomId !== null || collaboration.isLive;
 
-	function insertSnippet(action: "bold" | "italic" | "heading"): void {
+	useEffect(() => {
+		const timer = window.setInterval(() => {
+			setNowMs(Date.now());
+		}, 1000);
+		return (): void => {
+			window.clearInterval(timer);
+		};
+	}, []);
+
+	function insertSnippet(action: EditorSnippet): void {
 		const snippet = snippetFor(state.termsFormat, action);
 		const separator = state.termsBody.endsWith("\n") || state.termsBody === "" ? "" : "\n";
 		onTermsBodyChange(`${state.termsBody}${separator}${snippet}`);
@@ -452,7 +648,7 @@ export function SecureDraftSessionPanel({
 		} catch {
 			updateStatus(
 				"error",
-				`Unable To Copy ${label}. Copy it manually from the field below.`,
+				`Unable To Copy ${label}. Copy It Manually From The Share Link Field Below.`,
 			);
 			return false;
 		}
@@ -460,6 +656,7 @@ export function SecureDraftSessionPanel({
 
 	async function handleCreateShare(): Promise<void> {
 		if (panel.isSharing) return;
+		if (nowMs < panel.cooldownUntil) return;
 		if (allowedWallets.length === 0) {
 			updateStatus(
 				"error",
@@ -481,6 +678,10 @@ export function SecureDraftSessionPanel({
 				shareUrl: buildDraftShareUrl(encryptedDraft),
 				sessionKey: key,
 			});
+			dispatchPanel({
+				type: "SET_COOLDOWN",
+				cooldownUntil: Date.now() + SHARE_ACTION_COOLDOWN_MS,
+			});
 			updateStatus(
 				"success",
 				"Encrypted Share Link Created. Send The Session Key Separately.",
@@ -494,7 +695,12 @@ export function SecureDraftSessionPanel({
 
 	async function handleStartLiveRoom(): Promise<void> {
 		const now = Date.now();
-		if (panel.isStartingLiveRoom || liveRoomLocked || now - lastRoomStartAt.current < 2_000) {
+		if (
+			panel.isStartingLiveRoom ||
+			liveRoomLocked ||
+			now < panel.cooldownUntil ||
+			now - lastRoomStartAt.current < 2_000
+		) {
 			return;
 		}
 		if (allowedWallets.length === 0) {
@@ -521,6 +727,10 @@ export function SecureDraftSessionPanel({
 				roomId: nextRoomId,
 				shareUrl: nextShareUrl,
 				sessionKey: key,
+			});
+			dispatchPanel({
+				type: "SET_COOLDOWN",
+				cooldownUntil: Date.now() + SHARE_ACTION_COOLDOWN_MS,
 			});
 			await copyValue(nextShareUrl, "Live Room Link");
 		} catch {
@@ -576,6 +786,7 @@ export function SecureDraftSessionPanel({
 				state={state}
 				collaboration={collaboration}
 				updatedAtFormatter={updatedAtFormatter}
+				nowMs={nowMs}
 				onTermsBodyChange={onTermsBodyChange}
 				onTermsFormatChange={onTermsFormatChange}
 				onInsertSnippet={insertSnippet}
@@ -589,6 +800,8 @@ export function SecureDraftSessionPanel({
 				urlAllowedWallets={urlAllowedWallets}
 				liveRoomLocked={liveRoomLocked}
 				updatedAtFormatter={updatedAtFormatter}
+				nowMs={nowMs}
+				emailAddress={state.form.clientEmail}
 				onCreateShare={() => {
 					void handleCreateShare();
 				}}

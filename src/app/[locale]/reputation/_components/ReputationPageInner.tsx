@@ -57,6 +57,7 @@ async function findDeploymentBlock(
 	let high = latestBlock;
 	while (low < high) {
 		const mid = (low + high) / 2n;
+		// react-doctor-disable-next-line react-doctor/async-await-in-loop -- Binary search is sequential; each probe determines the next range.
 		const code = await publicClient.getCode({ address, blockNumber: mid });
 		if (code !== undefined && code !== "0x") {
 			high = mid;
@@ -119,16 +120,21 @@ function RatingHistoryFeed({
 			async function getLogsInChunks<TLog>(
 				getLogsForRange: (fromBlock: bigint, toBlock: bigint) => Promise<TLog[]>,
 			): Promise<TLog[]> {
-				const logs: TLog[] = [];
+				const ranges: { fromBlock: bigint; toBlock: bigint }[] = [];
 				for (let fromBlock = firstBlock; fromBlock <= latestBlock; ) {
 					const toBlock =
 						fromBlock + MAX_LOG_BLOCK_RANGE > latestBlock
 							? latestBlock
 							: fromBlock + MAX_LOG_BLOCK_RANGE;
-					logs.push(...(await getLogsForRange(fromBlock, toBlock)));
+					ranges.push({ fromBlock, toBlock });
 					fromBlock = toBlock + 1n;
 				}
-				return logs;
+				const chunks = await Promise.all(
+					ranges.map(
+						async ({ fromBlock, toBlock }) => await getLogsForRange(fromBlock, toBlock),
+					),
+				);
+				return chunks.flat();
 			}
 
 			// Fetch Rated, RatingSubmitted, and RecoveryAchieved logs in parallel.

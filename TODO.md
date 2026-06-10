@@ -147,39 +147,6 @@ mainnet launch deliverables.
     - Implement the new provider in the authentication flow so users reliably
       receive their magic links and authenticate without issues.
 
-- [ ] If needed, add C or C++ for performance-critical math, cryptography, or
-      other features that benefit from a low-level, compiled language.
-    - Consider C/C++ for heavy numeric or cryptographic work that is too slow in
-      JavaScript/TypeScript or Python — for example custom elliptic-curve or
-      hashing routines, large-scale Monte Carlo simulations of fee and
-      reputation models, or batch processing of on-chain data for the
-      whitepaper.
-    - Expose the compiled code to the rest of the stack in one of these ways:
-        - **WebAssembly:** Compile to WASM (via Emscripten) and call it directly
-          from the frontend for client-side math without a round trip to a
-          server.
-        - **Native addon:** Build a Node.js native addon (N-API / node-gyp) so a
-          backend service can call into the compiled library.
-        - **Standalone service:** Wrap the C/C++ code behind a small service the
-          other backends call over an API (pairs well with the Rust/Python
-          services above).
-    - Keep the C/C++ sources organized under a dedicated directory (for example
-      `native/` or `lib/native/`) with a clear build step (CMake or a Makefile)
-      and document how to build and link it.
-    - Only introduce this if a measured bottleneck justifies the added build
-      complexity; prefer Rust where memory safety matters and C/C++ only where
-      an existing library or toolchain requires it.
-
-- [ ] Use Python's NumPy, SymPy, Matplotlib, or other scientific libraries to
-      generate visualizations and insights from the on-chain data, for use in
-      the whitepaper, documentation, or the platform itself.
-    - This leverages Python's strengths in data analysis and visualization,
-      enabling richer and more informative visuals than are easily achievable in
-      JavaScript.
-    - These visualizations can give users insight into their contract
-      performance, reputation trends, and other metrics that help them make
-      informed decisions on the platform.
-
 ## Phase 7 — Testing, Quality, and Accessibility
 
 - [ ] Perform a thorough security sweep of the entire frontend and backend and
@@ -297,6 +264,39 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] If needed, add C or C++ for performance-critical math, cryptography, or
+      other features that benefit from a low-level, compiled language.
+    - Completed 2026-06-10: added optional native analytics kernels under
+      `native/` with C (`native/c/tl_hash.c`), C++
+      (`native/cpp/tl_metrics.cpp`), x86_64 assembly
+      (`native/asm/tl_mix64_x86_64.S`), arm64 assembly
+      (`native/asm/tl_mix64_arm64.S`), and the shared
+      `native/include/trustledger_native.h` ABI.
+    - Added `tools/check-native.mjs` and `npm run native:check`; it compiles C,
+      C++, and the host-architecture assembly with `clang`/`clang++` into
+      project-local `tmp/native-check/` without adding runtime dependencies to
+      the Next.js app.
+    - Wired `native:check` into pre-commit, pre-push, and CI. Rust remains the
+      preferred production language for memory-safe services; these files are
+      intentionally optional kernels for measured bottlenecks and future
+      WebAssembly/native-addon experiments.
+
+- [x] Use Python's NumPy, SymPy, Matplotlib, or other scientific libraries to
+      generate visualizations and insights from the on-chain data, for use in
+      the whitepaper, documentation, or the platform itself.
+    - Completed 2026-06-10: added `scripts/analytics/` with a deterministic
+      Python SVG generator and optional `requirements.txt` for future
+      NumPy/Matplotlib reports.
+    - Added `assets/analytics/wallet-analytics-preview.svg`,
+      `npm run analytics:generate`, and `npm run analytics:check`, with CI and
+      hook coverage so generated visuals do not drift.
+    - Added the user-facing `/[locale]/analytics` page and
+      `GET /api/analytics/wallet/[address]` endpoint. The page summarizes only
+      public TrustLedger contract state, public reputation score data, connected
+      chain metadata, and safe local preferences such as the last connector
+      label and dashboard guide state. It does not read private keys, seed
+      phrases, raw documents, emails, encrypted draft bodies, or session keys.
 
 - [x] Add an oracle service to fetch off-chain data relevant to contracts, such
       as exchange rates for stablecoin payments or external data feeds that

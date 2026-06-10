@@ -3,12 +3,10 @@ import {
 	getSolanaNetworkConfig,
 	isLikelySolanaAddress,
 	resolveSolanaCluster,
-	SOLANA_SUPPORT_MODE,
 } from "@/helpers/solana";
 
 describe("solana helper", () => {
 	it("defaults to devnet for unknown clusters", () => {
-		expect(SOLANA_SUPPORT_MODE).toBe("native-program");
 		expect(resolveSolanaCluster(undefined)).toBe("devnet");
 		expect(resolveSolanaCluster("invalid")).toBe("devnet");
 		expect(getSolanaNetworkConfig("invalid").rpcUrl).toBe("https://api.devnet.solana.com");

@@ -1,6 +1,7 @@
 "use client";
 
 import type { DecodedContractError } from "@/lib/contractErrors";
+import { formatDeadlineWithRelativeDays } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 
@@ -85,7 +86,10 @@ export function SubmitSummary({
 							{t("deadlineLabel")}
 						</span>{" "}
 						<span className="text-gray-900 dark:text-white font-medium">
-							{t("daysFromNow", { n: deadlineDays })}
+							{formatDeadlineWithRelativeDays(
+								deadlineDays,
+								t("daysFromNow", { n: deadlineDays }),
+							)}
 						</span>
 					</p>
 					{holdBack !== "none" && (

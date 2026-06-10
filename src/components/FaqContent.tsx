@@ -64,11 +64,20 @@ export function FaqContent(): React.JSX.Element {
 					<span>FAQ</span>
 				</div>
 				<h1 className="mt-5 text-3xl font-semibold tracking-[-0.02em] text-gray-950 sm:text-4xl dark:text-white">
-					Answers before you move money
+					Read This Before You Move Money Or If You Have Any General Questions.
 				</h1>
 				<p className="mt-4 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-300">
 					Use this page when you are creating an escrow, debugging a wallet issue, or
-					deciding what to do after a contract changes state.
+					deciding what to do after a contract changes state. Start a discussion in{" "}
+					<a
+						href="https://github.com/kevinle3212/TrustLedger/discussions"
+						target="_blank"
+						rel="noopener noreferrer"
+						className="font-semibold text-indigo-600 underline decoration-indigo-300 underline-offset-4 hover:text-indigo-500 dark:text-indigo-300"
+					>
+						GitHub Discussions
+					</a>{" "}
+					and ask anything there!
 				</p>
 			</div>
 
@@ -87,9 +96,11 @@ export function FaqContent(): React.JSX.Element {
 								+
 							</span>
 						</summary>
-						<p className="mt-4 max-w-3xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-							{item.answer}
-						</p>
+						<div className="tl-faq-answer">
+							<p className="max-w-3xl text-sm leading-6 text-gray-600 dark:text-gray-300">
+								{item.answer}
+							</p>
+						</div>
 					</details>
 				))}
 			</div>
@@ -108,13 +119,13 @@ export function FaqContent(): React.JSX.Element {
 						href="/create"
 						className="inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
 					>
-						Create contract
+						Create Contract
 					</Link>
 					<a
-						href="https://github.com/kevinle3212/TrustLedger/blob/main/misc/FAUCETS.md"
+						href="https://github.com/kevinle3212/TrustLedger/blob/main/docs/FAUCETS.md"
 						className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
 					>
-						Sepolia faucet guide
+						Sepolia Faucet Guide
 					</a>
 				</div>
 			</div>
