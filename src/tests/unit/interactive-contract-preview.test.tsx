@@ -47,4 +47,15 @@ describe("InteractiveContractPreview", () => {
 		);
 		expect(screen.getByText("Draft Hash Queued!")).toBeInTheDocument();
 	});
+
+	it("restarts the document progress animation when a phase is selected", () => {
+		const { container } = render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
+		const progressBefore = container.querySelector(".tl-contract-install-progress");
+
+		fireEvent.click(screen.getByRole("button", { name: /01 Pending/u }));
+
+		const progressAfter = container.querySelector(".tl-contract-install-progress");
+		expect(progressBefore).not.toBe(progressAfter);
+		expect(progressAfter).toBeInTheDocument();
+	});
 });

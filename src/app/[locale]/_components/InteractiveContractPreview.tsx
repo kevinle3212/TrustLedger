@@ -216,7 +216,10 @@ export function InteractiveContractPreview({
 					</p>
 					<div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-3">
 						<div className="tl-contract-hash h-2 rounded-full bg-gray-200 dark:bg-white/10">
-							<div className="tl-contract-install-progress h-full rounded-full" />
+							<div
+								key={`document-progress-${String(pulseKey)}`}
+								className="tl-contract-install-progress h-full rounded-full"
+							/>
 						</div>
 						<span className="tl-signature-stamp rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
 							Verified
