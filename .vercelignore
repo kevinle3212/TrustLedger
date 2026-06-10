@@ -46,6 +46,11 @@ src/out/
 /docs/
 /site/
 /assets/
+!/assets/analytics/
+!/assets/analytics/wallet-analytics-bokeh.json
+!/assets/analytics/wallet-analytics-plotly.json
+!/assets/analytics/wallet-analytics-preview.svg
+!/assets/analytics/wallet-analytics-report.json
 /mkdocs.yml
 /requirements-docs.txt
 
