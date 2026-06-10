@@ -84,18 +84,20 @@ accessible controls, and visible transaction progress.
 
 ```mermaid
 flowchart TB
-    User[Client, freelancer, or juror] --> UI[Next.js app in src]
-    UI --> Wallet[Reown AppKit and wagmi]
-    Wallet --> Chain[EVM contracts]
-    UI --> API[Next.js API routes]
-    API --> Services[src/services]
-    Services --> Email[Resend email]
-    Services --> Oracle[Price provider]
+    User["Client, Freelancer, Or Juror"] --> UI["Next.js App (src/)"]
+    UI --> Wallet["Reown AppKit And Wagmi"]
+    Wallet --> Chain["EVM Contracts"]
+    UI --> API["Next.js API Routes"]
+    UI --> About["About, Status, And Analytics Pages"]
+    API --> Services["Server Services"]
+    Services --> Email["Email Provider"]
+    Services --> Oracle["Price Provider"]
+    Services --> Admin["Read-Only Admin Dashboard"]
     Services --> Chain
-    Chain --> TL[TrustLedger.sol]
-    Chain --> ARB[Arbitration.sol]
-    Chain --> JR[JurorRegistry.sol]
-    Chain --> REP[ReputationRegistry.sol]
+    Chain --> TL["TrustLedger.sol"]
+    Chain --> ARB["Arbitration.sol"]
+    Chain --> JR["JurorRegistry.sol"]
+    Chain --> REP["ReputationRegistry.sol"]
 ```
 
 ## Technology Stack
@@ -167,7 +169,8 @@ src/
 │   │   ├── arbitration/[id]/      Dispute detail and evidence workflow.
 │   │   ├── client/accept/         Client magic-link acceptance flow.
 │   │   ├── create/                Contract creation state machine and form UI.
-│   │   ├── dashboard/             Contract dashboard and lifecycle actions.
+│   │   ├── about/                 Project background and project-age timer.
+│   │   ├── dashboard/             Contract dashboard, countdowns, and lifecycle actions.
 │   │   ├── faq/                   Recovery, wallet, faucet, and support FAQ.
 │   │   ├── freelancer/review/     Freelancer review for client-originated work.
 │   │   ├── juror/                 Juror staking, voting, and dispute queue.

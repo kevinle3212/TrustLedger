@@ -140,6 +140,13 @@ cd src
 npm run test:e2e:headed
 ```
 
+Sandboxed agent sessions may block DNS for external wallet metadata endpoints
+such as Reown/Web3Modal. Frontend builds must treat those fetch failures as
+non-fatal fallback warnings, not application errors. For live wallet-provider
+checks that genuinely require network access, run the specific command with an
+approved sandbox escalation and keep the command scoped to the frontend test or
+build being verified.
+
 ## Current Added Coverage
 
 <!-- docs-section-nav:start -->
@@ -203,11 +210,16 @@ npm run logs:check
 npm run tmp:check
 ```
 
-Run Python type checks for the model helper scripts:
+Run Python docstring and type checks for the project-owned Python helper
+scripts:
 
 ```bash
 npm run lint:py
 ```
+
+`npm run lint:py` runs `tools/check-python-docstrings.py` before mypy. The
+docstring gate scans only project-owned Python files and excludes vendored
+contract libraries, generated outputs, caches, and dependency directories.
 
 ## Build Checks
 

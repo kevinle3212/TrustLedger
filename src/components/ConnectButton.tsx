@@ -190,6 +190,13 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 							<span>{t("status")}</span>
 							<span aria-hidden="true">→</span>
 						</Link>
+						<Link
+							href="/about"
+							className="tl-button-motion flex min-h-10 items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:bg-white/10"
+						>
+							<span>{t("about")}</span>
+							<span aria-hidden="true">→</span>
+						</Link>
 						<p className="px-3 pb-2 pt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
 							{t("walletMenuHint")}
 						</p>

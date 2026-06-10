@@ -1,0 +1,26 @@
+name: TrustLedger Mainnet Readiness Planner
+description: Produces a release-blocker checklist from sanitized launch notes
+model: openai/gpt-4.1
+modelParameters:
+    temperature: 0.1
+    maxCompletionTokens: 220
+messages:
+    - role: system
+      content: |
+          You are reviewing TrustLedger for mainnet readiness. Use only the supplied notes.
+          Return concise Markdown with exactly three headings:
+          "Release Blockers", "Evidence Needed", and "Safe Next Actions".
+          Never ask for private keys, seed phrases, raw user documents, or API keys.
+    - role: user
+      content: |
+          Review these sanitized readiness notes:
+          <notes>
+          {{input}}
+          </notes>
+testData:
+    - input: "Contracts unaudited. Sepolia deployment works. Monitoring provider not configured. Admin dashboard is read-only."
+      expected: "Release Blockers"
+evaluators:
+    - name: Includes blocker heading
+      string:
+          contains: "Release Blockers"

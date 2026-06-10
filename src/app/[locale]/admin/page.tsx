@@ -73,6 +73,28 @@ export default async function AdminPage({
 				server-side authorization, and persistent audit trails before they are enabled.
 			</section>
 
+			<section
+				aria-label="Admin deployment and analytics metrics"
+				className="grid gap-3 md:grid-cols-2 xl:grid-cols-4"
+			>
+				{report.metrics.map((metric) => (
+					<article
+						key={metric.label}
+						className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5"
+					>
+						<p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+							{metric.label}
+						</p>
+						<p className="mt-2 text-2xl font-bold tracking-[-0.015em] text-gray-950 dark:text-white">
+							{metric.value}
+						</p>
+						<p className="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">
+							{metric.detail}
+						</p>
+					</article>
+				))}
+			</section>
+
 			<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 				{report.sections.map((section) => (
 					<article

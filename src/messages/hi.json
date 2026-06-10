@@ -180,7 +180,15 @@
 		"releaseAfterWindow": "विंडो के बाद जारी करें",
 		"claimWarrantyFunds": "वारंटी फंड का दावा करें",
 		"aiSummary": "AI Summary",
-		"aiSummaryLoading": "Summarizing public contract state..."
+		"aiSummaryLoading": "Summarizing public contract state...",
+		"countdownProjectTitle": "Freelancer Delivery Countdown",
+		"countdownProjectDetail": "Proof of work is due by",
+		"countdownAcceptanceTitle": "Client Review Countdown",
+		"countdownAcceptanceDetail": "Approval or dispute window expires at",
+		"countdownWarrantyTitle": "Warranty Hold-Back Countdown",
+		"countdownWarrantyDetail": "Held warranty funds unlock at",
+		"countdownRemaining": "Remaining",
+		"countdownSince": "Since Expiry"
 	},
 	"Create": {
 		"connectWallet": "अनुबंध प्रस्तावित करने के लिए वॉलेट कनेक्ट करें।",
@@ -491,7 +499,8 @@
 		"analyticsHint": "View wallet-safe stats and public contract metrics.",
 		"account": "Account",
 		"status": "Status",
-		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
+		"about": "About",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, public status, and project background."
 	},
 	"Decrypt": {
 		"title": "AES-256-GCM दस्तावेज़ डिक्रिप्ट करें",

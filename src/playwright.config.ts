@@ -6,11 +6,15 @@ const PORT = process.env["PORT"] ?? "3000";
 const BASE_URL = process.env["PLAYWRIGHT_BASE_URL"] ?? `http://127.0.0.1:${PORT}`;
 // Convert CI from an optional string into an explicit boolean for strict linting.
 const isCi = process.env["CI"] !== undefined && process.env["CI"] !== "";
+// Production E2E runs avoid noisy framework development warnings. Developers can
+// opt back into `next dev` with PLAYWRIGHT_USE_DEV_SERVER=1 when debugging HMR.
+const useDevServer = process.env["PLAYWRIGHT_USE_DEV_SERVER"] === "1";
 // CI builds the app immediately before E2E. Serving that production build keeps
 // logs clean and catches production-only routing/static-generation regressions.
-const webServerCommand = isCi
-	? `npm run start:e2e:standalone -- --hostname 127.0.0.1 --port ${PORT}`
-	: `npm run dev:frontend -- --hostname 127.0.0.1 --port ${PORT}`;
+const webServerEnvPrefix = "env -u NO_COLOR";
+const webServerCommand = useDevServer
+	? `${webServerEnvPrefix} npm run dev:frontend -- --hostname 127.0.0.1 --port ${PORT}`
+	: `${webServerEnvPrefix} npm run start:e2e:standalone -- --hostname 127.0.0.1 --port ${PORT}`;
 
 // Export the Playwright Test configuration consumed by `npm run test:e2e`.
 export default defineConfig({

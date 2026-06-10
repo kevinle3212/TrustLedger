@@ -56,6 +56,8 @@ npm run models:run:qa
 npm run models:run:dispute
 npm run models:run:risk
 npm run models:run:reputation
+npm run models:run:mainnet
+npm run models:run:incident
 ```
 
 Run prompt evaluation:
@@ -74,7 +76,9 @@ npm run models:eval
 
 `.github/workflows/github-models.yml` runs on prompt-related pushes, pull
 requests, and manual dispatch. It uses `actions/ai-inference@v2`, GitHub Models
-CLI evaluation, Python examples, and rate-limit checks.
+CLI evaluation, Python examples, and rate-limit checks. Prompt coverage now
+includes contract summarization, release notes, grounded Q&A, edge cases,
+mainnet-readiness planning, and operator incident summaries.
 
 Keep prompt files and scripts source-controlled. Do not put API keys or private
 test data in prompt files.

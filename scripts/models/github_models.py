@@ -10,6 +10,8 @@ Provides contract-aware AI capabilities for the TrustLedger escrow platform:
   dispute     - Structured juror guidance from dispute evidence (JSON)
   risk        - Pre-creation risk assessment of a contract description (JSON)
   reputation  - Narrative reputation summary from rating history
+  mainnet     - Mainnet readiness blocker plan from sanitized release notes
+  incident    - Operator incident summary from sanitized admin notes
 
 CI utilities (used by .github/workflows/github-models.yml):
   invalid_model - Confirms HttpResponseError is raised for a bad model id
@@ -54,6 +56,8 @@ _REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
 def make_client(model: str = DEFAULT_MODEL) -> ChatCompletionsClient:
+    """Create an authenticated GitHub Models chat-completions client."""
+
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
         raise SystemExit("GITHUB_TOKEN is not set")
@@ -68,6 +72,8 @@ def complete(
     model: str = DEFAULT_MODEL,
     max_tokens: int = 256,
 ) -> str:
+    """Send one chat-completion request and return the trimmed message text."""
+
     response = c.complete(
         messages=[SystemMessage(content=system), UserMessage(content=user)],
         model=model,
@@ -383,6 +389,55 @@ def scenario_reputation(c: ChatCompletionsClient, model: str) -> None:
         raise SystemExit("reputation: expected reputation-related content in response")
 
 
+def scenario_mainnet(c: ChatCompletionsClient, model: str) -> None:
+    """Draft a mainnet-readiness checklist from sanitized launch status."""
+
+    notes = {
+        "audit": "external audit not yet complete",
+        "deployment": "Sepolia deployment and Vercel preview are green",
+        "monitoring": "provider choice pending",
+        "admin": "read-only dashboard available with IP and token controls",
+    }
+    out = complete(
+        c,
+        system=(
+            "You are a TrustLedger release reviewer. Produce concise Markdown with "
+            "sections Release Blockers, Evidence Needed, and Safe Next Actions. "
+            "Never request private keys, seed phrases, raw user documents, or API keys."
+        ),
+        user=f"Create a mainnet readiness plan from these sanitized notes:\n\n{json.dumps(notes, indent=2)}",
+        model=model,
+        max_tokens=350,
+    )
+    print("[mainnet]\n" + out)
+    if "release" not in out.lower() or "blocker" not in out.lower():
+        raise SystemExit("mainnet: expected release blocker content in response")
+
+
+def scenario_incident(c: ChatCompletionsClient, model: str) -> None:
+    """Summarize an operator incident without exposing secrets or private data."""
+
+    incident = (
+        "Frontend deployment failed because NEXT_PUBLIC_TRUSTLEDGER_ADDRESS was "
+        "not configured in the deployment environment. CI tests passed. No user "
+        "transactions were submitted and no private credentials were present."
+    )
+    out = complete(
+        c,
+        system=(
+            "You summarize TrustLedger operator incidents for the admin dashboard. "
+            "Use short Markdown bullets covering impact, likely cause, next check, "
+            "and whether user funds are affected. Redact secrets if present."
+        ),
+        user=f"Summarize this sanitized incident:\n\n{incident}",
+        model=model,
+        max_tokens=220,
+    )
+    print("[incident]\n" + out)
+    if not any(keyword in out.lower() for keyword in ("fund", "impact", "cause")):
+        raise SystemExit("incident: expected operational incident content in response")
+
+
 def scenario_invalid_model(c: ChatCompletionsClient, model: str) -> None:
     """Confirms HttpResponseError is raised when an invalid model id is used."""
     try:
@@ -432,6 +487,8 @@ SCENARIOS: dict[str, Callable[[ChatCompletionsClient, str], None]] = {
     "dispute":       scenario_dispute,
     "risk":          scenario_risk,
     "reputation":    scenario_reputation,
+    "mainnet":       scenario_mainnet,
+    "incident":      scenario_incident,
     "invalid_model": scenario_invalid_model,
     "rate_limit":    scenario_rate_limit_probe,
 }
@@ -441,6 +498,8 @@ SCENARIOS: dict[str, Callable[[ChatCompletionsClient, str], None]] = {
 
 
 def main() -> None:
+    """Parse CLI arguments and run the selected GitHub Models scenarios."""
+
     parser = argparse.ArgumentParser(
         description="TrustLedger AI scenarios via GitHub Models",
         formatter_class=argparse.RawDescriptionHelpFormatter,

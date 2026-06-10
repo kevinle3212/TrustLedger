@@ -16,12 +16,12 @@
 - [Contract Dependencies](#contract-dependencies)
 - [TrustLedger](#trustledger)
     - [Key State](#key-state)
-    - [Key Functions](#key-functions)
+    - [TrustLedger Key Functions](#trustledger-key-functions)
     - [Access Control](#access-control)
     - [Events](#events)
 - [Arbitration](#arbitration)
     - [Key Constants](#key-constants)
-    - [Key Functions](#key-functions-1)
+    - [Arbitration Key Functions](#arbitration-key-functions)
 - [JurorRegistry](#jurorregistry)
 - [ReputationRegistry](#reputationregistry)
 - [Interfaces](#interfaces)
@@ -130,7 +130,7 @@ in `EscrowContract` and tracks each escrow through this status enum:
 | `allowedTokens`      | ERC-20 allowlist for non-native escrows.                         |
 | `ratingSubmitted`    | Prevents duplicate client and freelancer ratings per escrow.     |
 
-### Key Functions
+### TrustLedger Key Functions
 
 <!-- docs-section-nav:start -->
 
@@ -218,7 +218,7 @@ of `COMMIT`, `REVEAL`, `FINALIZED`, `APPEALED`, `APPEAL_COMMIT`,
 | `APPEAL_BOND_MULTIPLIER_BPS` |    `15000` |
 | `SLASH_BPS`                  |     `1000` |
 
-### Key Functions
+### Arbitration Key Functions
 
 <!-- docs-section-nav:start -->
 

@@ -51,14 +51,129 @@ const STATUS_KEYS = [
 	"CANCELLED",
 ] as const;
 
-// Snapshot of "now" taken once at page load.
-// Used for deadline comparisons in ContractCard to avoid re-renders on every second.
-// These checks are approximate — the contract enforces the real deadline on-chain.
-const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
-
 // The EscrowContract struct returned by TrustLedger.getContract() is modelled
 // by the shared `Contract` type imported from `@/types`.
 // Status values: 0=PENDING 1=ACTIVE 2=SUBMITTED 3=APPROVED 4=DISPUTED 5=RESOLVED 6=CANCELLED
+
+function useNowSeconds(): bigint {
+	const [now, setNow] = useState(() => BigInt(Math.floor(Date.now() / 1000)));
+
+	useEffect(() => {
+		const interval = window.setInterval(() => {
+			setNow(BigInt(Math.floor(Date.now() / 1000)));
+		}, 1000);
+		return (): void => {
+			window.clearInterval(interval);
+		};
+	}, []);
+
+	return now;
+}
+
+function formatCountdownParts(
+	target: bigint,
+	now: bigint,
+): {
+	readonly label: string;
+	readonly urgent: boolean;
+} {
+	const delta = Number(target > now ? target - now : now - target);
+	const days = Math.floor(delta / 86_400);
+	const hours = Math.floor((delta % 86_400) / 3_600);
+	const minutes = Math.floor((delta % 3_600) / 60);
+	const seconds = delta % 60;
+	const dayText = days.toString();
+	const hourText = hours.toString();
+	const minuteText = minutes.toString();
+	const secondText = seconds.toString();
+	const label =
+		days > 0
+			? `${dayText}d ${hourText}h ${minuteText}m`
+			: hours > 0
+				? `${hourText}h ${minuteText}m ${secondText}s`
+				: `${minuteText}m ${secondText}s`;
+	return { label, urgent: target > now && delta <= 86_400 };
+}
+
+function nextStageDeadline(
+	contract: Contract,
+	t: ReturnType<typeof useTranslations>,
+): {
+	readonly title: string;
+	readonly target: bigint;
+	readonly detail: string;
+} | null {
+	if (contract.status === 1 && contract.projectDeadline > BigInt(0)) {
+		return {
+			title: t("countdownProjectTitle"),
+			target: contract.projectDeadline,
+			detail: t("countdownProjectDetail"),
+		};
+	}
+	if (contract.status === 2 && contract.acceptanceDeadline > BigInt(0)) {
+		return {
+			title: t("countdownAcceptanceTitle"),
+			target: contract.acceptanceDeadline,
+			detail: t("countdownAcceptanceDetail"),
+		};
+	}
+	if (
+		contract.status === 3 &&
+		contract.holdBackAmount > BigInt(0) &&
+		contract.warrantyDeadline > BigInt(0)
+	) {
+		return {
+			title: t("countdownWarrantyTitle"),
+			target: contract.warrantyDeadline,
+			detail: t("countdownWarrantyDetail"),
+		};
+	}
+	return null;
+}
+
+function StageCountdown({
+	contract,
+	now,
+}: {
+	readonly contract: Contract;
+	readonly now: bigint;
+}): React.JSX.Element | null {
+	const t = useTranslations("Dashboard");
+	const locale = useLocale();
+	const deadline = nextStageDeadline(contract, t);
+	if (deadline === null) return null;
+
+	const expired = now >= deadline.target;
+	const countdown = formatCountdownParts(deadline.target, now);
+
+	return (
+		<div
+			className={`rounded-xl border p-4 ${
+				expired
+					? "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-100"
+					: countdown.urgent
+						? "border-orange-200 bg-orange-50 text-orange-950 dark:border-orange-400/25 dark:bg-orange-400/10 dark:text-orange-100"
+						: "border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-100"
+			}`}
+			aria-live="polite"
+		>
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<p className="text-sm font-semibold">{deadline.title}</p>
+					<p className="mt-1 text-xs leading-5 opacity-80">
+						{deadline.detail} {formatDeadline(deadline.target, locale)}
+					</p>
+				</div>
+				<div className="min-w-36 rounded-lg border border-current/15 bg-white/55 px-3 py-2 text-right font-mono dark:bg-gray-950/35">
+					<p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] opacity-70">
+						{expired ? t("countdownSince") : t("countdownRemaining")}
+					</p>
+					<p className="mt-1 text-lg font-bold tabular-nums">{countdown.label}</p>
+				</div>
+			</div>
+		</div>
+	);
+}
 
 // Generic button that calls a single-argument (contractId) function on TrustLedger.
 // Uses wagmi's two-step write pattern:
@@ -401,7 +516,7 @@ function ContractCard({
 	const status = contract.status;
 	const isClient = contract.client.toLowerCase() === address.toLowerCase();
 	const isFreelancer = contract.freelancer.toLowerCase() === address.toLowerCase();
-	const now = PAGE_LOAD_TIME_S;
+	const now = useNowSeconds();
 	const docUrl = resolveDocUrl(contract.contractURI);
 	const deliverableUrl = resolveDocUrl(contract.proofOfWorkURI);
 	const [decryptOpen, setDecryptOpen] = useState(false);
@@ -508,6 +623,8 @@ function ContractCard({
 					</>
 				)}
 			</div>
+
+			<StageCountdown contract={contract} now={now} />
 
 			<div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-4 dark:border-indigo-400/20 dark:bg-indigo-400/10">
 				<p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700 dark:text-indigo-200">

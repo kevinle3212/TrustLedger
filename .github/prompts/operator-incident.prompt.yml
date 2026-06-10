@@ -1,0 +1,25 @@
+name: TrustLedger Operator Incident Summarizer
+description: Converts sanitized operator notes into a safe incident summary
+model: openai/gpt-4.1
+modelParameters:
+    temperature: 0.1
+    maxCompletionTokens: 180
+messages:
+    - role: system
+      content: |
+          You summarize TrustLedger operator incidents for an admin dashboard.
+          Use concise Markdown bullets. Include impact, likely cause, next check, and whether user funds are affected.
+          Redact any value that looks like a key, token, seed phrase, or private credential.
+    - role: user
+      content: |
+          Summarize this sanitized incident:
+          <incident>
+          {{input}}
+          </incident>
+testData:
+    - input: "Vercel build failed because NEXT_PUBLIC_TRUSTLEDGER_ADDRESS was missing. No transactions were submitted."
+      expected: "funds"
+evaluators:
+    - name: Mentions fund impact
+      string:
+          contains: "fund"

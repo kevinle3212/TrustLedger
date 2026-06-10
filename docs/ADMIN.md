@@ -13,6 +13,7 @@
 <!-- docs-toc:start -->
 
 - [Access Model](#access-model)
+- [Operator Observability](#operator-observability)
 - [Rust Admin API](#rust-admin-api)
 
 <!-- docs-toc:end -->
@@ -59,6 +60,32 @@ Set the emitted `ADMIN_BOOTSTRAP_PASSWORD_HASH` plus the same
 `ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_BOOTSTRAP_USERNAME` in `.env`, Vercel, or
 your secret manager. The bootstrap identity is non-deletable but must be
 provided through environment variables; it is not hardcoded in application code.
+
+## Operator Observability
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+The admin dashboard includes read-only metric cards for deployment metadata,
+analytics configuration, security mode, and runtime health. These cards are
+derived from environment presence and internal health checks; they do not expose
+Vercel tokens, RPC credentials, API keys, raw logs, user documents, or wallet
+secrets.
+
+The dashboard also lists safe public resources operators can share without
+granting Vercel dashboard access:
+
+- `/status` for public runtime and endpoint links.
+- `/api/analytics/scientific` for generated public/demo analytics artifacts.
+- `/api/analytics/events` for admin-gated aggregate traffic counts when privacy
+  analytics are explicitly enabled.
+
+Any future mutating admin action must add explicit confirmation, persistent
+audit trails, targeted tests, and security review before it leaves read-only
+mode.
 
 ## Rust Admin API
 

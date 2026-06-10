@@ -66,6 +66,8 @@ nav:
     - Deployment: DEPLOYMENT.md
     - Testing: TESTING.md
     - Security: SECURITY.md
+    - Audit Readiness: AUDIT-READINESS.md
+    - GitHub Rulesets: GITHUB-RULESETS.md
     - Legal And Compliance: LEGAL.md
     - Admin Dashboard: ADMIN.md
     - Environment: ENVIRONMENT.md

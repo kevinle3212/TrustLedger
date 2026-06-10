@@ -25,6 +25,7 @@
 - [Legal Localization Helpers](#legal-localization-helpers)
 - [Internationalization](#internationalization)
 - [Styling And Motion](#styling-and-motion)
+- [Lifecycle Countdown UI](#lifecycle-countdown-ui)
 - [FAQ And Recovery Routes](#faq-and-recovery-routes)
 - [Deployment](#deployment)
 
@@ -275,6 +276,36 @@ message structure and verify locale routing before moving text into components.
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
 
 <!-- docs-section-nav:end -->
+
+TrustLedger uses restrained motion for state feedback only. Countdown panels,
+wallet menus, walkthrough controls, live-sync indicators, and action buttons may
+animate hover, focus, progress, or state changes. They must honor reduced motion
+and must not hide content until an animation completes.
+
+## Lifecycle Countdown UI
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Dashboard contract cards show a live next-stage countdown when the on-chain
+contract has a relevant deadline:
+
+- Active contracts count down to the freelancer delivery deadline.
+- Submitted contracts count down to the client approval or dispute window.
+- Approved contracts with a warranty hold-back count down to the hold-back
+  unlock time.
+
+The countdown updates once per second for user clarity. It is display-only; the
+smart contract remains the enforcement source for reclaim, release, and warranty
+claims. Expired timers switch to a "Since Expiry" label so users can tell that
+the next action may be available.
+
+The `/[locale]/about` route includes a compact project stopwatch that counts up
+from May 2, 2026. The footer links to this route so project background can grow
+without adding clutter to the dashboard or create-contract flows.
 
 Global styling lives in `src/app/globals.scss` and imports Tailwind v4,
 `src/app/helpers.css`, and `src/app/app-desktop.scss`. The helper layer owns

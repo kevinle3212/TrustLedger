@@ -15,6 +15,7 @@
 - [User-Facing Analytics](#user-facing-analytics)
 - [API Endpoint](#api-endpoint)
 - [Python Visualizations](#python-visualizations)
+- [Dune Dashboard Plan](#dune-dashboard-plan)
 - [Native Kernels](#native-kernels)
 - [CI And Hooks](#ci-and-hooks)
 
@@ -125,6 +126,24 @@ python3 -m pip install -r scripts/analytics/requirements.txt
 
 Do not commit generated visuals that include private keys, seed phrases, emails,
 raw documents, encrypted draft bodies, or session keys.
+
+## Dune Dashboard Plan
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+The roadmap now tracks a dedicated Dune dashboard integration for public
+on-chain metrics. Target charts include contracts created over time, total value
+locked, dispute rate, juror participation, appeal activity, token mix, average
+time to approval, warranty hold-back claims, and reputation score distributions.
+
+Dune keys and private workspace credentials must stay out of the repository.
+When dashboards are published, document the dashboard URL, network, contract
+addresses, query date, and SQL references so whitepaper figures and public
+metrics are reproducible.
 
 ## Native Kernels
 

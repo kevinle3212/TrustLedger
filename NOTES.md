@@ -1,5 +1,16 @@
 # Notes
 
+## Sandbox DNS Handling (2026-06-10)
+
+- The repository cannot directly allowlist DNS from inside source code; sandbox
+  DNS policy belongs to the execution environment.
+- Non-fatal Reown/Web3Modal metadata fetch warnings during sandboxed builds are
+  acceptable only when the frontend build, lint, typecheck, Playwright, and
+  Vercel deployment still pass.
+- Live network checks for trusted endpoints should use a narrowly scoped
+  approved command escalation instead of weakening application code or hiding
+  real build failures.
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 

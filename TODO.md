@@ -202,20 +202,96 @@ mainnet launch deliverables.
       report to the documentation before treating the contracts as
       mainnet-ready.
 
+- [ ] Prepare TrustLedger for mainnet deployment with a formal, evidence-backed
+      release package.
+    - **Why this exists:** mainnet deployment changes TrustLedger from a
+      testnet/open-source workflow into software that can custody real value.
+      The release process must prove that contracts, frontend, backend routes,
+      secrets, monitoring, operations, legal/compliance references, and recovery
+      procedures are ready before any mainnet address is presented to users.
+    - **Required format:** every mainnet readiness artifact must include owner,
+      date, environment, command evidence, links to CI runs, links to deployed
+      addresses or dashboards, pass/fail status, risk rating, remediation owner,
+      and the exact commit SHA reviewed. Do not use vague statuses such as
+      "looks good" or "done"; use objective evidence.
+    - **Contract scope freeze:** define the exact Solidity files, libraries,
+      deployment scripts, constructor arguments, compiler version, optimizer
+      settings, roles, admin authorities, and upgrade/non-upgrade assumptions
+      included in the release. No contract code changes after scope freeze
+      unless the release is re-reviewed.
+    - **External audit gate:** obtain an independent smart-contract audit,
+      record findings by severity, patch accepted findings, document rejected
+      findings with rationale, rerun Foundry, Hardhat, Slither, Semgrep, npm
+      audits, secret scans, and frontend E2E tests after every patch, then
+      publish the final audit report under `docs/reports/`.
+    - **Deployment rehearsal:** run a full Sepolia rehearsal from a clean clone:
+      install dependencies, populate `.swc/`, compile, test, deploy contracts,
+      verify source, wire registries, sync frontend environment, deploy Vercel,
+      run Playwright, run React Doctor, test wallet connect, create a contract,
+      fund it, submit proof of work, approve it, dispute a separate contract,
+      and verify admin/status/analytics pages.
+    - **Secrets and environment:** create a final environment inventory for
+      Vercel, GitHub Actions, Kubernetes/Docker, RPC providers, WalletConnect,
+      Solana, Pinata/IPFS, Arweave, email, monitoring, AI summaries, cron, admin
+      access, and health checks. Store values only in deployment secret stores.
+      Never commit private keys, seed phrases, raw RPC credentials, account
+      passwords, `.env*`, keypair JSON, or generated deployer wallets.
+    - **Mainnet deployer controls:** use a dedicated deployer wallet or multisig
+      with documented funding source, minimal balance, hardware-wallet custody
+      where possible, transaction simulation, explicit nonce tracking, and
+      post-deploy key-rotation or role-transfer steps. Record transaction hashes
+      and block numbers.
+    - **Monitoring and incident response:** configure Sentry, Better Stack,
+      Grafana, or equivalent for frontend errors, API latency, cron failures, AI
+      provider latency/error/cost metrics, oracle freshness, RPC failures,
+      deployment metadata, and security alerts. Document paging ownership,
+      severity definitions, rollback steps, and public status-update rules.
+    - **Frontend and UX verification:** run `npm run impeccable`, React Doctor
+      100/100, Playwright across desktop and mobile, wallet menu checks,
+      contract countdown checks, legal/status/about/dashboard/admin page checks,
+      dark/light/high-contrast checks, and text-overflow checks before mainnet
+      links go live.
+    - **Backend and API verification:** verify every public endpoint has the
+      intended auth level, input validation, rate limiting, safe error output,
+      and no secret leakage. Admin-only endpoints must require server-side
+      tokens/session and IP allowlisting where configured.
+    - **Data and analytics:** decide what metrics are collected, retention
+      duration, user notice language, aggregation boundaries, dashboard access,
+      and deletion/export process before enabling production analytics.
+    - **Legal and compliance review:** review legal markdown, privacy notice,
+      cookie/storage notice, terms, arbitration language, risk disclaimers,
+      sanctions/geography considerations, open-source license, and contributor
+      attribution before launch. Legal docs should be reviewed by qualified
+      counsel for target jurisdictions.
+    - **Release checklist:** tag a release candidate, freeze dependencies, run
+      `npm audit` in root and `src/`, run Python mypy/docstring checks, run
+      Hardhat/Foundry/Rust/Solana checks, build Docker images if used, build
+      docs, verify README/docs links, verify no empty directories, verify
+      `.gitignore`/rulesets block sensitive files, and record the final green
+      CI/Vercel links.
+    - **Launch decision:** launch only after all blockers are closed or signed
+      off with explicit rationale. If any high-severity issue remains open, keep
+      the project testnet-only and document the blocker in `NOTES.md`.
+
+- [ ] Build and publish Dune dashboard integration for public on-chain metrics.
+    - Create Dune dashboards for contracts created over time, total value
+      locked, dispute rate, juror participation, appeal activity, token mix,
+      average time to approval, warranty hold-back claims, and reputation score
+      distributions.
+    - Store dashboard links and SQL query references in `docs/ANALYTICS.md`,
+      `docs/SMART-CONTRACTS.md`, and `README.md`. Do not commit Dune API keys.
+    - Add a frontend link from public status or analytics surfaces once the
+      dashboard is live, and label it as public on-chain data only.
+    - Use Dune outputs in the whitepaper only with the query date, contract
+      addresses, network, and SQL version documented so results are
+      reproducible.
+
 - [ ] Finalize the TrustLedger whitepaper and publish it as
       `docs/TrustLedger_Whitepaper_v1.0_2026.pdf`.
     - Commit the final PDF to `docs/` and link to it from `README.md`, all
       documentation markdown files, and the GitHub Pages site navigation.
-    - Create Dune Analytics dashboards to visualize key on-chain metrics:
-      contracts created over time, total value locked, dispute rate, juror
-      participation, and reputation score distributions. Publish the dashboard
-      URL in the docs and `README.md` so contributors and users can track
-      platform activity.
-    - Document how Dune is set up to query the contracts, including the SQL
-      queries used for each chart and any relevant schema details. — Also
-      document how Dune was used to generate data, visualizations, and insights
-      during the whitepaper research phase, so future contributors understand
-      the data-driven approach to platform design and improvement.
+    - Reference the dedicated Dune dashboard integration item above when
+      incorporating on-chain metrics into the whitepaper.
     - Ensure that everything in this project up to this point, any
       configurations, files, codebase, features, things to note, and other
       relevant information has been documented inside the respective docs files

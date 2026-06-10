@@ -13,9 +13,16 @@ interface AdminReportSection {
 	readonly items: readonly AdminReportItem[];
 }
 
+interface AdminReportMetric {
+	readonly label: string;
+	readonly value: string;
+	readonly detail: string;
+}
+
 export interface AdminDashboardReport {
 	readonly generatedAt: string;
 	readonly readOnly: boolean;
+	readonly metrics: readonly AdminReportMetric[];
 	readonly sections: readonly AdminReportSection[];
 }
 
@@ -39,6 +46,30 @@ export function buildAdminDashboardReport(): AdminDashboardReport {
 	return {
 		generatedAt: new Date().toISOString(),
 		readOnly: true,
+		metrics: [
+			{
+				label: "Deployment",
+				value: process.env["VERCEL_ENV"] ?? "local",
+				detail:
+					process.env["VERCEL_GIT_COMMIT_SHA"] ??
+					"Commit metadata is available only in deployment.",
+			},
+			{
+				label: "Analytics",
+				value: hasEnv("TRUSTLEDGER_ANALYTICS_ENABLED") ? "configured" : "local-only",
+				detail: "Traffic summaries stay aggregate and admin-gated.",
+			},
+			{
+				label: "Security",
+				value: "read-only",
+				detail: "Admin mutations remain disabled pending audited action trails.",
+			},
+			{
+				label: "Runtime",
+				value: health.ok ? "healthy" : "attention",
+				detail: `${health.checks.filter((check) => check.ok).length.toString()} of ${health.checks.length.toString()} health checks passed.`,
+			},
+		],
 		sections: [
 			{
 				title: "Operational health",
@@ -147,6 +178,28 @@ export function buildAdminDashboardReport(): AdminDashboardReport {
 						label: "Feature flags",
 						status: "ok",
 						detail: "Read-only admin mode is enforced. Mutating actions remain disabled.",
+					},
+				],
+			},
+			{
+				title: "Analytics and public endpoints",
+				description:
+					"Admin-visible public resources that operators can share without granting dashboard access.",
+				items: [
+					{
+						label: "Public status page",
+						status: "ok",
+						detail: "/status links runtime health, scientific analytics, and safe contract-summary endpoints.",
+					},
+					{
+						label: "Scientific analytics API",
+						status: "ok",
+						detail: "/api/analytics/scientific exposes generated demo/public artifacts, not private traffic logs.",
+					},
+					{
+						label: "Traffic analytics API",
+						status: hasEnv("TRUSTLEDGER_ANALYTICS_ENABLED") ? "ok" : "warning",
+						detail: "GET /api/analytics/events is admin-gated and returns aggregate event counts only.",
 					},
 				],
 			},

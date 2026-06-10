@@ -23,6 +23,8 @@ TrustLedger AI integration via GitHub Models.
 | `dispute`       | Structured juror guidance (JSON) from a DISPUTED contract's evidence          |
 | `risk`          | Pre-creation risk assessment (JSON) of a contract description                 |
 | `reputation`    | Narrative reputation summary from a user's rating history                     |
+| `mainnet`       | Sanitized mainnet-readiness blocker plan                                      |
+| `incident`      | Sanitized operator incident summary for admin review                          |
 | `invalid_model` | CI smoke test - confirms `HttpResponseError` on a bad model id                |
 | `rate_limit`    | Optional burst probe; passes if any HTTP 429 is seen or all succeed           |
 
@@ -43,6 +45,8 @@ npm run models:run:qa
 npm run models:run:dispute
 npm run models:run:risk
 npm run models:run:reputation
+npm run models:run:mainnet
+npm run models:run:incident
 
 # Override the model
 python3 scripts/models/github_models.py --scenario dispute --model openai/gpt-4.1-mini

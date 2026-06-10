@@ -213,7 +213,15 @@
 		"dispute": "Dispute",
 		"reclaimDeadline": "Reclaim (Deadline Missed)",
 		"releaseAfterWindow": "Release After Window",
-		"claimWarrantyFunds": "Claim Warranty Funds"
+		"claimWarrantyFunds": "Claim Warranty Funds",
+		"countdownProjectTitle": "Freelancer Delivery Countdown",
+		"countdownProjectDetail": "Proof of work is due by",
+		"countdownAcceptanceTitle": "Client Review Countdown",
+		"countdownAcceptanceDetail": "Approval or dispute window expires at",
+		"countdownWarrantyTitle": "Warranty Hold-Back Countdown",
+		"countdownWarrantyDetail": "Held warranty funds unlock at",
+		"countdownRemaining": "Remaining",
+		"countdownSince": "Since Expiry"
 	},
 	"Create": {
 		"connectWallet": "Connect your wallet to propose a contract.",
@@ -524,7 +532,8 @@
 		"highContrastOff": "High contrast: off",
 		"account": "Account",
 		"status": "Status",
-		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
+		"about": "About",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, public status, and project background."
 	},
 	"Decrypt": {
 		"title": "Decrypt AES-256-GCM document",

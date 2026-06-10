@@ -326,6 +326,11 @@ flowchart TB
 | React Doctor  | `npm run doctor`               |
 | Build         | `npm run build:frontend`       |
 
+`npm run test:e2e` serves the latest production standalone build to keep local
+and CI output clean. Run `npm run build:frontend` first. When debugging Next.js
+development behavior specifically, set `PLAYWRIGHT_USE_DEV_SERVER=1` before the
+E2E command.
+
 ## Developer Workflow
 
 Run commands from `src/` unless the command is documented as root-level.

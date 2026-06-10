@@ -45,6 +45,8 @@ jobs:
                     - generate-text.prompt.yml
                     - answer-questions.prompt.yml
                     - edge-cases.prompt.yml
+                    - mainnet-readiness.prompt.yml
+                    - operator-incident.prompt.yml
                 include:
                     - prompt: summarize-text.prompt.yml
                       input: "The freelancer delivered on time but the client disputes quality of the PDF export."
@@ -54,6 +56,10 @@ jobs:
                       input: "Context: TrustLedger escrows ETH or ERC-20. Question: Can escrow use stablecoins?"
                     - prompt: edge-cases.prompt.yml
                       input: ""
+                    - prompt: mainnet-readiness.prompt.yml
+                      input: "Contracts unaudited. Sepolia deployment works. Monitoring provider not configured. Admin dashboard is read-only."
+                    - prompt: operator-incident.prompt.yml
+                      input: "Vercel build failed because a public contract address was missing. No transactions were submitted."
 
         steps:
             - uses: actions/checkout@v6
