@@ -33,27 +33,18 @@ function legalMarkdownPath(relativePath: string): string {
 	return fileURLToPath(new URL(relativePath, import.meta.url));
 }
 
-const LEGAL_MARKDOWN_READERS: Record<LegalDocument["slug"], () => Promise<string>> = {
-	"acceptable-use": async () =>
-		await readFile(legalMarkdownPath("../../../../../ACCEPTABLE_USE_POLICY.md"), "utf8"),
-	"community": async () =>
-		await readFile(legalMarkdownPath("../../../../../COMMUNITY_GUIDELINES.md"), "utf8"),
-	"content": async () =>
-		await readFile(legalMarkdownPath("../../../../../CONTENT_POLICY.md"), "utf8"),
-	"cookies": async () =>
-		await readFile(legalMarkdownPath("../../../../../COOKIE_POLICY.md"), "utf8"),
-	"disclaimer": async () =>
-		await readFile(legalMarkdownPath("../../../../../DISCLAIMER.md"), "utf8"),
-	"dmca": async () => await readFile(legalMarkdownPath("../../../../../DMCA_POLICY.md"), "utf8"),
-	"privacy": async () =>
-		await readFile(legalMarkdownPath("../../../../../PRIVACY_POLICY.md"), "utf8"),
-	"risk": async () =>
-		await readFile(legalMarkdownPath("../../../../../RISK_DISCLOSURE.md"), "utf8"),
-	"security": async () => await readFile(legalMarkdownPath("../../../../../SECURITY.md"), "utf8"),
-	"terms": async () =>
-		await readFile(legalMarkdownPath("../../../../../TERMS_AND_CONDITIONS.md"), "utf8"),
-	"trademark": async () =>
-		await readFile(legalMarkdownPath("../../../../../TRADEMARK_POLICY.md"), "utf8"),
+const LEGAL_MARKDOWN_FILES: Record<LegalDocument["slug"], string> = {
+	"acceptable-use": "ACCEPTABLE_USE_POLICY.md",
+	"community": "COMMUNITY_GUIDELINES.md",
+	"content": "CONTENT_POLICY.md",
+	"cookies": "COOKIE_POLICY.md",
+	"disclaimer": "DISCLAIMER.md",
+	"dmca": "DMCA_POLICY.md",
+	"privacy": "PRIVACY_POLICY.md",
+	"risk": "RISK_DISCLOSURE.md",
+	"security": "SECURITY.md",
+	"terms": "TERMS_AND_CONDITIONS.md",
+	"trademark": "TRADEMARK_POLICY.md",
 };
 
 export function generateStaticParams(): LegalDocPageParams[] {
@@ -83,7 +74,23 @@ export async function generateMetadata({
 }
 
 async function readLegalMarkdown(document: LegalDocument): Promise<string> {
-	return await LEGAL_MARKDOWN_READERS[document.slug]();
+	const filename = LEGAL_MARKDOWN_FILES[document.slug];
+	const paths = [
+		legalMarkdownPath(`../../../../content/legal/${filename}`),
+		legalMarkdownPath(`../../../../../${filename}`),
+	];
+
+	for (const path of paths) {
+		try {
+			return await readFile(path, "utf8");
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+				throw error;
+			}
+		}
+	}
+
+	throw new Error(`Missing legal markdown source: ${filename}`);
 }
 
 function isTableSeparator(line: string): boolean {
