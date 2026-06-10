@@ -24,11 +24,30 @@
 .admin-bootstrap.generated.json
 
 # ─── Build output (Vercel builds fresh on its own runners) ────────────────────
+/node_modules/
+/src/node_modules/
+/.next/
+/.turbo/
+/.vercel/output/
+/.vercel/cache/
 /dist/
+/target/
+/programs/*/target/
+/contracts/out/
+/contracts/cache/
 *.tsbuildinfo
 src/.next/
 src/out/
 /coverage/
+
+# ─── Non-frontend runtimes and local package caches ──────────────────────────
+/.cargo/
+/infra/
+/lib/
+/programs/
+/foundry-sandbox/
+/contracts/lib/
+/tmp/
 
 # ─── Debug / profiling output ─────────────────────────────────────────────────
 *.cpuprofile
