@@ -1,5 +1,22 @@
 # TypeScript SDK
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Integration Surfaces](#integration-surfaces)
+- [Compile Before Using TypeChain](#compile-before-using-typechain)
+- [Script Patterns](#script-patterns)
+- [Frontend Helpers](#frontend-helpers)
+- [Example Contract Address Lookup](#example-contract-address-lookup)
+- [ABI Usage](#abi-usage)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,6 +25,10 @@ TrustLedger. Read it when writing scripts, tests, frontend calls, or external
 TypeScript clients.
 
 ## Integration Surfaces
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Surface                | Path                        | Use                                                            |
 | ---------------------- | --------------------------- | -------------------------------------------------------------- |
@@ -20,6 +41,10 @@ TypeScript clients.
 
 ## Compile Before Using TypeChain
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Run:
 
 ```bash
@@ -31,6 +56,10 @@ generates TypeChain wrappers under `artifacts/typechain-types` with target
 `ethers-v6`.
 
 ## Script Patterns
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Run Hardhat scripts with the configured TypeScript project:
 
@@ -47,6 +76,10 @@ npm run sync:frontend:env
 ```
 
 ## Frontend Helpers
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 `src/lib/wagmi.ts` exports:
 
@@ -66,6 +99,10 @@ npm run sync:frontend:env
 
 ## Example Contract Address Lookup
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 ```typescript
 import { getContractDeployment, getExplorerTxUrl } from "./lib/wagmi";
 
@@ -77,6 +114,10 @@ console.log(deployment.trustLedger, txUrl);
 ```
 
 ## ABI Usage
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Use `src/lib/abi.ts` for frontend contract calls. Use TypeChain output for
 Hardhat scripts and tests after `npm run compile`.

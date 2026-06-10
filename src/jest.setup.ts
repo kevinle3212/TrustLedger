@@ -3,9 +3,13 @@ import React from "react";
 import { TextDecoder, TextEncoder } from "node:util";
 import { installBrowserMocks } from "./tests/unit/__mocks__/browser";
 
+jest.mock("server-only", () => ({}), { virtual: true });
+
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder;
-installBrowserMocks();
+if (typeof window !== "undefined") {
+	installBrowserMocks();
+}
 
 jest.mock("@/i18n/navigation", () => {
 	const Link = ({

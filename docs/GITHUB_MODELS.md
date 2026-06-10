@@ -1,5 +1,18 @@
 # GitHub Models
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Commands](#commands)
+- [Workflow](#workflow)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -11,6 +24,10 @@ Script-level usage also lives in `scripts/models/README.md` in the repository
 root. The commands below are mirrored here for the docs site.
 
 ## Commands
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Install Python dependencies:
 
@@ -42,6 +59,10 @@ npm run models:eval
 ```
 
 ## Workflow
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 `.github/workflows/github-models.yml` runs on prompt-related pushes, pull
 requests, and manual dispatch. It uses `actions/ai-inference@v2`, GitHub Models

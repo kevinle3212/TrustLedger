@@ -1,5 +1,6 @@
 import {
 	getSolanaExplorerAddressUrl,
+	getSolanaExplorerTxUrl,
 	getSolanaNetworkConfig,
 	isLikelySolanaAddress,
 	resolveSolanaCluster,
@@ -26,6 +27,9 @@ describe("solana helper", () => {
 		);
 		expect(getSolanaExplorerAddressUrl(address, "mainnet-beta")).toBe(
 			"https://explorer.solana.com/address/11111111111111111111111111111111",
+		);
+		expect(getSolanaExplorerTxUrl(address, "testnet")).toBe(
+			"https://explorer.solana.com/tx/11111111111111111111111111111111?cluster=testnet",
 		);
 	});
 });

@@ -12,6 +12,7 @@
  */
 
 import { isAddress, parseEther, parseUnits } from "viem";
+import { isLikelySolanaAddress } from "@/helpers/solana";
 import { resolveDocUrl } from "@/lib/utils";
 
 /** A validator result: an error message, or `undefined` when valid. */
@@ -28,6 +29,16 @@ export function validateEthAddress(value: string): ValidationResult {
 	if (trimmed === "") return "Enter a wallet address.";
 	if (!isAddress(trimmed)) {
 		return "Enter a valid Ethereum address (0x followed by 40 hex characters).";
+	}
+	return undefined;
+}
+
+/** Requires a base58-shaped Solana wallet address. */
+export function validateSolanaAddress(value: string): ValidationResult {
+	const trimmed = value.trim();
+	if (trimmed === "") return "Enter a Solana wallet address.";
+	if (!isLikelySolanaAddress(trimmed)) {
+		return "Enter a valid Solana address (32 to 44 base58 characters).";
 	}
 	return undefined;
 }

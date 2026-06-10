@@ -17,7 +17,15 @@ const VERCEL_KEYS = [
 	"ADMIN_BOOTSTRAP_PASSWORD_HASH",
 	"ADMIN_BOOTSTRAP_WALLET_ADDRESS",
 	"ADMIN_ACCOUNTS_JSON",
+	"ACCOUNT_SESSION_SECRET",
+	"AI_SUMMARY_PROVIDER",
+	"AUTH_JWT_SECRET",
 	"CRON_SECRET",
+	"GEMINI_API_KEY",
+	"GEMINI_MODEL",
+	"GOOGLE_GENERATIVE_AI_API_KEY",
+	"GROQ_API_KEY",
+	"GROQ_MODEL",
 	"HEALTH_CHECK_TOKEN",
 	"HEALTH_CHECK_ALLOWED_IPS",
 	"MAGIC_LINK_SECRET",
@@ -79,7 +87,7 @@ function run(args, input) {
 		stdio: input === undefined ? ["ignore", "pipe", "pipe"] : ["pipe", "pipe", "pipe"],
 	});
 	if (result.error?.code === "ENOENT") {
-		result = spawnSync("npx", ["--no-install", "vercel", ...args], {
+		result = spawnSync("npx", ["--yes", "vercel", ...args], {
 			cwd: VERCEL_CWD,
 			encoding: "utf8",
 			input,

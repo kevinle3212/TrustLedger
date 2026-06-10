@@ -1,5 +1,29 @@
 # Smart Contracts
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Contract Set](#contract-set)
+- [Contract Dependencies](#contract-dependencies)
+- [TrustLedger](#trustledger)
+    - [Key State](#key-state)
+    - [Key Functions](#key-functions)
+    - [Access Control](#access-control)
+    - [Events](#events)
+- [Arbitration](#arbitration)
+    - [Key Constants](#key-constants)
+    - [Key Functions](#key-functions-1)
+- [JurorRegistry](#jurorregistry)
+- [ReputationRegistry](#reputationregistry)
+- [Interfaces](#interfaces)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,6 +32,10 @@ changing contract behavior, writing tests, or integrating a client with the
 on-chain API.
 
 ## Contract Set
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Contract             | Role                                                                                                            |
 | -------------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -20,6 +48,10 @@ on-chain API.
 | `MockVRFCoordinator` | Test VRF coordinator.                                                                                           |
 
 ## Contract Dependencies
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 `contracts/lib/openzeppelin-contracts` is pinned as a git submodule and should
 move only through an intentional dependency-review change.
@@ -55,6 +87,10 @@ node tools/foundry-sandbox.mjs test --root foundry-sandbox --offline
 
 ## TrustLedger
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 `TrustLedger` inherits `ReentrancyGuard` and `Pausable`. It stores escrow terms
 in `EscrowContract` and tracks each escrow through this status enum:
 
@@ -70,6 +106,10 @@ in `EscrowContract` and tracks each escrow through this status enum:
 
 ### Key State
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 | Item                 | Purpose                                                          |
 | -------------------- | ---------------------------------------------------------------- |
 | `ARBITRATION`        | Immutable arbitration authority allowed to execute rulings.      |
@@ -79,6 +119,10 @@ in `EscrowContract` and tracks each escrow through this status enum:
 | `ratingSubmitted`    | Prevents duplicate client and freelancer ratings per escrow.     |
 
 ### Key Functions
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Function                     | Caller                      | Purpose                                                                 |
 | ---------------------------- | --------------------------- | ----------------------------------------------------------------------- |
@@ -104,6 +148,10 @@ in `EscrowContract` and tracks each escrow through this status enum:
 
 ### Access Control
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 `TrustLedger` uses role-by-address checks instead of OpenZeppelin ownership.
 Client-only, freelancer-only, and arbitration-only paths use custom errors.
 `pause` and `unpause` require the configured `pauser`. Before `pauser` is
@@ -111,6 +159,10 @@ initialized, `addAllowedToken` is callable by anyone; after initialization it is
 restricted to `pauser`.
 
 ### Events
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Important events include `ContractProposed`, `ContractProposedByClient`,
 `ContractFundedByClient`, `ContractAccepted`, `ContractRejected`,
@@ -120,11 +172,19 @@ Important events include `ContractProposed`, `ContractProposedByClient`,
 
 ## Arbitration
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 `Arbitration` controls disputes opened by `TrustLedger`. A dispute phase is one
 of `COMMIT`, `REVEAL`, `FINALIZED`, `APPEALED`, `APPEAL_COMMIT`,
 `APPEAL_REVEAL`, or `APPEAL_FINALIZED`.
 
 ### Key Constants
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Constant                     |      Value |
 | ---------------------------- | ---------: |
@@ -137,6 +197,10 @@ of `COMMIT`, `REVEAL`, `FINALIZED`, `APPEALED`, `APPEAL_COMMIT`,
 | `SLASH_BPS`                  |     `1000` |
 
 ### Key Functions
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Function          | Caller               | Purpose                                                           |
 | ----------------- | -------------------- | ----------------------------------------------------------------- |
@@ -152,6 +216,10 @@ of `COMMIT`, `REVEAL`, `FINALIZED`, `APPEALED`, `APPEAL_COMMIT`,
 Read [Arbitration](ARBITRATION.md) for the full dispute flow.
 
 ## JurorRegistry
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 `JurorRegistry` stores juror stake and eligibility. Only `Arbitration` can lock,
 unlock, or slash jurors.
@@ -172,6 +240,10 @@ reputation at least `20`, and no active cooldown.
 
 ## ReputationRegistry
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 `ReputationRegistry` stores ratings submitted through `TrustLedger`.
 
 | Function         | Purpose                                             |
@@ -185,6 +257,10 @@ debt is pending advance recovery progress. Every three qualifying recovery
 scores clear one pending recovery and add a synthetic `50` score.
 
 ## Interfaces
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The source includes interfaces under `contracts/src/interfaces/` for
 cross-contract calls:

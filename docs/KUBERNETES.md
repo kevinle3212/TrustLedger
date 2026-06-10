@@ -1,5 +1,22 @@
 # Kubernetes
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Files](#files)
+- [Build Image](#build-image)
+- [Configure](#configure)
+- [Preview And Apply](#preview-and-apply)
+- [Rust Admin API](#rust-admin-api)
+- [Reproducibility Notes](#reproducibility-notes)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -7,6 +24,10 @@ TrustLedger includes a Kubernetes base for running the production Next.js
 frontend alongside the Docker image in `docker/Dockerfile.frontend`.
 
 ## Files
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | File                      | Purpose                                                                 |
 | ------------------------- | ----------------------------------------------------------------------- |
@@ -21,6 +42,10 @@ frontend alongside the Docker image in `docker/Dockerfile.frontend`.
 | `k8s/kustomization.yaml`  | Reproducible base that ties the manifests together.                     |
 
 ## Build Image
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Build the same standalone frontend image used by Kubernetes:
 
@@ -40,6 +65,10 @@ For a remote cluster, push the image to the registry configured in
 `k8s/kustomization.yaml`.
 
 ## Configure
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Use an overlay, Helm values, or deployment automation to set non-secret public
 values such as chain addresses, deploy blocks, app URLs, repository URL, and
@@ -84,6 +113,10 @@ kubectl -n trustledger create secret generic trustledger-frontend-secrets \
 
 ## Preview And Apply
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Render the exact manifests before applying:
 
 ```bash
@@ -123,6 +156,10 @@ notification, cron, oracle, and app URL checks.
 
 ## Rust Admin API
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The optional Rust companion service has its own base in `infra/rust-admin-api`.
 It is not part of the frontend Kustomize base so operators can deploy it only
 when they need the extra backend surface.
@@ -143,6 +180,10 @@ curl -H "Authorization: Bearer $TRUSTLEDGER_ADMIN_API_TOKEN" \
 ```
 
 ## Reproducibility Notes
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 - The container uses Node `22.22.3` by default and can be rebuilt with
   `--build-arg NODE_VERSION=<version>` for controlled upgrades.

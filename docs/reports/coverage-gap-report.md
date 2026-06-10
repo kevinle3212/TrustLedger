@@ -1,11 +1,30 @@
 # Coverage Gap Report
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Current Evidence](#current-evidence)
+- [Known Critical Gaps](#known-critical-gaps)
+- [Implemented In This Change](#implemented-in-this-change)
+- [Recommended Future Tests](#recommended-future-tests)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
 Date: 2026-06-09
 
 ## Current Evidence
+
+<!-- docs-section-nav:start -->
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 - Frontend unit tests exist under `src/tests/unit/`.
 - Frontend Playwright tests exist under `src/tests/public-routes.spec.ts`.
@@ -34,6 +53,10 @@ the future gaps below remain useful hardening work before mainnet.
 
 ## Known Critical Gaps
 
+<!-- docs-section-nav:start -->
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 | Area                    | Gaps                                                                                                                                                                                              |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Frontend components     | Full dashboard, create, acceptance, arbitration, juror, wallet, and error-boundary coverage is incomplete.                                                                                        |
@@ -49,6 +72,10 @@ the future gaps below remain useful hardening work before mainnet.
 
 ## Implemented In This Change
 
+<!-- docs-section-nav:start -->
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 - `src/services/oracle.ts` unit tests for symbol validation, provider parsing,
   cache reuse, stale fallback, and malformed payload rejection.
 - `src/services/health.ts` unit tests for healthy config, missing required
@@ -61,6 +88,10 @@ the future gaps below remain useful hardening work before mainnet.
   Library tests for direct phase selection and CTA-driven phase advancement.
 
 ## Recommended Future Tests
+
+<!-- docs-section-nav:start -->
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 - Add API route tests for `/api/oracle/rates`.
 - Add Jest tests for notification route authorization and cron recipient

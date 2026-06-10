@@ -167,7 +167,7 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 						{copied ? <CheckIcon /> : <CopyIcon />}
 					</button>
 				</div>
-				<div className="pointer-events-none absolute right-0 top-full z-50 mt-2 w-52 translate-y-1 opacity-0 transition duration-150 ease-out group-hover/wallet:pointer-events-auto group-hover/wallet:translate-y-0 group-hover/wallet:opacity-100 group-focus-within/wallet:pointer-events-auto group-focus-within/wallet:translate-y-0 group-focus-within/wallet:opacity-100">
+				<div className="pointer-events-none absolute right-0 top-full z-50 mt-2 w-60 translate-y-1 opacity-0 transition duration-150 ease-out group-hover/wallet:pointer-events-auto group-hover/wallet:translate-y-0 group-hover/wallet:opacity-100 group-focus-within/wallet:pointer-events-auto group-focus-within/wallet:translate-y-0 group-focus-within/wallet:opacity-100">
 					<div className="rounded-xl border border-gray-200 bg-white p-2 text-gray-900 shadow-lg shadow-gray-950/10 dark:border-white/10 dark:bg-gray-950 dark:text-white">
 						<Link
 							href="/analytics"
@@ -176,8 +176,22 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 							<span>{t("analytics")}</span>
 							<span aria-hidden="true">→</span>
 						</Link>
+						<Link
+							href="/account"
+							className="tl-button-motion flex min-h-10 items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:bg-white/10"
+						>
+							<span>{t("account")}</span>
+							<span aria-hidden="true">→</span>
+						</Link>
+						<Link
+							href="/status"
+							className="tl-button-motion flex min-h-10 items-center justify-between rounded-lg px-3 py-2 text-sm font-semibold hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:hover:bg-white/10"
+						>
+							<span>{t("status")}</span>
+							<span aria-hidden="true">→</span>
+						</Link>
 						<p className="px-3 pb-2 pt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
-							{t("analyticsHint")}
+							{t("walletMenuHint")}
 						</p>
 					</div>
 				</div>

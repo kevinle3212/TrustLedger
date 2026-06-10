@@ -1,63 +1,212 @@
-// Central email service. Wraps Resend so every outbound email — magic links and
-// contract-lifecycle notifications alike — flows through one place with a shared
-// HTML shell, consistent error handling, and a single point to swap providers
-// later (see the Phase 6 TODO on evaluating SendGrid/Mailgun/Postmark).
-//
-// All functions are server-only: they read RESEND_API_KEY at call time and must
-// never be imported into a client component (doing so would leak the key into the
-// browser bundle). Import these from API routes and other server modules only.
+// Central email service. Every outbound email - magic links and contract
+// lifecycle notifications alike - flows through this provider abstraction with
+// a shared HTML shell and one server-only integration boundary.
 
 import { Resend } from "resend";
 
 /** Brand accent shared with the rest of the UI (indigo-500). */
 const ACCENT = "#6366f1";
 
-/** Result of an email send. Discriminated on `ok` so callers can branch safely. */
-export type EmailResult = { ok: true } | { ok: false; error: string };
+const DEFAULT_FROM = "TrustLedger <noreply@trustledger.app>";
+const MAX_RECIPIENTS = 5;
 
-/** A single outbound email. `html` is the fully-rendered body (see {@link emailShell}). */
+type EmailProvider = "resend" | "brevo" | "postmark" | "log";
+
+/** Result of an email send. Discriminated on `ok` so callers can branch safely. */
+export type EmailResult =
+	| { ok: true; provider: EmailProvider; sent: number }
+	| { ok: false; error: string; provider: EmailProvider };
+
+/** A single outbound email. `html` is the fully rendered body. */
 export interface OutgoingEmail {
-	to: string;
+	to: string | readonly string[];
 	subject: string;
 	html: string;
 }
 
-/**
- * Send one email through Resend.
- *
- * Reads configuration from the environment so callers never handle secrets:
- *   - `RESEND_API_KEY` — required; the call fails cleanly if it is unset.
- *   - `RESEND_FROM`    — optional sender override; defaults to the TrustLedger noreply.
- *
- * Never throws: transport and configuration problems are returned as
- * `{ ok: false, error }` so API routes can map them to an HTTP status.
- *
- * @example
- * const res = await sendEmail({ to, subject: "Hi", html: "<p>Hello</p>" });
- * if (!res.ok) return NextResponse.json({ error: res.error }, { status: 502 });
- */
-export async function sendEmail(email: OutgoingEmail): Promise<EmailResult> {
-	const apiKey = process.env["RESEND_API_KEY"];
-	const from = process.env["RESEND_FROM"] ?? "TrustLedger <noreply@trustledger.app>";
+interface ProviderConfig {
+	readonly provider: EmailProvider;
+	readonly from: string;
+}
 
-	if (apiKey === undefined || apiKey === "") {
-		return { ok: false, error: "RESEND_API_KEY not set" };
+function parseProvider(raw: string | undefined): EmailProvider {
+	const value = raw?.trim().toLowerCase();
+	if (value === "brevo" || value === "postmark" || value === "log") return value;
+	return "resend";
+}
+
+function providerConfig(): ProviderConfig {
+	return {
+		provider: parseProvider(process.env["EMAIL_PROVIDER"]),
+		from:
+			process.env["EMAIL_FROM"] ??
+			process.env["RESEND_FROM"] ??
+			process.env["POSTMARK_FROM"] ??
+			process.env["BREVO_FROM"] ??
+			DEFAULT_FROM,
+	};
+}
+
+function normalizeRecipients(to: string | readonly string[]): string[] {
+	const raw: readonly string[] = typeof to === "string" ? to.split(/[;,]/u) : to;
+	const seen = new Set<string>();
+	const recipients: string[] = [];
+	for (const candidate of raw) {
+		const trimmed = candidate.trim();
+		if (trimmed === "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(trimmed)) continue;
+		const key = trimmed.toLowerCase();
+		if (seen.has(key)) continue;
+		seen.add(key);
+		recipients.push(trimmed);
 	}
+	return recipients.slice(0, MAX_RECIPIENTS);
+}
+
+function missing(name: string, provider: EmailProvider): EmailResult {
+	return { ok: false, provider, error: `${name} not set` };
+}
+
+async function sendResend(
+	email: OutgoingEmail,
+	recipients: readonly string[],
+	from: string,
+): Promise<EmailResult> {
+	const apiKey = process.env["RESEND_API_KEY"];
+	if (apiKey === undefined || apiKey === "") return missing("RESEND_API_KEY", "resend");
 
 	try {
 		const resend = new Resend(apiKey);
-		const { error } = await resend.emails.send({
-			from,
-			to: email.to,
-			subject: email.subject,
-			html: email.html,
-		});
-		if (error !== null) return { ok: false, error: error.message };
-		return { ok: true };
+		const results = await Promise.all(
+			recipients.map(async (recipient) => {
+				await Promise.resolve();
+				return await resend.emails.send({
+					from,
+					to: recipient,
+					subject: email.subject,
+					html: email.html,
+				});
+			}),
+		);
+		const failed = results.find(({ error }) => error !== null);
+		if (failed?.error !== null && failed?.error !== undefined) {
+			return { ok: false, provider: "resend", error: failed.error.message };
+		}
+		return { ok: true, provider: "resend", sent: recipients.length };
 	} catch (err) {
-		// Network failures and unexpected SDK errors land here rather than crashing the route.
-		return { ok: false, error: err instanceof Error ? err.message : "email send failed" };
+		return { ok: false, provider: "resend", error: emailError(err) };
 	}
+}
+
+async function postJson(
+	url: string,
+	headers: Readonly<Record<string, string>>,
+	body: object,
+): Promise<string | null> {
+	const response = await fetch(url, {
+		method: "POST",
+		headers: { "content-type": "application/json", ...headers },
+		body: JSON.stringify(body),
+	});
+	if (response.ok) return null;
+	const text = await response.text();
+	return text === "" ? response.statusText : text;
+}
+
+async function sendBrevo(
+	email: OutgoingEmail,
+	recipients: readonly string[],
+	from: string,
+): Promise<EmailResult> {
+	const apiKey = process.env["BREVO_API_KEY"];
+	if (apiKey === undefined || apiKey === "") return missing("BREVO_API_KEY", "brevo");
+	const senderEmail = /<([^>]+)>/u.exec(from)?.[1] ?? from;
+	const senderName = from.includes("<") ? from.split("<")[0]?.trim() : "TrustLedger";
+
+	try {
+		const errors = await Promise.all(
+			recipients.map(async (recipient) => {
+				await Promise.resolve();
+				return await postJson(
+					"https://api.brevo.com/v3/smtp/email",
+					{ "api-key": apiKey },
+					{
+						sender: { name: senderName, email: senderEmail },
+						to: [{ email: recipient }],
+						subject: email.subject,
+						htmlContent: email.html,
+					},
+				);
+			}),
+		);
+		const error = errors.find((result): result is string => result !== null);
+		if (error !== undefined) return { ok: false, provider: "brevo", error };
+		return { ok: true, provider: "brevo", sent: recipients.length };
+	} catch (err) {
+		return { ok: false, provider: "brevo", error: emailError(err) };
+	}
+}
+
+async function sendPostmark(
+	email: OutgoingEmail,
+	recipients: readonly string[],
+	from: string,
+): Promise<EmailResult> {
+	const token = process.env["POSTMARK_SERVER_TOKEN"];
+	if (token === undefined || token === "") return missing("POSTMARK_SERVER_TOKEN", "postmark");
+
+	try {
+		const errors = await Promise.all(
+			recipients.map(async (recipient) => {
+				await Promise.resolve();
+				return await postJson(
+					"https://api.postmarkapp.com/email",
+					{
+						"X-Postmark-Server-Token": token,
+						"Accept": "application/json",
+					},
+					{
+						From: from,
+						To: recipient,
+						Subject: email.subject,
+						HtmlBody: email.html,
+						MessageStream: process.env["POSTMARK_MESSAGE_STREAM"] ?? "outbound",
+					},
+				);
+			}),
+		);
+		const error = errors.find((result): result is string => result !== null);
+		if (error !== undefined) return { ok: false, provider: "postmark", error };
+		return { ok: true, provider: "postmark", sent: recipients.length };
+	} catch (err) {
+		return { ok: false, provider: "postmark", error: emailError(err) };
+	}
+}
+
+function emailError(err: unknown): string {
+	return err instanceof Error ? err.message : "email send failed";
+}
+
+/**
+ * Send one email through the configured provider.
+ *
+ * Environment:
+ * - `EMAIL_PROVIDER`: `resend`, `brevo`, `postmark`, or `log`.
+ * - `EMAIL_FROM`: provider-agnostic sender override.
+ * - Provider credentials stay server-side only.
+ */
+export async function sendEmail(email: OutgoingEmail): Promise<EmailResult> {
+	const recipients = normalizeRecipients(email.to);
+	const config = providerConfig();
+	if (recipients.length === 0) {
+		return { ok: false, provider: config.provider, error: "valid recipient email required" };
+	}
+
+	if (config.provider === "log") {
+		return { ok: true, provider: "log", sent: recipients.length };
+	}
+	if (config.provider === "brevo") return await sendBrevo(email, recipients, config.from);
+	if (config.provider === "postmark") return await sendPostmark(email, recipients, config.from);
+	return await sendResend(email, recipients, config.from);
 }
 
 /** An optional call-to-action button rendered at the bottom of an email. */
@@ -66,17 +215,6 @@ export interface EmailCta {
 	href: string;
 }
 
-/**
- * Wrap body content in the shared TrustLedger email layout (dark card, brand
- * accent, optional CTA button, and a muted footer). Centralising the chrome here
- * keeps every notification visually consistent and avoids duplicating the inline
- * styles that email clients require.
- *
- * @param title   Heading shown at the top of the card.
- * @param bodyHtml Inner HTML (already escaped/trusted) describing the event.
- * @param cta     Optional primary button.
- * @param footer  Optional small print under the CTA; defaults to a generic notice.
- */
 export function emailShell(
 	title: string,
 	bodyHtml: string,

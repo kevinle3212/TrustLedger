@@ -20,6 +20,46 @@ might benefit from. Keep private or unpolished jotting in `NOTES.local.md`
 
 ## Research and Ideas
 
+### Phase 4 AI Summary Hosting Plan (2026-06-10)
+
+Relevant to Phase 4 Item 1: AI-generated contract and status summaries.
+
+**Recommendation:** start with a managed inference API for Phase 4, not a
+self-hosted Llama deployment. Use a provider abstraction so TrustLedger can move
+between Google Gemini, Groq-hosted Llama, Cloudflare Workers AI, or a future
+self-hosted Llama endpoint without changing dashboard components.
+
+| Option | Best Fit | Main Trade-Off |
+| ------ | -------- | -------------- |
+| Google Gemini API / Vertex AI | Fastest implementation, strong long-context summarization, managed operations. | Free-tier data-use terms and paid-tier billing need review before real contract data. |
+| Groq-hosted Llama | Low-latency Llama summaries without GPU operations. | Organization-level rate limits require dashboard checks and fallback handling. |
+| Cloudflare Workers AI | Good if the backend moves toward Cloudflare edge infrastructure. | Free allocation is small; production usage likely needs Workers Paid. |
+| Self-hosted Llama on GPU host | Maximum control over retention, prompts, and model routing. | Highest operational burden: GPU cold starts, autoscaling, monitoring, patching, model security, and evals. |
+| RunPod/serverless GPU host | More control than managed APIs with scale-to-zero economics. | Still requires container hardening, queueing, cost controls, and fallback behavior. |
+
+**Decision for Phase 4 Item 1:** implement the service boundary first:
+
+1. Add a server-only `src/services/contractSummary.ts` abstraction.
+2. Store provider credentials only in deployment secrets.
+3. Send the minimum required contract fields; never send raw encrypted
+   documents, private keys, seed phrases, session keys, or unrelated wallet
+   history.
+4. Cache summaries by contract ID, contract hash, status, and source metadata
+   version to avoid repeated model calls.
+5. Use managed inference for the first production-quality version. Prefer Groq
+   Llama or paid Gemini with training/data-use controls enabled. Revisit
+   self-hosting only after sustained usage justifies GPU operations.
+6. Add provider latency, error, and cost metrics to the monitoring dashboard
+   before enabling summaries broadly.
+
+Sources reviewed on 2026-06-10:
+
+- [Google Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Google Cloud Vertex AI Generative AI Pricing](https://cloud.google.com/vertex-ai/generative-ai/pricing)
+- [Groq Rate Limits](https://console.groq.com/docs/rate-limits)
+- [Cloudflare Workers AI Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/)
+- [RunPod Serverless Pricing](https://www.runpod.io/pricing)
+
 ### Free-Tier API Provider Survey (2026-06-06)
 
 > Free tiers change frequently — verify limits against official pricing pages

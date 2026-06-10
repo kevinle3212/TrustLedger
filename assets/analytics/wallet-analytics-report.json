@@ -1,0 +1,62 @@
+{
+  "libraries": {
+    "bokeh": "dashboard-ready browser visualization specs",
+    "matplotlib": "deterministic SVG rendering",
+    "numpy": "vectorized status arrays",
+    "pandas": "tabular contract-state frames",
+    "plotly": "interactive frontend-ready chart specs",
+    "scipy": "entropy, z-score, and trend statistics",
+    "seaborn": "accessible statistical color palettes",
+    "sympy": "exact completion-rate arithmetic"
+  },
+  "metrics": {
+    "activityTrendSlope": 0.0857,
+    "completionRatePct": 52.17,
+    "maxStatusZScore": 1.838,
+    "privacyScore": 94,
+    "reputation": 4.5,
+    "stateEntropyBits": 2.3338,
+    "visibleContracts": 23
+  },
+  "privacyBoundary": [
+    "No private keys",
+    "No seed phrases",
+    "No emails",
+    "No raw documents",
+    "No encrypted draft bodies",
+    "No traffic tracking without explicit instrumentation"
+  ],
+  "rows": [
+    {
+      "contracts": 2,
+      "sharePct": 8.7,
+      "status": "Pending"
+    },
+    {
+      "contracts": 5,
+      "sharePct": 21.74,
+      "status": "Active"
+    },
+    {
+      "contracts": 3,
+      "sharePct": 13.04,
+      "status": "Submitted"
+    },
+    {
+      "contracts": 8,
+      "sharePct": 34.78,
+      "status": "Approved"
+    },
+    {
+      "contracts": 1,
+      "sharePct": 4.35,
+      "status": "Disputed"
+    },
+    {
+      "contracts": 4,
+      "sharePct": 17.39,
+      "status": "Resolved"
+    }
+  ],
+  "title": "TrustLedger Wallet Analytics Scientific Report"
+}

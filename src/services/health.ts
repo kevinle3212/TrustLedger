@@ -41,6 +41,19 @@ function checkPublicAppUrl(): HealthCheck {
 	}
 }
 
+function checkPrivacyAnalytics(): HealthCheck {
+	const enabled = process.env["TRUSTLEDGER_ANALYTICS_ENABLED"] === "true";
+	const publicEnabled = process.env["NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED"] === "true";
+	return {
+		name: "privacy-analytics",
+		ok: enabled === publicEnabled,
+		detail:
+			enabled === publicEnabled
+				? `Privacy analytics ${enabled ? "enabled" : "disabled"}.`
+				: "TRUSTLEDGER_ANALYTICS_ENABLED and NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED disagree.",
+	};
+}
+
 export function buildRuntimeHealthReport(): HealthReport {
 	return {
 		ok: true,
@@ -86,6 +99,7 @@ export function buildHealthReport(): HealthReport {
 				process.env.ORACLE_PRICE_SOURCE_URL ??
 				"https://api.coingecko.com/api/v3/simple/price",
 		},
+		checkPrivacyAnalytics(),
 		checkPublicAppUrl(),
 	];
 

@@ -178,7 +178,9 @@
 		"dispute": "Tranh Chấp",
 		"reclaimDeadline": "Thu Hồi (Quá Hạn Chót)",
 		"releaseAfterWindow": "Giải Phóng Sau Cửa Sổ",
-		"claimWarrantyFunds": "Nhận Tiền Bảo Hành"
+		"claimWarrantyFunds": "Nhận Tiền Bảo Hành",
+		"aiSummary": "AI Summary",
+		"aiSummaryLoading": "Summarizing public contract state..."
 	},
 	"Create": {
 		"connectWallet": "Kết nối ví của bạn để đề xuất hợp đồng.",
@@ -486,7 +488,10 @@
 		"highContrastOn": "Tương phản cao: bật",
 		"highContrastOff": "Tương phản cao: tắt",
 		"analytics": "Analytics",
-		"analyticsHint": "View wallet-safe stats and public contract metrics."
+		"analyticsHint": "View wallet-safe stats and public contract metrics.",
+		"account": "Account",
+		"status": "Status",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
 	},
 	"Decrypt": {
 		"title": "Giải mã tài liệu AES-256-GCM",

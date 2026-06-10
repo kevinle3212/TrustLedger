@@ -1,5 +1,21 @@
 # Presentation Notes
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Problem](#problem)
+- [Implemented System](#implemented-system)
+- [Current Deployment Story](#current-deployment-story)
+- [Technical References](#technical-references)
+- [Social Slide](#social-slide)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,12 +24,20 @@ talks or demos, not as the canonical technical reference.
 
 ## Problem
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Freelance work often requires one party to trust the other before payment or
 delivery is complete. TrustLedger puts escrow, work submission, dispute
 resolution, and reputation updates on-chain so participants can follow a
 deterministic process.
 
 ## Implemented System
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 TrustLedger includes:
 
@@ -31,11 +55,19 @@ TrustLedger includes:
 
 ## Current Deployment Story
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The source-supported automated deployment target is Ethereum Sepolia. Config
 also includes Arbitrum One, Base, and Optimism. Arbitrum Sepolia is not
 configured in source as of 2026-06-08.
 
 ## Technical References
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 - [Architecture](ARCHITECTURE.md)
 - [Frontend](FRONTEND.md)
@@ -45,6 +77,10 @@ configured in source as of 2026-06-08.
 - [Deployment](DEPLOYMENT.md)
 
 ## Social Slide
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The one-slide social PDF lives at
 [`assets/presentation/trustledger-one-slide.pdf`](https://github.com/kevinle3212/TrustLedger/blob/main/assets/presentation/trustledger-one-slide.pdf).

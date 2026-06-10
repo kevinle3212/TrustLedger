@@ -1,5 +1,26 @@
 # Deployment
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Network Status](#network-status)
+- [Prerequisites](#prerequisites)
+- [Local Hardhat Deployment](#local-hardhat-deployment)
+- [Ethereum Sepolia Deployment With Foundry](#ethereum-sepolia-deployment-with-foundry)
+- [Ethereum Sepolia Deployment With Hardhat](#ethereum-sepolia-deployment-with-hardhat)
+- [GitHub Actions Deployment](#github-actions-deployment)
+- [Frontend Address Sync](#frontend-address-sync)
+- [Production Frontend URL](#production-frontend-url)
+- [Container Frontend Deployment](#container-frontend-deployment)
+- [Verification Notes](#verification-notes)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,6 +29,10 @@ and as a containerized frontend with the current Foundry, Hardhat, GitHub
 Actions, Docker, and Kubernetes files.
 
 ## Network Status
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Network          |   Chain ID | Deployment Support                                        |
 | ---------------- | ---------: | --------------------------------------------------------- |
@@ -20,6 +45,10 @@ Actions, Docker, and Kubernetes files.
 > **TODO:** Arbitrum Sepolia is not configured in source as of 2026-06-08.
 
 ## Prerequisites
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Create `.env` from `.env.example` and fill the variables needed for your target.
 Read [Environment](ENVIRONMENT.md) for the full matrix.
@@ -42,6 +71,10 @@ VERCEL_PROJECT_ID=
 
 ## Local Hardhat Deployment
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Start a local chain:
 
 ```bash
@@ -59,6 +92,10 @@ chain `31337`, it also runs `scripts/sync-frontend-env.ts`, which writes
 `src/.env.local` with contract addresses.
 
 ## Ethereum Sepolia Deployment With Foundry
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Run a dry run first:
 
@@ -88,6 +125,10 @@ dependencies match the final addresses. After deployment, it calls
 
 ## Ethereum Sepolia Deployment With Hardhat
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Compile first:
 
 ```bash
@@ -106,6 +147,10 @@ deployment workflow.
 
 ## GitHub Actions Deployment
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 `.github/workflows/deploy.yml` is manual-only through `workflow_dispatch`. It is
 named `Deploy (Ethereum Sepolia)` and uses environment `ethereum-sepolia`.
 
@@ -123,6 +168,10 @@ The workflow:
 
 ## Frontend Address Sync
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 For local Hardhat deployments, use:
 
 ```bash
@@ -135,12 +184,20 @@ names.
 
 ## Production Frontend URL
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Use `https://trustledger-zeta.vercel.app/en` as the canonical production
 frontend URL for manual checks, documentation references, and agent runs. Do not
 reintroduce the previous `src-trustledger.vercel.app` hostname unless historical
 deployment context is explicitly needed.
 
 ## Container Frontend Deployment
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Build the standalone frontend image:
 
@@ -172,6 +229,10 @@ repository root from the nested `src/` app causes Vercel to look for duplicated
 paths such as `/vercel/path0/path0/.next/*` during packaging.
 
 ## Verification Notes
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Foundry verification uses the `[etherscan]` entries in `contracts/foundry.toml`.
 Hardhat verification uses the `etherscan.apiKey` map in `hardhat.config.ts`.

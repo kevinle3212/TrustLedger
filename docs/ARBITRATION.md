@@ -1,5 +1,26 @@
 # Arbitration
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Dispute Phases](#dispute-phases)
+- [Opening A Dispute](#opening-a-dispute)
+- [Juror Selection](#juror-selection)
+- [Commit-Reveal Voting](#commit-reveal-voting)
+- [Evidence Submission](#evidence-submission)
+- [Juror Interface](#juror-interface)
+- [Ruling Execution](#ruling-execution)
+- [Appeals](#appeals)
+- [Rewards And Slashing](#rewards-and-slashing)
+- [Timing Constants](#timing-constants)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,6 +29,10 @@ This document explains the arbitration system in `Arbitration.sol` and
 incentives, or appeal behavior.
 
 ## Dispute Phases
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Phase              | Meaning                                                            |
 | ------------------ | ------------------------------------------------------------------ |
@@ -20,6 +45,10 @@ incentives, or appeal behavior.
 | `APPEAL_FINALIZED` | The appeal has a final ruling.                                     |
 
 ## Opening A Dispute
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Only `TrustLedger` can call `openDispute`. It passes the escrow ID, client
 address, freelancer address, and juror fee pool. The dispute stores the original
@@ -34,6 +63,10 @@ is not configured, the contract derives a seed from `block.prevrandao`,
 > randomness oracle.
 
 ## Juror Selection
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The selector iterates over `JurorRegistry.getJurorList()` with a partial
 shuffle. It excludes:
@@ -50,6 +83,10 @@ dispute lock, sufficient reputation, and no active cooldown.
 
 ## Commit-Reveal Voting
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Jurors first call `commitVote` with:
 
 ```solidity
@@ -65,6 +102,10 @@ juror threshold has committed. Anyone can call `finalizeDispute` after the
 reveal deadline.
 
 ## Evidence Submission
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Clients and freelancers can call `submitEvidence` while a dispute exists. Each
 evidence record stores:
@@ -90,6 +131,10 @@ wipe the user's text.
 
 ## Juror Interface
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The juror page reads `nextDisputeId`, scans the recent dispute window, filters
 for disputes whose selected committee includes the connected wallet, and shows a
 work queue with:
@@ -107,6 +152,10 @@ replace it later without changing the contract interface.
 
 ## Ruling Execution
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The final completion percentage is passed back into `TrustLedger.executeRuling`.
 Edge cases are direct:
 
@@ -120,6 +169,10 @@ ETH, so the ERC-20 payout calculation uses the escrowed ERC-20 amount.
 
 ## Appeals
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 After an original dispute is finalized, the client or freelancer can appeal
 during `APPEAL_WINDOW`, which is `72 hours`. The caller must post a bond of at
 least `15000` basis points of the fee pool, or 1.5 times the fee pool.
@@ -131,12 +184,20 @@ escrow.
 
 ## Rewards And Slashing
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Majority jurors claim an equal share of the fee pool with `claimReward`. Jurors
 in the minority are slashed during finalization. Severe minority outliers can
 receive a larger slash. Slashed amounts accumulate in the arbitration contract's
 slashed pool.
 
 ## Timing Constants
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Constant             |                  Value |
 | -------------------- | ---------------------: |

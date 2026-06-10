@@ -1,5 +1,21 @@
 # Legal And Compliance
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Public Surfaces](#public-surfaces)
+- [Draft Legal Document Inventory](#draft-legal-document-inventory)
+- [Agent Review Rule](#agent-review-rule)
+- [Translation Workflow](#translation-workflow)
+- [Jurisdiction Note](#jurisdiction-note)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -9,6 +25,10 @@ engineering, documentation, and website changes stay synchronized.
 
 ## Public Surfaces
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 | Surface            | Purpose                                                               |
 | ------------------ | --------------------------------------------------------------------- |
 | `SECURITY.md`      | Responsible disclosure, supported security scope, and reporting path. |
@@ -16,6 +36,10 @@ engineering, documentation, and website changes stay synchronized.
 | `/[locale]/legal`  | Website legal center and publication index.                           |
 
 ## Draft Legal Document Inventory
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The following root markdown files may require review when product behavior,
 payments, wallet flows, arbitration, privacy, content handling, or compliance
@@ -36,11 +60,19 @@ posture changes:
 
 ## Agent Review Rule
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Use `.sixth/skills/legal-compliance/SKILL.md` for any legal or
 compliance-sensitive change. Do not edit root legal draft files unless the
 active user request explicitly authorizes edits to those files.
 
 ## Translation Workflow
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The frontend helper `src/helpers/legal-docs.ts` lists legal documents, supported
 locales, source files, and translation status. It also exposes a constrained
@@ -49,6 +81,10 @@ defined terms, links, and Markdown structure. Machine-assisted translations
 should remain marked as needing review until a qualified reviewer approves them.
 
 ## Jurisdiction Note
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 A single SaaS policy set can provide a global baseline, but it cannot reliably
 account for every territory, state, province, nation, regulator, and local

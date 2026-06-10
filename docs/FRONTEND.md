@@ -1,5 +1,31 @@
 # Frontend
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Stack](#stack)
+- [Commands](#commands)
+- [Wallet Configuration](#wallet-configuration)
+- [Contract Addresses](#contract-addresses)
+- [Files And Storage](#files-and-storage)
+- [Live Contract Draft Collaboration](#live-contract-draft-collaboration)
+- [Email And Notifications](#email-and-notifications)
+- [Privacy Analytics](#privacy-analytics)
+- [Oracle Routes](#oracle-routes)
+- [Solana Helpers](#solana-helpers)
+- [Legal Localization Helpers](#legal-localization-helpers)
+- [Internationalization](#internationalization)
+- [Styling And Motion](#styling-and-motion)
+- [FAQ And Recovery Routes](#faq-and-recovery-routes)
+- [Deployment](#deployment)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,6 +34,10 @@ wallet connection, contract calls, API routes, email flows, file handling, or
 frontend deployment.
 
 ## Stack
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | Tool         | Version Source     | Purpose                              |
 | ------------ | ------------------ | ------------------------------------ |
@@ -23,6 +53,10 @@ frontend deployment.
 | Playwright   | `src/package.json` | E2E browser tests.                   |
 
 ## Commands
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Run frontend commands from `src/`.
 
@@ -41,6 +75,10 @@ Run frontend commands from `src/`.
 
 ## Wallet Configuration
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 `src/lib/wagmi.ts` configures Reown AppKit and wagmi. Supported frontend
 networks are:
 
@@ -57,6 +95,10 @@ and QR flows can fail.
 
 ## Contract Addresses
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The frontend reads default and network-specific deployment variables from
 `src/lib/wagmi.ts`. Run `npm run sync:frontend:env` after a local deploy to
 write local addresses into `src/.env.local`. The Sepolia GitHub deployment
@@ -66,6 +108,10 @@ Read [Environment](ENVIRONMENT.md) for the full address variable list.
 
 ## Files And Storage
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The frontend includes client-side encryption helpers in `src/lib/encryption.ts`.
 The encryption format uses AES-256-GCM with PBKDF2-SHA256 and stores versioned
 JSON metadata with salt, IV, and ciphertext.
@@ -74,6 +120,10 @@ IPFS upload support depends on `NEXT_PUBLIC_PINATA_JWT`. Legacy Pinata API key
 variables exist in `.env.example`, but current source does not consume them.
 
 ## Live Contract Draft Collaboration
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The create-contract page supports encrypted draft sharing before deployment.
 `SecureDraftSessionPanel.tsx` lets parties write terms in Markdown, HTML, or
@@ -104,8 +154,16 @@ allowlist checks intact.
 
 ## Email And Notifications
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Magic links use HMAC-SHA256 tokens from `src/lib/magicLink.ts`. Email delivery
-uses Resend through `src/services/email.ts`.
+uses the provider abstraction in `src/services/email.ts`. Supported providers
+are Resend, Brevo, Postmark, and a local-only `log` provider for development
+testing. Magic-link recipients can be a comma- or semicolon-separated list for
+limited multi-recipient test flows; the service de-duplicates recipients and
+caps each send at five addresses.
 
 The notification service supports contract offer, work submitted, approval,
 dispute, dispute resolution, rating, and deadline reminder messages. Deadline
@@ -117,7 +175,28 @@ reminders are scheduled by `src/vercel.json` at:
 
 The cron endpoint is `/api/cron/deadline-reminders`.
 
+## Privacy Analytics
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
+`src/components/PrivacyAnalytics.tsx` sends page-view and frontend-error beacons
+only when `NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED=true`. The matching server
+collector at `/api/analytics/events` also requires
+`TRUSTLEDGER_ANALYTICS_ENABLED=true`, so accidental client-side enablement does
+not collect events by itself.
+
+The collector is intentionally aggregate-only: it stores no cookies, wallet
+addresses, raw IP addresses, user agents, query strings, emails, raw documents,
+encrypted draft bodies, or session keys. It honors Do Not Track and Global
+Privacy Control headers.
+
 ## Oracle Routes
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The frontend package exposes display-rate oracle routes:
 
@@ -131,12 +210,20 @@ on-chain oracle consumption.
 
 ## Solana Helpers
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 `src/helpers/solana.ts` records the current Solana decision:
 native-program-first support. It provides cluster defaults, Explorer URL
 construction, and conservative public-key shape checks. Read
 [Solana Support](SOLANA.md) before adding wallet or transaction code.
 
 ## Legal Localization Helpers
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 `src/helpers/legal-docs.ts` is the registry for legal document metadata. It
 tracks source files, supported locales, translation status, and a constrained
@@ -146,10 +233,18 @@ and prevent accidental changes to legal meaning.
 
 ## Internationalization
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The frontend uses `next-intl`. Keep user-visible strings in the established
 message structure and verify locale routing before moving text into components.
 
 ## Styling And Motion
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Global styling lives in `src/app/globals.scss` and imports Tailwind v4,
 `src/app/helpers.css`, and `src/app/app-desktop.scss`. The helper layer owns
@@ -167,6 +262,10 @@ default and honor `prefers-reduced-motion`.
 
 ## FAQ And Recovery Routes
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 The product FAQ route is `app/[locale]/faq/page.tsx`. The custom 404 experience
 is implemented by `app/[locale]/not-found.tsx` for localized app routes and
 `app/not-found.tsx` for root-level fallback routes. Keep FAQ links available in
@@ -174,6 +273,10 @@ the top navigation and footer so users can recover from wallet, route, and
 transaction issues without leaving the app.
 
 ## Deployment
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The root `deploy.yml` workflow runs `vercel deploy --prod` from `src/` after
 writing contract address variables to Vercel. For local frontend-only

@@ -178,7 +178,9 @@
 		"dispute": "Disputar",
 		"reclaimDeadline": "Reclamar (Fecha Límite Vencida)",
 		"releaseAfterWindow": "Liberar Tras Ventana",
-		"claimWarrantyFunds": "Reclamar Fondos de Garantía"
+		"claimWarrantyFunds": "Reclamar Fondos de Garantía",
+		"aiSummary": "AI Summary",
+		"aiSummaryLoading": "Summarizing public contract state..."
 	},
 	"Create": {
 		"connectWallet": "Conecta tu billetera para proponer un contrato.",
@@ -486,7 +488,10 @@
 		"highContrastOn": "Alto contraste: activado",
 		"highContrastOff": "Alto contraste: desactivado",
 		"analytics": "Analytics",
-		"analyticsHint": "View wallet-safe stats and public contract metrics."
+		"analyticsHint": "View wallet-safe stats and public contract metrics.",
+		"account": "Account",
+		"status": "Status",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
 	},
 	"Decrypt": {
 		"title": "Descifrar documento AES-256-GCM",

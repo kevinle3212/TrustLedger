@@ -178,7 +178,9 @@
 		"dispute": "إنشاء نزاع",
 		"reclaimDeadline": "استرداد (تجاوز الموعد النهائي)",
 		"releaseAfterWindow": "إصدار بعد النافذة",
-		"claimWarrantyFunds": "المطالبة بأموال الضمان"
+		"claimWarrantyFunds": "المطالبة بأموال الضمان",
+		"aiSummary": "AI Summary",
+		"aiSummaryLoading": "Summarizing public contract state..."
 	},
 	"Create": {
 		"connectWallet": "اربط محفظتك لاقتراح عقد.",
@@ -486,7 +488,10 @@
 		"highContrastOn": "التباين العالي: مفعّل",
 		"highContrastOff": "التباين العالي: معطّل",
 		"analytics": "Analytics",
-		"analyticsHint": "View wallet-safe stats and public contract metrics."
+		"analyticsHint": "View wallet-safe stats and public contract metrics.",
+		"account": "Account",
+		"status": "Status",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
 	},
 	"Decrypt": {
 		"title": "فك تشفير مستند AES-256-GCM",

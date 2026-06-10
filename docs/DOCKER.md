@@ -1,5 +1,21 @@
 # Docker
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Files](#files)
+- [Root Compose Commands](#root-compose-commands)
+- [Development Compose](#development-compose)
+- [Direct Image Commands](#direct-image-commands)
+- [Notes](#notes)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -7,6 +23,10 @@ This document explains the Docker files included with TrustLedger. Read it when
 running demo, local-chain, or containerized test workflows.
 
 ## Files
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 | File                            | Purpose                                                                                                     |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -19,6 +39,10 @@ running demo, local-chain, or containerized test workflows.
 | `k8s/`                          | Kubernetes base for the production frontend image. See [Kubernetes](KUBERNETES.md).                         |
 
 ## Root Compose Commands
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Build the image:
 
@@ -76,6 +100,10 @@ npm run lint:k8s
 
 ## Development Compose
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Run the development compose file:
 
 ```bash
@@ -89,6 +117,10 @@ explicitly for workflows that need secrets, for example
 `docker compose --env-file .env -f docker/docker-compose.dev.yml up dev`.
 
 ## Direct Image Commands
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Build the root Docker image directly:
 
@@ -128,6 +160,10 @@ docker run --rm -p 3000:3000 trustledger-frontend
 ```
 
 ## Notes
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 The Dockerfiles pin Foundry to `v1.5.1`, matching the locally validated Forge
 toolchain. Override with `--build-arg FOUNDRY_TAG=<tag>` only when intentionally

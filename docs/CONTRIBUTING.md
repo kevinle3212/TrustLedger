@@ -1,5 +1,23 @@
 # Contributing
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+- [Setup](#setup)
+    - [Serena Dashboard](#serena-dashboard)
+- [Development Workflow](#development-workflow)
+- [Solidity Style](#solidity-style)
+- [TypeScript Style](#typescript-style)
+- [Markdown Style](#markdown-style)
+- [Documentation Ownership](#documentation-ownership)
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -7,6 +25,10 @@ This document explains how to set up the repository, make changes, and pass the
 required checks. Read it before opening a pull request.
 
 ## Setup
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Use the bootstrapper for a guided setup with selectable install groups:
 
@@ -40,6 +62,10 @@ Read [Environment](ENVIRONMENT.md) before filling secrets.
 
 ### Serena Dashboard
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Serena's dashboard remains enabled for local code navigation logs, but it should
 not open automatically on startup. Configure this globally in
 `~/.serena/serena_config.yml`:
@@ -56,6 +82,10 @@ as `24283` or `24284`.
 
 ## Development Workflow
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Use small branches and keep generated build output out of commits. The
 repository ignores normal build artifacts such as `artifacts/`,
 `contracts/out/`, `contracts/cache/`, `src/.next/`, and `src/node_modules/`. The
@@ -65,6 +95,8 @@ source pages in `docs/` instead.
 Before opening a PR, run the relevant checks:
 
 ```bash
+npm run secrets:check
+npm run docs:nav:check
 npm run logs:check
 npm run lint
 npm run foundry:test
@@ -79,6 +111,10 @@ command list.
 
 ## Solidity Style
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Solidity is checked by both Solhint and Foundry:
 
 ```bash
@@ -91,6 +127,10 @@ npm run lint:forge
 avoid changing logic when a task is only about documentation or NatSpec.
 
 ## TypeScript Style
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Root TypeScript covers Hardhat config, scripts, and tests:
 
@@ -107,15 +147,25 @@ npm run lint:frontend
 
 ## Markdown Style
 
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
+
 Run:
 
 ```bash
 npm run lint:md
+npm run docs:nav:check
 ```
 
 Use one H1 at the top of each file, ATX headings, fenced code blocks with
 language tags, no bare URLs, and prose lines around 100 characters where
 practical.
+
+Every Markdown file under `docs/` has generated GitHub navigation with links
+back to [Home](Home.md), page top, and the page table of contents. Run
+`npm run docs:nav` after changing headings, then verify with
+`npm run docs:nav:check`.
 
 Ignored files under `logs/` still need to be Markdown summaries that pass
 markdownlint. Use:
@@ -130,6 +180,10 @@ Run `npm run logs:prune` when local logs exceed retention limits. Run
 `npm run tmp:prune` when project-local scratch files exceed retention limits.
 
 ## Documentation Ownership
+
+<!-- docs-section-nav:start -->
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+<!-- docs-section-nav:end -->
 
 Prefer these canonical docs:
 

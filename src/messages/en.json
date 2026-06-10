@@ -184,6 +184,8 @@
 		"holdBack": "Hold-back",
 		"document": "Document",
 		"deliverable": "Deliverable",
+		"aiSummary": "AI Summary",
+		"aiSummaryLoading": "Summarizing public contract state...",
 		"view": "View",
 		"decrypt": "Decrypt",
 		"hideDecrypt": "Hide decrypt",
@@ -519,7 +521,10 @@
 		"enableHighContrast": "Enable high-contrast mode",
 		"disableHighContrast": "Disable high-contrast mode",
 		"highContrastOn": "High contrast: on",
-		"highContrastOff": "High contrast: off"
+		"highContrastOff": "High contrast: off",
+		"account": "Account",
+		"status": "Status",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
 	},
 	"Decrypt": {
 		"title": "Decrypt AES-256-GCM document",

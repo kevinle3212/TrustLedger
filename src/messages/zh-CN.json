@@ -178,7 +178,9 @@
 		"dispute": "发起争议",
 		"reclaimDeadline": "追回（截止日期已过）",
 		"releaseAfterWindow": "窗口期后释放",
-		"claimWarrantyFunds": "领取质保资金"
+		"claimWarrantyFunds": "领取质保资金",
+		"aiSummary": "AI Summary",
+		"aiSummaryLoading": "Summarizing public contract state..."
 	},
 	"Create": {
 		"connectWallet": "连接您的钱包以提议合同。",
@@ -486,7 +488,10 @@
 		"highContrastOn": "高对比度：开启",
 		"highContrastOff": "高对比度：关闭",
 		"analytics": "Analytics",
-		"analyticsHint": "View wallet-safe stats and public contract metrics."
+		"analyticsHint": "View wallet-safe stats and public contract metrics.",
+		"account": "Account",
+		"status": "Status",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
 	},
 	"Decrypt": {
 		"title": "解密 AES-256-GCM 文档",

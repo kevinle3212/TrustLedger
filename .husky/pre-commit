@@ -1,6 +1,8 @@
 set -e
 echo "pre-commit: duplicate scan"
 bash tools/remove-duplicates.sh --fail-on-found .
+echo "pre-commit: sensitive files"
+npm run secrets:check
 echo "pre-commit: logs"
 npm run logs:check
 echo "pre-commit: tmp"
@@ -9,6 +11,8 @@ echo "pre-commit: native"
 npm run native:check
 echo "pre-commit: analytics"
 npm run analytics:check
+echo "pre-commit: docs navigation"
+npm run docs:nav:check
 echo "pre-commit: formatting"
 npm run lint:prettier
 echo "pre-commit: quality"
