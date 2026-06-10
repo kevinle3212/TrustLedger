@@ -2,7 +2,7 @@
 
 import { useAppKit, useAppKitTheme } from "@reown/appkit/react";
 import { useTheme } from "next-themes";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useAccount } from "wagmi";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -115,6 +115,7 @@ export function ConnectButtonInner({
 
 	const mounted = useMounted();
 	const [copied, setCopied] = useState(false);
+	const lastOpenedKeyRef = useRef(0);
 
 	// Persist the connector label (localStorage only - no React state) whenever a
 	// connection is active, so the reconnect hint survives logout / session expiry.
@@ -134,7 +135,10 @@ export function ConnectButtonInner({
 	}, [resolvedTheme, setThemeMode, setThemeVariables]);
 
 	useEffect(() => {
-		if (!mounted || openOnLoadKey === 0) return;
+		if (!mounted || openOnLoadKey === 0 || lastOpenedKeyRef.current === openOnLoadKey) {
+			return;
+		}
+		lastOpenedKeyRef.current = openOnLoadKey;
 		void open();
 	}, [mounted, open, openOnLoadKey]);
 

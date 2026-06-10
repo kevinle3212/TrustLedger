@@ -1,7 +1,17 @@
+"use client";
+
 import { ConnectButton } from "@/components/ConnectButton";
+import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import { Link } from "@/i18n/navigation";
+import { useAccount } from "wagmi";
 
 export default function AccountPage(): React.JSX.Element {
+	const { address, isConnected } = useAccount();
+
+	if (!isConnected || address === undefined) {
+		return <WalletRequiredPage />;
+	}
+
 	return (
 		<main className="tl-site-frame py-12">
 			<section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">

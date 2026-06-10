@@ -1,6 +1,7 @@
 "use client";
 
 import { ConnectButton } from "@/components/ConnectButton";
+import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import type { MagicLinkPayload } from "@/lib/magicLink";
 import { useTranslations } from "next-intl";
 
@@ -51,18 +52,7 @@ export function TokenVerificationLoader({
 			</Shell>
 		);
 
-	if (!isConnected)
-		return (
-			<Shell>
-				<p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
-					{t("connectWalletPrompt", {
-						address: payload?.clientAddress ?? "",
-						id: payload?.contractId ?? "",
-					})}
-				</p>
-				<ConnectButton />
-			</Shell>
-		);
+	if (!isConnected) return <WalletRequiredPage />;
 
 	const expectedAddress = payload?.clientAddress.toLowerCase();
 	if (address?.toLowerCase() !== expectedAddress)

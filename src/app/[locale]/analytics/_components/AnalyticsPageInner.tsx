@@ -1,6 +1,6 @@
 "use client";
 
-import { ConnectButton } from "@/components/ConnectButton";
+import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import { Link } from "@/i18n/navigation";
 import { REPUTATION_REGISTRY_ABI, TRUSTLEDGER_ABI } from "@/lib/abi";
 import { getLastWallet } from "@/lib/lastWallet";
@@ -146,24 +146,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 	const loading = countLoading || contractsLoading;
 
 	if (!isConnected || address === undefined) {
-		return (
-			<main className="tl-site-frame py-12">
-				<section className="rounded-3xl border border-gray-200 bg-gray-50 p-8 dark:border-white/10 dark:bg-white/[0.03]">
-					<p className="text-sm font-semibold text-indigo-600 dark:text-indigo-300">
-						{t("eyebrow")}
-					</p>
-					<h1 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-gray-950 sm:text-5xl dark:text-white">
-						{t("connectTitle")}
-					</h1>
-					<p className="mt-4 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-300">
-						{t("connectBody")}
-					</p>
-					<div className="mt-8">
-						<ConnectButton />
-					</div>
-				</section>
-			</main>
-		);
+		return <WalletRequiredPage />;
 	}
 
 	return (

@@ -564,9 +564,11 @@ export function ReputationPageInner(): React.JSX.Element {
 					</form>
 
 					{!isConnected && (
-						<div className="flex items-center gap-3 text-sm text-gray-500">
+						<div className="flex flex-col items-start gap-2">
+							<p className="whitespace-nowrap text-[0.8125rem] font-medium text-red-600 dark:text-red-400 sm:text-sm">
+								{t("connectToLookUp")}
+							</p>
 							<ConnectButton />
-							<span>{t("connectToLookUp")}</span>
 						</div>
 					)}
 				</div>

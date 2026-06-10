@@ -8,8 +8,6 @@ work. Complete each phase roughly in order: tooling and architecture come first,
 followed by user-facing features, backend services, quality, and finally the
 mainnet launch deliverables.
 
-## Phase 1 — Development Environment and Tooling
-
 ## Phase 4 — Core Contract Lifecycle Features
 
 - [ ] Add an AI-generated summary of each contract and its status to the

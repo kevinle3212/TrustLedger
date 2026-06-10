@@ -11,7 +11,7 @@ import {
 } from "wagmi";
 import { useLocale, useTranslations } from "next-intl";
 import { useRole } from "@/contexts/RoleContext";
-import { ConnectButton } from "@/components/ConnectButton";
+import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 
@@ -1369,12 +1369,7 @@ export default function DashboardPage(): React.JSX.Element {
 	}
 
 	if (!isConnected || address === undefined) {
-		return (
-			<div className="flex flex-col items-center justify-center gap-6 py-32">
-				<p className="text-gray-500 dark:text-gray-400 text-lg">{t("connectWallet")}</p>
-				<ConnectButton />
-			</div>
-		);
+		return <WalletRequiredPage />;
 	}
 
 	const roleLabel = role === "client" ? t("isClient") : t("isFreelancer");
