@@ -60,6 +60,7 @@
 		"build:frontend": "NODE_OPTIONS='--disable-warning=DEP0205' next build",
 		"vercel-build": "next build",
 		"start:frontend": "next start",
+		"start:e2e:standalone": "node ../tools/start-standalone-e2e.mjs",
 		"typecheck": "npx tsc --noEmit",
 		"quality": "npm run typecheck && npm run lint:frontend && npm run test:unit",
 		"quality:all": "npm run quality && npm run build:frontend && npm run doctor && npm run test:e2e",

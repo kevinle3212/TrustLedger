@@ -6,6 +6,11 @@ const PORT = process.env["PORT"] ?? "3000";
 const BASE_URL = process.env["PLAYWRIGHT_BASE_URL"] ?? `http://127.0.0.1:${PORT}`;
 // Convert CI from an optional string into an explicit boolean for strict linting.
 const isCi = process.env["CI"] !== undefined && process.env["CI"] !== "";
+// CI builds the app immediately before E2E. Serving that production build keeps
+// logs clean and catches production-only routing/static-generation regressions.
+const webServerCommand = isCi
+	? `npm run start:e2e:standalone -- --hostname 127.0.0.1 --port ${PORT}`
+	: `npm run dev:frontend -- --hostname 127.0.0.1 --port ${PORT}`;
 
 // Export the Playwright Test configuration consumed by `npm run test:e2e`.
 export default defineConfig({
@@ -52,10 +57,10 @@ export default defineConfig({
 		},
 	],
 
-	// Start the Next dev server automatically before the E2E suite runs.
+	// Start the local app automatically before the E2E suite runs.
 	webServer: {
 		// Bind explicitly to localhost so sandboxed/local runs do not expose the server.
-		command: `npm run dev:frontend -- --hostname 127.0.0.1 --port ${PORT}`,
+		command: webServerCommand,
 		// Poll this URL until the app is ready before launching browser tests.
 		url: BASE_URL,
 		// Reuse a developer's already-running server locally; CI always starts fresh.

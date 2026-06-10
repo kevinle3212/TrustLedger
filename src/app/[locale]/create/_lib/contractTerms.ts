@@ -84,11 +84,28 @@ By submitting or accepting this escrow contract, the connected wallet confirms a
 };
 
 function escapeHtml(value: string): string {
-	return value
-		.replaceAll("&", "&amp;")
-		.replaceAll("<", "&lt;")
-		.replaceAll(">", "&gt;")
-		.replaceAll('"', "&quot;");
+	let escaped = "";
+
+	for (const character of value) {
+		switch (character) {
+			case "&":
+				escaped += "&amp;";
+				break;
+			case "<":
+				escaped += "&lt;";
+				break;
+			case ">":
+				escaped += "&gt;";
+				break;
+			case '"':
+				escaped += "&quot;";
+				break;
+			default:
+				escaped += character;
+		}
+	}
+
+	return escaped;
 }
 
 function markdownToHtml(value: string): string {
@@ -142,24 +159,142 @@ function markdownToPlain(value: string): string {
 		.replace(/_(.*?)_/g, "$1");
 }
 
+type HtmlToken =
+	| {
+			name: string;
+			type: "open" | "close";
+	  }
+	| {
+			text: string;
+			type: "text";
+	  };
+
+const HTML_ENTITY_MAP: Record<string, string> = {
+	"amp": "&",
+	"gt": ">",
+	"lt": "<",
+	"quot": '"',
+	"#39": "'",
+	"apos": "'",
+};
+
+function decodeHtmlEntities(value: string): string {
+	let decoded = "";
+
+	for (let index = 0; index < value.length; index += 1) {
+		const character = value.charAt(index);
+
+		if (character !== "&") {
+			decoded += character;
+			continue;
+		}
+
+		const entityEnd = value.indexOf(";", index + 1);
+		if (entityEnd === -1) {
+			decoded += character;
+			continue;
+		}
+
+		const entity = value.slice(index + 1, entityEnd);
+		decoded += HTML_ENTITY_MAP[entity] ?? `&${entity};`;
+		index = entityEnd;
+	}
+
+	return decoded;
+}
+
+function tokenizeHtml(value: string): HtmlToken[] {
+	const tokens: HtmlToken[] = [];
+	let text = "";
+
+	for (let index = 0; index < value.length; index += 1) {
+		const character = value.charAt(index);
+
+		if (character !== "<") {
+			text += character;
+			continue;
+		}
+
+		const tagEnd = value.indexOf(">", index + 1);
+		if (tagEnd === -1) {
+			text += character;
+			continue;
+		}
+
+		if (text !== "") {
+			tokens.push({ text: decodeHtmlEntities(text), type: "text" });
+			text = "";
+		}
+
+		const rawTag = value.slice(index + 1, tagEnd).trim();
+		const isClosingTag = rawTag.startsWith("/");
+		const tagNameSource = isClosingTag ? rawTag.slice(1) : rawTag;
+		const tagName = tagNameSource.split(/\s+/, 1)[0]?.toLowerCase() ?? "";
+
+		if (tagName !== "" && !rawTag.startsWith("!")) {
+			tokens.push({
+				name: tagName,
+				type: isClosingTag ? "close" : "open",
+			});
+		}
+
+		index = tagEnd;
+	}
+
+	if (text !== "") {
+		tokens.push({ text: decodeHtmlEntities(text), type: "text" });
+	}
+
+	return tokens;
+}
+
 function htmlToPlain(value: string): string {
-	return value
-		.replace(/<\/(h1|h2|p|li)>/gi, "\n")
-		.replace(/<li>/gi, "- ")
-		.replace(/<[^>]+>/g, "")
+	let plain = "";
+
+	for (const token of tokenizeHtml(value)) {
+		if (token.type === "text") {
+			plain += token.text;
+			continue;
+		}
+
+		if (token.type === "open" && token.name === "li") plain += "- ";
+		if (token.type === "close" && ["h1", "h2", "p", "li"].includes(token.name)) {
+			plain += "\n";
+		}
+	}
+
+	return plain
+		.split("\n")
+		.map((line) => line.trimEnd())
+		.join("\n")
 		.replace(/\n{3,}/g, "\n\n")
 		.trim();
 }
 
 function htmlToMarkdown(value: string): string {
-	return value
-		.replace(/<h1>(.*?)<\/h1>/gis, "# $1\n")
-		.replace(/<h2>(.*?)<\/h2>/gis, "## $1\n")
-		.replace(/<li>(.*?)<\/li>/gis, "- $1\n")
-		.replace(/<\/p>/gi, "\n")
-		.replace(/<p>/gi, "")
-		.replace(/<\/?ul>/gi, "")
-		.replace(/<[^>]+>/g, "")
+	let markdown = "";
+
+	for (const token of tokenizeHtml(value)) {
+		if (token.type === "text") {
+			markdown += token.text;
+			continue;
+		}
+
+		if (token.type === "open") {
+			if (token.name === "h1") markdown += "# ";
+			if (token.name === "h2") markdown += "## ";
+			if (token.name === "li") markdown += "- ";
+		}
+
+		if (token.type === "close" && ["h1", "h2", "p", "li"].includes(token.name)) {
+			markdown += "\n";
+		}
+	}
+
+	return markdown
+		.split("\n")
+		.map((line) => line.trimEnd())
+		.join("\n")
 		.replace(/\n{3,}/g, "\n\n")
 		.trim();
 }
