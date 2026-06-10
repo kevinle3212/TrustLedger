@@ -22,6 +22,7 @@ import {
 	validateEmail,
 	validateEthAddress,
 	validateEthAmount,
+	validateSolAmount,
 	validateUsdcAmount,
 	validateNumberInRange,
 	validateRequired,
@@ -176,6 +177,7 @@ export function useCreatePageState(): {
 
 	const isClientProposing = proposerRole === "client";
 	const isUsdc = paymentToken === "usdc";
+	const isSol = paymentToken === "sol";
 
 	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
 	const uploadedMime = useRef("application/octet-stream");
@@ -193,7 +195,11 @@ export function useCreatePageState(): {
 		() => ({
 			client: validateEthAddress(form.client),
 			clientEmail: validateEmail(form.clientEmail),
-			amount: isUsdc ? validateUsdcAmount(form.amount) : validateEthAmount(form.amount),
+			amount: isUsdc
+				? validateUsdcAmount(form.amount)
+				: isSol
+					? validateSolAmount(form.amount)
+					: validateEthAmount(form.amount),
 			contractURI:
 				form.contractURI.trim() === ""
 					? "Upload an encrypted contract file or enter a contract URI before submitting."
@@ -201,7 +207,9 @@ export function useCreatePageState(): {
 			paymentToken:
 				isUsdc && usdcAddress === undefined
 					? "USDC is not supported on this network. Switch to Sepolia, Arbitrum, Base, or Optimism."
-					: undefined,
+					: isSol
+						? "SOL drafts are enabled for Solana Devnet, but this EVM deployment form cannot custody native SOL. Use the Solana native-program flow for final submission."
+						: undefined,
 			estimatedDurationDays: validateNumberInRange(form.estimatedDurationDays, 1, 3650, {
 				integer: true,
 				unit: "days",
@@ -225,7 +233,17 @@ export function useCreatePageState(): {
 					: undefined,
 			passphrase: encryptEnabled ? validateRequired(passphrase, "Passphrase") : undefined,
 		}),
-		[form, docMode, selectedFile, pinataJwt, encryptEnabled, passphrase, isUsdc, usdcAddress],
+		[
+			form,
+			docMode,
+			selectedFile,
+			pinataJwt,
+			encryptEnabled,
+			passphrase,
+			isUsdc,
+			isSol,
+			usdcAddress,
+		],
 	);
 
 	function showError(key: string): string | undefined {
@@ -254,6 +272,7 @@ export function useCreatePageState(): {
 			return null;
 		}
 		if (isUsdc && usdcAddress === undefined) return null;
+		if (isSol) return null;
 		const trimmedURI = form.contractURI.trim();
 		const contractURI = trimmedURI !== "" ? trimmedURI : "ipfs://";
 		const parsedAmount = isUsdc ? parseUnits(form.amount, 6) : parseEther(form.amount);
@@ -287,7 +306,7 @@ export function useCreatePageState(): {
 			functionName: "proposeContract" as const,
 			args: [form.client as `0x${string}`, ...sharedArgs] as const,
 		};
-	}, [form, fileHash, isClientProposing, isUsdc, usdcAddress]);
+	}, [form, fileHash, isClientProposing, isUsdc, isSol, usdcAddress]);
 
 	// wagmi's overloaded types can't handle a union of two different functionName
 	// shapes in a single call, so we use two hooks — only one is enabled at a time.

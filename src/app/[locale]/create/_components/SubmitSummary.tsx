@@ -4,11 +4,13 @@ import type { DecodedContractError } from "@/lib/contractErrors";
 import { formatDeadlineWithRelativeDays } from "@/lib/utils";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
+import { getPaymentTokenLabel, getPaymentTokenMaximumFractionDigits } from "../_lib/paymentToken";
+import type { PaymentToken } from "../_lib/types";
 
 interface Props {
 	amount: string;
 	/** Payment token type. */
-	token: "eth" | "usdc";
+	token: PaymentToken;
 	estimatedDurationDays: string;
 	bufferFactor: string;
 	holdBack: "none" | "5" | "10" | "15";
@@ -49,12 +51,16 @@ export function SubmitSummary({
 	const t = useTranslations("Create");
 	const locale = useLocale();
 	const isUsdc = token === "usdc";
+	const isSol = token === "sol";
 	const isClientProposing = proposerRole === "client";
-	const tokenLabel = isUsdc ? "USDC" : "ETH";
+	const tokenLabel = getPaymentTokenLabel(token);
 	const deadlineDays = Math.round((Number(estimatedDurationDays) * Number(bufferFactor)) / 1000);
 	const amountFormatter = useMemo(
-		() => new Intl.NumberFormat(locale, { maximumFractionDigits: isUsdc ? 2 : 6 }),
-		[locale, isUsdc],
+		() =>
+			new Intl.NumberFormat(locale, {
+				maximumFractionDigits: getPaymentTokenMaximumFractionDigits(token),
+			}),
+		[locale, token],
 	);
 
 	/** Message to show for a simulation revert, preferring the decoded form. */
@@ -79,6 +85,11 @@ export function SubmitSummary({
 					{isUsdc && (
 						<p className="text-xs text-amber-600 dark:text-amber-400">
 							{t("usdcApprovalNote")}
+						</p>
+					)}
+					{isSol && (
+						<p className="text-xs text-emerald-700 dark:text-emerald-300">
+							{t("solDraftNote")}
 						</p>
 					)}
 					<p>

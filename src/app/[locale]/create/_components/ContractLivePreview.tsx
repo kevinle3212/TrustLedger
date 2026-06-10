@@ -3,11 +3,12 @@
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { formatDeadlineWithRelativeDays } from "@/lib/utils";
+import { getPaymentTokenLabel, getPaymentTokenMaximumFractionDigits } from "../_lib/paymentToken";
 import type { ContractTermsFormat, FormFields } from "../_lib/types";
 
 interface Props {
 	form: FormFields;
-	paymentToken: "eth" | "usdc";
+	paymentToken: "eth" | "usdc" | "sol";
 	isClientProposing: boolean;
 	termsBody: string;
 	termsFormat: ContractTermsFormat;
@@ -35,9 +36,9 @@ export function ContractLivePreview({
 }: Props): React.JSX.Element {
 	const t = useTranslations("Create");
 	const locale = useLocale();
-	const token = paymentToken === "usdc" ? "USDC" : "ETH";
+	const token = getPaymentTokenLabel(paymentToken);
 	const numericAmount = Number(form.amount);
-	const maximumFractionDigits = paymentToken === "usdc" ? 2 : 6;
+	const maximumFractionDigits = getPaymentTokenMaximumFractionDigits(paymentToken);
 	const amountFormatter = useMemo(
 		() => new Intl.NumberFormat(locale, { maximumFractionDigits }),
 		[locale, maximumFractionDigits],

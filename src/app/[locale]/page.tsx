@@ -59,7 +59,7 @@ export default async function HomePage({
 	return (
 		<div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16 sm:py-24">
 			<section className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center">
-				<div className="max-w-2xl">
+				<div className="tl-hero-copy-glow max-w-2xl">
 					<a
 						href={ethereumSepoliaUrl}
 						target="_blank"
@@ -120,7 +120,7 @@ export default async function HomePage({
 				/>
 			</section>
 
-			<section className="tl-protection-section grid gap-8 border-t border-gray-200 pt-10 dark:border-white/10 lg:grid-cols-[18rem_1fr]">
+			<section className="grid gap-8 border-t border-gray-200 pt-10 dark:border-white/10 lg:grid-cols-[18rem_1fr]">
 				<div>
 					<h2 className="text-2xl font-semibold tracking-[-0.015em] text-gray-950 dark:text-white">
 						{t("featureEscrowTitle")}

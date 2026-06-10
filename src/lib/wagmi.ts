@@ -224,6 +224,8 @@ const networks: [AppKitNetwork, ...AppKitNetwork[]] = [sepolia, arbitrum, base, 
 
 // Brand accent shared with the rest of the UI (indigo-500).
 const ACCENT_COLOR = "#6366f1";
+export const APPKIT_FONT_FAMILY =
+	'var(--font-sans), ui-sans-serif, system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", sans-serif';
 
 // Origin advertised to wallets during pairing. WalletConnect/AppKit requires
 // this to match the actual page origin or mobile wallets (Tangem, etc.) reject
@@ -274,7 +276,7 @@ createAppKit({
 	themeMode: "dark",
 	themeVariables: {
 		"--w3m-accent": ACCENT_COLOR,
-		"--w3m-font-family": "var(--font-sans)",
+		"--w3m-font-family": APPKIT_FONT_FAMILY,
 	},
 	features: {
 		analytics: false,

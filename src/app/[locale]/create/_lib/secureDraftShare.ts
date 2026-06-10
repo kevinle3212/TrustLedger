@@ -117,7 +117,9 @@ function isShareableDraft(value: unknown): value is ShareableDraft {
 	if (!isRecord(value)) return false;
 	return (
 		(value["proposerRole"] === "client" || value["proposerRole"] === "freelancer") &&
-		(value["paymentToken"] === "eth" || value["paymentToken"] === "usdc") &&
+		(value["paymentToken"] === "eth" ||
+			value["paymentToken"] === "usdc" ||
+			value["paymentToken"] === "sol") &&
 		isForm(value["form"]) &&
 		isDocMode(value["docMode"]) &&
 		typeof value["encryptEnabled"] === "boolean" &&

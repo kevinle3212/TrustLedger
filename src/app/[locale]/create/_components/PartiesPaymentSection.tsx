@@ -3,7 +3,8 @@
 import { Field } from "@/components/Field";
 import { Input } from "@/components/Input";
 import { useTranslations } from "next-intl";
-import type { FormFields } from "../_lib/types";
+import { getPaymentTokenLabel } from "../_lib/paymentToken";
+import type { FormFields, PaymentToken } from "../_lib/types";
 
 interface Props {
 	form: FormFields;
@@ -11,7 +12,7 @@ interface Props {
 	showError: (key: string) => string | undefined;
 	markTouched: (key: string) => void;
 	isClientProposing: boolean;
-	isUsdc: boolean;
+	paymentToken: PaymentToken;
 }
 
 /** Parties & Payment card — counterparty address, email, and escrow amount. */
@@ -21,10 +22,12 @@ export function PartiesPaymentSection({
 	showError,
 	markTouched,
 	isClientProposing,
-	isUsdc,
+	paymentToken,
 }: Props): React.JSX.Element {
 	const t = useTranslations("Create");
-	const token = isUsdc ? "USDC" : "ETH";
+	const isUsdc = paymentToken === "usdc";
+	const isSol = paymentToken === "sol";
+	const token = getPaymentTokenLabel(paymentToken);
 
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-6 flex flex-col gap-4">
@@ -75,20 +78,22 @@ export function PartiesPaymentSection({
 			<Field
 				label={t("escrowAmountLabel", { token })}
 				hint={
-					isClientProposing
-						? isUsdc
-							? t("escrowHintClientUsdc")
-							: t("escrowHintClientEth")
-						: isUsdc
-							? t("escrowHintFreelancerUsdc")
-							: t("escrowHintFreelancerEth")
+					isSol
+						? t("escrowHintSol")
+						: isClientProposing
+							? isUsdc
+								? t("escrowHintClientUsdc")
+								: t("escrowHintClientEth")
+							: isUsdc
+								? t("escrowHintFreelancerUsdc")
+								: t("escrowHintFreelancerEth")
 				}
 				error={showError("amount")}
 			>
 				<Input
 					type="number"
-					placeholder={isUsdc ? "100" : "0.5"}
-					min={isUsdc ? "0.01" : "0.000001"}
+					placeholder={isUsdc ? "100" : isSol ? "0.5" : "0.5"}
+					min={isUsdc ? "0.01" : isSol ? "0.000000001" : "0.000001"}
 					step="any"
 					value={form.amount}
 					onChange={(e) => {

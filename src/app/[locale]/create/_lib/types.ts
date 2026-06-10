@@ -3,6 +3,7 @@ import type { ArweaveJWK } from "@/lib/arweave";
 export type DocMode = "upload" | "manual";
 export type ContractTermsFormat = "markdown" | "html" | "plain";
 export type UploadStatus = "idle" | "working" | "done" | "error";
+export type PaymentToken = "eth" | "usdc" | "sol";
 
 export interface FormFields {
 	client: string;
@@ -19,7 +20,7 @@ export interface FormFields {
 
 export interface CreateState {
 	proposerRole: "freelancer" | "client";
-	paymentToken: "eth" | "usdc";
+	paymentToken: PaymentToken;
 	form: FormFields;
 	termsBody: string;
 	termsFormat: ContractTermsFormat;
@@ -44,7 +45,7 @@ export interface CreateState {
 
 export type CreateAction =
 	| { type: "SET_PROPOSER_ROLE"; role: "freelancer" | "client" }
-	| { type: "SET_PAYMENT_TOKEN"; token: "eth" | "usdc" }
+	| { type: "SET_PAYMENT_TOKEN"; token: PaymentToken }
 	| { type: "SET_FIELD"; key: keyof FormFields; value: string }
 	| { type: "SET_TERMS_BODY"; value: string }
 	| { type: "SET_TERMS_FORMAT"; format: ContractTermsFormat }

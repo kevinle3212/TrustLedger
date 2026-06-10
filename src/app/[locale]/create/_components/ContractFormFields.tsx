@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormFields } from "../_lib/types";
+import type { FormFields, PaymentToken } from "../_lib/types";
 import { AdvancedOptionsSection } from "./AdvancedOptionsSection";
 import { PartiesPaymentSection } from "./PartiesPaymentSection";
 import { TimelineSection } from "./TimelineSection";
@@ -11,7 +11,7 @@ interface Props {
 	showError: (key: string) => string | undefined;
 	markTouched: (key: string) => void;
 	isClientProposing: boolean;
-	isUsdc: boolean;
+	paymentToken: PaymentToken;
 }
 
 /** Composes the core contract-form cards after collaborative drafting and document upload. */
@@ -21,7 +21,7 @@ export function ContractFormFields({
 	showError,
 	markTouched,
 	isClientProposing,
-	isUsdc,
+	paymentToken,
 }: Props): React.JSX.Element {
 	return (
 		<>
@@ -31,7 +31,7 @@ export function ContractFormFields({
 				showError={showError}
 				markTouched={markTouched}
 				isClientProposing={isClientProposing}
-				isUsdc={isUsdc}
+				paymentToken={paymentToken}
 			/>
 			<TimelineSection
 				form={form}

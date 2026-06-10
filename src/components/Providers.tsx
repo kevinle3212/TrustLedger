@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
-import { config } from "@/lib/wagmi";
+import { APPKIT_FONT_FAMILY, config } from "@/lib/wagmi";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
 import { RoleProvider } from "@/contexts/RoleContext";
 
@@ -17,11 +17,15 @@ import { RoleProvider } from "@/contexts/RoleContext";
  */
 function AppKitThemeSync(): null {
 	const { resolvedTheme } = useTheme();
-	const { setThemeMode } = useAppKitTheme();
+	const { setThemeMode, setThemeVariables } = useAppKitTheme();
 
 	useEffect(() => {
 		setThemeMode(resolvedTheme === "light" ? "light" : "dark");
-	}, [resolvedTheme, setThemeMode]);
+		setThemeVariables({
+			"--w3m-accent": "#6366f1",
+			"--w3m-font-family": APPKIT_FONT_FAMILY,
+		});
+	}, [resolvedTheme, setThemeMode, setThemeVariables]);
 
 	return null;
 }

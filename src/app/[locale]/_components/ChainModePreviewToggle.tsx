@@ -40,7 +40,7 @@ export function ChainModePreviewToggle(): React.JSX.Element {
 			<p className="px-3 py-2 text-xs leading-5 text-gray-600 dark:text-gray-300">
 				{mode === "evm"
 					? "Use the current Ethereum Sepolia escrow flow for real contract proposals and testing."
-					: "Preview the native-program direction for Solana Devnet; custody remains disabled until the program, wallet flow, and audit scope are complete."}
+					: "Use Solana Devnet preview mode for SOL-denominated drafts and native-program metadata before submitting through the Solana flow."}
 			</p>
 		</div>
 	);

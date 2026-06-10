@@ -2,6 +2,7 @@
 
 import { ConnectButton } from "@/components/ConnectButton";
 import { useTranslations } from "next-intl";
+import { getPaymentTokenLabel, PAYMENT_TOKENS } from "../_lib/paymentToken";
 import { useCreatePageState } from "../_lib/useCreatePageState";
 import { ContractLivePreview } from "./ContractLivePreview";
 import { ContractDocumentSection } from "./ContractDocumentSection";
@@ -63,6 +64,7 @@ export function CreatePageInner(): React.JSX.Element {
 		arweaveBalance,
 		reviewOpen,
 	} = state;
+	const tokenLabel = getPaymentTokenLabel(paymentToken);
 
 	if (!isConnected) {
 		return (
@@ -97,7 +99,7 @@ export function CreatePageInner(): React.JSX.Element {
 				<p className="tl-page-description text-gray-500 dark:text-gray-400">
 					{isClientProposing
 						? t("subtitleClient")
-						: t("subtitleFreelancer", { token: isUsdc ? "USDC" : "ETH" })}
+						: t("subtitleFreelancer", { token: tokenLabel })}
 				</p>
 			</div>
 
@@ -133,7 +135,7 @@ export function CreatePageInner(): React.JSX.Element {
 					{t("paymentCurrency")}
 				</span>
 				<div className="flex gap-1 rounded-lg bg-gray-100 dark:bg-white/5 p-1">
-					{(["eth", "usdc"] as const).map((token) => (
+					{PAYMENT_TOKENS.map((token) => (
 						<button
 							key={token}
 							type="button"
@@ -149,24 +151,17 @@ export function CreatePageInner(): React.JSX.Element {
 							{token}
 						</button>
 					))}
-					<button
-						type="button"
-						disabled
-						title="Preview the native-program direction for Solana Devnet; custody remains disabled until the program, wallet flow, and audit scope are complete."
-						className="px-4 py-1.5 rounded-md text-sm font-medium uppercase text-emerald-700 opacity-70 ring-1 ring-emerald-200 dark:text-emerald-200 dark:ring-emerald-400/20"
-					>
-						SOL
-					</button>
 				</div>
 				{isUsdc && usdcAddress === undefined && (
 					<span className="text-xs text-red-500 dark:text-red-400">
 						{t("usdcNotSupported")}
 					</span>
 				)}
-				<span className="hidden max-w-md text-xs leading-5 text-emerald-700 dark:text-emerald-300 md:inline">
-					Preview The Native-Program Direction For Solana Devnet; Custody Remains Disabled
-					Until The Program, Wallet Flow, And Audit Scope Are Complete.
-				</span>
+				{paymentToken === "sol" && (
+					<span className="hidden max-w-md rounded-lg border border-emerald-300/70 bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-800 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200 md:inline">
+						{t("solDraftNote")}
+					</span>
+				)}
 			</div>
 
 			<div className="tl-workspace-grid">
@@ -235,7 +230,7 @@ export function CreatePageInner(): React.JSX.Element {
 						showError={showError}
 						markTouched={markTouched}
 						isClientProposing={isClientProposing}
-						isUsdc={isUsdc}
+						paymentToken={paymentToken}
 					/>
 
 					<SubmitSummary

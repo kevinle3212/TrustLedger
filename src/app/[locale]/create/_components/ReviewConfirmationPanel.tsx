@@ -3,12 +3,13 @@
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { formatDeadlineWithRelativeDays } from "@/lib/utils";
-import type { FormFields } from "../_lib/types";
+import { getPaymentTokenLabel, getPaymentTokenMaximumFractionDigits } from "../_lib/paymentToken";
+import type { FormFields, PaymentToken } from "../_lib/types";
 
 interface Props {
 	open: boolean;
 	form: FormFields;
-	paymentToken: "eth" | "usdc";
+	paymentToken: PaymentToken;
 	isClientProposing: boolean;
 	txReady: boolean;
 	txStatus: "idle" | "pending" | "confirming";
@@ -28,8 +29,8 @@ export function ReviewConfirmationPanel({
 }: Props): React.JSX.Element | null {
 	const t = useTranslations("Create");
 	const locale = useLocale();
-	const token = paymentToken === "usdc" ? "USDC" : "ETH";
-	const maximumFractionDigits = paymentToken === "usdc" ? 2 : 6;
+	const token = getPaymentTokenLabel(paymentToken);
+	const maximumFractionDigits = getPaymentTokenMaximumFractionDigits(paymentToken);
 	const amountFormatter = useMemo(
 		() => new Intl.NumberFormat(locale, { maximumFractionDigits }),
 		[locale, maximumFractionDigits],

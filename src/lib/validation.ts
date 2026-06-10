@@ -95,6 +95,27 @@ export function validateUsdcAmount(value: string, maxUsdc?: number): ValidationR
 	return undefined;
 }
 
+/**
+ * Requires a positive SOL amount parseable to lamports.
+ * SOL uses 9 decimal places, so validate separately from ETH's 18 decimals.
+ */
+export function validateSolAmount(value: string, maxSol?: number): ValidationResult {
+	const trimmed = value.trim();
+	if (trimmed === "") return "Enter an amount in SOL.";
+	const num = Number(trimmed);
+	if (!Number.isFinite(num)) return "Enter a valid number, e.g. 0.5.";
+	if (num <= 0) return "Amount must be greater than 0 SOL.";
+	try {
+		parseUnits(trimmed, 9);
+	} catch {
+		return "Enter a valid SOL amount (up to 9 decimal places).";
+	}
+	if (maxSol !== undefined && num > maxSol) {
+		return `Amount exceeds the available ${maxSol.toString()} SOL.`;
+	}
+	return undefined;
+}
+
 /** Requires a finite number strictly greater than 0. */
 
 /** Requires an integer reputation score in [1, 100]. */
