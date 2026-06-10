@@ -79,14 +79,17 @@ async function readLegalMarkdown(document: LegalDocument): Promise<string> {
 		legalMarkdownPath(`../../../../content/legal/${filename}`),
 		legalMarkdownPath(`../../../../../${filename}`),
 	];
+	const results = await Promise.allSettled(
+		paths.map(async (path) => await readFile(path, "utf8")),
+	);
 
-	for (const path of paths) {
-		try {
-			return await readFile(path, "utf8");
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-				throw error;
-			}
+	for (const result of results) {
+		if (result.status === "fulfilled") {
+			return result.value;
+		}
+
+		if ((result.reason as NodeJS.ErrnoException).code !== "ENOENT") {
+			throw result.reason;
 		}
 	}
 
