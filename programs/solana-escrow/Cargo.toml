@@ -13,9 +13,9 @@ publish = false
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-solana-program = "2"
-solana-sdk-ids = "2"
-solana-system-interface = "1"
+solana-program = "4"
+solana-sdk-ids = "3"
+solana-system-interface = { version = "3", features = ["bincode"] }
 
 [lints.rust]
 unsafe_code = "forbid"

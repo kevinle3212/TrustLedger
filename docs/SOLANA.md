@@ -98,6 +98,11 @@ npm run solana:program:fmt
 npm run solana:program:check
 ```
 
+The Solana program tracks the current `solana-program` 4.x crate family so the
+lockfile avoids retired transitive cryptography dependencies such as
+`rand 0.7.x`. Keep Solana crate bumps tied to `npm run solana:program:fmt`,
+`npm run solana:program:check`, and the repository security scan.
+
 ## Deployment Commands
 
 <!-- docs-section-nav:start -->

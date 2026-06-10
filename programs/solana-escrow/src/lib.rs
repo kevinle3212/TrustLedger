@@ -10,7 +10,7 @@ use solana_program::{
     program_error::ProgramError,
     pubkey::Pubkey,
     rent::Rent,
-    sysvar::Sysvar,
+    sysvar::SysvarSerialize,
 };
 use solana_sdk_ids::system_program;
 use solana_system_interface::instruction as system_instruction;

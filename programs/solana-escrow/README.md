@@ -28,5 +28,9 @@ updates before production SOL custody is enabled.
 NO_DNA=1 cargo check --manifest-path programs/solana-escrow/Cargo.toml
 ```
 
+The program uses the current Solana 4.x crate family to avoid retired transitive
+dependencies such as vulnerable `rand 0.7.x` versions. Re-run this check and the
+repository security scan after every Solana dependency update.
+
 Keep this program on localnet/devnet until the instruction set, wallet flow, and
 audit scope are complete.
