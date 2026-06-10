@@ -55,7 +55,7 @@ export function CreatePageControls({
 							className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
 								proposerRole === role
 									? "bg-indigo-600 text-white"
-									: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+									: "text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
 							}`}
 						>
 							{role === "client" ? tNav("roleClient") : tNav("roleFreelancer")}
@@ -82,7 +82,7 @@ export function CreatePageControls({
 							className={`rounded-md px-4 py-1.5 text-sm font-medium uppercase transition-colors ${
 								paymentToken === token
 									? "bg-indigo-600 text-white"
-									: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+									: "text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
 							}`}
 						>
 							{token}
