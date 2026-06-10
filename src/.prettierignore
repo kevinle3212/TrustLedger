@@ -4,6 +4,7 @@
 *.jpg
 *.jpeg
 *.gif
+*.svg
 *.webp
 *.woff
 *.woff2

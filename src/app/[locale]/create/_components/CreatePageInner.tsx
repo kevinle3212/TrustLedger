@@ -1,11 +1,23 @@
 "use client";
 
+import { useAccount } from "wagmi";
+import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import { useCreatePageState } from "../_lib/useCreatePageState";
 import { CreatePageControls, CreatePageHeader } from "./CreatePageControls";
 import { CreatePageWorkspace } from "./CreatePageWorkspace";
 import { CreateSuccessView } from "./CreateSuccessView";
 
 export function CreatePageInner(): React.JSX.Element {
+	const { address, isConnected } = useAccount();
+
+	if (!isConnected || address === undefined) {
+		return <WalletRequiredPage />;
+	}
+
+	return <CreatePageConnected />;
+}
+
+function CreatePageConnected(): React.JSX.Element {
 	const page = useCreatePageState();
 	const {
 		state,

@@ -13,7 +13,7 @@ import {
 } from "@/helpers/solana";
 
 export const metadata = {
-	title: "TrustLedger",
+	title: "Home | TrustLedger",
 	description: "Decentralized freelance escrow powered by Ethereum smart contracts.",
 };
 
