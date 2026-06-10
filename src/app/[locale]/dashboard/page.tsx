@@ -13,6 +13,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRole } from "@/contexts/RoleContext";
 import { ConnectButton } from "@/components/ConnectButton";
 import dynamic from "next/dynamic";
+import { useQuery } from "@tanstack/react-query";
 
 const DecryptDocumentForm = dynamic(
 	async () => (await import("@/components/DecryptDocumentForm")).DecryptDocumentForm,
@@ -32,9 +33,12 @@ import {
 import { validateDeliverableUri, validateScore } from "@/lib/validation";
 import type { Contract } from "@/types";
 import { Link } from "@/i18n/navigation";
+import {
+	markDashboardVisitedPreference,
+	readDashboardVisitedPreference,
+} from "@/lib/accountPreferences";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-const DASHBOARD_VISITED_KEY = "tl_visited";
 
 // Maps numeric status to the ContractStatus message key.
 const STATUS_KEYS = [
@@ -51,14 +55,6 @@ const STATUS_KEYS = [
 // Used for deadline comparisons in ContractCard to avoid re-renders on every second.
 // These checks are approximate — the contract enforces the real deadline on-chain.
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
-
-function markDashboardVisited(): void {
-	try {
-		window.localStorage.setItem(DASHBOARD_VISITED_KEY, "1");
-	} catch {
-		// localStorage can be unavailable in private or sandboxed browser contexts.
-	}
-}
 
 // The EscrowContract struct returned by TrustLedger.getContract() is modelled
 // by the shared `Contract` type imported from `@/types`.
@@ -412,6 +408,20 @@ function ContractCard({
 	const isToken = contract.token !== ZERO_ADDRESS;
 	const formattedAmount = formatTokenAmount(contract.amount, contract.token, locale);
 	void chainId; // used implicitly via TokenFundButton
+	const { data: summaryText, isLoading: summaryLoading } = useQuery({
+		queryKey: ["contract-summary", id.toString()],
+		queryFn: async ({ signal }) => {
+			const response = await fetch(`/api/contract/${id.toString()}/summary`, { signal });
+			if (!response.ok) throw new Error("Summary unavailable");
+			const payload = (await response.json()) as { summary?: unknown };
+			if (typeof payload.summary !== "string" || payload.summary === "") {
+				throw new Error("Summary unavailable");
+			}
+			return payload.summary;
+		},
+		staleTime: 5 * 60 * 1000,
+		retry: 1,
+	});
 
 	const statusLabel = tStatus(STATUS_KEYS[status] ?? "PENDING");
 
@@ -497,6 +507,18 @@ function ContractCard({
 						</a>
 					</>
 				)}
+			</div>
+
+			<div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-4 dark:border-indigo-400/20 dark:bg-indigo-400/10">
+				<p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-700 dark:text-indigo-200">
+					{t("aiSummary")}
+				</p>
+				<p className="mt-2 text-sm leading-6 text-indigo-950 dark:text-indigo-50">
+					{summaryLoading
+						? t("aiSummaryLoading")
+						: (summaryText ??
+							"Summary is temporarily unavailable. Contract actions and on-chain status are still available below.")}
+				</p>
 			</div>
 
 			{/* Decrypt panel — full card width, shown when user toggles decrypt */}
@@ -1189,22 +1211,20 @@ export default function DashboardPage(): React.JSX.Element {
 
 	useEffect(() => {
 		if (!isConnected || address === undefined) return;
-		let shouldOpen = false;
-		try {
-			if (window.localStorage.getItem(DASHBOARD_VISITED_KEY) !== "1") {
-				shouldOpen = true;
-			}
-		} catch {
-			shouldOpen = true;
-		}
-		if (!shouldOpen) return;
-
-		const timer = window.setTimeout(() => {
-			setShowIntroActions(true);
-			setWalkthroughOpen(true);
-		}, 0);
+		let active = true;
+		void readDashboardVisitedPreference().then((visited) => {
+			if (!active || visited) return;
+			const timer = window.setTimeout(() => {
+				if (!active) return;
+				setShowIntroActions(true);
+				setWalkthroughOpen(true);
+			}, 0);
+			return (): void => {
+				window.clearTimeout(timer);
+			};
+		});
 		return (): void => {
-			window.clearTimeout(timer);
+			active = false;
 		};
 	}, [address, isConnected]);
 
@@ -1213,7 +1233,7 @@ export default function DashboardPage(): React.JSX.Element {
 
 		function handleKeyDown(event: KeyboardEvent): void {
 			if (event.key === "Escape") {
-				markDashboardVisited();
+				void markDashboardVisitedPreference();
 				setWalkthroughOpen(false);
 			}
 		}
@@ -1230,13 +1250,13 @@ export default function DashboardPage(): React.JSX.Element {
 	}
 
 	function closeWalkthrough(): void {
-		markDashboardVisited();
+		void markDashboardVisitedPreference();
 		setShowIntroActions(false);
 		setWalkthroughOpen(false);
 	}
 
 	function skipIntro(): void {
-		markDashboardVisited();
+		void markDashboardVisitedPreference();
 		setShowIntroActions(false);
 		setWalkthroughOpen(false);
 	}

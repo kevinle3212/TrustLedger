@@ -42,7 +42,7 @@ export function PartiesPaymentSection({
 			>
 				<Input
 					type="text"
-					placeholder="0x..."
+					placeholder={isSol ? "11111111111111111111111111111111" : "0x..."}
 					value={form.client}
 					onChange={(e) => {
 						set("client", e.target.value);
@@ -52,7 +52,7 @@ export function PartiesPaymentSection({
 					}}
 					error={showError("client") !== undefined}
 					required
-					pattern="^0x[0-9a-fA-F]{40}$"
+					pattern={isSol ? "^[1-9A-HJ-NP-Za-km-z]{32,44}$" : "^0x[0-9a-fA-F]{40}$"}
 				/>
 			</Field>
 

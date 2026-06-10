@@ -3,8 +3,8 @@
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
-**Effective Date:** June 9, 2026 **Last Updated:** June 9, 2026 **Version:**
-1.0.0
+**Effective Date:** June 9, 2026 **Last Updated:** June 10, 2026 **Version:**
+1.1.0
 
 ---
 
@@ -59,6 +59,12 @@ Examples include:
 - Feature-usage tracking.
 - Error-rate monitoring.
 
+TrustLedger's first-party privacy analytics beacon does not use cookies. It is
+disabled by default, records only aggregate page-view and frontend-error events
+when enabled, strips query strings, and stores no wallet addresses, raw IP
+addresses, user-agent strings, emails, documents, session keys, private keys, or
+seed phrases.
+
 **3.4 Browser Local Storage.** The Platform uses browser local storage for
 certain features, including persisting arbitration draft state
 (`src/store/arbitrationDrafts.ts`) and wallet connection preferences. Local
@@ -107,9 +113,10 @@ browser's developer tools or privacy settings.
 
 ## 7. Do Not Track
 
-Some browsers include a "Do Not Track" (DNT) signal. We do not currently alter
-our data collection practices in response to DNT signals, as there is no
-universal standard for how they should be interpreted.
+Some browsers include a "Do Not Track" (DNT) signal or Global Privacy Control
+(GPC). TrustLedger's first-party privacy analytics collector honors DNT and GPC
+signals by not recording analytics events for those requests. Third-party wallet
+or infrastructure services may apply their own policies.
 
 ---
 
@@ -129,4 +136,4 @@ Questions about this Cookie Policy:
 
 ---
 
-_This Cookie Policy was last reviewed and updated on June 9, 2026._
+_This Cookie Policy was last reviewed and updated on June 10, 2026._

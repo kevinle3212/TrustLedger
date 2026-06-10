@@ -45,7 +45,10 @@ src/out/
 # ─── Documentation site and project docs ──────────────────────────────────────
 /docs/
 /site/
-/assets/
+/assets/*
+!/assets/analytics/
+!/assets/analytics/*.json
+!/assets/analytics/*.svg
 /mkdocs.yml
 /requirements-docs.txt
 

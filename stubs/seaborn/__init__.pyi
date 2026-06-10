@@ -1,0 +1,6 @@
+"""Minimal Seaborn stubs used by analytics generation."""
+
+class ColorPalette:
+    def as_hex(self) -> list[str]: ...
+
+def color_palette(palette: str, n_colors: int) -> ColorPalette: ...

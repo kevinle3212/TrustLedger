@@ -1,0 +1,45 @@
+{
+  "data": {
+    "color": [
+      "#440154",
+      "#404387",
+      "#29788E",
+      "#22A784",
+      "#79D151",
+      "#FDE724"
+    ],
+    "contracts": [
+      2,
+      5,
+      3,
+      8,
+      1,
+      4
+    ],
+    "status": [
+      "Pending",
+      "Active",
+      "Submitted",
+      "Approved",
+      "Disputed",
+      "Resolved"
+    ]
+  },
+  "summary": {
+    "completionRatePct": 52.17,
+    "privacyScore": 94,
+    "stateEntropyBits": 2.3338
+  },
+  "title": "TrustLedger Wallet State Source",
+  "tooltips": [
+    [
+      "Status",
+      "@status"
+    ],
+    [
+      "Contracts",
+      "@contracts"
+    ]
+  ],
+  "type": "bokeh-column-data-source"
+}

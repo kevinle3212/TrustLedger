@@ -82,7 +82,7 @@ export function ContractDocumentSection({
 							className={`min-h-9 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
 								docMode === m
 									? "bg-indigo-600 text-white"
-									: "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+									: "text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
 							}`}
 						>
 							{m === "upload" ? t("uploadFile") : t("enterUri")}

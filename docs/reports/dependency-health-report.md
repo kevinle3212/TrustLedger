@@ -1,11 +1,38 @@
 # Dependency Health Report
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [Audit Evidence](#audit-evidence)
+- [Outdated Package Sweep](#outdated-package-sweep)
+- [Vulnerability Chains](#vulnerability-chains)
+- [Breaking-Change Impact](#breaking-change-impact)
+- [Deprecation Findings](#deprecation-findings)
+- [Remediation Timeline](#remediation-timeline)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
 Date: 2026-06-09
 
 ## Audit Evidence
+
+<!-- docs-section-nav:start -->
+
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Approved audit commands were run against npm's audit service.
 
@@ -20,6 +47,12 @@ The remaining root findings are development-tooling findings. Production
 dependencies are clean in both the root and frontend package trees.
 
 ## Outdated Package Sweep
+
+<!-- docs-section-nav:start -->
+
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Safe non-major updates were applied on 2026-06-09:
 
@@ -39,6 +72,12 @@ pass:
 
 ## Vulnerability Chains
 
+<!-- docs-section-nav:start -->
+
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 | Root package                       | Direct?    | Severity | Dependency path                                                                            | Fix availability                                       | Mitigation                                                                           |
 | ---------------------------------- | ---------- | -------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------ |
 | `hardhat`                          | Direct     | Low      | `hardhat@2.28.6` -> `@ethersproject/abi`                                                   | `hardhat@3.9.0`, semver-major                          | Defer until Hardhat 3 migration is planned and Hardhat tests/scripts are ported.     |
@@ -53,6 +92,12 @@ pass:
 
 ## Breaking-Change Impact
 
+<!-- docs-section-nav:start -->
+
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 The available fixes require Hardhat 3 and Hardhat Toolbox 7. That is a major
 toolchain migration, not a patch. Expected impact includes Hardhat config
 changes, plugin compatibility review, deploy script review, TypeChain behavior
@@ -60,6 +105,12 @@ review, CI workflow updates, and full revalidation of Hardhat plus Foundry
 contract suites.
 
 ## Deprecation Findings
+
+<!-- docs-section-nav:start -->
+
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Lockfile deprecation metadata and local dependency-chain inspection identified
 these categories:
@@ -72,6 +123,12 @@ these categories:
 | Mainnet Readiness Risk                  | `elliptic`, wallet SDK deprecated packages                                                          | Hardhat dev tooling and wallet connector transitive packages                | Crypto/wallet supply-chain concern    | Must be reviewed before mainnet; production audit is currently clean, but wallet packages still need maintainer review. |
 
 ## Remediation Timeline
+
+<!-- docs-section-nav:start -->
+
+[Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - Immediate: keep production audits clean and document root dev-only lows.
 - Next dependency pass: test Hardhat 3/toolbox 7 migration on a branch.

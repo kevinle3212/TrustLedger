@@ -3,8 +3,8 @@
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
-**Effective Date:** June 9, 2026 **Last Updated:** June 9, 2026 **Version:**
-2.0.0
+**Effective Date:** June 9, 2026 **Last Updated:** June 10, 2026 **Version:**
+2.1.0
 
 ---
 
@@ -97,9 +97,13 @@ operating system, referring URLs, pages visited, timestamps, and error data.
 device and browser You use to access the Services, including browser version,
 screen resolution, language preferences, and device identifiers.
 
-(e) **Usage Analytics.** We may collect aggregate usage data, including feature
-usage patterns, page views, session durations, and click-through rates, to
-improve the Services.
+(e) **Usage Analytics.** When privacy analytics are enabled, we may collect
+aggregate usage data such as page views and frontend error counts to improve the
+Services. TrustLedger's first-party analytics collector is disabled by default,
+honors Do Not Track and Global Privacy Control signals, strips query strings,
+and does not store wallet addresses, raw IP addresses, raw user-agent strings,
+email addresses, raw documents, encrypted draft bodies, session keys, private
+keys, or seed phrases.
 
 (f) **Cookies and Local Storage.** See Section 5 for details on cookies and
 tracking technologies.
@@ -558,11 +562,12 @@ Repository:
 
 ---
 
-_This Privacy Policy (Version 2.0.0) was last reviewed and updated on June 9,
+_This Privacy Policy (Version 2.1.0) was last reviewed and updated on June 10,
 2026, following a comprehensive legal red-team audit. Changes include: GDPR
 legal basis identification for each processing activity; data controller and DPO
 disclosure; expanded data subject rights (GDPR Art. 77 supervisory authority
 right; CCPA/CPRA rights; multi-state U.S. privacy rights); COPPA compliance
 statement; breach notification timeline specifics; SCC/IDTA transfer mechanism
 disclosure; consent withdrawal mechanism; California Shine the Light disclosure;
-cookie policy correction; response timeline commitments._
+cookie policy correction; response timeline commitments; and first-party privacy
+analytics disclosure._

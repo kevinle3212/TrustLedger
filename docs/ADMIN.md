@@ -1,5 +1,22 @@
 # Admin Dashboard
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [Access Model](#access-model)
+- [Rust Admin API](#rust-admin-api)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -10,6 +27,12 @@ security reporting, deployment metadata, feature flags, rate limits, and audit
 trail readiness.
 
 ## Access Model
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 The first version is intentionally read-only. Mutating admin actions must add
 explicit confirmation, server-side authorization, persistent audit logs, and
@@ -38,6 +61,12 @@ your secret manager. The bootstrap identity is non-deletable but must be
 provided through environment variables; it is not hardcoded in application code.
 
 ## Rust Admin API
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 The Rust companion service scaffold lives in:
 

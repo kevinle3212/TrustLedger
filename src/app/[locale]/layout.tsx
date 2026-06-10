@@ -12,6 +12,7 @@ import { routing } from "@/i18n/routing";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { PrivacyAnalytics } from "@/components/PrivacyAnalytics";
 import "../globals.scss";
 
 const ReactScanMonitor =
@@ -69,6 +70,7 @@ export default async function LocaleLayout({
 						</main>
 						<Footer />
 					</Providers>
+					<PrivacyAnalytics />
 					{ReactScanMonitor !== null && <ReactScanMonitor />}
 				</NextIntlClientProvider>
 			</body>

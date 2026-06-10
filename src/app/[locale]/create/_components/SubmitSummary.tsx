@@ -20,6 +20,14 @@ interface Props {
 	/** Simulation pipeline stage. */
 	simStatus: "idle" | "loading" | "ready";
 	writeError: Error | null;
+	/** Solana-specific transaction error. */
+	solanaError: Error | null;
+	/** Connected Solana wallet address, when available. */
+	solanaWalletAddress: string | null;
+	/** Whether a deployed Solana program ID is configured. */
+	solanaProgramReady: boolean;
+	/** Whether the EVM wallet is connected for ETH/USDC submission. */
+	isEvmConnected: boolean;
 	/** Wallet/chain transaction lifecycle stage. */
 	txStatus: "idle" | "pending" | "confirming";
 	hasBlockingErrors: boolean;
@@ -42,6 +50,10 @@ export function SubmitSummary({
 	decodedSimError,
 	simStatus,
 	writeError,
+	solanaError,
+	solanaWalletAddress,
+	solanaProgramReady,
+	isEvmConnected,
 	txStatus,
 	hasBlockingErrors,
 	submitAttempted,
@@ -156,11 +168,42 @@ export function SubmitSummary({
 				</p>
 			)}
 
+			{isSol && (
+				<div className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100">
+					<p className="font-medium">
+						{solanaWalletAddress === null
+							? "Solana Wallet Opens On Confirmation"
+							: `Solana Wallet Connected: ${solanaWalletAddress.slice(0, 4)}...${solanaWalletAddress.slice(-4)}`}
+					</p>
+					<p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-100/80">
+						{solanaProgramReady
+							? "TrustLedger will simulate the Solana escrow instruction before requesting your signature."
+							: "Set NEXT_PUBLIC_SOLANA_PROGRAM_ID before SOL custody can be submitted."}
+					</p>
+				</div>
+			)}
+
+			{!isSol && !isEvmConnected && (
+				<div className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
+					<p className="font-medium">Connect Your EVM Wallet</p>
+					<p className="mt-1 text-xs">
+						Use the header wallet button before submitting ETH or USDC escrow.
+					</p>
+				</div>
+			)}
+
+			{solanaError !== null && (
+				<p className="text-red-500 dark:text-red-400 text-sm rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3">
+					{solanaError.message}
+				</p>
+			)}
+
 			<button
 				type="submit"
 				disabled={
 					txStatus !== "idle" ||
 					hasBlockingErrors ||
+					(!isSol && !isEvmConnected) ||
 					(simStatus === "loading" && simError === null)
 				}
 				className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
@@ -168,10 +211,16 @@ export function SubmitSummary({
 				{txStatus === "pending"
 					? t("waitingForWallet")
 					: txStatus === "confirming"
-						? t("confirmingOnChain")
+						? isSol
+							? "Confirming On Solana"
+							: t("confirmingOnChain")
 						: isClientProposing
-							? t("reviewContractOffer", { token: tokenLabel })
-							: t("reviewEscrowContract")}
+							? isSol
+								? "Review Solana Contract Offer"
+								: t("reviewContractOffer", { token: tokenLabel })
+							: isSol
+								? "Review Solana Escrow Contract"
+								: t("reviewEscrowContract")}
 			</button>
 		</>
 	);

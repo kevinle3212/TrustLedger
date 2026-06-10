@@ -1,0 +1,33 @@
+{
+	"name": "Protect Sensitive Files",
+	"target": "push",
+	"enforcement": "active",
+	"conditions": {
+		"ref_name": {
+			"include": ["~ALL"],
+			"exclude": []
+		}
+	},
+	"rules": [
+		{
+			"type": "file_path_restriction",
+			"parameters": {
+				"restricted_file_paths": [
+					".env",
+					".env.*",
+					"**/target/deploy/*.json",
+					"**/*keypair*.json",
+					"**/*-keypair.json",
+					"**/*secret*.json",
+					"**/*private*key*",
+					"k8s/*secret*.yaml",
+					"k8s/*secret*.yml"
+				]
+			}
+		},
+		{
+			"type": "secret_scanning"
+		}
+	],
+	"bypass_actors": []
+}

@@ -1,5 +1,23 @@
 # SWC And Generated Build Artifacts
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [Current Finding](#current-finding)
+- [Decision](#decision)
+- [Related Generated Folders](#related-generated-folders)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -10,11 +28,23 @@ compiler pipeline, but the frontend now keeps an explicit SWC policy under
 
 ## Current Finding
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 The root `.swc/` directory documents why no root-level SWC compiler override is
 enabled. The `src/.swc/` directory contains the frontend SWC policy and ignores
 generated native plugin caches.
 
 ## Decision
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Keep Next.js as the source of truth for production transforms. Use
 `src/.swc/config.json` only when a local tool needs an explicit parser, target,
@@ -22,6 +52,12 @@ module, or React transform policy. Any future SWC plugin must be documented in
 `src/.swc/plugins/README.md` before it is added to the build.
 
 ## Related Generated Folders
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 These folders are generated locally and should not be edited by hand:
 

@@ -17,8 +17,12 @@
 	],
 	"ignoreIssues": {
 		"components/ReactScanMonitor.tsx": ["unlisted"],
+		"lib/accountPreferences.ts": ["exports"],
+		"lib/solanaEscrow.ts": ["exports"],
 		"lib/wagmi.ts": ["exports"],
+		"services/contractSummary.ts": ["exports", "types", "unlisted"],
 		"services/health.ts": ["types"],
+		"services/offchainAccounts.ts": ["exports", "unlisted"],
 		"services/oracle.ts": ["exports", "types"],
 		"types/contract.ts": ["exports", "types"],
 		"types/dispute.ts": ["exports", "types"],

@@ -178,7 +178,9 @@
 		"dispute": "विवाद करें",
 		"reclaimDeadline": "वापस लें (समय सीमा चूक गई)",
 		"releaseAfterWindow": "विंडो के बाद जारी करें",
-		"claimWarrantyFunds": "वारंटी फंड का दावा करें"
+		"claimWarrantyFunds": "वारंटी फंड का दावा करें",
+		"aiSummary": "AI Summary",
+		"aiSummaryLoading": "Summarizing public contract state..."
 	},
 	"Create": {
 		"connectWallet": "अनुबंध प्रस्तावित करने के लिए वॉलेट कनेक्ट करें।",
@@ -486,7 +488,10 @@
 		"highContrastOn": "हाई कंट्रास्ट: चालू",
 		"highContrastOff": "हाई कंट्रास्ट: बंद",
 		"analytics": "Analytics",
-		"analyticsHint": "View wallet-safe stats and public contract metrics."
+		"analyticsHint": "View wallet-safe stats and public contract metrics.",
+		"account": "Account",
+		"status": "Status",
+		"walletMenuHint": "Open wallet-safe account tools, analytics, and public status."
 	},
 	"Decrypt": {
 		"title": "AES-256-GCM दस्तावेज़ डिक्रिप्ट करें",

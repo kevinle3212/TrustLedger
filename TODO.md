@@ -42,18 +42,6 @@ mainnet launch deliverables.
       Foundry tests, deployment scripts, CI, and TypeChain behavior before
       closing this item.
 
-## Phase 3 — UI/UX Design and Polish
-
-- [ ] Migrate dashboard onboarding state to the off-chain account database once
-      user accounts exist.
-    - Replace the temporary `localStorage` key (`tl_visited`) with a
-      wallet-scoped profile preference so the walkthrough state follows the user
-      across browsers and devices.
-    - Keep the localStorage fallback until the account database and wallet
-      authentication flow are live in Phase 6.
-    - Include a migration path that preserves existing local first-visit state
-      when a user signs in after the database is introduced.
-
 ## Phase 4 — Core Contract Lifecycle Features
 
 - [ ] Add an AI-generated summary of each contract and its status to the
@@ -84,6 +72,12 @@ mainnet launch deliverables.
     - Display the summary prominently on each contract card in the dashboard,
       giving users an easy-to-digest overview without clicking into each
       contract.
+    - **Implemented 2026-06-10:** added the server-only
+      `src/services/contractSummary.ts` provider abstraction, cache, fallback
+      summaries, latency/error/cost metrics, and
+      `GET /api/contract/[id]/summary`. The dashboard now displays a
+      privacy-minimized summary for every visible contract card. Provider keys
+      must stay in deployment secrets only.
     - Add an in-app PDF viewer for the contract document so users can read the
       full contract in a readable format without downloading it separately. — If
       the document is encrypted, prompt the user to decrypt it first. Otherwise,
@@ -135,17 +129,12 @@ mainnet launch deliverables.
     - Requires a backend with API routes and a database. Consider Supabase,
       PlanetScale, or a self-hosted Postgres instance for persistence, with JWTs
       for session management.
-
-- [ ] Find a better magic-link email service provider that is free or low-cost
-      for development and testing to replace the current one, which is
-      restrictive and causes problems with email deliverability and the
-      authentication experience.
-    - [x] Research and evaluate alternatives that better support magic-link
-          authentication, such as SendGrid, Mailgun, or Postmark. Look for
-          improved deliverability, easier backend integration, and better
-          analytics for tracking email performance.
-    - Implement the new provider in the authentication flow so users reliably
-      receive their magic links and authenticate without issues.
+    - **Scaffolded 2026-06-10:** added `src/services/offchainAccounts.ts`,
+      EIP-712 challenge/session/profile APIs under `/api/accounts/*`, and the
+      `/account` page. Dashboard onboarding now writes to wallet-scoped account
+      preferences when a signed account token exists, with the previous local
+      fallback preserved. Production completion still requires the external
+      database and encrypted-message persistence listed in Phase 9.
 
 ## Phase 7 — Testing, Quality, and Accessibility
 
@@ -195,27 +184,6 @@ mainnet launch deliverables.
       grammar, punctuation, capitalization, or syntax errors in every sentence,
       heading, and code block comment across all documentation files.
 
-- [ ] Add error monitoring and analytics (for example Sentry for error tracking
-      and a privacy-respecting analytics tool) to surface production issues and
-      usage patterns.
-    - **Remaining 2026-06-09:** Choose and configure an external monitoring
-      provider such as Sentry, Better Stack, Datadog, Grafana Cloud, or an
-      equivalent service. Wire `GET /api/health` into uptime checks and alert on
-      unhealthy responses, API route failures, RPC/oracle freshness failures,
-      frontend runtime errors, and critical on-chain events.
-    - Add provider credentials only through deployment secrets. Update
-      `SECURITY.md`, `docs/CI-CD.md`, `docs/ENVIRONMENT.md`, and operational
-      runbooks with alert routing, escalation expectations, dashboards, and
-      incident-response steps.
-
-- [ ] Find and research any other useful tools, libraries, APIs, or cloud
-      services or any other integrations that are 100% free or have a generous
-      free tier for development and testing and that can speed up development,
-      improve the user experience, or enhance platform functionality and
-      implement them with the strictest configuration possible to minimize
-      errors and security risks. I want to be able to use these tools during
-      productiona and have it be easily scalable.
-
 ## Phase 8 — Privacy (Post-Launch)
 
 - [ ] Investigate privacy improvements using zero-knowledge proofs and/or a
@@ -229,6 +197,32 @@ mainnet launch deliverables.
       `contractURI` so the document is not publicly linkable to either wallet.
 
 ## Phase 9 — Documentation and Mainnet Launch
+
+- [ ] Complete external production setup that cannot be performed from the
+      repository alone.
+    - **AI summaries:** choose and configure a managed provider with data-use
+      controls enabled. Required keys: `AI_SUMMARY_PROVIDER` (`groq`, `gemini`,
+      or `disabled`), `GROQ_API_KEY` plus optional `GROQ_MODEL`, or
+      `GEMINI_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` plus optional
+      `GEMINI_MODEL`.
+    - **Off-chain accounts:** provision a persistent database or managed backend
+      for profiles, notification preferences, encrypted message envelopes, and
+      onboarding state. Required keys include `ACCOUNT_SESSION_SECRET` or
+      `AUTH_JWT_SECRET`, plus the selected database URL/credentials once the
+      provider is chosen.
+    - **Email and notifications:** verify the sending domain and configure
+      `EMAIL_PROVIDER`, `RESEND_API_KEY`, `BREVO_API_KEY`, or
+      `POSTMARK_SERVER_TOKEN`, plus `NOTIFICATIONS_SECRET`, `CRON_SECRET`, and
+      the production recipient-resolution data source.
+    - **Monitoring:** configure Sentry, Better Stack, Grafana, or a comparable
+      service before enabling summaries broadly. Track provider latency, error
+      rate, and cost metrics from `/api/status`.
+    - **Blockchain deployments:** set production RPC keys, contract addresses,
+      WalletConnect/Reown project ID, Solana Devnet/mainnet program ID, Pinata
+      or storage credentials, admin tokens, and health-check allowlists in
+      Vercel and any Kubernetes/Docker deployment target.
+    - **External review:** engage an independent smart contract auditor and add
+      the final audit report before treating contracts as mainnet-ready.
 
 - [ ] Complete third-party smart contract audit readiness and obtain an external
       audit report before mainnet.
@@ -265,6 +259,18 @@ mainnet launch deliverables.
 
 ## Completed
 
+- [x] Migrate dashboard onboarding state to the off-chain account database once
+      user accounts exist.
+    - Completed 2026-06-10: added `src/lib/accountPreferences.ts` so the
+      dashboard reads and writes the wallet-scoped profile preference through
+      `/api/accounts/profile` whenever a signed account session exists.
+    - Kept the `tl_visited` localStorage fallback for private-mode browsers,
+      unsigned users, and migration continuity. Existing local first-visit state
+      is preserved and treated as completed when a signed profile is not yet
+      available.
+    - Verified with `npm run typecheck:frontend` and targeted unit tests for the
+      off-chain account service.
+
 - [x] If needed, add C or C++ for performance-critical math, cryptography, or
       other features that benefit from a low-level, compiled language.
     - Completed 2026-06-10: added optional native analytics kernels under
@@ -286,9 +292,13 @@ mainnet launch deliverables.
       generate visualizations and insights from the on-chain data, for use in
       the whitepaper, documentation, or the platform itself.
     - Completed 2026-06-10: added `scripts/analytics/` with a deterministic
-      Python SVG generator and optional `requirements.txt` for future
-      NumPy/Matplotlib reports.
+      Python analytics generator backed by NumPy, Pandas, SymPy, SciPy, Seaborn,
+      Matplotlib, Plotly, and Bokeh. Matplotlib cache writes are routed to
+      project-local `tmp/matplotlib/`.
     - Added `assets/analytics/wallet-analytics-preview.svg`,
+      `assets/analytics/wallet-analytics-report.json`,
+      `assets/analytics/wallet-analytics-plotly.json`,
+      `assets/analytics/wallet-analytics-bokeh.json`,
       `npm run analytics:generate`, and `npm run analytics:check`, with CI and
       hook coverage so generated visuals do not drift.
     - Added the user-facing `/[locale]/analytics` page and
@@ -297,6 +307,64 @@ mainnet launch deliverables.
       chain metadata, and safe local preferences such as the last connector
       label and dashboard guide state. It does not read private keys, seed
       phrases, raw documents, emails, encrypted draft bodies, or session keys.
+    - Connected wallet users can hover/focus the wallet address button in the
+      top-right navbar and open Analytics from the dropdown.
+    - Added strict mypy coverage for
+      `scripts/analytics/generate_wallet_analytics.py` with local stubs for the
+      exact Plotly, SciPy, Seaborn, and SymPy APIs used by the generator.
+
+- [x] Find a better magic-link email service provider that is free or low-cost
+      for development and testing.
+    - Completed 2026-06-10: replaced the Resend-only implementation in
+      `src/services/email.ts` with a server-only provider abstraction supporting
+      `EMAIL_PROVIDER=resend`, `brevo`, `postmark`, and local-only `log`.
+    - Magic links and lifecycle notifications now share the same delivery
+      boundary. Provider credentials remain server-side only through
+      `RESEND_API_KEY`, `BREVO_API_KEY`, or `POSTMARK_SERVER_TOKEN`.
+    - Magic-link recipient input can contain a comma- or semicolon-separated
+      list for controlled development/testing. The service de-duplicates and
+      caps each send at five recipients so multiple testers can receive links
+      without hardcoded owner-only behavior.
+    - Added unit coverage in `src/tests/unit/email.test.ts` and updated
+      `.env.example`, `.env.local.example`, `docs/ENVIRONMENT.md`, and
+      `docs/FRONTEND.md`.
+
+- [x] Add error monitoring and analytics to surface production issues and usage
+      patterns.
+    - Completed 2026-06-10: added disabled-by-default first-party privacy
+      analytics via `src/components/PrivacyAnalytics.tsx`,
+      `POST /api/analytics/events`, `GET /api/analytics/events`, and
+      `src/services/trafficAnalytics.ts`.
+    - The collector records only aggregate event name, locale, sanitized path
+      without query strings, and timestamp. It stores no cookies, wallet
+      addresses, raw IP addresses, raw user agents, emails, documents, session
+      keys, private keys, seed phrases, or encrypted draft bodies.
+    - The endpoint honors Do Not Track and Global Privacy Control. Collection
+      requires both `TRUSTLEDGER_ANALYTICS_ENABLED=true` and
+      `NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED=true`; `/api/health` reports a
+      warning if those flags disagree.
+    - Added retention controls through `TRUSTLEDGER_ANALYTICS_RETENTION_DAYS`,
+      admin-health-gated aggregate summaries, unit coverage in
+      `src/tests/unit/traffic-analytics.test.ts`, and documentation in
+      `docs/ANALYTICS.md`, `docs/SECURITY.md`, `docs/ENVIRONMENT.md`,
+      `docs/FRONTEND.md`, `PRIVACY_POLICY.md`, and `COOKIE_POLICY.md`.
+    - External uptime/error vendors such as Sentry, Better Stack, Datadog, or
+      Grafana Cloud still require account/dashboard setup and deployment
+      secrets, but the codebase now has a privacy-safe first-party baseline and
+      `/api/health` monitoring signal.
+
+- [x] Find and research other useful free-tier tools, libraries, APIs, cloud
+      services, and integrations.
+    - Completed 2026-06-10: added
+      `NOTES.md#phase-4-ai-summary-hosting-plan-2026-06-10` comparing managed
+      Google Gemini/Vertex AI, Groq-hosted Llama, Cloudflare Workers AI,
+      self-hosted Llama, and RunPod-style GPU hosting for Phase 4 contract
+      summaries.
+    - Recommendation: implement the service boundary first and use managed
+      inference for the initial production-quality summary feature. Prefer
+      Groq-hosted Llama or paid Gemini with data-use controls enabled; defer
+      self-hosted Llama until usage justifies GPU operations, autoscaling,
+      patching, and model monitoring.
 
 - [x] Add an oracle service to fetch off-chain data relevant to contracts, such
       as exchange rates for stablecoin payments or external data feeds that

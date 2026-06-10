@@ -1,5 +1,26 @@
 # Architecture
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [Components](#components)
+- [Contract Relationships](#contract-relationships)
+- [Escrow Model](#escrow-model)
+- [Arbitration Model](#arbitration-model)
+- [Frontend Model](#frontend-model)
+- [Network Support](#network-support)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,6 +29,12 @@ workflows fit together. Read it before changing cross-component behavior or
 deployment wiring.
 
 ## Components
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 | Component            | Path                                                 | Role                                                                                              |
 | -------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -20,6 +47,12 @@ deployment wiring.
 | CI/CD                | `.github/workflows/*.yml`                            | Build, lint, test, deploy, publish docs, and run security checks.                                 |
 
 ## Contract Relationships
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 `TrustLedger` is the escrow authority. `Arbitration` can execute rulings on
 disputed escrows. `JurorRegistry` accepts lock, unlock, and slash calls only
@@ -44,6 +77,12 @@ constructed with the same authority. The scripts then call
 
 ## Escrow Model
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 An escrow can start from either side:
 
 - A freelancer proposes work with `proposeContract`, then the client funds with
@@ -59,6 +98,12 @@ for the state machine.
 
 ## Arbitration Model
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 Disputes use juror committees selected from `JurorRegistry`. When no VRF
 coordinator is set, `Arbitration.openDispute` derives a seed from
 `block.prevrandao`, `block.timestamp`, and the dispute ID, then selects jurors
@@ -71,6 +116,12 @@ dispute with a larger committee and a bond. Read [Arbitration](ARBITRATION.md)
 for details.
 
 ## Frontend Model
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 The frontend is a standalone Next.js package under `src/`. It uses Reown AppKit
 with wagmi and viem to connect wallets on Sepolia, Arbitrum One, Base, and
@@ -88,6 +139,12 @@ Read [Oracle Architecture](ORACLE.md) for display-rate data flow and
 [Utilities](UTILITIES.md) for the reusable contract-template generator.
 
 ## Network Support
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 | Network          |   Chain ID | Source Support                                                     |
 | ---------------- | ---------: | ------------------------------------------------------------------ |

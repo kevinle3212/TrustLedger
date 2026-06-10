@@ -1,5 +1,31 @@
 # Escrow Lifecycle
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [Statuses](#statuses)
+- [Freelancer-Proposed Flow](#freelancer-proposed-flow)
+    - [Proposal](#proposal)
+    - [Funding](#funding)
+    - [Cancellation](#cancellation)
+- [Client-Proposed Flow](#client-proposed-flow)
+- [Work Submission](#work-submission)
+- [Approval And Holdback](#approval-and-holdback)
+- [Deadline Claims](#deadline-claims)
+- [Disputes](#disputes)
+- [Ratings](#ratings)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,6 +34,12 @@ reviewing user flows, testing lifecycle behavior, or integrating a client with
 `TrustLedger.sol`.
 
 ## Statuses
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 | Status      | Meaning                                                     |
 | ----------- | ----------------------------------------------------------- |
@@ -20,6 +52,12 @@ reviewing user flows, testing lifecycle behavior, or integrating a client with
 | `CANCELLED` | The proposal or escrow was cancelled before completion.     |
 
 ## Freelancer-Proposed Flow
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Use this flow when the freelancer writes the offer and the client decides
 whether to fund it.
@@ -46,6 +84,12 @@ PENDING -- acceptContract --> ACTIVE -- submitProofOfWork --> SUBMITTED
 
 ### Proposal
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 The freelancer calls `proposeContract` with a client address, amount, project
 duration, warranty period, contract hash, contract URI, token address, and
 optional previous contract ID. The function does not escrow funds. Native-token
@@ -58,16 +102,34 @@ duration.
 
 ### Funding
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 The client calls `acceptContract`. For native-token escrows, `msg.value` must
 equal the contract amount. For ERC-20 escrows, `msg.value` must be zero and the
 client must approve `TrustLedger` to transfer the escrow amount before calling.
 
 ### Cancellation
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 Before funding, the freelancer can call `cancelProposal` and the client can call
 `rejectContract`. Both paths move the escrow to `CANCELLED`.
 
 ## Client-Proposed Flow
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Use this flow when the client writes the offer and the freelancer decides
 whether to accept it.
@@ -89,11 +151,23 @@ funds. `fundContractByClient` deposits funds and moves the escrow to `ACTIVE`.
 
 ## Work Submission
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 The freelancer calls `submitProofOfWork` from `ACTIVE`. The proof hash and proof
 URI are stored, and the escrow moves to `SUBMITTED`. The contract then waits for
 client approval, dispute, or the acceptance-window claim path.
 
 ## Approval And Holdback
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 The client calls `approveWork` from `SUBMITTED`. The contract pays the
 freelancer the escrow amount minus the holdback and moves to `APPROVED`. The
@@ -104,6 +178,12 @@ pays the holdback and moves the escrow to `RESOLVED`.
 
 ## Deadline Claims
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 | Claim                        | Caller     | State                               | Result                                         |
 | ---------------------------- | ---------- | ----------------------------------- | ---------------------------------------------- |
 | `claimAfterDeadlineMiss`     | Client     | `ACTIVE` after project deadline     | Refunds escrow funds and cancels the contract. |
@@ -111,6 +191,12 @@ pays the holdback and moves the escrow to `RESOLVED`.
 | `claimWarrantyFunds`         | Freelancer | `APPROVED` after warranty deadline  | Pays holdback and resolves the contract.       |
 
 ## Disputes
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Either the client or freelancer can call `disputeWork` when the escrow is in a
 disputable state. The escrow moves to `DISPUTED`, and `TrustLedger` opens an
@@ -123,6 +209,12 @@ escrowed asset is not ETH.
 Read [Arbitration](ARBITRATION.md) for the dispute flow.
 
 ## Ratings
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 After completion paths, `submitRating` lets each party rate the counterparty
 from `1` to `100`. When arbitration executes a ruling, `TrustLedger` also

@@ -6,13 +6,10 @@ const EXPIRY_SECONDS = 72 * 60 * 60; // 72 hours
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
 	const secret = process.env["MAGIC_LINK_SECRET"];
-	const apiKey = process.env["RESEND_API_KEY"];
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 	if (secret === undefined || secret === "")
 		return NextResponse.json({ error: "MAGIC_LINK_SECRET not set" }, { status: 500 });
-	if (apiKey === undefined || apiKey === "")
-		return NextResponse.json({ error: "RESEND_API_KEY not set" }, { status: 500 });
 
 	let body: {
 		contractId?: unknown;
@@ -64,7 +61,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 		return NextResponse.json({ error: result.error }, { status: 502 });
 	}
 
-	return NextResponse.json({ ok: true });
+	return NextResponse.json({ ok: true, provider: result.provider, sent: result.sent });
 }
 
 // Magic-link email body, rendered with the shared TrustLedger email shell. The

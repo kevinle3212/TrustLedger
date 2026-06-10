@@ -73,6 +73,9 @@ jobs:
             - name: Install dependencies
               run: npm ci
 
+            - name: Sensitive file guard
+              run: npm run secrets:check
+
             - name: Compile contracts (generates TypeChain types for ESLint)
               run: npm run compile
 
@@ -100,6 +103,9 @@ jobs:
             # linters here plus Kubernetes manifest validation.
             - name: ESLint + Solhint + markdownlint
               run: npm run lint:config && npm run lint:ts && npm run lint:js && npm run lint:sol && npm run lint:md && npm run lint:cursor && npm run lint:k8s && npm run lint:logs
+
+            - name: Docs navigation check
+              run: npm run docs:nav:check
 
             - name: Prettier check
               run: npx prettier --check .
@@ -138,6 +144,7 @@ jobs:
                   python -m pip install --upgrade pip
                   python -m pip install mypy==2.1.0
                   python -m pip install -r utils/requirements.txt
+                  python -m pip install -r scripts/analytics/requirements.txt
 
             - name: Type-check Python sources
               run: npm run lint:py
@@ -271,3 +278,9 @@ jobs:
 
             - name: Run Rust tests
               run: npm run rust:test
+
+            - name: Check Solana program formatting
+              run: npm run solana:program:fmt
+
+            - name: Check Solana program
+              run: npm run solana:program:check

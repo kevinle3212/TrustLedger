@@ -5,8 +5,10 @@ import { useTranslations } from "next-intl";
 import { getExplorerTxUrl } from "@/lib/wagmi";
 
 interface Props {
-	txHash: `0x${string}` | undefined;
-	blockNumber: bigint;
+	txHash: string | undefined;
+	blockNumber?: bigint;
+	explorerUrl?: string;
+	networkLabel?: string;
 	isClientProposing: boolean;
 	clientEmail: string;
 	magicLinkStatus: "idle" | "sending" | "sent" | "error";
@@ -17,6 +19,8 @@ interface Props {
 export function CreateSuccessView({
 	txHash,
 	blockNumber,
+	explorerUrl,
+	networkLabel,
 	isClientProposing,
 	clientEmail,
 	magicLinkStatus,
@@ -24,6 +28,7 @@ export function CreateSuccessView({
 }: Props): React.JSX.Element {
 	const chainId = useChainId();
 	const t = useTranslations("Create");
+	const resolvedExplorerUrl = explorerUrl ?? getExplorerTxUrl(chainId, txHash ?? "");
 
 	return (
 		<div className="max-w-lg mx-auto px-6 py-24 flex flex-col items-center gap-6 text-center">
@@ -46,11 +51,13 @@ export function CreateSuccessView({
 				{isClientProposing ? t("contractOfferCreated") : t("contractProposed")}
 			</h2>
 			<p className="text-gray-500 dark:text-gray-400 text-sm">
-				{t("confirmedInBlock", { blockNumber: blockNumber.toString() })}
+				{blockNumber === undefined
+					? `Transaction confirmed on ${networkLabel ?? "chain"}.`
+					: t("confirmedInBlock", { blockNumber: blockNumber.toString() })}
 				{isClientProposing && ` ${t("freelancerWillReview")}`}
 			</p>
 			<a
-				href={getExplorerTxUrl(chainId, txHash ?? "")}
+				href={resolvedExplorerUrl}
 				target="_blank"
 				rel="noopener noreferrer"
 				className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 text-sm underline underline-offset-2"

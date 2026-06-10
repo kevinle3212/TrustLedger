@@ -1,4 +1,4 @@
-type SolanaCluster = "devnet" | "testnet" | "mainnet-beta" | "localnet";
+export type SolanaCluster = "devnet" | "testnet" | "mainnet-beta" | "localnet";
 
 export type SolanaNetworkConfig = {
 	readonly cluster: SolanaCluster;
@@ -60,4 +60,10 @@ export function getSolanaExplorerAddressUrl(address: string, cluster: SolanaClus
 	const encodedAddress = encodeURIComponent(address.trim());
 	const clusterParam = cluster === "mainnet-beta" ? "" : `?cluster=${cluster}`;
 	return `${SOLANA_NETWORKS[cluster].explorerBaseUrl}/address/${encodedAddress}${clusterParam}`;
+}
+
+export function getSolanaExplorerTxUrl(signature: string, cluster: SolanaCluster): string {
+	const encodedSignature = encodeURIComponent(signature.trim());
+	const clusterParam = cluster === "mainnet-beta" ? "" : `?cluster=${cluster}`;
+	return `${SOLANA_NETWORKS[cluster].explorerBaseUrl}/tx/${encodedSignature}${clusterParam}`;
 }

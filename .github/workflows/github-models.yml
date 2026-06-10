@@ -1,4 +1,6 @@
-# Runs GitHub Models .prompt.yml files and Python examples for docs/CI.
+# Validates GitHub Models prompt files for docs/CI.
+# Live provider-backed inference jobs are manual-only so external provider
+# hangs, quota, or availability cannot block application/security CI.
 # Requires models: read on GITHUB_TOKEN (enabled by default for GITHUB_TOKEN in many repos).
 #
 # Manual: Actions → GitHub Models prompts → Run workflow
@@ -29,7 +31,9 @@ permissions:
 jobs:
     prompt-files:
         name: Inference via prompt.yml (${{ matrix.prompt }})
+        if: github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         strategy:
             fail-fast: false
             # Serialize matrix legs: GitHub Models has a low shared rate limit,
@@ -92,6 +96,8 @@ jobs:
     evaluate-prompts:
         name: Evaluate prompts (gh models eval)
         runs-on: ubuntu-latest
+        continue-on-error: true
+        timeout-minutes: 5
         steps:
             - uses: actions/checkout@v6
 
@@ -111,7 +117,9 @@ jobs:
 
     python-examples:
         name: Python SDK examples
+        if: github.event_name == 'workflow_dispatch'
         runs-on: ubuntu-latest
+        timeout-minutes: 5
         steps:
             - uses: actions/checkout@v6
 
@@ -125,7 +133,7 @@ jobs:
             - name: Run happy-path scenarios
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              run: python scripts/models/github_models.py --scenario all --skip-rate-limit
+              run: timeout 240s python scripts/models/github_models.py --scenario all --skip-rate-limit
 
     error-handling:
         name: Error handling (invalid model)

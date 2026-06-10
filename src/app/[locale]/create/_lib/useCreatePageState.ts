@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
 	useAccount,
 	useChainId,
@@ -22,6 +22,7 @@ import {
 	validateEmail,
 	validateEthAddress,
 	validateEthAmount,
+	validateSolanaAddress,
 	validateSolAmount,
 	validateUsdcAmount,
 	validateNumberInRange,
@@ -36,8 +37,18 @@ import type { CreateState, FormFields } from "./types";
 import { DEFAULT_CONTRACT_TERMS } from "./contractTerms";
 import { createReducer } from "./reducer";
 import type { ShareableDraft } from "./secureDraftShare";
+import {
+	buildCreateSolanaEscrowTransaction,
+	getConfiguredSolanaCluster,
+	getInjectedSolanaWallet,
+	getTrustLedgerSolanaProgramId,
+	normalizeSolanaPublicKey,
+	submitCreateSolanaEscrowTransaction,
+	type SolanaEscrowSubmissionResult,
+} from "@/lib/solanaEscrow";
 
 const DRAFT_STORAGE_KEY = "tl_create_contract_draft";
+type SolanaTxStatus = "idle" | "connecting" | "simulating" | "pending" | "confirming" | "success";
 
 const FIELD_LABELS: Record<string, string> = {
 	client: "client address",
@@ -85,6 +96,11 @@ export function useCreatePageState(): {
 	txHash: `0x${string}` | undefined;
 	isPending: boolean;
 	writeError: Error | null;
+	solanaTxStatus: SolanaTxStatus;
+	solanaError: Error | null;
+	solanaWalletAddress: string | null;
+	solanaSubmission: SolanaEscrowSubmissionResult | null;
+	solanaProgramReady: boolean;
 	isConfirming: boolean;
 	isSuccess: boolean;
 	receipt: TransactionReceipt | undefined;
@@ -113,6 +129,12 @@ export function useCreatePageState(): {
 	const chainId = useChainId();
 	const usdcAddress = getUsdcAddress(chainId);
 	const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
+	const [solanaTxStatus, setSolanaTxStatus] = useState<SolanaTxStatus>("idle");
+	const [solanaError, setSolanaError] = useState<Error | null>(null);
+	const [solanaWalletAddress, setSolanaWalletAddress] = useState<string | null>(null);
+	const [solanaSubmission, setSolanaSubmission] = useState<SolanaEscrowSubmissionResult | null>(
+		null,
+	);
 	const {
 		isLoading: isConfirming,
 		isSuccess,
@@ -178,6 +200,7 @@ export function useCreatePageState(): {
 	const isClientProposing = proposerRole === "client";
 	const isUsdc = paymentToken === "usdc";
 	const isSol = paymentToken === "sol";
+	const solanaProgramReady = getTrustLedgerSolanaProgramId() !== null;
 
 	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
 	const uploadedMime = useRef("application/octet-stream");
@@ -193,7 +216,7 @@ export function useCreatePageState(): {
 
 	const fieldErrors = useMemo(
 		() => ({
-			client: validateEthAddress(form.client),
+			client: isSol ? validateSolanaAddress(form.client) : validateEthAddress(form.client),
 			clientEmail: validateEmail(form.clientEmail),
 			amount: isUsdc
 				? validateUsdcAmount(form.amount)
@@ -207,8 +230,8 @@ export function useCreatePageState(): {
 			paymentToken:
 				isUsdc && usdcAddress === undefined
 					? "USDC is not supported on this network. Switch to Sepolia, Arbitrum, Base, or Optimism."
-					: isSol
-						? "SOL drafts are enabled for Solana Devnet, but this EVM deployment form cannot custody native SOL. Use the Solana native-program flow for final submission."
+					: isSol && !solanaProgramReady
+						? "Set NEXT_PUBLIC_SOLANA_PROGRAM_ID to the deployed TrustLedger Solana escrow program ID before submitting SOL custody."
 						: undefined,
 			estimatedDurationDays: validateNumberInRange(form.estimatedDurationDays, 1, 3650, {
 				integer: true,
@@ -243,6 +266,7 @@ export function useCreatePageState(): {
 			isUsdc,
 			isSol,
 			usdcAddress,
+			solanaProgramReady,
 		],
 	);
 
@@ -418,9 +442,60 @@ export function useCreatePageState(): {
 
 	function handleConfirmDeploy(): void {
 		if (hasBlockingErrors) return;
+		if (isSol) {
+			void handleConfirmSolanaDeploy();
+			return;
+		}
 		if (simData?.request === undefined) return;
 		dispatch({ type: "CLOSE_REVIEW" });
 		writeContract(simData.request as Parameters<typeof writeContract>[0]);
+	}
+
+	async function handleConfirmSolanaDeploy(): Promise<void> {
+		if (hasBlockingErrors || !isSol || solanaTxStatus !== "idle") return;
+		dispatch({ type: "CLOSE_REVIEW" });
+		setSolanaError(null);
+		setSolanaSubmission(null);
+		try {
+			setSolanaTxStatus("connecting");
+			const wallet = getInjectedSolanaWallet();
+			if (wallet === null) {
+				throw new Error(
+					"Install or unlock a Solana wallet such as Phantom to submit SOL escrow.",
+				);
+			}
+			const connected = await wallet.connect?.();
+			const walletPublicKey = connected?.publicKey ?? wallet.publicKey;
+			if (walletPublicKey === undefined || walletPublicKey === null) {
+				throw new Error("Connect a Solana wallet before submitting.");
+			}
+			const payerAddress = normalizeSolanaPublicKey(walletPublicKey).toBase58();
+			setSolanaWalletAddress(payerAddress);
+			setSolanaTxStatus("simulating");
+			const draft = buildCreateSolanaEscrowTransaction({
+				form,
+				proposerRole,
+				payerAddress,
+				fileHash,
+			});
+			setSolanaTxStatus("pending");
+			const submission = await submitCreateSolanaEscrowTransaction({
+				wallet: { ...wallet, publicKey: walletPublicKey },
+				draft,
+				cluster: getConfiguredSolanaCluster(),
+			});
+			setSolanaTxStatus("confirming");
+			setSolanaSubmission(submission);
+			setSolanaTxStatus("success");
+			try {
+				window.localStorage.removeItem(DRAFT_STORAGE_KEY);
+			} catch {
+				// Browsers can deny localStorage in private or sandboxed contexts.
+			}
+		} catch (error) {
+			setSolanaTxStatus("idle");
+			setSolanaError(error instanceof Error ? error : new Error(String(error)));
+		}
 	}
 
 	useEffect(() => {
@@ -533,6 +608,11 @@ export function useCreatePageState(): {
 		txHash,
 		isPending,
 		writeError,
+		solanaTxStatus,
+		solanaError,
+		solanaWalletAddress,
+		solanaSubmission,
+		solanaProgramReady,
 		isConfirming,
 		isSuccess,
 		receipt,

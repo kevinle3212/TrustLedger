@@ -14,6 +14,7 @@ contracts/
 *.woff2
 *.ttf
 *.eot
+assets/analytics/*.json
 
 # ─── Build output ────────────────────────────────────────────────────────────
 dist/

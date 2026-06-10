@@ -4,6 +4,7 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { Link } from "@/i18n/navigation";
 import { REPUTATION_REGISTRY_ABI, TRUSTLEDGER_ABI } from "@/lib/abi";
 import { getLastWallet } from "@/lib/lastWallet";
+import { readLocalDashboardVisited } from "@/lib/accountPreferences";
 import { formatAddress } from "@/lib/utils";
 import {
 	ANALYTICS_STATUS_LABELS,
@@ -16,7 +17,6 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useSyncExternalStore } from "react";
 import { useAccount, useChainId, useReadContract, useReadContracts } from "wagmi";
 
-const DASHBOARD_VISITED_KEY = "tl_visited";
 const subscribeNoop = (): (() => void) => (): void => undefined;
 
 function useMounted(): boolean {
@@ -29,7 +29,7 @@ function useMounted(): boolean {
 
 function readDashboardGuideState(): string {
 	try {
-		return window.localStorage.getItem(DASHBOARD_VISITED_KEY) === "1"
+		return readLocalDashboardVisited()
 			? "Dashboard Guide Skipped Or Completed"
 			: "Dashboard Guide Available";
 	} catch {
