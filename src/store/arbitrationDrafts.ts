@@ -7,6 +7,10 @@ export interface EvidenceDraft {
 	updatedAt: number;
 }
 
+export interface EvidenceDraftHistoryItem extends EvidenceDraft {
+	disputeId: string;
+}
+
 function storageKey(disputeId: bigint | string): string {
 	return `tl-arbitration-evidence-${disputeId.toString()}`;
 }
@@ -53,4 +57,19 @@ export function writeEvidenceDraft(
 export function clearEvidenceDraft(disputeId: bigint | string): void {
 	if (typeof window === "undefined") return;
 	window.localStorage.removeItem(storageKey(disputeId));
+}
+
+export function readEvidenceDraftHistory(): EvidenceDraftHistoryItem[] {
+	if (typeof window === "undefined") return [];
+	const items: EvidenceDraftHistoryItem[] = [];
+	for (let index = 0; index < window.localStorage.length; index += 1) {
+		const key = window.localStorage.key(index);
+		if (key?.startsWith("tl-arbitration-evidence-") !== true) continue;
+		const disputeId = key.slice("tl-arbitration-evidence-".length);
+		const draft = readEvidenceDraft(disputeId);
+		if (draft !== undefined) {
+			items.push({ ...draft, disputeId });
+		}
+	}
+	return items.sort((a, b) => b.updatedAt - a.updatedAt);
 }

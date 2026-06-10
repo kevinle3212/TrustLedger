@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import type { ArweaveJWK } from "@/lib/arweave";
 import { Field } from "@/components/Field";
 import { Input } from "@/components/Input";
@@ -60,6 +61,18 @@ export function FileUploadPanel({
 	onArweaveUpload,
 }: Props): React.JSX.Element {
 	const t = useTranslations("Create");
+	const previewUrl = useMemo(
+		() => (selectedFile === null ? null : URL.createObjectURL(selectedFile)),
+		[selectedFile],
+	);
+
+	useEffect(() => {
+		const url = previewUrl;
+		if (url === null) return;
+		return (): void => {
+			URL.revokeObjectURL(url);
+		};
+	}, [previewUrl]);
 
 	return (
 		<div className="flex flex-col gap-3">
@@ -81,6 +94,16 @@ export function FileUploadPanel({
 					</span>
 				)}
 			</label>
+			{previewUrl !== null && (
+				<a
+					href={previewUrl}
+					target="_blank"
+					rel="noreferrer"
+					className="tl-button-motion inline-flex min-h-10 items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20"
+				>
+					Preview Selected File
+				</a>
+			)}
 
 			<EncryptionOptions
 				enabled={encryptEnabled}

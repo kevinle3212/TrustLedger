@@ -12,10 +12,14 @@
 #   DEMO=node    node only - useful for connecting MetaMask or Remix IDE
 set -euo pipefail
 
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TRUSTLEDGER_TMP_DIR="${TRUSTLEDGER_TMP_DIR:-$PROJECT_DIR/tmp}"
 NODE_URL="${NODE_URL:-http://127.0.0.1:8545}"
-NODE_LOG="${NODE_LOG:-${TMPDIR:-/tmp}/trustledger-docker-node.log}"
+NODE_LOG="${NODE_LOG:-$TRUSTLEDGER_TMP_DIR/trustledger-docker-node.log}"
 VERBOSE="${VERBOSE:-0}"
 NODE_PID=""
+
+mkdir -p "$TRUSTLEDGER_TMP_DIR"
 
 log() { echo "$*"; }
 die() { echo "docker-demo: $*" >&2; exit 1; }
@@ -34,7 +38,7 @@ Modes:
 
 Environment:
   NODE_URL    JSON-RPC health URL. Default: http://127.0.0.1:8545
-  NODE_LOG    Hardhat node log path. Default: ${TMPDIR:-/tmp}/trustledger-docker-node.log
+  NODE_LOG    Hardhat node log path. Default: ./tmp/trustledger-docker-node.log
   VERBOSE=1   Enable debug messages.
 USAGE
 }

@@ -32,6 +32,7 @@ import type { ArweaveJWK } from "@/lib/arweave";
 import { useRole } from "@/contexts/RoleContext";
 import { decodeContractError, type DecodedContractError } from "@/lib/contractErrors";
 import type { CreateState, FormFields } from "./types";
+import { DEFAULT_CONTRACT_TERMS } from "./contractTerms";
 import { createReducer } from "./reducer";
 import type { ShareableDraft } from "./secureDraftShare";
 
@@ -136,8 +137,7 @@ export function useCreatePageState(): {
 				holdBack: "none" as const,
 				warrantyPeriodDays: "30",
 			},
-			termsBody:
-				"# Scope of work\n\n- Deliver the agreed milestone.\n- Share acceptance criteria before funding.\n\n## Payment\n\nEscrow releases after approval or dispute resolution.",
+			termsBody: DEFAULT_CONTRACT_TERMS.markdown,
 			termsFormat: "markdown" as const,
 			termsLastUpdatedAt: new Date().toISOString(),
 			reviewOpen: false,
@@ -194,7 +194,10 @@ export function useCreatePageState(): {
 			client: validateEthAddress(form.client),
 			clientEmail: validateEmail(form.clientEmail),
 			amount: isUsdc ? validateUsdcAmount(form.amount) : validateEthAmount(form.amount),
-			contractURI: docMode === "manual" ? validateContractUri(form.contractURI) : undefined,
+			contractURI:
+				form.contractURI.trim() === ""
+					? "Upload an encrypted contract file or enter a contract URI before submitting."
+					: validateContractUri(form.contractURI),
 			paymentToken:
 				isUsdc && usdcAddress === undefined
 					? "USDC is not supported on this network. Switch to Sepolia, Arbitrum, Base, or Optimism."

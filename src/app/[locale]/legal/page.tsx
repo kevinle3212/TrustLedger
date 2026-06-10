@@ -49,7 +49,7 @@ export default async function LegalPage({
 				{LEGAL_DOCUMENTS.map((document) => (
 					<article
 						key={document.title}
-						className="tl-motion-card rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950"
+						className="tl-motion-card flex min-h-64 flex-col rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950"
 					>
 						<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
 							{document.title}
@@ -57,31 +57,54 @@ export default async function LegalPage({
 						<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
 							{document.description}
 						</p>
-						<p className="mt-3 font-mono text-xs text-gray-500 dark:text-gray-400">
-							{document.sourceFile}
-						</p>
-						<p className="mt-4 inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-800 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200">
-							{document.translationStatus}
-						</p>
-						<Link
-							href={`/legal/${document.slug}`}
-							className="tl-button-motion mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-						>
-							View document
-						</Link>
+						<div className="mt-auto pt-5">
+							<div className="grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
+								<p className="flex items-start gap-2 font-mono text-xs text-gray-600 dark:text-gray-300">
+									<span
+										className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[0.65rem] font-bold text-indigo-700 dark:bg-indigo-400/15 dark:text-indigo-200"
+										aria-hidden="true"
+									>
+										S
+									</span>
+									<span className="min-w-0 break-all">{document.sourceFile}</span>
+								</p>
+								<p className="inline-flex w-fit rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-800 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200">
+									{document.translationStatus}
+								</p>
+							</div>
+							<Link
+								href={`/legal/${document.slug}`}
+								className="tl-button-motion mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+							>
+								<span aria-hidden="true">↗</span>
+								View Document
+							</Link>
+						</div>
 					</article>
 				))}
 			</section>
 
 			<section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950">
 				<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-					Translation helper
+					Translation Helper
 				</h2>
 				<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					Legal translations should preserve legal numbering, defined terms, links, and
-					markdown structure. Machine-assisted drafts must remain marked for review until
-					approved by a qualified reviewer.
+					Use this prompt when preparing a machine-assisted translation. It tells the
+					translator to preserve numbering, defined terms, links, and Markdown structure,
+					and to flag language that needs legal review instead of silently changing the
+					meaning.
 				</p>
+				<ol className="mt-4 grid gap-2 text-sm leading-6 text-gray-600 dark:text-gray-300 sm:grid-cols-3">
+					<li className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
+						1. Choose the legal document and target locale.
+					</li>
+					<li className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
+						2. Translate without changing obligations or remedies.
+					</li>
+					<li className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
+						3. Keep the result marked needs-review until approved.
+					</li>
+				</ol>
 				<code className="mt-4 block overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-5 text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-200">
 					{buildLegalTranslationPrompt(LEGAL_DOCUMENTS[0], legalLocale)}
 				</code>
@@ -103,7 +126,7 @@ export default async function LegalPage({
 						rel="noopener noreferrer"
 						className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
 					>
-						View security policy
+						View Security Policy
 					</a>
 					<Link
 						href="/faq"

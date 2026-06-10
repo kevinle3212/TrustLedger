@@ -81,8 +81,9 @@ graph can include low-severity development-toolchain advisories tied to Hardhat
 migration. Treat that migration as a planned toolchain upgrade, not an automatic
 `npm audit fix --force`.
 
-Security and CI jobs also run `npm run logs:check` where root dependencies are
-installed, so local ignored audit logs do not grow without a visible policy.
+Security and CI jobs also run `npm run logs:check` and `npm run tmp:check` where
+root dependencies are installed, so local ignored audit logs do not grow without
+a visible policy.
 
 ## Reporting Vulnerabilities
 

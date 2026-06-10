@@ -14,17 +14,18 @@ it when adding a job, debugging CI, or changing deployment secrets.
 | `deploy.yml`               | Manual `workflow_dispatch`                   | Deploy contracts to Ethereum Sepolia and deploy frontend to Vercel. |
 | `security.yml`             | Push, pull request, weekly schedule, manual  | Slither, TruffleHog, npm audit, CodeQL, and Semgrep.                |
 | `docs.yml`                 | Docs-related pushes and manual               | Build MkDocs and publish GitHub Pages.                              |
-| `wiki-sync.yml`            | Docs pushes and manual                       | Copy `docs/*.md` into the GitHub wiki repository.                   |
+| `wiki-sync.yml`            | Docs pushes and manual                       | Publish a wiki home page that links to rendered GitHub Pages docs.  |
 | `github-models.yml`        | Prompt-related pushes, pull requests, manual | Run GitHub Models prompt checks and examples.                       |
 | `react-doctor.yml`         | Frontend pushes and pull requests            | Run React Doctor checks on frontend changes.                        |
-| `log-hygiene.yml`          | Push, pull request, weekly schedule, manual  | Check ignored log retention policy and log Markdown formatting.     |
+| `log-hygiene.yml`          | Push, pull request, weekly schedule, manual  | Check ignored log/tmp retention policy and log Markdown formatting. |
 | `dependabot-automerge.yml` | Dependabot pull requests                     | Auto-merge selected Dependabot updates.                             |
 
 ## CI Workflow
 
 `ci.yml` has separate jobs for frontend, TypeScript, Python, Hardhat, and
-Solidity. Root TypeScript and Hardhat jobs also run `npm run logs:check` so
-ignored local log growth cannot silently drift from policy.
+Solidity. Root TypeScript and Hardhat jobs also run `npm run logs:check` and the
+root `quality` command runs `npm run tmp:check` so ignored local log and scratch
+growth cannot silently drift from policy.
 
 | Job          | Key Checks                                                                                                       |
 | ------------ | ---------------------------------------------------------------------------------------------------------------- |
@@ -65,9 +66,11 @@ Docker, Kubernetes, package metadata, and docs. See [CodeRabbit](CODERABBIT.md).
 
 ## Docs Workflow
 
-`docs.yml` builds MkDocs from `docs/` using `mkdocs.yml`. `wiki-sync.yml` copies
-markdown files from `docs/` to the GitHub wiki. Keep canonical docs in `docs/`
-when they should appear in both published docs and the wiki.
+`docs.yml` builds MkDocs from `docs/` using `mkdocs.yml`. `wiki-sync.yml`
+regenerates the GitHub Wiki `Home.md` table of contents so the wiki points to
+the rendered GitHub Pages documentation instead of duplicating raw Markdown
+files. Keep canonical docs in `docs/`; the wiki should stay a lightweight entry
+point to those rendered pages.
 
 Local docs checks:
 
@@ -77,19 +80,21 @@ Local docs checks:
 | Relative Markdown links | `npm run docs:links`          |
 | External Markdown links | `npm run docs:links:external` |
 
-## Log Hygiene Workflow
+## Local Hygiene Workflow
 
 `log-hygiene.yml` runs on pushes, pull requests, a weekly schedule, and manual
 dispatch. It installs root npm dependencies, then runs:
 
 ```bash
 npm run logs:check
+npm run tmp:check
 npm run lint:logs
 ```
 
-The workflow usually sees an empty `logs/` directory because logs are ignored by
-git. Its job is to keep the policy executable and catch any accidentally tracked
-log files. Local hooks enforce the same checks against real local logs.
+The workflow usually sees empty `logs/` and `tmp/` directories because both are
+ignored by git. Its job is to keep the policy executable and catch any
+accidentally tracked local artifacts. Local hooks enforce the same checks
+against real local logs and scratch files.
 
 ### MkDocs Dependency Pinning
 

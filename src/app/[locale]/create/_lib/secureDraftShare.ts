@@ -71,13 +71,14 @@ function fromHex(hex: string): Uint8Array<ArrayBuffer> {
 }
 
 function normalizedWallets(wallets: readonly string[]): string[] {
-	return [
-		...new Set(
-			wallets
-				.map((wallet) => wallet.trim().toLowerCase())
-				.filter((wallet) => /^0x[0-9a-f]{40}$/.test(wallet)),
-		),
-	];
+	const normalized = new Set<string>();
+	for (const wallet of wallets) {
+		const trimmed = wallet.trim().toLowerCase();
+		if (/^0x[0-9a-f]{40}$/.test(trimmed)) {
+			normalized.add(trimmed);
+		}
+	}
+	return [...normalized];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

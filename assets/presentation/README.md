@@ -13,7 +13,7 @@ artifacts.
 - [`trustledger-one-slide.html`](trustledger-one-slide.html) is the editable
   source used to render the PDF.
 
-The slide follows [Presentation Notes](../PRESENTATION.md) and uses the current
-TrustLedger product theme: restrained indigo, flat financial-tool surfaces,
+The slide follows [Presentation Notes](../../docs/PRESENTATION.md) and uses the
+current TrustLedger product theme: restrained indigo, flat financial-tool surfaces,
 plain-language escrow flow, encrypted collaboration, and juror-backed dispute
 resolution.

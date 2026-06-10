@@ -28,9 +28,9 @@ and frontend contributors working on TrustLedger.
 
 ## Compatibility Pages
 
-Some legacy docs are kept because MkDocs, wiki sync, or external links may still
-reference them. When a topic has a canonical page, the legacy page links to the
-canonical version instead of duplicating stale details.
+Some legacy docs are kept because MkDocs, the generated wiki home, or external
+links may still reference them. When a topic has a canonical page, the legacy
+page links to the canonical version instead of duplicating stale details.
 
 | Legacy Page                        | Canonical Page                        |
 | ---------------------------------- | ------------------------------------- |

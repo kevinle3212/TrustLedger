@@ -47,7 +47,7 @@ configured in source as of 2026-06-08.
 ## Social Slide
 
 The one-slide social PDF lives at
-[`presentation/trustledger-one-slide.pdf`](presentation/trustledger-one-slide.pdf).
+[`assets/presentation/trustledger-one-slide.pdf`](https://github.com/kevinle3212/TrustLedger/blob/main/assets/presentation/trustledger-one-slide.pdf).
 It follows this overview's positioning: TrustLedger is a serious freelance
 escrow workflow with wallet-gated contracts, encrypted collaboration, on-chain
 fund handling, and juror-backed dispute resolution.

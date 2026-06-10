@@ -123,9 +123,11 @@ markdownlint. Use:
 ```bash
 npm run lint:logs
 npm run logs:check
+npm run tmp:check
 ```
 
-Run `npm run logs:prune` when local logs exceed retention limits.
+Run `npm run logs:prune` when local logs exceed retention limits. Run
+`npm run tmp:prune` when project-local scratch files exceed retention limits.
 
 ## Documentation Ownership
 

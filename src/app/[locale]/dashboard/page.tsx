@@ -911,6 +911,37 @@ function DashboardWalkthrough({
 	onClose: () => void;
 }): React.JSX.Element | null {
 	const t = useTranslations("Dashboard");
+	const [activeStep, setActiveStep] = useState(0);
+	const steps = [
+		{
+			title: t("walkthroughStepCreateTitle"),
+			body: t("walkthroughStepCreateBody"),
+			tasks: [
+				"Choose Client Or Freelancer Before Drafting",
+				"Add Counterparty Wallet, Amount, Timeline, And Document Source",
+				"Preview The Proposal Before Your Wallet Signs",
+			],
+		},
+		{
+			title: t("walkthroughStepTrackTitle"),
+			body: t("walkthroughStepTrackBody"),
+			tasks: [
+				"Confirm Funding, Delivery, And Approval State",
+				"Open The Document Or Decrypt It With The Shared Passphrase",
+				"Use Only The Action Buttons Available To Your Connected Wallet",
+			],
+		},
+		{
+			title: t("walkthroughStepResolveTitle"),
+			body: t("walkthroughStepResolveBody"),
+			tasks: [
+				"Submit Evidence With A Clear Requested Completion Percentage",
+				"Jurors Commit Votes First, Then Reveal With The Saved Salt",
+				"Review Final Payouts And Claim Available Rewards",
+			],
+		},
+	] as const;
+	const active = steps[activeStep] ?? steps[0];
 
 	if (!open) return null;
 
@@ -948,43 +979,75 @@ function DashboardWalkthrough({
 					</div>
 					<div className="mt-8 grid gap-6 lg:grid-cols-[1fr_18rem]">
 						<div className="space-y-4">
-							{[
-								{
-									title: t("walkthroughStepCreateTitle"),
-									body: t("walkthroughStepCreateBody"),
-								},
-								{
-									title: t("walkthroughStepTrackTitle"),
-									body: t("walkthroughStepTrackBody"),
-								},
-								{
-									title: t("walkthroughStepResolveTitle"),
-									body: t("walkthroughStepResolveBody"),
-								},
-							].map((step, index) => (
-								<div
-									key={step.title}
-									className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-white/10 dark:bg-white/5"
-								>
-									<div className="flex gap-3">
-										<span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-sm font-semibold text-gray-700 dark:border-white/15 dark:bg-gray-950 dark:text-gray-200">
-											{index + 1}
-										</span>
-										<div>
-											<h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-												{step.title}
-											</h3>
-											<p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
-												{step.body}
-											</p>
-										</div>
-									</div>
-								</div>
-							))}
+							<div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-400/30 dark:bg-indigo-400/10">
+								<p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700 dark:text-indigo-200">
+									Step {activeStep + 1} Of {steps.length}
+								</p>
+								<h3 className="mt-2 text-lg font-semibold text-gray-950 dark:text-white">
+									{active.title}
+								</h3>
+								<p className="mt-2 text-sm leading-6 text-gray-700 dark:text-gray-200">
+									{active.body}
+								</p>
+								<ul className="mt-4 grid gap-2">
+									{active.tasks.map((task) => (
+										<li
+											key={task}
+											className="flex gap-2 rounded-lg border border-white/70 bg-white/70 p-3 text-sm text-gray-700 dark:border-white/10 dark:bg-gray-950/50 dark:text-gray-200"
+										>
+											<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-200">
+												✓
+											</span>
+											{task}
+										</li>
+									))}
+								</ul>
+							</div>
+							<div className="grid grid-cols-3 gap-2">
+								{steps.map((step, index) => (
+									<button
+										key={step.title}
+										type="button"
+										onClick={() => {
+											setActiveStep(index);
+										}}
+										className={`rounded-lg border px-3 py-2 text-xs font-semibold ${
+											activeStep === index
+												? "border-indigo-200 bg-indigo-600 text-white"
+												: "border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300"
+										}`}
+									>
+										Step {index + 1}
+									</button>
+								))}
+							</div>
 						</div>
 						<ExampleContractPreview />
 					</div>
 					<div className="mt-8 flex flex-col gap-3 border-t border-gray-200 pt-6 dark:border-white/10 sm:flex-row sm:justify-end">
+						<button
+							type="button"
+							onClick={() => {
+								setActiveStep((current) => Math.max(0, current - 1));
+							}}
+							disabled={activeStep === 0}
+							className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
+						>
+							Previous Step
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								if (activeStep === steps.length - 1) {
+									onClose();
+								} else {
+									setActiveStep((current) => current + 1);
+								}
+							}}
+							className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gray-950 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+						>
+							{activeStep === steps.length - 1 ? "Finish Walkthrough" : "Next Step"}
+						</button>
 						<button
 							type="button"
 							onClick={onClose}

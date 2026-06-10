@@ -21,11 +21,20 @@ configuration, tests, user-facing copy, or agent guidance.
    guidance. Prefer `docs/`, `README.md`, `src/README.md`, `.cursor/rules/`,
    `.copilot/instructions.md`, `.codex/AGENTS.md`, `CLAUDE.md`, or
    `.sixth/README.md` based on scope.
-3. Update comments only when the surrounding code would otherwise be misleading
+3. Remove or update stale references to moved or renamed code, assets, routes,
+   commands, environment variables, legal docs, generated files, or workflows.
+4. Update comments only when the surrounding code would otherwise be misleading
    or hard to operate safely. Remove stale comments instead of adding new ones.
-4. Add or adjust tests and validation commands when behavior or tooling changes.
-5. Keep generated run notes under `logs/` as markdownlint-compliant Markdown.
+5. Add or adjust tests and validation commands when behavior or tooling changes.
+6. Keep generated run notes under `logs/` as markdownlint-compliant Markdown.
    Run `npm run logs:check` after writing log files.
+7. Keep temporary scratch output under project-local `tmp/` and document
+   `TRUSTLEDGER_TMP_DIR` when scripts or tools need an explicit temporary root.
+   Run `npm run tmp:check` after creating scratch files and `npm run tmp:prune`
+   when retention limits are exceeded.
+8. For UI-facing changes, keep localhost browser validation documented and use
+   `rtk npm run dev:frontend`; if sandboxed binding blocks the check, rerun with
+   escalation using the user's pre-authorization for localhost browser checks.
 
 ## Validation
 

@@ -47,12 +47,22 @@ commands with `rtk` when available.
   every `logs/*.md` file with `src/.agents/skills/log-markdown/SKILL.md` so
   ignored logs still comply with markdownlint. Run `npm run logs:check` after
   writing logs and `npm run logs:prune` when retention limits are exceeded.
+- Temporary scratch files belong in project-local `tmp/`, not system `/tmp`,
+  unless an external tool requires otherwise. `tmp/` is ignored by git; set
+  `TRUSTLEDGER_TMP_DIR=./tmp` when a script needs an explicit temporary root.
+  Run `npm run tmp:check` after creating scratch files and `npm run tmp:prune`
+  when retention limits are exceeded.
+- Localhost browser checks are permitted when UI validation is requested. Start
+  the frontend with `rtk npm run dev:frontend`; if sandboxed server binding
+  blocks the check, rerun the same command with escalation and state that the
+  user pre-authorized localhost browser validation for this repository.
 - SWC cache/policy work: use `src/.agents/skills/swc-config/SKILL.md`, keep
   generated native binaries ignored, and run `npm run swc:populate` before
   frontend builds or push-time checks.
 - After code, config, workflow, deployment, documentation, website, or agent
   guidance changes, use `src/.agents/skills/update-context/SKILL.md` to update
-  the nearest authoritative docs/comments and run the relevant validation.
+  the nearest authoritative docs/comments, remove or update stale references to
+  moved or renamed code/assets/commands, and run the relevant validation.
 
 ## Roadmap Discipline
 

@@ -81,4 +81,8 @@ When a skill writes output to `logs/`, the output must be Markdown and pass:
 ```sh
 npm run lint:logs
 npm run logs:check
+npm run tmp:check
 ```
+
+Run `npm run logs:prune` or `npm run tmp:prune` when ignored local files exceed
+retention limits.

@@ -4,6 +4,7 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { useTranslations } from "next-intl";
 import { useCreatePageState } from "../_lib/useCreatePageState";
 import { ContractLivePreview } from "./ContractLivePreview";
+import { ContractDocumentSection } from "./ContractDocumentSection";
 import { ContractFormFields } from "./ContractFormFields";
 import { CreateSuccessView } from "./CreateSuccessView";
 import { ReviewConfirmationPanel } from "./ReviewConfirmationPanel";
@@ -121,11 +122,9 @@ export function CreatePageInner(): React.JSX.Element {
 						</button>
 					))}
 				</div>
-				{isClientProposing && (
-					<span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
-						{t("bewareWarning")}
-					</span>
-				)}
+				<span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg">
+					{t("bewareWarning")}
+				</span>
 			</div>
 
 			{/* Currency selector */}
@@ -172,7 +171,7 @@ export function CreatePageInner(): React.JSX.Element {
 						onImportDraft={applySharedDraft}
 					/>
 
-					<ContractFormFields
+					<ContractDocumentSection
 						form={form}
 						set={set}
 						showError={showError}
@@ -181,8 +180,6 @@ export function CreatePageInner(): React.JSX.Element {
 						onDocModeChange={(mode) => {
 							dispatch({ type: "SET_DOC_MODE", mode });
 						}}
-						isClientProposing={isClientProposing}
-						isUsdc={isUsdc}
 						selectedFile={selectedFile}
 						onFileChange={(file) => {
 							dispatch({ type: "FILE_SELECTED", file });
@@ -218,6 +215,15 @@ export function CreatePageInner(): React.JSX.Element {
 						onArweaveUpload={() => {
 							void handleArweaveUpload();
 						}}
+					/>
+
+					<ContractFormFields
+						form={form}
+						set={set}
+						showError={showError}
+						markTouched={markTouched}
+						isClientProposing={isClientProposing}
+						isUsdc={isUsdc}
 					/>
 
 					<SubmitSummary

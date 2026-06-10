@@ -82,15 +82,17 @@ Check retention and Markdown policy:
 ```bash
 npm run logs:check
 npm run lint:logs
+npm run tmp:check
 ```
 
 Prune old or oversized local logs:
 
 ```bash
 npm run logs:prune
+npm run tmp:prune
 ```
 
-Default retention limits:
+Default log retention limits:
 
 | Setting                  |         Default | Environment override             |
 | ------------------------ | --------------: | -------------------------------- |
@@ -102,6 +104,23 @@ Default retention limits:
 `logs:check` is non-destructive and fails when `logs/` exceeds policy.
 `logs:prune` removes stale, oversized, and oldest excess files until the local
 directory is back under the same limits.
+
+Temporary scratch files belong in ignored project-local `tmp/`, not system
+`/tmp`, unless an external tool requires otherwise. Use
+`TRUSTLEDGER_TMP_DIR=./tmp` when a command accepts an explicit temporary root.
+
+Default tmp retention limits:
+
+| Setting                  |          Default | Environment override             |
+| ------------------------ | ---------------: | -------------------------------- |
+| Maximum files            |              100 | `TRUSTLEDGER_TMP_MAX_FILES`      |
+| Maximum total size       | 50,000,000 bytes | `TRUSTLEDGER_TMP_MAX_BYTES`      |
+| Maximum single file size | 10,000,000 bytes | `TRUSTLEDGER_TMP_MAX_FILE_BYTES` |
+| Maximum age              |           7 days | `TRUSTLEDGER_TMP_MAX_AGE_DAYS`   |
+
+`tmp:check` is non-destructive and fails when `tmp/` exceeds policy. `tmp:prune`
+removes stale, oversized, and oldest excess files until the local directory is
+back under the same limits.
 
 ## Cross-Platform Script Support
 

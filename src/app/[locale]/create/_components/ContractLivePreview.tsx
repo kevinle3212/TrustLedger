@@ -63,10 +63,10 @@ export function ContractLivePreview({
 			: dateTimeFormatter.format(new Date(termsLastUpdatedAt));
 
 	return (
-		<aside className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5 lg:sticky lg:top-24">
+		<aside className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm transition-transform duration-300 dark:border-white/10 dark:bg-white/5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:scroll-smooth">
 			<div className="flex flex-col gap-1">
 				<p className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
-					{t("livePreview")}
+					Live Preview
 				</p>
 				<h2 className="text-xl font-semibold tracking-[-0.015em] text-gray-900 dark:text-white">
 					{t("previewTitle")}
@@ -76,54 +76,54 @@ export function ContractLivePreview({
 				</p>
 			</div>
 
-			<div className="tl-kv-grid mt-6 text-sm">
-				<span className="text-gray-500">{t("counterparty")}</span>
+			<div className="tl-kv-grid mt-6 rounded-xl border border-gray-200 bg-white p-4 text-sm dark:border-white/10 dark:bg-gray-950">
+				<span className="text-gray-500">Counterparty</span>
 				<span className="font-mono text-xs text-gray-900 dark:text-white">
 					{fallback(form.client, t("previewNotSet"))}
 				</span>
 
-				<span className="text-gray-500">{t("recipientRole")}</span>
+				<span className="text-gray-500">Recipient Role</span>
 				<span className="text-gray-900 dark:text-white">
 					{isClientProposing ? t("isFreelancer") : t("isClient")}
 				</span>
 
-				<span className="text-gray-500">{t("escrowAmountSummary")}</span>
+				<span className="text-gray-500">Escrow Amount</span>
 				<span className="font-medium text-gray-900 dark:text-white">{amount}</span>
 
-				<span className="text-gray-500">{t("contractDocumentTitle")}</span>
+				<span className="text-gray-500">Contract Document</span>
 				<span className="font-mono text-xs text-gray-900 dark:text-white">
 					{fallback(form.contractURI, t("previewNotSet"))}
 				</span>
 
-				<span className="text-gray-500">{t("deadlineLabel")}</span>
+				<span className="text-gray-500">Deadline</span>
 				<span className="text-gray-900 dark:text-white">
 					{projectDays > 0 ? t("daysFromNow", { n: projectDays }) : t("previewNotSet")}
 				</span>
 
-				<span className="text-gray-500">{t("acceptanceWindow")}</span>
+				<span className="text-gray-500">Acceptance Window</span>
 				<span className="text-gray-900 dark:text-white">
 					{form.acceptanceWindowDays.trim() === "" ? "0" : form.acceptanceWindowDays}{" "}
 					{t("daysUnit")}
 				</span>
 
-				<span className="text-gray-500">{t("arbitrationFee")}</span>
+				<span className="text-gray-500">Arbitration Fee</span>
 				<span className="text-gray-900 dark:text-white">
 					{form.arbitrationFeePct.trim() === "" ? "0" : form.arbitrationFeePct}%
 				</span>
 
-				<span className="text-gray-500">{t("warrantyHoldback")}</span>
+				<span className="text-gray-500">Warranty Hold-Back</span>
 				<span className="text-gray-900 dark:text-white">{holdBack}</span>
 
-				<span className="text-gray-500">Terms format</span>
+				<span className="text-gray-500">Terms Format</span>
 				<span className="capitalize text-gray-900 dark:text-white">{termsFormat}</span>
 
-				<span className="text-gray-500">Last updated</span>
+				<span className="text-gray-500">Last Updated</span>
 				<span className="text-gray-900 dark:text-white">{lastUpdated}</span>
 			</div>
 
 			<div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-950">
 				<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-					Editable terms excerpt
+					Editable Terms Excerpt
 				</p>
 				<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
 					{termsExcerpt}

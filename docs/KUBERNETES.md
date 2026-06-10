@@ -64,9 +64,10 @@ kubectl apply -f k8s/secret.yaml
 when you need manual editing:
 
 ```bash
-cp k8s/secret.example.yaml /tmp/trustledger-secret.yaml
-$EDITOR /tmp/trustledger-secret.yaml
-kubectl apply -f /tmp/trustledger-secret.yaml
+mkdir -p tmp
+cp k8s/secret.example.yaml tmp/trustledger-secret.yaml
+$EDITOR tmp/trustledger-secret.yaml
+kubectl apply -f tmp/trustledger-secret.yaml
 ```
 
 Or create the secret directly:

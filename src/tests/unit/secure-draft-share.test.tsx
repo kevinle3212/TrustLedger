@@ -143,7 +143,7 @@ describe("SecureDraftSessionPanel", () => {
 
 		fireEvent.click(screen.getByRole("button", { name: "Insert bold terms snippet" }));
 		expect(onTermsBodyChange).toHaveBeenCalledWith(`${state.termsBody}\n**important term**`);
-		expect(screen.getByText(/Last updated:/)).toHaveTextContent("Last updated:");
+		expect(screen.getByText(/Last Updated:/)).toHaveTextContent("Last Updated:");
 	});
 
 	it("creates a share link, copies the separate key, and imports URL drafts", async () => {
@@ -158,10 +158,10 @@ describe("SecureDraftSessionPanel", () => {
 			/>,
 		);
 
-		fireEvent.click(screen.getByRole("button", { name: "Create encrypted share link" }));
-		await screen.findByText("Encrypted share link created. Send the key separately.");
+		fireEvent.click(screen.getByRole("button", { name: "Create Encrypted Share Link" }));
+		await screen.findByText("Encrypted Share Link Created. Send The Session Key Separately.");
 
-		fireEvent.click(screen.getByRole("button", { name: "Copy session key" }));
+		fireEvent.click(screen.getByRole("button", { name: "Copy Session Key" }));
 		await waitFor(() => {
 			expect(writeTextMock).toHaveBeenCalledWith(expect.any(String));
 		});
@@ -186,10 +186,10 @@ describe("SecureDraftSessionPanel", () => {
 			/>,
 		);
 
-		fireEvent.change(screen.getByPlaceholderText("Paste session key"), {
+		fireEvent.change(screen.getByPlaceholderText("Paste Session Key"), {
 			target: { value: sessionKey },
 		});
-		fireEvent.click(screen.getByRole("button", { name: "Import draft" }));
+		fireEvent.click(screen.getByRole("button", { name: "Import Draft" }));
 
 		await waitFor(() => {
 			expect(onImportDraft).toHaveBeenCalledWith(
@@ -209,8 +209,8 @@ describe("SecureDraftSessionPanel", () => {
 			/>,
 		);
 
-		fireEvent.click(screen.getByRole("button", { name: "Start live room" }));
-		await screen.findByText("Encrypted live room started. Send the key separately.");
+		fireEvent.click(screen.getByRole("button", { name: "Start Live Room" }));
+		await screen.findByText("Live Room Link Copied!");
 
 		const encryptedUrl = screen.getByText(/tl_draft=/).textContent;
 		expect(encryptedUrl).toContain("tl_room=");

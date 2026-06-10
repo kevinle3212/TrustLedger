@@ -79,6 +79,9 @@ jobs:
             - name: Log retention check
               run: npm run logs:check
 
+            - name: Tmp retention check
+              run: npm run tmp:check
+
             - name: TypeScript typecheck
               run: npx tsc -p tsconfig.hardhat.json --noEmit
 
@@ -162,6 +165,9 @@ jobs:
 
             - name: Log retention check
               run: npm run logs:check
+
+            - name: Tmp retention check
+              run: npm run tmp:check
 
             - name: Run Hardhat tests
               run: npm run hardhat:test
