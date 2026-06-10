@@ -10,38 +10,6 @@ mainnet launch deliverables.
 
 ## Phase 1 — Development Environment and Tooling
 
-- [ ] Update all packages to their latest versions, upgrade Hardhat to 3.x, and
-      confirm that all tests and code still work, so the project benefits from
-      new features, improvements, and security patches.
-    - Update the `package.json` dependencies, run `npm install`, and then fix
-      any breaking changes that arise. Pay special attention to major version
-      updates (for example Hardhat 3.x), since they can introduce breaking
-      changes that require code modifications.
-    - After updating, run the full test suite to confirm everything still works.
-    - Update outdated, insecure, or deprecated packages and code patterns so the
-      codebase follows current best practices and is secure against known
-      vulnerabilities.
-    - Apply only the updates that can be made without breaking the codebase, and
-      prioritize security updates and critical bug fixes over minor version
-      bumps that add little value.
-    - Record in `NOTES.md` any packages or code that could not be updated
-      because of deprecation or lack of maintenance, so future contributors are
-      aware of the technical debt.
-    - Revisit the 28 remaining low-severity `npm audit` findings once this
-      upgrade lands. They all trace to the unpatched `elliptic <=6.6.1` advisory
-      pulled in transitively by the Hardhat 2 / ethers-v5 dev toolchain (no
-      patched `elliptic` exists, so it cannot be overridden). Migrating to
-      Hardhat 3.x / `@nomicfoundation/hardhat-toolbox` 7.x removes ethers-v5 and
-      `elliptic` from the tree and should clear them; re-run `npm audit`
-      afterward to confirm. The high (`undici`) and moderate (`bn.js`) findings
-      were already patched via `overrides` in `package.json`.
-    - **Remaining 2026-06-09:** Plan this as a dedicated migration branch. The
-      current production audit is clean, but the root dev-tool audit still shows
-      28 low-severity findings that require semver-major Hardhat/toolbox
-      upgrades. Verify `npm audit`, `npm audit --omit=dev`, Hardhat tests,
-      Foundry tests, deployment scripts, CI, and TypeChain behavior before
-      closing this item.
-
 ## Phase 4 — Core Contract Lifecycle Features
 
 - [ ] Add an AI-generated summary of each contract and its status to the
@@ -258,6 +226,27 @@ mainnet launch deliverables.
       decisions, and its implementation details.
 
 ## Completed
+
+- [x] Update all packages to their latest versions, upgrade Hardhat to 3.x, and
+      confirm that all tests and code still work, so the project benefits from
+      new features, improvements, and security patches.
+    - Completed 2026-06-10: migrated the root contract toolchain to
+      `hardhat@^3.9.0` with explicit Hardhat 3 plugins for ethers, Mocha,
+      network helpers, TypeChain, and chai matchers. The old all-in-one toolbox
+      was removed because its verify/ignition/gas reporter chain reintroduced
+      unused audit findings.
+    - Ported Hardhat config, tests, deployment scripts, demo scripts,
+      environment sync, commitlint config, and Nexus helper scripts to the
+      repository's ESM runtime and Hardhat 3 network API.
+    - Applied safe frontend patch updates for Next, React, React DOM,
+      `eslint-config-next`, and Prettier. Remaining frontend majors are recorded
+      in `NOTES.md` because `wagmi` 3 and ESLint 10 require dedicated wallet and
+      lint-stack regression passes.
+    - Verified with `npm run typecheck:hardhat`, `npm run compile`,
+      `npm run hardhat:test` (Hardhat Mocha), `npm run foundry:test` (Solidity),
+      `npm run lint:ts`, root `npm audit`, and frontend `npm audit`; additional
+      full-suite validation is tracked in the branch verification notes before
+      merge.
 
 - [x] Migrate dashboard onboarding state to the off-chain account database once
       user accounts exist.

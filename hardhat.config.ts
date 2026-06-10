@@ -2,14 +2,16 @@
 // Hardhat is a JavaScript/TypeScript toolkit for compiling, testing, and deploying
 // Solidity smart contracts. Everything it does is driven by this file.
 
-import type { HardhatUserConfig } from "hardhat/config";
+import { configVariable, defineConfig } from "hardhat/config";
 
-// This plugin bundles together the most common Hardhat plugins:
-//   hardhat-ethers  → ethers.js integration (contract factories, signers, providers)
-//   hardhat-chai-matchers → extra Chai assertions for smart contracts (revertedWithCustomError, etc.)
-//   hardhat-typechain → generates TypeScript type wrappers for each contract after compile
-//   hardhat-gas-reporter, hardhat-coverage, etc.
-import "@nomicfoundation/hardhat-toolbox";
+// Hardhat 3 plugins used by this project. Keep these explicit instead of using
+// the all-in-one toolbox so unused Ignition/Verify dependencies do not enter
+// the audit surface.
+import hardhatEthers from "@nomicfoundation/hardhat-ethers";
+import hardhatEthersChaiMatchers from "@nomicfoundation/hardhat-ethers-chai-matchers";
+import hardhatMocha from "@nomicfoundation/hardhat-mocha";
+import hardhatNetworkHelpers from "@nomicfoundation/hardhat-network-helpers";
+import hardhatTypechain from "@nomicfoundation/hardhat-typechain";
 
 // dotenv reads a .env file in the project root and loads its key=value pairs into
 // process.env so we can access secrets (RPC URL, private key, API key) without
@@ -35,7 +37,15 @@ function readOptionalIntegerEnv(name: string): number | undefined {
 const forkUrl = readOptionalEnv("FORK_URL");
 const forkBlockNumber = readOptionalIntegerEnv("FORK_BLOCK_NUMBER");
 
-const config: HardhatUserConfig = {
+const config = defineConfig({
+	plugins: [
+		hardhatEthers,
+		hardhatEthersChaiMatchers,
+		hardhatMocha,
+		hardhatNetworkHelpers,
+		hardhatTypechain,
+	],
+
 	// ─── Solidity compiler settings ──────────────────────────────────────────────
 	solidity: {
 		version: "0.8.24", // must match the pragma in the .sol source files
@@ -71,6 +81,8 @@ const config: HardhatUserConfig = {
 		// this gives tests access to real deployed contracts, token balances, and chain
 		// history, closely mimicking what production looks like.
 		hardhat: {
+			type: "edr-simulated",
+			chainType: "l1",
 			chainId: 31337, // standard local chain ID; tools like MetaMask recognise it
 			...(forkUrl !== undefined
 				? {
@@ -87,11 +99,10 @@ const config: HardhatUserConfig = {
 		// Ethereum Sepolia - the L1 testnet used for development and testing only.
 		// Values are read from .env so private keys never touch source control.
 		sepolia: {
-			url: process.env.SEPOLIA_RPC_URL ?? "",
-			accounts:
-				typeof process.env.DEPLOYER_PRIVATE_KEY === "string"
-					? [process.env.DEPLOYER_PRIVATE_KEY]
-					: [],
+			type: "http",
+			chainType: "l1",
+			url: configVariable("SEPOLIA_RPC_URL"),
+			accounts: [configVariable("DEPLOYER_PRIVATE_KEY")],
 			chainId: 11155111,
 		},
 
@@ -100,39 +111,38 @@ const config: HardhatUserConfig = {
 		// provide EVM-equivalent execution at a fraction of the cost.
 
 		arbitrumOne: {
-			url: process.env.ARBITRUM_RPC_URL ?? "",
-			accounts:
-				typeof process.env.DEPLOYER_PRIVATE_KEY === "string"
-					? [process.env.DEPLOYER_PRIVATE_KEY]
-					: [],
+			type: "http",
+			chainType: "generic",
+			url: configVariable("ARBITRUM_RPC_URL"),
+			accounts: [configVariable("DEPLOYER_PRIVATE_KEY")],
 			chainId: 42161,
 		},
 
 		base: {
-			url: process.env.BASE_RPC_URL ?? "",
-			accounts:
-				typeof process.env.DEPLOYER_PRIVATE_KEY === "string"
-					? [process.env.DEPLOYER_PRIVATE_KEY]
-					: [],
+			type: "http",
+			chainType: "op",
+			url: configVariable("BASE_RPC_URL"),
+			accounts: [configVariable("DEPLOYER_PRIVATE_KEY")],
 			chainId: 8453,
 		},
 
 		optimism: {
-			url: process.env.OPTIMISM_RPC_URL ?? "",
-			accounts:
-				typeof process.env.DEPLOYER_PRIVATE_KEY === "string"
-					? [process.env.DEPLOYER_PRIVATE_KEY]
-					: [],
+			type: "http",
+			chainType: "op",
+			url: configVariable("OPTIMISM_RPC_URL"),
+			accounts: [configVariable("DEPLOYER_PRIVATE_KEY")],
 			chainId: 10,
 		},
 	},
 
-	// ─── Mocha test runner settings ───────────────────────────────────────────────
-	// Mocha is the test framework Hardhat uses to run .test.ts files.
-	mocha: {
-		timeout: 120000, // milliseconds per test before it's considered hung (2 minutes).
-		// Deploying contracts in beforeEach can be slow on Node 25 with
-		// TypeScript compilation, so we give it plenty of room.
+	test: {
+		// ─── Mocha test runner settings ───────────────────────────────────────────────
+		// Mocha is the test framework Hardhat uses to run .test.ts files.
+		mocha: {
+			timeout: 120000, // milliseconds per test before it's considered hung (2 minutes).
+			// Deploying contracts in beforeEach can be slow on Node 25 with
+			// TypeScript compilation, so we give it plenty of room.
+		},
 	},
 
 	// ─── TypeChain code generation ────────────────────────────────────────────────
@@ -142,32 +152,7 @@ const config: HardhatUserConfig = {
 	// time, not at runtime.
 	typechain: {
 		outDir: "artifacts/typechain-types", // where the generated .ts files land
-		target: "ethers-v6", // generate classes compatible with ethers v6 API
 	},
-
-	// ─── Gas reporter ────────────────────────────────────────────────────────────
-	// hardhat-gas-reporter is bundled with hardhat-toolbox but disabled by default.
-	// Set REPORT_GAS=true (or run `npm run hardhat:gas`) to activate it during tests.
-	gasReporter: {
-		enabled: process.env.REPORT_GAS === "true",
-		currency: "USD",
-	},
-
-	// ─── Etherscan / block explorer verification ──────────────────────────────────
-	// After deploying, `hardhat verify` submits source code to the block explorer
-	// so users can read and interact with your contract on the web UI.
-	etherscan: {
-		apiKey: {
-			// Etherscan - for Ethereum Sepolia. Get a key at etherscan.io/register
-			sepolia: process.env.ETHERSCAN_API_KEY ?? "",
-			// Arbiscan - for Arbitrum One. Get a key at arbiscan.io
-			arbitrumOne: process.env.ARBISCAN_API_KEY ?? "",
-			// Basescan - for Base. Get a key at basescan.org
-			base: process.env.BASESCAN_API_KEY ?? "",
-			// Optimism Etherscan - for Optimism. Get a key at optimistic.etherscan.io
-			optimism: process.env.OPTIMISM_ETHERSCAN_API_KEY ?? "",
-		},
-	},
-};
+});
 
 export default config;

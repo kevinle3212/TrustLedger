@@ -20,6 +20,27 @@ might benefit from. Keep private or unpolished jotting in `NOTES.local.md`
 
 ## Research and Ideas
 
+### Phase 1 Package Migration Follow-Ups (2026-06-10)
+
+The root Hardhat 3 migration cleared the previous root dev-tool audit findings
+and left root `npm outdated` empty. Two frontend semver-major migrations remain
+intentionally deferred:
+
+- `wagmi` 3 requires a dedicated wallet regression pass across Reown,
+  WalletConnect, reconnect state, supported chains, and the SOL/USDC/ETH payment
+  flow. Do not force this into unrelated branches because wallet API changes can
+  silently break login and transaction preparation.
+- Frontend `eslint` 10 and `@eslint/js` 10 should move together with
+  `eslint-config-next` compatibility confirmation. The root lint stack already
+  runs ESLint 10, but the Next workspace should stay on its compatible ESLint 9
+  range until the framework plugin path is validated.
+
+Hardhat gas reporting also remains on Foundry. `hardhat-gas-reporter` still
+peers on Hardhat 2, and the Hardhat 3 verify plugin currently pulls an unfixed
+ethers v5 low-advisory chain. Use Foundry `forge test --gas-report` and Foundry
+deploy scripts with `--verify` until compatible Hardhat 3 plugins avoid those
+chains.
+
 ### Phase 4 AI Summary Hosting Plan (2026-06-10)
 
 Relevant to Phase 4 Item 1: AI-generated contract and status summaries.

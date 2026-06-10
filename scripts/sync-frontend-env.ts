@@ -12,6 +12,10 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 /**
  * Reads a UTF-8 file, returning `null` if it does not exist. Uses a try/catch on
@@ -81,6 +85,6 @@ export function syncFrontendEnv(): void {
 }
 
 // Allow running standalone: `npx hardhat run scripts/sync-frontend-env.ts`.
-if (require.main === module) {
+if (process.argv[1] === __filename) {
 	syncFrontendEnv();
 }

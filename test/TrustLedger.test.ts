@@ -12,7 +12,7 @@
 //   - the freelancer proposes (proposeContract); the client accepts by funding the escrow
 
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { network } from "hardhat";
 import type { Signer } from "ethers";
 
 import type {
@@ -24,6 +24,8 @@ import type {
 	MockVRFCoordinator,
 	MockPriceFeed,
 } from "../artifacts/typechain-types";
+
+const { ethers } = await network.create();
 
 describe("TrustLedger", function () {
 	let trustLedger: TrustLedger;
@@ -1639,7 +1641,7 @@ describe("TrustLedger", function () {
 			await tl2.connect(freelancer).submitProofOfWork(id, POW_HASH, "ipfs://QmPoW");
 			await tl2.connect(client).approveWork(id);
 
-			await expect(tl2.connect(client).submitRating(id, 80)).to.not.be.reverted;
+			await expect(tl2.connect(client).submitRating(id, 80)).to.not.revert(ethers);
 		});
 
 		it("should revert rate() when called directly (not from TrustLedger)", async function () {
@@ -2151,10 +2153,10 @@ describe("TrustLedger", function () {
 			await trustLedger.connect(client).initPauser(await client.getAddress());
 			await trustLedger.connect(client).pause();
 
-			await expect(createContract()).to.be.reverted;
+			await expect(createContract()).to.revert(ethers);
 
 			await trustLedger.connect(client).unpause();
-			await expect(createContract()).to.not.be.reverted;
+			await expect(createContract()).to.not.revert(ethers);
 		});
 	});
 

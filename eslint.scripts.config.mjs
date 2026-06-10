@@ -7,13 +7,10 @@ export default [
 		files: ["scripts/**/*.js"],
 		languageOptions: {
 			ecmaVersion: 2023,
-			sourceType: "commonjs",
+			sourceType: "module",
 			globals: {
-				__dirname: "readonly",
 				console: "readonly",
-				module: "readonly",
 				process: "readonly",
-				require: "readonly",
 			},
 		},
 		rules: {
@@ -26,7 +23,11 @@ export default [
 		},
 	},
 	{
-		files: ["tools/ensure-doc-navigation.mjs", "tools/check-sensitive-files.mjs"],
+		files: [
+			"tools/ensure-doc-navigation.mjs",
+			"tools/check-sensitive-files.mjs",
+			"tools/hardhat-local-cache.mjs",
+		],
 		languageOptions: {
 			ecmaVersion: 2023,
 			sourceType: "module",

@@ -4,9 +4,13 @@
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { ethers } from "hardhat";
+import { fileURLToPath } from "node:url";
+import { network } from "hardhat";
 import type { TrustLedger as TrustLedgerContract } from "../artifacts/typechain-types";
 import { syncFrontendEnv } from "./sync-frontend-env";
+
+const { ethers } = await network.create();
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 // Hardhat's built-in local node chain ID. Only on a local chain do we mirror the
 // deployed addresses into src/.env.local; live deploys feed Vercel via the

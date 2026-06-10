@@ -1,13 +1,10 @@
 {
-	"ts-node": {
-		"moduleTypes": {
-			"*.ts": "cjs"
-		}
-	},
 	"compilerOptions": {
 		"target": "ES2024",
-		"module": "CommonJS",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
 		"rootDir": ".",
+		"types": ["node", "mocha"],
 		"paths": {
 			"ethers": ["./node_modules/ethers/lib.esm/index"]
 		},
