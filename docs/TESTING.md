@@ -126,6 +126,11 @@ cd src
 npm run test:e2e
 ```
 
+The Playwright web server binds to `localhost` by default to avoid managed
+sandbox failures on direct `127.0.0.1` binds. Set
+`PLAYWRIGHT_WEB_SERVER_HOST=127.0.0.1` only when a runner requires IPv4
+loopback.
+
 Run the interactive Playwright UI:
 
 ```bash

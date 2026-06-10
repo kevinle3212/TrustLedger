@@ -96,6 +96,16 @@ const config = defineConfig({
 				: {}),
 		},
 
+		// HTTP endpoint used by `npm run node` plus local deploy/demo scripts.
+		// Hardhat 3 requires network types to be explicit, so keep this separate
+		// from the in-process EDR network above.
+		localhost: {
+			type: "http",
+			chainType: "l1",
+			url: "http://127.0.0.1:8545",
+			chainId: 31337,
+		},
+
 		// Ethereum Sepolia - the L1 testnet used for development and testing only.
 		// Values are read from .env so private keys never touch source control.
 		sepolia: {

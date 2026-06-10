@@ -329,7 +329,14 @@ flowchart TB
 `npm run test:e2e` serves the latest production standalone build to keep local
 and CI output clean. Run `npm run build:frontend` first. When debugging Next.js
 development behavior specifically, set `PLAYWRIGHT_USE_DEV_SERVER=1` before the
-E2E command.
+E2E command. Playwright binds that local server to `localhost` by default
+because some managed sandboxes reject a direct `127.0.0.1` bind. Set
+`PLAYWRIGHT_WEB_SERVER_HOST=127.0.0.1` only when a local machine or CI runner
+requires the IPv4 loopback address.
+
+The frontend `.npmrc` keeps Vercel and local installs quiet by suppressing npm
+audit, funding, and transitive deprecation chatter from upstream wallet
+packages. Run an explicit `npm audit` when reviewing dependency health.
 
 ## Developer Workflow
 

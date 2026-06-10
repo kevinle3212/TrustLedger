@@ -37,6 +37,7 @@ import {
 	markDashboardVisitedPreference,
 	readDashboardVisitedPreference,
 } from "@/lib/accountPreferences";
+import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -56,18 +57,7 @@ const STATUS_KEYS = [
 // Status values: 0=PENDING 1=ACTIVE 2=SUBMITTED 3=APPROVED 4=DISPUTED 5=RESOLVED 6=CANCELLED
 
 function useNowSeconds(): bigint {
-	const [now, setNow] = useState(() => BigInt(Math.floor(Date.now() / 1000)));
-
-	useEffect(() => {
-		const interval = window.setInterval(() => {
-			setNow(BigInt(Math.floor(Date.now() / 1000)));
-		}, 1000);
-		return (): void => {
-			window.clearInterval(interval);
-		};
-	}, []);
-
-	return now;
+	return BigInt(Math.floor(useVisibleTimestamp(1000) / 1000));
 }
 
 function formatCountdownParts(

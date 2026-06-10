@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useMemo, useReducer, useRef } from "react";
+import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
 import type { CreateState, ContractTermsFormat } from "../_lib/types";
 import { convertContractTerms, DEFAULT_CONTRACT_TERMS } from "../_lib/contractTerms";
 import {
@@ -594,7 +595,7 @@ export function SecureDraftSessionPanel({
 		}),
 	);
 	const lastRoomStartAt = useRef(0);
-	const [nowMs, setNowMs] = useState(() => Date.now());
+	const nowMs = useVisibleTimestamp(1000);
 	const encryptedDraftFromUrl = getEncryptedDraftFromUrl();
 	const updatedAtFormatter = useMemo(
 		() => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }),
@@ -619,15 +620,6 @@ export function SecureDraftSessionPanel({
 		onRemoteDraft: onImportDraft,
 	});
 	const liveRoomLocked = panel.roomId !== null || collaboration.isLive;
-
-	useEffect(() => {
-		const timer = window.setInterval(() => {
-			setNowMs(Date.now());
-		}, 1000);
-		return (): void => {
-			window.clearInterval(timer);
-		};
-	}, []);
 
 	function insertSnippet(action: EditorSnippet): void {
 		const snippet = snippetFor(state.termsFormat, action);

@@ -2,8 +2,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 // Read the preferred dev-server port from the environment, defaulting to Next's port.
 const PORT = process.env["PORT"] ?? "3000";
+// Some managed sandboxes reject binding directly to 127.0.0.1. Binding through
+// localhost keeps the server local while allowing the OS to choose the loopback
+// family it permits. Override when a CI host requires a specific interface.
+const WEB_SERVER_HOST = process.env["PLAYWRIGHT_WEB_SERVER_HOST"] ?? "localhost";
 // Let CI or a developer point tests at an already-running deployment when needed.
-const BASE_URL = process.env["PLAYWRIGHT_BASE_URL"] ?? `http://127.0.0.1:${PORT}`;
+const BASE_URL = process.env["PLAYWRIGHT_BASE_URL"] ?? `http://${WEB_SERVER_HOST}:${PORT}`;
 // Convert CI from an optional string into an explicit boolean for strict linting.
 const isCi = process.env["CI"] !== undefined && process.env["CI"] !== "";
 // Production E2E runs avoid noisy framework development warnings. Developers can
@@ -13,8 +17,8 @@ const useDevServer = process.env["PLAYWRIGHT_USE_DEV_SERVER"] === "1";
 // logs clean and catches production-only routing/static-generation regressions.
 const webServerEnvPrefix = "env -u NO_COLOR";
 const webServerCommand = useDevServer
-	? `${webServerEnvPrefix} npm run dev:frontend -- --hostname 127.0.0.1 --port ${PORT}`
-	: `${webServerEnvPrefix} npm run start:e2e:standalone -- --hostname 127.0.0.1 --port ${PORT}`;
+	? `${webServerEnvPrefix} npm run dev:frontend -- --hostname ${WEB_SERVER_HOST} --port ${PORT}`
+	: `${webServerEnvPrefix} npm run start:e2e:standalone -- --hostname ${WEB_SERVER_HOST} --port ${PORT}`;
 
 // Export the Playwright Test configuration consumed by `npm run test:e2e`.
 export default defineConfig({
@@ -63,7 +67,7 @@ export default defineConfig({
 
 	// Start the local app automatically before the E2E suite runs.
 	webServer: {
-		// Bind explicitly to localhost so sandboxed/local runs do not expose the server.
+		// Bind explicitly to loopback so sandboxed/local runs do not expose the server.
 		command: webServerCommand,
 		// Poll this URL until the app is ready before launching browser tests.
 		url: BASE_URL,

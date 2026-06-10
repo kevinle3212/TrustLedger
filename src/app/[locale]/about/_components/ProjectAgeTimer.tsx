@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
 
 const PROJECT_BIRTHDATE_MS = Date.parse("2026-05-02T00:00:00-07:00");
 
@@ -20,17 +21,8 @@ function ageParts(nowMs: number): {
 }
 
 export function ProjectAgeTimer(): React.JSX.Element {
-	const [nowMs, setNowMs] = useState(() => Date.now());
+	const nowMs = useVisibleTimestamp(1000);
 	const parts = useMemo(() => ageParts(nowMs), [nowMs]);
-
-	useEffect(() => {
-		const interval = window.setInterval(() => {
-			setNowMs(Date.now());
-		}, 1000);
-		return (): void => {
-			window.clearInterval(interval);
-		};
-	}, []);
 
 	const cells = [
 		["Days", parts.days],
