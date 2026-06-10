@@ -26,19 +26,30 @@
 # ─── Build output (Vercel builds fresh on its own runners) ────────────────────
 /node_modules/
 /src/node_modules/
+node_modules/
+src/node_modules/
 /.next/
+src/.next/
 /.turbo/
+src/.turbo/
 /.vercel/output/
 /.vercel/cache/
+src/.vercel/
 /dist/
 /target/
+target/
 /programs/*/target/
 /contracts/out/
 /contracts/cache/
 *.tsbuildinfo
-src/.next/
 src/out/
 /coverage/
+src/coverage/
+src/test-results/
+src/playwright-report/
+.mypy_cache/
+.venv-docs/
+.git/
 
 # ─── Non-frontend runtimes and local package caches ──────────────────────────
 /.cargo/
