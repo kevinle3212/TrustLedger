@@ -3,17 +3,21 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Files](#files)
 - [Root Compose Commands](#root-compose-commands)
 - [Development Compose](#development-compose)
 - [Direct Image Commands](#direct-image-commands)
 - [Notes](#notes)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -25,7 +29,9 @@ running demo, local-chain, or containerized test workflows.
 ## Files
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | File                            | Purpose                                                                                                     |
@@ -41,7 +47,9 @@ running demo, local-chain, or containerized test workflows.
 ## Root Compose Commands
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Build the image:
@@ -101,7 +109,9 @@ npm run lint:k8s
 ## Development Compose
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Run the development compose file:
@@ -119,7 +129,9 @@ explicitly for workflows that need secrets, for example
 ## Direct Image Commands
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Build the root Docker image directly:
@@ -162,7 +174,9 @@ docker run --rm -p 3000:3000 trustledger-frontend
 ## Notes
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The Dockerfiles pin Foundry to `v1.5.1`, matching the locally validated Forge

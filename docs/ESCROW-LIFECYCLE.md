@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Statuses](#statuses)
 - [Freelancer-Proposed Flow](#freelancer-proposed-flow)
     - [Proposal](#proposal)
@@ -20,6 +23,7 @@
 - [Deadline Claims](#deadline-claims)
 - [Disputes](#disputes)
 - [Ratings](#ratings)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -32,7 +36,9 @@ reviewing user flows, testing lifecycle behavior, or integrating a client with
 ## Statuses
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Status      | Meaning                                                     |
@@ -48,7 +54,9 @@ reviewing user flows, testing lifecycle behavior, or integrating a client with
 ## Freelancer-Proposed Flow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Use this flow when the freelancer writes the offer and the client decides
@@ -77,7 +85,9 @@ PENDING -- acceptContract --> ACTIVE -- submitProofOfWork --> SUBMITTED
 ### Proposal
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The freelancer calls `proposeContract` with a client address, amount, project
@@ -93,7 +103,9 @@ duration.
 ### Funding
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The client calls `acceptContract`. For native-token escrows, `msg.value` must
@@ -103,7 +115,9 @@ client must approve `TrustLedger` to transfer the escrow amount before calling.
 ### Cancellation
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Before funding, the freelancer can call `cancelProposal` and the client can call
@@ -112,7 +126,9 @@ Before funding, the freelancer can call `cancelProposal` and the client can call
 ## Client-Proposed Flow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Use this flow when the client writes the offer and the freelancer decides
@@ -136,7 +152,9 @@ funds. `fundContractByClient` deposits funds and moves the escrow to `ACTIVE`.
 ## Work Submission
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The freelancer calls `submitProofOfWork` from `ACTIVE`. The proof hash and proof
@@ -146,7 +164,9 @@ client approval, dispute, or the acceptance-window claim path.
 ## Approval And Holdback
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The client calls `approveWork` from `SUBMITTED`. The contract pays the
@@ -159,7 +179,9 @@ pays the holdback and moves the escrow to `RESOLVED`.
 ## Deadline Claims
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Claim                        | Caller     | State                               | Result                                         |
@@ -171,7 +193,9 @@ pays the holdback and moves the escrow to `RESOLVED`.
 ## Disputes
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Either the client or freelancer can call `disputeWork` when the escrow is in a
@@ -187,7 +211,9 @@ Read [Arbitration](ARBITRATION.md) for the dispute flow.
 ## Ratings
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 After completion paths, `submitRating` lets each party rate the counterparty

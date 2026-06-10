@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Structure And Build System](#structure-and-build-system)
 - [Linting And TypeScript](#linting-and-typescript)
 - [Hooks And CI](#hooks-and-ci)
@@ -19,6 +22,7 @@
 - [Oracle Phase 6 Item 3](#oracle-phase-6-item-3)
 - [Monitoring Implementation](#monitoring-implementation)
 - [Remaining Risks](#remaining-risks)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -29,7 +33,9 @@ Date: 2026-06-09
 ## Structure And Build System
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 TrustLedger is a mixed Solidity, TypeScript, Next.js, Python, Docker, and docs
@@ -39,7 +45,9 @@ owns the frontend package and Next.js API routes. `contracts/` owns Foundry.
 ## Linting And TypeScript
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Root ESLint uses flat config with type-aware rules for `test/**/*.ts`,
@@ -55,7 +63,9 @@ owns the frontend package and Next.js API routes. `contracts/` owns Foundry.
 ## Hooks And CI
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Pre-commit validates Prettier, root lint, frontend lint, and typecheck.
@@ -68,7 +78,9 @@ owns the frontend package and Next.js API routes. `contracts/` owns Foundry.
 ## Assets
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Canonical target folders now exist under `assets/`: `images`, `icons`, `logos`,
@@ -80,7 +92,9 @@ introduced.
 ## SWC
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `src/.swc/` exists as a cache/config artifact area for the Next/SWC toolchain.
@@ -90,7 +104,9 @@ SWC configuration beyond Next.js defaults.
 ## Build Performance
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Docker and CI use lockfile-based installs and separate frontend/root caches.
@@ -104,7 +120,9 @@ SWC configuration beyond Next.js defaults.
 ## Cache Health
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Observed cache families: npm, Next.js, TypeScript `.tsbuildinfo`, ESLint,
@@ -115,7 +133,9 @@ cache is demonstrably stale; avoid routine invalidation.
 ## Oracle Phase 6 Item 3
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Implemented a server-side oracle service and API route for validated exchange
@@ -133,7 +153,9 @@ on-chain requires a separate audited design.
 ## Monitoring Implementation
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Added `GET /api/health` through `src/services/health.ts` and
@@ -145,7 +167,9 @@ metadata, never secret values.
 ## Remaining Risks
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Phase 7 Item 3 has current sweep coverage for legal helpers, Solana helpers,

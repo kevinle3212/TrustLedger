@@ -98,12 +98,12 @@ device and browser You use to access the Services, including browser version,
 screen resolution, language preferences, and device identifiers.
 
 (e) **Usage Analytics.** When privacy analytics are enabled, we may collect
-aggregate usage data such as page views and frontend error counts to improve
-the Services. TrustLedger's first-party analytics collector is disabled by
-default, honors Do Not Track and Global Privacy Control signals, strips query
-strings, and does not store wallet addresses, raw IP addresses, raw user-agent
-strings, email addresses, raw documents, encrypted draft bodies, session keys,
-private keys, or seed phrases.
+aggregate usage data such as page views and frontend error counts to improve the
+Services. TrustLedger's first-party analytics collector is disabled by default,
+honors Do Not Track and Global Privacy Control signals, strips query strings,
+and does not store wallet addresses, raw IP addresses, raw user-agent strings,
+email addresses, raw documents, encrypted draft bodies, session keys, private
+keys, or seed phrases.
 
 (f) **Cookies and Local Storage.** See Section 5 for details on cookies and
 tracking technologies.
@@ -569,5 +569,5 @@ disclosure; expanded data subject rights (GDPR Art. 77 supervisory authority
 right; CCPA/CPRA rights; multi-state U.S. privacy rights); COPPA compliance
 statement; breach notification timeline specifics; SCC/IDTA transfer mechanism
 disclosure; consent withdrawal mechanism; California Shine the Light disclosure;
-cookie policy correction; response timeline commitments; and first-party
-privacy analytics disclosure._
+cookie policy correction; response timeline commitments; and first-party privacy
+analytics disclosure._

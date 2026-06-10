@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Stack](#stack)
 - [Commands](#commands)
 - [Wallet Configuration](#wallet-configuration)
@@ -24,6 +27,7 @@
 - [Styling And Motion](#styling-and-motion)
 - [FAQ And Recovery Routes](#faq-and-recovery-routes)
 - [Deployment](#deployment)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -36,7 +40,9 @@ frontend deployment.
 ## Stack
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Tool         | Version Source     | Purpose                              |
@@ -55,7 +61,9 @@ frontend deployment.
 ## Commands
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Run frontend commands from `src/`.
@@ -76,7 +84,9 @@ Run frontend commands from `src/`.
 ## Wallet Configuration
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `src/lib/wagmi.ts` configures Reown AppKit and wagmi. Supported frontend
@@ -96,7 +106,9 @@ and QR flows can fail.
 ## Contract Addresses
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The frontend reads default and network-specific deployment variables from
@@ -109,7 +121,9 @@ Read [Environment](ENVIRONMENT.md) for the full address variable list.
 ## Files And Storage
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The frontend includes client-side encryption helpers in `src/lib/encryption.ts`.
@@ -122,7 +136,9 @@ variables exist in `.env.example`, but current source does not consume them.
 ## Live Contract Draft Collaboration
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The create-contract page supports encrypted draft sharing before deployment.
@@ -155,7 +171,9 @@ allowlist checks intact.
 ## Email And Notifications
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Magic links use HMAC-SHA256 tokens from `src/lib/magicLink.ts`. Email delivery
@@ -178,7 +196,9 @@ The cron endpoint is `/api/cron/deadline-reminders`.
 ## Privacy Analytics
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `src/components/PrivacyAnalytics.tsx` sends page-view and frontend-error beacons
@@ -195,7 +215,9 @@ Privacy Control headers.
 ## Oracle Routes
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The frontend package exposes display-rate oracle routes:
@@ -211,7 +233,9 @@ on-chain oracle consumption.
 ## Solana Helpers
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `src/helpers/solana.ts` records the current Solana decision:
@@ -222,7 +246,9 @@ construction, and conservative public-key shape checks. Read
 ## Legal Localization Helpers
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `src/helpers/legal-docs.ts` is the registry for legal document metadata. It
@@ -234,7 +260,9 @@ and prevent accidental changes to legal meaning.
 ## Internationalization
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The frontend uses `next-intl`. Keep user-visible strings in the established
@@ -243,7 +271,9 @@ message structure and verify locale routing before moving text into components.
 ## Styling And Motion
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Global styling lives in `src/app/globals.scss` and imports Tailwind v4,
@@ -263,7 +293,9 @@ default and honor `prefers-reduced-motion`.
 ## FAQ And Recovery Routes
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The product FAQ route is `app/[locale]/faq/page.tsx`. The custom 404 experience
@@ -275,7 +307,9 @@ transaction issues without leaving the app.
 ## Deployment
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The root `deploy.yml` workflow runs `vercel deploy --prod` from `src/` after

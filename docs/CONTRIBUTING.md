@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Setup](#setup)
     - [Serena Dashboard](#serena-dashboard)
 - [Development Workflow](#development-workflow)
@@ -16,6 +19,7 @@
 - [TypeScript Style](#typescript-style)
 - [Markdown Style](#markdown-style)
 - [Documentation Ownership](#documentation-ownership)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -27,7 +31,9 @@ required checks. Read it before opening a pull request.
 ## Setup
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Use the bootstrapper for a guided setup with selectable install groups:
@@ -63,7 +69,9 @@ Read [Environment](ENVIRONMENT.md) before filling secrets.
 ### Serena Dashboard
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Serena's dashboard remains enabled for local code navigation logs, but it should
@@ -83,7 +91,9 @@ as `24283` or `24284`.
 ## Development Workflow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Use small branches and keep generated build output out of commits. The
@@ -112,7 +122,9 @@ command list.
 ## Solidity Style
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Solidity is checked by both Solhint and Foundry:
@@ -129,7 +141,9 @@ avoid changing logic when a task is only about documentation or NatSpec.
 ## TypeScript Style
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Root TypeScript covers Hardhat config, scripts, and tests:
@@ -148,7 +162,9 @@ npm run lint:frontend
 ## Markdown Style
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Run:
@@ -182,7 +198,9 @@ Run `npm run logs:prune` when local logs exceed retention limits. Run
 ## Documentation Ownership
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Prefer these canonical docs:

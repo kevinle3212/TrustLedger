@@ -3,14 +3,18 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Review Policy](#review-policy)
 - [Maintenance](#maintenance)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -23,7 +27,9 @@ same quality gates enforced by CI.
 ## Review Policy
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - CodeRabbit uses the assertive profile and may request changes.
@@ -42,7 +48,9 @@ same quality gates enforced by CI.
 ## Maintenance
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Update `.coderabbit.yaml` whenever new high-risk paths are added, especially

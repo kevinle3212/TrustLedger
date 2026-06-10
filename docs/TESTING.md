@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Install Dependencies](#install-dependencies)
 - [Solidity Tests](#solidity-tests)
 - [Frontend Tests](#frontend-tests)
@@ -16,6 +19,7 @@
 - [Linting](#linting)
 - [Build Checks](#build-checks)
 - [CI Profiles](#ci-profiles)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -27,7 +31,9 @@ before opening a PR or debugging a failing GitHub Actions job.
 ## Install Dependencies
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 ```bash
@@ -40,7 +46,9 @@ cd ..
 ## Solidity Tests
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Run all Foundry tests:
@@ -92,7 +100,9 @@ chain.
 ## Frontend Tests
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Run unit tests:
@@ -133,7 +143,9 @@ npm run test:e2e:headed
 ## Current Added Coverage
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The current testing sweep added focused frontend tests for:
@@ -148,7 +160,9 @@ contract-error, and public route checks.
 ## Linting
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Run all root lint checks:
@@ -198,7 +212,9 @@ npm run lint:py
 ## Build Checks
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Compile Hardhat contracts:
@@ -223,7 +239,9 @@ npm run build:frontend
 ## CI Profiles
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The Solidity CI workflow uses `FOUNDRY_PROFILE=ci`, which lowers fuzz runs to

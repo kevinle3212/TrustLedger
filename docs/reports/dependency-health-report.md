@@ -3,18 +3,22 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Audit Evidence](#audit-evidence)
 - [Outdated Package Sweep](#outdated-package-sweep)
 - [Vulnerability Chains](#vulnerability-chains)
 - [Breaking-Change Impact](#breaking-change-impact)
 - [Deprecation Findings](#deprecation-findings)
 - [Remediation Timeline](#remediation-timeline)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -25,7 +29,9 @@ Date: 2026-06-09
 ## Audit Evidence
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Approved audit commands were run against npm's audit service.
@@ -43,7 +49,9 @@ dependencies are clean in both the root and frontend package trees.
 ## Outdated Package Sweep
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Safe non-major updates were applied on 2026-06-09:
@@ -65,7 +73,9 @@ pass:
 ## Vulnerability Chains
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Root package                       | Direct?    | Severity | Dependency path                                                                            | Fix availability                                       | Mitigation                                                                           |
@@ -83,7 +93,9 @@ pass:
 ## Breaking-Change Impact
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The available fixes require Hardhat 3 and Hardhat Toolbox 7. That is a major
@@ -95,7 +107,9 @@ contract suites.
 ## Deprecation Findings
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Lockfile deprecation metadata and local dependency-chain inspection identified
@@ -111,7 +125,9 @@ these categories:
 ## Remediation Timeline
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Immediate: keep production audits clean and document root dev-only lows.

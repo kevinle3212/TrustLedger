@@ -29,13 +29,13 @@ self-hosted Llama deployment. Use a provider abstraction so TrustLedger can move
 between Google Gemini, Groq-hosted Llama, Cloudflare Workers AI, or a future
 self-hosted Llama endpoint without changing dashboard components.
 
-| Option | Best Fit | Main Trade-Off |
-| ------ | -------- | -------------- |
-| Google Gemini API / Vertex AI | Fastest implementation, strong long-context summarization, managed operations. | Free-tier data-use terms and paid-tier billing need review before real contract data. |
-| Groq-hosted Llama | Low-latency Llama summaries without GPU operations. | Organization-level rate limits require dashboard checks and fallback handling. |
-| Cloudflare Workers AI | Good if the backend moves toward Cloudflare edge infrastructure. | Free allocation is small; production usage likely needs Workers Paid. |
-| Self-hosted Llama on GPU host | Maximum control over retention, prompts, and model routing. | Highest operational burden: GPU cold starts, autoscaling, monitoring, patching, model security, and evals. |
-| RunPod/serverless GPU host | More control than managed APIs with scale-to-zero economics. | Still requires container hardening, queueing, cost controls, and fallback behavior. |
+| Option                        | Best Fit                                                                       | Main Trade-Off                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Google Gemini API / Vertex AI | Fastest implementation, strong long-context summarization, managed operations. | Free-tier data-use terms and paid-tier billing need review before real contract data.                      |
+| Groq-hosted Llama             | Low-latency Llama summaries without GPU operations.                            | Organization-level rate limits require dashboard checks and fallback handling.                             |
+| Cloudflare Workers AI         | Good if the backend moves toward Cloudflare edge infrastructure.               | Free allocation is small; production usage likely needs Workers Paid.                                      |
+| Self-hosted Llama on GPU host | Maximum control over retention, prompts, and model routing.                    | Highest operational burden: GPU cold starts, autoscaling, monitoring, patching, model security, and evals. |
+| RunPod/serverless GPU host    | More control than managed APIs with scale-to-zero economics.                   | Still requires container hardening, queueing, cost controls, and fallback behavior.                        |
 
 **Decision for Phase 4 Item 1:** implement the service boundary first:
 

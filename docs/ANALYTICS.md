@@ -3,17 +3,21 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [User-Facing Analytics](#user-facing-analytics)
 - [API Endpoint](#api-endpoint)
 - [Python Visualizations](#python-visualizations)
 - [Native Kernels](#native-kernels)
 - [CI And Hooks](#ci-and-hooks)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -25,7 +29,9 @@ wallet-specific metrics without scraping sensitive wallet or browser data.
 ## User-Facing Analytics
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The wallet analytics page lives at `/[locale]/analytics`. Connected users can
@@ -52,7 +58,9 @@ The page does not read:
 ## API Endpoint
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `GET /api/analytics/wallet/[address]` validates the wallet address and returns
@@ -73,9 +81,9 @@ deployment.
 instrumentation endpoint. It records only sanitized aggregate event names,
 locale, path without query strings, and timestamp when
 `TRUSTLEDGER_ANALYTICS_ENABLED=true`. It returns `204` and stores nothing when
-disabled or when Do Not Track / Global Privacy Control is present. `GET
-/api/analytics/events` is admin-health-gated and returns aggregate counts for
-operator monitoring.
+disabled or when Do Not Track / Global Privacy Control is present.
+`GET /api/analytics/events` is admin-health-gated and returns aggregate counts
+for operator monitoring.
 
 The frontend beacon lives in `src/components/PrivacyAnalytics.tsx` and is
 disabled unless `NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED=true`.
@@ -83,7 +91,9 @@ disabled unless `NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED=true`.
 ## Python Visualizations
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Phase 6 analytics visual support lives in `scripts/analytics/`.
@@ -103,10 +113,9 @@ The committed artifacts live under `assets/analytics/`:
 The generator uses NumPy for vectorized metrics, Pandas for tabular status data,
 SymPy for exact completion-rate arithmetic, SciPy for entropy, z-score, and
 trend statistics, Seaborn for the statistical color palette, Matplotlib for SVG
-rendering, Plotly for an interactive chart spec, and Bokeh for a
-dashboard-ready data-source spec. Matplotlib writes cache files under
-project-local `tmp/matplotlib/` so commands do not write into the user's home
-directory.
+rendering, Plotly for an interactive chart spec, and Bokeh for a dashboard-ready
+data-source spec. Matplotlib writes cache files under project-local
+`tmp/matplotlib/` so commands do not write into the user's home directory.
 
 Install the analytics Python dependencies with:
 
@@ -120,7 +129,9 @@ raw documents, encrypted draft bodies, or session keys.
 ## Native Kernels
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Optional C, C++, and assembly kernels live under `native/`. TrustLedger still
@@ -140,7 +151,9 @@ Next.js runtime.
 ## CI And Hooks
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The following gates keep analytics artifacts and native kernels healthy:

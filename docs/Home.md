@@ -3,14 +3,18 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Start Here](#start-here)
 - [Compatibility Pages](#compatibility-pages)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -22,7 +26,9 @@ and frontend contributors working on TrustLedger.
 ## Start Here
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Document                                | Use It For                                                              |
@@ -49,7 +55,9 @@ and frontend contributors working on TrustLedger.
 ## Compatibility Pages
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Some legacy docs are kept because MkDocs, the generated wiki home, or external

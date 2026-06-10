@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Table Of Contents](#table-of-contents)
 - [Scope](#scope)
 - [Deployment Assumptions](#deployment-assumptions)
@@ -18,17 +21,21 @@
 - [Validation Evidence](#validation-evidence)
 - [Known Risks](#known-risks)
 - [Remediation Tracker](#remediation-tracker)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
-[Home](Home.md) | [Table Of Contents](#table-of-contents) | [Top](#audit-readiness)
+[Home](Home.md) | [Table Of Contents](#table-of-contents) |
+[Top](#audit-readiness)
 
 ## Table Of Contents
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - [Scope](#scope)
@@ -43,7 +50,9 @@
 ## Scope
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The audit package covers the Solidity escrow, arbitration, juror registry,
@@ -53,7 +62,9 @@ frontend/API boundaries that submit or display contract state.
 ## Deployment Assumptions
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Sepolia remains the active public test network until an external audit report
@@ -66,18 +77,22 @@ frontend/API boundaries that submit or display contract state.
 ## Threat Model
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
-Review escrow custody, unauthorized withdrawals, reentrancy, replayed signatures,
-oracle staleness, juror manipulation, commit-reveal leakage, minority-vote
-slashing correctness, deadline edge cases, and frontend/API misuse that could
-misrepresent on-chain state.
+Review escrow custody, unauthorized withdrawals, reentrancy, replayed
+signatures, oracle staleness, juror manipulation, commit-reveal leakage,
+minority-vote slashing correctness, deadline edge cases, and frontend/API misuse
+that could misrepresent on-chain state.
 
 ## Trust Boundaries
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Smart contracts enforce escrow, dispute, payout, rating, and juror behavior.
@@ -90,7 +105,9 @@ misrepresent on-chain state.
 ## Invariants
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Escrowed value cannot be released except through approved, deadline, dispute,
@@ -104,7 +121,9 @@ misrepresent on-chain state.
 ## Validation Evidence
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Before sending this package to an auditor, attach current outputs from:
@@ -119,7 +138,9 @@ Before sending this package to an auditor, attach current outputs from:
 ## Known Risks
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - The final external audit report is not yet present.
@@ -131,13 +152,16 @@ Before sending this package to an auditor, attach current outputs from:
 ## Remediation Tracker
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
-| Finding | Severity | Owner | Status | Notes |
-| ------- | -------- | ----- | ------ | ----- |
-| External audit engagement | High | Project Maintainers | Open | Engage an independent auditor before mainnet. |
-| Final audit report | High | Project Maintainers | Open | Add signed report to `docs/reports/` once received. |
-| Mainnet deployment checklist | High | Project Maintainers | Open | Validate secrets, RPCs, monitoring, and addresses before launch. |
+| Finding                      | Severity | Owner               | Status | Notes                                                            |
+| ---------------------------- | -------- | ------------------- | ------ | ---------------------------------------------------------------- |
+| External audit engagement    | High     | Project Maintainers | Open   | Engage an independent auditor before mainnet.                    |
+| Final audit report           | High     | Project Maintainers | Open   | Add signed report to `docs/reports/` once received.              |
+| Mainnet deployment checklist | High     | Project Maintainers | Open   | Validate secrets, RPCs, monitoring, and addresses before launch. |
 
-[Home](Home.md) | [Table Of Contents](#table-of-contents) | [Top](#audit-readiness)
+[Home](Home.md) | [Table Of Contents](#table-of-contents) |
+[Top](#audit-readiness)

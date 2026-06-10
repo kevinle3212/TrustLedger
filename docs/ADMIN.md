@@ -3,14 +3,18 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Access Model](#access-model)
 - [Rust Admin API](#rust-admin-api)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -25,7 +29,9 @@ trail readiness.
 ## Access Model
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The first version is intentionally read-only. Mutating admin actions must add
@@ -57,7 +63,9 @@ provided through environment variables; it is not hardcoded in application code.
 ## Rust Admin API
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The Rust companion service scaffold lives in:

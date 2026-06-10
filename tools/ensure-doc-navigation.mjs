@@ -68,7 +68,10 @@ function generateToc(headings) {
 		return "- [Top](#top)";
 	}
 	return headings
-		.map(({ depth, text, slug }) => `${"    ".repeat(Math.max(0, depth - 2))}- [${text}](#${slug})`)
+		.map(
+			({ depth, text, slug }) =>
+				`${"    ".repeat(Math.max(0, depth - 2))}- [${text}](#${slug})`,
+		)
 		.join("\n");
 }
 
@@ -109,7 +112,9 @@ function stripManualToc(markdown) {
 
 function updateFile(file) {
 	const original = readFileSync(file, "utf8");
-	const stripped = stripManualToc(stripGeneratedBlocks(original).replace(/<a id="top"><\/a>\n*/u, ""));
+	const stripped = stripManualToc(
+		stripGeneratedBlocks(original).replace(/<a id="top"><\/a>\n*/u, ""),
+	);
 	const lines = stripped.split("\n");
 	const firstHeadingIndex = lines.findIndex((line) => /^#\s+\S/u.test(line));
 	if (firstHeadingIndex === -1) {
@@ -133,13 +138,17 @@ function updateFile(file) {
 		'<a id="top"></a>',
 		"",
 		NAV_START,
+		"",
 		nav,
+		"",
 		NAV_END,
 		"",
 		"## Table of Contents",
 		"",
 		TOC_START,
+		"",
 		generateToc(headings),
+		"",
 		TOC_END,
 	];
 	lines.splice(firstHeadingIndex + 1, 0, ...headerBlocks);
@@ -151,7 +160,7 @@ function updateFile(file) {
 		if (match === null) continue;
 		const heading = match[2]?.trim() ?? "";
 		if (heading === "Table of Contents") continue;
-		outputLines.push("", SECTION_NAV_START, nav, SECTION_NAV_END);
+		outputLines.push("", SECTION_NAV_START, "", nav, "", SECTION_NAV_END);
 	}
 
 	return normalizeBlankLines(outputLines.join("\n"));

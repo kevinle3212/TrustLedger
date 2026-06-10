@@ -3,16 +3,20 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Wallet Stack](#wallet-stack)
 - [Required Variable](#required-variable)
 - [Wallet Metadata URL](#wallet-metadata-url)
 - [Contract Addresses](#contract-addresses)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -24,7 +28,9 @@ it when changing Reown AppKit, supported chains, or wallet metadata.
 ## Wallet Stack
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The frontend uses Reown AppKit with wagmi and viem. Configuration lives in
@@ -42,7 +48,9 @@ Supported frontend networks are:
 ## Required Variable
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Set this variable for WalletConnect relay wallets:
@@ -58,7 +66,9 @@ can fail.
 ## Wallet Metadata URL
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 AppKit advertises an origin to wallets. The frontend prefers the live browser
@@ -75,7 +85,9 @@ NEXT_PUBLIC_APP_URL=https://your-domain.example
 ## Contract Addresses
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Wallet connection does not configure contract addresses. Contract addresses are

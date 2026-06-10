@@ -3,18 +3,22 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Contract Generator](#contract-generator)
     - [Function](#function)
     - [Generate The Demo PDF](#generate-the-demo-pdf)
 - [Python Tooling](#python-tooling)
 - [Log Retention](#log-retention)
 - [Cross-Platform Script Support](#cross-platform-script-support)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -26,7 +30,9 @@ and contract packages.
 ## Contract Generator
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `utils/generate_contract.py` generates a professional freelance service
@@ -35,7 +41,9 @@ agreement PDF for demos and exposes reusable template data for future workflows.
 ### Function
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 ```python
@@ -67,7 +75,9 @@ The returned `ContractTemplate` includes:
 ### Generate The Demo PDF
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 ```bash
@@ -83,7 +93,9 @@ utils/sample-contract.pdf
 ## Python Tooling
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Python checks use strict mypy settings from `mypy.ini`.
@@ -102,7 +114,9 @@ See [Type Stubs](STUBS.md) for the hand-written Azure SDK stubs.
 ## Log Retention
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Agent run notes, dependency audits, Impeccable notes, and transient issue
@@ -162,7 +176,9 @@ back under the same limits.
 ## Cross-Platform Script Support
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 TrustLedger's primary automation uses Bash because the project depends on

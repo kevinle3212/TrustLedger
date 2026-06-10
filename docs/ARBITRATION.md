@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Dispute Phases](#dispute-phases)
 - [Opening A Dispute](#opening-a-dispute)
 - [Juror Selection](#juror-selection)
@@ -19,6 +22,7 @@
 - [Appeals](#appeals)
 - [Rewards And Slashing](#rewards-and-slashing)
 - [Timing Constants](#timing-constants)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -31,7 +35,9 @@ incentives, or appeal behavior.
 ## Dispute Phases
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Phase              | Meaning                                                            |
@@ -47,7 +53,9 @@ incentives, or appeal behavior.
 ## Opening A Dispute
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Only `TrustLedger` can call `openDispute`. It passes the escrow ID, client
@@ -65,7 +73,9 @@ is not configured, the contract derives a seed from `block.prevrandao`,
 ## Juror Selection
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The selector iterates over `JurorRegistry.getJurorList()` with a partial
@@ -84,7 +94,9 @@ dispute lock, sufficient reputation, and no active cooldown.
 ## Commit-Reveal Voting
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Jurors first call `commitVote` with:
@@ -104,7 +116,9 @@ reveal deadline.
 ## Evidence Submission
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Clients and freelancers can call `submitEvidence` while a dispute exists. Each
@@ -132,7 +146,9 @@ wipe the user's text.
 ## Juror Interface
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The juror page reads `nextDisputeId`, scans the recent dispute window, filters
@@ -153,7 +169,9 @@ replace it later without changing the contract interface.
 ## Ruling Execution
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The final completion percentage is passed back into `TrustLedger.executeRuling`.
@@ -170,7 +188,9 @@ ETH, so the ERC-20 payout calculation uses the escrowed ERC-20 amount.
 ## Appeals
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 After an original dispute is finalized, the client or freelancer can appeal
@@ -185,7 +205,9 @@ escrow.
 ## Rewards And Slashing
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Majority jurors claim an equal share of the fee pool with `claimReward`. Jurors
@@ -196,7 +218,9 @@ slashed pool.
 ## Timing Constants
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Constant             |                  Value |

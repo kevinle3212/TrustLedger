@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Contract Set](#contract-set)
 - [Contract Dependencies](#contract-dependencies)
 - [TrustLedger](#trustledger)
@@ -22,6 +25,7 @@
 - [JurorRegistry](#jurorregistry)
 - [ReputationRegistry](#reputationregistry)
 - [Interfaces](#interfaces)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -34,7 +38,9 @@ on-chain API.
 ## Contract Set
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Contract             | Role                                                                                                            |
@@ -50,7 +56,9 @@ on-chain API.
 ## Contract Dependencies
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `contracts/lib/openzeppelin-contracts` is pinned as a git submodule and should
@@ -88,7 +96,9 @@ node tools/foundry-sandbox.mjs test --root foundry-sandbox --offline
 ## TrustLedger
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `TrustLedger` inherits `ReentrancyGuard` and `Pausable`. It stores escrow terms
@@ -107,7 +117,9 @@ in `EscrowContract` and tracks each escrow through this status enum:
 ### Key State
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Item                 | Purpose                                                          |
@@ -121,7 +133,9 @@ in `EscrowContract` and tracks each escrow through this status enum:
 ### Key Functions
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Function                     | Caller                      | Purpose                                                                 |
@@ -149,7 +163,9 @@ in `EscrowContract` and tracks each escrow through this status enum:
 ### Access Control
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `TrustLedger` uses role-by-address checks instead of OpenZeppelin ownership.
@@ -161,7 +177,9 @@ restricted to `pauser`.
 ### Events
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Important events include `ContractProposed`, `ContractProposedByClient`,
@@ -173,7 +191,9 @@ Important events include `ContractProposed`, `ContractProposedByClient`,
 ## Arbitration
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `Arbitration` controls disputes opened by `TrustLedger`. A dispute phase is one
@@ -183,7 +203,9 @@ of `COMMIT`, `REVEAL`, `FINALIZED`, `APPEALED`, `APPEAL_COMMIT`,
 ### Key Constants
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Constant                     |      Value |
@@ -199,7 +221,9 @@ of `COMMIT`, `REVEAL`, `FINALIZED`, `APPEALED`, `APPEAL_COMMIT`,
 ### Key Functions
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Function          | Caller               | Purpose                                                           |
@@ -218,7 +242,9 @@ Read [Arbitration](ARBITRATION.md) for the full dispute flow.
 ## JurorRegistry
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `JurorRegistry` stores juror stake and eligibility. Only `Arbitration` can lock,
@@ -241,7 +267,9 @@ reputation at least `20`, and no active cooldown.
 ## ReputationRegistry
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `ReputationRegistry` stores ratings submitted through `TrustLedger`.
@@ -259,7 +287,9 @@ scores clear one pending recovery and add a synthetic `50` score.
 ## Interfaces
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The source includes interfaces under `contracts/src/interfaces/` for

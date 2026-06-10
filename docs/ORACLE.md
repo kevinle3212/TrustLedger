@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Endpoints](#endpoints)
 - [Supported Pairs](#supported-pairs)
 - [Data Flow](#data-flow)
@@ -16,6 +19,7 @@
 - [Error Handling](#error-handling)
 - [Monitoring](#monitoring)
 - [Security Notes](#security-notes)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -27,7 +31,9 @@ smart contract consumes off-chain price data in production paths.
 ## Endpoints
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Endpoint                                   | Purpose                                                        |
@@ -38,7 +44,9 @@ smart contract consumes off-chain price data in production paths.
 ## Supported Pairs
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Base   | Quote | Provider ID |
@@ -49,7 +57,9 @@ smart contract consumes off-chain price data in production paths.
 ## Data Flow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 ```mermaid
@@ -64,7 +74,9 @@ flowchart LR
 ## Validation
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - `base` must be one of the supported assets.
@@ -75,7 +87,9 @@ flowchart LR
 ## Error Handling
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 If the provider fails after a successful read, the service returns the cached
@@ -85,7 +99,9 @@ JSON error.
 ## Monitoring
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `GET /api/health` checks oracle source URL validity. `GET /api/oracle/status`
@@ -95,7 +111,9 @@ fetch.
 ## Security Notes
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Oracle data is informational. Do not use it for custody, payout, or dispute

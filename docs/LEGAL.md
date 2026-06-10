@@ -3,17 +3,21 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Public Surfaces](#public-surfaces)
 - [Draft Legal Document Inventory](#draft-legal-document-inventory)
 - [Agent Review Rule](#agent-review-rule)
 - [Translation Workflow](#translation-workflow)
 - [Jurisdiction Note](#jurisdiction-note)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -26,7 +30,9 @@ engineering, documentation, and website changes stay synchronized.
 ## Public Surfaces
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Surface            | Purpose                                                               |
@@ -38,7 +44,9 @@ engineering, documentation, and website changes stay synchronized.
 ## Draft Legal Document Inventory
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The following root markdown files may require review when product behavior,
@@ -61,7 +69,9 @@ posture changes:
 ## Agent Review Rule
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Use `.sixth/skills/legal-compliance/SKILL.md` for any legal or
@@ -71,7 +81,9 @@ active user request explicitly authorizes edits to those files.
 ## Translation Workflow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The frontend helper `src/helpers/legal-docs.ts` lists legal documents, supported
@@ -83,7 +95,9 @@ should remain marked as needing review until a qualified reviewer approves them.
 ## Jurisdiction Note
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 A single SaaS policy set can provide a global baseline, but it cannot reliably

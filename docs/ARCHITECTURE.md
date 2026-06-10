@@ -3,18 +3,22 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Components](#components)
 - [Contract Relationships](#contract-relationships)
 - [Escrow Model](#escrow-model)
 - [Arbitration Model](#arbitration-model)
 - [Frontend Model](#frontend-model)
 - [Network Support](#network-support)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -27,7 +31,9 @@ deployment wiring.
 ## Components
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Component            | Path                                                 | Role                                                                                              |
@@ -43,7 +49,9 @@ deployment wiring.
 ## Contract Relationships
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `TrustLedger` is the escrow authority. `Arbitration` can execute rulings on
@@ -70,7 +78,9 @@ constructed with the same authority. The scripts then call
 ## Escrow Model
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 An escrow can start from either side:
@@ -89,7 +99,9 @@ for the state machine.
 ## Arbitration Model
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Disputes use juror committees selected from `JurorRegistry`. When no VRF
@@ -106,7 +118,9 @@ for details.
 ## Frontend Model
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The frontend is a standalone Next.js package under `src/`. It uses Reown AppKit
@@ -127,7 +141,9 @@ Read [Oracle Architecture](ORACLE.md) for display-rate data flow and
 ## Network Support
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Network          |   Chain ID | Source Support                                                     |

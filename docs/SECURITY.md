@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Audit Status](#audit-status)
 - [Access Control](#access-control)
 - [Escrow Risks](#escrow-risks)
@@ -16,6 +19,7 @@
 - [Frontend And API Risks](#frontend-and-api-risks)
 - [CI Security Checks](#ci-security-checks)
 - [Reporting Vulnerabilities](#reporting-vulnerabilities)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -28,7 +32,9 @@ preparing an audit.
 ## Audit Status
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 No third-party audit report is present in this repository as of 2026-06-08.
@@ -37,7 +43,9 @@ Treat the contracts as unaudited unless an external report is added.
 ## Access Control
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Contract             | Protected Action                     | Authority                                     |
@@ -57,7 +65,9 @@ after a value is set.
 ## Escrow Risks
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Native-token and ERC-20 escrows have different fee behavior. Native-token
@@ -71,7 +81,9 @@ pausable, or upgradeable tokens.
 ## Arbitration Risks
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 When no VRF coordinator is set, juror selection uses `block.prevrandao`,
@@ -86,7 +98,9 @@ eligibility thresholds.
 ## Frontend And API Risks
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Public frontend variables are visible in the browser. Never store private keys,
@@ -110,7 +124,9 @@ explicit confirmations, authorization tests, and updated threat modeling.
 ## CI Security Checks
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `security.yml` runs Slither, TruffleHog, npm audit, CodeQL, and Semgrep. Some
@@ -131,9 +147,9 @@ Sensitive file protection is enforced in layers. `npm run secrets:check` blocks
 tracked and staged `.env` files, Solana `target/deploy/*.json` keypairs,
 private-key-looking filenames, and common unredacted secret patterns. The guard
 runs in local hooks, `npm run quality`, and CI. Repository admins should also
-enable the importable GitHub ruleset in
-[GitHub Rulesets](GITHUB-RULESETS.md), with secret scanning and push protection
-active, because local hooks can be bypassed.
+enable the importable GitHub ruleset in [GitHub Rulesets](GITHUB-RULESETS.md),
+with secret scanning and push protection active, because local hooks can be
+bypassed.
 
 Privacy analytics are opt-in and aggregate-only. The browser beacon and server
 collector must both be enabled by environment variables, and `/api/health`
@@ -146,7 +162,9 @@ analytics in production.
 ## Reporting Vulnerabilities
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Use the root

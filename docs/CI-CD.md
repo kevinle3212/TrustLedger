@@ -3,12 +3,15 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Workflow Summary](#workflow-summary)
 - [CI Workflow](#ci-workflow)
 - [Deploy Workflow](#deploy-workflow)
@@ -18,6 +21,7 @@
 - [Local Hygiene Workflow](#local-hygiene-workflow)
     - [MkDocs Dependency Pinning](#mkdocs-dependency-pinning)
 - [Known Gotchas](#known-gotchas)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -29,7 +33,9 @@ it when adding a job, debugging CI, or changing deployment secrets.
 ## Workflow Summary
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Workflow                   | Triggers                                     | Purpose                                                             |
@@ -47,7 +53,9 @@ it when adding a job, debugging CI, or changing deployment secrets.
 ## CI Workflow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `ci.yml` has separate jobs for frontend, TypeScript, Python, Hardhat, and
@@ -67,7 +75,9 @@ cannot silently drift from policy.
 ## Deploy Workflow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `deploy.yml` deploys only to Ethereum Sepolia. It requires:
@@ -87,7 +97,9 @@ frontend contract address variables to Vercel before deploying the frontend.
 ## Security Workflow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `security.yml` runs multiple scanners. Some scanner jobs are configured with
@@ -97,7 +109,9 @@ whole workflow. Review job logs even when the workflow is green.
 ## CodeRabbit Review
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `.coderabbit.yaml` configures strict automated PR review. CodeRabbit uses an
@@ -108,7 +122,9 @@ Docker, Kubernetes, package metadata, and docs. See [CodeRabbit](CODERABBIT.md).
 ## Docs Workflow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `docs.yml` builds MkDocs from `docs/` using `mkdocs.yml`. `wiki-sync.yml`
@@ -129,7 +145,9 @@ Local docs checks:
 ## Local Hygiene Workflow
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 `log-hygiene.yml` runs on pushes, pull requests, a weekly schedule, and manual
@@ -149,7 +167,9 @@ against real local logs and scratch files.
 ### MkDocs Dependency Pinning
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 TrustLedger pins MkDocs below 2.0 and Material for MkDocs below 9.7. Material
@@ -172,7 +192,9 @@ MkDocs major version.
 ## Known Gotchas
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - The deploy workflow is Ethereum Sepolia-specific; it does not deploy to

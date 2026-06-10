@@ -3,15 +3,19 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Sensitive File Protection](#sensitive-file-protection)
 - [Required Repository Settings](#required-repository-settings)
 - [Local And CI Backstops](#local-and-ci-backstops)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -24,7 +28,9 @@ push attempts.
 ## Sensitive File Protection
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The importable ruleset template lives at:
@@ -48,7 +54,9 @@ GitHub Settings -> Rules -> Rulesets and keep enforcement set to active.
 ## Required Repository Settings
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Enable these GitHub settings:
@@ -60,14 +68,16 @@ Enable these GitHub settings:
 - No bypass actors for the sensitive-file ruleset unless an emergency breakglass
   process is documented separately.
 
-GitHub can reject protected file paths server-side. That is the closest practical
-answer to "never under any circumstances," because local hooks can always be
-bypassed by a user with their own Git client.
+GitHub can reject protected file paths server-side. That is the closest
+practical answer to "never under any circumstances," because local hooks can
+always be bypassed by a user with their own Git client.
 
 ## Local And CI Backstops
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The repository also runs:

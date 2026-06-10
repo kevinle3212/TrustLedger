@@ -3,18 +3,22 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Files](#files)
 - [Build Image](#build-image)
 - [Configure](#configure)
 - [Preview And Apply](#preview-and-apply)
 - [Rust Admin API](#rust-admin-api)
 - [Reproducibility Notes](#reproducibility-notes)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -26,7 +30,9 @@ frontend alongside the Docker image in `docker/Dockerfile.frontend`.
 ## Files
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | File                      | Purpose                                                                 |
@@ -44,7 +50,9 @@ frontend alongside the Docker image in `docker/Dockerfile.frontend`.
 ## Build Image
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Build the same standalone frontend image used by Kubernetes:
@@ -67,7 +75,9 @@ For a remote cluster, push the image to the registry configured in
 ## Configure
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Use an overlay, Helm values, or deployment automation to set non-secret public
@@ -114,7 +124,9 @@ kubectl -n trustledger create secret generic trustledger-frontend-secrets \
 ## Preview And Apply
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Render the exact manifests before applying:
@@ -157,7 +169,9 @@ notification, cron, oracle, and app URL checks.
 ## Rust Admin API
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The optional Rust companion service has its own base in `infra/rust-admin-api`.
@@ -182,7 +196,9 @@ curl -H "Authorization: Bearer $TRUSTLEDGER_ADMIN_API_TOKEN" \
 ## Reproducibility Notes
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - The container uses Node `22.22.3` by default and can be rebuilt with

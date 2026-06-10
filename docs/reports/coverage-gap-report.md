@@ -3,16 +3,20 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Current Evidence](#current-evidence)
 - [Known Critical Gaps](#known-critical-gaps)
 - [Implemented In This Change](#implemented-in-this-change)
 - [Recommended Future Tests](#recommended-future-tests)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -23,7 +27,9 @@ Date: 2026-06-09
 ## Current Evidence
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Frontend unit tests exist under `src/tests/unit/`.
@@ -54,7 +60,9 @@ the future gaps below remain useful hardening work before mainnet.
 ## Known Critical Gaps
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Area                    | Gaps                                                                                                                                                                                              |
@@ -73,7 +81,9 @@ the future gaps below remain useful hardening work before mainnet.
 ## Implemented In This Change
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - `src/services/oracle.ts` unit tests for symbol validation, provider parsing,
@@ -90,7 +100,9 @@ the future gaps below remain useful hardening work before mainnet.
 ## Recommended Future Tests
 
 <!-- docs-section-nav:start -->
+
 [Home](../Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Add API route tests for `/api/oracle/rates`.

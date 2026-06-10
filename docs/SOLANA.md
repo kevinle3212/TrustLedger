@@ -3,18 +3,22 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Decision](#decision)
 - [Current Implementation](#current-implementation)
 - [Current Devnet Program](#current-devnet-program)
 - [Deployment Commands](#deployment-commands)
 - [Next Native Program Milestones](#next-native-program-milestones)
 - [Safety Rules](#safety-rules)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -27,7 +31,9 @@ chains.
 ## Decision
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Option                     | Decision | Rationale                                                                    |
@@ -39,7 +45,9 @@ chains.
 ## Current Implementation
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The current repository adds typed frontend helpers in `src/helpers/solana.ts`
@@ -67,7 +75,9 @@ custody is available.
 ## Current Devnet Program
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 | Field      | Value                                          |
@@ -91,7 +101,9 @@ npm run solana:program:check
 ## Deployment Commands
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The regular repository build runs `npm run solana:program:check` through
@@ -128,7 +140,9 @@ instructions are current, and the audit scope is documented.
 ## Next Native Program Milestones
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 1. Model arbitration and reputation accounts with explicit account ownership and
@@ -143,7 +157,9 @@ instructions are current, and the audit scope is documented.
 ## Safety Rules
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - Never request private keys, seed phrases, or keypair files from users.

@@ -17,8 +17,7 @@ const SENSITIVE_CONTENT = [
 	{ name: "private key", pattern: /-----BEGIN (?:RSA |EC |OPENSSH |)?PRIVATE KEY-----/u },
 	{
 		name: "solana keypair array",
-		pattern:
-			/^\s*\[\s*(?:\d{1,3}\s*,\s*){63}\d{1,3}\s*\]\s*$/u,
+		pattern: /^\s*\[\s*(?:\d{1,3}\s*,\s*){63}\d{1,3}\s*\]\s*$/u,
 	},
 ];
 

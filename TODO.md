@@ -201,15 +201,15 @@ mainnet launch deliverables.
 - [ ] Complete external production setup that cannot be performed from the
       repository alone.
     - **AI summaries:** choose and configure a managed provider with data-use
-      controls enabled. Required keys: `AI_SUMMARY_PROVIDER` (`groq`,
-      `gemini`, or `disabled`), `GROQ_API_KEY` plus optional `GROQ_MODEL`, or
+      controls enabled. Required keys: `AI_SUMMARY_PROVIDER` (`groq`, `gemini`,
+      or `disabled`), `GROQ_API_KEY` plus optional `GROQ_MODEL`, or
       `GEMINI_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` plus optional
       `GEMINI_MODEL`.
-    - **Off-chain accounts:** provision a persistent database or managed
-      backend for profiles, notification preferences, encrypted message
-      envelopes, and onboarding state. Required keys include
-      `ACCOUNT_SESSION_SECRET` or `AUTH_JWT_SECRET`, plus the selected
-      database URL/credentials once the provider is chosen.
+    - **Off-chain accounts:** provision a persistent database or managed backend
+      for profiles, notification preferences, encrypted message envelopes, and
+      onboarding state. Required keys include `ACCOUNT_SESSION_SECRET` or
+      `AUTH_JWT_SECRET`, plus the selected database URL/credentials once the
+      provider is chosen.
     - **Email and notifications:** verify the sending domain and configure
       `EMAIL_PROVIDER`, `RESEND_API_KEY`, `BREVO_API_KEY`, or
       `POSTMARK_SERVER_TOKEN`, plus `NOTIFICATIONS_SECRET`, `CRON_SECRET`, and
@@ -292,9 +292,9 @@ mainnet launch deliverables.
       generate visualizations and insights from the on-chain data, for use in
       the whitepaper, documentation, or the platform itself.
     - Completed 2026-06-10: added `scripts/analytics/` with a deterministic
-      Python analytics generator backed by NumPy, Pandas, SymPy, SciPy,
-      Seaborn, Matplotlib, Plotly, and Bokeh. Matplotlib cache writes are routed
-      to project-local `tmp/matplotlib/`.
+      Python analytics generator backed by NumPy, Pandas, SymPy, SciPy, Seaborn,
+      Matplotlib, Plotly, and Bokeh. Matplotlib cache writes are routed to
+      project-local `tmp/matplotlib/`.
     - Added `assets/analytics/wallet-analytics-preview.svg`,
       `assets/analytics/wallet-analytics-report.json`,
       `assets/analytics/wallet-analytics-plotly.json`,
@@ -309,9 +309,9 @@ mainnet launch deliverables.
       phrases, raw documents, emails, encrypted draft bodies, or session keys.
     - Connected wallet users can hover/focus the wallet address button in the
       top-right navbar and open Analytics from the dropdown.
-    - Added strict mypy coverage for `scripts/analytics/generate_wallet_analytics.py`
-      with local stubs for the exact Plotly, SciPy, Seaborn, and SymPy APIs used
-      by the generator.
+    - Added strict mypy coverage for
+      `scripts/analytics/generate_wallet_analytics.py` with local stubs for the
+      exact Plotly, SciPy, Seaborn, and SymPy APIs used by the generator.
 
 - [x] Find a better magic-link email service provider that is free or low-cost
       for development and testing.

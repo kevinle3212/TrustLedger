@@ -3,17 +3,21 @@
 <a id="top"></a>
 
 <!-- docs-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-nav:end -->
 
 ## Table of Contents
 
 <!-- docs-toc:start -->
+
 - [Problem](#problem)
 - [Implemented System](#implemented-system)
 - [Current Deployment Story](#current-deployment-story)
 - [Technical References](#technical-references)
 - [Social Slide](#social-slide)
+
 <!-- docs-toc:end -->
 
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
@@ -25,7 +29,9 @@ talks or demos, not as the canonical technical reference.
 ## Problem
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 Freelance work often requires one party to trust the other before payment or
@@ -36,7 +42,9 @@ deterministic process.
 ## Implemented System
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 TrustLedger includes:
@@ -56,7 +64,9 @@ TrustLedger includes:
 ## Current Deployment Story
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The source-supported automated deployment target is Ethereum Sepolia. Config
@@ -66,7 +76,9 @@ configured in source as of 2026-06-08.
 ## Technical References
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 - [Architecture](ARCHITECTURE.md)
@@ -79,7 +91,9 @@ configured in source as of 2026-06-08.
 ## Social Slide
 
 <!-- docs-section-nav:start -->
+
 [Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
 <!-- docs-section-nav:end -->
 
 The one-slide social PDF lives at
