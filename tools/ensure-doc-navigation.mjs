@@ -40,7 +40,7 @@ function escapeRegExp(value) {
 function slugify(heading) {
 	return heading
 		.toLowerCase()
-		.replace(/<[^>]*>/gu, "")
+		.replace(/[<>]/gu, "")
 		.replace(/[^\p{L}\p{N}\s-]/gu, "")
 		.trim()
 		.replace(/\s+/gu, "-");

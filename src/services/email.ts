@@ -9,6 +9,8 @@ const ACCENT = "#6366f1";
 
 const DEFAULT_FROM = "TrustLedger <noreply@trustledger.app>";
 const MAX_RECIPIENTS = 5;
+const MAX_EMAIL_LENGTH = 254;
+const MAX_EMAIL_LOCAL_LENGTH = 64;
 
 type EmailProvider = "resend" | "brevo" | "postmark" | "log";
 
@@ -53,13 +55,53 @@ function normalizeRecipients(to: string | readonly string[]): string[] {
 	const recipients: string[] = [];
 	for (const candidate of raw) {
 		const trimmed = candidate.trim();
-		if (trimmed === "" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(trimmed)) continue;
+		if (!isValidRecipientEmail(trimmed)) continue;
 		const key = trimmed.toLowerCase();
 		if (seen.has(key)) continue;
 		seen.add(key);
 		recipients.push(trimmed);
 	}
 	return recipients.slice(0, MAX_RECIPIENTS);
+}
+
+function hasOnlyEmailLocalCharacters(value: string): boolean {
+	for (const char of value) {
+		const code = char.codePointAt(0) ?? 0;
+		const isAlphaNumeric =
+			(code >= 48 && code <= 57) || (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+		if (isAlphaNumeric || ".!#$%&'*+/=?^_`{|}~-".includes(char)) continue;
+		return false;
+	}
+	return true;
+}
+
+function isValidDomainLabel(value: string): boolean {
+	if (value === "" || value.startsWith("-") || value.endsWith("-")) return false;
+	for (const char of value) {
+		const code = char.codePointAt(0) ?? 0;
+		const isAlphaNumeric =
+			(code >= 48 && code <= 57) || (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
+		if (isAlphaNumeric || char === "-") continue;
+		return false;
+	}
+	return true;
+}
+
+function isValidRecipientEmail(value: string): boolean {
+	if (value === "" || value.length > MAX_EMAIL_LENGTH || value.includes(" ")) return false;
+	const atIndex = value.indexOf("@");
+	if (atIndex <= 0 || atIndex !== value.lastIndexOf("@")) return false;
+	const local = value.slice(0, atIndex);
+	const domain = value.slice(atIndex + 1).toLowerCase();
+	if (
+		local.length > MAX_EMAIL_LOCAL_LENGTH ||
+		domain.length === 0 ||
+		!domain.includes(".") ||
+		!hasOnlyEmailLocalCharacters(local)
+	) {
+		return false;
+	}
+	return domain.split(".").every(isValidDomainLabel);
 }
 
 function missing(name: string, provider: EmailProvider): EmailResult {
