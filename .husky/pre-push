@@ -8,9 +8,9 @@ npm run tmp:check
 echo "pre-push: quality"
 npm run quality
 echo "pre-push: frontend E2E"
-(cd src && npm run test:e2e)
+(cd src && CI=1 PORT=3100 npm run test:e2e)
 echo "pre-push: impeccable checks"
-npm run impeccable
+CI=1 PORT=3100 npm run impeccable
 echo "pre-push: frontend build"
 npm run build:frontend
 echo "pre-push: Rust backend"

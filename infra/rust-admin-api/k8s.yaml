@@ -14,10 +14,26 @@ spec:
             labels:
                 app.kubernetes.io/name: trustledger-admin-api
         spec:
+            securityContext:
+                runAsNonRoot: true
+                runAsUser: 10001
+                runAsGroup: 10001
+                fsGroup: 10001
+                seccompProfile:
+                    type: RuntimeDefault
             containers:
                 - name: admin-api
                   image: trustledger-admin-api:local
                   imagePullPolicy: IfNotPresent
+                  securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                          drop:
+                              - ALL
+                      readOnlyRootFilesystem: true
+                      runAsNonRoot: true
+                      runAsUser: 10001
+                      runAsGroup: 10001
                   ports:
                       - containerPort: 4100
                   env:

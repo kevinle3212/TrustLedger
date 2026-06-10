@@ -2,7 +2,7 @@
 	"$schema": "https://json.schemastore.org/package.json",
 	"name": "trustledger",
 	"version": "0.1.0",
-	"description": "A smart-contract built on the Ethereum blockchain.",
+	"description": "TrustLedger is a Solidity-based smart contract system for secure escrow-based transactions built on the Ethereum blockchain, with commit-reveal arbitration, Chainlink VRF juror selection, and on-chain reputation on Sepolia.",
 	"private": true,
 	"keywords": [
 		"ethereum",
