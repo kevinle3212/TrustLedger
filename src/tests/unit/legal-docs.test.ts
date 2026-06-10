@@ -21,8 +21,17 @@ describe("legal docs helper", () => {
 		const prompt = buildLegalTranslationPrompt(LEGAL_DOCUMENTS[0], "fr");
 
 		expect(prompt).toContain("TERMS_AND_CONDITIONS.md");
+		expect(prompt).toContain("from English to fr");
 		expect(prompt).toContain("Preserve headings");
 		expect(prompt).toContain("human review");
+	});
+
+	it("builds a review prompt for the English source locale", () => {
+		const prompt = buildLegalTranslationPrompt(LEGAL_DOCUMENTS[0], "en");
+
+		expect(prompt).toContain("Review TERMS_AND_CONDITIONS.md in English");
+		expect(prompt).not.toContain("from en to en");
+		expect(prompt).not.toContain("from English to en");
 	});
 
 	it("resolves registered legal document slugs", () => {

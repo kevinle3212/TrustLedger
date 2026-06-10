@@ -2,13 +2,12 @@
 
 import { createContext, useId } from "react";
 
-/** Provides the generated field id so `Input`/`Select` can bind to the wrapping `Field` label. */
+/** Provides the generated field id so `Input` can bind to the wrapping `Field` label. */
 export const FieldIdContext = createContext<string | undefined>(undefined);
 
 const BASE_INPUT_CLASS =
 	"min-h-11 w-full min-w-0 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition";
 export const INPUT_BG = "bg-gray-50 dark:bg-white/5";
-export const SELECT_BG = "bg-gray-100 dark:bg-gray-900";
 const VALID_BORDER = "border border-gray-200 dark:border-white/10 focus:ring-indigo-500";
 const ERROR_BORDER = "border border-red-500 dark:border-red-500 focus:ring-red-500";
 
@@ -29,8 +28,8 @@ interface FieldProps {
  * Shared form primitive that wraps a labelled control with inline validation display.
  *
  * Renders a red error message when `error` is set, otherwise the muted `hint`.
- * Passes a generated id via context so child `Input`/`Select` components bind
- * automatically to this label.
+ * Passes a generated id via context so child `Input` components bind automatically
+ * to this label.
  *
  * Example:
  *   <Field label="Amount (ETH)" hint="Held in escrow." error={amountError}>

@@ -81,7 +81,6 @@ export default async function LegalPage({
 								href={`/legal/${document.slug}`}
 								className="tl-button-motion mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-500"
 							>
-								<span aria-hidden="true">Doc</span>
 								View Document
 							</Link>
 						</div>
@@ -94,10 +93,9 @@ export default async function LegalPage({
 					Translation Helper
 				</h2>
 				<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					Use this prompt when preparing a machine-assisted translation. It tells the
-					translator to preserve numbering, defined terms, links, and Markdown structure,
-					and to flag language that needs legal review instead of silently changing the
-					meaning.
+					Use this helper before publishing legal text in another language. For English,
+					it becomes a review prompt. For other languages, it becomes a translation prompt
+					that keeps numbering, defined terms, links, and Markdown structure intact.
 				</p>
 				<ol className="mt-4 grid gap-2 text-sm leading-6 text-gray-600 dark:text-gray-300 sm:grid-cols-3">
 					<li className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">

@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 
 import { Field } from "@/components/Field";
 import { Input } from "@/components/Input";
-import { Select } from "@/components/Select";
 
 describe("form primitives", () => {
 	it("binds Field label to nested Input and renders hint text", () => {
@@ -30,17 +29,14 @@ describe("form primitives", () => {
 		expect(screen.queryByText("Held in escrow.")).not.toBeInTheDocument();
 	});
 
-	it("keeps Field label binding when a child control also receives an id", () => {
+	it("keeps Field label binding when a child input also receives an id", () => {
 		render(
 			<Field label="Payment token">
-				<Select id="payment-token" defaultValue="eth">
-					<option value="eth">ETH</option>
-					<option value="usdc">USDC</option>
-				</Select>
+				<Input id="payment-token" defaultValue="ETH" />
 			</Field>,
 		);
 
 		expect(screen.getByLabelText("Payment token")).not.toHaveAttribute("id", "payment-token");
-		expect(screen.getByRole("combobox")).toHaveValue("eth");
+		expect(screen.getByRole("textbox")).toHaveValue("ETH");
 	});
 });

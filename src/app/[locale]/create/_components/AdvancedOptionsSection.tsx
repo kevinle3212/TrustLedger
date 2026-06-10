@@ -2,8 +2,8 @@
 
 import { Field } from "@/components/Field";
 import { Input } from "@/components/Input";
-import { Select } from "@/components/Select";
 import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
 import type { FormFields } from "../_lib/types";
 
 interface Props {
@@ -11,6 +11,108 @@ interface Props {
 	set: (key: keyof FormFields, value: string) => void;
 	showError: (key: string) => string | undefined;
 	markTouched: (key: string) => void;
+}
+
+const HOLD_BACK_OPTIONS = [
+	{ value: "none", labelKey: "holdbackNone", detail: "No warranty reserve" },
+	{ value: "5", labelKey: null, detail: "5% held during warranty" },
+	{ value: "10", labelKey: null, detail: "10% held during warranty" },
+	{ value: "15", labelKey: null, detail: "15% held during warranty" },
+] as const satisfies readonly {
+	readonly value: FormFields["holdBack"];
+	readonly labelKey: "holdbackNone" | null;
+	readonly detail: string;
+}[];
+
+function HoldBackMenu({
+	value,
+	onChange,
+}: {
+	readonly value: FormFields["holdBack"];
+	readonly onChange: (value: FormFields["holdBack"]) => void;
+}): React.JSX.Element {
+	const t = useTranslations("Create");
+	const [open, setOpen] = useState(false);
+	const rootRef = useRef<HTMLDivElement>(null);
+	const selected =
+		HOLD_BACK_OPTIONS.find((option) => option.value === value) ?? HOLD_BACK_OPTIONS[0];
+	const selectedLabel = selected.labelKey === null ? `${selected.value}%` : t(selected.labelKey);
+
+	useEffect(() => {
+		function closeOnOutsideClick(event: MouseEvent): void {
+			if (
+				rootRef.current !== null &&
+				event.target instanceof Node &&
+				!rootRef.current.contains(event.target)
+			) {
+				setOpen(false);
+			}
+		}
+
+		document.addEventListener("mousedown", closeOnOutsideClick);
+		return (): void => {
+			document.removeEventListener("mousedown", closeOnOutsideClick);
+		};
+	}, []);
+
+	return (
+		<div ref={rootRef} className="tl-choice-menu">
+			<button
+				type="button"
+				aria-haspopup="menu"
+				aria-expanded={open}
+				className="tl-choice-menu__button"
+				onClick={() => {
+					setOpen((current) => !current);
+				}}
+				onKeyDown={(event) => {
+					if (event.key === "Escape") setOpen(false);
+				}}
+			>
+				<span className="tl-choice-menu__main">
+					<span className="tl-choice-menu__label">{selectedLabel}</span>
+					<span className="tl-choice-menu__detail">{selected.detail}</span>
+				</span>
+				<span className="tl-choice-menu__chevron" aria-hidden="true">
+					⌄
+				</span>
+			</button>
+			{open && (
+				<ul className="tl-choice-menu__menu" aria-label={t("warrantyHoldback")}>
+					{HOLD_BACK_OPTIONS.map((option) => {
+						const optionLabel =
+							option.labelKey === null ? `${option.value}%` : t(option.labelKey);
+						const selectedOption = option.value === value;
+						return (
+							<li key={option.value}>
+								<button
+									type="button"
+									aria-current={selectedOption ? "true" : undefined}
+									className="tl-choice-menu__option"
+									onClick={() => {
+										onChange(option.value);
+										setOpen(false);
+									}}
+								>
+									<span>
+										<span className="tl-choice-menu__option-label">
+											{optionLabel}
+										</span>
+										<span className="tl-choice-menu__option-detail">
+											{option.detail}
+										</span>
+									</span>
+									<span className="tl-choice-menu__check" aria-hidden="true">
+										{selectedOption ? "✓" : ""}
+									</span>
+								</button>
+							</li>
+						);
+					})}
+				</ul>
+			)}
+		</div>
+	);
 }
 
 /** Advanced Options card — arbitration fee, warranty hold-back, and warranty period. */
@@ -51,17 +153,12 @@ export function AdvancedOptionsSection({
 			</Field>
 
 			<Field label={t("warrantyHoldback")} hint={t("warrantyHoldbackHint")}>
-				<Select
+				<HoldBackMenu
 					value={form.holdBack}
-					onChange={(e) => {
-						set("holdBack", e.target.value);
+					onChange={(nextValue) => {
+						set("holdBack", nextValue);
 					}}
-				>
-					<option value="none">{t("holdbackNone")}</option>
-					<option value="5">5%</option>
-					<option value="10">10%</option>
-					<option value="15">15%</option>
-				</Select>
+				/>
 			</Field>
 
 			{form.holdBack !== "none" && (

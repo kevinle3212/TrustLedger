@@ -146,6 +146,34 @@ describe("SecureDraftSessionPanel", () => {
 		expect(screen.getByText(/Last Updated:/)).toHaveTextContent("Last Updated:");
 	});
 
+	it("wraps the selected terms text when a formatting tool is clicked", () => {
+		const onTermsBodyChange = jest.fn();
+
+		render(
+			<SecureDraftSessionPanel
+				state={state}
+				connectedWallet={FREELANCER}
+				onTermsBodyChange={onTermsBodyChange}
+				onTermsFormatChange={jest.fn()}
+				onImportDraft={jest.fn()}
+			/>,
+		);
+
+		const editor = screen.getByRole("textbox", {
+			name: "Collaborative Contract Terms Editor",
+		});
+		if (!(editor instanceof HTMLTextAreaElement)) {
+			throw new TypeError("Expected terms editor to be a textarea.");
+		}
+		const selectionStart = state.termsBody.indexOf("Initial draft");
+		editor.focus();
+		editor.setSelectionRange(selectionStart, state.termsBody.length);
+
+		fireEvent.click(screen.getByRole("button", { name: "Insert Bold terms snippet" }));
+
+		expect(onTermsBodyChange).toHaveBeenCalledWith("# Scope\n\n**Initial draft**");
+	});
+
 	it("creates a share link, copies the separate key, and imports URL drafts", async () => {
 		const onImportDraft = jest.fn();
 		const { unmount } = render(
@@ -159,7 +187,7 @@ describe("SecureDraftSessionPanel", () => {
 		);
 
 		fireEvent.click(screen.getByRole("button", { name: "Create Encrypted Share Link" }));
-		await screen.findByText("Encrypted Share Link Created. Send The Session Key Separately.");
+		await screen.findByText("Encrypted share link created. Send the session key separately.");
 		expect(screen.getByRole("button", { name: /Create Link In/u })).toBeDisabled();
 		expect(screen.getByRole("button", { name: /Start Live Room In/u })).toBeDisabled();
 		expect(

@@ -116,8 +116,8 @@ function formatUpdatedAt(
 	const diffMinutes = Math.max(0, Math.floor((nowMs - date.getTime()) / 60_000));
 	const relative =
 		diffMinutes === 0
-			? "Updated Less Than 1 Minute Ago"
-			: `Updated ${diffMinutes.toString()} ${diffMinutes === 1 ? "Minute" : "Minutes"} Ago`;
+			? "Updated less than 1 minute ago"
+			: `Updated ${diffMinutes.toString()} ${diffMinutes === 1 ? "minute" : "minutes"} ago`;
 	return `${formatter.format(date)} (${relative})`;
 }
 
@@ -163,45 +163,98 @@ const HTML_SNIPPETS = [
 	["quote", "<blockquote>"],
 ] as const satisfies readonly (readonly [EditorSnippet, string])[];
 
-function snippetFor(format: ContractTermsFormat, action: EditorSnippet): string {
+function snippetFor(
+	format: ContractTermsFormat,
+	action: EditorSnippet,
+	selectedText = "",
+): { readonly text: string; readonly selectionStart: number; readonly selectionEnd: number } {
+	const hasSelection = selectedText.trim() !== "";
 	if (format === "html") {
 		const htmlSnippets = {
-			bold: "<strong>Important Term</strong>",
-			italic: "<em>Clarifying Note</em>",
-			h1: "<h1>Primary Heading</h1>",
-			h2: "<h2>Section Heading</h2>",
-			h3: "<h3>Subsection Heading</h3>",
-			h4: "<h4>Detail Heading</h4>",
-			paragraph: "<p>Contract paragraph goes here.</p>",
-			link: '<a href="https://example.com">Reference Link</a>',
+			bold: { before: "<strong>", value: "Important Term", after: "</strong>" },
+			italic: { before: "<em>", value: "Clarifying Note", after: "</em>" },
+			h1: { before: "<h1>", value: "Primary Heading", after: "</h1>" },
+			h2: { before: "<h2>", value: "Section Heading", after: "</h2>" },
+			h3: { before: "<h3>", value: "Subsection Heading", after: "</h3>" },
+			h4: { before: "<h4>", value: "Detail Heading", after: "</h4>" },
+			paragraph: { before: "<p>", value: "Contract paragraph goes here.", after: "</p>" },
+			link: {
+				before: '<a href="https://example.com">',
+				value: "Reference Link",
+				after: "</a>",
+			},
 			image: '<img src="https://example.com/image.png" alt="Contract Attachment" />',
 			list: "<ul>\n  <li>Contract Obligation</li>\n</ul>",
-			quote: "<blockquote>Quoted contract language.</blockquote>",
-			code: "<code>Defined Term</code>",
-		} satisfies Record<EditorSnippet, string>;
-		return htmlSnippets[action];
+			quote: {
+				before: "<blockquote>",
+				value: "Quoted contract language.",
+				after: "</blockquote>",
+			},
+			code: { before: "<code>", value: "Defined Term", after: "</code>" },
+		} satisfies Record<
+			EditorSnippet,
+			string | { readonly before: string; readonly value: string; readonly after: string }
+		>;
+		const snippet = htmlSnippets[action];
+		if (typeof snippet === "string") {
+			return { text: snippet, selectionStart: snippet.length, selectionEnd: snippet.length };
+		}
+		const value = hasSelection ? selectedText : snippet.value;
+		const text = `${snippet.before}${value}${snippet.after}`;
+		const selectionStart = snippet.before.length;
+		return {
+			text,
+			selectionStart,
+			selectionEnd: selectionStart + value.length,
+		};
 	}
 	if (format === "markdown") {
 		const markdownSnippets = {
-			bold: "**Important Term**",
-			italic: "_Clarifying Note_",
-			h1: "# Primary Heading",
-			h2: "## Section Heading",
-			h3: "### Subsection Heading",
-			h4: "#### Detail Heading",
+			bold: { before: "**", value: "Important Term", after: "**" },
+			italic: { before: "_", value: "Clarifying Note", after: "_" },
+			h1: { before: "# ", value: "Primary Heading", after: "" },
+			h2: { before: "## ", value: "Section Heading", after: "" },
+			h3: { before: "### ", value: "Subsection Heading", after: "" },
+			h4: { before: "#### ", value: "Detail Heading", after: "" },
 			paragraph: "Contract paragraph goes here.",
-			link: "[Reference Link](https://example.com)",
+			link: { before: "[", value: "Reference Link", after: "](https://example.com)" },
 			image: "![Contract Attachment](https://example.com/image.png)",
 			list: "- Contract Obligation",
 			quote: "> Quoted contract language.",
-			code: "`Defined Term`",
-		} satisfies Record<EditorSnippet, string>;
-		return markdownSnippets[action];
+			code: { before: "`", value: "Defined Term", after: "`" },
+		} satisfies Record<
+			EditorSnippet,
+			string | { readonly before: string; readonly value: string; readonly after: string }
+		>;
+		const snippet = markdownSnippets[action];
+		if (typeof snippet === "string") {
+			return { text: snippet, selectionStart: snippet.length, selectionEnd: snippet.length };
+		}
+		const value = hasSelection ? selectedText : snippet.value;
+		const text = `${snippet.before}${value}${snippet.after}`;
+		const selectionStart = snippet.before.length;
+		return {
+			text,
+			selectionStart,
+			selectionEnd: selectionStart + value.length,
+		};
 	}
-	if (action === "bold") return "IMPORTANT TERM";
-	if (action === "italic") return "Clarifying Note";
-	if (action === "paragraph") return "Contract paragraph goes here.";
-	return "Section Heading";
+	const plainSnippets = {
+		bold: "Important Term",
+		italic: "Clarifying Note",
+		h1: "Primary Heading",
+		h2: "Section Heading",
+		h3: "Subsection Heading",
+		h4: "Detail Heading",
+		paragraph: "Contract paragraph goes here.",
+		link: "Reference Link: https://example.com",
+		image: "Contract Attachment: https://example.com/image.png",
+		list: "- Contract Obligation",
+		quote: "Quoted contract language.",
+		code: "Defined Term",
+	} satisfies Record<EditorSnippet, string>;
+	const text = hasSelection ? selectedText : plainSnippets[action];
+	return { text, selectionStart: 0, selectionEnd: text.length };
 }
 
 function formatLabel(format: ContractTermsFormat): string {
@@ -246,7 +299,6 @@ function DraftTermsEditor({
 	nowMs,
 	onTermsBodyChange,
 	onTermsFormatChange,
-	onInsertSnippet,
 }: {
 	readonly state: CreateState;
 	readonly collaboration: ReturnType<typeof useEncryptedDraftCollaboration>;
@@ -254,14 +306,42 @@ function DraftTermsEditor({
 	readonly nowMs: number;
 	readonly onTermsBodyChange: (value: string) => void;
 	readonly onTermsFormatChange: (format: ContractTermsFormat) => void;
-	readonly onInsertSnippet: (action: EditorSnippet) => void;
 }): React.JSX.Element {
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const visibleSnippets =
 		state.termsFormat === "markdown"
 			? MARKDOWN_SNIPPETS
 			: state.termsFormat === "html"
 				? HTML_SNIPPETS
-				: [];
+				: MARKDOWN_SNIPPETS;
+
+	function insertSnippet(action: EditorSnippet): void {
+		const textarea = textareaRef.current;
+		const textareaHasFocus = textarea !== null && document.activeElement === textarea;
+		const selectionStart = textareaHasFocus ? textarea.selectionStart : state.termsBody.length;
+		const selectionEnd = textareaHasFocus ? textarea.selectionEnd : state.termsBody.length;
+		const selectedText = state.termsBody.slice(selectionStart, selectionEnd);
+		const snippet = snippetFor(state.termsFormat, action, selectedText);
+		const needsLeadingBreak =
+			selectionStart > 0 &&
+			!state.termsBody.slice(0, selectionStart).endsWith("\n") &&
+			(!textareaHasFocus ||
+				action === "h1" ||
+				action === "h2" ||
+				action === "h3" ||
+				action === "h4" ||
+				action === "list" ||
+				action === "quote");
+		const prefix = needsLeadingBreak ? "\n" : "";
+		const nextValue = `${state.termsBody.slice(0, selectionStart)}${prefix}${snippet.text}${state.termsBody.slice(selectionEnd)}`;
+		const nextSelectionStart = selectionStart + prefix.length + snippet.selectionStart;
+		const nextSelectionEnd = selectionStart + prefix.length + snippet.selectionEnd;
+		onTermsBodyChange(nextValue);
+		window.requestAnimationFrame(() => {
+			textarea?.focus();
+			textarea?.setSelectionRange(nextSelectionStart, nextSelectionEnd);
+		});
+	}
 
 	return (
 		<>
@@ -338,10 +418,13 @@ function DraftTermsEditor({
 						key={action}
 						type="button"
 						aria-label={`Insert ${label} terms snippet`}
-						onClick={() => {
-							onInsertSnippet(action);
+						onMouseDown={(event) => {
+							event.preventDefault();
 						}}
-						className={`rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 ${
+						onClick={() => {
+							insertSnippet(action);
+						}}
+						className={`tl-editor-tool rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-indigo-300/40 dark:hover:bg-indigo-400/10 dark:hover:text-indigo-100 ${
 							action === "bold"
 								? "font-bold"
 								: action === "italic"
@@ -355,6 +438,7 @@ function DraftTermsEditor({
 			</div>
 
 			<textarea
+				ref={textareaRef}
 				aria-label="Collaborative Contract Terms Editor"
 				value={state.termsBody}
 				onChange={(event) => {
@@ -363,7 +447,7 @@ function DraftTermsEditor({
 				rows={9}
 				spellCheck
 				className="mt-4 min-h-56 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 font-mono text-sm leading-6 text-gray-900 outline-none transition focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-white"
-				placeholder="Write The Contract Terms Before Deployment."
+				placeholder="Write the contract terms before deployment."
 			/>
 		</>
 	);
@@ -511,7 +595,7 @@ function DraftShareControls({
 			{collaboration.isLive && (
 				<p className="text-xs text-gray-600 dark:text-gray-300">
 					Live Room {panel.roomId}: edits are encrypted before leaving the browser. Last
-					Remote Update:{" "}
+					remote update:{" "}
 					{formatUpdatedAt(collaboration.lastRemoteUpdateAt, updatedAtFormatter, nowMs)}.
 				</p>
 			)}
@@ -519,18 +603,18 @@ function DraftShareControls({
 				<p className="text-xs font-medium text-amber-700 dark:text-amber-300">
 					{collaboration.lastError.replace(
 						"Unable to load the live draft room.",
-						"Unable To Load The Live Draft Room. Check The Session Link, Session Key, Wallet, Or Room Expiration.",
+						"Unable to load the live draft room. Check the session link, session key, wallet, or room expiration.",
 					)}
 				</p>
 			)}
 			{encryptedDraftFromUrl !== null && (
 				<div className="grid gap-2 border-t border-gray-200 pt-4 dark:border-white/10">
 					<p className="text-xs text-gray-600 dark:text-gray-300">
-						This URL Contains An Encrypted Draft For{" "}
+						This URL contains an encrypted draft for{" "}
 						{urlAllowedWallets.length > 0
 							? urlAllowedWallets.join(", ")
 							: "Allowed Wallets"}
-						. Connect The Matching Wallet, Paste The Separate Key, Then Import.
+						. Connect the matching wallet, paste the separate key, then import.
 					</p>
 					<div className="flex flex-col gap-2 sm:flex-row">
 						<input
@@ -621,12 +705,6 @@ export function SecureDraftSessionPanel({
 	});
 	const liveRoomLocked = panel.roomId !== null || collaboration.isLive;
 
-	function insertSnippet(action: EditorSnippet): void {
-		const snippet = snippetFor(state.termsFormat, action);
-		const separator = state.termsBody.endsWith("\n") || state.termsBody === "" ? "" : "\n";
-		onTermsBodyChange(`${state.termsBody}${separator}${snippet}`);
-	}
-
 	function updateStatus(tone: "success" | "error" | "info", text: string): void {
 		dispatchPanel({ type: "SET_STATUS", status: { tone, text } });
 	}
@@ -640,7 +718,7 @@ export function SecureDraftSessionPanel({
 		} catch {
 			updateStatus(
 				"error",
-				`Unable To Copy ${label}. Copy It Manually From The Share Link Field Below.`,
+				`Unable to copy ${label}. Copy it manually from the share link field below.`,
 			);
 			return false;
 		}
@@ -652,12 +730,12 @@ export function SecureDraftSessionPanel({
 		if (allowedWallets.length === 0) {
 			updateStatus(
 				"error",
-				"Connect Your Wallet Or Enter The Counterparty Wallet Before Sharing.",
+				"Connect your wallet or enter the counterparty wallet before sharing.",
 			);
 			return;
 		}
 		dispatchPanel({ type: "SET_SHARING", isSharing: true });
-		updateStatus("info", "Creating Encrypted Session Link...");
+		updateStatus("info", "Creating encrypted session link...");
 		try {
 			const key = generateSessionKey();
 			const encryptedDraft = await encryptDraftForShare({
@@ -676,10 +754,10 @@ export function SecureDraftSessionPanel({
 			});
 			updateStatus(
 				"success",
-				"Encrypted Share Link Created. Send The Session Key Separately.",
+				"Encrypted share link created. Send the session key separately.",
 			);
 		} catch {
-			updateStatus("error", "Unable To Create The Encrypted Session Link In This Browser.");
+			updateStatus("error", "Unable to create the encrypted session link in this browser.");
 		} finally {
 			dispatchPanel({ type: "SET_SHARING", isSharing: false });
 		}
@@ -698,13 +776,13 @@ export function SecureDraftSessionPanel({
 		if (allowedWallets.length === 0) {
 			updateStatus(
 				"error",
-				"Connect Your Wallet Or Enter The Counterparty Wallet Before Starting Live Sync.",
+				"Connect your wallet or enter the counterparty wallet before starting live sync.",
 			);
 			return;
 		}
 		lastRoomStartAt.current = now;
 		dispatchPanel({ type: "SET_STARTING_LIVE_ROOM", isStartingLiveRoom: true });
-		updateStatus("info", "Starting Encrypted Live Room...");
+		updateStatus("info", "Starting encrypted live room...");
 		try {
 			const key = generateSessionKey();
 			const nextRoomId = generateRoomId();
@@ -726,7 +804,7 @@ export function SecureDraftSessionPanel({
 			});
 			await copyValue(nextShareUrl, "Live Room Link");
 		} catch {
-			updateStatus("error", "Unable To Start The Encrypted Live Room In This Browser.");
+			updateStatus("error", "Unable to start the encrypted live room in this browser.");
 		} finally {
 			dispatchPanel({ type: "SET_STARTING_LIVE_ROOM", isStartingLiveRoom: false });
 		}
@@ -735,15 +813,15 @@ export function SecureDraftSessionPanel({
 	async function handleImport(): Promise<void> {
 		if (panel.isImporting) return;
 		if (encryptedDraftFromUrl === null) {
-			updateStatus("error", "No Encrypted Draft Was Found In This URL.");
+			updateStatus("error", "No encrypted draft was found in this URL.");
 			return;
 		}
 		if (panel.importKey.trim() === "") {
-			updateStatus("error", "Paste The Separate Session Key Before Importing.");
+			updateStatus("error", "Paste the separate session key before importing.");
 			return;
 		}
 		dispatchPanel({ type: "SET_IMPORTING", isImporting: true });
-		updateStatus("info", "Decrypting Draft...");
+		updateStatus("info", "Decrypting draft...");
 		try {
 			const draft = await decryptSharedDraft({
 				encryptedDraft: encryptedDraftFromUrl,
@@ -755,7 +833,7 @@ export function SecureDraftSessionPanel({
 			onImportDraft(draft);
 			updateStatus(
 				"success",
-				"Draft Imported. Live Updates Stay Enabled While This Page Is Open.",
+				"Draft imported. Live updates stay enabled while this page is open.",
 			);
 		} catch (error) {
 			updateStatus(
@@ -763,9 +841,9 @@ export function SecureDraftSessionPanel({
 				error instanceof Error
 					? error.message.replace(
 							"Unable to load the live draft room.",
-							"Unable To Load The Live Draft Room. Check The Session Link, Key, Wallet, Or Room Expiration.",
+							"Unable to load the live draft room. Check the session link, key, wallet, or room expiration.",
 						)
-					: "Unable To Import Draft.",
+					: "Unable to import draft.",
 			);
 		} finally {
 			dispatchPanel({ type: "SET_IMPORTING", isImporting: false });
@@ -781,7 +859,6 @@ export function SecureDraftSessionPanel({
 				nowMs={nowMs}
 				onTermsBodyChange={onTermsBodyChange}
 				onTermsFormatChange={onTermsFormatChange}
-				onInsertSnippet={insertSnippet}
 			/>
 			<DraftShareControls
 				panel={panel}

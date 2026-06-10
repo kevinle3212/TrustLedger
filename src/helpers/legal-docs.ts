@@ -138,8 +138,16 @@ export function resolveLegalLocale(locale: string): LegalLocale {
 }
 
 export function buildLegalTranslationPrompt(document: LegalDocument, locale: LegalLocale): string {
+	if (locale === LEGAL_SOURCE_LOCALE) {
+		return [
+			`Review ${document.sourceFile} in English for clarity, structure, and legal-review flags.`,
+			"Preserve headings, lists, tables, defined terms, markdown links, and legal numbering.",
+			"Do not add legal obligations, jurisdictions, contact details, dates, or remedies.",
+			"Flag ambiguous legal phrases for human review instead of silently changing meaning.",
+		].join(" ");
+	}
 	return [
-		`Translate ${document.sourceFile} from ${LEGAL_SOURCE_LOCALE} to ${locale}.`,
+		`Translate ${document.sourceFile} from English to ${locale}.`,
 		"Preserve headings, lists, tables, defined terms, markdown links, and legal numbering.",
 		"Do not invent legal obligations, jurisdictions, contact details, dates, or remedies.",
 		"Flag ambiguous legal phrases for human review instead of silently changing meaning.",

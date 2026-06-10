@@ -57,7 +57,7 @@ const SCENES = [
 		label: "Contract View",
 		title: "Escrow Protection",
 		note: "Encrypted Draft Ready",
-		kicker: "Freelance milestone",
+		kicker: "Freelancer Milestone",
 	},
 	{
 		key: "juror",
