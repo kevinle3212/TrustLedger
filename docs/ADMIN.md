@@ -112,7 +112,7 @@ npm run rust:clippy
 npm run rust:test
 ```
 
-The Rust workspace and Solana program require Rust 1.85 or newer. CI pins the
+The Rust workspace and Solana program require Rust 1.89 or newer. CI pins the
 same floor because Solana 4.x dependencies include edition-2024 package
 metadata.
 
