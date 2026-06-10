@@ -1,7 +1,5 @@
 type SolanaCluster = "devnet" | "testnet" | "mainnet-beta" | "localnet";
 
-type SolanaSupportMode = "native-program" | "bridged-sol";
-
 export type SolanaNetworkConfig = {
 	readonly cluster: SolanaCluster;
 	readonly label: string;
@@ -10,12 +8,6 @@ export type SolanaNetworkConfig = {
 };
 
 const BASE58_ALPHABET = /^[1-9A-HJ-NP-Za-km-z]+$/u;
-
-export const SOLANA_SUPPORT_MODE = "native-program" satisfies SolanaSupportMode;
-
-export function getSolanaSupportLabel(mode: SolanaSupportMode = SOLANA_SUPPORT_MODE): string {
-	return mode === "native-program" ? "Native-Program" : "Bridged SOL";
-}
 
 export const SOLANA_NETWORKS = {
 	"devnet": {

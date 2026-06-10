@@ -177,6 +177,14 @@ const HTML_ENTITY_MAP: Record<string, string> = {
 	"#39": "'",
 	"apos": "'",
 };
+const HTML_BREAK_TAGS = new Set(["h1", "h2", "p", "li"]);
+
+function findNextCharacter(value: string, target: string, startIndex: number): number {
+	for (let index = startIndex; index < value.length; index += 1) {
+		if (value.charAt(index) === target) return index;
+	}
+	return -1;
+}
 
 function decodeHtmlEntities(value: string): string {
 	let decoded = "";
@@ -189,7 +197,7 @@ function decodeHtmlEntities(value: string): string {
 			continue;
 		}
 
-		const entityEnd = value.indexOf(";", index + 1);
+		const entityEnd = findNextCharacter(value, ";", index + 1);
 		if (entityEnd === -1) {
 			decoded += character;
 			continue;
@@ -215,7 +223,7 @@ function tokenizeHtml(value: string): HtmlToken[] {
 			continue;
 		}
 
-		const tagEnd = value.indexOf(">", index + 1);
+		const tagEnd = findNextCharacter(value, ">", index + 1);
 		if (tagEnd === -1) {
 			text += character;
 			continue;
@@ -258,7 +266,7 @@ function htmlToPlain(value: string): string {
 		}
 
 		if (token.type === "open" && token.name === "li") plain += "- ";
-		if (token.type === "close" && ["h1", "h2", "p", "li"].includes(token.name)) {
+		if (token.type === "close" && HTML_BREAK_TAGS.has(token.name)) {
 			plain += "\n";
 		}
 	}
@@ -286,7 +294,7 @@ function htmlToMarkdown(value: string): string {
 			if (token.name === "li") markdown += "- ";
 		}
 
-		if (token.type === "close" && ["h1", "h2", "p", "li"].includes(token.name)) {
+		if (token.type === "close" && HTML_BREAK_TAGS.has(token.name)) {
 			markdown += "\n";
 		}
 	}

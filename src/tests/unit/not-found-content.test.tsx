@@ -9,11 +9,11 @@ describe("NotFoundContent", () => {
 		expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
 			"This route is not in the ledger.",
 		);
-		expect(screen.getByRole("link", { name: "Open dashboard" })).toHaveAttribute(
+		expect(screen.getByRole("link", { name: "Open Dashboard" })).toHaveAttribute(
 			"href",
 			"/dashboard",
 		);
 		expect(screen.getByRole("link", { name: "Read FAQ" })).toHaveAttribute("href", "/faq");
-		expect(screen.getByRole("link", { name: "Go home" })).toHaveAttribute("href", "/");
+		expect(screen.getByRole("link", { name: "Go Home" })).toHaveAttribute("href", "/");
 	});
 });

@@ -487,6 +487,7 @@ GitHub Actions cover:
 - [Frontend README](src/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Frontend](docs/FRONTEND.md)
+- [Analytics And Native Kernels](docs/ANALYTICS.md)
 - [Oracle](docs/ORACLE.md)
 - [Utilities](docs/UTILITIES.md)
 - [Type Stubs](docs/STUBS.md)

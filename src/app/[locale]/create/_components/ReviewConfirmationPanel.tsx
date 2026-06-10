@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { formatDeadlineWithRelativeDays } from "@/lib/utils";
 import type { FormFields } from "../_lib/types";
 
 interface Props {
@@ -68,7 +69,10 @@ export function ReviewConfirmationPanel({
 
 				<span className="text-gray-500">{t("deadlineLabel")}</span>
 				<span className="text-gray-900 dark:text-white">
-					{t("daysFromNow", { n: projectDays })}
+					{formatDeadlineWithRelativeDays(
+						projectDays,
+						t("daysFromNow", { n: projectDays }),
+					)}
 				</span>
 
 				<span className="text-gray-500">{t("contractDocumentTitle")}</span>

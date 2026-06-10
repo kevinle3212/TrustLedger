@@ -19,6 +19,28 @@ TrustLedger agent guidance is intentionally layered to avoid contradictions.
 Codex sessions must read `@/Users/kevinkhanhle/.codex/RTK.md` and prefix shell
 commands with `rtk` when available.
 
+## Runner Discipline
+
+- Prefer targeted checks first (`npm run native:check`,
+  `npm run analytics:check`, focused Jest files, or package-local typecheck)
+  before broad gates such as full lint, full quality, or full E2E.
+- If a command hangs, inspect for duplicate build/dev/doctor processes and stale
+  generated locks before launching another copy. Do not leave background servers
+  or analyzers running.
+- Run `bash tools/remove-duplicates.sh --fail-on-found .` before commit staging
+  or commit hooks so duplicate-looking files are caught early without traversing
+  deep generated trees.
+
+## Agent Learning Hygiene
+
+- When an agent makes a complex mistake that takes substantial time, tool usage,
+  or repeated debugging to repair, add one concise lesson to the nearest
+  relevant skill or agent guidance file. Keep this conservative: do not record
+  simple typos, one-command fixes, or obvious lint issues.
+- Keep main agent files compact. Prefer pointing to focused skills or docs
+  instead of duplicating long instructions, unless the target agent does not
+  support reference-style guidance.
+
 ## Routing
 
 - Frontend work: `src/app`, `src/components`, `src/contexts`, `src/lib`, and
@@ -63,6 +85,16 @@ commands with `rtk` when available.
   guidance changes, use `src/.agents/skills/update-context/SKILL.md` to update
   the nearest authoritative docs/comments, remove or update stale references to
   moved or renamed code/assets/commands, and run the relevant validation.
+
+## UI Copy
+
+- Use Title Case for non-sentence UI labels, buttons, badges, menu items,
+  headings, and short status chips, for example `Create Contract`,
+  `Sepolia Faucet Guide`, and `Show Walkthrough`.
+- Use sentence case with a grammar, punctuation, syntax, and clarity pass for
+  full sentences, paragraphs, helper text, warnings, and error explanations.
+- Preserve established acronyms and product terms exactly: `HTML`, `FAQ`, `URL`,
+  `URI`, `ETH`, `USDC`, `IPFS`, `Solana Devnet`, and `Ethereum Sepolia`.
 
 ## Roadmap Discipline
 

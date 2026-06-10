@@ -142,6 +142,28 @@ jobs:
             - name: Type-check Python sources
               run: npm run lint:py
 
+            - name: Check analytics visualization asset
+              run: npm run analytics:check
+
+    native:
+        name: Native (C + C++ + ASM)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Compile native analytics kernels
+              run: npm run native:check
+
     hardhat:
         name: Hardhat (compile + test)
         runs-on: ubuntu-latest

@@ -78,7 +78,7 @@ export function Navbar(): React.JSX.Element {
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
-			<div className="tl-site-frame grid gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)] lg:min-h-16 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:py-0">
+			<div className="tl-site-frame grid min-w-0 gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)] lg:min-h-16 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:py-0">
 				<Link
 					href="/"
 					aria-current={path === "/" ? "page" : undefined}
@@ -96,7 +96,7 @@ export function Navbar(): React.JSX.Element {
 				</Link>
 				<nav
 					aria-label={t("mainNav")}
-					className="tl-nav-scroller order-3 -mx-1 flex max-w-full items-center gap-x-4 overflow-x-auto px-1 pb-1 sm:col-span-2 sm:gap-x-6 lg:order-none lg:col-span-1 lg:mx-0 lg:justify-center lg:px-0 lg:pb-0"
+					className="tl-nav-scroller order-3 -mx-1 flex min-w-0 max-w-full items-center gap-x-3 overflow-x-auto px-1 pb-1 sm:col-span-2 sm:gap-x-6 lg:order-none lg:col-span-1 lg:mx-0 lg:justify-center lg:px-0 lg:pb-0"
 				>
 					<Link
 						href="/create"

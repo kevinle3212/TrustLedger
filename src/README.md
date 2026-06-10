@@ -351,6 +351,7 @@ That writes frontend contract addresses into `src/.env.local`.
 
 - [Root README](../README.md)
 - [Frontend Guide](../docs/FRONTEND.md)
+- [Analytics And Native Kernels](../docs/ANALYTICS.md)
 - [Oracle Architecture](../docs/ORACLE.md)
 - [Solana Support](../docs/SOLANA.md)
 - [Utilities](../docs/UTILITIES.md)

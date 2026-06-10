@@ -827,14 +827,17 @@ function ExampleContractPreview(): React.JSX.Element {
 
 function DashboardEmptyState({
 	role,
+	showIntroActions,
 	onShowHelp,
+	onSkipIntro,
 }: {
 	role: "client" | "freelancer";
+	showIntroActions: boolean;
 	onShowHelp: () => void;
+	onSkipIntro: () => void;
 }): React.JSX.Element {
 	const t = useTranslations("Dashboard");
-	const roleLabel =
-		role === "client" ? t("isClient").toLowerCase() : t("isFreelancer").toLowerCase();
+	const roleLabel = role === "client" ? t("isClient") : t("isFreelancer");
 
 	return (
 		<section className="tl-empty-panel rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/5 sm:p-8">
@@ -846,33 +849,46 @@ function DashboardEmptyState({
 					<p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
 						{t("emptyDescription")}
 					</p>
-					<div className="mt-6 flex flex-col gap-3 sm:flex-row">
-						<Link
-							href="/create"
-							className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:focus-visible:ring-offset-gray-950"
-						>
-							{t("createFirst")}
-						</Link>
-						<button
-							type="button"
-							onClick={onShowHelp}
-							className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white dark:focus-visible:ring-offset-gray-950"
-						>
-							{t("showWalkthrough")}
-						</button>
-					</div>
-					<ol className="mt-8 grid gap-3 text-sm text-gray-600 dark:text-gray-300">
-						{[t("emptyStepCreate"), t("emptyStepFund"), t("emptyStepReview")].map(
-							(step, index) => (
-								<li key={step} className="flex gap-3">
-									<span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs font-semibold text-gray-700 dark:border-white/15 dark:bg-white/5 dark:text-gray-200">
-										{index + 1}
-									</span>
-									<span>{step}</span>
-								</li>
-							),
-						)}
-					</ol>
+					{showIntroActions && (
+						<>
+							<div className="mt-6 flex flex-col gap-3 sm:flex-row">
+								<Link
+									href="/create"
+									className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:focus-visible:ring-offset-gray-950"
+								>
+									{t("createFirst")}
+								</Link>
+								<button
+									type="button"
+									onClick={onShowHelp}
+									className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white dark:focus-visible:ring-offset-gray-950"
+								>
+									{t("showWalkthrough")}
+								</button>
+								<button
+									type="button"
+									onClick={onSkipIntro}
+									className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-5 py-2.5 text-sm font-semibold text-amber-800 hover:border-amber-300 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100"
+								>
+									{t("skipIntro")}
+								</button>
+							</div>
+							<ol className="mt-8 grid gap-3 text-sm text-gray-600 dark:text-gray-300">
+								{[
+									t("emptyStepCreate"),
+									t("emptyStepFund"),
+									t("emptyStepReview"),
+								].map((step, index) => (
+									<li key={step} className="flex gap-3">
+										<span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-xs font-semibold text-gray-700 dark:border-white/15 dark:bg-white/5 dark:text-gray-200">
+											{index + 1}
+										</span>
+										<span>{step}</span>
+									</li>
+								))}
+							</ol>
+						</>
+					)}
 				</div>
 				<ExampleContractPreview />
 			</div>
@@ -1075,11 +1091,15 @@ function DashboardWalkthrough({
 function ContractList({
 	address,
 	role,
+	showIntroActions,
 	onShowHelp,
+	onSkipIntro,
 }: {
 	address: `0x${string}`;
 	role: "client" | "freelancer";
+	showIntroActions: boolean;
 	onShowHelp: () => void;
+	onSkipIntro: () => void;
 }): React.JSX.Element {
 	const { data: nextId } = useReadContract({
 		address: TRUSTLEDGER_ADDRESS,
@@ -1119,7 +1139,14 @@ function ContractList({
 	}, [allContracts, address, role]);
 
 	if (total === 0 || (!isLoading && visibleContracts.length === 0)) {
-		return <DashboardEmptyState role={role} onShowHelp={onShowHelp} />;
+		return (
+			<DashboardEmptyState
+				role={role}
+				showIntroActions={showIntroActions}
+				onShowHelp={onShowHelp}
+				onSkipIntro={onSkipIntro}
+			/>
+		);
 	}
 
 	if (isLoading && visibleContracts.length === 0) {
@@ -1158,6 +1185,7 @@ export default function DashboardPage(): React.JSX.Element {
 	const { address, isConnected } = useAccount();
 	const { role } = useRole();
 	const [walkthroughOpen, setWalkthroughOpen] = useState(false);
+	const [showIntroActions, setShowIntroActions] = useState(false);
 
 	useEffect(() => {
 		if (!isConnected || address === undefined) return;
@@ -1172,6 +1200,7 @@ export default function DashboardPage(): React.JSX.Element {
 		if (!shouldOpen) return;
 
 		const timer = window.setTimeout(() => {
+			setShowIntroActions(true);
 			setWalkthroughOpen(true);
 		}, 0);
 		return (): void => {
@@ -1196,11 +1225,19 @@ export default function DashboardPage(): React.JSX.Element {
 	}, [walkthroughOpen]);
 
 	function openWalkthrough(): void {
+		setShowIntroActions(true);
 		setWalkthroughOpen(true);
 	}
 
 	function closeWalkthrough(): void {
 		markDashboardVisited();
+		setShowIntroActions(false);
+		setWalkthroughOpen(false);
+	}
+
+	function skipIntro(): void {
+		markDashboardVisited();
+		setShowIntroActions(false);
 		setWalkthroughOpen(false);
 	}
 
@@ -1233,7 +1270,13 @@ export default function DashboardPage(): React.JSX.Element {
 			</div>
 
 			<SummaryBanner address={address} role={role} />
-			<ContractList address={address} role={role} onShowHelp={openWalkthrough} />
+			<ContractList
+				address={address}
+				role={role}
+				showIntroActions={showIntroActions}
+				onShowHelp={openWalkthrough}
+				onSkipIntro={skipIntro}
+			/>
 			<DashboardHelpButton onClick={openWalkthrough} />
 			<DashboardWalkthrough open={walkthroughOpen} onClose={closeWalkthrough} />
 		</div>

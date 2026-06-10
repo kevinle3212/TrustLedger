@@ -59,24 +59,29 @@ export default async function LegalPage({
 						</p>
 						<div className="mt-auto pt-5">
 							<div className="grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
-								<p className="flex items-start gap-2 font-mono text-xs text-gray-600 dark:text-gray-300">
-									<span
-										className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[0.65rem] font-bold text-indigo-700 dark:bg-indigo-400/15 dark:text-indigo-200"
-										aria-hidden="true"
-									>
-										S
-									</span>
-									<span className="min-w-0 break-all">{document.sourceFile}</span>
-								</p>
-								<p className="inline-flex w-fit rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-800 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200">
+								<div className="rounded-lg border border-sky-200 bg-sky-50 p-3 dark:border-sky-400/25 dark:bg-sky-400/10">
+									<p className="flex items-center gap-2 text-xs font-semibold text-sky-800 dark:text-sky-100">
+										<span
+											className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white text-[0.7rem] font-bold text-sky-700 shadow-sm dark:bg-gray-950 dark:text-sky-200"
+											aria-hidden="true"
+										>
+											SF
+										</span>
+										Source File
+									</p>
+									<p className="mt-2 min-w-0 break-all font-mono text-xs text-gray-700 dark:text-gray-200">
+										{document.sourceFile}
+									</p>
+								</div>
+								<p className="inline-flex w-fit rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold capitalize text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
 									{document.translationStatus}
 								</p>
 							</div>
 							<Link
 								href={`/legal/${document.slug}`}
-								className="tl-button-motion mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+								className="tl-button-motion mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-500"
 							>
-								<span aria-hidden="true">↗</span>
+								<span aria-hidden="true">Doc</span>
 								View Document
 							</Link>
 						</div>

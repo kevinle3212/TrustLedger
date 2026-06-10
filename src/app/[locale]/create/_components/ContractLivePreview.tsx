@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { formatDeadlineWithRelativeDays } from "@/lib/utils";
 import type { ContractTermsFormat, FormFields } from "../_lib/types";
 
 interface Props {
@@ -16,6 +17,12 @@ interface Props {
 function fallback(value: string, label: string): string {
 	const trimmed = value.trim();
 	return trimmed === "" ? label : trimmed;
+}
+
+function formatTermsMode(format: ContractTermsFormat): string {
+	if (format === "html") return "HTML";
+	if (format === "plain") return "Plain Text";
+	return "Markdown";
 }
 
 export function ContractLivePreview({
@@ -76,48 +83,55 @@ export function ContractLivePreview({
 				</p>
 			</div>
 
-			<div className="tl-kv-grid mt-6 rounded-xl border border-gray-200 bg-white p-4 text-sm dark:border-white/10 dark:bg-gray-950">
-				<span className="text-gray-500">Counterparty</span>
+			<div className="tl-kv-grid mt-6 rounded-xl border border-gray-200 bg-white p-4 text-sm shadow-[inset_0_1px_0_rgb(255_255_255/0.8)] dark:border-white/10 dark:bg-gray-950">
+				<span className="font-medium text-gray-500">Counterparty</span>
 				<span className="font-mono text-xs text-gray-900 dark:text-white">
 					{fallback(form.client, t("previewNotSet"))}
 				</span>
 
-				<span className="text-gray-500">Recipient Role</span>
+				<span className="font-medium text-gray-500">Recipient Role</span>
 				<span className="text-gray-900 dark:text-white">
 					{isClientProposing ? t("isFreelancer") : t("isClient")}
 				</span>
 
-				<span className="text-gray-500">Escrow Amount</span>
+				<span className="font-medium text-gray-500">Escrow Amount</span>
 				<span className="font-medium text-gray-900 dark:text-white">{amount}</span>
 
-				<span className="text-gray-500">Contract Document</span>
+				<span className="font-medium text-gray-500">Contract Document</span>
 				<span className="font-mono text-xs text-gray-900 dark:text-white">
 					{fallback(form.contractURI, t("previewNotSet"))}
 				</span>
 
-				<span className="text-gray-500">Deadline</span>
+				<span className="font-medium text-gray-500">Deadline</span>
 				<span className="text-gray-900 dark:text-white">
-					{projectDays > 0 ? t("daysFromNow", { n: projectDays }) : t("previewNotSet")}
+					{projectDays > 0
+						? formatDeadlineWithRelativeDays(
+								projectDays,
+								t("daysFromNow", { n: projectDays }),
+							)
+						: t("previewNotSet")}
 				</span>
 
-				<span className="text-gray-500">Acceptance Window</span>
+				<span className="font-medium text-gray-500">Acceptance Window</span>
 				<span className="text-gray-900 dark:text-white">
 					{form.acceptanceWindowDays.trim() === "" ? "0" : form.acceptanceWindowDays}{" "}
 					{t("daysUnit")}
 				</span>
 
-				<span className="text-gray-500">Arbitration Fee</span>
+				<span className="font-medium text-gray-500">Arbitration Fee</span>
 				<span className="text-gray-900 dark:text-white">
 					{form.arbitrationFeePct.trim() === "" ? "0" : form.arbitrationFeePct}%
 				</span>
 
-				<span className="text-gray-500">Warranty Hold-Back</span>
+				<span className="font-medium text-gray-500">Warranty Hold-Back</span>
 				<span className="text-gray-900 dark:text-white">{holdBack}</span>
 
-				<span className="text-gray-500">Terms Format</span>
-				<span className="capitalize text-gray-900 dark:text-white">{termsFormat}</span>
+				<span className="font-medium text-gray-500">Terms Format</span>
+				<span className="text-gray-900 dark:text-white">
+					{formatTermsMode(termsFormat)}
+				</span>
 
-				<span className="text-gray-500">Last Updated</span>
+				<span className="font-medium text-gray-500">Last Updated</span>
 				<span className="text-gray-900 dark:text-white">{lastUpdated}</span>
 			</div>
 
@@ -131,8 +145,9 @@ export function ContractLivePreview({
 				</p>
 			</div>
 
-			<p className="mt-6 rounded-xl border border-gray-200 bg-white px-4 py-3 text-xs leading-5 text-gray-600 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300">
-				{t("draftSavedNote")}
+			<p className="mt-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-semibold leading-5 text-amber-900 shadow-sm dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
+				{t("draftSavedNote")} Do Not Clear Cookies Or Browser Cache Until You Finish,
+				Because That Resets Local Draft Progress.
 			</p>
 		</aside>
 	);

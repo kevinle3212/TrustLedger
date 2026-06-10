@@ -138,11 +138,11 @@ describe("SecureDraftSessionPanel", () => {
 			/>,
 		);
 
-		fireEvent.click(screen.getByRole("button", { name: "html" }));
+		fireEvent.click(screen.getByRole("button", { name: "HTML" }));
 		expect(onTermsFormatChange).toHaveBeenCalledWith("html");
 
-		fireEvent.click(screen.getByRole("button", { name: "Insert bold terms snippet" }));
-		expect(onTermsBodyChange).toHaveBeenCalledWith(`${state.termsBody}\n**important term**`);
+		fireEvent.click(screen.getByRole("button", { name: "Insert Bold terms snippet" }));
+		expect(onTermsBodyChange).toHaveBeenCalledWith(`${state.termsBody}\n**Important Term**`);
 		expect(screen.getByText(/Last Updated:/)).toHaveTextContent("Last Updated:");
 	});
 
@@ -160,6 +160,15 @@ describe("SecureDraftSessionPanel", () => {
 
 		fireEvent.click(screen.getByRole("button", { name: "Create Encrypted Share Link" }));
 		await screen.findByText("Encrypted Share Link Created. Send The Session Key Separately.");
+		expect(screen.getByRole("button", { name: /Create Link In/u })).toBeDisabled();
+		expect(screen.getByRole("button", { name: /Start Live Room In/u })).toBeDisabled();
+		expect(
+			screen.getByText(/Creating another link replaces the active link and key shown here/u),
+		).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: "Email Link And Key" })).toHaveAttribute(
+			"href",
+			expect.stringContaining("mailto:client%40example.com"),
+		);
 
 		fireEvent.click(screen.getByRole("button", { name: "Copy Session Key" }));
 		await waitFor(() => {

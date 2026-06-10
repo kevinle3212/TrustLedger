@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 type ContractPhase = "PENDING" | "ACTIVE" | "APPROVED";
+type PreviewScene = "contract" | "juror" | "reputation";
 
 interface InteractiveContractPreviewProps {
 	readonly title: string;
@@ -22,22 +23,22 @@ const PHASE_META = {
 		amount: "0.25 ETH",
 		holdBack: "5%",
 		progress: 26,
-		action: "Fund escrow",
-		documentState: "Draft hash queued",
+		action: "Fund Escrow",
+		documentState: "Draft Hash Queued!",
 	},
 	ACTIVE: {
 		amount: "0.75 ETH",
 		holdBack: "10%",
 		progress: 62,
-		action: "Submit work",
-		documentState: "Document encrypted",
+		action: "Submit Work",
+		documentState: "Document Encrypted!",
 	},
 	APPROVED: {
 		amount: "0.75 ETH",
 		holdBack: "0%",
 		progress: 100,
-		action: "Release payout",
-		documentState: "Payout receipt ready",
+		action: "Release Payout",
+		documentState: "Payout Receipt Ready!",
 	},
 } as const satisfies Record<
 	ContractPhase,
@@ -50,6 +51,36 @@ const PHASE_META = {
 	}
 >;
 
+const SCENES = [
+	{
+		key: "contract",
+		label: "Contract View",
+		title: "Escrow Protection",
+		note: "Encrypted Draft Ready",
+		kicker: "Freelance milestone",
+	},
+	{
+		key: "juror",
+		label: "Juror Staking",
+		title: "Juror Dispute Flow",
+		note: "3 Jurors Eligible",
+		kicker: "Commit-Reveal arbitration",
+	},
+	{
+		key: "reputation",
+		label: "Reputation",
+		title: "On-Chain Reputation",
+		note: "92 Average Score",
+		kicker: "History from completed work",
+	},
+] as const satisfies readonly {
+	readonly key: PreviewScene;
+	readonly label: string;
+	readonly title: string;
+	readonly note: string;
+	readonly kicker: string;
+}[];
+
 export function InteractiveContractPreview({
 	title,
 	amountLabel,
@@ -61,8 +92,11 @@ export function InteractiveContractPreview({
 	statuses,
 }: InteractiveContractPreviewProps): React.JSX.Element {
 	const [phase, setPhase] = useState<ContractPhase>("ACTIVE");
+	const [scene, setScene] = useState<PreviewScene>("contract");
 	const [pulseKey, setPulseKey] = useState(0);
 	const meta = PHASE_META[phase];
+	const sceneIndex = useMemo(() => SCENES.findIndex((item) => item.key === scene), [scene]);
+	const activeScene = SCENES[sceneIndex] ?? SCENES[0];
 
 	const phaseIndex = useMemo(() => PHASES.indexOf(phase), [phase]);
 
@@ -71,15 +105,51 @@ export function InteractiveContractPreview({
 		setPulseKey((current) => current + 1);
 	}
 
+	function updateScene(direction: -1 | 1): void {
+		const nextIndex = (sceneIndex + direction + SCENES.length) % SCENES.length;
+		setScene(SCENES[nextIndex]?.key ?? "contract");
+		setPulseKey((current) => current + 1);
+	}
+
 	return (
 		<div className="tl-contract-stage tl-motion-card rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
 			<div className="tl-contract-orbit" aria-hidden="true" />
+			<div className="relative mb-4 flex items-center justify-between gap-3">
+				<button
+					type="button"
+					onClick={() => {
+						updateScene(-1);
+					}}
+					aria-label="Previous Preview"
+					className="tl-button-motion flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 hover:border-indigo-200 hover:text-indigo-700 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200"
+				>
+					‹
+				</button>
+				<div className="min-w-0 text-center">
+					<p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-600 dark:text-indigo-300">
+						{activeScene.label}
+					</p>
+					<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+						{activeScene.kicker}
+					</p>
+				</div>
+				<button
+					type="button"
+					onClick={() => {
+						updateScene(1);
+					}}
+					aria-label="Next Preview"
+					className="tl-button-motion flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 hover:border-indigo-200 hover:text-indigo-700 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200"
+				>
+					›
+				</button>
+			</div>
 			<div className="relative rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 					<div className="min-w-0">
 						<p className="font-mono text-xs text-gray-500">#18</p>
 						<h2 className="mt-1 text-lg font-semibold text-gray-950 dark:text-white">
-							{title}
+							{scene === "contract" ? title : activeScene.title}
 						</h2>
 					</div>
 					<span className="tl-status-badge tl-status-badge--active rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
@@ -112,28 +182,42 @@ export function InteractiveContractPreview({
 				<div className="tl-kv-grid mt-6 text-sm">
 					<span className="text-gray-500 dark:text-gray-400">{amountLabel}</span>
 					<span className="tl-flip-value font-medium text-gray-950 dark:text-white">
-						{meta.amount}
+						{scene === "juror"
+							? "0.04 ETH Staked"
+							: scene === "reputation"
+								? "92 / 100"
+								: meta.amount}
 					</span>
 					<span className="text-gray-500 dark:text-gray-400">{deadlineLabel}</span>
 					<span className="font-medium text-gray-950 dark:text-white">
-						{deadlineValue}
+						{scene === "juror"
+							? "Reveal Window Open"
+							: scene === "reputation"
+								? "12 Ratings Received"
+								: deadlineValue}
 					</span>
 					<span className="text-gray-500 dark:text-gray-400">{holdBackLabel}</span>
 					<span className="tl-flip-value font-medium text-gray-950 dark:text-white">
-						{meta.holdBack}
+						{scene === "juror"
+							? "Majority Vote"
+							: scene === "reputation"
+								? "+8 Recovery Bonus"
+								: meta.holdBack}
 					</span>
 					<span className="text-gray-500 dark:text-gray-400">{documentLabel}</span>
 					<span className="font-medium text-indigo-600 dark:text-indigo-400">
-						{viewLabel}
+						{scene === "contract" ? viewLabel : activeScene.note}
 					</span>
 				</div>
 
 				<div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
 					<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-						{meta.documentState}
+						{scene === "contract" ? meta.documentState : activeScene.note}
 					</p>
 					<div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-3">
-						<div className="tl-contract-hash h-2 rounded-full bg-gray-200 dark:bg-white/10" />
+						<div className="tl-contract-hash h-2 rounded-full bg-gray-200 dark:bg-white/10">
+							<div className="tl-contract-install-progress h-full rounded-full" />
+						</div>
 						<span className="tl-signature-stamp rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
 							Verified
 						</span>
