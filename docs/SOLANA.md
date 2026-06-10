@@ -101,7 +101,8 @@ npm run solana:program:check
 The Solana program tracks the current `solana-program` 4.x crate family so the
 lockfile avoids retired transitive cryptography dependencies such as
 `rand 0.7.x`. Keep Solana crate bumps tied to `npm run solana:program:fmt`,
-`npm run solana:program:check`, and the repository security scan.
+`npm run solana:program:check`, and the repository security scan. Use Rust 1.85
+or newer because this crate family includes edition-2024 package metadata.
 
 ## Deployment Commands
 

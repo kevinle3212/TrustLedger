@@ -112,6 +112,10 @@ npm run rust:clippy
 npm run rust:test
 ```
 
+The Rust workspace and Solana program require Rust 1.85 or newer. CI pins the
+same floor because Solana 4.x dependencies include edition-2024 package
+metadata.
+
 The service exposes:
 
 - `GET /health` for secret-free health and config readiness.
