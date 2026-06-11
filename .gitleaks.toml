@@ -1,0 +1,51 @@
+title = "TrustLedger gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Generated and vendored paths are excluded from local filesystem scanning."
+paths = [
+	'''^\.git/''',
+	'''^\.mypy_cache/''',
+	'''^\.nexus/''',
+	'''^\.serena/''',
+	'''^artifacts/''',
+	'''^cache/''',
+	'''^contracts/cache/''',
+	'''^contracts/out/''',
+	'''^contracts/lib/''',
+	'''^dist/''',
+	'''^logs/''',
+	'''^node_modules/''',
+	'''^site/''',
+	'''^src/\.next/''',
+	'''^src/node_modules/''',
+	'''^testing/''',
+	'''^tmp/''',
+]
+
+[[allowlists]]
+description = "Documentation intentionally references placeholder secret names and safe examples."
+paths = [
+	'''^docs/''',
+	'''^README\.md$''',
+	'''^SECURITY\.md$''',
+	'''^NOTES\.md$''',
+	'''^AGENTS\.md$''',
+	'''^\.codex/AGENTS\.md$''',
+]
+regexes = [
+	'''(?i)(example|placeholder|redacted|changeme|dummy|test|your[-_ ]?(key|token|secret|url)?)''',
+]
+
+[[allowlists]]
+description = "WalletConnect/Reown public wallet registry IDs are not provider access tokens. Historical findings are pinned in .gitleaksignore by fingerprint."
+targetRules = ["coinbase-access-token"]
+paths = [
+	'''^src/lib/walletIds\.ts$''',
+]
+regexes = [
+	'''coinbase:\s*"[a-f0-9]{64}"''',
+]
+condition = "AND"

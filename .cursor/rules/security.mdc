@@ -15,5 +15,9 @@ deployment credentials as sensitive. Model trust boundaries explicitly, document
 new risks, and update `SECURITY.md` for auth, authorization, encryption, oracle,
 dependency, or incident-response changes.
 
+Run `npm run secrets:check` after secret-scanning changes. Gitleaks findings
+should be fixed, not allowlisted, unless the value is confirmed public and
+non-secret; then add only the exact finding fingerprint to `.gitleaksignore`.
+
 Use `.sixth/skills/legal-compliance/SKILL.md` when the change also affects legal,
 privacy, compliance, risk, wallet, arbitration, or user-policy language.

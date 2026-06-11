@@ -59,11 +59,14 @@ upgrades over overrides, and document ecosystem-blocked findings in
 - Local checks run: focused bearer/email Jest tests, frontend lint, frontend
   typecheck, `npm run secrets:check`, duplicate-path sweep, and root production
   `npm audit --omit=dev` with zero reported vulnerabilities.
+- Follow-up hardening installed and configured `gitleaks` as the local
+  git-history and staged-diff secret scanner. The only historical finding was a
+  public WalletConnect/Reown wallet registry ID in `src/lib/walletIds.ts`,
+  recorded as a fingerprint-level false positive in `.gitleaksignore`.
 - Not completed from this environment: frontend npm audit and full root audit
   were blocked by approval policy because they disclose dependency metadata to
-  the npm registry; `gitleaks` is not installed locally. Phase 7 remains open
-  until those external scans and the full contract/static-analysis evidence are
-  completed.
+  the npm registry. Phase 7 remains open until those external scans and the full
+  contract/static-analysis evidence are completed.
 
 ## Secrets Management
 
@@ -71,6 +74,17 @@ Never commit `.env`, private keys, seed phrases, API tokens, Vercel tokens,
 Resend keys, RPC credentials, `NOTIFICATIONS_SECRET`, or `CRON_SECRET`. Only
 `NEXT_PUBLIC_*` variables may reach the browser. Rotate exposed secrets
 immediately and invalidate affected sessions or deployments.
+
+Local secret scanning has two layers:
+
+- `npm run secrets:paths` blocks forbidden sensitive paths and common unredacted
+  secret patterns in tracked and staged files.
+- `npm run secrets:gitleaks` scans git history with `.gitleaks.toml`, and
+  `npm run secrets:gitleaks:staged` scans staged diffs for hooks.
+
+Do not add broad gitleaks allowlists. Use `.gitleaksignore` only for
+fingerprint-level false positives after confirming the value is public and
+non-secret.
 
 ## Wallet Security
 

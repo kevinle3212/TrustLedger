@@ -24,12 +24,21 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
   for commands that accept an explicit temp root. Run `npm run tmp:check` after
   creating scratch files and `npm run tmp:prune` when retention limits are
   exceeded.
+- After heavy Docker test sessions, image builds, or pushes, run
+  `docker system df -v` or `npm run docker:storage:check`. If Docker build cache
+  is multiple GB and Dockerfiles are not actively being iterated, run
+  `npm run docker:storage:prune`.
 - Localhost browser checks are allowed for requested UI validation. Start the
-  frontend with `rtk npm run dev:frontend`; if sandboxed binding blocks the
-  check, rerun that command with escalation using the user's repository-level
-  pre-authorization for localhost browser validation.
+  frontend from `src/` with `rtk npm run dev:frontend`; if sandboxed binding
+  blocks the check, rerun that command with escalation using the user's
+  repository-level pre-authorization for localhost browser validation.
 - Prefer targeted checks before broad gates, and check for duplicate
   build/dev/doctor processes when commands appear stuck.
+- Secret scanning: `npm run secrets:check` requires `gitleaks` and scans git
+  history with redacted output. Use `npm run secrets:gitleaks:staged` for
+  pre-commit reproduction. Avoid `gitleaks dir` as a default hook because it
+  scans ignored local caches and secret-bearing `.env` files; use it only as an
+  explicit manual filesystem investigation.
 - For frontend specialist context, read `src/.agents/README.md` and the matching
   skill under `src/.agents/skills/` before editing.
 

@@ -186,6 +186,7 @@ Foundry, contract, and frontend layers. The npm Docker workflows prune only when
 Docker reports storage above the 5 GB default threshold:
 
 ```bash
+docker system df -v
 npm run docker:storage:check
 npm run docker:storage:prune
 ```
@@ -194,6 +195,10 @@ npm run docker:storage:prune
 above the threshold. `docker:storage:prune` runs
 `docker system prune -a --volumes -f` only when storage is above the threshold.
 Override the threshold with `TRUSTLEDGER_DOCKER_MAX_BYTES`.
+
+After any heavy Docker test session, image build, or push, inspect Docker usage
+with `docker system df -v`. If build cache is multiple GB and you are not
+actively iterating on Dockerfiles, prune it with `npm run docker:storage:prune`.
 
 ## Notes
 

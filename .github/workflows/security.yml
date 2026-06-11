@@ -115,6 +115,21 @@ jobs:
                   # exclude-paths is defense-in-depth for any filesystem fallback.
                   extra_args: --results=verified,unknown --exclude-paths=.github/trufflehog-exclude.txt
 
+    gitleaks:
+        name: Gitleaks (secret scanning)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+
+            - name: Run Gitleaks
+              uses: gitleaks/gitleaks-action@v2
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITLEAKS_CONFIG: .gitleaks.toml
+
     # ---------------------------------------------------------------------------
     # Dependency vulnerabilities. Catches CVEs in your npm dep tree
     # (Hardhat, ethers, ts-node, etc.).

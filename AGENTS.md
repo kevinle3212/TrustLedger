@@ -34,6 +34,15 @@ commands with `rtk` when available.
 - Run `bash tools/remove-duplicates.sh --fail-on-found .` before commit staging
   or commit hooks so duplicate-looking files are caught early without traversing
   deep generated trees.
+- Run `npm run secrets:check` before staging security-sensitive work. It runs
+  the custom sensitive-path guard plus `gitleaks git` with redacted output. If
+  Gitleaks reports a known public WalletConnect/Reown wallet registry ID in
+  `src/lib/walletIds.ts`, keep the exact fingerprint in `.gitleaksignore`; do
+  not broaden the allowlist.
+- After heavy Docker builds, Docker test runs, or image pushes, run
+  `docker system df -v` or `npm run docker:storage:check` to inspect image,
+  volume, and build-cache growth. If build cache is multiple GB and no active
+  Dockerfile iteration depends on it, run `npm run docker:storage:prune`.
 
 ## Agent Learning Hygiene
 
@@ -68,6 +77,11 @@ commands with `rtk` when available.
 - Dependency and vulnerability review: use
   `src/.agents/agents/dependency-auditor.md`; write scan summaries and
   recommendations to `logs/`.
+- Secret scanning work: install `gitleaks` when missing, keep `.gitleaks.toml`
+  strict, prefer `npm run secrets:gitleaks` for history scans and
+  `npm run secrets:gitleaks:staged` for hook reproduction, and use
+  fingerprint-level `.gitleaksignore` entries only after confirming a finding is
+  public and non-secret.
 - Agentic run logs, Impeccable notes, audit results, errors, and issue triage
   notes belong in `logs/`. The directory is intentionally ignored by git. Format
   every `logs/*.md` file with `src/.agents/skills/log-markdown/SKILL.md` so
@@ -78,10 +92,15 @@ commands with `rtk` when available.
   `TRUSTLEDGER_TMP_DIR=./tmp` when a script needs an explicit temporary root.
   Run `npm run tmp:check` after creating scratch files and `npm run tmp:prune`
   when retention limits are exceeded.
+- Docker work should include a storage check after heavy Docker test sessions,
+  image builds, and pushes. Run `docker system df -v` or
+  `npm run docker:storage:check`; when build cache has grown by multiple GB and
+  Dockerfile layers are not under active iteration, run
+  `npm run docker:storage:prune`.
 - Localhost browser checks are permitted when UI validation is requested. Start
-  the frontend with `rtk npm run dev:frontend`; if sandboxed server binding
-  blocks the check, rerun the same command with escalation and state that the
-  user pre-authorized localhost browser validation for this repository.
+  the frontend from `src/` with `rtk npm run dev:frontend`; if sandboxed server
+  binding blocks the check, rerun the same command with escalation and state
+  that the user pre-authorized localhost browser validation for this repository.
 - SWC cache/policy work: use `src/.agents/skills/swc-config/SKILL.md`, keep
   generated native binaries ignored, and run `npm run swc:populate` before
   frontend builds or push-time checks.

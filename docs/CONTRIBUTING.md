@@ -119,6 +119,13 @@ npm run test:e2e
 Run narrower checks while iterating. Read [Testing](TESTING.md) for the full
 command list.
 
+`npm run secrets:check` requires `gitleaks` on `PATH` and scans git history with
+redacted output. Install it with `brew install gitleaks` on macOS or from the
+[Gitleaks releases](https://github.com/gitleaks/gitleaks/releases) on Linux. Use
+`npm run secrets:gitleaks:staged` to reproduce the pre-commit staged-diff scan.
+Keep `.gitleaksignore` limited to exact false-positive fingerprints; do not add
+broad allowlists for source paths or secret-like values.
+
 ## Solidity Style
 
 <!-- docs-section-nav:start -->

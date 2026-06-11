@@ -27,7 +27,8 @@
 	"files.associations": {
 		".markdownlintignore": "ignore",
 		".vercelignore": "ignore",
-		"LICENSE": "plaintext"
+		"LICENSE": "plaintext",
+		".gitleaksignore": "ignore"
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": [

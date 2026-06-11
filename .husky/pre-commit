@@ -3,6 +3,8 @@ echo "pre-commit: duplicate scan"
 bash tools/remove-duplicates.sh --fail-on-found .
 echo "pre-commit: sensitive files"
 npm run secrets:check
+echo "pre-commit: staged gitleaks"
+npm run secrets:gitleaks:staged
 echo "pre-commit: logs"
 npm run logs:check
 echo "pre-commit: tmp"

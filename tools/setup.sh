@@ -50,7 +50,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly REQUIRED_NODE_MAJOR=22          # package.json engines.node = ">=22.0.0"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-readonly SETUP_GROUPS=(platform git node foundry python rtk serena docker npm contracts env hooks smoke)
+readonly SETUP_GROUPS=(platform git node foundry python gitleaks rtk serena docker npm contracts env hooks smoke)
 
 # -----------------------------------------------------------------------------
 # Global state — populated as the script runs, printed in the final report.
@@ -363,6 +363,44 @@ check_python() {
     fi
 }
 
+# --- gitleaks (required: local secret scanning) ------------------------------
+check_gitleaks() {
+    heading "gitleaks (required — local secret scanning)"
+    if has gitleaks; then
+        ok "gitleaks $(gitleaks version 2>/dev/null | tail -1)"
+        return
+    fi
+
+    err "gitleaks is not installed."
+    [[ "$SKIP_INSTALL" -eq 1 ]] && {
+        fail_step "gitleaks missing" "Install gitleaks from https://github.com/gitleaks/gitleaks, then run 'npm run secrets:gitleaks'."
+        return
+    }
+
+    if ask "Install gitleaks via ${PKG}?"; then
+        case "$PKG" in
+            brew) brew install gitleaks ;;
+            apt)
+                warn_step "gitleaks apt install unsupported" "Install from https://github.com/gitleaks/gitleaks/releases or use 'brew install gitleaks' on macOS."
+                ;;
+            dnf)
+                warn_step "gitleaks dnf install unsupported" "Install from https://github.com/gitleaks/gitleaks/releases or use 'brew install gitleaks' on macOS."
+                ;;
+            pacman) sudo pacman -S --noconfirm gitleaks ;;
+            zypper)
+                warn_step "gitleaks zypper install unsupported" "Install from https://github.com/gitleaks/gitleaks/releases or use 'brew install gitleaks' on macOS."
+                ;;
+            *) fail_step "gitleaks missing" "Install gitleaks from https://github.com/gitleaks/gitleaks/releases." ;;
+        esac
+    fi
+
+    if has gitleaks; then
+        ok "gitleaks $(gitleaks version 2>/dev/null | tail -1)"
+    else
+        fail_step "gitleaks missing" "Install gitleaks from https://github.com/gitleaks/gitleaks, then run 'npm run secrets:gitleaks'."
+    fi
+}
+
 # --- rtk (optional: token-optimized CLI proxy for Claude Code) ----------------
 # rtk transparently rewrites routine dev commands (git, npm, etc.) through a
 # token-optimized proxy, cutting 60-90% of tokens on those operations. Nothing
@@ -579,6 +617,7 @@ main() {
     run_group node check_node
     run_group foundry check_foundry
     run_group python check_python
+    run_group gitleaks check_gitleaks
     run_group rtk check_rtk
     run_group serena check_serena
     run_group docker check_docker

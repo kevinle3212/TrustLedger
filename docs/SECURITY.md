@@ -135,9 +135,9 @@ explicit confirmations, authorization tests, and updated threat modeling.
 
 <!-- docs-section-nav:end -->
 
-`security.yml` runs Slither, TruffleHog, npm audit, CodeQL, and Semgrep. Some
-checks are configured with `continue-on-error`, so review logs even when the
-workflow succeeds.
+`security.yml` runs Slither, TruffleHog, Gitleaks, npm audit, CodeQL, and
+Semgrep. Some checks are configured with `continue-on-error`, so review logs
+even when the workflow succeeds.
 
 Production dependency audits run with `--omit=dev`. The root full dependency
 graph can include low-severity development-toolchain advisories tied to Hardhat
@@ -149,13 +149,17 @@ Security and CI jobs also run `npm run logs:check` and `npm run tmp:check` where
 root dependencies are installed, so local ignored audit logs do not grow without
 a visible policy.
 
-Sensitive file protection is enforced in layers. `npm run secrets:check` blocks
-tracked and staged `.env` files, Solana `target/deploy/*.json` keypairs,
-private-key-looking filenames, and common unredacted secret patterns. The guard
-runs in local hooks, `npm run quality`, and CI. Repository admins should also
-enable the importable GitHub ruleset in [GitHub Rulesets](GITHUB-RULESETS.md),
-with secret scanning and push protection active, because local hooks can be
-bypassed.
+Sensitive file protection is enforced in layers. `npm run secrets:check` runs
+the custom sensitive-path guard and `gitleaks git` against repository history.
+Pre-commit also runs `npm run secrets:gitleaks:staged` against staged changes.
+The custom guard blocks tracked and staged `.env` files, Solana
+`target/deploy/*.json` keypairs, private-key-looking filenames, and common
+unredacted secret patterns. Gitleaks uses `.gitleaks.toml`; `.gitleaksignore`
+must contain only fingerprint-level false positives after confirming the value
+is public and non-secret. The guard runs in local hooks, `npm run quality`, and
+CI. Repository admins should also enable the importable GitHub ruleset in
+[GitHub Rulesets](GITHUB-RULESETS.md), with secret scanning and push protection
+active, because local hooks can be bypassed.
 
 Privacy analytics are opt-in and aggregate-only. The browser beacon and server
 collector must both be enabled by environment variables, and `/api/health`

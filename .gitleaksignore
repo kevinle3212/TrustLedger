@@ -1,0 +1,2 @@
+# Public WalletConnect/Reown wallet registry ID, not a Coinbase access token.
+0c95330a78ec38da35b69edd9591e8d4e49c26a2:src/lib/walletIds.ts:coinbase-access-token:18

@@ -42,7 +42,7 @@ it when adding a job, debugging CI, or changing deployment secrets.
 | -------------------------- | -------------------------------------------- | ------------------------------------------------------------------- |
 | `ci.yml`                   | Push and pull request to `main`              | Frontend, TypeScript, Python, Hardhat, and Foundry checks.          |
 | `deploy.yml`               | Manual `workflow_dispatch`                   | Deploy contracts to Ethereum Sepolia and deploy frontend to Vercel. |
-| `security.yml`             | Push, pull request, weekly schedule, manual  | Slither, TruffleHog, npm audit, CodeQL, and Semgrep.                |
+| `security.yml`             | Push, pull request, weekly schedule, manual  | Slither, TruffleHog, Gitleaks, npm audit, CodeQL, and Semgrep.      |
 | `docs.yml`                 | Docs-related pushes and manual               | Build MkDocs and publish GitHub Pages.                              |
 | `wiki-sync.yml`            | Docs pushes and manual                       | Publish a wiki home page that links to rendered GitHub Pages docs.  |
 | `github-models.yml`        | Prompt-related pushes, pull requests, manual | Run GitHub Models prompt checks and examples.                       |
