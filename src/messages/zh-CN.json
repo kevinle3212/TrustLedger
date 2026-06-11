@@ -92,7 +92,8 @@
 		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
 		"back": "返回",
 		"nextStep": "下一步",
-		"nextGuide": "下一个指南"
+		"nextGuide": "下一个指南",
+		"taskCounter": "任务 {current} / {total}"
 	},
 	"Home": {
 		"builtOn": "构建于以太坊 Sepolia",
@@ -145,7 +146,10 @@
 				"note": "92 Average Score",
 				"kicker": "History from completed work"
 			}
-		}
+		},
+		"viewSolanaProgram": "在 {network} 上查看 Solana 系统程序",
+		"solanaNativeProgram": "Solana 原生程序：{network}",
+		"checkConfig": "（检查配置）"
 	},
 	"Dashboard": {
 		"connectWallet": "连接您的钱包以查看合同。",
@@ -244,7 +248,10 @@
 		"walkthroughStepTab": "第 {step} 步",
 		"walkthroughPrevious": "上一步",
 		"walkthroughNext": "下一步",
-		"walkthroughFinish": "完成指引"
+		"walkthroughFinish": "完成指引",
+		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
+		"exampleAmount": "0.75 ETH",
+		"loadingContracts": "正在加载合约"
 	},
 	"Create": {
 		"connectWallet": "连接您的钱包以提议合同。",
@@ -345,7 +352,69 @@
 		"confirmSendQuestion": "Are you sure you want to send this to the {role}?",
 		"confirmSendDescription": "After you confirm, your wallet will open and the contract proposal will be submitted on-chain. Keep editing if any term is wrong.",
 		"keepEditing": "Keep editing",
-		"confirmAndSend": "Confirm And Send"
+		"confirmAndSend": "Confirm And Send",
+		"plainText": "纯文本",
+		"escrowAmountPreview": "托管金额",
+		"acceptanceWindowPreview": "接受窗口",
+		"arbitrationFeePreview": "仲裁费用",
+		"draftTermsFormat": "条款草稿格式",
+		"lastUpdated": "最后更新：",
+		"draftTerms": "合同条款草稿",
+		"sections": "章节",
+		"words": "字数",
+		"firstClause": "第一条款",
+		"draftCacheWarning": "完成前不要清除 Cookie 或浏览器缓存，因为这会重置本地草稿进度。",
+		"secureDraftSession": "安全草稿会话",
+		"collaborativeContractTerms": "协作合同条款",
+		"secureDraftBody": "部署前可用 Markdown、HTML 或纯文本编写条款。共享草稿会在浏览器中加密，并需要授权钱包和单独的会话密钥才能解密。只有双方都希望持续共同编辑时才开启实时房间。",
+		"syncingLive": "正在实时同步...",
+		"liveSyncOn": "实时同步已开启",
+		"liveSyncOff": "实时同步已关闭",
+		"insertDefaultTemplate": "插入默认模板",
+		"insertSnippetAria": "插入 {label} 条款片段",
+		"uploadTermsImage": "上传合同条款图片",
+		"termsEditorAria": "协作合同条款编辑器",
+		"termsPlaceholder": "部署前编写合同条款。",
+		"contractAttachmentAlt": "合同附件",
+		"allowedWallet": "授权钱包",
+		"connectYourWallet": "连接你的钱包",
+		"counterpartyWallet": "对方钱包",
+		"enterCounterpartyWallet": "在下方合同详情中输入对方钱包",
+		"creatingEncryptedLink": "正在创建加密链接...",
+		"createLinkIn": "{seconds} 秒后创建链接",
+		"createEncryptedShareLink": "创建加密分享链接",
+		"startingLiveRoom": "正在启动实时房间...",
+		"startLiveRoomIn": "{seconds} 秒后启动实时房间",
+		"liveRoomStarted": "实时房间已启动",
+		"startLiveRoom": "启动实时房间",
+		"copied": "已复制！",
+		"copyLink": "复制链接",
+		"copySessionKey": "复制会话密钥",
+		"emailLinkAndKey": "通过电子邮件发送链接和密钥",
+		"endLiveSync": "结束实时同步",
+		"replaceLinkWarning": "创建另一个链接会替换此处显示的活动链接和密钥。生成新链接后不要使用旧链接或旧密钥；已分享的加密快照 URL 没有后端撤销服务则无法撤销。",
+		"shareLink": "分享链接",
+		"liveRoomStatus": "实时房间 {roomId}：编辑内容离开浏览器前会先加密。上次远程更新：{time}。",
+		"liveRoomLoadAdvice": "无法加载实时草稿房间。请检查会话链接、会话密钥、钱包或房间过期时间。",
+		"encryptedDraftNotice": "此 URL 包含 {wallets} 的加密草稿。连接匹配的钱包，粘贴单独的密钥，然后导入。",
+		"allowedWallets": "授权钱包",
+		"sessionKey": "会话密钥",
+		"pasteSessionKey": "粘贴会话密钥",
+		"importingDraft": "正在导入草稿...",
+		"importDraft": "导入草稿",
+		"contractDocumentDraftHint": "起草后上传加密合同 PDF 或输入现有 URI。如果你也在上方编写了条款，请在预览和提交前保持两份内容一致；上传或手动输入的 URI 是链上提案所哈希的文档来源。",
+		"contractDocumentUriPlaceholder": "ipfs://Qm…",
+		"previewSelectedFile": "预览所选文件",
+		"pinataJwtPlaceholder": "eyJhbGciOiJIUzI1NiIs…",
+		"solanaWalletOpens": "确认时打开 Solana 钱包",
+		"solanaWalletConnected": "Solana 钱包已连接：{address}",
+		"solanaSimulationReady": "TrustLedger 会在请求你的签名前模拟 Solana 托管指令。",
+		"solanaProgramMissing": "提交 SOL 托管前请设置 NEXT_PUBLIC_SOLANA_PROGRAM_ID。",
+		"connectEvmWallet": "连接你的 EVM 钱包",
+		"connectEvmWalletHint": "提交 ETH 或 USDC 托管前，请使用页眉的钱包按钮。",
+		"acceptanceWindowDateTime": "接受窗口日期和时间",
+		"daysButton": "{days} 天",
+		"emailPlaceholder": "client@example.com"
 	},
 	"Juror": {
 		"connectWallet": "连接您的钱包以管理陪审员注册。",
@@ -430,7 +499,9 @@
 		"trustLedgerNotConfiguredNoHint": "TrustLedger 尚未为 {network} 配置。请为此网络设置 NEXT_PUBLIC_* 合约地址变量并重新部署。",
 		"findingRegistry": "正在查找信誉注册表…",
 		"registryLookupError": "无法发现此网络的信誉注册表。请确认钱包已连接到受支持的 TrustLedger 网络。",
-		"registryLabel": "注册表 {address}"
+		"registryLabel": "注册表 {address}",
+		"transactionLink": "tx ↗",
+		"walletAddressPlaceholder": "0x…"
 	},
 	"Arbitration": {
 		"dispute": "争议",
@@ -477,7 +548,19 @@
 		"revealVote": "揭示投票",
 		"voteRevealed": "投票揭示成功。",
 		"contract": "合约",
-		"phaseUnknown": "阶段 {phase}"
+		"phaseUnknown": "阶段 {phase}",
+		"evidenceSubmitted": "证据已提交。",
+		"evidenceSummary": "证据摘要",
+		"supportingEvidenceUri": "支持证据 URI",
+		"evidenceUriPlaceholder": "ipfs://, ar://, or https://",
+		"requestedCompletionPercentage": "请求的完成百分比",
+		"submittingEvidence": "正在提交...",
+		"submitEvidence": "提交证据",
+		"evidence": "证据",
+		"evidenceSubmittedCount": "已提交 {count} 项",
+		"noEvidence": "尚未提交任何证据。",
+		"requestsCompletion": "请求完成 {percent}%",
+		"saltPlaceholder": "0x…"
 	},
 	"Client": {
 		"contractTitle": "合同 #{id}",
@@ -599,7 +682,10 @@
 		"decryptAndDownload": "解密并下载",
 		"fileDownloaded": "✓ 文件已下载。",
 		"decryptAnother": "解密另一个",
-		"decryptionFailed": "解密失败——密码短语错误或包已损坏。"
+		"decryptionFailed": "解密失败——密码短语错误或包已损坏。",
+		"encryptedBundleJson": "加密包 JSON",
+		"passphraseAria": "用于解密的口令",
+		"outputFilenameAria": "输出文件名"
 	},
 	"ContractStatus": {
 		"PENDING": "待处理",
@@ -638,19 +724,42 @@
 		"statusTitle": "Contract Status Mix",
 		"statusBody": "Status bars summarize public TrustLedger contracts that include this wallet.",
 		"publicOnly": "仅公共状态",
-		"insightTitle": "Operational Insight",
+		"insightTitle": "运营洞察",
 		"emptyInsight": "No public contracts were found for this wallet yet.",
 		"reputation": "Reputation",
 		"ratings": "Ratings",
 		"localTitle": "Local App Signals",
 		"connector": "Last Connector",
 		"notStored": "Not Stored",
-		"guideState": "Guide State",
+		"guideState": "指南状态",
 		"locale": "语言",
 		"actionsTitle": "Next Actions",
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
-		"openReputation": "Open Reputation"
+		"openReputation": "Open Reputation",
+		"roleMixTitle": "角色分布",
+		"roleMixBody": "此钱包在可见合同中的出现方式。",
+		"rolesCount": "{count} 个角色",
+		"roleMixAria": "客户和自由职业者角色分布",
+		"clientRole": "客户",
+		"freelancerRole": "自由职业者",
+		"outcomeCompleted": "已完成",
+		"outcomeActive": "活跃",
+		"outcomeDisputed": "争议中",
+		"outcomeSnapshotTitle": "结果快照",
+		"outcomeSnapshotBody": "此钱包可见的完成、活跃工作和争议情况。",
+		"activityTitle": "合同状态趋势",
+		"activityBody": "此钱包可见合同分布的轻量视图。",
+		"lineChart": "折线图",
+		"lineChartAria": "钱包合同状态折线图",
+		"guideStateCompleted": "仪表板指南已跳过或完成",
+		"guideStateAvailable": "仪表板指南可用",
+		"localStorageUnavailable": "本地浏览器存储不可用",
+		"loadingLocalState": "正在加载本地状态",
+		"insightNoContracts": "尚未找到此已连接钱包的公开 TrustLedger 合同。",
+		"insightHighDispute": "公开合同状态中显示较高争议率。开始新工作前请检查条款、里程碑和证据质量。",
+		"insightHealthy": "大多数可见合同已完成或解决，说明 TrustLedger 工作流历史健康。",
+		"insightDeveloping": "你的公开活动仍在发展中。使用平台时请跟踪已注资、已提交、已批准和争议状态。"
 	},
 	"Footer": {
 		"authorsAndContributors": "作者和贡献者：",
@@ -699,7 +808,8 @@
 		"detailTitle": "Need operational detail?",
 		"detailBody": "The developer docs cover deployment, faucets, tests, and contract behavior.",
 		"createContract": "Create Contract",
-		"faucetGuide": "Sepolia Faucet Guide"
+		"faucetGuide": "Sepolia Faucet Guide",
+		"githubDiscussions": "GitHub 讨论"
 	},
 	"About": {
 		"eyebrow": "About TrustLedger",
@@ -813,5 +923,88 @@
 				"description": "负责任披露、支持的安全范围和漏洞报告。"
 			}
 		}
+	},
+	"Account": {
+		"eyebrow": "链下账户",
+		"title": "钱包保护的资料和偏好",
+		"intro": "TrustLedger account services use signed wallet authentication for profile preferences, notifications, and encrypted in-app messaging metadata. The service never asks for passwords, seed phrases, private keys, raw documents, or session keys.",
+		"openWalletAnalytics": "打开钱包分析",
+		"securityBoundary": "安全边界",
+		"securityTypedChallenges": "Sign Typed Wallet Challenges Only",
+		"securityShortSessions": "Use Short-Lived Server Sessions",
+		"securityProfilePreferences": "Store Profile Preferences Off-Chain",
+		"securityNoDocuments": "Keep Documents And Keys Out Of Account APIs",
+		"profilePreferencesTitle": "Profile Preferences",
+		"profilePreferencesBody": "Display name, avatar URL, notification preferences, and dashboard onboarding state can follow the wallet across devices once a signed session exists.",
+		"encryptedMessagingTitle": "Encrypted Messaging Ready",
+		"encryptedMessagingBody": "The API boundary is designed for encrypted message envelopes; plaintext personal contact details do not belong in platform messages.",
+		"externalDatabaseTitle": "External Database Needed",
+		"externalDatabaseBody": "Production persistence should use Postgres, Supabase, or another managed database configured through deployment secrets."
+	},
+	"Status": {
+		"metadata": {
+			"title": "Platform Status | TrustLedger",
+			"description": "Public TrustLedger operations center for runtime health, privacy-safe analytics, and contract summary metrics."
+		},
+		"eyebrow": "平台状态",
+		"title": "公共运营中心",
+		"intro": "Review public runtime health, privacy-safe analytics artifacts, and contract summary metrics without exposing admin tokens, RPC credentials, API keys, raw documents, or private wallet material.",
+		"openWalletAnalytics": "打开钱包分析",
+		"links": {
+			"runtimeHealth": "Runtime Health",
+			"fullHealthReport": "Full Health Report",
+			"publicStatusApi": "Public Status API",
+			"scientificAnalyticsApi": "Scientific Analytics API"
+		}
+	},
+	"NotFound": {
+		"eyebrow": "页面未找到",
+		"title": "此路由不在账本中。",
+		"body": "The link may be old, locale-specific, or tied to a contract that is not available from this route. Use the actions below to get back to a known workflow.",
+		"rootTitle": "此 TrustLedger 路由不存在。",
+		"rootBody": "请选择带语言的路由继续。",
+		"openDashboard": "打开仪表板",
+		"readFaq": "阅读 FAQ",
+		"goHome": "返回首页"
+	},
+	"Admin": {
+		"metadata": {
+			"title": "Admin Dashboard | TrustLedger",
+			"description": "Restricted read-only TrustLedger operator dashboard."
+		},
+		"signInMetadata": {
+			"title": "Admin Sign In - TrustLedger",
+			"description": "Restricted TrustLedger operator sign-in."
+		},
+		"eyebrow": "受限操作员控制台",
+		"title": "TrustLedger 管理仪表板",
+		"intro": "Read-only operational overview for health, contracts, disputes, jurors, reputation, notifications, oracle freshness, deployment metadata, security reports, rate limits, and audit-readiness.",
+		"roles": "Roles: {roles}",
+		"mode": "Mode: {mode}",
+		"readOnly": "只读",
+		"mutatingActionsEnabled": "mutating actions enabled",
+		"mutationWarning": "Admin mutations are disabled. Future actions must require explicit confirmation, server-side authorization, and persistent audit trails before they are enabled.",
+		"metricsAria": "Admin deployment and analytics metrics",
+		"healthTitle": "Operational Health",
+		"healthBody": "Read-only status distribution across server, Vercel, analytics, contracts, notifications, oracle, and security checks.",
+		"checksCount": "{count} Checks",
+		"trafficTitle": "Traffic Analytics",
+		"trafficBody": "Aggregate page views and frontend errors. Private wallet data, IPs, user agents, cookies, and query strings are excluded.",
+		"enabled": "Enabled",
+		"localOnly": "Local Only",
+		"events": "Events",
+		"pageViews": "Page Views",
+		"frontendErrors": "Frontend Errors",
+		"trafficEmpty": "No aggregate traffic events are stored for the current runtime.",
+		"contractId": "Contract ID",
+		"disputeId": "Dispute ID",
+		"walletAddress": "钱包地址",
+		"lookupPlaceholder": "Read-only lookup scaffold",
+		"signInEyebrow": "Restricted Operator Access",
+		"signInTitle": "TrustLedger admin sign in",
+		"signInIntro": "Use a configured admin account. Passwords are verified against server-side PBKDF2 hashes, and access can also be restricted by IP and wallet allowlist.",
+		"emailOrUsername": "Email or username",
+		"password": "密码",
+		"openAdminDashboard": "打开管理仪表板"
 	}
 }

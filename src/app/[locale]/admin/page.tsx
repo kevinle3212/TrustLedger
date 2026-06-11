@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { adminSessionFromHeaders, isAdminIpAllowed } from "@/services/adminAuth";
 import { buildAdminDashboardReport, type AdminReportItem } from "@/services/adminReport";
 import { summarizeAnalyticsEvents, type AnalyticsEventSummary } from "@/services/trafficAnalytics";
 
-export const metadata: Metadata = {
-	title: "Admin Dashboard | TrustLedger",
-	description: "Restricted read-only TrustLedger operator dashboard.",
-};
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const t = await getTranslations({ locale, namespace: "Admin" });
+	return {
+		title: t("metadata.title"),
+		description: t("metadata.description"),
+	};
+}
 
 function statusClass(status: AdminReportItem["status"]): string {
 	switch (status) {
@@ -41,8 +49,14 @@ function countStatuses(sections: ReturnType<typeof buildAdminDashboardReport>["s
 
 function AdminHealthVisual({
 	counts,
+	labels,
 }: {
 	readonly counts: ReturnType<typeof countStatuses>;
+	readonly labels: {
+		readonly title: string;
+		readonly body: string;
+		readonly checks: string;
+	};
 }): React.JSX.Element {
 	const total = Math.max(counts.total, 1);
 	const segments = [
@@ -56,15 +70,14 @@ function AdminHealthVisual({
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-						Operational Health
+						{labels.title}
 					</h2>
 					<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-						Read-only status distribution across server, Vercel, analytics, contracts,
-						notifications, oracle, and security checks.
+						{labels.body}
 					</p>
 				</div>
 				<span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-600 dark:border-white/10 dark:text-gray-300">
-					{counts.total.toString()} Checks
+					{labels.checks}
 				</span>
 			</div>
 			<div className="mt-5 flex h-4 overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
@@ -100,8 +113,19 @@ function AdminHealthVisual({
 
 function AdminTrafficVisual({
 	traffic,
+	labels,
 }: {
 	readonly traffic: AnalyticsEventSummary;
+	readonly labels: {
+		readonly title: string;
+		readonly body: string;
+		readonly enabled: string;
+		readonly localOnly: string;
+		readonly events: string;
+		readonly pageViews: string;
+		readonly frontendErrors: string;
+		readonly empty: string;
+	};
 }): React.JSX.Element {
 	const maxPathCount = Math.max(...traffic.topPaths.map((path) => path.count), 1);
 
@@ -110,11 +134,10 @@ function AdminTrafficVisual({
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-						Traffic Analytics
+						{labels.title}
 					</h2>
 					<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-						Aggregate page views and frontend errors. Private wallet data, IPs, user
-						agents, cookies, and query strings are excluded.
+						{labels.body}
 					</p>
 				</div>
 				<span
@@ -124,19 +147,21 @@ function AdminTrafficVisual({
 							: "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200"
 					}`}
 				>
-					{traffic.enabled ? "Enabled" : "Local Only"}
+					{traffic.enabled ? labels.enabled : labels.localOnly}
 				</span>
 			</div>
 			<div className="mt-5 grid gap-3 sm:grid-cols-3">
 				<div className="rounded-xl border border-gray-200 p-3 dark:border-white/10">
-					<p className="text-sm font-semibold text-gray-600 dark:text-gray-300">Events</p>
+					<p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+						{labels.events}
+					</p>
 					<p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
 						{traffic.totalEvents.toString()}
 					</p>
 				</div>
 				<div className="rounded-xl border border-gray-200 p-3 dark:border-white/10">
 					<p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-						Page Views
+						{labels.pageViews}
 					</p>
 					<p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
 						{traffic.pageViews.toString()}
@@ -144,7 +169,7 @@ function AdminTrafficVisual({
 				</div>
 				<div className="rounded-xl border border-gray-200 p-3 dark:border-white/10">
 					<p className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-						Frontend Errors
+						{labels.frontendErrors}
 					</p>
 					<p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
 						{traffic.frontendErrors.toString()}
@@ -154,7 +179,7 @@ function AdminTrafficVisual({
 			<div className="mt-5 grid gap-3">
 				{traffic.topPaths.length === 0 ? (
 					<p className="rounded-xl border border-gray-200 p-3 text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">
-						No aggregate traffic events are stored for the current runtime.
+						{labels.empty}
 					</p>
 				) : (
 					traffic.topPaths.map((path) => (
@@ -190,8 +215,10 @@ export default async function AdminPage({
 }): Promise<React.JSX.Element> {
 	const { locale } = await params;
 	setRequestLocale(locale);
-
-	const headerList = await headers();
+	const [t, headerList] = await Promise.all([
+		getTranslations({ locale, namespace: "Admin" }),
+		headers(),
+	]);
 	if (!isAdminIpAllowed(headerList)) redirect(`/${locale}/admin/sign-in`);
 
 	const session = adminSessionFromHeaders(headerList);
@@ -206,15 +233,13 @@ export default async function AdminPage({
 			<section className="grid gap-6 lg:grid-cols-[1fr_22rem]">
 				<div>
 					<p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400">
-						Restricted Operator Console
+						{t("eyebrow")}
 					</p>
 					<h1 className="mt-4 text-4xl font-bold tracking-tight text-gray-950 dark:text-white">
-						TrustLedger Admin Dashboard
+						{t("title")}
 					</h1>
 					<p className="mt-4 max-w-3xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-						Read-only operational overview for health, contracts, disputes, jurors,
-						reputation, notifications, oracle freshness, deployment metadata, security
-						reports, rate limits, and audit-readiness.
+						{t("intro")}
 					</p>
 				</div>
 				<aside className="rounded-2xl border border-gray-200 bg-white p-5 text-sm dark:border-white/10 dark:bg-gray-950">
@@ -223,21 +248,22 @@ export default async function AdminPage({
 					</p>
 					<p className="mt-1 text-gray-600 dark:text-gray-300">{session.email}</p>
 					<p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-						Roles: {session.roles.join(", ")}
+						{t("roles", { roles: session.roles.join(", ") })}
 					</p>
 					<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-						Mode: {report.readOnly ? "read-only" : "mutating actions enabled"}
+						{t("mode", {
+							mode: report.readOnly ? t("readOnly") : t("mutatingActionsEnabled"),
+						})}
 					</p>
 				</aside>
 			</section>
 
 			<section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100">
-				Admin mutations are disabled. Future actions must require explicit confirmation,
-				server-side authorization, and persistent audit trails before they are enabled.
+				{t("mutationWarning")}
 			</section>
 
 			<section
-				aria-label="Admin deployment and analytics metrics"
+				aria-label={t("metricsAria")}
 				className="grid gap-3 md:grid-cols-2 xl:grid-cols-4"
 			>
 				{report.metrics.map((metric) => (
@@ -259,8 +285,27 @@ export default async function AdminPage({
 			</section>
 
 			<section className="grid gap-4 xl:grid-cols-2">
-				<AdminHealthVisual counts={statusCounts} />
-				<AdminTrafficVisual traffic={traffic} />
+				<AdminHealthVisual
+					counts={statusCounts}
+					labels={{
+						title: t("healthTitle"),
+						body: t("healthBody"),
+						checks: t("checksCount", { count: statusCounts.total }),
+					}}
+				/>
+				<AdminTrafficVisual
+					traffic={traffic}
+					labels={{
+						title: t("trafficTitle"),
+						body: t("trafficBody"),
+						enabled: t("enabled"),
+						localOnly: t("localOnly"),
+						events: t("events"),
+						pageViews: t("pageViews"),
+						frontendErrors: t("frontendErrors"),
+						empty: t("trafficEmpty"),
+					}}
+				/>
 			</section>
 
 			<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -305,26 +350,26 @@ export default async function AdminPage({
 
 			<section className="grid gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5 md:grid-cols-3">
 				<label className="grid gap-2 text-sm font-semibold text-gray-800 dark:text-gray-100">
-					Contract ID
+					{t("contractId")}
 					<input
 						readOnly
-						placeholder="Read-only lookup scaffold"
+						placeholder={t("lookupPlaceholder")}
 						className="min-h-11 rounded-xl border border-gray-300 bg-white px-3 py-2 font-normal text-gray-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-400"
 					/>
 				</label>
 				<label className="grid gap-2 text-sm font-semibold text-gray-800 dark:text-gray-100">
-					Dispute ID
+					{t("disputeId")}
 					<input
 						readOnly
-						placeholder="Read-only lookup scaffold"
+						placeholder={t("lookupPlaceholder")}
 						className="min-h-11 rounded-xl border border-gray-300 bg-white px-3 py-2 font-normal text-gray-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-400"
 					/>
 				</label>
 				<label className="grid gap-2 text-sm font-semibold text-gray-800 dark:text-gray-100">
-					Wallet address
+					{t("walletAddress")}
 					<input
 						readOnly
-						placeholder="Read-only lookup scaffold"
+						placeholder={t("lookupPlaceholder")}
 						className="min-h-11 rounded-xl border border-gray-300 bg-white px-3 py-2 font-normal text-gray-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-400"
 					/>
 				</label>

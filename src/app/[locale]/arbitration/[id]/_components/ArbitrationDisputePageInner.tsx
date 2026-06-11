@@ -285,7 +285,7 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 					onBlur={() => {
 						setSaltTouched(true);
 					}}
-					placeholder="0x…"
+					placeholder={t("saltPlaceholder")}
 					aria-invalid={saltTouched && saltError !== undefined}
 					className={`rounded-lg bg-gray-50 dark:bg-white/5 border px-3 py-2 text-xs font-mono text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 ${
 						saltTouched && saltError !== undefined
@@ -366,6 +366,7 @@ function AppealButton({
 }
 
 function EvidenceForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
+	const t = useTranslations("Arbitration");
 	const savedDraft = readEvidenceDraft(disputeId);
 	const [summary, setSummary] = useState(savedDraft?.summary ?? "");
 	const [uri, setUri] = useState(savedDraft?.uri ?? "");
@@ -404,13 +405,15 @@ function EvidenceForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 	}
 
 	if (isSuccess) {
-		return <p className="text-sm text-green-500 dark:text-green-400">Evidence submitted.</p>;
+		return (
+			<p className="text-sm text-green-500 dark:text-green-400">{t("evidenceSubmitted")}</p>
+		);
 	}
 
 	return (
 		<form onSubmit={submit} className="flex flex-col gap-3">
 			<label htmlFor="evidence-summary" className="text-xs text-gray-500">
-				Evidence summary
+				{t("evidenceSummary")}
 			</label>
 			<textarea
 				id="evidence-summary"
@@ -426,7 +429,7 @@ function EvidenceForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			/>
 			<label htmlFor="evidence-uri" className="text-xs text-gray-500">
-				Supporting evidence URI
+				{t("supportingEvidenceUri")}
 			</label>
 			<input
 				id="evidence-uri"
@@ -436,12 +439,12 @@ function EvidenceForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 					setUri(e.target.value);
 					saveDraft({ uri: e.target.value });
 				}}
-				placeholder="ipfs://, ar://, or https://"
+				placeholder={t("evidenceUriPlaceholder")}
 				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			/>
 			<div className="flex items-center gap-4">
 				<input
-					aria-label="Requested completion percentage"
+					aria-label={t("requestedCompletionPercentage")}
 					type="range"
 					min={0}
 					max={100}
@@ -470,7 +473,7 @@ function EvidenceForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 				disabled={isPending || isConfirming || inputError !== undefined}
 				className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-semibold self-start transition-colors"
 			>
-				{isPending || isConfirming ? "Submitting..." : "Submit Evidence"}
+				{isPending || isConfirming ? t("submittingEvidence") : t("submitEvidence")}
 			</button>
 		</form>
 	);
@@ -605,16 +608,20 @@ function EvidencePanel({
 	evidence: EvidenceRecord[];
 	canSubmitEvidence: boolean;
 }): React.JSX.Element {
+	const t = useTranslations("Arbitration");
+
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
 			<div className="flex items-center justify-between gap-3">
-				<h2 className="font-semibold text-gray-900 dark:text-white text-sm">Evidence</h2>
-				<span className="text-xs text-gray-500">{evidence.length} submitted</span>
+				<h2 className="font-semibold text-gray-900 dark:text-white text-sm">
+					{t("evidence")}
+				</h2>
+				<span className="text-xs text-gray-500">
+					{t("evidenceSubmittedCount", { count: evidence.length })}
+				</span>
 			</div>
 			{evidence.length === 0 ? (
-				<p className="text-sm text-gray-500 dark:text-gray-400">
-					No evidence has been submitted yet.
-				</p>
+				<p className="text-sm text-gray-500 dark:text-gray-400">{t("noEvidence")}</p>
 			) : (
 				<div className="flex flex-col gap-3">
 					{evidence.map((item, index) => (
@@ -627,7 +634,9 @@ function EvidencePanel({
 									{formatAddress(item.submitter)}
 								</span>
 								<span className="text-xs text-gray-500">
-									Requests {item.requestedCompletionPct.toString()}% completion
+									{t("requestsCompletion", {
+										percent: item.requestedCompletionPct.toString(),
+									})}
 								</span>
 							</div>
 							<p className="mt-2 text-sm text-gray-800 dark:text-gray-100">

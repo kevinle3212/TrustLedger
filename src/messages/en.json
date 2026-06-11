@@ -92,7 +92,8 @@
 		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
 		"back": "Back",
 		"nextStep": "Next Step",
-		"nextGuide": "Next Guide"
+		"nextGuide": "Next Guide",
+		"taskCounter": "Task {current} Of {total}"
 	},
 	"Analytics": {
 		"eyebrow": "Wallet Analytics",
@@ -125,7 +126,30 @@
 		"actionsTitle": "Next Actions",
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
-		"openReputation": "Open Reputation"
+		"openReputation": "Open Reputation",
+		"roleMixTitle": "Role Mix",
+		"roleMixBody": "How this wallet appears across visible contracts.",
+		"rolesCount": "{count} Roles",
+		"roleMixAria": "Client and freelancer role mix",
+		"clientRole": "Client",
+		"freelancerRole": "Freelancer",
+		"outcomeCompleted": "Completed",
+		"outcomeActive": "Active",
+		"outcomeDisputed": "Disputed",
+		"outcomeSnapshotTitle": "Outcome Snapshot",
+		"outcomeSnapshotBody": "Visible completion, active work, and disputes for this wallet.",
+		"activityTitle": "Contract State Trend",
+		"activityBody": "A lightweight view of how this wallet’s visible contracts are distributed.",
+		"lineChart": "Line Chart",
+		"lineChartAria": "Line chart of wallet contract states",
+		"guideStateCompleted": "Dashboard Guide Skipped Or Completed",
+		"guideStateAvailable": "Dashboard Guide Available",
+		"localStorageUnavailable": "Local Browser Storage Unavailable",
+		"loadingLocalState": "Loading Local State",
+		"insightNoContracts": "No public TrustLedger contracts were found for this connected wallet yet.",
+		"insightHighDispute": "A higher dispute rate is visible in public contract states. Review terms, milestones, and evidence quality before new work starts.",
+		"insightHealthy": "Most visible contracts are completed or resolved, which indicates a healthy TrustLedger workflow history.",
+		"insightDeveloping": "Your public activity is still developing. Track funded, submitted, approved, and disputed states as you use the platform."
 	},
 	"Home": {
 		"builtOn": "Built On Ethereum Sepolia",
@@ -178,7 +202,10 @@
 				"note": "92 Average Score",
 				"kicker": "History from completed work"
 			}
-		}
+		},
+		"viewSolanaProgram": "View Solana system program on {network}",
+		"solanaNativeProgram": "Solana Native-Program: {network}",
+		"checkConfig": "(check config)"
 	},
 	"Dashboard": {
 		"connectWallet": "Connect your wallet to see your contracts.",
@@ -277,7 +304,10 @@
 		"walkthroughStepTab": "Step {step}",
 		"walkthroughPrevious": "Previous Step",
 		"walkthroughNext": "Next Step",
-		"walkthroughFinish": "Finish Walkthrough"
+		"walkthroughFinish": "Finish Walkthrough",
+		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
+		"exampleAmount": "0.75 ETH",
+		"loadingContracts": "Loading contracts"
 	},
 	"Create": {
 		"connectWallet": "Connect your wallet to propose a contract.",
@@ -378,7 +408,69 @@
 		"confirmSendQuestion": "Are you sure you want to send this to the {role}?",
 		"confirmSendDescription": "After you confirm, your wallet will open and the contract proposal will be submitted on-chain. Keep editing if any term is wrong.",
 		"keepEditing": "Keep editing",
-		"confirmAndSend": "Confirm And Send"
+		"confirmAndSend": "Confirm And Send",
+		"plainText": "Plain Text",
+		"escrowAmountPreview": "Escrow Amount",
+		"acceptanceWindowPreview": "Acceptance Window",
+		"arbitrationFeePreview": "Arbitration Fee",
+		"draftTermsFormat": "Draft Terms Format",
+		"lastUpdated": "Last Updated:",
+		"draftTerms": "Draft Contract Terms",
+		"sections": "Sections",
+		"words": "Words",
+		"firstClause": "First Clause",
+		"draftCacheWarning": "Do Not Clear Cookies Or Browser Cache Until You Finish, Because That Resets Local Draft Progress.",
+		"secureDraftSession": "Secure Draft Session",
+		"collaborativeContractTerms": "Collaborative Contract Terms",
+		"secureDraftBody": "Write terms in Markdown, HTML, or plain text before deployment. Shared drafts are encrypted in the browser and require an allowed wallet plus a separate session key to decrypt. Start a live room only when both parties want ongoing co-editing.",
+		"syncingLive": "Syncing Live...",
+		"liveSyncOn": "Live Sync On",
+		"liveSyncOff": "Live Sync Off",
+		"insertDefaultTemplate": "Insert Default Template",
+		"insertSnippetAria": "Insert {label} terms snippet",
+		"uploadTermsImage": "Upload Contract Terms Image",
+		"termsEditorAria": "Collaborative Contract Terms Editor",
+		"termsPlaceholder": "Write the contract terms before deployment.",
+		"contractAttachmentAlt": "Contract Attachment",
+		"allowedWallet": "Allowed Wallet",
+		"connectYourWallet": "Connect Your Wallet",
+		"counterpartyWallet": "Counterparty Wallet",
+		"enterCounterpartyWallet": "Enter The Counterparty Wallet In Contract Details Below",
+		"creatingEncryptedLink": "Creating Encrypted Link...",
+		"createLinkIn": "Create Link In {seconds}s",
+		"createEncryptedShareLink": "Create Encrypted Share Link",
+		"startingLiveRoom": "Starting Live Room...",
+		"startLiveRoomIn": "Start Live Room In {seconds}s",
+		"liveRoomStarted": "Live Room Started",
+		"startLiveRoom": "Start Live Room",
+		"copied": "Copied!",
+		"copyLink": "Copy Link",
+		"copySessionKey": "Copy Session Key",
+		"emailLinkAndKey": "Email Link And Key",
+		"endLiveSync": "End Live Sync",
+		"replaceLinkWarning": "Creating another link replaces the active link and key shown here. Do not use older links or keys after generating a newer one; encrypted snapshot URLs that were already shared cannot be revoked without a backend revocation service.",
+		"shareLink": "Share Link",
+		"liveRoomStatus": "Live Room {roomId}: edits are encrypted before leaving the browser. Last remote update: {time}.",
+		"liveRoomLoadAdvice": "Unable to load the live draft room. Check the session link, session key, wallet, or room expiration.",
+		"encryptedDraftNotice": "This URL contains an encrypted draft for {wallets}. Connect the matching wallet, paste the separate key, then import.",
+		"allowedWallets": "Allowed Wallets",
+		"sessionKey": "Session Key",
+		"pasteSessionKey": "Paste Session Key",
+		"importingDraft": "Importing Draft...",
+		"importDraft": "Import Draft",
+		"contractDocumentDraftHint": "Upload an encrypted contract PDF or enter an existing URI after drafting. If you also wrote terms above, keep both copies aligned before preview and submission; the uploaded or manual URI is the document source hashed for the on-chain proposal.",
+		"contractDocumentUriPlaceholder": "ipfs://Qm…",
+		"previewSelectedFile": "Preview Selected File",
+		"pinataJwtPlaceholder": "eyJhbGciOiJIUzI1NiIs…",
+		"solanaWalletOpens": "Solana Wallet Opens On Confirmation",
+		"solanaWalletConnected": "Solana Wallet Connected: {address}",
+		"solanaSimulationReady": "TrustLedger will simulate the Solana escrow instruction before requesting your signature.",
+		"solanaProgramMissing": "Set NEXT_PUBLIC_SOLANA_PROGRAM_ID before SOL custody can be submitted.",
+		"connectEvmWallet": "Connect Your EVM Wallet",
+		"connectEvmWalletHint": "Use the header wallet button before submitting ETH or USDC escrow.",
+		"acceptanceWindowDateTime": "Acceptance window date and time",
+		"daysButton": "{days} Days",
+		"emailPlaceholder": "client@example.com"
 	},
 	"Juror": {
 		"connectWallet": "Connect your wallet to manage your juror registration.",
@@ -463,7 +555,9 @@
 		"trustLedgerNotConfiguredNoHint": "TrustLedger is not configured for {network}. Set the NEXT_PUBLIC_* contract address variables for this network and redeploy.",
 		"findingRegistry": "Finding reputation registry…",
 		"registryLookupError": "Could not discover the reputation registry for this network. Check that your wallet is connected to a supported TrustLedger network.",
-		"registryLabel": "registry {address}"
+		"registryLabel": "registry {address}",
+		"transactionLink": "tx ↗",
+		"walletAddressPlaceholder": "0x…"
 	},
 	"Arbitration": {
 		"dispute": "Dispute",
@@ -510,7 +604,19 @@
 		"revealVote": "Reveal Vote",
 		"voteRevealed": "Vote revealed successfully.",
 		"contract": "Contract",
-		"phaseUnknown": "Phase {phase}"
+		"phaseUnknown": "Phase {phase}",
+		"evidenceSubmitted": "Evidence submitted.",
+		"evidenceSummary": "Evidence summary",
+		"supportingEvidenceUri": "Supporting evidence URI",
+		"evidenceUriPlaceholder": "ipfs://, ar://, or https://",
+		"requestedCompletionPercentage": "Requested completion percentage",
+		"submittingEvidence": "Submitting...",
+		"submitEvidence": "Submit Evidence",
+		"evidence": "Evidence",
+		"evidenceSubmittedCount": "{count} submitted",
+		"noEvidence": "No evidence has been submitted yet.",
+		"requestsCompletion": "Requests {percent}% completion",
+		"saltPlaceholder": "0x…"
 	},
 	"Client": {
 		"contractTitle": "Contract #{id}",
@@ -632,7 +738,10 @@
 		"decryptAndDownload": "Decrypt & Download",
 		"fileDownloaded": "✓ File downloaded.",
 		"decryptAnother": "Decrypt another",
-		"decryptionFailed": "Decryption failed — wrong passphrase or corrupted bundle."
+		"decryptionFailed": "Decryption failed — wrong passphrase or corrupted bundle.",
+		"encryptedBundleJson": "Encrypted bundle JSON",
+		"passphraseAria": "Passphrase for decryption",
+		"outputFilenameAria": "Output filename"
 	},
 	"ContractStatus": {
 		"PENDING": "Pending",
@@ -699,7 +808,8 @@
 		"detailTitle": "Need operational detail?",
 		"detailBody": "The developer docs cover deployment, faucets, tests, and contract behavior.",
 		"createContract": "Create Contract",
-		"faucetGuide": "Sepolia Faucet Guide"
+		"faucetGuide": "Sepolia Faucet Guide",
+		"githubDiscussions": "GitHub Discussions"
 	},
 	"About": {
 		"eyebrow": "About TrustLedger",
@@ -813,5 +923,88 @@
 				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
 			}
 		}
+	},
+	"Account": {
+		"eyebrow": "Off-Chain Account",
+		"title": "Wallet-Gated Profile And Preferences",
+		"intro": "TrustLedger account services use signed wallet authentication for profile preferences, notifications, and encrypted in-app messaging metadata. The service never asks for passwords, seed phrases, private keys, raw documents, or session keys.",
+		"openWalletAnalytics": "Open Wallet Analytics",
+		"securityBoundary": "Security Boundary",
+		"securityTypedChallenges": "Sign Typed Wallet Challenges Only",
+		"securityShortSessions": "Use Short-Lived Server Sessions",
+		"securityProfilePreferences": "Store Profile Preferences Off-Chain",
+		"securityNoDocuments": "Keep Documents And Keys Out Of Account APIs",
+		"profilePreferencesTitle": "Profile Preferences",
+		"profilePreferencesBody": "Display name, avatar URL, notification preferences, and dashboard onboarding state can follow the wallet across devices once a signed session exists.",
+		"encryptedMessagingTitle": "Encrypted Messaging Ready",
+		"encryptedMessagingBody": "The API boundary is designed for encrypted message envelopes; plaintext personal contact details do not belong in platform messages.",
+		"externalDatabaseTitle": "External Database Needed",
+		"externalDatabaseBody": "Production persistence should use Postgres, Supabase, or another managed database configured through deployment secrets."
+	},
+	"Status": {
+		"metadata": {
+			"title": "Platform Status | TrustLedger",
+			"description": "Public TrustLedger operations center for runtime health, privacy-safe analytics, and contract summary metrics."
+		},
+		"eyebrow": "Platform Status",
+		"title": "Public Operations Center",
+		"intro": "Review public runtime health, privacy-safe analytics artifacts, and contract summary metrics without exposing admin tokens, RPC credentials, API keys, raw documents, or private wallet material.",
+		"openWalletAnalytics": "Open Wallet Analytics",
+		"links": {
+			"runtimeHealth": "Runtime Health",
+			"fullHealthReport": "Full Health Report",
+			"publicStatusApi": "Public Status API",
+			"scientificAnalyticsApi": "Scientific Analytics API"
+		}
+	},
+	"NotFound": {
+		"eyebrow": "Page Not Found",
+		"title": "This route is not in the ledger.",
+		"body": "The link may be old, locale-specific, or tied to a contract that is not available from this route. Use the actions below to get back to a known workflow.",
+		"rootTitle": "This TrustLedger route does not exist.",
+		"rootBody": "Choose a locale-aware route to continue.",
+		"openDashboard": "Open Dashboard",
+		"readFaq": "Read FAQ",
+		"goHome": "Go Home"
+	},
+	"Admin": {
+		"metadata": {
+			"title": "Admin Dashboard | TrustLedger",
+			"description": "Restricted read-only TrustLedger operator dashboard."
+		},
+		"signInMetadata": {
+			"title": "Admin Sign In - TrustLedger",
+			"description": "Restricted TrustLedger operator sign-in."
+		},
+		"eyebrow": "Restricted Operator Console",
+		"title": "TrustLedger Admin Dashboard",
+		"intro": "Read-only operational overview for health, contracts, disputes, jurors, reputation, notifications, oracle freshness, deployment metadata, security reports, rate limits, and audit-readiness.",
+		"roles": "Roles: {roles}",
+		"mode": "Mode: {mode}",
+		"readOnly": "read-only",
+		"mutatingActionsEnabled": "mutating actions enabled",
+		"mutationWarning": "Admin mutations are disabled. Future actions must require explicit confirmation, server-side authorization, and persistent audit trails before they are enabled.",
+		"metricsAria": "Admin deployment and analytics metrics",
+		"healthTitle": "Operational Health",
+		"healthBody": "Read-only status distribution across server, Vercel, analytics, contracts, notifications, oracle, and security checks.",
+		"checksCount": "{count} Checks",
+		"trafficTitle": "Traffic Analytics",
+		"trafficBody": "Aggregate page views and frontend errors. Private wallet data, IPs, user agents, cookies, and query strings are excluded.",
+		"enabled": "Enabled",
+		"localOnly": "Local Only",
+		"events": "Events",
+		"pageViews": "Page Views",
+		"frontendErrors": "Frontend Errors",
+		"trafficEmpty": "No aggregate traffic events are stored for the current runtime.",
+		"contractId": "Contract ID",
+		"disputeId": "Dispute ID",
+		"walletAddress": "Wallet address",
+		"lookupPlaceholder": "Read-only lookup scaffold",
+		"signInEyebrow": "Restricted Operator Access",
+		"signInTitle": "TrustLedger admin sign in",
+		"signInIntro": "Use a configured admin account. Passwords are verified against server-side PBKDF2 hashes, and access can also be restricted by IP and wallet allowlist.",
+		"emailOrUsername": "Email or username",
+		"password": "Password",
+		"openAdminDashboard": "Open admin dashboard"
 	}
 }

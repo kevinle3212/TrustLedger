@@ -84,16 +84,3 @@ export function buildWalletAnalyticsSummary(
 		privacyScore: Math.round(privacyScore),
 	};
 }
-
-export function getAnalyticsInsight(summary: WalletAnalyticsSummary): string {
-	if (summary.totalContracts === 0) {
-		return "No public TrustLedger contracts were found for this connected wallet yet.";
-	}
-	if (summary.disputeRatePct >= 25) {
-		return "A higher dispute rate is visible in public contract states. Review terms, milestones, and evidence quality before new work starts.";
-	}
-	if (summary.completionRatePct >= 75) {
-		return "Most visible contracts are completed or resolved, which indicates a healthy TrustLedger workflow history.";
-	}
-	return "Your public activity is still developing. Track funded, submitted, approved, and disputed states as you use the platform.";
-}

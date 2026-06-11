@@ -109,7 +109,7 @@ export function TimelineSection({ form, set, showError, markTouched }: Props): R
 								);
 								markTouched("acceptanceWindowDays");
 							}}
-							aria-label="Acceptance window date and time"
+							aria-label={t("acceptanceWindowDateTime")}
 							aria-invalid={showError("acceptanceWindowDays") !== undefined}
 							className="min-h-11 w-full min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
 						/>
@@ -129,7 +129,7 @@ export function TimelineSection({ form, set, showError, markTouched }: Props): R
 										: "border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:text-gray-950 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:border-white/20 dark:hover:text-white"
 								}`}
 							>
-								{days} Days
+								{t("daysButton", { days })}
 							</button>
 						))}
 					</div>

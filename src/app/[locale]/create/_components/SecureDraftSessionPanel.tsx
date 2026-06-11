@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
 import type { CreateState, ContractTermsFormat } from "../_lib/types";
 import { convertContractTerms, DEFAULT_CONTRACT_TERMS } from "../_lib/contractTerms";
@@ -272,9 +273,12 @@ function snippetFor(
 	return { text, selectionStart: 0, selectionEnd: text.length };
 }
 
-function formatLabel(format: ContractTermsFormat): string {
+function formatLabel(
+	format: ContractTermsFormat,
+	t: ReturnType<typeof useTranslations<"Create">>,
+): string {
 	if (format === "html") return "HTML";
-	if (format === "plain") return "Plain Text";
+	if (format === "plain") return t("plainText");
 	return "Markdown";
 }
 
@@ -345,6 +349,7 @@ function DraftTermsEditor({
 }): React.JSX.Element {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const imageInputRef = useRef<HTMLInputElement>(null);
+	const t = useTranslations("Create");
 	const visibleSnippets =
 		state.termsFormat === "markdown"
 			? MARKDOWN_SNIPPETS
@@ -397,13 +402,13 @@ function DraftTermsEditor({
 				.replace(/\.[^.]+$/u, "")
 				.replace(/[-_]+/gu, " ")
 				.trim();
-			const safeAltText = altText === "" ? "Contract Attachment" : altText;
+			const safeAltText = altText === "" ? t("contractAttachmentAlt") : altText;
 			const imageMarkup =
 				state.termsFormat === "html"
 					? `<img src="${dataUrl}" alt="${safeAltText}" />`
 					: state.termsFormat === "markdown"
 						? `![${safeAltText}](${dataUrl})`
-						: `Contract Attachment: ${file.name}`;
+						: `${t("contractAttachmentAlt")}: ${file.name}`;
 			insertSnippet("image", imageMarkup);
 		};
 		reader.readAsDataURL(file);
@@ -414,21 +419,18 @@ function DraftTermsEditor({
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
 				<div>
 					<p className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">
-						Secure Draft Session
+						{t("secureDraftSession")}
 					</p>
 					<h2 className="mt-1 text-lg font-semibold text-gray-950 dark:text-white">
-						Collaborative Contract Terms
+						{t("collaborativeContractTerms")}
 					</h2>
 					<p className="mt-1 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
-						Write terms in Markdown, HTML, or plain text before deployment. Shared
-						drafts are encrypted in the browser and require an allowed wallet plus a
-						separate session key to decrypt. Start a live room only when both parties
-						want ongoing co-editing.
+						{t("secureDraftBody")}
 					</p>
 				</div>
 				<div className="flex flex-wrap gap-2">
 					<p className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-600 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300">
-						Last Updated:{" "}
+						{t("lastUpdated")}{" "}
 						{formatUpdatedAt(state.termsLastUpdatedAt, updatedAtFormatter, nowMs)}
 					</p>
 					<p
@@ -440,9 +442,9 @@ function DraftTermsEditor({
 					>
 						{collaboration.isLive
 							? collaboration.isPublishing
-								? "Syncing Live..."
-								: "Live Sync On"
-							: "Live Sync Off"}
+								? t("syncingLive")
+								: t("liveSyncOn")
+							: t("liveSyncOff")}
 					</p>
 				</div>
 			</div>
@@ -467,7 +469,7 @@ function DraftTermsEditor({
 								: "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-950 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300 dark:hover:border-white/20 dark:hover:text-white"
 						}`}
 					>
-						{formatLabel(format)}
+						{formatLabel(format, t)}
 					</button>
 				))}
 				<button
@@ -477,13 +479,13 @@ function DraftTermsEditor({
 					}}
 					className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:border-emerald-300 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200"
 				>
-					Insert Default Template
+					{t("insertDefaultTemplate")}
 				</button>
 				{visibleSnippets.map(([action, label]) => (
 					<button
 						key={action}
 						type="button"
-						aria-label={`Insert ${label} terms snippet`}
+						aria-label={t("insertSnippetAria", { label })}
 						onMouseDown={(event) => {
 							event.preventDefault();
 						}}
@@ -510,7 +512,7 @@ function DraftTermsEditor({
 					type="file"
 					accept="image/*"
 					className="sr-only"
-					aria-label="Upload Contract Terms Image"
+					aria-label={t("uploadTermsImage")}
 					onChange={(event) => {
 						const file = event.currentTarget.files?.[0];
 						if (file !== undefined) insertImageFile(file);
@@ -520,7 +522,7 @@ function DraftTermsEditor({
 
 			<textarea
 				ref={textareaRef}
-				aria-label="Collaborative Contract Terms Editor"
+				aria-label={t("termsEditorAria")}
 				value={state.termsBody}
 				onChange={(event) => {
 					onTermsBodyChange(event.target.value);
@@ -543,7 +545,7 @@ function DraftTermsEditor({
 				rows={9}
 				spellCheck
 				className="mt-4 min-h-56 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 font-mono text-sm leading-6 text-gray-900 outline-none transition focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-white"
-				placeholder="Write the contract terms before deployment."
+				placeholder={t("termsPlaceholder")}
 			/>
 		</>
 	);
@@ -588,6 +590,7 @@ function DraftShareControls({
 	readonly onImportKeyChange: (value: string) => void;
 	readonly copiedLabel: string | null;
 }): React.JSX.Element {
+	const t = useTranslations("Create");
 	const secondsRemaining = cooldownSeconds(panel.cooldownUntil, nowMs);
 	const cooldownActive = secondsRemaining > 0;
 	const emailHref =
@@ -605,18 +608,18 @@ function DraftShareControls({
 			<div className="grid gap-3 text-xs text-gray-600 dark:text-gray-300 sm:grid-cols-2">
 				<div className="tl-wallet-chip rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-400/20 dark:bg-emerald-400/10">
 					<p className="font-semibold uppercase tracking-[0.12em] text-emerald-700 dark:text-emerald-200">
-						Allowed Wallet
+						{t("allowedWallet")}
 					</p>
 					<p className="mt-1 break-all font-mono text-gray-800 dark:text-gray-100">
-						{connected ?? "Connect Your Wallet"}
+						{connected ?? t("connectYourWallet")}
 					</p>
 				</div>
 				<div className="tl-wallet-chip rounded-xl border border-indigo-200 bg-indigo-50/70 p-3 dark:border-indigo-400/20 dark:bg-indigo-400/10">
 					<p className="font-semibold uppercase tracking-[0.12em] text-indigo-700 dark:text-indigo-200">
-						Counterparty Wallet
+						{t("counterpartyWallet")}
 					</p>
 					<p className="mt-1 break-all font-mono text-gray-800 dark:text-gray-100">
-						{counterparty ?? "Enter The Counterparty Wallet In Contract Details Below"}
+						{counterparty ?? t("enterCounterpartyWallet")}
 					</p>
 				</div>
 			</div>
@@ -628,10 +631,10 @@ function DraftShareControls({
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
 				>
 					{panel.isSharing
-						? "Creating Encrypted Link..."
+						? t("creatingEncryptedLink")
 						: cooldownActive
-							? `Create Link In ${secondsRemaining.toString()}s`
-							: "Create Encrypted Share Link"}
+							? t("createLinkIn", { seconds: secondsRemaining })
+							: t("createEncryptedShareLink")}
 				</button>
 				<button
 					type="button"
@@ -640,12 +643,12 @@ function DraftShareControls({
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 hover:border-indigo-300 hover:text-indigo-900 disabled:opacity-50 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200 dark:hover:border-indigo-300/50"
 				>
 					{panel.isStartingLiveRoom
-						? "Starting Live Room..."
+						? t("startingLiveRoom")
 						: cooldownActive
-							? `Start Live Room In ${secondsRemaining.toString()}s`
+							? t("startLiveRoomIn", { seconds: secondsRemaining })
 							: liveRoomLocked
-								? "Live Room Started"
-								: "Start Live Room"}
+								? t("liveRoomStarted")
+								: t("startLiveRoom")}
 				</button>
 				<button
 					type="button"
@@ -655,7 +658,7 @@ function DraftShareControls({
 					disabled={panel.shareUrl === ""}
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 disabled:opacity-50 dark:border-white/10 dark:text-gray-200"
 				>
-					{copiedLabel === "Link" ? "Copied!" : "Copy Link"}
+					{copiedLabel === "Link" ? t("copied") : t("copyLink")}
 				</button>
 				<button
 					type="button"
@@ -665,7 +668,7 @@ function DraftShareControls({
 					disabled={panel.sessionKey === ""}
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 disabled:opacity-50 dark:border-white/10 dark:text-gray-200"
 				>
-					{copiedLabel === "Session Key" ? "Copied!" : "Copy Session Key"}
+					{copiedLabel === "Session Key" ? t("copied") : t("copySessionKey")}
 				</button>
 				<button
 					type="button"
@@ -675,7 +678,7 @@ function DraftShareControls({
 					disabled={emailHref === ""}
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:border-emerald-300 disabled:opacity-50 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-100"
 				>
-					Email Link And Key
+					{t("emailLinkAndKey")}
 				</button>
 				{panel.roomId !== null && (
 					<button
@@ -683,21 +686,19 @@ function DraftShareControls({
 						onClick={onEndLiveRoom}
 						className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:border-red-300 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-200"
 					>
-						End Live Sync
+						{t("endLiveSync")}
 					</button>
 				)}
 			</div>
 			{panel.generationCount > 0 && (
 				<p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
-					Creating another link replaces the active link and key shown here. Do not use
-					older links or keys after generating a newer one; encrypted snapshot URLs that
-					were already shared cannot be revoked without a backend revocation service.
+					{t("replaceLinkWarning")}
 				</p>
 			)}
 			{panel.shareUrl !== "" && (
 				<div className="grid gap-2 rounded-lg bg-gray-50 p-3 dark:bg-white/5">
 					<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-						Share Link
+						{t("shareLink")}
 					</p>
 					<p className="break-all font-mono text-xs text-gray-600 dark:text-gray-300">
 						{panel.shareUrl}
@@ -706,36 +707,42 @@ function DraftShareControls({
 			)}
 			{collaboration.isLive && (
 				<p className="text-xs text-gray-600 dark:text-gray-300">
-					Live Room {panel.roomId}: edits are encrypted before leaving the browser. Last
-					remote update:{" "}
-					{formatUpdatedAt(collaboration.lastRemoteUpdateAt, updatedAtFormatter, nowMs)}.
+					{t("liveRoomStatus", {
+						roomId: panel.roomId ?? "",
+						time: formatUpdatedAt(
+							collaboration.lastRemoteUpdateAt,
+							updatedAtFormatter,
+							nowMs,
+						),
+					})}
 				</p>
 			)}
 			{collaboration.lastError !== null && (
 				<p className="text-xs font-medium text-amber-700 dark:text-amber-300">
 					{collaboration.lastError.replace(
 						"Unable to load the live draft room.",
-						"Unable to load the live draft room. Check the session link, session key, wallet, or room expiration.",
+						t("liveRoomLoadAdvice"),
 					)}
 				</p>
 			)}
 			{encryptedDraftFromUrl !== null && (
 				<div className="grid gap-2 border-t border-gray-200 pt-4 dark:border-white/10">
 					<p className="text-xs text-gray-600 dark:text-gray-300">
-						This URL contains an encrypted draft for{" "}
-						{urlAllowedWallets.length > 0
-							? urlAllowedWallets.join(", ")
-							: "Allowed Wallets"}
-						. Connect the matching wallet, paste the separate key, then import.
+						{t("encryptedDraftNotice", {
+							wallets:
+								urlAllowedWallets.length > 0
+									? urlAllowedWallets.join(", ")
+									: t("allowedWallets"),
+						})}
 					</p>
 					<div className="flex flex-col gap-2 sm:flex-row">
 						<input
-							aria-label="Session Key"
+							aria-label={t("sessionKey")}
 							value={panel.importKey}
 							onChange={(event) => {
 								onImportKeyChange(event.target.value);
 							}}
-							placeholder="Paste Session Key"
+							placeholder={t("pasteSessionKey")}
 							className="min-h-11 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-white/10 dark:bg-white/5 dark:text-white"
 						/>
 						<button
@@ -744,7 +751,7 @@ function DraftShareControls({
 							disabled={panel.isImporting}
 							className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl bg-gray-950 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-950"
 						>
-							{panel.isImporting ? "Importing Draft..." : "Import Draft"}
+							{panel.isImporting ? t("importingDraft") : t("importDraft")}
 						</button>
 					</div>
 				</div>

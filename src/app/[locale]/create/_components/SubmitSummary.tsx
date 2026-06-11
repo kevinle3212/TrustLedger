@@ -172,23 +172,23 @@ export function SubmitSummary({
 				<div className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-900 dark:text-emerald-100">
 					<p className="font-medium">
 						{solanaWalletAddress === null
-							? "Solana Wallet Opens On Confirmation"
-							: `Solana Wallet Connected: ${solanaWalletAddress.slice(0, 4)}...${solanaWalletAddress.slice(-4)}`}
+							? t("solanaWalletOpens")
+							: t("solanaWalletConnected", {
+									address: `${solanaWalletAddress.slice(0, 4)}...${solanaWalletAddress.slice(-4)}`,
+								})}
 					</p>
 					<p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-100/80">
 						{solanaProgramReady
-							? "TrustLedger will simulate the Solana escrow instruction before requesting your signature."
-							: "Set NEXT_PUBLIC_SOLANA_PROGRAM_ID before SOL custody can be submitted."}
+							? t("solanaSimulationReady")
+							: t("solanaProgramMissing")}
 					</p>
 				</div>
 			)}
 
 			{!isSol && !isEvmConnected && (
 				<div className="rounded-lg border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-100">
-					<p className="font-medium">Connect Your EVM Wallet</p>
-					<p className="mt-1 text-xs">
-						Use the header wallet button before submitting ETH or USDC escrow.
-					</p>
+					<p className="font-medium">{t("connectEvmWallet")}</p>
+					<p className="mt-1 text-xs">{t("connectEvmWalletHint")}</p>
 				</div>
 			)}
 

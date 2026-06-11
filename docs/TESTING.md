@@ -112,6 +112,12 @@ cd src
 npm run test:unit
 ```
 
+Run the strict locale and visible-copy scanner:
+
+```bash
+npm run i18n:scan
+```
+
 Install the Chromium browser used by Playwright:
 
 ```bash

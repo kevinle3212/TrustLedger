@@ -92,7 +92,8 @@
 		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
 		"back": "Retour",
 		"nextStep": "Étape Suivante",
-		"nextGuide": "Guide Suivant"
+		"nextGuide": "Guide Suivant",
+		"taskCounter": "Tâche {current} Sur {total}"
 	},
 	"Home": {
 		"builtOn": "Construit sur Ethereum Sepolia",
@@ -145,7 +146,10 @@
 				"note": "Score Moyen 92",
 				"kicker": "Historique des travaux terminés"
 			}
-		}
+		},
+		"viewSolanaProgram": "Voir le programme système Solana sur {network}",
+		"solanaNativeProgram": "Programme Natif Solana : {network}",
+		"checkConfig": "(vérifier la configuration)"
 	},
 	"Dashboard": {
 		"connectWallet": "Connectez votre portefeuille pour voir vos contrats.",
@@ -244,7 +248,10 @@
 		"walkthroughStepTab": "Étape {step}",
 		"walkthroughPrevious": "Étape Précédente",
 		"walkthroughNext": "Étape Suivante",
-		"walkthroughFinish": "Terminer Le Guide"
+		"walkthroughFinish": "Terminer Le Guide",
+		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
+		"exampleAmount": "0.75 ETH",
+		"loadingContracts": "Chargement des contrats"
 	},
 	"Create": {
 		"connectWallet": "Connectez votre portefeuille pour proposer un contrat.",
@@ -345,7 +352,69 @@
 		"confirmSendQuestion": "Are you sure you want to send this to the {role}?",
 		"confirmSendDescription": "After you confirm, your wallet will open and the contract proposal will be submitted on-chain. Keep editing if any term is wrong.",
 		"keepEditing": "Keep editing",
-		"confirmAndSend": "Confirm And Send"
+		"confirmAndSend": "Confirm And Send",
+		"plainText": "Texte Brut",
+		"escrowAmountPreview": "Montant en Séquestre",
+		"acceptanceWindowPreview": "Fenêtre d’Acceptation",
+		"arbitrationFeePreview": "Frais d’Arbitrage",
+		"draftTermsFormat": "Format des Termes du Brouillon",
+		"lastUpdated": "Dernière Mise à Jour :",
+		"draftTerms": "Termes du Contrat Brouillon",
+		"sections": "Sections",
+		"words": "Mots",
+		"firstClause": "Première Clause",
+		"draftCacheWarning": "Ne supprimez pas les cookies ni le cache du navigateur avant d’avoir terminé, car cela réinitialise le brouillon local.",
+		"secureDraftSession": "Session de Brouillon Sécurisée",
+		"collaborativeContractTerms": "Termes de Contrat Collaboratifs",
+		"secureDraftBody": "Rédigez les termes en Markdown, HTML ou texte brut avant le déploiement. Les brouillons partagés sont chiffrés dans le navigateur et nécessitent un portefeuille autorisé et une clé de session séparée.",
+		"syncingLive": "Synchronisation en Direct...",
+		"liveSyncOn": "Synchronisation en Direct Active",
+		"liveSyncOff": "Synchronisation en Direct Inactive",
+		"insertDefaultTemplate": "Insérer le Modèle Par Défaut",
+		"insertSnippetAria": "Insérer le fragment de termes {label}",
+		"uploadTermsImage": "Téléverser une Image des Termes",
+		"termsEditorAria": "Éditeur Collaboratif des Termes",
+		"termsPlaceholder": "Rédigez les termes du contrat avant le déploiement.",
+		"contractAttachmentAlt": "Pièce Jointe du Contrat",
+		"allowedWallet": "Portefeuille Autorisé",
+		"connectYourWallet": "Connectez Votre Portefeuille",
+		"counterpartyWallet": "Portefeuille de la Contrepartie",
+		"enterCounterpartyWallet": "Saisissez le portefeuille de la contrepartie dans les détails du contrat ci-dessous",
+		"creatingEncryptedLink": "Création du Lien Chiffré...",
+		"createLinkIn": "Créer le Lien Dans {seconds}s",
+		"createEncryptedShareLink": "Créer un Lien de Partage Chiffré",
+		"startingLiveRoom": "Démarrage de la Salle en Direct...",
+		"startLiveRoomIn": "Démarrer la Salle Dans {seconds}s",
+		"liveRoomStarted": "Salle en Direct Démarrée",
+		"startLiveRoom": "Démarrer la Salle en Direct",
+		"copied": "Copié !",
+		"copyLink": "Copier le Lien",
+		"copySessionKey": "Copier la Clé de Session",
+		"emailLinkAndKey": "Envoyer Lien et Clé par E-mail",
+		"endLiveSync": "Arrêter la Synchronisation en Direct",
+		"replaceLinkWarning": "Créer un autre lien remplace le lien et la clé actifs affichés ici. N’utilisez pas les anciens liens ou clés après en avoir généré de nouveaux.",
+		"shareLink": "Lien de Partage",
+		"liveRoomStatus": "Salle en Direct {roomId} : les modifications sont chiffrées avant de quitter le navigateur. Dernière mise à jour distante : {time}.",
+		"liveRoomLoadAdvice": "Impossible de charger la salle de brouillon en direct. Vérifiez le lien, la clé de session, le portefeuille ou l’expiration de la salle.",
+		"encryptedDraftNotice": "Cette URL contient un brouillon chiffré pour {wallets}. Connectez le portefeuille correspondant, collez la clé séparée, puis importez.",
+		"allowedWallets": "Portefeuilles Autorisés",
+		"sessionKey": "Clé de Session",
+		"pasteSessionKey": "Coller la Clé de Session",
+		"importingDraft": "Importation du Brouillon...",
+		"importDraft": "Importer le Brouillon",
+		"contractDocumentDraftHint": "Téléversez un PDF de contrat chiffré ou saisissez un URI existant après rédaction. Si vous avez aussi écrit des termes ci-dessus, gardez les deux copies alignées avant l’aperçu et l’envoi.",
+		"contractDocumentUriPlaceholder": "ipfs://Qm…",
+		"previewSelectedFile": "Prévisualiser le Fichier Sélectionné",
+		"pinataJwtPlaceholder": "eyJhbGciOiJIUzI1NiIs…",
+		"solanaWalletOpens": "Le Portefeuille Solana S’ouvre à la Confirmation",
+		"solanaWalletConnected": "Portefeuille Solana Connecté : {address}",
+		"solanaSimulationReady": "TrustLedger simulera l’instruction de séquestre Solana avant de demander votre signature.",
+		"solanaProgramMissing": "Définissez NEXT_PUBLIC_SOLANA_PROGRAM_ID avant de soumettre une garde SOL.",
+		"connectEvmWallet": "Connectez Votre Portefeuille EVM",
+		"connectEvmWalletHint": "Utilisez le bouton de portefeuille dans l’en-tête avant de soumettre un séquestre ETH ou USDC.",
+		"acceptanceWindowDateTime": "Date et heure de la fenêtre d’acceptation",
+		"daysButton": "{days} Jours",
+		"emailPlaceholder": "client@example.com"
 	},
 	"Juror": {
 		"connectWallet": "Connectez votre portefeuille pour gérer votre inscription de juré.",
@@ -430,7 +499,9 @@
 		"trustLedgerNotConfiguredNoHint": "TrustLedger n’est pas configuré pour {network}. Définissez les variables d’adresse de contrat NEXT_PUBLIC_* pour ce réseau puis redéployez.",
 		"findingRegistry": "Recherche du registre de réputation…",
 		"registryLookupError": "Impossible de découvrir le registre de réputation pour ce réseau. Vérifiez que votre portefeuille est connecté à un réseau TrustLedger pris en charge.",
-		"registryLabel": "registre {address}"
+		"registryLabel": "registre {address}",
+		"transactionLink": "tx ↗",
+		"walletAddressPlaceholder": "0x…"
 	},
 	"Arbitration": {
 		"dispute": "Litige",
@@ -477,7 +548,19 @@
 		"revealVote": "Révéler le Vote",
 		"voteRevealed": "Vote révélé avec succès.",
 		"contract": "Contrat",
-		"phaseUnknown": "Phase {phase}"
+		"phaseUnknown": "Phase {phase}",
+		"evidenceSubmitted": "Preuve soumise.",
+		"evidenceSummary": "Résumé de la preuve",
+		"supportingEvidenceUri": "URI de preuve justificative",
+		"evidenceUriPlaceholder": "ipfs://, ar://, or https://",
+		"requestedCompletionPercentage": "Pourcentage d’achèvement demandé",
+		"submittingEvidence": "Soumission...",
+		"submitEvidence": "Soumettre la Preuve",
+		"evidence": "Preuve",
+		"evidenceSubmittedCount": "{count} soumises",
+		"noEvidence": "Aucune preuve n’a encore été soumise.",
+		"requestsCompletion": "Demande {percent}% d’achèvement",
+		"saltPlaceholder": "0x…"
 	},
 	"Client": {
 		"contractTitle": "Contrat #{id}",
@@ -599,7 +682,10 @@
 		"decryptAndDownload": "Déchiffrer et Télécharger",
 		"fileDownloaded": "✓ Fichier téléchargé.",
 		"decryptAnother": "Déchiffrer un autre",
-		"decryptionFailed": "Déchiffrement échoué — mauvaise phrase de passe ou paquet corrompu."
+		"decryptionFailed": "Déchiffrement échoué — mauvaise phrase de passe ou paquet corrompu.",
+		"encryptedBundleJson": "JSON du paquet chiffré",
+		"passphraseAria": "Phrase secrète de déchiffrement",
+		"outputFilenameAria": "Nom du fichier de sortie"
 	},
 	"ContractStatus": {
 		"PENDING": "En Attente",
@@ -638,19 +724,42 @@
 		"statusTitle": "Contract Status Mix",
 		"statusBody": "Status bars summarize public TrustLedger contracts that include this wallet.",
 		"publicOnly": "État Public Uniquement",
-		"insightTitle": "Operational Insight",
+		"insightTitle": "Aperçu Opérationnel",
 		"emptyInsight": "No public contracts were found for this wallet yet.",
 		"reputation": "Reputation",
 		"ratings": "Ratings",
 		"localTitle": "Local App Signals",
 		"connector": "Last Connector",
 		"notStored": "Not Stored",
-		"guideState": "Guide State",
+		"guideState": "État du Guide",
 		"locale": "Langue",
 		"actionsTitle": "Next Actions",
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
-		"openReputation": "Open Reputation"
+		"openReputation": "Open Reputation",
+		"roleMixTitle": "Répartition des Rôles",
+		"roleMixBody": "Comment ce portefeuille apparaît dans les contrats visibles.",
+		"rolesCount": "{count} Rôles",
+		"roleMixAria": "Répartition client et freelancer",
+		"clientRole": "Client",
+		"freelancerRole": "Freelancer",
+		"outcomeCompleted": "Terminés",
+		"outcomeActive": "Actifs",
+		"outcomeDisputed": "Contestés",
+		"outcomeSnapshotTitle": "Instantané des Résultats",
+		"outcomeSnapshotBody": "Achèvement visible, travail actif et litiges pour ce portefeuille.",
+		"activityTitle": "Tendance des États de Contrat",
+		"activityBody": "Vue légère de la distribution des contrats visibles de ce portefeuille.",
+		"lineChart": "Graphique Linéaire",
+		"lineChartAria": "Graphique linéaire des états de contrat du portefeuille",
+		"guideStateCompleted": "Guide du tableau ignoré ou terminé",
+		"guideStateAvailable": "Guide du tableau disponible",
+		"localStorageUnavailable": "Stockage local du navigateur indisponible",
+		"loadingLocalState": "Chargement de l’état local",
+		"insightNoContracts": "Aucun contrat public TrustLedger n’a encore été trouvé pour ce portefeuille connecté.",
+		"insightHighDispute": "Un taux de litige plus élevé est visible dans les états publics. Revoyez termes, jalons et preuves avant tout nouveau travail.",
+		"insightHealthy": "La plupart des contrats visibles sont terminés ou résolus, signe d’un historique sain.",
+		"insightDeveloping": "Votre activité publique se développe encore. Suivez les états financés, soumis, approuvés et contestés."
 	},
 	"Footer": {
 		"authorsAndContributors": "Auteurs et contributeurs :",
@@ -699,7 +808,8 @@
 		"detailTitle": "Besoin de détails opérationnels ?",
 		"detailBody": "La documentation développeur couvre le déploiement, les faucets, les tests et le comportement des contrats.",
 		"createContract": "Créer Un Contrat",
-		"faucetGuide": "Guide Du Faucet Sepolia"
+		"faucetGuide": "Guide Du Faucet Sepolia",
+		"githubDiscussions": "Discussions GitHub"
 	},
 	"About": {
 		"eyebrow": "À Propos De TrustLedger",
@@ -813,5 +923,88 @@
 				"description": "Divulgation responsable, périmètre de sécurité pris en charge et signalement des vulnérabilités."
 			}
 		}
+	},
+	"Account": {
+		"eyebrow": "Compte Hors Chaîne",
+		"title": "Profil et Préférences Protégés par Portefeuille",
+		"intro": "Les services de compte TrustLedger utilisent une authentification signée par portefeuille pour les préférences de profil, les notifications et les métadonnées de messagerie chiffrée dans l’application. Le service ne demande jamais de mots de passe, phrases de récupération, clés privées, documents bruts ni clés de session.",
+		"openWalletAnalytics": "Ouvrir les Analyses du Portefeuille",
+		"securityBoundary": "Limite de Sécurité",
+		"securityTypedChallenges": "Signer Uniquement des Défis de Portefeuille Typés",
+		"securityShortSessions": "Utiliser des Sessions Serveur Courtes",
+		"securityProfilePreferences": "Stocker les Préférences de Profil Hors Chaîne",
+		"securityNoDocuments": "Garder Documents et Clés Hors des API de Compte",
+		"profilePreferencesTitle": "Préférences de Profil",
+		"profilePreferencesBody": "Le nom affiché, l’URL d’avatar, les préférences de notification et l’état d’accueil du tableau de bord peuvent suivre le portefeuille entre appareils lorsqu’une session signée existe.",
+		"encryptedMessagingTitle": "Messagerie Chiffrée Prête",
+		"encryptedMessagingBody": "La limite API est conçue pour des enveloppes de messages chiffrées; les coordonnées personnelles en clair n’ont pas leur place dans les messages de plateforme.",
+		"externalDatabaseTitle": "Base de Données Externe Nécessaire",
+		"externalDatabaseBody": "La persistance de production doit utiliser Postgres, Supabase ou une autre base gérée configurée par secrets de déploiement."
+	},
+	"Status": {
+		"metadata": {
+			"title": "État de la Plateforme | TrustLedger",
+			"description": "Centre public d’opérations TrustLedger pour la santé runtime, les analyses respectueuses de la confidentialité et les métriques de contrats."
+		},
+		"eyebrow": "État de la Plateforme",
+		"title": "Centre Public des Opérations",
+		"intro": "Consultez la santé runtime publique, les artefacts analytiques respectueux de la confidentialité et les métriques de contrats sans exposer tokens admin, identifiants RPC, clés API, documents bruts ni matériel privé de portefeuille.",
+		"openWalletAnalytics": "Ouvrir les Analyses du Portefeuille",
+		"links": {
+			"runtimeHealth": "Santé Runtime",
+			"fullHealthReport": "Rapport de Santé Complet",
+			"publicStatusApi": "API Publique d’État",
+			"scientificAnalyticsApi": "API d’Analyses Scientifiques"
+		}
+	},
+	"NotFound": {
+		"eyebrow": "Page Introuvable",
+		"title": "Cette route n’est pas dans le registre.",
+		"body": "Le lien peut être ancien, propre à une langue ou lié à un contrat indisponible depuis cette route. Utilisez les actions ci-dessous pour revenir à un flux connu.",
+		"rootTitle": "Cette route TrustLedger n’existe pas.",
+		"rootBody": "Choisissez une route localisée pour continuer.",
+		"openDashboard": "Ouvrir le Tableau de Bord",
+		"readFaq": "Lire la FAQ",
+		"goHome": "Accueil"
+	},
+	"Admin": {
+		"metadata": {
+			"title": "Tableau de Bord Admin | TrustLedger",
+			"description": "Tableau opérateur TrustLedger restreint en lecture seule."
+		},
+		"signInMetadata": {
+			"title": "Connexion Admin - TrustLedger",
+			"description": "Connexion restreinte pour opérateur TrustLedger."
+		},
+		"eyebrow": "Console Opérateur Restreinte",
+		"title": "Tableau de Bord Admin TrustLedger",
+		"intro": "Vue opérationnelle en lecture seule pour santé, contrats, litiges, jurés, réputation, notifications, fraîcheur de l’oracle, métadonnées de déploiement, rapports de sécurité, limites de débit et préparation d’audit.",
+		"roles": "Rôles : {roles}",
+		"mode": "Mode : {mode}",
+		"readOnly": "lecture seule",
+		"mutatingActionsEnabled": "actions mutantes activées",
+		"mutationWarning": "Les mutations admin sont désactivées. Les futures actions doivent exiger une confirmation explicite, une autorisation serveur et des journaux d’audit persistants avant activation.",
+		"metricsAria": "Métriques de déploiement et d’analyse admin",
+		"healthTitle": "Santé Opérationnelle",
+		"healthBody": "Distribution d’état en lecture seule pour serveur, Vercel, analyses, contrats, notifications, oracle et contrôles de sécurité.",
+		"checksCount": "{count} Contrôles",
+		"trafficTitle": "Analyses de Trafic",
+		"trafficBody": "Vues de pages et erreurs frontend agrégées. Les données privées de portefeuille, IP, agents utilisateur, cookies et chaînes de requête sont exclues.",
+		"enabled": "Activé",
+		"localOnly": "Local Seulement",
+		"events": "Événements",
+		"pageViews": "Vues de Page",
+		"frontendErrors": "Erreurs Frontend",
+		"trafficEmpty": "Aucun événement de trafic agrégé n’est stocké pour le runtime actuel.",
+		"contractId": "ID de Contrat",
+		"disputeId": "ID de Litige",
+		"walletAddress": "Adresse du portefeuille",
+		"lookupPlaceholder": "Échafaudage de recherche en lecture seule",
+		"signInEyebrow": "Accès Opérateur Restreint",
+		"signInTitle": "Connexion admin TrustLedger",
+		"signInIntro": "Utilisez un compte admin configuré. Les mots de passe sont vérifiés avec des hachages PBKDF2 côté serveur, et l’accès peut aussi être limité par IP et liste de portefeuilles.",
+		"emailOrUsername": "E-mail ou nom d’utilisateur",
+		"password": "Mot de passe",
+		"openAdminDashboard": "Ouvrir le tableau admin"
 	}
 }

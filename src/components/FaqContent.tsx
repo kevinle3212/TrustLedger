@@ -54,7 +54,7 @@ export function FaqContent(): React.JSX.Element {
 						rel="noopener noreferrer"
 						className="font-semibold text-indigo-600 underline decoration-indigo-300 underline-offset-4 hover:text-indigo-500 dark:text-indigo-300"
 					>
-						GitHub Discussions
+						{t("githubDiscussions")}
 					</a>{" "}
 					{t("introAfter")}
 				</p>

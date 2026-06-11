@@ -295,7 +295,7 @@ function RatingHistoryFeed({
 								rel="noopener noreferrer"
 								className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 underline underline-offset-2"
 							>
-								tx ↗
+								{t("transactionLink")}
 							</a>
 						</div>
 					</div>
@@ -529,7 +529,7 @@ export function ReputationPageInner(): React.JSX.Element {
 						<input
 							id="rep-lookup-address"
 							type="text"
-							placeholder="0x…"
+							placeholder={t("walletAddressPlaceholder")}
 							value={input}
 							onChange={(e) => {
 								setInput(e.target.value);

@@ -226,7 +226,10 @@ function GuidePanel({
 					</p>
 				</div>
 				<div className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300">
-					Task {activeTask + 1} Of {active.tasks.length}
+					{t("taskCounter", {
+						current: activeTask + 1,
+						total: active.tasks.length,
+					})}
 				</div>
 			</div>
 			<GuideTaskPanel

@@ -92,7 +92,8 @@
 		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
 		"back": "Atrás",
 		"nextStep": "Paso Siguiente",
-		"nextGuide": "Guía Siguiente"
+		"nextGuide": "Guía Siguiente",
+		"taskCounter": "Tarea {current} De {total}"
 	},
 	"Home": {
 		"builtOn": "Construido en Ethereum Sepolia",
@@ -145,7 +146,10 @@
 				"note": "92 Puntuación Promedio",
 				"kicker": "Historial de trabajo completado"
 			}
-		}
+		},
+		"viewSolanaProgram": "Ver programa del sistema Solana en {network}",
+		"solanaNativeProgram": "Programa Nativo de Solana: {network}",
+		"checkConfig": "(revisar configuración)"
 	},
 	"Dashboard": {
 		"connectWallet": "Conecta tu billetera para ver tus contratos.",
@@ -244,7 +248,10 @@
 		"walkthroughStepTab": "Paso {step}",
 		"walkthroughPrevious": "Paso Anterior",
 		"walkthroughNext": "Paso Siguiente",
-		"walkthroughFinish": "Finalizar Guía"
+		"walkthroughFinish": "Finalizar Guía",
+		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
+		"exampleAmount": "0.75 ETH",
+		"loadingContracts": "Cargando contratos"
 	},
 	"Create": {
 		"connectWallet": "Conecta tu billetera para proponer un contrato.",
@@ -345,7 +352,69 @@
 		"confirmSendQuestion": "Are you sure you want to send this to the {role}?",
 		"confirmSendDescription": "After you confirm, your wallet will open and the contract proposal will be submitted on-chain. Keep editing if any term is wrong.",
 		"keepEditing": "Keep editing",
-		"confirmAndSend": "Confirm And Send"
+		"confirmAndSend": "Confirm And Send",
+		"plainText": "Texto Plano",
+		"escrowAmountPreview": "Importe en Depósito",
+		"acceptanceWindowPreview": "Ventana de Aceptación",
+		"arbitrationFeePreview": "Tarifa de Arbitraje",
+		"draftTermsFormat": "Formato de Términos del Borrador",
+		"lastUpdated": "Última Actualización:",
+		"draftTerms": "Términos del Contrato en Borrador",
+		"sections": "Secciones",
+		"words": "Palabras",
+		"firstClause": "Primera Cláusula",
+		"draftCacheWarning": "No borres cookies ni caché del navegador hasta terminar, porque eso reinicia el progreso local del borrador.",
+		"secureDraftSession": "Sesión de Borrador Segura",
+		"collaborativeContractTerms": "Términos de Contrato Colaborativos",
+		"secureDraftBody": "Escribe términos en Markdown, HTML o texto plano antes del despliegue. Los borradores compartidos se cifran en el navegador y requieren una billetera permitida y una clave de sesión separada.",
+		"syncingLive": "Sincronizando en Vivo...",
+		"liveSyncOn": "Sincronización en Vivo Activa",
+		"liveSyncOff": "Sincronización en Vivo Inactiva",
+		"insertDefaultTemplate": "Insertar Plantilla Predeterminada",
+		"insertSnippetAria": "Insertar fragmento de términos {label}",
+		"uploadTermsImage": "Subir Imagen de Términos del Contrato",
+		"termsEditorAria": "Editor Colaborativo de Términos del Contrato",
+		"termsPlaceholder": "Escribe los términos del contrato antes del despliegue.",
+		"contractAttachmentAlt": "Adjunto del Contrato",
+		"allowedWallet": "Billetera Permitida",
+		"connectYourWallet": "Conecta Tu Billetera",
+		"counterpartyWallet": "Billetera de la Contraparte",
+		"enterCounterpartyWallet": "Ingresa la billetera de la contraparte en los detalles del contrato abajo",
+		"creatingEncryptedLink": "Creando Enlace Cifrado...",
+		"createLinkIn": "Crear Enlace En {seconds}s",
+		"createEncryptedShareLink": "Crear Enlace Cifrado Para Compartir",
+		"startingLiveRoom": "Iniciando Sala En Vivo...",
+		"startLiveRoomIn": "Iniciar Sala En Vivo En {seconds}s",
+		"liveRoomStarted": "Sala En Vivo Iniciada",
+		"startLiveRoom": "Iniciar Sala En Vivo",
+		"copied": "¡Copiado!",
+		"copyLink": "Copiar Enlace",
+		"copySessionKey": "Copiar Clave de Sesión",
+		"emailLinkAndKey": "Enviar Enlace y Clave por Email",
+		"endLiveSync": "Finalizar Sincronización En Vivo",
+		"replaceLinkWarning": "Crear otro enlace reemplaza el enlace y la clave activos que se muestran aquí. No uses enlaces o claves anteriores después de generar uno nuevo.",
+		"shareLink": "Enlace Para Compartir",
+		"liveRoomStatus": "Sala En Vivo {roomId}: las ediciones se cifran antes de salir del navegador. Última actualización remota: {time}.",
+		"liveRoomLoadAdvice": "No se pudo cargar la sala de borrador en vivo. Revisa el enlace, la clave de sesión, la billetera o la expiración de la sala.",
+		"encryptedDraftNotice": "Esta URL contiene un borrador cifrado para {wallets}. Conecta la billetera correspondiente, pega la clave separada e importa.",
+		"allowedWallets": "Billeteras Permitidas",
+		"sessionKey": "Clave de Sesión",
+		"pasteSessionKey": "Pegar Clave de Sesión",
+		"importingDraft": "Importando Borrador...",
+		"importDraft": "Importar Borrador",
+		"contractDocumentDraftHint": "Sube un PDF de contrato cifrado o ingresa un URI existente después de redactar. Si también escribiste términos arriba, mantén ambas copias alineadas antes de previsualizar y enviar.",
+		"contractDocumentUriPlaceholder": "ipfs://Qm…",
+		"previewSelectedFile": "Previsualizar Archivo Seleccionado",
+		"pinataJwtPlaceholder": "eyJhbGciOiJIUzI1NiIs…",
+		"solanaWalletOpens": "La Billetera Solana Se Abre al Confirmar",
+		"solanaWalletConnected": "Billetera Solana Conectada: {address}",
+		"solanaSimulationReady": "TrustLedger simulará la instrucción de escrow de Solana antes de pedir tu firma.",
+		"solanaProgramMissing": "Configura NEXT_PUBLIC_SOLANA_PROGRAM_ID antes de enviar custodia SOL.",
+		"connectEvmWallet": "Conecta Tu Billetera EVM",
+		"connectEvmWalletHint": "Usa el botón de billetera del encabezado antes de enviar escrow en ETH o USDC.",
+		"acceptanceWindowDateTime": "Fecha y hora de la ventana de aceptación",
+		"daysButton": "{days} Días",
+		"emailPlaceholder": "client@example.com"
 	},
 	"Juror": {
 		"connectWallet": "Conecta tu billetera para administrar tu registro de jurado.",
@@ -430,7 +499,9 @@
 		"trustLedgerNotConfiguredNoHint": "TrustLedger no está configurado para {network}. Configura las variables NEXT_PUBLIC_* de esta red y vuelve a desplegar.",
 		"findingRegistry": "Buscando el registro de reputación…",
 		"registryLookupError": "No se pudo descubrir el registro de reputación para esta red. Comprueba que tu billetera esté conectada a una red TrustLedger compatible.",
-		"registryLabel": "registro {address}"
+		"registryLabel": "registro {address}",
+		"transactionLink": "tx ↗",
+		"walletAddressPlaceholder": "0x…"
 	},
 	"Arbitration": {
 		"dispute": "Disputa",
@@ -477,7 +548,19 @@
 		"revealVote": "Revelar Voto",
 		"voteRevealed": "Voto revelado con éxito.",
 		"contract": "Contrato",
-		"phaseUnknown": "Fase {phase}"
+		"phaseUnknown": "Fase {phase}",
+		"evidenceSubmitted": "Evidencia enviada.",
+		"evidenceSummary": "Resumen de evidencia",
+		"supportingEvidenceUri": "URI de evidencia de soporte",
+		"evidenceUriPlaceholder": "ipfs://, ar://, or https://",
+		"requestedCompletionPercentage": "Porcentaje de finalización solicitado",
+		"submittingEvidence": "Enviando...",
+		"submitEvidence": "Enviar Evidencia",
+		"evidence": "Evidencia",
+		"evidenceSubmittedCount": "{count} enviadas",
+		"noEvidence": "Aún no se ha enviado evidencia.",
+		"requestsCompletion": "Solicita {percent}% de finalización",
+		"saltPlaceholder": "0x…"
 	},
 	"Client": {
 		"contractTitle": "Contrato #{id}",
@@ -599,7 +682,10 @@
 		"decryptAndDownload": "Descifrar y Descargar",
 		"fileDownloaded": "✓ Archivo descargado.",
 		"decryptAnother": "Descifrar otro",
-		"decryptionFailed": "Descifrado fallido — frase de contraseña incorrecta o paquete corrupto."
+		"decryptionFailed": "Descifrado fallido — frase de contraseña incorrecta o paquete corrupto.",
+		"encryptedBundleJson": "JSON del paquete cifrado",
+		"passphraseAria": "Frase de acceso para descifrar",
+		"outputFilenameAria": "Nombre de archivo de salida"
 	},
 	"ContractStatus": {
 		"PENDING": "Pendiente",
@@ -638,19 +724,42 @@
 		"statusTitle": "Contract Status Mix",
 		"statusBody": "Status bars summarize public TrustLedger contracts that include this wallet.",
 		"publicOnly": "Solo Estado Público",
-		"insightTitle": "Operational Insight",
+		"insightTitle": "Información Operativa",
 		"emptyInsight": "No public contracts were found for this wallet yet.",
 		"reputation": "Reputation",
 		"ratings": "Ratings",
 		"localTitle": "Local App Signals",
 		"connector": "Last Connector",
 		"notStored": "Not Stored",
-		"guideState": "Guide State",
+		"guideState": "Estado de la Guía",
 		"locale": "Idioma",
 		"actionsTitle": "Next Actions",
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
-		"openReputation": "Open Reputation"
+		"openReputation": "Open Reputation",
+		"roleMixTitle": "Mezcla de Roles",
+		"roleMixBody": "Cómo aparece esta billetera en contratos visibles.",
+		"rolesCount": "{count} Roles",
+		"roleMixAria": "Mezcla de roles de cliente y freelancer",
+		"clientRole": "Cliente",
+		"freelancerRole": "Freelancer",
+		"outcomeCompleted": "Completados",
+		"outcomeActive": "Activos",
+		"outcomeDisputed": "En Disputa",
+		"outcomeSnapshotTitle": "Resumen de Resultados",
+		"outcomeSnapshotBody": "Finalización visible, trabajo activo y disputas para esta billetera.",
+		"activityTitle": "Tendencia de Estados de Contrato",
+		"activityBody": "Vista ligera de cómo se distribuyen los contratos visibles de esta billetera.",
+		"lineChart": "Gráfico de Líneas",
+		"lineChartAria": "Gráfico de líneas de estados de contrato de la billetera",
+		"guideStateCompleted": "Guía del panel omitida o completada",
+		"guideStateAvailable": "Guía del panel disponible",
+		"localStorageUnavailable": "Almacenamiento local del navegador no disponible",
+		"loadingLocalState": "Cargando estado local",
+		"insightNoContracts": "Aún no se encontraron contratos públicos de TrustLedger para esta billetera conectada.",
+		"insightHighDispute": "Hay una tasa de disputas más alta en los estados públicos. Revisa términos, hitos y evidencia antes de iniciar trabajo nuevo.",
+		"insightHealthy": "La mayoría de contratos visibles están completados o resueltos, lo que indica un historial saludable.",
+		"insightDeveloping": "Tu actividad pública aún se está desarrollando. Observa estados financiados, enviados, aprobados y disputados."
 	},
 	"Footer": {
 		"authorsAndContributors": "Autores y colaboradores:",
@@ -699,7 +808,8 @@
 		"detailTitle": "¿Necesitas detalle operativo?",
 		"detailBody": "La documentación de desarrollo cubre despliegue, faucets, pruebas y comportamiento de contratos.",
 		"createContract": "Crear Contrato",
-		"faucetGuide": "Guía Del Faucet Sepolia"
+		"faucetGuide": "Guía Del Faucet Sepolia",
+		"githubDiscussions": "Discusiones de GitHub"
 	},
 	"About": {
 		"eyebrow": "Acerca De TrustLedger",
@@ -813,5 +923,88 @@
 				"description": "Divulgación responsable, alcance de seguridad admitido y reporte de vulnerabilidades."
 			}
 		}
+	},
+	"Account": {
+		"eyebrow": "Cuenta Fuera de Cadena",
+		"title": "Perfil y Preferencias Protegidos por Billetera",
+		"intro": "Los servicios de cuenta de TrustLedger usan autenticación firmada con billetera para preferencias de perfil, notificaciones y metadatos de mensajería cifrada dentro de la app. El servicio nunca solicita contraseñas, frases semilla, claves privadas, documentos sin procesar ni claves de sesión.",
+		"openWalletAnalytics": "Abrir Analíticas de Billetera",
+		"securityBoundary": "Límite de Seguridad",
+		"securityTypedChallenges": "Firma Solo Desafíos de Billetera Tipados",
+		"securityShortSessions": "Usa Sesiones de Servidor de Corta Duración",
+		"securityProfilePreferences": "Guarda Preferencias de Perfil Fuera de Cadena",
+		"securityNoDocuments": "Mantén Documentos y Claves Fuera de las API de Cuenta",
+		"profilePreferencesTitle": "Preferencias de Perfil",
+		"profilePreferencesBody": "El nombre visible, URL de avatar, preferencias de notificación y estado de incorporación del panel pueden seguir a la billetera entre dispositivos cuando existe una sesión firmada.",
+		"encryptedMessagingTitle": "Mensajería Cifrada Lista",
+		"encryptedMessagingBody": "El límite de la API está diseñado para sobres de mensajes cifrados; los datos personales de contacto en texto claro no pertenecen a los mensajes de la plataforma.",
+		"externalDatabaseTitle": "Base de Datos Externa Necesaria",
+		"externalDatabaseBody": "La persistencia de producción debe usar Postgres, Supabase u otra base administrada configurada mediante secretos de despliegue."
+	},
+	"Status": {
+		"metadata": {
+			"title": "Estado de la Plataforma | TrustLedger",
+			"description": "Centro público de operaciones de TrustLedger para salud de ejecución, analíticas seguras para privacidad y métricas de resumen de contratos."
+		},
+		"eyebrow": "Estado de la Plataforma",
+		"title": "Centro Público de Operaciones",
+		"intro": "Revisa la salud pública de ejecución, artefactos de analíticas seguros para privacidad y métricas de contratos sin exponer tokens de administrador, credenciales RPC, claves API, documentos sin procesar ni material privado de billetera.",
+		"openWalletAnalytics": "Abrir Analíticas de Billetera",
+		"links": {
+			"runtimeHealth": "Salud de Ejecución",
+			"fullHealthReport": "Informe Completo de Salud",
+			"publicStatusApi": "API Pública de Estado",
+			"scientificAnalyticsApi": "API de Analíticas Científicas"
+		}
+	},
+	"NotFound": {
+		"eyebrow": "Página No Encontrada",
+		"title": "Esta ruta no está en el registro.",
+		"body": "El enlace puede ser antiguo, específico de un idioma o estar vinculado a un contrato que no está disponible desde esta ruta. Usa las acciones de abajo para volver a un flujo conocido.",
+		"rootTitle": "Esta ruta de TrustLedger no existe.",
+		"rootBody": "Elige una ruta con idioma para continuar.",
+		"openDashboard": "Abrir Panel",
+		"readFaq": "Leer FAQ",
+		"goHome": "Ir al Inicio"
+	},
+	"Admin": {
+		"metadata": {
+			"title": "Panel de Administración | TrustLedger",
+			"description": "Panel de operador restringido y de solo lectura de TrustLedger."
+		},
+		"signInMetadata": {
+			"title": "Inicio de Sesión de Admin - TrustLedger",
+			"description": "Inicio de sesión restringido para operadores de TrustLedger."
+		},
+		"eyebrow": "Consola de Operador Restringida",
+		"title": "Panel de Administración de TrustLedger",
+		"intro": "Vista operativa de solo lectura para salud, contratos, disputas, jurados, reputación, notificaciones, frescura del oráculo, metadatos de despliegue, reportes de seguridad, límites de tasa y preparación de auditoría.",
+		"roles": "Roles: {roles}",
+		"mode": "Modo: {mode}",
+		"readOnly": "solo lectura",
+		"mutatingActionsEnabled": "acciones de modificación habilitadas",
+		"mutationWarning": "Las mutaciones de administrador están deshabilitadas. Las acciones futuras deben requerir confirmación explícita, autorización del servidor y registros de auditoría persistentes antes de habilitarse.",
+		"metricsAria": "Métricas de despliegue y analíticas de administrador",
+		"healthTitle": "Salud Operativa",
+		"healthBody": "Distribución de estado de solo lectura en servidor, Vercel, analíticas, contratos, notificaciones, oráculo y controles de seguridad.",
+		"checksCount": "{count} Controles",
+		"trafficTitle": "Analíticas de Tráfico",
+		"trafficBody": "Vistas de página y errores frontend agregados. Se excluyen datos privados de billetera, IP, agentes de usuario, cookies y consultas.",
+		"enabled": "Habilitado",
+		"localOnly": "Solo Local",
+		"events": "Eventos",
+		"pageViews": "Vistas de Página",
+		"frontendErrors": "Errores Frontend",
+		"trafficEmpty": "No hay eventos de tráfico agregados almacenados para el runtime actual.",
+		"contractId": "ID de Contrato",
+		"disputeId": "ID de Disputa",
+		"walletAddress": "Dirección de billetera",
+		"lookupPlaceholder": "Base de búsqueda de solo lectura",
+		"signInEyebrow": "Acceso de Operador Restringido",
+		"signInTitle": "Inicio de sesión admin de TrustLedger",
+		"signInIntro": "Usa una cuenta admin configurada. Las contraseñas se verifican contra hashes PBKDF2 del servidor, y el acceso también puede restringirse por IP y lista de billeteras.",
+		"emailOrUsername": "Email o nombre de usuario",
+		"password": "Contraseña",
+		"openAdminDashboard": "Abrir panel de admin"
 	}
 }

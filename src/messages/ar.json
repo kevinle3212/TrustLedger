@@ -92,7 +92,8 @@
 		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
 		"back": "رجوع",
 		"nextStep": "الخطوة التالية",
-		"nextGuide": "الدليل التالي"
+		"nextGuide": "الدليل التالي",
+		"taskCounter": "المهمة {current} من {total}"
 	},
 	"Home": {
 		"builtOn": "مبني على Ethereum Sepolia",
@@ -145,7 +146,10 @@
 				"note": "92 Average Score",
 				"kicker": "History from completed work"
 			}
-		}
+		},
+		"viewSolanaProgram": "عرض برنامج نظام Solana على {network}",
+		"solanaNativeProgram": "برنامج Solana الأصلي: {network}",
+		"checkConfig": "(تحقق من الإعداد)"
 	},
 	"Dashboard": {
 		"connectWallet": "اربط محفظتك لعرض عقودك.",
@@ -244,7 +248,10 @@
 		"walkthroughStepTab": "الخطوة {step}",
 		"walkthroughPrevious": "الخطوة السابقة",
 		"walkthroughNext": "الخطوة التالية",
-		"walkthroughFinish": "إنهاء الدليل"
+		"walkthroughFinish": "إنهاء الدليل",
+		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
+		"exampleAmount": "0.75 ETH",
+		"loadingContracts": "جارٍ تحميل العقود"
 	},
 	"Create": {
 		"connectWallet": "اربط محفظتك لاقتراح عقد.",
@@ -345,7 +352,69 @@
 		"confirmSendQuestion": "Are you sure you want to send this to the {role}?",
 		"confirmSendDescription": "After you confirm, your wallet will open and the contract proposal will be submitted on-chain. Keep editing if any term is wrong.",
 		"keepEditing": "Keep editing",
-		"confirmAndSend": "Confirm And Send"
+		"confirmAndSend": "Confirm And Send",
+		"plainText": "نص عادي",
+		"escrowAmountPreview": "مبلغ الضمان",
+		"acceptanceWindowPreview": "نافذة القبول",
+		"arbitrationFeePreview": "رسوم التحكيم",
+		"draftTermsFormat": "تنسيق مسودة الشروط",
+		"lastUpdated": "آخر تحديث:",
+		"draftTerms": "مسودة شروط العقد",
+		"sections": "الأقسام",
+		"words": "الكلمات",
+		"firstClause": "البند الأول",
+		"draftCacheWarning": "لا تمسح ملفات تعريف الارتباط أو ذاكرة التخزين المؤقت للمتصفح حتى تنتهي، لأن ذلك يعيد ضبط تقدم المسودة المحلي.",
+		"secureDraftSession": "جلسة مسودة آمنة",
+		"collaborativeContractTerms": "شروط عقد تعاونية",
+		"secureDraftBody": "اكتب الشروط بصيغة Markdown أو HTML أو نص عادي قبل النشر. تتم تشفير المسودات المشتركة داخل المتصفح وتتطلب محفظة مسموحا بها ومفتاح جلسة منفصلا لفك التشفير. ابدأ غرفة مباشرة فقط عندما يريد الطرفان التحرير المشترك المستمر.",
+		"syncingLive": "جار المزامنة مباشرة...",
+		"liveSyncOn": "المزامنة المباشرة مفعلة",
+		"liveSyncOff": "المزامنة المباشرة متوقفة",
+		"insertDefaultTemplate": "إدراج القالب الافتراضي",
+		"insertSnippetAria": "إدراج مقطع شروط {label}",
+		"uploadTermsImage": "رفع صورة شروط العقد",
+		"termsEditorAria": "محرر شروط العقد التعاوني",
+		"termsPlaceholder": "اكتب شروط العقد قبل النشر.",
+		"contractAttachmentAlt": "مرفق العقد",
+		"allowedWallet": "المحفظة المسموح بها",
+		"connectYourWallet": "اربط محفظتك",
+		"counterpartyWallet": "محفظة الطرف المقابل",
+		"enterCounterpartyWallet": "أدخل محفظة الطرف المقابل في تفاصيل العقد أدناه",
+		"creatingEncryptedLink": "جار إنشاء رابط مشفر...",
+		"createLinkIn": "إنشاء الرابط خلال {seconds} ثانية",
+		"createEncryptedShareLink": "إنشاء رابط مشاركة مشفر",
+		"startingLiveRoom": "جار بدء الغرفة المباشرة...",
+		"startLiveRoomIn": "بدء الغرفة المباشرة خلال {seconds} ثانية",
+		"liveRoomStarted": "بدأت الغرفة المباشرة",
+		"startLiveRoom": "بدء الغرفة المباشرة",
+		"copied": "تم النسخ!",
+		"copyLink": "نسخ الرابط",
+		"copySessionKey": "نسخ مفتاح الجلسة",
+		"emailLinkAndKey": "إرسال الرابط والمفتاح بالبريد الإلكتروني",
+		"endLiveSync": "إنهاء المزامنة المباشرة",
+		"replaceLinkWarning": "إنشاء رابط آخر يستبدل الرابط النشط والمفتاح المعروضين هنا. لا تستخدم الروابط أو المفاتيح القديمة بعد إنشاء رابط أحدث؛ لا يمكن إبطال عناوين URL للقطات المشفرة التي تمت مشاركتها مسبقا دون خدمة إبطال في الخلفية.",
+		"shareLink": "رابط المشاركة",
+		"liveRoomStatus": "الغرفة المباشرة {roomId}: يتم تشفير التعديلات قبل مغادرة المتصفح. آخر تحديث بعيد: {time}.",
+		"liveRoomLoadAdvice": "تعذر تحميل غرفة المسودة المباشرة. تحقق من رابط الجلسة أو مفتاح الجلسة أو المحفظة أو انتهاء صلاحية الغرفة.",
+		"encryptedDraftNotice": "يحتوي عنوان URL هذا على مسودة مشفرة لـ {wallets}. اربط المحفظة المطابقة، والصق المفتاح المنفصل، ثم استورد.",
+		"allowedWallets": "المحافظ المسموح بها",
+		"sessionKey": "مفتاح الجلسة",
+		"pasteSessionKey": "الصق مفتاح الجلسة",
+		"importingDraft": "جار استيراد المسودة...",
+		"importDraft": "استيراد المسودة",
+		"contractDocumentDraftHint": "ارفع ملف PDF مشفرا للعقد أو أدخل URI موجودا بعد الصياغة. إذا كتبت أيضا شروطا أعلاه، فحافظ على توافق النسختين قبل المعاينة والإرسال؛ يكون URI المرفوع أو اليدوي هو مصدر المستند الذي يتم تجزئته للاقتراح على السلسلة.",
+		"contractDocumentUriPlaceholder": "ipfs://Qm…",
+		"previewSelectedFile": "معاينة الملف المحدد",
+		"pinataJwtPlaceholder": "eyJhbGciOiJIUzI1NiIs…",
+		"solanaWalletOpens": "تفتح محفظة Solana عند التأكيد",
+		"solanaWalletConnected": "محفظة Solana متصلة: {address}",
+		"solanaSimulationReady": "ستحاكي TrustLedger تعليمة ضمان Solana قبل طلب توقيعك.",
+		"solanaProgramMissing": "عيّن NEXT_PUBLIC_SOLANA_PROGRAM_ID قبل إرسال وصاية SOL.",
+		"connectEvmWallet": "اربط محفظة EVM الخاصة بك",
+		"connectEvmWalletHint": "استخدم زر المحفظة في الترويسة قبل إرسال ضمان ETH أو USDC.",
+		"acceptanceWindowDateTime": "تاريخ ووقت نافذة القبول",
+		"daysButton": "{days} أيام",
+		"emailPlaceholder": "client@example.com"
 	},
 	"Juror": {
 		"connectWallet": "اربط محفظتك لإدارة تسجيل المحلف.",
@@ -430,7 +499,9 @@
 		"trustLedgerNotConfiguredNoHint": "لم يتم تكوين TrustLedger لـ {network}. اضبط متغيرات عناوين العقود NEXT_PUBLIC_* لهذه الشبكة ثم أعد النشر.",
 		"findingRegistry": "جارٍ العثور على سجل السمعة…",
 		"registryLookupError": "تعذر اكتشاف سجل السمعة لهذه الشبكة. تحقق من اتصال محفظتك بشبكة TrustLedger مدعومة.",
-		"registryLabel": "السجل {address}"
+		"registryLabel": "السجل {address}",
+		"transactionLink": "tx ↗",
+		"walletAddressPlaceholder": "0x…"
 	},
 	"Arbitration": {
 		"dispute": "نزاع",
@@ -477,7 +548,19 @@
 		"revealVote": "الكشف عن التصويت",
 		"voteRevealed": "تم الكشف عن التصويت بنجاح.",
 		"contract": "العقد",
-		"phaseUnknown": "المرحلة {phase}"
+		"phaseUnknown": "المرحلة {phase}",
+		"evidenceSubmitted": "تم إرسال الدليل.",
+		"evidenceSummary": "ملخص الدليل",
+		"supportingEvidenceUri": "URI الدليل الداعم",
+		"evidenceUriPlaceholder": "ipfs://, ar://, or https://",
+		"requestedCompletionPercentage": "نسبة الإنجاز المطلوبة",
+		"submittingEvidence": "جار الإرسال...",
+		"submitEvidence": "إرسال الدليل",
+		"evidence": "الأدلة",
+		"evidenceSubmittedCount": "تم إرسال {count}",
+		"noEvidence": "لم يتم إرسال أي دليل بعد.",
+		"requestsCompletion": "يطلب إنجاز {percent}%",
+		"saltPlaceholder": "0x…"
 	},
 	"Client": {
 		"contractTitle": "عقد #{id}",
@@ -599,7 +682,10 @@
 		"decryptAndDownload": "فك التشفير والتنزيل",
 		"fileDownloaded": "✓ تم تنزيل الملف.",
 		"decryptAnother": "فك تشفير ملف آخر",
-		"decryptionFailed": "فشل فك التشفير — عبارة مرور خاطئة أو حزمة تالفة."
+		"decryptionFailed": "فشل فك التشفير — عبارة مرور خاطئة أو حزمة تالفة.",
+		"encryptedBundleJson": "JSON الحزمة المشفرة",
+		"passphraseAria": "عبارة المرور لفك التشفير",
+		"outputFilenameAria": "اسم ملف الإخراج"
 	},
 	"ContractStatus": {
 		"PENDING": "قيد الانتظار",
@@ -638,19 +724,42 @@
 		"statusTitle": "Contract Status Mix",
 		"statusBody": "Status bars summarize public TrustLedger contracts that include this wallet.",
 		"publicOnly": "الحالة العامة فقط",
-		"insightTitle": "Operational Insight",
+		"insightTitle": "رؤية تشغيلية",
 		"emptyInsight": "No public contracts were found for this wallet yet.",
 		"reputation": "Reputation",
 		"ratings": "Ratings",
 		"localTitle": "Local App Signals",
 		"connector": "Last Connector",
 		"notStored": "Not Stored",
-		"guideState": "Guide State",
+		"guideState": "حالة الدليل",
 		"locale": "اللغة",
 		"actionsTitle": "Next Actions",
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
-		"openReputation": "Open Reputation"
+		"openReputation": "Open Reputation",
+		"roleMixTitle": "توزيع الأدوار",
+		"roleMixBody": "كيف تظهر هذه المحفظة عبر العقود المرئية.",
+		"rolesCount": "{count} أدوار",
+		"roleMixAria": "توزيع أدوار العميل والمستقل",
+		"clientRole": "العميل",
+		"freelancerRole": "المستقل",
+		"outcomeCompleted": "مكتمل",
+		"outcomeActive": "نشط",
+		"outcomeDisputed": "محل نزاع",
+		"outcomeSnapshotTitle": "لقطة النتائج",
+		"outcomeSnapshotBody": "الإنجاز والعمل النشط والنزاعات المرئية لهذه المحفظة.",
+		"activityTitle": "اتجاه حالة العقد",
+		"activityBody": "عرض خفيف لكيفية توزيع العقود المرئية لهذه المحفظة.",
+		"lineChart": "مخطط خطي",
+		"lineChartAria": "مخطط خطي لحالات عقود المحفظة",
+		"guideStateCompleted": "تم تخطي دليل لوحة التحكم أو إكماله",
+		"guideStateAvailable": "دليل لوحة التحكم متاح",
+		"localStorageUnavailable": "تخزين المتصفح المحلي غير متاح",
+		"loadingLocalState": "جار تحميل الحالة المحلية",
+		"insightNoContracts": "لم يتم العثور بعد على عقود TrustLedger عامة لهذه المحفظة المتصلة.",
+		"insightHighDispute": "تظهر نسبة نزاعات أعلى في حالات العقود العامة. راجع الشروط والمراحل وجودة الأدلة قبل بدء عمل جديد.",
+		"insightHealthy": "معظم العقود المرئية مكتملة أو محلولة، مما يشير إلى سجل صحي لسير عمل TrustLedger.",
+		"insightDeveloping": "لا يزال نشاطك العام في طور التطور. تتبع حالات التمويل والإرسال والموافقة والنزاع أثناء استخدام المنصة."
 	},
 	"Footer": {
 		"authorsAndContributors": "المؤلفون والمساهمون:",
@@ -699,7 +808,8 @@
 		"detailTitle": "Need operational detail?",
 		"detailBody": "The developer docs cover deployment, faucets, tests, and contract behavior.",
 		"createContract": "Create Contract",
-		"faucetGuide": "Sepolia Faucet Guide"
+		"faucetGuide": "Sepolia Faucet Guide",
+		"githubDiscussions": "مناقشات GitHub"
 	},
 	"About": {
 		"eyebrow": "About TrustLedger",
@@ -813,5 +923,88 @@
 				"description": "الإفصاح المسؤول ونطاق الأمان المدعوم والإبلاغ عن الثغرات."
 			}
 		}
+	},
+	"Account": {
+		"eyebrow": "حساب خارج السلسلة",
+		"title": "ملف وتفضيلات مقيّدة بالمحفظة",
+		"intro": "TrustLedger account services use signed wallet authentication for profile preferences, notifications, and encrypted in-app messaging metadata. The service never asks for passwords, seed phrases, private keys, raw documents, or session keys.",
+		"openWalletAnalytics": "فتح تحليلات المحفظة",
+		"securityBoundary": "حدود الأمان",
+		"securityTypedChallenges": "Sign Typed Wallet Challenges Only",
+		"securityShortSessions": "Use Short-Lived Server Sessions",
+		"securityProfilePreferences": "Store Profile Preferences Off-Chain",
+		"securityNoDocuments": "Keep Documents And Keys Out Of Account APIs",
+		"profilePreferencesTitle": "Profile Preferences",
+		"profilePreferencesBody": "Display name, avatar URL, notification preferences, and dashboard onboarding state can follow the wallet across devices once a signed session exists.",
+		"encryptedMessagingTitle": "Encrypted Messaging Ready",
+		"encryptedMessagingBody": "The API boundary is designed for encrypted message envelopes; plaintext personal contact details do not belong in platform messages.",
+		"externalDatabaseTitle": "External Database Needed",
+		"externalDatabaseBody": "Production persistence should use Postgres, Supabase, or another managed database configured through deployment secrets."
+	},
+	"Status": {
+		"metadata": {
+			"title": "Platform Status | TrustLedger",
+			"description": "Public TrustLedger operations center for runtime health, privacy-safe analytics, and contract summary metrics."
+		},
+		"eyebrow": "حالة المنصة",
+		"title": "مركز العمليات العام",
+		"intro": "Review public runtime health, privacy-safe analytics artifacts, and contract summary metrics without exposing admin tokens, RPC credentials, API keys, raw documents, or private wallet material.",
+		"openWalletAnalytics": "فتح تحليلات المحفظة",
+		"links": {
+			"runtimeHealth": "Runtime Health",
+			"fullHealthReport": "Full Health Report",
+			"publicStatusApi": "Public Status API",
+			"scientificAnalyticsApi": "Scientific Analytics API"
+		}
+	},
+	"NotFound": {
+		"eyebrow": "الصفحة غير موجودة",
+		"title": "هذا المسار غير موجود في السجل.",
+		"body": "The link may be old, locale-specific, or tied to a contract that is not available from this route. Use the actions below to get back to a known workflow.",
+		"rootTitle": "مسار TrustLedger هذا غير موجود.",
+		"rootBody": "اختر مسارًا مدعومًا باللغة للمتابعة.",
+		"openDashboard": "فتح لوحة التحكم",
+		"readFaq": "قراءة FAQ",
+		"goHome": "الانتقال للرئيسية"
+	},
+	"Admin": {
+		"metadata": {
+			"title": "Admin Dashboard | TrustLedger",
+			"description": "Restricted read-only TrustLedger operator dashboard."
+		},
+		"signInMetadata": {
+			"title": "Admin Sign In - TrustLedger",
+			"description": "Restricted TrustLedger operator sign-in."
+		},
+		"eyebrow": "وحدة تحكم مشغل مقيّدة",
+		"title": "لوحة إدارة TrustLedger",
+		"intro": "Read-only operational overview for health, contracts, disputes, jurors, reputation, notifications, oracle freshness, deployment metadata, security reports, rate limits, and audit-readiness.",
+		"roles": "Roles: {roles}",
+		"mode": "Mode: {mode}",
+		"readOnly": "قراءة فقط",
+		"mutatingActionsEnabled": "mutating actions enabled",
+		"mutationWarning": "Admin mutations are disabled. Future actions must require explicit confirmation, server-side authorization, and persistent audit trails before they are enabled.",
+		"metricsAria": "Admin deployment and analytics metrics",
+		"healthTitle": "Operational Health",
+		"healthBody": "Read-only status distribution across server, Vercel, analytics, contracts, notifications, oracle, and security checks.",
+		"checksCount": "{count} Checks",
+		"trafficTitle": "Traffic Analytics",
+		"trafficBody": "Aggregate page views and frontend errors. Private wallet data, IPs, user agents, cookies, and query strings are excluded.",
+		"enabled": "Enabled",
+		"localOnly": "Local Only",
+		"events": "Events",
+		"pageViews": "Page Views",
+		"frontendErrors": "Frontend Errors",
+		"trafficEmpty": "No aggregate traffic events are stored for the current runtime.",
+		"contractId": "Contract ID",
+		"disputeId": "Dispute ID",
+		"walletAddress": "عنوان المحفظة",
+		"lookupPlaceholder": "Read-only lookup scaffold",
+		"signInEyebrow": "Restricted Operator Access",
+		"signInTitle": "TrustLedger admin sign in",
+		"signInIntro": "Use a configured admin account. Passwords are verified against server-side PBKDF2 hashes, and access can also be restricted by IP and wallet allowlist.",
+		"emailOrUsername": "Email or username",
+		"password": "كلمة المرور",
+		"openAdminDashboard": "فتح لوحة الإدارة"
 	}
 }
