@@ -11,7 +11,7 @@ function isDocumentVisible(): boolean {
  * clocks accurate for visible UI without waking hidden mobile tabs.
  */
 export function useVisibleTimestamp(intervalMs: number): number {
-	const [nowMs, setNowMs] = useState(0);
+	const [nowMs, setNowMs] = useState(() => Date.now());
 
 	useEffect(() => {
 		let interval: number | null = null;

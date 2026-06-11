@@ -205,6 +205,7 @@ export function useCreatePageState(): {
 	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
 	const uploadedMime = useRef("application/octet-stream");
 	const skippedInitialDraftSave = useRef(false);
+	const draftSaveTimer = useRef<number | null>(null);
 
 	function set(key: keyof FormFields, value: string): void {
 		dispatch({ type: "SET_FIELD", key, value });
@@ -398,21 +399,27 @@ export function useCreatePageState(): {
 			skippedInitialDraftSave.current = true;
 			return;
 		}
-		const draft = {
-			proposerRole: state.proposerRole,
-			paymentToken: state.paymentToken,
-			form: state.form,
-			docMode: state.docMode,
-			encryptEnabled: state.encryptEnabled,
-			termsBody: state.termsBody,
-			termsFormat: state.termsFormat,
-			termsLastUpdatedAt: state.termsLastUpdatedAt,
+		if (draftSaveTimer.current !== null) window.clearTimeout(draftSaveTimer.current);
+		draftSaveTimer.current = window.setTimeout(() => {
+			const draft = {
+				proposerRole: state.proposerRole,
+				paymentToken: state.paymentToken,
+				form: state.form,
+				docMode: state.docMode,
+				encryptEnabled: state.encryptEnabled,
+				termsBody: state.termsBody,
+				termsFormat: state.termsFormat,
+				termsLastUpdatedAt: state.termsLastUpdatedAt,
+			};
+			try {
+				window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+			} catch {
+				// Browsers can deny localStorage in private or sandboxed contexts.
+			}
+		}, 500);
+		return (): void => {
+			if (draftSaveTimer.current !== null) window.clearTimeout(draftSaveTimer.current);
 		};
-		try {
-			window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
-		} catch {
-			// Browsers can deny localStorage in private or sandboxed contexts.
-		}
 	}, [
 		state.proposerRole,
 		state.paymentToken,

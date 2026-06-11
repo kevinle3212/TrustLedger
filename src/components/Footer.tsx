@@ -1,6 +1,7 @@
 import { FooterHelp } from "@/components/FooterHelp";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 function FaqFooterIcon(): React.JSX.Element {
 	return (
@@ -61,13 +62,15 @@ function AboutFooterIcon(): React.JSX.Element {
 }
 
 export function Footer(): React.JSX.Element {
+	const t = useTranslations("Footer");
+
 	return (
 		<footer className="border-t border-gray-200 bg-white dark:border-white/10 dark:bg-gray-950">
 			<div className="tl-site-frame flex flex-col gap-4 py-6 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between dark:text-gray-400">
 				<div className="grid gap-1">
 					<p>&copy; 2026 TrustLedger</p>
 					<p>
-						Authors &amp; Contributors:{" "}
+						{t("authorsAndContributors")}{" "}
 						<a
 							href="https://www.linkedin.com/in/lekevin1"
 							target="_blank"
@@ -91,26 +94,26 @@ export function Footer(): React.JSX.Element {
 					<Link
 						href="/faq"
 						className="tl-button-motion inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white sm:w-auto"
-						aria-label="Open frequently asked questions"
+						aria-label={t("openFaq")}
 					>
 						<FaqFooterIcon />
-						<span>FAQ</span>
+						<span>{t("faq")}</span>
 					</Link>
 					<Link
 						href="/legal"
 						className="tl-button-motion inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white sm:w-auto"
-						aria-label="Open legal center"
+						aria-label={t("openLegal")}
 					>
 						<LegalFooterIcon />
-						<span>Legal</span>
+						<span>{t("legal")}</span>
 					</Link>
 					<Link
 						href="/about"
 						className="tl-button-motion inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white sm:w-auto"
-						aria-label="Open project about page"
+						aria-label={t("openAbout")}
 					>
 						<AboutFooterIcon />
-						<span>About</span>
+						<span>{t("about")}</span>
 					</Link>
 					<FooterHelp />
 					<LocaleSwitcher />

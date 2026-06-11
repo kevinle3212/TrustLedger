@@ -2,6 +2,42 @@ import { fireEvent, render, screen } from "@testing-library/react";
 
 import { InteractiveContractPreview } from "@/app/[locale]/_components/InteractiveContractPreview";
 
+const TRANSLATIONS: Record<string, string> = {
+	"previewScenes.contract.label": "Contract View",
+	"previewScenes.contract.title": "Escrow Protection",
+	"previewScenes.contract.note": "Encrypted Draft Ready",
+	"previewScenes.contract.kicker": "Freelancer Milestone",
+	"previewScenes.juror.label": "Juror Staking",
+	"previewScenes.juror.title": "Juror Dispute Flow",
+	"previewScenes.juror.note": "3 Jurors Eligible",
+	"previewScenes.juror.kicker": "Commit-Reveal arbitration",
+	"previewScenes.reputation.label": "Reputation",
+	"previewScenes.reputation.title": "On-Chain Reputation",
+	"previewScenes.reputation.note": "92 Average Score",
+	"previewScenes.reputation.kicker": "History from completed work",
+	"exampleContractProgress": "Example contract progress",
+	"nextPreview": "Next Preview",
+	"previousPreview": "Previous Preview",
+	"previewDraftHashQueued": "Draft Hash Queued!",
+	"previewDocumentEncrypted": "Document Encrypted!",
+	"previewFundEscrow": "Fund Escrow",
+	"previewJurorStake": "0.04 ETH Staked",
+	"previewMajorityVote": "Majority Vote",
+	"previewPayoutReceiptReady": "Payout Receipt Ready!",
+	"previewRatingsReceived": "12 Ratings Received",
+	"previewRecoveryBonus": "+8 Recovery Bonus",
+	"previewReleasePayout": "Release Payout",
+	"previewRevealWindowOpen": "Reveal Window Open",
+	"previewSubmitWork": "Submit Work",
+	"verified": "Verified",
+};
+
+jest.mock("next-intl", () => ({
+	useTranslations: jest.fn(
+		(): ((key: string) => string) => (key: string) => TRANSLATIONS[key] ?? key,
+	),
+}));
+
 const DEFAULT_PROPS = {
 	title: "Escrow protection",
 	amountLabel: "Amount",

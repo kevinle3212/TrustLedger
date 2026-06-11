@@ -689,6 +689,10 @@ mainnet launch deliverables.
       through the i18n layer rather than rendering raw English strings.
     - Machine-translate first drafts with a tool like DeepL, then engage native
       speakers for review before shipping each locale.
+    - Legal markdown bodies are intentionally not auto-translated in the app. To
+      publish reviewed legal body translations, add
+      `src/content/legal/<locale>/<SOURCE_FILE>.md` for each approved locale and
+      keep the route fallback to English source files until review is complete.
 
 - [x] Add the following directories to keep the code organized, modular, and
       aligned with common React conventions: `hooks/`, `store/`, `utils/`,

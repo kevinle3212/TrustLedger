@@ -5,12 +5,13 @@ import type { CreateState } from "./types";
 import {
 	decryptSharedDraft,
 	encryptDraftForShare,
+	generateDraftSaltHex,
 	type ShareableDraft,
 	shareableDraftFromState,
 } from "./secureDraftShare";
 
-const POLL_MS = 2_000;
-const PUBLISH_DEBOUNCE_MS = 750;
+const POLL_MS = 4_000;
+const PUBLISH_DEBOUNCE_MS = 1_500;
 
 interface RelaySnapshot {
 	readonly eventId: string;
@@ -66,10 +67,14 @@ async function postSnapshot(input: {
 	}
 }
 
-async function fetchSnapshot(roomId: string): Promise<RelaySnapshot | null> {
-	const response = await fetch(`/api/create-collab/${encodeURIComponent(roomId)}`, {
-		cache: "no-store",
-	});
+function isDocumentVisible(): boolean {
+	return typeof document === "undefined" || document.visibilityState === "visible";
+}
+
+async function fetchSnapshot(roomId: string, signal?: AbortSignal): Promise<RelaySnapshot | null> {
+	const init: RequestInit = { cache: "no-store" };
+	if (signal !== undefined) init.signal = signal;
+	const response = await fetch(`/api/create-collab/${encodeURIComponent(roomId)}`, init);
 	if (!response.ok) {
 		throw new Error(
 			"Unable To Load The Live Draft Room. Check The Session Link, Session Key, Wallet, Or Room Expiration.",
@@ -96,8 +101,17 @@ export function useEncryptedDraftCollaboration(input: {
 	const lastAppliedEventId = useRef<string | null>(null);
 	const newestAppliedAt = useRef(0);
 	const suppressNextPublish = useRef(false);
+	const lastPublishedPayload = useRef<string | null>(null);
+	const liveSaltHex = useRef<string | null>(null);
+	const publishSequence = useRef(0);
 	const isLive = roomId !== null && sessionKey !== "" && allowedWallets.length > 0;
 	const draft = useMemo(() => shareableDraftFromState(state), [state]);
+	const draftPayload = useMemo(() => JSON.stringify(draft), [draft]);
+
+	useEffect(() => {
+		liveSaltHex.current = null;
+		lastPublishedPayload.current = null;
+	}, [roomId, sessionKey]);
 
 	useEffect(() => {
 		if (!isLive) return;
@@ -105,20 +119,26 @@ export function useEncryptedDraftCollaboration(input: {
 			suppressNextPublish.current = false;
 			return;
 		}
+		if (draftPayload === lastPublishedPayload.current) return;
 		const activeRoomId = roomId;
 		const controller = new AbortController();
+		const sequence = publishSequence.current + 1;
+		publishSequence.current = sequence;
 		const timeout = window.setTimeout((): void => {
 			void (async (): Promise<void> => {
 				const eventId = generateEventId();
 				try {
 					if (controller.signal.aborted) return;
 					setIsPublishing(true);
+					liveSaltHex.current ??= generateDraftSaltHex();
 					const encryptedDraft = await encryptDraftForShare({
 						draft,
 						sessionKey,
 						allowedWallets,
+						stableSaltHex: liveSaltHex.current,
 					});
 					controller.signal.throwIfAborted();
+					if (sequence !== publishSequence.current) return;
 					lastSentEventId.current = eventId;
 					lastAppliedEventId.current = eventId;
 					const updatedAt = new Date().toISOString();
@@ -142,6 +162,7 @@ export function useEncryptedDraftCollaboration(input: {
 						});
 						channel.close();
 					}
+					lastPublishedPayload.current = draftPayload;
 					setLastError(null);
 				} catch (error) {
 					if (!controller.signal.aborted) {
@@ -159,12 +180,14 @@ export function useEncryptedDraftCollaboration(input: {
 			controller.abort();
 			window.clearTimeout(timeout);
 		};
-	}, [allowedWallets, connectedWallet, draft, isLive, roomId, sessionKey]);
+	}, [allowedWallets, connectedWallet, draft, draftPayload, isLive, roomId, sessionKey]);
 
 	useEffect(() => {
 		if (!isLive) return;
 		const activeRoomId = roomId;
 		let closed = false;
+		let requestInFlight = false;
+		let controller: AbortController | null = null;
 
 		async function applySnapshot(snapshot: RelaySnapshot): Promise<void> {
 			if (closed) return;
@@ -180,27 +203,39 @@ export function useEncryptedDraftCollaboration(input: {
 			lastAppliedEventId.current = snapshot.eventId;
 			if (Number.isFinite(snapshotTime)) newestAppliedAt.current = snapshotTime;
 			suppressNextPublish.current = true;
+			lastPublishedPayload.current = JSON.stringify(remoteDraft);
 			onRemoteDraft(remoteDraft);
 			setLastRemoteUpdateAt(snapshot.updatedAt);
 			setLastError(null);
 		}
 
-		const interval = window.setInterval((): void => {
+		const poll = (): void => {
+			if (closed || requestInFlight || !isDocumentVisible()) return;
+			requestInFlight = true;
+			const requestController = new AbortController();
+			controller = requestController;
 			void (async (): Promise<void> => {
 				try {
-					const snapshot = await fetchSnapshot(activeRoomId);
+					const snapshot = await fetchSnapshot(activeRoomId, requestController.signal);
 					if (snapshot !== null) {
 						await applySnapshot(snapshot);
 					}
 				} catch (error: unknown) {
-					if (!closed) {
+					const isAbortError =
+						error instanceof DOMException && error.name === "AbortError";
+					if (!isAbortError) {
 						setLastError(
 							error instanceof Error ? error.message : "Unable to sync draft.",
 						);
 					}
+				} finally {
+					requestInFlight = false;
 				}
 			})();
-		}, POLL_MS);
+		};
+
+		poll();
+		const interval = window.setInterval(poll, POLL_MS);
 
 		let channel: BroadcastChannel | null = null;
 		if (typeof BroadcastChannel !== "undefined") {
@@ -219,6 +254,7 @@ export function useEncryptedDraftCollaboration(input: {
 		return (): void => {
 			closed = true;
 			window.clearInterval(interval);
+			controller?.abort();
 			channel?.close();
 		};
 	}, [connectedWallet, isLive, onRemoteDraft, roomId, sessionKey]);

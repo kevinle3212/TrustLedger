@@ -15,12 +15,12 @@
 		"faq": "常见问题"
 	},
 	"FooterHelp": {
-		"buttonLabel": "Guide",
-		"buttonAriaLabel": "Open TrustLedger Guide",
-		"buttonTooltip": "Open TrustLedger Guide",
+		"buttonLabel": "指南",
+		"buttonAriaLabel": "打开 TrustLedger 指南",
+		"buttonTooltip": "打开 TrustLedger 指南",
 		"title": "How To Use TrustLedger",
 		"intro": "Use this guide when you need the fastest path through contract creation, dashboard navigation, and dispute resolution.",
-		"close": "Close",
+		"close": "关闭",
 		"stepCreateTitle": "Create Or Propose A Contract",
 		"stepCreateBody": "Open New Contract, choose whether you are the client or freelancer, add the counterparty wallet, amount, timeline, and document link, then send the offer.",
 		"stepCreateLink": "Create Contract",
@@ -32,7 +32,7 @@
 		"stepJurorLink": "Open Juror Page",
 		"reputationLink": "View Reputation",
 		"primaryLink": "Start A Contract",
-		"selectedGuide": "Selected Guide",
+		"selectedGuide": "已选择的指南",
 		"stepCreateTaskOne": "Choose client or freelancer before drafting.",
 		"stepCreateTaskTwo": "Add wallet, email, payment, timeline, and document details.",
 		"stepCreateTaskThree": "Review the proposal before your wallet signs.",
@@ -89,7 +89,10 @@
 		"stepAnalyticsLink": "Open Analytics",
 		"stepAnalyticsTaskOne": "Connect the wallet you want to inspect.",
 		"stepAnalyticsTaskTwo": "Review only public on-chain metrics and safe local app preferences.",
-		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up."
+		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
+		"back": "返回",
+		"nextStep": "下一步",
+		"nextGuide": "下一指南"
 	},
 	"Home": {
 		"builtOn": "构建于以太坊 Sepolia",
@@ -103,7 +106,46 @@
 		"featureArbitrationTitle": "争议仲裁",
 		"featureArbitrationDesc": "质押的陪审员通过提交-揭示系统投票决定结果。少数派投票将被惩罚。",
 		"featureWarrantyTitle": "质保扣留",
-		"featureWarrantyDesc": "可选择保留 5-15% 的付款，直至质保期结束。"
+		"featureWarrantyDesc": "可选择保留 5-15% 的付款，直至质保期结束。",
+		"evmEscrowLive": "EVM 托管已上线",
+		"solanaDevnetPreview": "Solana Devnet 预览",
+		"evmEscrowBody": "使用当前 Ethereum Sepolia 托管流程进行真实合约提案和测试。",
+		"solanaPreviewBody": "Use Solana Devnet preview mode for SOL-denominated drafts and native-program metadata before submitting through the Solana flow.",
+		"previousPreview": "Previous Preview",
+		"nextPreview": "Next Preview",
+		"exampleContractProgress": "Example contract progress",
+		"previewFundEscrow": "Fund Escrow",
+		"previewSubmitWork": "Submit Work",
+		"previewReleasePayout": "Release Payout",
+		"previewDraftHashQueued": "Draft Hash Queued!",
+		"previewDocumentEncrypted": "Document Encrypted!",
+		"previewPayoutReceiptReady": "Payout Receipt Ready!",
+		"previewJurorStake": "0.04 ETH Staked",
+		"previewRevealWindowOpen": "Reveal Window Open",
+		"previewRatingsReceived": "12 Ratings Received",
+		"previewMajorityVote": "Majority Vote",
+		"previewRecoveryBonus": "+8 Recovery Bonus",
+		"verified": "已验证",
+		"previewScenes": {
+			"contract": {
+				"label": "Contract View",
+				"title": "Escrow Protection",
+				"note": "Encrypted Draft Ready",
+				"kicker": "Freelancer Milestone"
+			},
+			"juror": {
+				"label": "Juror Staking",
+				"title": "Juror Dispute Flow",
+				"note": "3 Jurors Eligible",
+				"kicker": "Commit-Reveal arbitration"
+			},
+			"reputation": {
+				"label": "Reputation",
+				"title": "On-Chain Reputation",
+				"note": "92 Average Score",
+				"kicker": "History from completed work"
+			}
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "连接您的钱包以查看合同。",
@@ -570,5 +612,161 @@
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
 		"openReputation": "Open Reputation"
+	},
+	"Footer": {
+		"authorsAndContributors": "作者和贡献者：",
+		"faq": "FAQ",
+		"legal": "法律",
+		"about": "关于",
+		"openFaq": "打开常见问题",
+		"openLegal": "打开法律中心",
+		"openAbout": "打开项目介绍页"
+	},
+	"FAQ": {
+		"eyebrow": "FAQ",
+		"title": "Read this before you move money or if you have general questions.",
+		"introBefore": "Use this page when you are creating an escrow, debugging a wallet issue, or deciding what to do after a contract changes state. Start a discussion in",
+		"introAfter": "and ask anything there.",
+		"items": {
+			"one": {
+				"question": "Do I need crypto experience to use TrustLedger?",
+				"answer": "No. The app guides you through wallet connection, escrow funding, work submission, approval, and disputes with plain-language labels."
+			},
+			"two": {
+				"question": "What happens to funds after a contract is created?",
+				"answer": "Funds stay in the smart contract escrow. They release only after client approval, acceptance-window expiry, deadline recovery, or an arbitration ruling."
+			},
+			"three": {
+				"question": "Why do I need Sepolia ETH?",
+				"answer": "Sepolia ETH pays gas for development and testnet transactions. It has no real value, but faucets rate-limit it to prevent abuse."
+			},
+			"four": {
+				"question": "Can I pay with USDC instead of ETH?",
+				"answer": "Yes, supported ERC-20 escrows use token approval and funding instead of sending native ETH directly with the acceptance transaction."
+			},
+			"five": {
+				"question": "What should I do when a transaction fails?",
+				"answer": "Check that the connected wallet is the expected client, freelancer, or juror wallet; confirm the network; then read the simulation or wallet error before retrying."
+			},
+			"six": {
+				"question": "How are disputes resolved?",
+				"answer": "Staked jurors commit hidden votes, reveal them later, and the median completion percentage determines payout. Majority jurors can claim rewards."
+			},
+			"seven": {
+				"question": "Where can I check reputation?",
+				"answer": "The reputation page shows average ratings and recovery status for a wallet when the ReputationRegistry is configured."
+			}
+		},
+		"detailTitle": "Need operational detail?",
+		"detailBody": "The developer docs cover deployment, faucets, tests, and contract behavior.",
+		"createContract": "Create Contract",
+		"faucetGuide": "Sepolia Faucet Guide"
+	},
+	"About": {
+		"eyebrow": "About TrustLedger",
+		"title": "Escrow infrastructure for freelance work.",
+		"intro": "TrustLedger combines EVM smart-contract custody, encrypted contract drafting, privacy-safe analytics, juror arbitration, and reputation history into one open-source workflow. This page is intentionally small for now so project background can grow without cluttering the task surfaces.",
+		"openDashboard": "Open Dashboard",
+		"viewStatus": "View Public Status",
+		"cards": {
+			"custody": {
+				"title": "Custody",
+				"body": "Escrow state and payout rules live in smart contracts. The app explains states and actions without taking custody."
+			},
+			"dispute": {
+				"title": "Dispute Resolution",
+				"body": "Staked jurors use commit-reveal voting so contested work can resolve without a platform operator deciding the result."
+			},
+			"readiness": {
+				"title": "Operational Readiness",
+				"body": "CI, docs, audit-readiness reports, and admin observability are treated as product features, not afterthoughts."
+			}
+		},
+		"timer": {
+			"title": "项目计时器",
+			"body": "从 2026 年 5 月 2 日 TrustLedger 启动时开始计时。",
+			"days": "天",
+			"hours": "小时",
+			"minutes": "分钟",
+			"seconds": "秒"
+		}
+	},
+	"Legal": {
+		"eyebrow": "TrustLedger Legal Center",
+		"title": "Policies, disclosures, and compliance references",
+		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
+		"currentLocale": "Current locale:",
+		"translationStatus": "Translation status:",
+		"sourceFile": "Source File",
+		"viewDocument": "View Document",
+		"status": {
+			"source": "Source",
+			"needs-review": "Needs Review",
+			"machine-assisted": "Machine Assisted"
+		},
+		"translationHelper": {
+			"title": "Translation Helper",
+			"body": "Use this helper before publishing legal text in another language. For English, it becomes a review prompt. For other languages, it becomes a translation prompt that keeps numbering, defined terms, links, and Markdown structure intact.",
+			"stepOne": "1. Choose the legal document and target locale.",
+			"stepTwo": "2. Translate without changing obligations or remedies.",
+			"stepThree": "3. Keep the result marked needs-review until approved."
+		},
+		"security": {
+			"title": "Security and Reporting",
+			"body": "Security disclosures remain routed through the repository security policy. Legal content changes should be reviewed before publication and mirrored into documentation.",
+			"viewPolicy": "View Security Policy",
+			"readFaq": "Read FAQ"
+		},
+		"document": {
+			"back": "Back to legal center",
+			"sourceFile": "Source file:",
+			"locale": "Locale:"
+		},
+		"documents": {
+			"terms": {
+				"title": "Terms and Conditions",
+				"description": "User obligations, platform scope, wallet activity, escrow actions, and dispute handling."
+			},
+			"privacy": {
+				"title": "Privacy Policy",
+				"description": "Personal data handling, wallet identifiers, operational logs, analytics, and user rights."
+			},
+			"cookies": {
+				"title": "Cookie Policy",
+				"description": "Browser storage, cookies, analytics preferences, and consent expectations."
+			},
+			"acceptable-use": {
+				"title": "Acceptable Use Policy",
+				"description": "Prohibited activity, sanctions-sensitive conduct, abuse controls, and enforcement paths."
+			},
+			"content": {
+				"title": "Content Policy",
+				"description": "Rules for contract links, deliverables, evidence uploads, and platform-visible materials."
+			},
+			"dmca": {
+				"title": "DMCA Policy",
+				"description": "Copyright takedown notices, counter-notices, repeat infringer handling, and agent details."
+			},
+			"trademark": {
+				"title": "Trademark Policy",
+				"description": "Brand use, impersonation, confusing marks, and reporting requirements."
+			},
+			"risk": {
+				"title": "Risk Disclosure",
+				"description": "Blockchain, wallet, smart contract, market, arbitration, and availability risks."
+			},
+			"disclaimer": {
+				"title": "Disclaimer",
+				"description": "No legal, financial, tax, or investment advice and no guarantee of dispute outcomes."
+			},
+			"community": {
+				"title": "Community Guidelines",
+				"description": "Professional conduct, evidence quality, juror behavior, and communication standards."
+			},
+			"security": {
+				"title": "Security Policy",
+				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
+			}
+		}
 	}
 }

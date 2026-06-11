@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 type ContractPhase = "PENDING" | "ACTIVE" | "APPROVED";
@@ -23,22 +24,22 @@ const PHASE_META = {
 		amount: "0.25 ETH",
 		holdBack: "5%",
 		progress: 26,
-		action: "Fund Escrow",
-		documentState: "Draft Hash Queued!",
+		actionKey: "previewFundEscrow",
+		documentStateKey: "previewDraftHashQueued",
 	},
 	ACTIVE: {
 		amount: "0.75 ETH",
 		holdBack: "10%",
 		progress: 62,
-		action: "Submit Work",
-		documentState: "Document Encrypted!",
+		actionKey: "previewSubmitWork",
+		documentStateKey: "previewDocumentEncrypted",
 	},
 	APPROVED: {
 		amount: "0.75 ETH",
 		holdBack: "0%",
 		progress: 100,
-		action: "Release Payout",
-		documentState: "Payout Receipt Ready!",
+		actionKey: "previewReleasePayout",
+		documentStateKey: "previewPayoutReceiptReady",
 	},
 } as const satisfies Record<
 	ContractPhase,
@@ -46,40 +47,28 @@ const PHASE_META = {
 		readonly amount: string;
 		readonly holdBack: string;
 		readonly progress: number;
-		readonly action: string;
-		readonly documentState: string;
+		readonly actionKey: string;
+		readonly documentStateKey: string;
 	}
 >;
 
-const SCENES = [
-	{
-		key: "contract",
-		label: "Contract View",
-		title: "Escrow Protection",
-		note: "Encrypted Draft Ready",
-		kicker: "Freelancer Milestone",
-	},
-	{
-		key: "juror",
-		label: "Juror Staking",
-		title: "Juror Dispute Flow",
-		note: "3 Jurors Eligible",
-		kicker: "Commit-Reveal arbitration",
-	},
-	{
-		key: "reputation",
-		label: "Reputation",
-		title: "On-Chain Reputation",
-		note: "92 Average Score",
-		kicker: "History from completed work",
-	},
-] as const satisfies readonly {
+const SCENE_KEYS = ["contract", "juror", "reputation"] as const satisfies readonly PreviewScene[];
+
+const FALLBACK_SCENE = {
+	key: "contract",
+	label: "Contract View",
+	title: "Escrow Protection",
+	note: "Encrypted Draft Ready",
+	kicker: "Freelancer Milestone",
+} as const satisfies PreviewSceneCopy;
+
+interface PreviewSceneCopy {
 	readonly key: PreviewScene;
 	readonly label: string;
 	readonly title: string;
 	readonly note: string;
 	readonly kicker: string;
-}[];
+}
 
 export function InteractiveContractPreview({
 	title,
@@ -91,12 +80,27 @@ export function InteractiveContractPreview({
 	viewLabel,
 	statuses,
 }: InteractiveContractPreviewProps): React.JSX.Element {
+	const t = useTranslations("Home");
 	const [phase, setPhase] = useState<ContractPhase>("ACTIVE");
 	const [scene, setScene] = useState<PreviewScene>("contract");
 	const [pulseKey, setPulseKey] = useState(0);
+	const scenes = useMemo(
+		(): PreviewSceneCopy[] =>
+			SCENE_KEYS.map((key) => ({
+				key,
+				label: t(`previewScenes.${key}.label`),
+				title: t(`previewScenes.${key}.title`),
+				note: t(`previewScenes.${key}.note`),
+				kicker: t(`previewScenes.${key}.kicker`),
+			})),
+		[t],
+	);
 	const meta = PHASE_META[phase];
-	const sceneIndex = useMemo(() => SCENES.findIndex((item) => item.key === scene), [scene]);
-	const activeScene = SCENES[sceneIndex] ?? SCENES[0];
+	const sceneIndex = useMemo(
+		() => scenes.findIndex((item) => item.key === scene),
+		[scene, scenes],
+	);
+	const activeScene = scenes[sceneIndex] ?? scenes[0] ?? FALLBACK_SCENE;
 
 	const phaseIndex = useMemo(() => PHASES.indexOf(phase), [phase]);
 
@@ -106,8 +110,8 @@ export function InteractiveContractPreview({
 	}
 
 	function updateScene(direction: -1 | 1): void {
-		const nextIndex = (sceneIndex + direction + SCENES.length) % SCENES.length;
-		setScene(SCENES[nextIndex]?.key ?? "contract");
+		const nextIndex = (sceneIndex + direction + scenes.length) % scenes.length;
+		setScene(scenes[nextIndex]?.key ?? "contract");
 		setPulseKey((current) => current + 1);
 	}
 
@@ -120,7 +124,7 @@ export function InteractiveContractPreview({
 					onClick={() => {
 						updateScene(-1);
 					}}
-					aria-label="Previous Preview"
+					aria-label={t("previousPreview")}
 					className="tl-button-motion flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 hover:border-indigo-200 hover:text-indigo-700 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200"
 				>
 					‹
@@ -138,7 +142,7 @@ export function InteractiveContractPreview({
 					onClick={() => {
 						updateScene(1);
 					}}
-					aria-label="Next Preview"
+					aria-label={t("nextPreview")}
 					className="tl-button-motion flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 hover:border-indigo-200 hover:text-indigo-700 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200"
 				>
 					›
@@ -157,7 +161,7 @@ export function InteractiveContractPreview({
 					</span>
 				</div>
 
-				<div className="mt-5" aria-label="Example contract progress">
+				<div className="mt-5" aria-label={t("exampleContractProgress")}>
 					<div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
 						<div
 							key={pulseKey}
@@ -183,7 +187,7 @@ export function InteractiveContractPreview({
 					<span className="text-gray-500 dark:text-gray-400">{amountLabel}</span>
 					<span className="tl-flip-value font-medium text-gray-950 dark:text-white">
 						{scene === "juror"
-							? "0.04 ETH Staked"
+							? t("previewJurorStake")
 							: scene === "reputation"
 								? "92 / 100"
 								: meta.amount}
@@ -191,17 +195,17 @@ export function InteractiveContractPreview({
 					<span className="text-gray-500 dark:text-gray-400">{deadlineLabel}</span>
 					<span className="font-medium text-gray-950 dark:text-white">
 						{scene === "juror"
-							? "Reveal Window Open"
+							? t("previewRevealWindowOpen")
 							: scene === "reputation"
-								? "12 Ratings Received"
+								? t("previewRatingsReceived")
 								: deadlineValue}
 					</span>
 					<span className="text-gray-500 dark:text-gray-400">{holdBackLabel}</span>
 					<span className="tl-flip-value font-medium text-gray-950 dark:text-white">
 						{scene === "juror"
-							? "Majority Vote"
+							? t("previewMajorityVote")
 							: scene === "reputation"
-								? "+8 Recovery Bonus"
+								? t("previewRecoveryBonus")
 								: meta.holdBack}
 					</span>
 					<span className="text-gray-500 dark:text-gray-400">{documentLabel}</span>
@@ -212,7 +216,7 @@ export function InteractiveContractPreview({
 
 				<div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
 					<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-						{scene === "contract" ? meta.documentState : activeScene.note}
+						{scene === "contract" ? t(meta.documentStateKey) : activeScene.note}
 					</p>
 					<div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-3">
 						<div className="tl-contract-hash h-2 rounded-full bg-gray-200 dark:bg-white/10">
@@ -222,7 +226,7 @@ export function InteractiveContractPreview({
 							/>
 						</div>
 						<span className="tl-signature-stamp rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
-							Verified
+							{t("verified")}
 						</span>
 					</div>
 				</div>
@@ -256,7 +260,7 @@ export function InteractiveContractPreview({
 				}}
 				className="tl-settlement-button relative mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-gray-950 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
 			>
-				{meta.action}
+				{t(meta.actionKey)}
 			</button>
 		</div>
 	);

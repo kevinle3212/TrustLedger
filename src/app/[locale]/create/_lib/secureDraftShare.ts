@@ -4,6 +4,8 @@ const SHARE_PARAM = "tl_draft";
 const ROOM_PARAM = "tl_room";
 const SHARE_VERSION = 1;
 const ITERATIONS = 100_000;
+const DERIVED_KEY_CACHE_LIMIT = 8;
+const derivedKeyCache = new Map<string, Promise<CryptoKey>>();
 
 export interface ShareableDraft {
 	readonly proposerRole: CreateState["proposerRole"];
@@ -130,6 +132,10 @@ function isShareableDraft(value: unknown): value is ShareableDraft {
 }
 
 async function deriveKey(sessionKey: string, salt: Uint8Array<ArrayBuffer>): Promise<CryptoKey> {
+	const cacheKey = `${sessionKey}:${toHex(salt)}`;
+	const cached = derivedKeyCache.get(cacheKey);
+	if (cached !== undefined) return await cached;
+
 	const raw = await crypto.subtle.importKey(
 		"raw",
 		new TextEncoder().encode(sessionKey),
@@ -137,13 +143,19 @@ async function deriveKey(sessionKey: string, salt: Uint8Array<ArrayBuffer>): Pro
 		false,
 		["deriveKey"],
 	);
-	return await crypto.subtle.deriveKey(
+	const keyPromise = crypto.subtle.deriveKey(
 		{ name: "PBKDF2", salt, iterations: ITERATIONS, hash: "SHA-256" },
 		raw,
 		{ name: "AES-GCM", length: 256 },
 		false,
 		["encrypt", "decrypt"],
 	);
+	derivedKeyCache.set(cacheKey, keyPromise);
+	if (derivedKeyCache.size > DERIVED_KEY_CACHE_LIMIT) {
+		const oldest = derivedKeyCache.keys().next().value;
+		if (oldest !== undefined) derivedKeyCache.delete(oldest);
+	}
+	return await keyPromise;
 }
 
 function parseEnvelope(encryptedDraft: string): ShareEnvelope {
@@ -198,6 +210,12 @@ export function generateSessionKey(): string {
 	return toBase64Url(bytes);
 }
 
+export function generateDraftSaltHex(): string {
+	const bytes = new Uint8Array(16);
+	crypto.getRandomValues(bytes);
+	return toHex(bytes);
+}
+
 export function generateRoomId(): string {
 	const bytes = new Uint8Array(16);
 	crypto.getRandomValues(bytes);
@@ -208,10 +226,12 @@ export async function encryptDraftForShare(input: {
 	readonly draft: ShareableDraft;
 	readonly sessionKey: string;
 	readonly allowedWallets: readonly string[];
+	readonly stableSaltHex?: string;
 }): Promise<string> {
-	const salt = new Uint8Array(16);
+	const salt =
+		input.stableSaltHex !== undefined ? fromHex(input.stableSaltHex) : new Uint8Array(16);
 	const iv = new Uint8Array(12);
-	crypto.getRandomValues(salt);
+	if (input.stableSaltHex === undefined) crypto.getRandomValues(salt);
 	crypto.getRandomValues(iv);
 	const key = await deriveKey(input.sessionKey, salt);
 	const plaintext = new TextEncoder().encode(JSON.stringify(input.draft));
