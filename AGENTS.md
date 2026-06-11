@@ -27,6 +27,10 @@ commands with `rtk` when available.
 - If a command hangs, inspect for duplicate build/dev/doctor processes and stale
   generated locks before launching another copy. Do not leave background servers
   or analyzers running.
+- When moving, replacing, or removing code, remove stale imports, exports,
+  tests, styles, route references, and docs in the same change. Run the nearest
+  unused-code/type/lint check before staging so dead code is not carried
+  forward.
 - Run `bash tools/remove-duplicates.sh --fail-on-found .` before commit staging
   or commit hooks so duplicate-looking files are caught early without traversing
   deep generated trees.
