@@ -23,8 +23,10 @@ const vendors = [
 ];
 
 function runGit(gitArgs, options = {}) {
+	const { GIT_DIR, GIT_INDEX_FILE, GIT_PREFIX, GIT_WORK_TREE, ...env } = process.env;
 	return execFileSync("git", gitArgs, {
 		cwd: options.cwd ?? repoRoot,
+		env,
 		encoding: "utf8",
 		stdio: ["ignore", "pipe", "pipe"],
 	}).trim();
@@ -39,7 +41,9 @@ function remoteHeadRef(vendorPath) {
 }
 
 function assertClean(vendor) {
-	const status = runGit(["-C", vendor.path, "status", "--porcelain"]);
+	const status = vendor.submodule
+		? runGit(["-C", vendor.path, "status", "--porcelain"])
+		: runGit(["status", "--porcelain", "--", vendor.path]);
 	if (status !== "") {
 		throw new Error(`${vendor.name} has uncommitted changes:\n${status}`);
 	}

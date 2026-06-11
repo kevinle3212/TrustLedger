@@ -64,13 +64,19 @@ Solidity. Root TypeScript and Hardhat jobs also run `npm run logs:check`,
 ignored local artifacts, sensitive file paths, and generated docs navigation
 cannot silently drift from policy.
 
-| Job          | Key Checks                                                                                                       |
-| ------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `frontend`   | `npm ci` in `src/`, Playwright browser install, TypeScript check, frontend lint, frontend build, Playwright E2E. |
-| `typescript` | Root `npm ci`, sensitive-file guard, Hardhat compile, log/tmp retention, docs navigation, lint, Prettier check.  |
-| `python`     | Python setup, mypy install, scientific analytics artifact drift check, and `npm run lint:py`.                    |
-| `hardhat`    | Hardhat compile, log retention, and tests.                                                                       |
-| `solidity`   | Foundry install, `forge fmt --check`, `forge build --sizes`, CI-profile tests, gas snapshot.                     |
+The TypeScript job installs pinned Gitleaks before `npm run secrets:check`.
+Without that explicit binary setup, GitHub-hosted runners can pass dependency
+installation but fail secret scanning with `gitleaks: not found`. Local
+pre-commit runs `npm run ci:typescript` to mirror the TypeScript job's
+substantive checks before changes reach the pre-push hook or GitHub Actions.
+
+| Job          | Key Checks                                                                                                                        |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend`   | `npm ci` in `src/`, Playwright browser install, TypeScript check, frontend lint, frontend build, Playwright E2E.                  |
+| `typescript` | Gitleaks install, root `npm ci`, sensitive-file guard, Hardhat compile, log/tmp retention, docs navigation, lint, Prettier check. |
+| `python`     | Python setup, mypy install, scientific analytics artifact drift check, and `npm run lint:py`.                                     |
+| `hardhat`    | Hardhat compile, log retention, and tests.                                                                                        |
+| `solidity`   | Foundry install, `forge fmt --check`, `forge build --sizes`, CI-profile tests, gas snapshot.                                      |
 
 ## Deploy Workflow
 
@@ -206,3 +212,9 @@ MkDocs major version.
 - The frontend workflow uses `npx --yes npm@11.12.1 ci` inside `src/`.
 - Vercel address sync depends on Foundry broadcast output existing at the
   expected Sepolia path.
+- Regular vendored contract directories are not nested git repositories. Vendor
+  cleanliness checks must scope `git status` to the vendor path, or unrelated
+  local edits can be misreported as `forge-std` changes during hooks.
+- Git hooks can export parent-repo Git environment variables such as
+  `GIT_INDEX_FILE`. Scripts that run Git inside submodules should sanitize those
+  variables before invoking nested Git commands.

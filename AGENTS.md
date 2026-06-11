@@ -113,6 +113,9 @@ commands with `rtk` when available.
   `docs/ENVIRONMENT.md#configuration-beyond-env` and the nearest owning docs in
   the same change. For example, if a `package.json` script calls `gh api`, the
   docs must state the required GitHub CLI authentication and permissions.
+- When a workflow invokes a package script that shells out to a non-npm binary,
+  install or set up that binary in the workflow before the package script runs.
+  Local availability from hooks is not enough for GitHub-hosted runners.
 
 ## UI Copy
 
