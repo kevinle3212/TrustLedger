@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { webcrypto } from "node:crypto";
+import { useState } from "react";
 
 import { SecureDraftSessionPanel } from "@/app/[locale]/create/_components/SecureDraftSessionPanel";
 import type { CreateState } from "@/app/[locale]/create/_lib/types";
@@ -211,6 +212,39 @@ describe("SecureDraftSessionPanel", () => {
 		fireEvent.click(screen.getByRole("button", { name: "Insert Bold terms snippet" }));
 
 		expect(onTermsBodyChange).toHaveBeenCalledWith("# Scope\n\n**Initial draft**");
+	});
+
+	it("keeps controlled editor history available for undo and redo shortcuts", () => {
+		function ControlledDraftPanel(): React.JSX.Element {
+			const [termsBody, setTermsBody] = useState(state.termsBody);
+			return (
+				<SecureDraftSessionPanel
+					state={{ ...state, termsBody }}
+					connectedWallet={FREELANCER}
+					onTermsBodyChange={setTermsBody}
+					onTermsFormatChange={jest.fn()}
+					onImportDraft={jest.fn()}
+				/>
+			);
+		}
+
+		render(<ControlledDraftPanel />);
+
+		const editor = screen.getByRole("textbox", {
+			name: "Collaborative Contract Terms Editor",
+		});
+		if (!(editor instanceof HTMLTextAreaElement)) {
+			throw new TypeError("Expected terms editor to be a textarea.");
+		}
+
+		fireEvent.change(editor, { target: { value: `${state.termsBody}\n\nSecond edit` } });
+		expect(editor).toHaveValue(`${state.termsBody}\n\nSecond edit`);
+
+		fireEvent.keyDown(editor, { key: "z", ctrlKey: true });
+		expect(editor).toHaveValue(state.termsBody);
+
+		fireEvent.keyDown(editor, { key: "y", ctrlKey: true });
+		expect(editor).toHaveValue(`${state.termsBody}\n\nSecond edit`);
 	});
 
 	it("creates a share link, copies the separate key, and imports URL drafts", async () => {

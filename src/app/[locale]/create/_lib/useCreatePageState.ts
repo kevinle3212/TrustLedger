@@ -48,7 +48,19 @@ import {
 } from "@/lib/solanaEscrow";
 
 const DRAFT_STORAGE_KEY = "tl_create_contract_draft";
+const DRAFT_AUTOSAVE_DELAY_MS = 60_000;
 type SolanaTxStatus = "idle" | "connecting" | "simulating" | "pending" | "confirming" | "success";
+type DraftSnapshot = Pick<
+	CreateState,
+	| "proposerRole"
+	| "paymentToken"
+	| "form"
+	| "docMode"
+	| "encryptEnabled"
+	| "termsBody"
+	| "termsFormat"
+	| "termsLastUpdatedAt"
+>;
 
 const FIELD_LABELS: Record<string, string> = {
 	client: "client address",
@@ -70,6 +82,14 @@ interface MagicLinkRequest {
 	clientEmail: string;
 	clientAddress: string;
 	role: "client" | "freelancer";
+}
+
+function saveDraftSnapshot(draft: DraftSnapshot): void {
+	try {
+		window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+	} catch {
+		// Browsers can deny localStorage in private or sandboxed contexts.
+	}
 }
 
 async function sendMagicLink(body: MagicLinkRequest): Promise<void> {
@@ -394,42 +414,50 @@ export function useCreatePageState(): {
 		});
 	}
 
+	const draftSnapshot = useMemo(
+		(): DraftSnapshot => ({
+			proposerRole: state.proposerRole,
+			paymentToken: state.paymentToken,
+			form: state.form,
+			docMode: state.docMode,
+			encryptEnabled: state.encryptEnabled,
+			termsBody: state.termsBody,
+			termsFormat: state.termsFormat,
+			termsLastUpdatedAt: state.termsLastUpdatedAt,
+		}),
+		[
+			state.proposerRole,
+			state.paymentToken,
+			state.form,
+			state.docMode,
+			state.encryptEnabled,
+			state.termsBody,
+			state.termsFormat,
+			state.termsLastUpdatedAt,
+		],
+	);
+
 	useEffect(() => {
 		if (!skippedInitialDraftSave.current) {
 			skippedInitialDraftSave.current = true;
 			return;
 		}
+		const flushDraftSave = (): void => {
+			saveDraftSnapshot(draftSnapshot);
+		};
+		const flushDraftSaveWhenHidden = (): void => {
+			if (document.visibilityState === "hidden") flushDraftSave();
+		};
 		if (draftSaveTimer.current !== null) window.clearTimeout(draftSaveTimer.current);
-		draftSaveTimer.current = window.setTimeout(() => {
-			const draft = {
-				proposerRole: state.proposerRole,
-				paymentToken: state.paymentToken,
-				form: state.form,
-				docMode: state.docMode,
-				encryptEnabled: state.encryptEnabled,
-				termsBody: state.termsBody,
-				termsFormat: state.termsFormat,
-				termsLastUpdatedAt: state.termsLastUpdatedAt,
-			};
-			try {
-				window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
-			} catch {
-				// Browsers can deny localStorage in private or sandboxed contexts.
-			}
-		}, 500);
+		draftSaveTimer.current = window.setTimeout(flushDraftSave, DRAFT_AUTOSAVE_DELAY_MS);
+		window.addEventListener("pagehide", flushDraftSave);
+		document.addEventListener("visibilitychange", flushDraftSaveWhenHidden);
 		return (): void => {
 			if (draftSaveTimer.current !== null) window.clearTimeout(draftSaveTimer.current);
+			window.removeEventListener("pagehide", flushDraftSave);
+			document.removeEventListener("visibilitychange", flushDraftSaveWhenHidden);
 		};
-	}, [
-		state.proposerRole,
-		state.paymentToken,
-		state.form,
-		state.docMode,
-		state.encryptEnabled,
-		state.termsBody,
-		state.termsFormat,
-		state.termsLastUpdatedAt,
-	]);
+	}, [draftSnapshot]);
 
 	useEffect(() => {
 		if (!isSuccess) return;

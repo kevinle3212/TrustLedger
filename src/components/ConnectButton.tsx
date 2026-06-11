@@ -4,12 +4,24 @@ import dynamic from "next/dynamic";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useAccount } from "wagmi";
 import { useTranslations } from "next-intl";
+import type * as ConnectButtonInnerModule from "@/components/ConnectButtonInner";
 import { getLastWallet, setLastWallet } from "@/lib/lastWallet";
 import { formatAddress } from "@/lib/utils";
 
+let walletButtonPreload: Promise<typeof ConnectButtonInnerModule> | null = null;
+
+async function preloadWalletButton(): Promise<typeof ConnectButtonInnerModule> {
+	walletButtonPreload ??= import("@/components/ConnectButtonInner");
+	return await walletButtonPreload;
+}
+
+function prepareWalletUi(): void {
+	void preloadWalletButton();
+}
+
 const WalletButton = dynamic(
 	async () => {
-		const mod = await import("@/components/ConnectButtonInner");
+		const mod = await preloadWalletButton();
 		return { default: mod.ConnectButtonInner };
 	},
 	{
@@ -31,10 +43,12 @@ function useMounted(): boolean {
 function ConnectButtonShell({
 	compact = false,
 	onClick,
+	onPrepare,
 	label,
 }: {
 	compact?: boolean;
 	onClick?: () => void;
+	onPrepare?: () => void;
 	label?: string;
 }): React.JSX.Element {
 	const t = useTranslations("Common");
@@ -46,6 +60,9 @@ function ConnectButtonShell({
 		<button
 			type="button"
 			onClick={onClick}
+			onFocus={onPrepare}
+			onPointerEnter={onPrepare}
+			onTouchStart={onPrepare}
 			className={compact ? `${className} sm:px-3` : className}
 		>
 			<svg
@@ -96,7 +113,14 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 				: remembered !== null && remembered !== ""
 					? t("reconnectWith", { wallet: remembered })
 					: t("connectWallet");
-		return <ConnectButtonShell compact={compact} onClick={loadAndOpen} label={label} />;
+		return (
+			<ConnectButtonShell
+				compact={compact}
+				onClick={loadAndOpen}
+				onPrepare={prepareWalletUi}
+				label={label}
+			/>
+		);
 	}
 
 	return <WalletButton compact={compact} openOnLoadKey={openOnLoadKey} />;

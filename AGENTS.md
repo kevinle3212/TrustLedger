@@ -127,6 +127,10 @@ commands with `rtk` when available.
   full sentences, paragraphs, helper text, warnings, and error explanations.
 - Preserve established acronyms and product terms exactly: `HTML`, `FAQ`, `URL`,
   `URI`, `ETH`, `USDC`, `IPFS`, `Solana Devnet`, and `Ethereum Sepolia`.
+- After changing visible localized copy, compare non-source message files
+  against `src/messages/en.json` for exact English leftovers in the touched
+  namespaces and either translate them or document why the English product term
+  is intentional.
 
 ## Roadmap Discipline
 
