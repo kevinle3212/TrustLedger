@@ -218,3 +218,6 @@ MkDocs major version.
 - Git hooks can export parent-repo Git environment variables such as
   `GIT_INDEX_FILE`. Scripts that run Git inside submodules should sanitize those
   variables before invoking nested Git commands.
+- `native:check` writes ignored scratch objects under `tmp/`; pre-commit prunes
+  `tmp/` immediately afterward so the later TypeScript parity gate does not fail
+  on retention drift created by the same hook run.

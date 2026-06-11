@@ -37,8 +37,9 @@ commands with `rtk` when available.
 - Run `npm run secrets:check` before staging security-sensitive work. It runs
   the custom sensitive-path guard plus `gitleaks git` with redacted output. If
   Gitleaks reports a known public WalletConnect/Reown wallet registry ID in
-  `src/lib/walletIds.ts`, keep the exact fingerprint in `.gitleaksignore`; do
-  not broaden the allowlist.
+  `src/lib/walletIds.ts`, keep the exception in `.gitleaks.toml` scoped to the
+  exact public value, rule, and file; do not use commit-SHA fingerprints for
+  values that must survive shallow CI checkouts.
 - After heavy Docker builds, Docker test runs, or image pushes, run
   `docker system df -v` or `npm run docker:storage:check` to inspect image,
   volume, and build-cache growth. If build cache is multiple GB and no active
@@ -80,8 +81,8 @@ commands with `rtk` when available.
 - Secret scanning work: install `gitleaks` when missing, keep `.gitleaks.toml`
   strict, prefer `npm run secrets:gitleaks` for history scans and
   `npm run secrets:gitleaks:staged` for hook reproduction, and use
-  fingerprint-level `.gitleaksignore` entries only after confirming a finding is
-  public and non-secret.
+  `.gitleaksignore` fingerprints only for historical findings that cannot be
+  safely scoped in `.gitleaks.toml`.
 - Agentic run logs, Impeccable notes, audit results, errors, and issue triage
   notes belong in `logs/`. The directory is intentionally ignored by git. Format
   every `logs/*.md` file with `src/.agents/skills/log-markdown/SKILL.md` so

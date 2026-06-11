@@ -154,12 +154,14 @@ the custom sensitive-path guard and `gitleaks git` against repository history.
 Pre-commit also runs `npm run secrets:gitleaks:staged` against staged changes.
 The custom guard blocks tracked and staged `.env` files, Solana
 `target/deploy/*.json` keypairs, private-key-looking filenames, and common
-unredacted secret patterns. Gitleaks uses `.gitleaks.toml`; `.gitleaksignore`
-must contain only fingerprint-level false positives after confirming the value
-is public and non-secret. The guard runs in local hooks, `npm run quality`, and
-CI. Repository admins should also enable the importable GitHub ruleset in
-[GitHub Rulesets](GITHUB-RULESETS.md), with secret scanning and push protection
-active, because local hooks can be bypassed.
+unredacted secret patterns. Gitleaks uses `.gitleaks.toml`; prefer scoped
+allowlists there for stable public constants, with exact value, rule, and file
+constraints. Use `.gitleaksignore` fingerprints only for historical findings
+that cannot be safely scoped in config, because commit-SHA fingerprints are
+brittle in shallow CI checkouts. The guard runs in local hooks,
+`npm run quality`, and CI. Repository admins should also enable the importable
+GitHub ruleset in [GitHub Rulesets](GITHUB-RULESETS.md), with secret scanning
+and push protection active, because local hooks can be bypassed.
 
 Privacy analytics are opt-in and aggregate-only. The browser beacon and server
 collector must both be enabled by environment variables, and `/api/health`

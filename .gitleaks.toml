@@ -40,12 +40,12 @@ regexes = [
 ]
 
 [[allowlists]]
-description = "WalletConnect/Reown public wallet registry IDs are not provider access tokens. Historical findings are pinned in .gitleaksignore by fingerprint."
+description = "WalletConnect/Reown public wallet registry IDs are not provider access tokens. The regex is the exact public Coinbase Wallet registry ID, scoped to src/lib/walletIds.ts."
 targetRules = ["coinbase-access-token"]
 paths = [
 	'''^src/lib/walletIds\.ts$''',
 ]
 regexes = [
-	'''coinbase:\s*"[a-f0-9]{64}"''',
+	'''^d0ca99ff52b99abc48743dad0f7fc891e041be73574f7fac4afe5d4bb83845c8$''',
 ]
 condition = "AND"

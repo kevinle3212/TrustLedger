@@ -129,8 +129,10 @@ command list.
 redacted output. Install it with `brew install gitleaks` on macOS or from the
 [Gitleaks releases](https://github.com/gitleaks/gitleaks/releases) on Linux. Use
 `npm run secrets:gitleaks:staged` to reproduce the pre-commit staged-diff scan.
-Keep `.gitleaksignore` limited to exact false-positive fingerprints; do not add
-broad allowlists for source paths or secret-like values.
+Prefer exact `.gitleaks.toml` allowlists for stable public constants, scoped to
+the value, rule, and file. Keep `.gitleaksignore` limited to historical findings
+that cannot be safely represented in config; do not add broad allowlists for
+source paths or secret-like values.
 
 ## Solidity Style
 

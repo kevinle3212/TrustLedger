@@ -11,6 +11,8 @@ echo "pre-commit: tmp"
 npm run tmp:check
 echo "pre-commit: native"
 npm run native:check
+echo "pre-commit: tmp after native"
+npm run tmp:prune
 echo "pre-commit: analytics"
 npm run analytics:check
 echo "pre-commit: docs navigation"
