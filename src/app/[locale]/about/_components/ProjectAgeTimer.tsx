@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
 
@@ -21,14 +22,15 @@ function ageParts(nowMs: number): {
 }
 
 export function ProjectAgeTimer(): React.JSX.Element {
+	const t = useTranslations("About");
 	const nowMs = useVisibleTimestamp(1000);
 	const parts = useMemo(() => ageParts(nowMs), [nowMs]);
 
 	const cells = [
-		["Days", parts.days],
-		["Hours", parts.hours],
-		["Minutes", parts.minutes],
-		["Seconds", parts.seconds],
+		[t("timer.days"), parts.days, false],
+		[t("timer.hours"), parts.hours, true],
+		[t("timer.minutes"), parts.minutes, true],
+		[t("timer.seconds"), parts.seconds, true],
 	] as const;
 
 	return (
@@ -39,10 +41,10 @@ export function ProjectAgeTimer(): React.JSX.Element {
 			<div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
 				<div>
 					<p className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
-						Project Stopwatch
+						{t("timer.title")}
 					</p>
 					<p className="mt-1 text-sm text-indigo-950/75 dark:text-indigo-50/75">
-						Counting from May 2, 2026, when TrustLedger began.
+						{t("timer.body")}
 					</p>
 				</div>
 				<p className="font-mono text-xs text-indigo-900/70 dark:text-indigo-100/70">
@@ -50,13 +52,13 @@ export function ProjectAgeTimer(): React.JSX.Element {
 				</p>
 			</div>
 			<div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-				{cells.map(([label, value]) => (
+				{cells.map(([label, value, pad]) => (
 					<div
 						key={label}
 						className="rounded-xl border border-indigo-200/80 bg-white/70 px-3 py-3 text-center dark:border-indigo-300/15 dark:bg-gray-950/35"
 					>
 						<p className="font-mono text-2xl font-bold tabular-nums text-indigo-950 dark:text-white">
-							{String(value).padStart(label === "Days" ? 1 : 2, "0")}
+							{String(value).padStart(pad ? 2 : 1, "0")}
 						</p>
 						<p className="mt-1 text-xs font-semibold text-indigo-800/70 dark:text-indigo-100/70">
 							{label}

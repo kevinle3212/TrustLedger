@@ -92,6 +92,11 @@ machine-translation prompt that tells reviewers to preserve headings, numbering,
 defined terms, links, and Markdown structure. Machine-assisted translations
 should remain marked as needing review until a qualified reviewer approves them.
 
+Reviewed translated legal bodies can be published by adding
+`src/content/legal/<locale>/<SOURCE_FILE>.md`. The route falls back to the
+English source file when a reviewed locale file is absent, so untranslated legal
+obligations are not silently presented as approved localized legal text.
+
 ## Jurisdiction Note
 
 <!-- docs-section-nav:start -->

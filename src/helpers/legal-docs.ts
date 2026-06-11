@@ -36,6 +36,17 @@ const LEGAL_LOCALES = [
 	"hi",
 ] as const satisfies readonly LegalLocale[];
 
+const LEGAL_LOCALE_ENGLISH_NAMES = {
+	"en": "English",
+	"es": "Spanish",
+	"vi": "Vietnamese",
+	"pt": "Portuguese",
+	"zh-CN": "Chinese",
+	"ar": "Arabic",
+	"fr": "French",
+	"hi": "Hindi",
+} as const satisfies Record<LegalLocale, string>;
+
 export const LEGAL_DOCUMENTS = [
 	{
 		slug: "terms",
@@ -138,16 +149,17 @@ export function resolveLegalLocale(locale: string): LegalLocale {
 }
 
 export function buildLegalTranslationPrompt(document: LegalDocument, locale: LegalLocale): string {
+	const languageName = LEGAL_LOCALE_ENGLISH_NAMES[locale];
 	if (locale === LEGAL_SOURCE_LOCALE) {
 		return [
-			`Review ${document.sourceFile} in English for clarity, structure, and legal-review flags.`,
+			`Review ${document.sourceFile} in ${languageName} for clarity, structure, and legal-review flags.`,
 			"Preserve headings, lists, tables, defined terms, markdown links, and legal numbering.",
 			"Do not add legal obligations, jurisdictions, contact details, dates, or remedies.",
 			"Flag ambiguous legal phrases for human review instead of silently changing meaning.",
 		].join(" ");
 	}
 	return [
-		`Translate ${document.sourceFile} from English to ${locale}.`,
+		`Translate ${document.sourceFile} from English to ${languageName}.`,
 		"Preserve headings, lists, tables, defined terms, markdown links, and legal numbering.",
 		"Do not invent legal obligations, jurisdictions, contact details, dates, or remedies.",
 		"Flag ambiguous legal phrases for human review instead of silently changing meaning.",

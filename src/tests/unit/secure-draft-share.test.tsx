@@ -6,6 +6,7 @@ import type { CreateState } from "@/app/[locale]/create/_lib/types";
 import {
 	decryptSharedDraft,
 	encryptDraftForShare,
+	generateDraftSaltHex,
 	generateSessionKey,
 	inspectAllowedWallets,
 	type ShareableDraft,
@@ -15,6 +16,12 @@ import {
 const CLIENT = "0x1111111111111111111111111111111111111111";
 const FREELANCER = "0x2222222222222222222222222222222222222222";
 let writeTextMock: jest.MockedFunction<(text: string) => Promise<void>>;
+
+function decodeDraftEnvelope(encryptedDraft: string): { salt: string; iv: string } {
+	const normalized = encryptedDraft.replaceAll("-", "+").replaceAll("_", "/");
+	const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+	return JSON.parse(atob(padded)) as { salt: string; iv: string };
+}
 
 const state: CreateState = {
 	proposerRole: "freelancer",
@@ -110,6 +117,38 @@ describe("secure draft share", () => {
 				walletAddress: CLIENT,
 			}),
 		).rejects.toThrow("unsupported shape");
+	});
+
+	it("supports stable live-room salts without reusing encryption IVs", async () => {
+		const sessionKey = generateSessionKey();
+		const stableSaltHex = generateDraftSaltHex();
+		const draft = shareableDraftFromState(state);
+		const first = await encryptDraftForShare({
+			draft,
+			sessionKey,
+			allowedWallets: [CLIENT, FREELANCER],
+			stableSaltHex,
+		});
+		const second = await encryptDraftForShare({
+			draft,
+			sessionKey,
+			allowedWallets: [CLIENT, FREELANCER],
+			stableSaltHex,
+		});
+
+		const firstEnvelope = decodeDraftEnvelope(first);
+		const secondEnvelope = decodeDraftEnvelope(second);
+
+		expect(first).not.toBe(second);
+		expect(firstEnvelope.salt).toBe(stableSaltHex);
+		expect(secondEnvelope.salt).toBe(stableSaltHex);
+		expect(firstEnvelope.iv).not.toBe(secondEnvelope.iv);
+		await expect(
+			decryptSharedDraft({ encryptedDraft: first, sessionKey, walletAddress: FREELANCER }),
+		).resolves.toEqual(draft);
+		await expect(
+			decryptSharedDraft({ encryptedDraft: second, sessionKey, walletAddress: FREELANCER }),
+		).resolves.toEqual(draft);
 	});
 });
 

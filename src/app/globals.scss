@@ -75,39 +75,6 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	}
 }
 
-@keyframes tl-status-pulse {
-	0%,
-	100% {
-		box-shadow: 0 0 0 0 rgb(99 102 241 / 0%);
-	}
-
-	50% {
-		box-shadow: 0 0 0 0.25rem rgb(99 102 241 / 10%);
-	}
-}
-
-@keyframes tl-live-sync-pulse {
-	0%,
-	100% {
-		box-shadow: 0 0 0 0 rgb(16 185 129 / 0%);
-	}
-
-	50% {
-		box-shadow: 0 0 0 0.45rem rgb(16 185 129 / 14%);
-	}
-}
-
-@keyframes tl-bar-sheen {
-	0%,
-	55% {
-		transform: translateX(-100%);
-	}
-
-	100% {
-		transform: translateX(100%);
-	}
-}
-
 @keyframes tl-panel-in {
 	from {
 		opacity: 0.88;
@@ -147,12 +114,6 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	}
 }
 
-@keyframes tl-orbit-spin {
-	to {
-		transform: rotate(360deg);
-	}
-}
-
 @keyframes tl-stamp-pop {
 	0% {
 		transform: rotate(-4deg) scale(0.94);
@@ -164,27 +125,6 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
 	100% {
 		transform: rotate(-2deg) scale(1);
-	}
-}
-
-@keyframes tl-hash-scan {
-	0% {
-		background-position: 120% 0;
-	}
-
-	100% {
-		background-position: -120% 0;
-	}
-}
-
-@keyframes tl-install-progress {
-	0% {
-		transform: scaleX(0);
-	}
-
-	92%,
-	100% {
-		transform: scaleX(1);
 	}
 }
 
@@ -276,7 +216,6 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	aspect-ratio: 1;
 	border: 1px solid rgb(99 102 241 / 18%);
 	border-radius: 9999px;
-	animation: tl-orbit-spin 18s linear infinite;
 
 	&::before,
 	&::after {
@@ -373,26 +312,18 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 .tl-contract-hash {
 	position: relative;
 	overflow: hidden;
-	background: linear-gradient(90deg, transparent, rgb(99 102 241 / 28%), transparent), #e5e7eb;
-	background-size:
-		220% 100%,
-		100% 100%;
-	animation: tl-hash-scan 1.8s $tl-ease-out infinite;
+	background: linear-gradient(90deg, rgb(99 102 241 / 18%), rgb(16 185 129 / 16%)), #e5e7eb;
 }
 
 .tl-contract-install-progress {
 	transform-origin: left center;
 	background: linear-gradient(90deg, #6366f1, #10b981);
-	animation: tl-install-progress 7.6s $tl-ease-standard infinite;
 }
 
 .dark .tl-contract-hash {
 	background:
-		linear-gradient(90deg, transparent, rgb(129 140 248 / 28%), transparent),
+		linear-gradient(90deg, rgb(129 140 248 / 22%), rgb(16 185 129 / 18%)),
 		rgb(255 255 255 / 10%);
-	background-size:
-		220% 100%,
-		100% 100%;
 }
 
 .tl-hero-copy-glow {
@@ -573,7 +504,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .tl-status-badge--active {
-	animation: tl-status-pulse 2.4s $tl-ease-out infinite;
+	box-shadow: inset 0 0 0 1px currentColor;
 }
 
 .tl-live-sync-pill {
@@ -591,7 +522,7 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 .tl-live-sync-pill--on::before {
-	animation: tl-live-sync-pulse 2s $tl-ease-out infinite;
+	opacity: 0.86;
 }
 
 .tl-analytics-bar {
@@ -606,7 +537,12 @@ $tl-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	background: linear-gradient(90deg, transparent, rgb(255 255 255 / 28%), transparent);
 	content: "";
 	transform: translateX(-100%);
-	animation: tl-bar-sheen 3s $tl-ease-out infinite;
+	transition: transform 520ms $tl-ease-out;
+}
+
+.tl-analytics-bar:hover::after,
+.tl-analytics-bar:focus-visible::after {
+	transform: translateX(100%);
 }
 
 .tl-wallet-chip {

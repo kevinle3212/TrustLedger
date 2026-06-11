@@ -680,7 +680,7 @@ export function SecureDraftSessionPanel({
 	);
 	const lastRoomStartAt = useRef(0);
 	const nowMs = useVisibleTimestamp(1000);
-	const encryptedDraftFromUrl = getEncryptedDraftFromUrl();
+	const encryptedDraftFromUrl = useMemo(() => getEncryptedDraftFromUrl(), []);
 	const updatedAtFormatter = useMemo(
 		() => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }),
 		[],
@@ -726,7 +726,7 @@ export function SecureDraftSessionPanel({
 
 	async function handleCreateShare(): Promise<void> {
 		if (panel.isSharing) return;
-		if (nowMs < panel.cooldownUntil) return;
+		if (Date.now() < panel.cooldownUntil) return;
 		if (allowedWallets.length === 0) {
 			updateStatus(
 				"error",

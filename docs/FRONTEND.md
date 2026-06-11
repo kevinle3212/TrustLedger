@@ -258,6 +258,12 @@ translation prompt for machine-assisted drafts. Legal translations should remain
 human-reviewed before publication; the helper exists to preserve Markdown shape
 and prevent accidental changes to legal meaning.
 
+The legal document route reads reviewed locale-specific Markdown from
+`src/content/legal/<locale>/<SOURCE_FILE>.md` first and falls back to the
+English source in `src/content/legal/<SOURCE_FILE>.md`. Keep translated legal
+bodies out of the live route until they have been reviewed for legal meaning,
+defined terms, numbering, links, and Markdown formatting.
+
 ## Internationalization
 
 <!-- docs-section-nav:start -->

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import {
@@ -22,6 +22,7 @@ export default async function LegalPage({
 }): Promise<React.JSX.Element> {
 	const { locale } = await params;
 	setRequestLocale(locale);
+	const t = await getTranslations({ locale, namespace: "Legal" });
 	const legalLocale = resolveLegalLocale(locale);
 	const translationStatus = getLegalTranslationStatus(locale);
 
@@ -29,19 +30,18 @@ export default async function LegalPage({
 		<div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-12 sm:py-16">
 			<section className="max-w-3xl">
 				<p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400">
-					TrustLedger Legal Center
+					{t("eyebrow")}
 				</p>
 				<h1 className="mt-4 text-4xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-5xl">
-					Policies, disclosures, and compliance references
+					{t("title")}
 				</h1>
 				<p className="mt-5 text-base leading-7 text-gray-600 dark:text-gray-300">
-					This page is the formal publication index for TrustLedger legal documents. Legal
-					content is maintained in Markdown and can be translated with a human-review
-					workflow before publication.
+					{t("intro")}
 				</p>
 				<p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					Current locale: <span className="font-semibold">{legalLocale}</span>.
-					Translation status: <span className="font-semibold">{translationStatus}</span>.
+					{t("currentLocale")} <span className="font-semibold">{legalLocale}</span>.{" "}
+					{t("translationStatus")}{" "}
+					<span className="font-semibold">{t(`status.${translationStatus}`)}</span>
 				</p>
 			</section>
 
@@ -52,10 +52,10 @@ export default async function LegalPage({
 						className="tl-motion-card flex min-h-64 flex-col rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950"
 					>
 						<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-							{document.title}
+							{t(`documents.${document.slug}.title`)}
 						</h2>
 						<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-							{document.description}
+							{t(`documents.${document.slug}.description`)}
 						</p>
 						<div className="mt-auto pt-5">
 							<div className="grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
@@ -67,21 +67,21 @@ export default async function LegalPage({
 										>
 											SF
 										</span>
-										Source File
+										{t("sourceFile")}
 									</p>
 									<p className="mt-2 min-w-0 break-all font-mono text-xs text-gray-700 dark:text-gray-200">
 										{document.sourceFile}
 									</p>
 								</div>
 								<p className="inline-flex w-fit rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold capitalize text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
-									{document.translationStatus}
+									{t(`status.${document.translationStatus}`)}
 								</p>
 							</div>
 							<Link
 								href={`/legal/${document.slug}`}
 								className="tl-button-motion mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-500"
 							>
-								View Document
+								{t("viewDocument")}
 							</Link>
 						</div>
 					</article>
@@ -90,22 +90,20 @@ export default async function LegalPage({
 
 			<section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-950">
 				<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-					Translation Helper
+					{t("translationHelper.title")}
 				</h2>
 				<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					Use this helper before publishing legal text in another language. For English,
-					it becomes a review prompt. For other languages, it becomes a translation prompt
-					that keeps numbering, defined terms, links, and Markdown structure intact.
+					{t("translationHelper.body")}
 				</p>
 				<ol className="mt-4 grid gap-2 text-sm leading-6 text-gray-600 dark:text-gray-300 sm:grid-cols-3">
 					<li className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
-						1. Choose the legal document and target locale.
+						{t("translationHelper.stepOne")}
 					</li>
 					<li className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
-						2. Translate without changing obligations or remedies.
+						{t("translationHelper.stepTwo")}
 					</li>
 					<li className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
-						3. Keep the result marked needs-review until approved.
+						{t("translationHelper.stepThree")}
 					</li>
 				</ol>
 				<code className="mt-4 block overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs leading-5 text-gray-700 dark:border-white/10 dark:bg-white/5 dark:text-gray-200">
@@ -115,12 +113,10 @@ export default async function LegalPage({
 
 			<section className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
 				<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-					Security and reporting
+					{t("security.title")}
 				</h2>
 				<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					Security disclosures remain routed through the repository security policy. Legal
-					content changes should be reviewed before publication and mirrored into
-					documentation.
+					{t("security.body")}
 				</p>
 				<div className="mt-4 flex flex-col gap-3 sm:flex-row">
 					<a
@@ -129,13 +125,13 @@ export default async function LegalPage({
 						rel="noopener noreferrer"
 						className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
 					>
-						View Security Policy
+						{t("security.viewPolicy")}
 					</a>
 					<Link
 						href="/faq"
 						className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
 					>
-						Read FAQ
+						{t("security.readFaq")}
 					</Link>
 				</div>
 			</section>

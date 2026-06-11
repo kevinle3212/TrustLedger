@@ -21,7 +21,7 @@ describe("legal docs helper", () => {
 		const prompt = buildLegalTranslationPrompt(LEGAL_DOCUMENTS[0], "fr");
 
 		expect(prompt).toContain("TERMS_AND_CONDITIONS.md");
-		expect(prompt).toContain("from English to fr");
+		expect(prompt).toContain("from English to French");
 		expect(prompt).toContain("Preserve headings");
 		expect(prompt).toContain("human review");
 	});

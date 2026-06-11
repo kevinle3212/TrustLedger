@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import {
 	getLegalDocumentBySlug,
 	LEGAL_DOCUMENTS,
 	type LegalDocument,
+	type LegalLocale,
 	resolveLegalLocale,
 } from "@/helpers/legal-docs";
 
@@ -73,27 +74,29 @@ export async function generateMetadata({
 	};
 }
 
-async function readLegalMarkdown(document: LegalDocument): Promise<string> {
+async function readLegalMarkdown(document: LegalDocument, locale: LegalLocale): Promise<string> {
 	const filename = LEGAL_MARKDOWN_FILES[document.slug];
 	const paths = [
+		legalMarkdownPath(`../../../../content/legal/${locale}/${filename}`),
 		legalMarkdownPath(`../../../../content/legal/${filename}`),
 		legalMarkdownPath(`../../../../../${filename}`),
 	];
-	const results = await Promise.allSettled(
-		paths.map(async (path) => await readFile(path, "utf8")),
-	);
+	return await readFirstExistingLegalMarkdown(paths, filename);
+}
 
-	for (const result of results) {
-		if (result.status === "fulfilled") {
-			return result.value;
-		}
-
-		if ((result.reason as NodeJS.ErrnoException).code !== "ENOENT") {
-			throw result.reason;
-		}
+async function readFirstExistingLegalMarkdown(
+	paths: readonly string[],
+	filename: string,
+	index = 0,
+): Promise<string> {
+	const path = paths[index];
+	if (path === undefined) throw new Error(`Missing legal markdown source: ${filename}`);
+	try {
+		return await readFile(path, "utf8");
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+		return await readFirstExistingLegalMarkdown(paths, filename, index + 1);
 	}
-
-	throw new Error(`Missing legal markdown source: ${filename}`);
 }
 
 function isTableSeparator(line: string): boolean {
@@ -216,6 +219,31 @@ function keyPart(value: number): string {
 	return String(value);
 }
 
+function EmphasisText({
+	text,
+	keyPrefix,
+}: {
+	readonly text: string;
+	readonly keyPrefix: string;
+}): React.JSX.Element {
+	const nodes: React.ReactNode[] = [];
+	const emphasisPattern = /(^|[^\w])_([^_\n]+)_(?!\w)/g;
+	let cursor = 0;
+	let match: RegExpExecArray | null;
+
+	while ((match = emphasisPattern.exec(text)) !== null) {
+		const prefix = match[1] ?? "";
+		const emphasis = match[2] ?? "";
+		if (match.index > cursor) nodes.push(text.slice(cursor, match.index));
+		if (prefix !== "") nodes.push(prefix);
+		nodes.push(<em key={`${keyPrefix}-em-${keyPart(match.index)}`}>{emphasis}</em>);
+		cursor = match.index + match[0].length;
+	}
+	if (cursor < text.length) nodes.push(text.slice(cursor));
+
+	return <>{nodes}</>;
+}
+
 function StrongText({
 	text,
 	keyPrefix,
@@ -229,11 +257,27 @@ function StrongText({
 	let match: RegExpExecArray | null;
 
 	while ((match = strongPattern.exec(text)) !== null) {
-		if (match.index > cursor) nodes.push(text.slice(cursor, match.index));
+		if (match.index > cursor) {
+			nodes.push(
+				<EmphasisText
+					key={`${keyPrefix}-t${keyPart(cursor)}`}
+					text={text.slice(cursor, match.index)}
+					keyPrefix={`${keyPrefix}-t${keyPart(cursor)}`}
+				/>,
+			);
+		}
 		nodes.push(<strong key={`${keyPrefix}-strong-${keyPart(match.index)}`}>{match[1]}</strong>);
 		cursor = match.index + match[0].length;
 	}
-	if (cursor < text.length) nodes.push(text.slice(cursor));
+	if (cursor < text.length) {
+		nodes.push(
+			<EmphasisText
+				key={`${keyPrefix}-tail`}
+				text={text.slice(cursor)}
+				keyPrefix={`${keyPrefix}-tail`}
+			/>,
+		);
+	}
 
 	return <>{nodes}</>;
 }
@@ -416,13 +460,14 @@ export default async function LegalDocumentPage({
 }): Promise<React.JSX.Element> {
 	const { locale, slug } = await params;
 	setRequestLocale(locale);
+	const t = await getTranslations({ locale, namespace: "Legal" });
 
 	const document = getLegalDocumentBySlug(slug);
 	if (document === undefined) notFound();
 
-	const markdown = await readLegalMarkdown(document);
-	const blocks = parseMarkdown(markdown);
 	const legalLocale = resolveLegalLocale(locale);
+	const markdown = await readLegalMarkdown(document, legalLocale);
+	const blocks = parseMarkdown(markdown);
 
 	return (
 		<main className="mx-auto max-w-5xl px-6 py-12 sm:py-16">
@@ -430,21 +475,22 @@ export default async function LegalDocumentPage({
 				href="/legal"
 				className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
 			>
-				Back to legal center
+				{t("document.back")}
 			</Link>
 
 			<header className="mt-8 max-w-3xl">
 				<p className="text-sm font-semibold uppercase tracking-[0.16em] text-indigo-600 dark:text-indigo-400">
-					TrustLedger Legal Center
+					{t("eyebrow")}
 				</p>
 				<h1 className="mt-4 text-4xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-5xl">
-					{document.title}
+					{t(`documents.${document.slug}.title`)}
 				</h1>
 				<p className="mt-5 text-base leading-7 text-gray-600 dark:text-gray-300">
-					{document.description}
+					{t(`documents.${document.slug}.description`)}
 				</p>
 				<p className="mt-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
-					Source file: <span className="font-mono">{document.sourceFile}</span>. Locale:{" "}
+					{t("document.sourceFile")}{" "}
+					<span className="font-mono">{document.sourceFile}</span>. {t("document.locale")}{" "}
 					<span className="font-semibold">{legalLocale}</span>.
 				</p>
 			</header>
