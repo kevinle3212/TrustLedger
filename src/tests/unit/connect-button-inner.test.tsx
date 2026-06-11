@@ -1,8 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 
 import { ConnectButtonInner } from "@/components/ConnectButtonInner";
 
 const openMock = jest.fn();
+const writeTextMock = jest.fn<Promise<void>, [string]>();
 
 jest.mock("@/lib/appkit", () => ({
 	ensureAppKit: jest.fn(),
@@ -67,7 +68,18 @@ jest.mock("next-intl", () => ({
 
 describe("ConnectButtonInner", () => {
 	beforeEach(() => {
+		jest.useFakeTimers();
 		openMock.mockClear();
+		writeTextMock.mockResolvedValue(undefined);
+		Object.assign(navigator, {
+			clipboard: {
+				writeText: writeTextMock,
+			},
+		});
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
 	});
 
 	it("opens a connected wallet navigation menu and keeps wallet management separate", () => {
@@ -98,5 +110,28 @@ describe("ConnectButtonInner", () => {
 		fireEvent.click(screen.getByRole("menuitem", { name: /manage wallet/i }));
 
 		expect(openMock).toHaveBeenCalledTimes(1);
+	});
+
+	it("opens on hover and keeps the copy address button available", async () => {
+		render(<ConnectButtonInner />);
+
+		const addressButton = screen.getByRole("button", {
+			name: /connected as 0x1111111111111111111111111111111111111111/i,
+		});
+		const copyButton = screen.getByRole("button", { name: "Copy wallet address" });
+		const menu = screen.getByRole("menu", { name: "Wallet Menu" });
+
+		fireEvent.pointerEnter(addressButton);
+		expect(menu).toHaveClass("opacity-100");
+
+		fireEvent.click(copyButton);
+
+		expect(writeTextMock).toHaveBeenCalledWith("0x1111111111111111111111111111111111111111");
+		expect(await screen.findByRole("button", { name: "Address copied" })).toBeInTheDocument();
+
+		act(() => {
+			jest.advanceTimersByTime(1500);
+		});
+		expect(screen.getByRole("button", { name: "Copy wallet address" })).toBeInTheDocument();
 	});
 });

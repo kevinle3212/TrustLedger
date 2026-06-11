@@ -102,10 +102,14 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 
 	function loadAndOpen(): void {
 		setLoadWalletUi(true);
-		setOpenOnLoadKey((value) => value + 1);
+		if (!isConnected) {
+			setOpenOnLoadKey((value) => value + 1);
+		}
 	}
 
-	if (!loadWalletUi) {
+	const shouldLoadWalletUi = loadWalletUi || (mounted && isConnected);
+
+	if (!shouldLoadWalletUi) {
 		const remembered = mounted ? getLastWallet() : null;
 		const label =
 			mounted && isConnected && address !== undefined

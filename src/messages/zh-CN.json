@@ -41,7 +41,7 @@
 		"stepDashboardTaskThree": "Use only the action buttons available to your wallet.",
 		"stepDraftTitle": "Share Secure Drafts",
 		"stepDraftBody": "Use encrypted share links or live rooms when both parties need to review contract language before deployment.",
-		"stepDraftLink": "Open Draft Editor",
+		"stepDraftLink": "打开草稿编辑器",
 		"stepDraftTaskOne": "Create one encrypted link and send the session key separately.",
 		"stepDraftTaskTwo": "Use live sync only when both wallets are ready to co-edit.",
 		"stepDraftTaskThree": "Do not reuse older links after a newer link is generated.",
@@ -380,7 +380,25 @@
 		"addStake": "增加质押",
 		"withdrawStake": "提取质押",
 		"withdrawStakeMax": "提取质押（最多 {amount} ETH）",
-		"unstake": "取消质押"
+		"unstake": "取消质押",
+		"minimumEth": "最低为 {amount} ETH。",
+		"assignedDisputes": "已分配争议",
+		"assignedDisputesSubtitle": "仲裁合约最近选择此陪审员参与的案件。",
+		"noAssignedDisputes": "最近的链上窗口中未找到已分配争议。",
+		"disputeNumber": "争议 #{id}",
+		"contractEvidenceSummary": "合约 #{contractId} · {count} 项证据",
+		"feePool": "费用池",
+		"potentialOutcome": "潜在结果",
+		"freelancerPayout": "{amount} ETH 给自由职业者",
+		"pendingJurorRuling": "等待陪审员裁决",
+		"openVotingFlow": "打开投票流程",
+		"reviewDispute": "查看争议",
+		"localDraftHistory": "本地仲裁草稿历史",
+		"localDraftHistorySubtitle": "此浏览器中保存的未提交证据草稿，供陪审员和当事人查看。",
+		"noLocalDrafts": "此设备上未找到本地仲裁草稿。",
+		"notTimestamped": "未加时间戳",
+		"requestedCompletion": "请求完成度：{percent}%",
+		"openDraftCase": "打开草稿案件"
 	},
 	"Reputation": {
 		"title": "信誉",
@@ -561,7 +579,14 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "打开钱包安全账户工具、分析、公开状态和项目背景。"
+		"walletMenuHint": "打开钱包安全账户工具、分析、公开状态和项目背景。",
+		"walletRequiredTitle": "需要连接钱包",
+		"walletRequiredBody": "请连接钱包以继续。只有当您的地址在此浏览器中可用后，TrustLedger 才会显示与钱包相关的工作区数据。",
+		"walletRequiredHint": "请使用同一个钱包处理合约、陪审员操作、信誉和账户偏好。",
+		"walletRequiredChecklistTitle": "继续之前",
+		"walletRequiredChecklistAddress": "签名前确认钱包地址。",
+		"walletRequiredChecklistSecrets": "切勿输入助记词或私钥。",
+		"walletRequiredChecklistNetwork": "按提示在钱包中切换网络。"
 	},
 	"Decrypt": {
 		"title": "解密 AES-256-GCM 文档",
@@ -706,80 +731,86 @@
 		}
 	},
 	"Legal": {
-		"eyebrow": "TrustLedger Legal Center",
-		"title": "Policies, disclosures, and compliance references",
-		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
-		"currentLocale": "Current locale:",
-		"translationStatus": "Translation status:",
+		"eyebrow": "TrustLedger 法律中心",
+		"title": "政策、披露和合规参考",
+		"intro": "本页是 TrustLedger 法律文档的正式发布索引。法律内容以 Markdown 维护，并可在发布前通过人工审核流程进行翻译。",
+		"metadata": {
+			"title": "法律中心 - TrustLedger",
+			"description": "TrustLedger 法律、政策、合规、风险披露和安全文档索引。",
+			"documentTitle": "{title} - TrustLedger 法律中心",
+			"notFoundTitle": "未找到法律文档 - TrustLedger"
+		},
+		"currentLocale": "当前语言：",
+		"translationStatus": "翻译状态：",
 		"sourceFile": "源文件",
 		"viewDocument": "查看文档",
 		"status": {
-			"source": "Source",
-			"needs-review": "Needs Review",
-			"machine-assisted": "Machine Assisted"
+			"source": "源文",
+			"needs-review": "需要审核",
+			"machine-assisted": "机器辅助"
 		},
 		"translationHelper": {
 			"title": "翻译助手",
-			"body": "Use this helper before publishing legal text in another language. For English, it becomes a review prompt. For other languages, it becomes a translation prompt that keeps numbering, defined terms, links, and Markdown structure intact.",
-			"stepOne": "1. Choose the legal document and target locale.",
-			"stepTwo": "2. Translate without changing obligations or remedies.",
-			"stepThree": "3. Keep the result marked needs-review until approved."
+			"body": "在以其他语言发布法律文本前使用此助手。对于英语，它会生成审核提示；对于其他语言，它会生成保留编号、定义术语、链接和 Markdown 结构的翻译提示。",
+			"stepOne": "1. 选择法律文档和目标语言。",
+			"stepTwo": "2. 翻译时不得改变义务或救济。",
+			"stepThree": "3. 在批准前保持需要审核状态。"
 		},
 		"security": {
 			"title": "安全与报告",
-			"body": "Security disclosures remain routed through the repository security policy. Legal content changes should be reviewed before publication and mirrored into documentation.",
+			"body": "安全披露仍通过仓库安全政策处理。法律内容变更应在发布前审核，并同步到文档中。",
 			"viewPolicy": "查看安全政策",
 			"readFaq": "阅读 FAQ"
 		},
 		"document": {
-			"back": "Back to legal center",
-			"sourceFile": "Source file:",
-			"locale": "Locale:"
+			"back": "返回法律中心",
+			"sourceFile": "源文件：",
+			"locale": "语言："
 		},
 		"documents": {
 			"terms": {
-				"title": "Terms and Conditions",
-				"description": "User obligations, platform scope, wallet activity, escrow actions, and dispute handling."
+				"title": "条款和条件",
+				"description": "用户义务、平台范围、钱包活动、托管操作和争议处理。"
 			},
 			"privacy": {
-				"title": "Privacy Policy",
-				"description": "Personal data handling, wallet identifiers, operational logs, analytics, and user rights."
+				"title": "隐私政策",
+				"description": "个人数据处理、钱包标识符、运营日志、分析和用户权利。"
 			},
 			"cookies": {
-				"title": "Cookie Policy",
-				"description": "Browser storage, cookies, analytics preferences, and consent expectations."
+				"title": "Cookie 政策",
+				"description": "浏览器存储、Cookie、分析偏好和同意预期。"
 			},
 			"acceptable-use": {
-				"title": "Acceptable Use Policy",
-				"description": "Prohibited activity, sanctions-sensitive conduct, abuse controls, and enforcement paths."
+				"title": "可接受使用政策",
+				"description": "禁止活动、制裁敏感行为、滥用控制和执行路径。"
 			},
 			"content": {
-				"title": "Content Policy",
-				"description": "Rules for contract links, deliverables, evidence uploads, and platform-visible materials."
+				"title": "内容政策",
+				"description": "合约链接、交付物、证据上传和平台可见材料的规则。"
 			},
 			"dmca": {
-				"title": "DMCA Policy",
-				"description": "Copyright takedown notices, counter-notices, repeat infringer handling, and agent details."
+				"title": "DMCA 政策",
+				"description": "版权删除通知、反通知、重复侵权者处理和代理信息。"
 			},
 			"trademark": {
-				"title": "Trademark Policy",
-				"description": "Brand use, impersonation, confusing marks, and reporting requirements."
+				"title": "商标政策",
+				"description": "品牌使用、冒充、混淆性标志和举报要求。"
 			},
 			"risk": {
-				"title": "Risk Disclosure",
-				"description": "Blockchain, wallet, smart contract, market, arbitration, and availability risks."
+				"title": "风险披露",
+				"description": "区块链、钱包、智能合约、市场、仲裁和可用性风险。"
 			},
 			"disclaimer": {
-				"title": "Disclaimer",
-				"description": "No legal, financial, tax, or investment advice and no guarantee of dispute outcomes."
+				"title": "免责声明",
+				"description": "不提供法律、财务、税务或投资建议，也不保证争议结果。"
 			},
 			"community": {
-				"title": "Community Guidelines",
-				"description": "Professional conduct, evidence quality, juror behavior, and communication standards."
+				"title": "社区准则",
+				"description": "专业行为、证据质量、陪审员行为和沟通标准。"
 			},
 			"security": {
-				"title": "Security Policy",
-				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
+				"title": "安全政策",
+				"description": "负责任披露、支持的安全范围和漏洞报告。"
 			}
 		}
 	}

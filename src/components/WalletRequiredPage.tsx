@@ -1,6 +1,7 @@
 "use client";
 
 import { ConnectButton } from "@/components/ConnectButton";
+import { useTranslations } from "next-intl";
 
 function ShieldIcon(): React.JSX.Element {
 	return (
@@ -21,6 +22,8 @@ function ShieldIcon(): React.JSX.Element {
 }
 
 export function WalletRequiredPage(): React.JSX.Element {
+	const t = useTranslations("Common");
+
 	return (
 		<div className="tl-site-frame py-12 sm:py-16">
 			<section className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/10 dark:bg-gray-950">
@@ -34,28 +37,26 @@ export function WalletRequiredPage(): React.JSX.Element {
 							<ShieldIcon />
 						</div>
 						<h1 className="mt-5 text-3xl font-semibold tracking-[-0.02em] text-gray-950 sm:text-4xl dark:text-white">
-							Wallet Connection Required
+							{t("walletRequiredTitle")}
 						</h1>
 						<p className="mt-4 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-300">
-							Connect your wallet to continue. TrustLedger only shows wallet-scoped
-							workspace data after your address is available in this browser.
+							{t("walletRequiredBody")}
 						</p>
 						<div className="mt-7 flex flex-col items-start gap-3">
 							<ConnectButton />
 							<p className="max-w-lg text-sm leading-6 text-gray-500 dark:text-gray-400">
-								Use the same wallet you use for contracts, juror actions,
-								reputation, and account preferences.
+								{t("walletRequiredHint")}
 							</p>
 						</div>
 					</div>
 					<div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/[0.03]">
 						<p className="text-sm font-semibold text-gray-900 dark:text-white">
-							Before You Continue
+							{t("walletRequiredChecklistTitle")}
 						</p>
 						<ul className="mt-4 grid gap-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
-							<li>Confirm the wallet address before signing.</li>
-							<li>Never enter seed phrases or private keys.</li>
-							<li>Switch networks in your wallet when prompted.</li>
+							<li>{t("walletRequiredChecklistAddress")}</li>
+							<li>{t("walletRequiredChecklistSecrets")}</li>
+							<li>{t("walletRequiredChecklistNetwork")}</li>
 						</ul>
 					</div>
 				</div>

@@ -169,6 +169,10 @@ export function ConnectButtonInner({
 		};
 	}, []);
 
+	function openWalletMenu(): void {
+		setWalletMenuOpen(true);
+	}
+
 	function openModal(): void {
 		void open();
 	}
@@ -212,10 +216,10 @@ export function ConnectButtonInner({
 				ref={walletMenuRef}
 				className="relative max-w-full shrink-0"
 				onPointerEnter={() => {
-					setWalletMenuOpen(true);
+					openWalletMenu();
 				}}
 				onMouseEnter={() => {
-					setWalletMenuOpen(true);
+					openWalletMenu();
 				}}
 				onPointerLeave={() => {
 					setWalletMenuOpen(false);
@@ -224,7 +228,7 @@ export function ConnectButtonInner({
 					setWalletMenuOpen(false);
 				}}
 				onFocus={() => {
-					setWalletMenuOpen(true);
+					openWalletMenu();
 				}}
 			>
 				<div className="grid max-w-full grid-cols-[minmax(0,1fr)_2.5rem] items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white sm:inline-grid sm:grid-cols-[minmax(0,1fr)_2.75rem]">
@@ -257,7 +261,7 @@ export function ConnectButtonInner({
 				<div
 					role="menu"
 					aria-label={t("walletMenu")}
-					className={`absolute right-0 top-full z-50 mt-2 w-64 transition duration-150 ease-out ${menuVisibility}`}
+					className={`absolute right-0 top-full z-50 w-64 pt-2 transition duration-150 ease-out ${menuVisibility}`}
 				>
 					<div className="rounded-xl border border-gray-200 bg-white p-2 text-gray-900 shadow-lg shadow-gray-950/10 dark:border-white/10 dark:bg-gray-950 dark:text-white">
 						<Link

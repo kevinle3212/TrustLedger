@@ -41,7 +41,7 @@
 		"stepDashboardTaskThree": "Use only the action buttons available to your wallet.",
 		"stepDraftTitle": "Share Secure Drafts",
 		"stepDraftBody": "Use encrypted share links or live rooms when both parties need to review contract language before deployment.",
-		"stepDraftLink": "Open Draft Editor",
+		"stepDraftLink": "Abrir Editor de Rascunho",
 		"stepDraftTaskOne": "Create one encrypted link and send the session key separately.",
 		"stepDraftTaskTwo": "Use live sync only when both wallets are ready to co-edit.",
 		"stepDraftTaskThree": "Do not reuse older links after a newer link is generated.",
@@ -356,7 +356,7 @@
 		"ineligible": "Não Elegível",
 		"notRegistered": "Não Registrado",
 		"address": "Endereço",
-		"stake": "Stake",
+		"stake": "Participação",
 		"reputation": "Reputação",
 		"disputes": "Disputas",
 		"minorityVotes": "Votos Minoritários",
@@ -380,7 +380,25 @@
 		"addStake": "Adicionar Stake",
 		"withdrawStake": "Retirar Stake",
 		"withdrawStakeMax": "Retirar Stake (máx {amount} ETH)",
-		"unstake": "Remover Stake"
+		"unstake": "Remover Stake",
+		"minimumEth": "O mínimo é {amount} ETH.",
+		"assignedDisputes": "Disputas Atribuídas",
+		"assignedDisputesSubtitle": "Casos recentes em que este jurado foi selecionado pelo contrato de arbitragem.",
+		"noAssignedDisputes": "Nenhuma disputa atribuída foi encontrada na janela on-chain recente.",
+		"disputeNumber": "Disputa #{id}",
+		"contractEvidenceSummary": "Contrato #{contractId} · {count} itens de evidência",
+		"feePool": "Fundo de Taxas",
+		"potentialOutcome": "Resultado Potencial",
+		"freelancerPayout": "{amount} ETH para o freelancer",
+		"pendingJurorRuling": "Decisão do jurado pendente",
+		"openVotingFlow": "Abrir Fluxo de Votação",
+		"reviewDispute": "Revisar Disputa",
+		"localDraftHistory": "Histórico Local de Rascunhos de Arbitragem",
+		"localDraftHistorySubtitle": "Rascunhos de evidência não enviados salvos neste navegador para revisão de jurados e partes.",
+		"noLocalDrafts": "Nenhum rascunho local de arbitragem foi encontrado neste dispositivo.",
+		"notTimestamped": "Sem Registro de Tempo",
+		"requestedCompletion": "Conclusão Solicitada: {percent}%",
+		"openDraftCase": "Abrir Caso Rascunho"
 	},
 	"Reputation": {
 		"title": "Reputação",
@@ -561,7 +579,14 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "Abra ferramentas seguras de conta, análises, estado público e contexto do projeto."
+		"walletMenuHint": "Abra ferramentas seguras de conta, análises, estado público e contexto do projeto.",
+		"walletRequiredTitle": "Conexão de Carteira Obrigatória",
+		"walletRequiredBody": "Conecte sua carteira para continuar. O TrustLedger só mostra dados do espaço de trabalho vinculados à carteira depois que seu endereço está disponível neste navegador.",
+		"walletRequiredHint": "Use a mesma carteira usada para contratos, ações de jurado, reputação e preferências da conta.",
+		"walletRequiredChecklistTitle": "Antes de Continuar",
+		"walletRequiredChecklistAddress": "Confirme o endereço da carteira antes de assinar.",
+		"walletRequiredChecklistSecrets": "Nunca insira frases-semente ou chaves privadas.",
+		"walletRequiredChecklistNetwork": "Troque de rede na carteira quando solicitado."
 	},
 	"Decrypt": {
 		"title": "Descriptografar documento AES-256-GCM",
@@ -706,80 +731,86 @@
 		}
 	},
 	"Legal": {
-		"eyebrow": "TrustLedger Legal Center",
-		"title": "Policies, disclosures, and compliance references",
-		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
-		"currentLocale": "Current locale:",
-		"translationStatus": "Translation status:",
+		"eyebrow": "Centro Legal TrustLedger",
+		"title": "Políticas, divulgações e referências de conformidade",
+		"intro": "Esta página é o índice formal de publicação dos documentos legais da TrustLedger. O conteúdo legal é mantido em Markdown e pode ser traduzido com fluxo de revisão humana antes da publicação.",
+		"metadata": {
+			"title": "Centro Legal - TrustLedger",
+			"description": "Índice de documentos legais, políticas, conformidade, divulgações de risco e segurança da TrustLedger.",
+			"documentTitle": "{title} - Centro Legal TrustLedger",
+			"notFoundTitle": "Documento legal não encontrado - TrustLedger"
+		},
+		"currentLocale": "Idioma atual:",
+		"translationStatus": "Estado da tradução:",
 		"sourceFile": "Arquivo Fonte",
 		"viewDocument": "Ver Documento",
 		"status": {
-			"source": "Source",
-			"needs-review": "Needs Review",
-			"machine-assisted": "Machine Assisted"
+			"source": "Fonte",
+			"needs-review": "Precisa de Revisão",
+			"machine-assisted": "Assistido Por Máquina"
 		},
 		"translationHelper": {
 			"title": "Assistente De Tradução",
-			"body": "Use this helper before publishing legal text in another language. For English, it becomes a review prompt. For other languages, it becomes a translation prompt that keeps numbering, defined terms, links, and Markdown structure intact.",
-			"stepOne": "1. Choose the legal document and target locale.",
-			"stepTwo": "2. Translate without changing obligations or remedies.",
-			"stepThree": "3. Keep the result marked needs-review until approved."
+			"body": "Use este assistente antes de publicar texto legal em outro idioma. Para inglês, ele vira um pedido de revisão. Para outros idiomas, ele vira um pedido de tradução que mantém numeração, termos definidos, links e estrutura Markdown.",
+			"stepOne": "1. Escolha o documento legal e o idioma de destino.",
+			"stepTwo": "2. Traduza sem alterar obrigações ou remédios.",
+			"stepThree": "3. Mantenha o resultado marcado como precisa de revisão até ser aprovado."
 		},
 		"security": {
 			"title": "Segurança E Relatórios",
-			"body": "Security disclosures remain routed through the repository security policy. Legal content changes should be reviewed before publication and mirrored into documentation.",
+			"body": "Divulgações de segurança continuam roteadas pela política de segurança do repositório. Mudanças em conteúdo legal devem ser revisadas antes da publicação e refletidas na documentação.",
 			"viewPolicy": "Ver Política De Segurança",
 			"readFaq": "Ler Perguntas Frequentes"
 		},
 		"document": {
-			"back": "Back to legal center",
-			"sourceFile": "Source file:",
-			"locale": "Locale:"
+			"back": "Voltar ao centro legal",
+			"sourceFile": "Arquivo fonte:",
+			"locale": "Idioma:"
 		},
 		"documents": {
 			"terms": {
-				"title": "Terms and Conditions",
-				"description": "User obligations, platform scope, wallet activity, escrow actions, and dispute handling."
+				"title": "Termos e Condições",
+				"description": "Obrigações do usuário, escopo da plataforma, atividade da carteira, ações de escrow e tratamento de disputas."
 			},
 			"privacy": {
-				"title": "Privacy Policy",
-				"description": "Personal data handling, wallet identifiers, operational logs, analytics, and user rights."
+				"title": "Política de Privacidade",
+				"description": "Tratamento de dados pessoais, identificadores de carteira, logs operacionais, análises e direitos do usuário."
 			},
 			"cookies": {
-				"title": "Cookie Policy",
-				"description": "Browser storage, cookies, analytics preferences, and consent expectations."
+				"title": "Política de Cookies",
+				"description": "Armazenamento do navegador, cookies, preferências de análise e expectativas de consentimento."
 			},
 			"acceptable-use": {
-				"title": "Acceptable Use Policy",
-				"description": "Prohibited activity, sanctions-sensitive conduct, abuse controls, and enforcement paths."
+				"title": "Política de Uso Aceitável",
+				"description": "Atividades proibidas, condutas sensíveis a sanções, controles de abuso e caminhos de aplicação."
 			},
 			"content": {
-				"title": "Content Policy",
-				"description": "Rules for contract links, deliverables, evidence uploads, and platform-visible materials."
+				"title": "Política de Conteúdo",
+				"description": "Regras para links de contrato, entregáveis, uploads de evidências e materiais visíveis na plataforma."
 			},
 			"dmca": {
-				"title": "DMCA Policy",
-				"description": "Copyright takedown notices, counter-notices, repeat infringer handling, and agent details."
+				"title": "Política DMCA",
+				"description": "Avisos de remoção por direitos autorais, contranotificações, tratamento de infratores reincidentes e dados do agente."
 			},
 			"trademark": {
-				"title": "Trademark Policy",
-				"description": "Brand use, impersonation, confusing marks, and reporting requirements."
+				"title": "Política de Marcas",
+				"description": "Uso de marca, representação indevida, marcas confusas e requisitos de denúncia."
 			},
 			"risk": {
-				"title": "Risk Disclosure",
-				"description": "Blockchain, wallet, smart contract, market, arbitration, and availability risks."
+				"title": "Divulgação de Riscos",
+				"description": "Riscos de blockchain, carteira, contratos inteligentes, mercado, arbitragem e disponibilidade."
 			},
 			"disclaimer": {
-				"title": "Disclaimer",
-				"description": "No legal, financial, tax, or investment advice and no guarantee of dispute outcomes."
+				"title": "Aviso Legal",
+				"description": "Sem aconselhamento jurídico, financeiro, fiscal ou de investimento, e sem garantia de resultados de disputas."
 			},
 			"community": {
-				"title": "Community Guidelines",
-				"description": "Professional conduct, evidence quality, juror behavior, and communication standards."
+				"title": "Diretrizes da Comunidade",
+				"description": "Conduta profissional, qualidade de evidências, comportamento de jurados e padrões de comunicação."
 			},
 			"security": {
-				"title": "Security Policy",
-				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
+				"title": "Política de Segurança",
+				"description": "Divulgação responsável, escopo de segurança suportado e relatório de vulnerabilidades."
 			}
 		}
 	}

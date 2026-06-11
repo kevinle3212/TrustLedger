@@ -41,7 +41,7 @@
 		"stepDashboardTaskThree": "Use only the action buttons available to your wallet.",
 		"stepDraftTitle": "Share Secure Drafts",
 		"stepDraftBody": "Use encrypted share links or live rooms when both parties need to review contract language before deployment.",
-		"stepDraftLink": "Open Draft Editor",
+		"stepDraftLink": "فتح محرر المسودة",
 		"stepDraftTaskOne": "Create one encrypted link and send the session key separately.",
 		"stepDraftTaskTwo": "Use live sync only when both wallets are ready to co-edit.",
 		"stepDraftTaskThree": "Do not reuse older links after a newer link is generated.",
@@ -380,7 +380,25 @@
 		"addStake": "إضافة رهن",
 		"withdrawStake": "سحب الرهن",
 		"withdrawStakeMax": "سحب الرهن (حتى {amount} ETH)",
-		"unstake": "إلغاء الرهن"
+		"unstake": "إلغاء الرهن",
+		"minimumEth": "الحد الأدنى هو {amount} ETH.",
+		"assignedDisputes": "النزاعات المعيّنة",
+		"assignedDisputesSubtitle": "قضايا حديثة اختار فيها عقد التحكيم هذا المحلف.",
+		"noAssignedDisputes": "لم يتم العثور على نزاعات معيّنة في نافذة السلسلة الحديثة.",
+		"disputeNumber": "نزاع رقم {id}",
+		"contractEvidenceSummary": "عقد رقم {contractId} · {count} عنصر دليل",
+		"feePool": "مجمع الرسوم",
+		"potentialOutcome": "النتيجة المحتملة",
+		"freelancerPayout": "{amount} ETH للمستقل",
+		"pendingJurorRuling": "حكم المحلفين معلق",
+		"openVotingFlow": "فتح مسار التصويت",
+		"reviewDispute": "مراجعة النزاع",
+		"localDraftHistory": "سجل مسودات التحكيم المحلي",
+		"localDraftHistorySubtitle": "مسودات أدلة غير مرسلة محفوظة في هذا المتصفح لمراجعة المحلفين والأطراف.",
+		"noLocalDrafts": "لم يتم العثور على مسودات تحكيم محلية على هذا الجهاز.",
+		"notTimestamped": "بدون طابع زمني",
+		"requestedCompletion": "نسبة الإكمال المطلوبة: {percent}%",
+		"openDraftCase": "فتح قضية المسودة"
 	},
 	"Reputation": {
 		"title": "السمعة",
@@ -561,7 +579,14 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "افتح أدوات الحساب الآمنة للمحفظة والتحليلات والحالة العامة وخلفية المشروع."
+		"walletMenuHint": "افتح أدوات الحساب الآمنة للمحفظة والتحليلات والحالة العامة وخلفية المشروع.",
+		"walletRequiredTitle": "يلزم ربط المحفظة",
+		"walletRequiredBody": "اربط محفظتك للمتابعة. لا يعرض TrustLedger بيانات مساحة العمل المرتبطة بالمحفظة إلا بعد توفر عنوانك في هذا المتصفح.",
+		"walletRequiredHint": "استخدم المحفظة نفسها للعقود وإجراءات المحلفين والسمعة وتفضيلات الحساب.",
+		"walletRequiredChecklistTitle": "قبل المتابعة",
+		"walletRequiredChecklistAddress": "تأكد من عنوان المحفظة قبل التوقيع.",
+		"walletRequiredChecklistSecrets": "لا تدخل عبارات الاسترداد أو المفاتيح الخاصة أبدًا.",
+		"walletRequiredChecklistNetwork": "بدّل الشبكات في محفظتك عند مطالبتك بذلك."
 	},
 	"Decrypt": {
 		"title": "فك تشفير مستند AES-256-GCM",
@@ -706,80 +731,86 @@
 		}
 	},
 	"Legal": {
-		"eyebrow": "TrustLedger Legal Center",
-		"title": "Policies, disclosures, and compliance references",
-		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
-		"currentLocale": "Current locale:",
-		"translationStatus": "Translation status:",
+		"eyebrow": "المركز القانوني TrustLedger",
+		"title": "السياسات والإفصاحات ومراجع الامتثال",
+		"intro": "هذه الصفحة هي فهرس النشر الرسمي لمستندات TrustLedger القانونية. تتم صيانة المحتوى القانوني بصيغة Markdown ويمكن ترجمته عبر سير عمل مراجعة بشرية قبل النشر.",
+		"metadata": {
+			"title": "المركز القانوني - TrustLedger",
+			"description": "فهرس مستندات TrustLedger القانونية والسياسات والامتثال وإفصاحات المخاطر والأمان.",
+			"documentTitle": "{title} - المركز القانوني TrustLedger",
+			"notFoundTitle": "لم يتم العثور على المستند القانوني - TrustLedger"
+		},
+		"currentLocale": "اللغة الحالية:",
+		"translationStatus": "حالة الترجمة:",
 		"sourceFile": "ملف المصدر",
 		"viewDocument": "عرض المستند",
 		"status": {
-			"source": "Source",
-			"needs-review": "Needs Review",
-			"machine-assisted": "Machine Assisted"
+			"source": "المصدر",
+			"needs-review": "بحاجة إلى مراجعة",
+			"machine-assisted": "مدعوم آليًا"
 		},
 		"translationHelper": {
 			"title": "مساعد الترجمة",
-			"body": "Use this helper before publishing legal text in another language. For English, it becomes a review prompt. For other languages, it becomes a translation prompt that keeps numbering, defined terms, links, and Markdown structure intact.",
-			"stepOne": "1. Choose the legal document and target locale.",
-			"stepTwo": "2. Translate without changing obligations or remedies.",
-			"stepThree": "3. Keep the result marked needs-review until approved."
+			"body": "استخدم هذا المساعد قبل نشر نص قانوني بلغة أخرى. بالنسبة للإنجليزية يصبح طلب مراجعة. وبالنسبة للغات الأخرى يصبح طلب ترجمة يحافظ على الترقيم والمصطلحات المعرفة والروابط وبنية Markdown.",
+			"stepOne": "1. اختر المستند القانوني واللغة المستهدفة.",
+			"stepTwo": "2. ترجم دون تغيير الالتزامات أو سبل الانتصاف.",
+			"stepThree": "3. أبقِ النتيجة بعلامة بحاجة إلى مراجعة حتى تتم الموافقة."
 		},
 		"security": {
 			"title": "الأمان والإبلاغ",
-			"body": "Security disclosures remain routed through the repository security policy. Legal content changes should be reviewed before publication and mirrored into documentation.",
+			"body": "تظل إفصاحات الأمان موجهة عبر سياسة الأمان في المستودع. يجب مراجعة تغييرات المحتوى القانوني قبل النشر وعكسها في الوثائق.",
 			"viewPolicy": "عرض سياسة الأمان",
 			"readFaq": "قراءة الأسئلة الشائعة"
 		},
 		"document": {
-			"back": "Back to legal center",
-			"sourceFile": "Source file:",
-			"locale": "Locale:"
+			"back": "العودة إلى المركز القانوني",
+			"sourceFile": "ملف المصدر:",
+			"locale": "اللغة:"
 		},
 		"documents": {
 			"terms": {
-				"title": "Terms and Conditions",
-				"description": "User obligations, platform scope, wallet activity, escrow actions, and dispute handling."
+				"title": "الشروط والأحكام",
+				"description": "التزامات المستخدم ونطاق المنصة ونشاط المحفظة وإجراءات الضمان ومعالجة النزاعات."
 			},
 			"privacy": {
-				"title": "Privacy Policy",
-				"description": "Personal data handling, wallet identifiers, operational logs, analytics, and user rights."
+				"title": "سياسة الخصوصية",
+				"description": "معالجة البيانات الشخصية ومعرّفات المحافظ والسجلات التشغيلية والتحليلات وحقوق المستخدم."
 			},
 			"cookies": {
-				"title": "Cookie Policy",
-				"description": "Browser storage, cookies, analytics preferences, and consent expectations."
+				"title": "سياسة ملفات تعريف الارتباط",
+				"description": "تخزين المتصفح وملفات تعريف الارتباط وتفضيلات التحليلات وتوقعات الموافقة."
 			},
 			"acceptable-use": {
-				"title": "Acceptable Use Policy",
-				"description": "Prohibited activity, sanctions-sensitive conduct, abuse controls, and enforcement paths."
+				"title": "سياسة الاستخدام المقبول",
+				"description": "الأنشطة المحظورة والسلوك الحساس للعقوبات وضوابط إساءة الاستخدام ومسارات الإنفاذ."
 			},
 			"content": {
-				"title": "Content Policy",
-				"description": "Rules for contract links, deliverables, evidence uploads, and platform-visible materials."
+				"title": "سياسة المحتوى",
+				"description": "قواعد روابط العقود والتسليمات ورفع الأدلة والمواد المرئية على المنصة."
 			},
 			"dmca": {
-				"title": "DMCA Policy",
-				"description": "Copyright takedown notices, counter-notices, repeat infringer handling, and agent details."
+				"title": "سياسة DMCA",
+				"description": "إشعارات إزالة حقوق النشر والإشعارات المضادة ومعالجة المخالفين المتكررين وتفاصيل الوكيل."
 			},
 			"trademark": {
-				"title": "Trademark Policy",
-				"description": "Brand use, impersonation, confusing marks, and reporting requirements."
+				"title": "سياسة العلامات التجارية",
+				"description": "استخدام العلامة التجارية والانتحال والعلامات المربكة ومتطلبات الإبلاغ."
 			},
 			"risk": {
-				"title": "Risk Disclosure",
-				"description": "Blockchain, wallet, smart contract, market, arbitration, and availability risks."
+				"title": "إفصاح المخاطر",
+				"description": "مخاطر البلوكشين والمحافظ والعقود الذكية والسوق والتحكيم والتوفر."
 			},
 			"disclaimer": {
-				"title": "Disclaimer",
-				"description": "No legal, financial, tax, or investment advice and no guarantee of dispute outcomes."
+				"title": "إخلاء المسؤولية",
+				"description": "لا توجد مشورة قانونية أو مالية أو ضريبية أو استثمارية، ولا ضمان لنتائج النزاعات."
 			},
 			"community": {
-				"title": "Community Guidelines",
-				"description": "Professional conduct, evidence quality, juror behavior, and communication standards."
+				"title": "إرشادات المجتمع",
+				"description": "السلوك المهني وجودة الأدلة وسلوك المحلفين ومعايير التواصل."
 			},
 			"security": {
-				"title": "Security Policy",
-				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
+				"title": "سياسة الأمان",
+				"description": "الإفصاح المسؤول ونطاق الأمان المدعوم والإبلاغ عن الثغرات."
 			}
 		}
 	}

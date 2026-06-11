@@ -41,7 +41,7 @@
 		"stepDashboardTaskThree": "Use only the action buttons available to your wallet.",
 		"stepDraftTitle": "Share Secure Drafts",
 		"stepDraftBody": "Use encrypted share links or live rooms when both parties need to review contract language before deployment.",
-		"stepDraftLink": "Open Draft Editor",
+		"stepDraftLink": "Ouvrir l’Éditeur de Brouillon",
 		"stepDraftTaskOne": "Create one encrypted link and send the session key separately.",
 		"stepDraftTaskTwo": "Use live sync only when both wallets are ready to co-edit.",
 		"stepDraftTaskThree": "Do not reuse older links after a newer link is generated.",
@@ -380,7 +380,25 @@
 		"addStake": "Ajouter de la Mise",
 		"withdrawStake": "Retirer la Mise",
 		"withdrawStakeMax": "Retirer la Mise (max {amount} ETH)",
-		"unstake": "Retirer la Mise"
+		"unstake": "Retirer la Mise",
+		"minimumEth": "Le minimum est de {amount} ETH.",
+		"assignedDisputes": "Litiges Assignés",
+		"assignedDisputesSubtitle": "Affaires récentes où ce juré a été sélectionné par le contrat d’arbitrage.",
+		"noAssignedDisputes": "Aucun litige assigné trouvé dans la fenêtre récente en chaîne.",
+		"disputeNumber": "Litige n° {id}",
+		"contractEvidenceSummary": "Contrat n° {contractId} · {count} éléments de preuve",
+		"feePool": "Réserve de Frais",
+		"potentialOutcome": "Résultat Potentiel",
+		"freelancerPayout": "{amount} ETH au freelance",
+		"pendingJurorRuling": "Décision du jury en attente",
+		"openVotingFlow": "Ouvrir le Flux de Vote",
+		"reviewDispute": "Examiner le Litige",
+		"localDraftHistory": "Historique Local des Brouillons d’Arbitrage",
+		"localDraftHistorySubtitle": "Brouillons de preuves non soumis enregistrés dans ce navigateur pour les jurés et les parties.",
+		"noLocalDrafts": "Aucun brouillon local d’arbitrage trouvé sur cet appareil.",
+		"notTimestamped": "Sans Horodatage",
+		"requestedCompletion": "Achèvement Demandé : {percent}%",
+		"openDraftCase": "Ouvrir le Cas Brouillon"
 	},
 	"Reputation": {
 		"title": "Réputation",
@@ -561,7 +579,14 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "Ouvrez les outils de compte sécurisés, les analyses, l’état public et le contexte du projet."
+		"walletMenuHint": "Ouvrez les outils de compte sécurisés, les analyses, l’état public et le contexte du projet.",
+		"walletRequiredTitle": "Connexion du Portefeuille Requise",
+		"walletRequiredBody": "Connectez votre portefeuille pour continuer. TrustLedger affiche uniquement les données d’espace de travail liées au portefeuille après que votre adresse est disponible dans ce navigateur.",
+		"walletRequiredHint": "Utilisez le même portefeuille que pour les contrats, les actions de juré, la réputation et les préférences de compte.",
+		"walletRequiredChecklistTitle": "Avant de Continuer",
+		"walletRequiredChecklistAddress": "Confirmez l’adresse du portefeuille avant de signer.",
+		"walletRequiredChecklistSecrets": "Ne saisissez jamais de phrase de récupération ni de clé privée.",
+		"walletRequiredChecklistNetwork": "Changez de réseau dans votre portefeuille lorsque cela est demandé."
 	},
 	"Decrypt": {
 		"title": "Déchiffrer le document AES-256-GCM",
@@ -709,12 +734,18 @@
 		"eyebrow": "Centre Juridique TrustLedger",
 		"title": "Politiques, informations et références de conformité",
 		"intro": "Cette page est l’index officiel de publication des documents juridiques TrustLedger. Le contenu juridique est maintenu en Markdown et peut être traduit avec un flux de révision humaine avant publication.",
+		"metadata": {
+			"title": "Centre Juridique - TrustLedger",
+			"description": "Index des documents juridiques, politiques, conformité, risques et sécurité de TrustLedger.",
+			"documentTitle": "{title} - Centre Juridique TrustLedger",
+			"notFoundTitle": "Document juridique introuvable - TrustLedger"
+		},
 		"currentLocale": "Langue actuelle :",
 		"translationStatus": "État de traduction :",
 		"sourceFile": "Fichier Source",
 		"viewDocument": "Voir Le Document",
 		"status": {
-			"source": "Source",
+			"source": "Origine",
 			"needs-review": "À Réviser",
 			"machine-assisted": "Assisté Par Machine"
 		},
@@ -738,48 +769,48 @@
 		},
 		"documents": {
 			"terms": {
-				"title": "Terms and Conditions",
-				"description": "User obligations, platform scope, wallet activity, escrow actions, and dispute handling."
+				"title": "Conditions Générales",
+				"description": "Obligations des utilisateurs, portée de la plateforme, activité du portefeuille, actions d’escrow et traitement des litiges."
 			},
 			"privacy": {
-				"title": "Privacy Policy",
-				"description": "Personal data handling, wallet identifiers, operational logs, analytics, and user rights."
+				"title": "Politique de Confidentialité",
+				"description": "Traitement des données personnelles, identifiants de portefeuille, journaux opérationnels, analyses et droits des utilisateurs."
 			},
 			"cookies": {
-				"title": "Cookie Policy",
-				"description": "Browser storage, cookies, analytics preferences, and consent expectations."
+				"title": "Politique de Cookies",
+				"description": "Stockage du navigateur, cookies, préférences d’analyse et attentes de consentement."
 			},
 			"acceptable-use": {
-				"title": "Acceptable Use Policy",
-				"description": "Prohibited activity, sanctions-sensitive conduct, abuse controls, and enforcement paths."
+				"title": "Politique d’Utilisation Acceptable",
+				"description": "Activités interdites, conduite sensible aux sanctions, contrôles d’abus et voies d’application."
 			},
 			"content": {
-				"title": "Content Policy",
-				"description": "Rules for contract links, deliverables, evidence uploads, and platform-visible materials."
+				"title": "Politique de Contenu",
+				"description": "Règles pour les liens de contrat, livrables, téléversements de preuves et contenus visibles sur la plateforme."
 			},
 			"dmca": {
-				"title": "DMCA Policy",
-				"description": "Copyright takedown notices, counter-notices, repeat infringer handling, and agent details."
+				"title": "Politique DMCA",
+				"description": "Avis de retrait pour droit d’auteur, contre-avis, gestion des récidivistes et coordonnées de l’agent."
 			},
 			"trademark": {
-				"title": "Trademark Policy",
-				"description": "Brand use, impersonation, confusing marks, and reporting requirements."
+				"title": "Politique de Marques",
+				"description": "Utilisation de la marque, usurpation, marques prêtant à confusion et exigences de signalement."
 			},
 			"risk": {
-				"title": "Risk Disclosure",
-				"description": "Blockchain, wallet, smart contract, market, arbitration, and availability risks."
+				"title": "Divulgation des Risques",
+				"description": "Risques liés à la blockchain, aux portefeuilles, aux contrats intelligents, au marché, à l’arbitrage et à la disponibilité."
 			},
 			"disclaimer": {
-				"title": "Disclaimer",
-				"description": "No legal, financial, tax, or investment advice and no guarantee of dispute outcomes."
+				"title": "Avertissement",
+				"description": "Aucun conseil juridique, financier, fiscal ou d’investissement, et aucune garantie sur les résultats des litiges."
 			},
 			"community": {
-				"title": "Community Guidelines",
-				"description": "Professional conduct, evidence quality, juror behavior, and communication standards."
+				"title": "Règles de la Communauté",
+				"description": "Conduite professionnelle, qualité des preuves, comportement des jurés et normes de communication."
 			},
 			"security": {
-				"title": "Security Policy",
-				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
+				"title": "Politique de Sécurité",
+				"description": "Divulgation responsable, périmètre de sécurité pris en charge et signalement des vulnérabilités."
 			}
 		}
 	}

@@ -41,7 +41,7 @@
 		"stepDashboardTaskThree": "Use only the action buttons available to your wallet.",
 		"stepDraftTitle": "Share Secure Drafts",
 		"stepDraftBody": "Use encrypted share links or live rooms when both parties need to review contract language before deployment.",
-		"stepDraftLink": "Open Draft Editor",
+		"stepDraftLink": "Mở Trình Soạn Bản Nháp",
 		"stepDraftTaskOne": "Create one encrypted link and send the session key separately.",
 		"stepDraftTaskTwo": "Use live sync only when both wallets are ready to co-edit.",
 		"stepDraftTaskThree": "Do not reuse older links after a newer link is generated.",
@@ -380,7 +380,25 @@
 		"addStake": "Thêm Số Cược",
 		"withdrawStake": "Rút Số Cược",
 		"withdrawStakeMax": "Rút Số Cược (tối đa {amount} ETH)",
-		"unstake": "Bỏ Cược"
+		"unstake": "Bỏ Cược",
+		"minimumEth": "Tối thiểu là {amount} ETH.",
+		"assignedDisputes": "Tranh Chấp Được Giao",
+		"assignedDisputesSubtitle": "Các vụ gần đây mà thẩm phán này được hợp đồng trọng tài chọn.",
+		"noAssignedDisputes": "Không tìm thấy tranh chấp được giao trong cửa sổ on-chain gần đây.",
+		"disputeNumber": "Tranh chấp #{id}",
+		"contractEvidenceSummary": "Hợp đồng #{contractId} · {count} mục bằng chứng",
+		"feePool": "Quỹ Phí",
+		"potentialOutcome": "Kết Quả Tiềm Năng",
+		"freelancerPayout": "{amount} ETH cho freelancer",
+		"pendingJurorRuling": "Phán quyết của thẩm phán đang chờ",
+		"openVotingFlow": "Mở Luồng Bỏ Phiếu",
+		"reviewDispute": "Xem Lại Tranh Chấp",
+		"localDraftHistory": "Lịch Sử Bản Nháp Trọng Tài Cục Bộ",
+		"localDraftHistorySubtitle": "Bản nháp bằng chứng chưa gửi được lưu trong trình duyệt này để thẩm phán và các bên xem lại.",
+		"noLocalDrafts": "Không tìm thấy bản nháp trọng tài cục bộ trên thiết bị này.",
+		"notTimestamped": "Chưa Có Dấu Thời Gian",
+		"requestedCompletion": "Mức Hoàn Thành Yêu Cầu: {percent}%",
+		"openDraftCase": "Mở Vụ Bản Nháp"
 	},
 	"Reputation": {
 		"title": "Uy Tín",
@@ -561,7 +579,14 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "Mở công cụ tài khoản an toàn cho ví, phân tích, trạng thái công khai và thông tin dự án."
+		"walletMenuHint": "Mở công cụ tài khoản an toàn cho ví, phân tích, trạng thái công khai và thông tin dự án.",
+		"walletRequiredTitle": "Cần Kết Nối Ví",
+		"walletRequiredBody": "Kết nối ví để tiếp tục. TrustLedger chỉ hiển thị dữ liệu không gian làm việc theo ví sau khi địa chỉ của bạn có trong trình duyệt này.",
+		"walletRequiredHint": "Dùng cùng ví bạn sử dụng cho hợp đồng, hành động thẩm phán, uy tín và tùy chọn tài khoản.",
+		"walletRequiredChecklistTitle": "Trước Khi Tiếp Tục",
+		"walletRequiredChecklistAddress": "Xác nhận địa chỉ ví trước khi ký.",
+		"walletRequiredChecklistSecrets": "Không bao giờ nhập cụm từ khôi phục hoặc khóa riêng.",
+		"walletRequiredChecklistNetwork": "Chuyển mạng trong ví khi được yêu cầu."
 	},
 	"Decrypt": {
 		"title": "Giải mã tài liệu AES-256-GCM",
@@ -708,7 +733,13 @@
 	"Legal": {
 		"eyebrow": "Trung Tâm Pháp Lý TrustLedger",
 		"title": "Chính sách, công bố và tài liệu tuân thủ",
-		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
+		"intro": "Trang này là chỉ mục xuất bản chính thức cho tài liệu pháp lý của TrustLedger. Nội dung pháp lý được duy trì bằng Markdown và có thể được dịch qua quy trình rà soát của con người trước khi xuất bản.",
+		"metadata": {
+			"title": "Trung Tâm Pháp Lý - TrustLedger",
+			"description": "Chỉ mục tài liệu pháp lý, chính sách, tuân thủ, công bố rủi ro và bảo mật của TrustLedger.",
+			"documentTitle": "{title} - Trung Tâm Pháp Lý TrustLedger",
+			"notFoundTitle": "Không tìm thấy tài liệu pháp lý - TrustLedger"
+		},
 		"currentLocale": "Ngôn ngữ hiện tại:",
 		"translationStatus": "Trạng thái dịch:",
 		"sourceFile": "Tệp Nguồn",
@@ -720,7 +751,7 @@
 		},
 		"translationHelper": {
 			"title": "Trợ Lý Dịch Thuật",
-			"body": "Use this helper before publishing legal text in another language. For English, it becomes a review prompt. For other languages, it becomes a translation prompt that keeps numbering, defined terms, links, and Markdown structure intact.",
+			"body": "Dùng trợ lý này trước khi xuất bản văn bản pháp lý bằng ngôn ngữ khác. Với tiếng Anh, đây là lời nhắc rà soát. Với ngôn ngữ khác, đây là lời nhắc dịch giữ nguyên đánh số, thuật ngữ định nghĩa, liên kết và cấu trúc Markdown.",
 			"stepOne": "1. Chọn tài liệu pháp lý và ngôn ngữ đích.",
 			"stepTwo": "2. Dịch mà không thay đổi nghĩa vụ hoặc biện pháp khắc phục.",
 			"stepThree": "3. Giữ kết quả ở trạng thái cần rà soát cho đến khi được duyệt."
@@ -738,48 +769,48 @@
 		},
 		"documents": {
 			"terms": {
-				"title": "Terms and Conditions",
-				"description": "User obligations, platform scope, wallet activity, escrow actions, and dispute handling."
+				"title": "Điều Khoản và Điều Kiện",
+				"description": "Nghĩa vụ người dùng, phạm vi nền tảng, hoạt động ví, thao tác escrow và xử lý tranh chấp."
 			},
 			"privacy": {
-				"title": "Privacy Policy",
-				"description": "Personal data handling, wallet identifiers, operational logs, analytics, and user rights."
+				"title": "Chính Sách Quyền Riêng Tư",
+				"description": "Xử lý dữ liệu cá nhân, định danh ví, nhật ký vận hành, phân tích và quyền của người dùng."
 			},
 			"cookies": {
-				"title": "Cookie Policy",
-				"description": "Browser storage, cookies, analytics preferences, and consent expectations."
+				"title": "Chính Sách Cookie",
+				"description": "Lưu trữ trình duyệt, cookie, tùy chọn phân tích và kỳ vọng về đồng ý."
 			},
 			"acceptable-use": {
-				"title": "Acceptable Use Policy",
-				"description": "Prohibited activity, sanctions-sensitive conduct, abuse controls, and enforcement paths."
+				"title": "Chính Sách Sử Dụng Chấp Nhận Được",
+				"description": "Hoạt động bị cấm, hành vi nhạy cảm về trừng phạt, kiểm soát lạm dụng và hướng thực thi."
 			},
 			"content": {
-				"title": "Content Policy",
-				"description": "Rules for contract links, deliverables, evidence uploads, and platform-visible materials."
+				"title": "Chính Sách Nội Dung",
+				"description": "Quy tắc cho liên kết hợp đồng, sản phẩm bàn giao, tải bằng chứng lên và tài liệu hiển thị trên nền tảng."
 			},
 			"dmca": {
-				"title": "DMCA Policy",
-				"description": "Copyright takedown notices, counter-notices, repeat infringer handling, and agent details."
+				"title": "Chính Sách DMCA",
+				"description": "Thông báo gỡ bỏ bản quyền, phản thông báo, xử lý vi phạm lặp lại và thông tin đại diện."
 			},
 			"trademark": {
-				"title": "Trademark Policy",
-				"description": "Brand use, impersonation, confusing marks, and reporting requirements."
+				"title": "Chính Sách Nhãn Hiệu",
+				"description": "Sử dụng thương hiệu, mạo danh, nhãn hiệu gây nhầm lẫn và yêu cầu báo cáo."
 			},
 			"risk": {
-				"title": "Risk Disclosure",
-				"description": "Blockchain, wallet, smart contract, market, arbitration, and availability risks."
+				"title": "Công Bố Rủi Ro",
+				"description": "Rủi ro blockchain, ví, hợp đồng thông minh, thị trường, trọng tài và khả dụng."
 			},
 			"disclaimer": {
-				"title": "Disclaimer",
-				"description": "No legal, financial, tax, or investment advice and no guarantee of dispute outcomes."
+				"title": "Tuyên Bố Miễn Trừ",
+				"description": "Không phải tư vấn pháp lý, tài chính, thuế hoặc đầu tư, và không bảo đảm kết quả tranh chấp."
 			},
 			"community": {
-				"title": "Community Guidelines",
-				"description": "Professional conduct, evidence quality, juror behavior, and communication standards."
+				"title": "Nguyên Tắc Cộng Đồng",
+				"description": "Ứng xử chuyên nghiệp, chất lượng bằng chứng, hành vi thẩm phán và tiêu chuẩn giao tiếp."
 			},
 			"security": {
-				"title": "Security Policy",
-				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
+				"title": "Chính Sách Bảo Mật",
+				"description": "Công bố có trách nhiệm, phạm vi bảo mật được hỗ trợ và báo cáo lỗ hổng."
 			}
 		}
 	}

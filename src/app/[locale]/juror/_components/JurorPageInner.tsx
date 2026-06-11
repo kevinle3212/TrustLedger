@@ -24,10 +24,15 @@ import { readEvidenceDraftHistory, type EvidenceDraftHistoryItem } from "@/store
 const MIN_STAKE_ETH = 0.01;
 
 /** Validates a juror stake amount: a positive ETH value of at least `minEth`. */
-function validateStake(value: string, minEth: number, maxEth?: number): string | undefined {
+function validateStake(
+	value: string,
+	minEth: number,
+	minimumMessage: string,
+	maxEth?: number,
+): string | undefined {
 	const base = validateEthAmount(value, maxEth);
 	if (base !== undefined) return base;
-	return Number(value) < minEth ? `Minimum is ${minEth.toString()} ETH.` : undefined;
+	return Number(value) < minEth ? minimumMessage : undefined;
 }
 
 const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
@@ -206,7 +211,11 @@ function RegisterForm(): React.JSX.Element {
 	const { writeContract, data: txHash, isPending, error, reset } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
-	const amountError = validateStake(ethAmount, MIN_STAKE_ETH);
+	const amountError = validateStake(
+		ethAmount,
+		MIN_STAKE_ETH,
+		t("minimumEth", { amount: MIN_STAKE_ETH.toString() }),
+	);
 
 	function handleRegister(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
@@ -326,8 +335,13 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 	const isRegistered = juror?.active === true || (juror?.stake ?? 0n) > 0n;
 
 	const maxUnstakeEth = juror !== undefined ? Number(formatEther(juror.stake)) : undefined;
-	const addError = validateStake(addAmount, 0.001);
-	const unstakeError = validateStake(unstakeAmount, 0.001, maxUnstakeEth);
+	const addError = validateStake(addAmount, 0.001, t("minimumEth", { amount: "0.001" }));
+	const unstakeError = validateStake(
+		unstakeAmount,
+		0.001,
+		t("minimumEth", { amount: "0.001" }),
+		maxUnstakeEth,
+	);
 
 	if (!isRegistered) return <></>;
 
@@ -466,6 +480,7 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 }
 
 function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.Element {
+	const t = useTranslations("Juror");
 	const locale = useLocale();
 	const { data: nextDisputeId } = useReadContract({
 		address: ARBITRATION_ADDRESS,
@@ -523,14 +538,14 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 	return (
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
 			<div>
-				<h2 className="font-semibold text-gray-900 dark:text-white">Assigned Disputes</h2>
-				<p className="text-xs text-gray-500 mt-1">
-					Recent selected juror cases from the arbitration contract.
-				</p>
+				<h2 className="font-semibold text-gray-900 dark:text-white">
+					{t("assignedDisputes")}
+				</h2>
+				<p className="text-xs text-gray-500 mt-1">{t("assignedDisputesSubtitle")}</p>
 			</div>
 			{assigned.length === 0 ? (
 				<p className="text-sm text-gray-500 dark:text-gray-400">
-					No assigned disputes found in the recent on-chain window.
+					{t("noAssignedDisputes")}
 				</p>
 			) : (
 				<div className="flex flex-col gap-3">
@@ -545,11 +560,13 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 								<div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
 									<div>
 										<p className="text-sm font-semibold text-gray-900 dark:text-white">
-											Dispute #{disputeId.toString()}
+											{t("disputeNumber", { id: disputeId.toString() })}
 										</p>
 										<p className="text-xs text-gray-500">
-											Contract #{dispute.contractId.toString()} ·{" "}
-											{evidenceCount.toString()} evidence items
+											{t("contractEvidenceSummary", {
+												contractId: dispute.contractId.toString(),
+												count: evidenceCount.toString(),
+											})}
 										</p>
 									</div>
 									<span className="text-xs text-gray-500">
@@ -557,15 +574,22 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 									</span>
 								</div>
 								<div className="tl-kv-grid text-xs">
-									<span className="text-gray-500">Fee pool</span>
+									<span className="text-gray-500">{t("feePool")}</span>
 									<span className="text-gray-900 dark:text-white">
 										{formatEther(dispute.feePool)} ETH
 									</span>
-									<span className="text-gray-500">Potential outcome</span>
+									<span className="text-gray-500">{t("potentialOutcome")}</span>
 									<span className="text-gray-900 dark:text-white">
 										{rulingReady
-											? `${formatEther(calculateLinearPayout(dispute.ruling, dispute.contractAmount))} ETH to freelancer`
-											: "Pending juror ruling"}
+											? t("freelancerPayout", {
+													amount: formatEther(
+														calculateLinearPayout(
+															dispute.ruling,
+															dispute.contractAmount,
+														),
+													),
+												})
+											: t("pendingJurorRuling")}
 									</span>
 								</div>
 								<Link
@@ -576,7 +600,7 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 											: "bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-900 dark:text-white"
 									}`}
 								>
-									{phaseOpen ? "Open Voting Flow" : "Review Dispute"}
+									{phaseOpen ? t("openVotingFlow") : t("reviewDispute")}
 								</Link>
 							</div>
 						);
@@ -588,6 +612,7 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 }
 
 function LocalDraftHistoryPanel(): React.JSX.Element {
+	const t = useTranslations("Juror");
 	const locale = useLocale();
 	const dateTimeFormatter = useMemo(
 		() => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }),
@@ -608,16 +633,12 @@ function LocalDraftHistoryPanel(): React.JSX.Element {
 		<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-4">
 			<div>
 				<h2 className="font-semibold text-gray-900 dark:text-white">
-					Local Arbitration Draft History
+					{t("localDraftHistory")}
 				</h2>
-				<p className="text-xs text-gray-500 mt-1">
-					Unsubmitted evidence drafts saved in this browser for juror and party review.
-				</p>
+				<p className="text-xs text-gray-500 mt-1">{t("localDraftHistorySubtitle")}</p>
 			</div>
 			{drafts.length === 0 ? (
-				<p className="text-sm text-gray-500 dark:text-gray-400">
-					No local arbitration drafts found on this device.
-				</p>
+				<p className="text-sm text-gray-500 dark:text-gray-400">{t("noLocalDrafts")}</p>
 			) : (
 				<div className="flex flex-col gap-3">
 					{drafts.map((draft) => (
@@ -627,25 +648,27 @@ function LocalDraftHistoryPanel(): React.JSX.Element {
 						>
 							<div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
 								<p className="text-sm font-semibold text-gray-900 dark:text-white">
-									Dispute #{draft.disputeId}
+									{t("disputeNumber", { id: draft.disputeId })}
 								</p>
 								<span className="text-xs text-gray-500">
 									{draft.updatedAt > 0
 										? dateTimeFormatter.format(new Date(draft.updatedAt))
-										: "Not Timestamped"}
+										: t("notTimestamped")}
 								</span>
 							</div>
 							<p className="mt-2 line-clamp-3 text-sm text-gray-600 dark:text-gray-300">
 								{draft.summary}
 							</p>
 							<p className="mt-2 text-xs text-gray-500">
-								Requested Completion: {draft.requestedCompletionPct.toString()}%
+								{t("requestedCompletion", {
+									percent: draft.requestedCompletionPct.toString(),
+								})}
 							</p>
 							<Link
 								href={`/arbitration/${draft.disputeId}`}
 								className="mt-3 inline-flex rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500"
 							>
-								Open Draft Case
+								{t("openDraftCase")}
 							</Link>
 						</div>
 					))}

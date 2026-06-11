@@ -41,7 +41,7 @@
 		"stepDashboardTaskThree": "Use only the action buttons available to your wallet.",
 		"stepDraftTitle": "Share Secure Drafts",
 		"stepDraftBody": "Use encrypted share links or live rooms when both parties need to review contract language before deployment.",
-		"stepDraftLink": "Open Draft Editor",
+		"stepDraftLink": "ड्राफ्ट एडिटर खोलें",
 		"stepDraftTaskOne": "Create one encrypted link and send the session key separately.",
 		"stepDraftTaskTwo": "Use live sync only when both wallets are ready to co-edit.",
 		"stepDraftTaskThree": "Do not reuse older links after a newer link is generated.",
@@ -380,7 +380,25 @@
 		"addStake": "स्टेक जोड़ें",
 		"withdrawStake": "स्टेक निकालें",
 		"withdrawStakeMax": "स्टेक निकालें (अधिकतम {amount} ETH)",
-		"unstake": "अनस्टेक करें"
+		"unstake": "अनस्टेक करें",
+		"minimumEth": "न्यूनतम {amount} ETH है।",
+		"assignedDisputes": "सौंपे गए विवाद",
+		"assignedDisputesSubtitle": "हाल के मामले जिनमें इस जूरर को arbitration contract ने चुना है।",
+		"noAssignedDisputes": "हाल की on-chain विंडो में कोई सौंपा गया विवाद नहीं मिला।",
+		"disputeNumber": "विवाद #{id}",
+		"contractEvidenceSummary": "कॉन्ट्रैक्ट #{contractId} · {count} सबूत आइटम",
+		"feePool": "शुल्क पूल",
+		"potentialOutcome": "संभावित परिणाम",
+		"freelancerPayout": "फ्रीलांसर को {amount} ETH",
+		"pendingJurorRuling": "जूरर निर्णय लंबित",
+		"openVotingFlow": "वोटिंग फ्लो खोलें",
+		"reviewDispute": "विवाद देखें",
+		"localDraftHistory": "स्थानीय arbitration ड्राफ्ट इतिहास",
+		"localDraftHistorySubtitle": "जूरर और पक्षों की समीक्षा के लिए इस ब्राउज़र में सहेजे गए असबमिटेड सबूत ड्राफ्ट।",
+		"noLocalDrafts": "इस डिवाइस पर कोई स्थानीय arbitration ड्राफ्ट नहीं मिला।",
+		"notTimestamped": "समय-मुद्रित नहीं",
+		"requestedCompletion": "अनुरोधित पूर्णता: {percent}%",
+		"openDraftCase": "ड्राफ्ट केस खोलें"
 	},
 	"Reputation": {
 		"title": "प्रतिष्ठा",
@@ -561,7 +579,14 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "वॉलेट-सुरक्षित खाता टूल, एनालिटिक्स, सार्वजनिक स्थिति और प्रोजेक्ट पृष्ठभूमि खोलें।"
+		"walletMenuHint": "वॉलेट-सुरक्षित खाता टूल, एनालिटिक्स, सार्वजनिक स्थिति और प्रोजेक्ट पृष्ठभूमि खोलें।",
+		"walletRequiredTitle": "वॉलेट कनेक्शन आवश्यक",
+		"walletRequiredBody": "जारी रखने के लिए अपना वॉलेट कनेक्ट करें। TrustLedger इस ब्राउज़र में आपका पता उपलब्ध होने के बाद ही वॉलेट-स्कोप्ड workspace data दिखाता है।",
+		"walletRequiredHint": "कॉन्ट्रैक्ट, जूरर कार्रवाई, प्रतिष्ठा और खाते की पसंद के लिए वही वॉलेट उपयोग करें।",
+		"walletRequiredChecklistTitle": "जारी रखने से पहले",
+		"walletRequiredChecklistAddress": "साइन करने से पहले वॉलेट पता पुष्टि करें।",
+		"walletRequiredChecklistSecrets": "सीड फ़्रेज़ या निजी कुंजियाँ कभी दर्ज न करें।",
+		"walletRequiredChecklistNetwork": "कहने पर अपने वॉलेट में नेटवर्क बदलें।"
 	},
 	"Decrypt": {
 		"title": "AES-256-GCM दस्तावेज़ डिक्रिप्ट करें",
@@ -706,80 +731,86 @@
 		}
 	},
 	"Legal": {
-		"eyebrow": "TrustLedger Legal Center",
-		"title": "Policies, disclosures, and compliance references",
-		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
-		"currentLocale": "Current locale:",
-		"translationStatus": "Translation status:",
+		"eyebrow": "TrustLedger कानूनी केंद्र",
+		"title": "नीतियाँ, प्रकटीकरण और अनुपालन संदर्भ",
+		"intro": "यह पृष्ठ TrustLedger कानूनी दस्तावेज़ों का औपचारिक प्रकाशन सूचकांक है। कानूनी सामग्री Markdown में रखी जाती है और प्रकाशन से पहले मानव-समीक्षा वर्कफ़्लो से अनुवादित की जा सकती है।",
+		"metadata": {
+			"title": "कानूनी केंद्र - TrustLedger",
+			"description": "TrustLedger कानूनी, नीति, अनुपालन, जोखिम प्रकटीकरण और सुरक्षा दस्तावेज़ सूचकांक।",
+			"documentTitle": "{title} - TrustLedger कानूनी केंद्र",
+			"notFoundTitle": "कानूनी दस्तावेज़ नहीं मिला - TrustLedger"
+		},
+		"currentLocale": "वर्तमान भाषा:",
+		"translationStatus": "अनुवाद स्थिति:",
 		"sourceFile": "स्रोत फ़ाइल",
 		"viewDocument": "दस्तावेज़ देखें",
 		"status": {
-			"source": "Source",
-			"needs-review": "Needs Review",
-			"machine-assisted": "Machine Assisted"
+			"source": "स्रोत",
+			"needs-review": "समीक्षा आवश्यक",
+			"machine-assisted": "मशीन-सहायता प्राप्त"
 		},
 		"translationHelper": {
 			"title": "अनुवाद सहायक",
-			"body": "Use this helper before publishing legal text in another language. For English, it becomes a review prompt. For other languages, it becomes a translation prompt that keeps numbering, defined terms, links, and Markdown structure intact.",
-			"stepOne": "1. Choose the legal document and target locale.",
-			"stepTwo": "2. Translate without changing obligations or remedies.",
-			"stepThree": "3. Keep the result marked needs-review until approved."
+			"body": "किसी अन्य भाषा में कानूनी पाठ प्रकाशित करने से पहले इस सहायक का उपयोग करें। अंग्रेज़ी के लिए यह समीक्षा संकेत बनता है। अन्य भाषाओं के लिए यह ऐसा अनुवाद संकेत बनता है जो क्रमांकन, परिभाषित शब्द, लिंक और Markdown संरचना बनाए रखता है।",
+			"stepOne": "1. कानूनी दस्तावेज़ और लक्ष्य भाषा चुनें।",
+			"stepTwo": "2. दायित्वों या उपचारों को बदले बिना अनुवाद करें।",
+			"stepThree": "3. अनुमोदन तक परिणाम को समीक्षा आवश्यक चिह्नित रखें।"
 		},
 		"security": {
 			"title": "सुरक्षा और रिपोर्टिंग",
-			"body": "Security disclosures remain routed through the repository security policy. Legal content changes should be reviewed before publication and mirrored into documentation.",
+			"body": "सुरक्षा प्रकटीकरण repository security policy के माध्यम से ही जाते हैं। कानूनी सामग्री में बदलाव प्रकाशन से पहले समीक्षा किए जाने चाहिए और दस्तावेज़ों में भी शामिल होने चाहिए।",
 			"viewPolicy": "सुरक्षा नीति देखें",
 			"readFaq": "FAQ पढ़ें"
 		},
 		"document": {
-			"back": "Back to legal center",
-			"sourceFile": "Source file:",
-			"locale": "Locale:"
+			"back": "कानूनी केंद्र पर वापस जाएँ",
+			"sourceFile": "स्रोत फ़ाइल:",
+			"locale": "भाषा:"
 		},
 		"documents": {
 			"terms": {
-				"title": "Terms and Conditions",
-				"description": "User obligations, platform scope, wallet activity, escrow actions, and dispute handling."
+				"title": "नियम और शर्तें",
+				"description": "उपयोगकर्ता दायित्व, प्लेटफ़ॉर्म दायरा, वॉलेट गतिविधि, एस्क्रो कार्रवाई और विवाद प्रबंधन।"
 			},
 			"privacy": {
-				"title": "Privacy Policy",
-				"description": "Personal data handling, wallet identifiers, operational logs, analytics, and user rights."
+				"title": "गोपनीयता नीति",
+				"description": "व्यक्तिगत डेटा प्रबंधन, वॉलेट पहचानकर्ता, परिचालन लॉग, एनालिटिक्स और उपयोगकर्ता अधिकार।"
 			},
 			"cookies": {
-				"title": "Cookie Policy",
-				"description": "Browser storage, cookies, analytics preferences, and consent expectations."
+				"title": "कुकी नीति",
+				"description": "ब्राउज़र स्टोरेज, कुकीज़, एनालिटिक्स पसंद और सहमति अपेक्षाएँ।"
 			},
 			"acceptable-use": {
-				"title": "Acceptable Use Policy",
-				"description": "Prohibited activity, sanctions-sensitive conduct, abuse controls, and enforcement paths."
+				"title": "स्वीकार्य उपयोग नीति",
+				"description": "निषिद्ध गतिविधि, प्रतिबंध-संवेदनशील आचरण, दुरुपयोग नियंत्रण और प्रवर्तन मार्ग।"
 			},
 			"content": {
-				"title": "Content Policy",
-				"description": "Rules for contract links, deliverables, evidence uploads, and platform-visible materials."
+				"title": "सामग्री नीति",
+				"description": "कॉन्ट्रैक्ट लिंक, डिलिवरेबल्स, सबूत अपलोड और प्लेटफ़ॉर्म-दृश्य सामग्री के नियम।"
 			},
 			"dmca": {
-				"title": "DMCA Policy",
-				"description": "Copyright takedown notices, counter-notices, repeat infringer handling, and agent details."
+				"title": "DMCA नीति",
+				"description": "कॉपीराइट हटाने के नोटिस, काउंटर-नोटिस, बार-बार उल्लंघन करने वालों का प्रबंधन और एजेंट विवरण।"
 			},
 			"trademark": {
-				"title": "Trademark Policy",
-				"description": "Brand use, impersonation, confusing marks, and reporting requirements."
+				"title": "ट्रेडमार्क नीति",
+				"description": "ब्रांड उपयोग, प्रतिरूपण, भ्रमित करने वाले चिह्न और रिपोर्टिंग आवश्यकताएँ।"
 			},
 			"risk": {
-				"title": "Risk Disclosure",
-				"description": "Blockchain, wallet, smart contract, market, arbitration, and availability risks."
+				"title": "जोखिम प्रकटीकरण",
+				"description": "ब्लॉकचेन, वॉलेट, स्मार्ट कॉन्ट्रैक्ट, बाज़ार, arbitration और उपलब्धता जोखिम।"
 			},
 			"disclaimer": {
-				"title": "Disclaimer",
-				"description": "No legal, financial, tax, or investment advice and no guarantee of dispute outcomes."
+				"title": "अस्वीकरण",
+				"description": "कोई कानूनी, वित्तीय, कर या निवेश सलाह नहीं, और विवाद परिणामों की कोई गारंटी नहीं।"
 			},
 			"community": {
-				"title": "Community Guidelines",
-				"description": "Professional conduct, evidence quality, juror behavior, and communication standards."
+				"title": "समुदाय दिशानिर्देश",
+				"description": "पेशेवर आचरण, सबूत गुणवत्ता, जूरर व्यवहार और संचार मानक।"
 			},
 			"security": {
-				"title": "Security Policy",
-				"description": "Responsible disclosure, supported security scope, and vulnerability reporting."
+				"title": "सुरक्षा नीति",
+				"description": "जिम्मेदार प्रकटीकरण, समर्थित सुरक्षा दायरा और vulnerability reporting।"
 			}
 		}
 	}

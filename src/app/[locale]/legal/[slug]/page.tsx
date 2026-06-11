@@ -63,15 +63,16 @@ export async function generateMetadata({
 }: {
 	params: Promise<LegalDocPageParams>;
 }): Promise<Metadata> {
-	const { slug } = await params;
+	const { locale, slug } = await params;
+	const t = await getTranslations({ locale, namespace: "Legal" });
 	const document = getLegalDocumentBySlug(slug);
 	if (document === undefined) {
-		return { title: "Legal document not found - TrustLedger" };
+		return { title: t("metadata.notFoundTitle") };
 	}
 
 	return {
-		title: `${document.title} - TrustLedger Legal Center`,
-		description: document.description,
+		title: t("metadata.documentTitle", { title: t(`documents.${document.slug}.title`) }),
+		description: t(`documents.${document.slug}.description`),
 	};
 }
 

@@ -413,7 +413,25 @@
 		"addStake": "Add Stake",
 		"withdrawStake": "Withdraw Stake",
 		"withdrawStakeMax": "Withdraw Stake (max {amount} ETH)",
-		"unstake": "Unstake"
+		"unstake": "Unstake",
+		"minimumEth": "Minimum is {amount} ETH.",
+		"assignedDisputes": "Assigned Disputes",
+		"assignedDisputesSubtitle": "Recent selected juror cases from the arbitration contract.",
+		"noAssignedDisputes": "No assigned disputes found in the recent on-chain window.",
+		"disputeNumber": "Dispute #{id}",
+		"contractEvidenceSummary": "Contract #{contractId} · {count} evidence items",
+		"feePool": "Fee Pool",
+		"potentialOutcome": "Potential Outcome",
+		"freelancerPayout": "{amount} ETH to freelancer",
+		"pendingJurorRuling": "Pending juror ruling",
+		"openVotingFlow": "Open Voting Flow",
+		"reviewDispute": "Review Dispute",
+		"localDraftHistory": "Local Arbitration Draft History",
+		"localDraftHistorySubtitle": "Unsubmitted evidence drafts saved in this browser for juror and party review.",
+		"noLocalDrafts": "No local arbitration drafts found on this device.",
+		"notTimestamped": "Not Timestamped",
+		"requestedCompletion": "Requested Completion: {percent}%",
+		"openDraftCase": "Open Draft Case"
 	},
 	"Reputation": {
 		"title": "Reputation",
@@ -594,7 +612,14 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "Open wallet-safe account tools, analytics, public status, and project background."
+		"walletMenuHint": "Open wallet-safe account tools, analytics, public status, and project background.",
+		"walletRequiredTitle": "Wallet Connection Required",
+		"walletRequiredBody": "Connect your wallet to continue. TrustLedger only shows wallet-scoped workspace data after your address is available in this browser.",
+		"walletRequiredHint": "Use the same wallet you use for contracts, juror actions, reputation, and account preferences.",
+		"walletRequiredChecklistTitle": "Before You Continue",
+		"walletRequiredChecklistAddress": "Confirm the wallet address before signing.",
+		"walletRequiredChecklistSecrets": "Never enter seed phrases or private keys.",
+		"walletRequiredChecklistNetwork": "Switch networks in your wallet when prompted."
 	},
 	"Decrypt": {
 		"title": "Decrypt AES-256-GCM document",
@@ -709,6 +734,12 @@
 		"eyebrow": "TrustLedger Legal Center",
 		"title": "Policies, disclosures, and compliance references",
 		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
+		"metadata": {
+			"title": "Legal Center - TrustLedger",
+			"description": "TrustLedger legal, policy, compliance, risk disclosure, and security document index.",
+			"documentTitle": "{title} - TrustLedger Legal Center",
+			"notFoundTitle": "Legal document not found - TrustLedger"
+		},
 		"currentLocale": "Current locale:",
 		"translationStatus": "Translation status:",
 		"sourceFile": "Source File",
