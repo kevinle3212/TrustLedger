@@ -10,6 +10,7 @@ import {
 	ANALYTICS_STATUS_LABELS,
 	buildWalletAnalyticsSummary,
 	getAnalyticsInsight,
+	type WalletAnalyticsSummary,
 } from "@/lib/walletAnalytics";
 import { getContractDeployment, getNetworkName, ZERO_ADDRESS } from "@/lib/wagmi";
 import type { Contract } from "@/types";
@@ -78,6 +79,163 @@ function MetricCard({
 				{value}
 			</p>
 			<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">{detail}</p>
+		</div>
+	);
+}
+
+function RoleDonut({
+	summary,
+}: {
+	readonly summary: WalletAnalyticsSummary | null;
+}): React.JSX.Element {
+	const totalRoles = (summary?.asClient ?? 0) + (summary?.asFreelancer ?? 0);
+	const clientShare =
+		totalRoles === 0 ? 0 : Math.round(((summary?.asClient ?? 0) / totalRoles) * 100);
+	const freelancerShare = totalRoles === 0 ? 0 : 100 - clientShare;
+	const radius = 42;
+	const circumference = 2 * Math.PI * radius;
+	const clientOffset = circumference * (1 - clientShare / 100);
+	const freelancerArcLength = (freelancerShare / 100) * circumference;
+
+	return (
+		<div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+			<div className="flex items-start justify-between gap-4">
+				<div>
+					<h2 className="text-xl font-semibold text-gray-950 dark:text-white">
+						Role Mix
+					</h2>
+					<p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+						How this wallet appears across visible contracts.
+					</p>
+				</div>
+				<span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-600 dark:border-white/10 dark:text-gray-300">
+					{totalRoles.toString()} Roles
+				</span>
+			</div>
+			<div className="mt-6 grid gap-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center">
+				<svg viewBox="0 0 120 120" role="img" aria-label="Client and freelancer role mix">
+					<circle
+						cx="60"
+						cy="60"
+						r={radius}
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="14"
+						className="text-gray-100 dark:text-white/10"
+					/>
+					{totalRoles > 0 && (
+						<>
+							<circle
+								cx="60"
+								cy="60"
+								r={radius}
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="14"
+								strokeDasharray={circumference}
+								strokeDashoffset={clientOffset}
+								strokeLinecap="round"
+								className="origin-center -rotate-90 text-indigo-600 dark:text-indigo-400"
+							/>
+							<circle
+								cx="60"
+								cy="60"
+								r={radius}
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="14"
+								strokeDasharray={`${freelancerArcLength.toString()} ${circumference.toString()}`}
+								strokeDashoffset={(-clientShare / 100) * circumference}
+								strokeLinecap="round"
+								className="origin-center -rotate-90 text-emerald-500 dark:text-emerald-300"
+							/>
+						</>
+					)}
+					<text
+						x="60"
+						y="56"
+						textAnchor="middle"
+						className="fill-gray-950 text-[18px] font-semibold dark:fill-white"
+					>
+						{clientShare}%
+					</text>
+					<text
+						x="60"
+						y="75"
+						textAnchor="middle"
+						className="fill-gray-500 text-[9px] font-semibold uppercase dark:fill-gray-400"
+					>
+						Client
+					</text>
+				</svg>
+				<div className="grid gap-3 text-sm">
+					<div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 p-3 dark:border-white/10">
+						<span className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-200">
+							<span className="h-2.5 w-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
+							Client
+						</span>
+						<span className="font-mono text-gray-500 dark:text-gray-400">
+							{(summary?.asClient ?? 0).toString()}
+						</span>
+					</div>
+					<div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 p-3 dark:border-white/10">
+						<span className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-200">
+							<span className="h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-300" />
+							Freelancer
+						</span>
+						<span className="font-mono text-gray-500 dark:text-gray-400">
+							{(summary?.asFreelancer ?? 0).toString()}
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function OutcomeGraph({
+	summary,
+}: {
+	readonly summary: WalletAnalyticsSummary | null;
+}): React.JSX.Element {
+	const total = Math.max(summary?.totalContracts ?? 0, 1);
+	const outcomes = [
+		{ label: "Completed", value: summary?.completed ?? 0, className: "bg-emerald-500" },
+		{ label: "Active", value: summary?.active ?? 0, className: "bg-indigo-500" },
+		{ label: "Disputed", value: summary?.disputed ?? 0, className: "bg-red-500" },
+	] as const;
+
+	return (
+		<div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/[0.03]">
+			<h2 className="text-xl font-semibold text-gray-950 dark:text-white">
+				Outcome Snapshot
+			</h2>
+			<p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+				Visible completion, active work, and disputes for this wallet.
+			</p>
+			<div className="mt-6 grid gap-4">
+				{outcomes.map((outcome) => {
+					const width = `${Math.max(outcome.value === 0 ? 0 : 8, Math.round((outcome.value / total) * 100)).toString()}%`;
+					return (
+						<div key={outcome.label} className="grid gap-2">
+							<div className="flex items-center justify-between text-sm">
+								<span className="font-medium text-gray-700 dark:text-gray-200">
+									{outcome.label}
+								</span>
+								<span className="font-mono text-gray-500 dark:text-gray-400">
+									{outcome.value.toString()}
+								</span>
+							</div>
+							<div className="h-4 overflow-hidden rounded-full bg-white ring-1 ring-gray-200 dark:bg-gray-950 dark:ring-white/10">
+								<div
+									className={`h-full rounded-full ${outcome.className}`}
+									style={{ width }}
+								/>
+							</div>
+						</div>
+					);
+				})}
+			</div>
 		</div>
 	);
 }
@@ -201,6 +359,11 @@ export function AnalyticsPageInner(): React.JSX.Element {
 					detail={t("privacyScoreDetail")}
 					tone={(summary?.privacyScore ?? 100) >= 80 ? "success" : "warning"}
 				/>
+			</section>
+
+			<section className="mt-8 grid gap-6 lg:grid-cols-2">
+				<RoleDonut summary={summary} />
+				<OutcomeGraph summary={summary} />
 			</section>
 
 			<section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
