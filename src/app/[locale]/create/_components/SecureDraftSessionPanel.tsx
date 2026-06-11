@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
 import type { CreateState, ContractTermsFormat } from "../_lib/types";
 import { convertContractTerms, DEFAULT_CONTRACT_TERMS } from "../_lib/contractTerms";
@@ -62,6 +62,7 @@ type PanelAction =
 	| { readonly type: "SET_STATUS"; readonly status: PanelStatus | null };
 
 const SHARE_ACTION_COOLDOWN_MS = 10_000;
+const TERMS_HISTORY_LIMIT = 100;
 
 function panelReducer(state: PanelState, action: PanelAction): PanelState {
 	switch (action.type) {
@@ -299,6 +300,8 @@ function DraftTermsEditor({
 	nowMs,
 	onTermsBodyChange,
 	onTermsFormatChange,
+	onTermsUndo,
+	onTermsRedo,
 }: {
 	readonly state: CreateState;
 	readonly collaboration: ReturnType<typeof useEncryptedDraftCollaboration>;
@@ -306,6 +309,8 @@ function DraftTermsEditor({
 	readonly nowMs: number;
 	readonly onTermsBodyChange: (value: string) => void;
 	readonly onTermsFormatChange: (format: ContractTermsFormat) => void;
+	readonly onTermsUndo: () => void;
+	readonly onTermsRedo: () => void;
 }): React.JSX.Element {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const visibleSnippets =
@@ -443,6 +448,21 @@ function DraftTermsEditor({
 				value={state.termsBody}
 				onChange={(event) => {
 					onTermsBodyChange(event.target.value);
+				}}
+				onKeyDown={(event) => {
+					const key = event.key.toLowerCase();
+					const isModifierKey = event.metaKey || event.ctrlKey;
+					const isRedoShortcut =
+						isModifierKey && (key === "y" || (event.shiftKey && key === "z"));
+					if (isRedoShortcut) {
+						event.preventDefault();
+						onTermsRedo();
+						return;
+					}
+					if (isModifierKey && key === "z") {
+						event.preventDefault();
+						onTermsUndo();
+					}
 				}}
 				rows={9}
 				spellCheck
@@ -679,6 +699,8 @@ export function SecureDraftSessionPanel({
 		}),
 	);
 	const lastRoomStartAt = useRef(0);
+	const termsHistory = useRef<string[]>([state.termsBody]);
+	const termsHistoryIndex = useRef(0);
 	const nowMs = useVisibleTimestamp(1000);
 	const encryptedDraftFromUrl = useMemo(() => getEncryptedDraftFromUrl(), []);
 	const updatedAtFormatter = useMemo(
@@ -704,6 +726,43 @@ export function SecureDraftSessionPanel({
 		onRemoteDraft: onImportDraft,
 	});
 	const liveRoomLocked = panel.roomId !== null || collaboration.isLive;
+
+	const recordTermsHistory = useCallback((value: string): void => {
+		const currentValue = termsHistory.current[termsHistoryIndex.current];
+		if (value === currentValue) return;
+		const nextHistory = termsHistory.current.slice(0, termsHistoryIndex.current + 1);
+		nextHistory.push(value);
+		if (nextHistory.length > TERMS_HISTORY_LIMIT) {
+			nextHistory.shift();
+		} else {
+			termsHistoryIndex.current += 1;
+		}
+		termsHistory.current = nextHistory;
+	}, []);
+
+	const updateTermsBodyWithHistory = useCallback(
+		(value: string): void => {
+			recordTermsHistory(value);
+			onTermsBodyChange(value);
+		},
+		[onTermsBodyChange, recordTermsHistory],
+	);
+
+	const undoTermsBody = useCallback((): void => {
+		if (termsHistoryIndex.current <= 0) return;
+		termsHistoryIndex.current -= 1;
+		onTermsBodyChange(termsHistory.current[termsHistoryIndex.current] ?? "");
+	}, [onTermsBodyChange]);
+
+	const redoTermsBody = useCallback((): void => {
+		if (termsHistoryIndex.current >= termsHistory.current.length - 1) return;
+		termsHistoryIndex.current += 1;
+		onTermsBodyChange(termsHistory.current[termsHistoryIndex.current] ?? "");
+	}, [onTermsBodyChange]);
+
+	useEffect(() => {
+		recordTermsHistory(state.termsBody);
+	}, [recordTermsHistory, state.termsBody]);
 
 	function updateStatus(tone: "success" | "error" | "info", text: string): void {
 		dispatchPanel({ type: "SET_STATUS", status: { tone, text } });
@@ -857,8 +916,10 @@ export function SecureDraftSessionPanel({
 				collaboration={collaboration}
 				updatedAtFormatter={updatedAtFormatter}
 				nowMs={nowMs}
-				onTermsBodyChange={onTermsBodyChange}
+				onTermsBodyChange={updateTermsBodyWithHistory}
 				onTermsFormatChange={onTermsFormatChange}
+				onTermsUndo={undoTermsBody}
+				onTermsRedo={redoTermsBody}
 			/>
 			<DraftShareControls
 				panel={panel}

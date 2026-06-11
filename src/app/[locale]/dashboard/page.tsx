@@ -1062,27 +1062,27 @@ function DashboardWalkthrough({
 			title: t("walkthroughStepCreateTitle"),
 			body: t("walkthroughStepCreateBody"),
 			tasks: [
-				"Choose Client Or Freelancer Before Drafting",
-				"Add Counterparty Wallet, Amount, Timeline, And Document Source",
-				"Preview The Proposal Before Your Wallet Signs",
+				t("walkthroughStepCreateTaskRole"),
+				t("walkthroughStepCreateTaskDetails"),
+				t("walkthroughStepCreateTaskPreview"),
 			],
 		},
 		{
 			title: t("walkthroughStepTrackTitle"),
 			body: t("walkthroughStepTrackBody"),
 			tasks: [
-				"Confirm Funding, Delivery, And Approval State",
-				"Open The Document Or Decrypt It With The Shared Passphrase",
-				"Use Only The Action Buttons Available To Your Connected Wallet",
+				t("walkthroughStepTrackTaskState"),
+				t("walkthroughStepTrackTaskDocument"),
+				t("walkthroughStepTrackTaskActions"),
 			],
 		},
 		{
 			title: t("walkthroughStepResolveTitle"),
 			body: t("walkthroughStepResolveBody"),
 			tasks: [
-				"Submit Evidence With A Clear Requested Completion Percentage",
-				"Jurors Commit Votes First, Then Reveal With The Saved Salt",
-				"Review Final Payouts And Claim Available Rewards",
+				t("walkthroughStepResolveTaskEvidence"),
+				t("walkthroughStepResolveTaskJurors"),
+				t("walkthroughStepResolveTaskPayouts"),
 			],
 		},
 	] as const;
@@ -1126,7 +1126,10 @@ function DashboardWalkthrough({
 						<div className="space-y-4">
 							<div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5 dark:border-indigo-400/30 dark:bg-indigo-400/10">
 								<p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700 dark:text-indigo-200">
-									Step {activeStep + 1} Of {steps.length}
+									{t("walkthroughStepCounter", {
+										current: activeStep + 1,
+										total: steps.length,
+									})}
 								</p>
 								<h3 className="mt-2 text-lg font-semibold text-gray-950 dark:text-white">
 									{active.title}
@@ -1162,7 +1165,7 @@ function DashboardWalkthrough({
 												: "border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:border-white/10 dark:bg-gray-950 dark:text-gray-300"
 										}`}
 									>
-										Step {index + 1}
+										{t("walkthroughStepTab", { step: index + 1 })}
 									</button>
 								))}
 							</div>
@@ -1178,7 +1181,7 @@ function DashboardWalkthrough({
 							disabled={activeStep === 0}
 							className="inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
 						>
-							Previous Step
+							{t("walkthroughPrevious")}
 						</button>
 						<button
 							type="button"
@@ -1191,7 +1194,9 @@ function DashboardWalkthrough({
 							}}
 							className="inline-flex min-h-11 items-center justify-center rounded-xl bg-gray-950 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
 						>
-							{activeStep === steps.length - 1 ? "Finish Walkthrough" : "Next Step"}
+							{activeStep === steps.length - 1
+								? t("walkthroughFinish")
+								: t("walkthroughNext")}
 						</button>
 						<button
 							type="button"

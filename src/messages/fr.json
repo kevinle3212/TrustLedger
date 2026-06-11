@@ -7,7 +7,7 @@
 		"mainNav": "Navigation principale",
 		"activeRole": "Rôle actif",
 		"roleClient": "Client",
-		"roleFreelancer": "Freelancer",
+		"roleFreelancer": "Freelance",
 		"logoAlt": "Logo TrustLedger",
 		"viewGitHub": "Voir le code sur GitHub",
 		"changeLanguage": "Changer de langue",
@@ -18,20 +18,20 @@
 		"buttonLabel": "Guide",
 		"buttonAriaLabel": "Ouvrir le guide TrustLedger",
 		"buttonTooltip": "Ouvrir le guide TrustLedger",
-		"title": "How To Use TrustLedger",
-		"intro": "Use this guide when you need the fastest path through contract creation, dashboard navigation, and dispute resolution.",
+		"title": "Comment Utiliser TrustLedger",
+		"intro": "Utilisez ce guide pour parcourir rapidement la création de contrats, le tableau de bord et la résolution des litiges.",
 		"close": "Fermer",
-		"stepCreateTitle": "Create Or Propose A Contract",
-		"stepCreateBody": "Open New Contract, choose whether you are the client or freelancer, add the counterparty wallet, amount, timeline, and document link, then send the offer.",
+		"stepCreateTitle": "Créer Ou Proposer Un Contrat",
+		"stepCreateBody": "Ouvrez Nouveau Contrat, choisissez client ou freelance, ajoutez le wallet de contrepartie, le montant, le calendrier et le document, puis envoyez l’offre.",
 		"stepCreateLink": "Create Contract",
-		"stepDashboardTitle": "Track Work From The Dashboard",
-		"stepDashboardBody": "Use Dashboard to fund accepted offers, submit work, approve delivery, open disputes, claim deadlines, and rate the other party.",
+		"stepDashboardTitle": "Suivre Le Travail Depuis Le Tableau De Bord",
+		"stepDashboardBody": "Utilisez le tableau de bord pour financer les offres acceptées, soumettre le travail, approuver la livraison, ouvrir des litiges, réclamer des échéances et noter l’autre partie.",
 		"stepDashboardLink": "Open Dashboard",
-		"stepJurorTitle": "Handle Disputes And Juror Actions",
-		"stepJurorBody": "Disputed contracts link into arbitration. Jurors use the Juror page to register stake and the dispute page to commit and reveal votes.",
+		"stepJurorTitle": "Gérer Les Litiges Et Actions De Juré",
+		"stepJurorBody": "Les contrats contestés mènent à l’arbitrage. Les jurés utilisent la page Juré pour enregistrer leur stake et la page de litige pour engager puis révéler les votes.",
 		"stepJurorLink": "Open Juror Page",
 		"reputationLink": "View Reputation",
-		"primaryLink": "Start A Contract",
+		"primaryLink": "Démarrer Un Contrat",
 		"selectedGuide": "Guide sélectionné",
 		"stepCreateTaskOne": "Choose client or freelancer before drafting.",
 		"stepCreateTaskTwo": "Add wallet, email, payment, timeline, and document details.",
@@ -78,8 +78,8 @@
 		"stepLegalTaskOne": "Read the source document before relying on a translated summary.",
 		"stepLegalTaskTwo": "Check security reporting guidance before disclosing issues.",
 		"stepLegalTaskThree": "Ask for review before changing legal obligations.",
-		"stepFaqTitle": "Ask General Questions",
-		"stepFaqBody": "The FAQ explains wallet setup, funding, contract states, disputes, and testnet faucet usage.",
+		"stepFaqTitle": "Poser Des Questions Générales",
+		"stepFaqBody": "La FAQ explique la configuration du wallet, le financement, les états de contrat, les litiges et l’utilisation des faucets testnet.",
 		"stepFaqLink": "Open FAQ",
 		"stepFaqTaskOne": "Read the relevant question before moving funds.",
 		"stepFaqTaskTwo": "Use GitHub Discussions for open-ended support.",
@@ -110,40 +110,40 @@
 		"evmEscrowLive": "Escrow EVM Actif",
 		"solanaDevnetPreview": "Aperçu Solana Devnet",
 		"evmEscrowBody": "Utilisez le flux actuel d’escrow Ethereum Sepolia pour les vraies propositions de contrat et les tests.",
-		"solanaPreviewBody": "Use Solana Devnet preview mode for SOL-denominated drafts and native-program metadata before submitting through the Solana flow.",
+		"solanaPreviewBody": "Utilisez le mode aperçu Solana Devnet pour les brouillons en SOL et les métadonnées de programme natif avant soumission via le flux Solana.",
 		"previousPreview": "Aperçu précédent",
 		"nextPreview": "Aperçu suivant",
-		"exampleContractProgress": "Example contract progress",
-		"previewFundEscrow": "Fund Escrow",
-		"previewSubmitWork": "Submit Work",
-		"previewReleasePayout": "Release Payout",
-		"previewDraftHashQueued": "Draft Hash Queued!",
-		"previewDocumentEncrypted": "Document Encrypted!",
-		"previewPayoutReceiptReady": "Payout Receipt Ready!",
-		"previewJurorStake": "0.04 ETH Staked",
-		"previewRevealWindowOpen": "Reveal Window Open",
-		"previewRatingsReceived": "12 Ratings Received",
-		"previewMajorityVote": "Majority Vote",
-		"previewRecoveryBonus": "+8 Recovery Bonus",
+		"exampleContractProgress": "Progression du contrat exemple",
+		"previewFundEscrow": "Financer L’escrow",
+		"previewSubmitWork": "Soumettre Le Travail",
+		"previewReleasePayout": "Libérer Le Paiement",
+		"previewDraftHashQueued": "Hash Du Brouillon En File !",
+		"previewDocumentEncrypted": "Document Chiffré !",
+		"previewPayoutReceiptReady": "Reçu De Paiement Prêt !",
+		"previewJurorStake": "0,04 ETH En Stake",
+		"previewRevealWindowOpen": "Fenêtre De Révélation Ouverte",
+		"previewRatingsReceived": "12 Notes Reçues",
+		"previewMajorityVote": "Vote Majoritaire",
+		"previewRecoveryBonus": "+8 Bonus De Récupération",
 		"verified": "Vérifié",
 		"previewScenes": {
 			"contract": {
-				"label": "Contract View",
-				"title": "Escrow Protection",
-				"note": "Encrypted Draft Ready",
-				"kicker": "Freelancer Milestone"
+				"label": "Vue Contrat",
+				"title": "Protection Escrow",
+				"note": "Brouillon Chiffré Prêt",
+				"kicker": "Jalon Freelance"
 			},
 			"juror": {
-				"label": "Juror Staking",
-				"title": "Juror Dispute Flow",
-				"note": "3 Jurors Eligible",
-				"kicker": "Commit-Reveal arbitration"
+				"label": "Stake Des Jurés",
+				"title": "Flux De Litige Juré",
+				"note": "3 Jurés Éligibles",
+				"kicker": "Arbitrage Commit-Reveal"
 			},
 			"reputation": {
-				"label": "Reputation",
-				"title": "On-Chain Reputation",
-				"note": "92 Average Score",
-				"kicker": "History from completed work"
+				"label": "Réputation",
+				"title": "Réputation On-Chain",
+				"note": "Score Moyen 92",
+				"kicker": "Historique des travaux terminés"
 			}
 		}
 	},
@@ -154,27 +154,27 @@
 		"newButton": "+ Nouveau",
 		"noContracts": "Aucun contrat sur la chaîne pour l'instant.",
 		"createFirst": "Créer le premier",
-		"emptyTitle": "No {role} Contracts Yet!",
-		"emptyDescription": "TrustLedger contracts appear here after both wallets agree on terms and escrow is funded or ready to fund.",
-		"emptyStepCreate": "Create a contract with the other party's wallet address, payment amount, deadline, and document link.",
-		"emptyStepFund": "The client funds escrow after the offer is accepted, so neither party controls the money alone.",
-		"emptyStepReview": "Track delivery, approve work, or open a dispute from the contract card.",
-		"showWalkthrough": "Show Walkthrough",
-		"skipIntro": "Skip For Now",
+		"emptyTitle": "Aucun Contrat {role} Pour Le Moment !",
+		"emptyDescription": "Les contrats TrustLedger apparaissent ici après accord des deux wallets sur les conditions et financement, ou préparation au financement, de l’escrow.",
+		"emptyStepCreate": "Créez un contrat avec l’adresse wallet de l’autre partie, le montant, l’échéance et le lien du document.",
+		"emptyStepFund": "Le client finance l’escrow après acceptation de l’offre, afin qu’aucune partie ne contrôle seule l’argent.",
+		"emptyStepReview": "Suivez la livraison, approuvez le travail ou ouvrez un litige depuis la carte du contrat.",
+		"showWalkthrough": "Afficher Le Guide",
+		"skipIntro": "Ignorer Pour L’instant",
 		"helpAriaLabel": "Show help walkthrough",
 		"helpTooltip": "Show help walkthrough",
-		"walkthroughTitle": "Start with one escrow contract",
-		"walkthroughIntro": "TrustLedger holds freelance payment in escrow until work is approved, or a dispute is resolved by jurors.",
-		"walkthroughStepCreateTitle": "Create the agreement",
-		"walkthroughStepCreateBody": "Add the counterparty wallet, amount, timeline, and a contract document link. The other party reviews before work starts.",
-		"walkthroughStepTrackTitle": "Track every state",
-		"walkthroughStepTrackBody": "Dashboard cards show funding, delivery, approval, deadlines, documents, and any action your wallet can take.",
-		"walkthroughStepResolveTitle": "Resolve problems clearly",
-		"walkthroughStepResolveBody": "If work is disputed, the card links to arbitration so evidence, votes, and payouts stay tied to the same contract.",
-		"skip": "Skip",
-		"exampleTitle": "Website redesign",
-		"exampleSubtitle": "Client: 0x71c...9A2",
-		"exampleDeadline": "14 days",
+		"walkthroughTitle": "Commencez Avec Un Contrat Escrow",
+		"walkthroughIntro": "TrustLedger garde le paiement freelance en escrow jusqu’à approbation du travail ou résolution d’un litige par des jurés.",
+		"walkthroughStepCreateTitle": "Créer L’accord",
+		"walkthroughStepCreateBody": "Ajoutez le wallet de la contrepartie, le montant, le calendrier et le lien du document. L’autre partie relit avant le début du travail.",
+		"walkthroughStepTrackTitle": "Suivre Chaque État",
+		"walkthroughStepTrackBody": "Les cartes du tableau de bord affichent financement, livraison, approbation, échéances, documents et actions disponibles pour votre wallet.",
+		"walkthroughStepResolveTitle": "Résoudre Les Problèmes Clairement",
+		"walkthroughStepResolveBody": "Si le travail est contesté, la carte mène à l’arbitrage afin que preuves, votes et paiements restent liés au même contrat.",
+		"skip": "Ignorer",
+		"exampleTitle": "Refonte de site web",
+		"exampleSubtitle": "Client : 0x71c...9A2",
+		"exampleDeadline": "14 jours",
 		"summaryAriaLabel": "Résumé des statuts de contrat",
 		"total": "Total",
 		"pending": "En Attente",
@@ -185,7 +185,7 @@
 		"resolved": "Résolu",
 		"cancelled": "Annulé",
 		"isClient": "Client",
-		"isFreelancer": "Freelancer",
+		"isFreelancer": "Freelance",
 		"clientProposedPrefunded": "Proposé par le client · pré-financé",
 		"freelancerProposed": "Proposé par le freelancer",
 		"amount": "Montant",
@@ -221,8 +221,8 @@
 		"reclaimDeadline": "Réclamer (Date Limite Dépassée)",
 		"releaseAfterWindow": "Libérer Après la Fenêtre",
 		"claimWarrantyFunds": "Réclamer les Fonds de Garantie",
-		"aiSummary": "AI Summary",
-		"aiSummaryLoading": "Summarizing public contract state...",
+		"aiSummary": "Résumé IA",
+		"aiSummaryLoading": "Résumé de l’état public du contrat...",
 		"countdownProjectTitle": "Freelancer Delivery Countdown",
 		"countdownProjectDetail": "Proof of work is due by",
 		"countdownAcceptanceTitle": "Client Review Countdown",
@@ -230,7 +230,21 @@
 		"countdownWarrantyTitle": "Warranty Hold-Back Countdown",
 		"countdownWarrantyDetail": "Held warranty funds unlock at",
 		"countdownRemaining": "Remaining",
-		"countdownSince": "Since Expiry"
+		"countdownSince": "Since Expiry",
+		"walkthroughStepCreateTaskRole": "Choisissez client ou freelance avant la rédaction.",
+		"walkthroughStepCreateTaskDetails": "Ajoutez wallet de contrepartie, montant, calendrier et source du document.",
+		"walkthroughStepCreateTaskPreview": "Prévisualisez la proposition avant la signature du wallet.",
+		"walkthroughStepTrackTaskState": "Confirmez l’état du financement, de la livraison et de l’approbation.",
+		"walkthroughStepTrackTaskDocument": "Ouvrez le document ou déchiffrez-le avec la phrase partagée.",
+		"walkthroughStepTrackTaskActions": "Utilisez uniquement les boutons disponibles pour votre wallet connecté.",
+		"walkthroughStepResolveTaskEvidence": "Soumettez des preuves avec un pourcentage d’achèvement demandé clair.",
+		"walkthroughStepResolveTaskJurors": "Les jurés engagent d’abord leurs votes, puis les révèlent avec le sel sauvegardé.",
+		"walkthroughStepResolveTaskPayouts": "Vérifiez les paiements finaux et réclamez les récompenses disponibles.",
+		"walkthroughStepCounter": "Étape {current} sur {total}",
+		"walkthroughStepTab": "Étape {step}",
+		"walkthroughPrevious": "Étape Précédente",
+		"walkthroughNext": "Étape Suivante",
+		"walkthroughFinish": "Terminer Le Guide"
 	},
 	"Create": {
 		"connectWallet": "Connectez votre portefeuille pour proposer un contrat.",
@@ -531,11 +545,11 @@
 		"copyWalletAddress": "Copier l'adresse du portefeuille",
 		"copied": "Copié !",
 		"copyAddress": "Copier l'adresse",
-		"walletMenu": "Wallet Menu",
+		"walletMenu": "Menu Du Wallet",
 		"dashboard": "Tableau de Bord",
 		"createContract": "Créer un Contrat",
 		"reputation": "Réputation",
-		"manageWallet": "Manage Wallet",
+		"manageWallet": "Gérer Le Wallet",
 		"switchToLightMode": "Passer en mode clair",
 		"switchToDarkMode": "Passer en mode sombre",
 		"enableHighContrast": "Activer le mode contraste élevé",
@@ -547,7 +561,7 @@
 		"account": "Account",
 		"status": "Status",
 		"about": "About",
-		"walletMenuHint": "Open wallet-safe account tools, analytics, public status, and project background."
+		"walletMenuHint": "Ouvrez les outils de compte sécurisés, les analyses, l’état public et le contexte du projet."
 	},
 	"Decrypt": {
 		"title": "Déchiffrer le document AES-256-GCM",
@@ -624,67 +638,67 @@
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
-		"title": "Read this before you move money or if you have general questions.",
-		"introBefore": "Use this page when you are creating an escrow, debugging a wallet issue, or deciding what to do after a contract changes state. Start a discussion in",
-		"introAfter": "and ask anything there.",
+		"title": "Lisez ceci avant de déplacer des fonds ou si vous avez des questions générales.",
+		"introBefore": "Utilisez cette page lorsque vous créez un escrow, déboguez un problème de wallet ou décidez quoi faire après un changement d’état de contrat. Lancez une discussion dans",
+		"introAfter": "et posez votre question.",
 		"items": {
 			"one": {
-				"question": "Do I need crypto experience to use TrustLedger?",
-				"answer": "No. The app guides you through wallet connection, escrow funding, work submission, approval, and disputes with plain-language labels."
+				"question": "Faut-il une expérience crypto pour utiliser TrustLedger ?",
+				"answer": "Non. L’application vous guide dans la connexion du wallet, le financement de l’escrow, la livraison du travail, l’approbation et les litiges avec des libellés clairs."
 			},
 			"two": {
-				"question": "What happens to funds after a contract is created?",
-				"answer": "Funds stay in the smart contract escrow. They release only after client approval, acceptance-window expiry, deadline recovery, or an arbitration ruling."
+				"question": "Que deviennent les fonds après la création d’un contrat ?",
+				"answer": "Les fonds restent dans le contrat intelligent d’escrow. Ils ne sont libérés qu’après approbation du client, expiration de la fenêtre d’acceptation, récupération après échéance ou décision d’arbitrage."
 			},
 			"three": {
-				"question": "Why do I need Sepolia ETH?",
-				"answer": "Sepolia ETH pays gas for development and testnet transactions. It has no real value, but faucets rate-limit it to prevent abuse."
+				"question": "Pourquoi ai-je besoin d’ETH Sepolia ?",
+				"answer": "L’ETH Sepolia paie le gas pour le développement et les transactions testnet. Il n’a pas de valeur réelle, mais les faucets le limitent pour éviter les abus."
 			},
 			"four": {
-				"question": "Can I pay with USDC instead of ETH?",
-				"answer": "Yes, supported ERC-20 escrows use token approval and funding instead of sending native ETH directly with the acceptance transaction."
+				"question": "Puis-je payer en USDC plutôt qu’en ETH ?",
+				"answer": "Oui. Les escrows ERC-20 pris en charge utilisent l’approbation et le financement du token au lieu d’envoyer directement de l’ETH natif."
 			},
 			"five": {
-				"question": "What should I do when a transaction fails?",
-				"answer": "Check that the connected wallet is the expected client, freelancer, or juror wallet; confirm the network; then read the simulation or wallet error before retrying."
+				"question": "Que faire lorsqu’une transaction échoue ?",
+				"answer": "Vérifiez que le wallet connecté est celui du client, du freelance ou du juré attendu; confirmez le réseau puis lisez l’erreur de simulation ou de wallet avant de réessayer."
 			},
 			"six": {
-				"question": "How are disputes resolved?",
-				"answer": "Staked jurors commit hidden votes, reveal them later, and the median completion percentage determines payout. Majority jurors can claim rewards."
+				"question": "Comment les litiges sont-ils résolus ?",
+				"answer": "Des jurés avec stake engagent des votes masqués, les révèlent ensuite, et le pourcentage médian d’achèvement détermine le paiement. Les jurés majoritaires peuvent réclamer des récompenses."
 			},
 			"seven": {
-				"question": "Where can I check reputation?",
-				"answer": "The reputation page shows average ratings and recovery status for a wallet when the ReputationRegistry is configured."
+				"question": "Où consulter la réputation ?",
+				"answer": "La page réputation affiche les notes moyennes et l’état de récupération d’un wallet lorsque ReputationRegistry est configuré."
 			}
 		},
-		"detailTitle": "Need operational detail?",
-		"detailBody": "The developer docs cover deployment, faucets, tests, and contract behavior.",
-		"createContract": "Create Contract",
-		"faucetGuide": "Sepolia Faucet Guide"
+		"detailTitle": "Besoin de détails opérationnels ?",
+		"detailBody": "La documentation développeur couvre le déploiement, les faucets, les tests et le comportement des contrats.",
+		"createContract": "Créer Un Contrat",
+		"faucetGuide": "Guide Du Faucet Sepolia"
 	},
 	"About": {
-		"eyebrow": "About TrustLedger",
-		"title": "Escrow infrastructure for freelance work.",
-		"intro": "TrustLedger combines EVM smart-contract custody, encrypted contract drafting, privacy-safe analytics, juror arbitration, and reputation history into one open-source workflow. This page is intentionally small for now so project background can grow without cluttering the task surfaces.",
-		"openDashboard": "Open Dashboard",
-		"viewStatus": "View Public Status",
+		"eyebrow": "À Propos De TrustLedger",
+		"title": "Infrastructure d’escrow pour le travail freelance.",
+		"intro": "TrustLedger réunit garde par contrats intelligents EVM, rédaction chiffrée de contrats, analyses respectueuses de la confidentialité, arbitrage par jurés et historique de réputation dans un flux open source.",
+		"openDashboard": "Ouvrir Le Tableau De Bord",
+		"viewStatus": "Voir L’état Public",
 		"cards": {
 			"custody": {
-				"title": "Custody",
-				"body": "Escrow state and payout rules live in smart contracts. The app explains states and actions without taking custody."
+				"title": "Garde",
+				"body": "L’état de l’escrow et les règles de paiement vivent dans des contrats intelligents. L’application explique les états et actions sans prendre la garde."
 			},
 			"dispute": {
-				"title": "Dispute Resolution",
-				"body": "Staked jurors use commit-reveal voting so contested work can resolve without a platform operator deciding the result."
+				"title": "Résolution Des Litiges",
+				"body": "Des jurés avec stake utilisent le vote commit-reveal pour résoudre le travail contesté sans décision d’un opérateur de plateforme."
 			},
 			"readiness": {
-				"title": "Operational Readiness",
-				"body": "CI, docs, audit-readiness reports, and admin observability are treated as product features, not afterthoughts."
+				"title": "Préparation Opérationnelle",
+				"body": "CI, documentation, rapports de préparation à l’audit et observabilité admin sont traités comme des fonctionnalités produit."
 			}
 		},
 		"timer": {
 			"title": "Chronomètre Du Projet",
-			"body": "Compte depuis le 2 mai 2026, date de lancement de TrustLedger.",
+			"body": "Décompte depuis le 2 mai 2026, date de début de TrustLedger.",
 			"days": "Jours",
 			"hours": "Heures",
 			"minutes": "Minutes",
@@ -694,26 +708,26 @@
 	"Legal": {
 		"eyebrow": "Centre Juridique TrustLedger",
 		"title": "Politiques, informations et références de conformité",
-		"intro": "This page is the formal publication index for TrustLedger legal documents. Legal content is maintained in Markdown and can be translated with a human-review workflow before publication.",
+		"intro": "Cette page est l’index officiel de publication des documents juridiques TrustLedger. Le contenu juridique est maintenu en Markdown et peut être traduit avec un flux de révision humaine avant publication.",
 		"currentLocale": "Langue actuelle :",
-		"translationStatus": "Statut de traduction :",
-		"sourceFile": "Fichier source",
+		"translationStatus": "État de traduction :",
+		"sourceFile": "Fichier Source",
 		"viewDocument": "Voir Le Document",
 		"status": {
 			"source": "Source",
-			"needs-review": "À Relire",
+			"needs-review": "À Réviser",
 			"machine-assisted": "Assisté Par Machine"
 		},
 		"translationHelper": {
 			"title": "Assistant De Traduction",
-			"body": "Use this helper before publishing legal text in another language. For English, it becomes a review prompt. For other languages, it becomes a translation prompt that keeps numbering, defined terms, links, and Markdown structure intact.",
-			"stepOne": "1. Choisir le document juridique et la langue cible.",
-			"stepTwo": "2. Traduire sans modifier les obligations ni les recours.",
-			"stepThree": "3. Garder le résultat marqué à relire jusqu’à approbation."
+			"body": "Utilisez cet assistant avant de publier un texte juridique dans une autre langue. Pour l’anglais, il devient une demande de révision. Pour les autres langues, il devient une demande de traduction qui conserve la numérotation, les termes définis, les liens et la structure Markdown.",
+			"stepOne": "1. Choisissez le document juridique et la langue cible.",
+			"stepTwo": "2. Traduisez sans modifier les obligations ni les recours.",
+			"stepThree": "3. Gardez le résultat marqué à réviser jusqu’à approbation."
 		},
 		"security": {
-			"title": "Sécurité et Signalement",
-			"body": "Les signalements de sécurité restent routés par la politique de sécurité du dépôt. Les changements juridiques doivent être revus avant publication et répercutés dans la documentation.",
+			"title": "Sécurité Et Signalement",
+			"body": "Les divulgations de sécurité restent acheminées par la politique de sécurité du dépôt. Les changements juridiques doivent être relus avant publication et reflétés dans la documentation.",
 			"viewPolicy": "Voir La Politique De Sécurité",
 			"readFaq": "Lire La FAQ"
 		},
