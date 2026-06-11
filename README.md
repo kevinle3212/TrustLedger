@@ -315,6 +315,17 @@ SECURITY.md                        Vulnerability disclosure and supported scope.
 
 ### Install
 
+Keep local clones outside cloud-synced folders. On macOS, avoid `~/Desktop`,
+`~/Documents`, and `~/Library/Mobile Documents` because iCloud file sync and
+Spotlight indexing can slow Next.js file watching, Turbopack rebuilds,
+TypeScript, and large `node_modules` operations. Prefer:
+
+```bash
+mkdir -p "$HOME/Development"
+git clone git@github.com:kevinle3212/TrustLedger.git "$HOME/Development/TrustLedger"
+cd "$HOME/Development/TrustLedger"
+```
+
 ```bash
 bash tools/setup.sh
 ```
@@ -344,6 +355,10 @@ npm install
 | Build frontend            | `npm run build:frontend`         |
 | Run frontend unit tests   | `npm run test:frontend:unit`     |
 | Run React Doctor          | `cd src && npm run doctor`       |
+
+Local UI profiling prefers the Codex in-app browser when available. If the
+browser surface cannot be acquired, run the installed Playwright package against
+`http://127.0.0.1:3000` after starting `cd src && npm run dev:frontend`.
 
 ## Environment Configuration
 

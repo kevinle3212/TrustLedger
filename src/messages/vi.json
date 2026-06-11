@@ -640,6 +640,7 @@
 	},
 	"Common": {
 		"connectWallet": "Kết Nối Ví",
+		"openingWallet": "Đang Mở Ví...",
 		"reconnectWith": "Kết nối lại với {wallet}",
 		"connectedAs": "Đã kết nối với {address}. Nhấp để mở tùy chọn ví.",
 		"addressCopied": "Đã sao chép địa chỉ",
@@ -955,6 +956,27 @@
 			"fullHealthReport": "Full Health Report",
 			"publicStatusApi": "Public Status API",
 			"scientificAnalyticsApi": "Scientific Analytics API"
+		},
+		"github": {
+			"eyebrow": "Public Repository Analytics",
+			"title": "GitHub Project Activity",
+			"body": "Public repository activity for {repository}. This section appears only when the configured GitHub repository is public.",
+			"openRepository": "Open Repository",
+			"commits": "Commits",
+			"defaultBranch": "Default branch: {branch}",
+			"pullRequests": "Pull Requests",
+			"issues": "{count} open issues",
+			"codeChanges": "Code Changes",
+			"lineDelta": "+{additions} / -{deletions} lines",
+			"community": "Stars",
+			"forksWatchers": "{forks} forks, {watchers} watchers",
+			"topLanguage": "Top Language",
+			"languageSummary": "{language} across {count} languages",
+			"repoSize": "Repository Size",
+			"lastPush": "Last Push",
+			"updatedUnknown": "Unknown",
+			"languageUnknown": "Unknown",
+			"pending": "Indexing"
 		}
 	},
 	"NotFound": {

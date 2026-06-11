@@ -33,6 +33,7 @@ declare namespace NodeJS {
 		NEXT_PUBLIC_SITE_URL?: string;
 		NEXT_PUBLIC_APP_URL?: string;
 		NEXT_PUBLIC_GITHUB_URL?: string;
+		GITHUB_TOKEN?: string;
 		NEXT_PUBLIC_PINATA_JWT?: string;
 		NEXT_PUBLIC_ENABLE_REACT_SCAN?: string;
 		ORACLE_PRICE_SOURCE_URL?: string;

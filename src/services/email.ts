@@ -3,6 +3,7 @@
 // a shared HTML shell and one server-only integration boundary.
 
 import { Resend } from "resend";
+import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
 
 /** Brand accent shared with the rest of the UI (indigo-500). */
 const ACCENT = "#6366f1";
@@ -144,11 +145,15 @@ async function postJson(
 	headers: Readonly<Record<string, string>>,
 	body: object,
 ): Promise<string | null> {
-	const response = await fetch(url, {
-		method: "POST",
-		headers: { "content-type": "application/json", ...headers },
-		body: JSON.stringify(body),
-	});
+	const response = await fetchWithTimeout(
+		url,
+		{
+			method: "POST",
+			headers: { "content-type": "application/json", ...headers },
+			body: JSON.stringify(body),
+		},
+		REQUEST_TIMEOUT_MS.emailProvider,
+	);
 	if (response.ok) return null;
 	const text = await response.text();
 	return text === "" ? response.statusText : text;

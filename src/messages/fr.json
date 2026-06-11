@@ -640,6 +640,7 @@
 	},
 	"Common": {
 		"connectWallet": "Connecter le Portefeuille",
+		"openingWallet": "Ouverture Du Portefeuille...",
 		"reconnectWith": "Reconnecter avec {wallet}",
 		"connectedAs": "Connecté en tant que {address}. Cliquez pour ouvrir les options du portefeuille.",
 		"addressCopied": "Adresse copiée",
@@ -955,6 +956,27 @@
 			"fullHealthReport": "Rapport de Santé Complet",
 			"publicStatusApi": "API Publique d’État",
 			"scientificAnalyticsApi": "API d’Analyses Scientifiques"
+		},
+		"github": {
+			"eyebrow": "Public Repository Analytics",
+			"title": "GitHub Project Activity",
+			"body": "Public repository activity for {repository}. This section appears only when the configured GitHub repository is public.",
+			"openRepository": "Open Repository",
+			"commits": "Commits",
+			"defaultBranch": "Default branch: {branch}",
+			"pullRequests": "Pull Requests",
+			"issues": "{count} open issues",
+			"codeChanges": "Code Changes",
+			"lineDelta": "+{additions} / -{deletions} lines",
+			"community": "Stars",
+			"forksWatchers": "{forks} forks, {watchers} watchers",
+			"topLanguage": "Top Language",
+			"languageSummary": "{language} across {count} languages",
+			"repoSize": "Repository Size",
+			"lastPush": "Last Push",
+			"updatedUnknown": "Unknown",
+			"languageUnknown": "Unknown",
+			"pending": "Indexing"
 		}
 	},
 	"NotFound": {

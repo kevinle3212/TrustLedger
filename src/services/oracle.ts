@@ -1,3 +1,5 @@
+import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
+
 export interface OracleRate {
 	readonly base: OracleAsset;
 	readonly quote: OracleQuote;
@@ -130,10 +132,14 @@ export async function fetchOracleRate(base: OracleAsset, quote: OracleQuote): Pr
 
 	const url = buildOracleUrl(base, quote);
 	try {
-		const response = await fetch(url, {
-			headers: { accept: "application/json" },
-			cache: "no-store",
-		});
+		const response = await fetchWithTimeout(
+			url,
+			{
+				headers: { accept: "application/json" },
+				cache: "no-store",
+			},
+			REQUEST_TIMEOUT_MS.oracle,
+		);
 		if (!response.ok) {
 			throw new Error(`oracle source returned HTTP ${response.status.toString()}`);
 		}

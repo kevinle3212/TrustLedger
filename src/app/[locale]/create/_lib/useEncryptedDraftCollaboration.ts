@@ -9,6 +9,7 @@ import {
 	type ShareableDraft,
 	shareableDraftFromState,
 } from "./secureDraftShare";
+import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
 
 const POLL_MS = 4_000;
 const PUBLISH_DEBOUNCE_MS = 1_500;
@@ -52,16 +53,20 @@ async function postSnapshot(input: {
 	readonly authorWallet: string | undefined;
 	readonly updatedAt: string;
 }): Promise<void> {
-	const response = await fetch(`/api/create-collab/${encodeURIComponent(input.roomId)}`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			eventId: input.eventId,
-			encryptedDraft: input.encryptedDraft,
-			authorWallet: input.authorWallet ?? null,
-			updatedAt: input.updatedAt,
-		}),
-	});
+	const response = await fetchWithTimeout(
+		`/api/create-collab/${encodeURIComponent(input.roomId)}`,
+		{
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				eventId: input.eventId,
+				encryptedDraft: input.encryptedDraft,
+				authorWallet: input.authorWallet ?? null,
+				updatedAt: input.updatedAt,
+			}),
+		},
+		REQUEST_TIMEOUT_MS.collaboration,
+	);
 	if (!response.ok) {
 		throw new Error("Unable to publish the live draft update.");
 	}
@@ -74,7 +79,11 @@ function isDocumentVisible(): boolean {
 async function fetchSnapshot(roomId: string, signal?: AbortSignal): Promise<RelaySnapshot | null> {
 	const init: RequestInit = { cache: "no-store" };
 	if (signal !== undefined) init.signal = signal;
-	const response = await fetch(`/api/create-collab/${encodeURIComponent(roomId)}`, init);
+	const response = await fetchWithTimeout(
+		`/api/create-collab/${encodeURIComponent(roomId)}`,
+		init,
+		REQUEST_TIMEOUT_MS.collaboration,
+	);
 	if (!response.ok) {
 		throw new Error(
 			"Unable To Load The Live Draft Room. Check The Session Link, Session Key, Wallet, Or Room Expiration.",
