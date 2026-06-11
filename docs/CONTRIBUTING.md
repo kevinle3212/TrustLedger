@@ -194,6 +194,9 @@ npm run tmp:check
 
 Run `npm run logs:prune` when local logs exceed retention limits. Run
 `npm run tmp:prune` when project-local scratch files exceed retention limits.
+Pre-push also runs `npm run docker:storage:prune`, which prunes unused Docker
+images, volumes, networks, and build cache only when Docker reports storage
+above the configured threshold.
 
 ## Documentation Ownership
 

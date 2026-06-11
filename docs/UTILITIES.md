@@ -141,6 +141,7 @@ Prune old or oversized local logs:
 ```bash
 npm run logs:prune
 npm run tmp:prune
+npm run docker:storage:prune
 ```
 
 Default log retention limits:
@@ -172,6 +173,17 @@ Default tmp retention limits:
 `tmp:check` is non-destructive and fails when `tmp/` exceeds policy. `tmp:prune`
 removes stale, oversized, and oldest excess files until the local directory is
 back under the same limits.
+
+Docker storage retention is checked with:
+
+```bash
+npm run docker:storage:check
+```
+
+`docker:storage:check` is non-destructive and fails when Docker reports storage
+above the 5 GB default threshold. `docker:storage:prune` runs
+`docker system prune -a --volumes -f` only when storage exceeds that threshold.
+Override the threshold with `TRUSTLEDGER_DOCKER_MAX_BYTES`.
 
 ## Cross-Platform Script Support
 

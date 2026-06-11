@@ -16,6 +16,7 @@
 - [Root Compose Commands](#root-compose-commands)
 - [Development Compose](#development-compose)
 - [Direct Image Commands](#direct-image-commands)
+- [Storage Hygiene](#storage-hygiene)
 - [Notes](#notes)
 
 <!-- docs-toc:end -->
@@ -55,7 +56,7 @@ running demo, local-chain, or containerized test workflows.
 Build the image:
 
 ```bash
-docker compose build
+npm run docker:build
 ```
 
 Run demo scenarios:
@@ -76,8 +77,8 @@ docker compose up node
 Run containerized contract tests:
 
 ```bash
-docker compose run test
-docker compose run frontend-test
+npm run docker:test
+npm run docker:frontend:test
 ```
 
 The `test` and `frontend-test` services run:
@@ -95,7 +96,8 @@ services.
 Run the production frontend container locally:
 
 ```bash
-docker compose --profile frontend up --build frontend
+npm run docker:frontend:build
+docker compose --profile frontend up frontend
 ```
 
 Override the host port with `TRUSTLEDGER_FRONTEND_PORT=3001`.
@@ -170,6 +172,28 @@ Run the standalone frontend image:
 ```bash
 docker run --rm -p 3000:3000 trustledger-frontend
 ```
+
+## Storage Hygiene
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Docker images and build cache can grow quickly because TrustLedger builds Node,
+Foundry, contract, and frontend layers. The npm Docker workflows prune only when
+Docker reports storage above the 5 GB default threshold:
+
+```bash
+npm run docker:storage:check
+npm run docker:storage:prune
+```
+
+`docker:storage:check` is non-destructive and fails when Docker reports storage
+above the threshold. `docker:storage:prune` runs
+`docker system prune -a --volumes -f` only when storage is above the threshold.
+Override the threshold with `TRUSTLEDGER_DOCKER_MAX_BYTES`.
 
 ## Notes
 

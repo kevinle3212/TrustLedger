@@ -9,6 +9,8 @@ echo "pre-push: logs"
 npm run logs:check
 echo "pre-push: tmp"
 npm run tmp:check
+echo "pre-push: Docker storage"
+npm run docker:storage:prune
 echo "pre-push: native"
 npm run native:check
 echo "pre-push: analytics"

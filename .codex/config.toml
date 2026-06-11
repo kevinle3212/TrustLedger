@@ -14,7 +14,7 @@ args = ["start-mcp-server", "--project-from-cwd", "--context=codex"]
 # token-budgeted context. Refresh the graph with `npm run nexus:index` after
 # large refactors.
 [mcp_servers.nexus]
-startup_timeout_sec = 60
+startup_timeout_sec = 120
 command = "./node_modules/.bin/nexus-graph"
 args = ["server", "--project", "."]
 

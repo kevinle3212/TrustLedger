@@ -26,6 +26,7 @@ export default [
 		files: [
 			"tools/ensure-doc-navigation.mjs",
 			"tools/check-sensitive-files.mjs",
+			"tools/check-docker-storage.mjs",
 			"tools/hardhat-local-cache.mjs",
 		],
 		languageOptions: {
