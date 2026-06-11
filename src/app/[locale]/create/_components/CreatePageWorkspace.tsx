@@ -23,6 +23,7 @@ export function CreatePageWorkspace({
 		isConnected,
 		isPending,
 		isConfirming,
+		isSuccess,
 		writeError,
 		solanaTxStatus,
 		solanaError,
@@ -80,6 +81,7 @@ export function CreatePageWorkspace({
 				<SecureDraftSessionPanel
 					state={state}
 					connectedWallet={address}
+					submissionComplete={isSuccess || solanaTxStatus === "success"}
 					onTermsBodyChange={(value) => {
 						dispatch({ type: "SET_TERMS_BODY", value });
 					}}

@@ -363,7 +363,7 @@
 		"failedToSendMagicLink": "Failed to send magic link - check server env vars.",
 		"createAnother": "Create Another",
 		"livePreview": "Live preview",
-		"previewTitle": "Draft contract terms",
+		"previewTitle": "Draft Contract Terms",
 		"previewSubtitle": "This preview updates as you edit. Nothing is deployed until you review and confirm.",
 		"previewNotSet": "Not set",
 		"counterparty": "Counterparty",

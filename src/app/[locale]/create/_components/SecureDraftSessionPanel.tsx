@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
 import type { CreateState, ContractTermsFormat } from "../_lib/types";
 import { convertContractTerms, DEFAULT_CONTRACT_TERMS } from "../_lib/contractTerms";
@@ -21,6 +21,7 @@ import { useEncryptedDraftCollaboration } from "../_lib/useEncryptedDraftCollabo
 interface SecureDraftSessionPanelProps {
 	readonly state: CreateState;
 	readonly connectedWallet: `0x${string}` | undefined;
+	readonly submissionComplete: boolean;
 	readonly onTermsBodyChange: (value: string) => void;
 	readonly onTermsFormatChange: (format: ContractTermsFormat) => void;
 	readonly onImportDraft: (draft: ShareableDraft) => void;
@@ -59,7 +60,8 @@ type PanelAction =
 	| { readonly type: "SET_STARTING_LIVE_ROOM"; readonly isStartingLiveRoom: boolean }
 	| { readonly type: "SET_IMPORTING"; readonly isImporting: boolean }
 	| { readonly type: "SET_COOLDOWN"; readonly cooldownUntil: number }
-	| { readonly type: "SET_STATUS"; readonly status: PanelStatus | null };
+	| { readonly type: "SET_STATUS"; readonly status: PanelStatus | null }
+	| { readonly type: "CLEAR_SHARE_SECRETS" };
 
 const SHARE_ACTION_COOLDOWN_MS = 10_000;
 const TERMS_HISTORY_LIMIT = 100;
@@ -98,6 +100,18 @@ function panelReducer(state: PanelState, action: PanelAction): PanelState {
 			return { ...state, cooldownUntil: action.cooldownUntil };
 		case "SET_STATUS":
 			return { ...state, status: action.status };
+		case "CLEAR_SHARE_SECRETS":
+			return {
+				...state,
+				shareUrl: "",
+				sessionKey: "",
+				importKey: "",
+				roomId: null,
+				isSharing: false,
+				isStartingLiveRoom: false,
+				isImporting: false,
+				cooldownUntil: 0,
+			};
 	}
 }
 
@@ -293,6 +307,23 @@ function buildDraftEmailHref(input: {
 	return `mailto:${encodeURIComponent(input.to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.join("\n"))}`;
 }
 
+function openEmailShare(href: string): void {
+	if (href === "") return;
+	window.location.href = href;
+}
+
+function removeDraftShareParamsFromUrl(): void {
+	const url = new URL(window.location.href);
+	url.searchParams.delete("tl_draft");
+	url.searchParams.delete("tl_room");
+	window.history.replaceState(null, "", url.toString());
+}
+
+async function deleteLiveRoomSnapshot(roomId: string | null): Promise<void> {
+	if (roomId === null) return;
+	await fetch(`/api/create-collab/${encodeURIComponent(roomId)}`, { method: "DELETE" });
+}
+
 function DraftTermsEditor({
 	state,
 	collaboration,
@@ -313,6 +344,7 @@ function DraftTermsEditor({
 	readonly onTermsRedo: () => void;
 }): React.JSX.Element {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const imageInputRef = useRef<HTMLInputElement>(null);
 	const visibleSnippets =
 		state.termsFormat === "markdown"
 			? MARKDOWN_SNIPPETS
@@ -320,13 +352,20 @@ function DraftTermsEditor({
 				? HTML_SNIPPETS
 				: MARKDOWN_SNIPPETS;
 
-	function insertSnippet(action: EditorSnippet): void {
+	function insertSnippet(action: EditorSnippet, overrideText?: string): void {
 		const textarea = textareaRef.current;
 		const textareaHasFocus = textarea !== null && document.activeElement === textarea;
 		const selectionStart = textareaHasFocus ? textarea.selectionStart : state.termsBody.length;
 		const selectionEnd = textareaHasFocus ? textarea.selectionEnd : state.termsBody.length;
 		const selectedText = state.termsBody.slice(selectionStart, selectionEnd);
-		const snippet = snippetFor(state.termsFormat, action, selectedText);
+		const snippet =
+			overrideText === undefined
+				? snippetFor(state.termsFormat, action, selectedText)
+				: {
+						text: overrideText,
+						selectionStart: overrideText.length,
+						selectionEnd: overrideText.length,
+					};
 		const needsLeadingBreak =
 			selectionStart > 0 &&
 			!state.termsBody.slice(0, selectionStart).endsWith("\n") &&
@@ -346,6 +385,28 @@ function DraftTermsEditor({
 			textarea?.focus();
 			textarea?.setSelectionRange(nextSelectionStart, nextSelectionEnd);
 		});
+	}
+
+	function insertImageFile(file: File): void {
+		if (!file.type.startsWith("image/")) return;
+		const reader = new FileReader();
+		reader.onload = (): void => {
+			const dataUrl = typeof reader.result === "string" ? reader.result : "";
+			if (dataUrl === "") return;
+			const altText = file.name
+				.replace(/\.[^.]+$/u, "")
+				.replace(/[-_]+/gu, " ")
+				.trim();
+			const safeAltText = altText === "" ? "Contract Attachment" : altText;
+			const imageMarkup =
+				state.termsFormat === "html"
+					? `<img src="${dataUrl}" alt="${safeAltText}" />`
+					: state.termsFormat === "markdown"
+						? `![${safeAltText}](${dataUrl})`
+						: `Contract Attachment: ${file.name}`;
+			insertSnippet("image", imageMarkup);
+		};
+		reader.readAsDataURL(file);
 	}
 
 	return (
@@ -427,6 +488,10 @@ function DraftTermsEditor({
 							event.preventDefault();
 						}}
 						onClick={() => {
+							if (action === "image") {
+								imageInputRef.current?.click();
+								return;
+							}
 							insertSnippet(action);
 						}}
 						className={`tl-editor-tool rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-indigo-300/40 dark:hover:bg-indigo-400/10 dark:hover:text-indigo-100 ${
@@ -440,6 +505,17 @@ function DraftTermsEditor({
 						{label}
 					</button>
 				))}
+				<input
+					ref={imageInputRef}
+					type="file"
+					accept="image/*"
+					className="sr-only"
+					aria-label="Upload Contract Terms Image"
+					onChange={(event) => {
+						const file = event.currentTarget.files?.[0];
+						if (file !== undefined) insertImageFile(file);
+					}}
+				/>
 			</div>
 
 			<textarea
@@ -487,8 +563,11 @@ function DraftShareControls({
 	onCreateShare,
 	onStartLiveRoom,
 	onCopy,
+	onEmailShare,
+	onEndLiveRoom,
 	onImport,
 	onImportKeyChange,
+	copiedLabel,
 }: {
 	readonly panel: PanelState;
 	readonly connected: string | undefined;
@@ -503,8 +582,11 @@ function DraftShareControls({
 	readonly onCreateShare: () => void;
 	readonly onStartLiveRoom: () => void;
 	readonly onCopy: (value: string, label: string) => void;
+	readonly onEmailShare: (href: string) => void;
+	readonly onEndLiveRoom: () => void;
 	readonly onImport: () => void;
 	readonly onImportKeyChange: (value: string) => void;
+	readonly copiedLabel: string | null;
 }): React.JSX.Element {
 	const secondsRemaining = cooldownSeconds(panel.cooldownUntil, nowMs);
 	const cooldownActive = secondsRemaining > 0;
@@ -573,7 +655,7 @@ function DraftShareControls({
 					disabled={panel.shareUrl === ""}
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 disabled:opacity-50 dark:border-white/10 dark:text-gray-200"
 				>
-					Copy Link
+					{copiedLabel === "Link" ? "Copied!" : "Copy Link"}
 				</button>
 				<button
 					type="button"
@@ -583,17 +665,27 @@ function DraftShareControls({
 					disabled={panel.sessionKey === ""}
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 disabled:opacity-50 dark:border-white/10 dark:text-gray-200"
 				>
-					Copy Session Key
+					{copiedLabel === "Session Key" ? "Copied!" : "Copy Session Key"}
 				</button>
-				<a
-					href={emailHref}
-					aria-disabled={emailHref === ""}
-					className={`tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:border-emerald-300 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-100 ${
-						emailHref === "" ? "pointer-events-none opacity-50" : ""
-					}`}
+				<button
+					type="button"
+					onClick={() => {
+						onEmailShare(emailHref);
+					}}
+					disabled={emailHref === ""}
+					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 hover:border-emerald-300 disabled:opacity-50 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-100"
 				>
 					Email Link And Key
-				</a>
+				</button>
+				{panel.roomId !== null && (
+					<button
+						type="button"
+						onClick={onEndLiveRoom}
+						className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 hover:border-red-300 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-200"
+					>
+						End Live Sync
+					</button>
+				)}
 			</div>
 			{panel.generationCount > 0 && (
 				<p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
@@ -675,13 +767,33 @@ function DraftShareControls({
 	);
 }
 
-export function SecureDraftSessionPanel({
+function useSecureDraftSessionPanelController({
 	state,
 	connectedWallet,
+	submissionComplete,
 	onTermsBodyChange,
-	onTermsFormatChange,
 	onImportDraft,
-}: SecureDraftSessionPanelProps): React.JSX.Element {
+}: SecureDraftSessionPanelProps): {
+	readonly panel: PanelState;
+	readonly connected: string | undefined;
+	readonly counterparty: string | undefined;
+	readonly collaboration: ReturnType<typeof useEncryptedDraftCollaboration>;
+	readonly encryptedDraftFromUrl: string | null;
+	readonly urlAllowedWallets: readonly string[];
+	readonly liveRoomLocked: boolean;
+	readonly updatedAtFormatter: Intl.DateTimeFormat;
+	readonly nowMs: number;
+	readonly copiedLabel: string | null;
+	readonly updateTermsBodyWithHistory: (value: string) => void;
+	readonly undoTermsBody: () => void;
+	readonly redoTermsBody: () => void;
+	readonly handleCreateShare: () => Promise<void>;
+	readonly handleStartLiveRoom: () => Promise<void>;
+	readonly copyValue: (value: string, label: string) => Promise<boolean>;
+	readonly clearShareSecrets: (statusText: string) => Promise<void>;
+	readonly handleImport: () => Promise<void>;
+	readonly setImportKey: (value: string) => void;
+} {
 	const [panel, dispatchPanel] = useReducer(
 		panelReducer,
 		undefined,
@@ -699,8 +811,10 @@ export function SecureDraftSessionPanel({
 		}),
 	);
 	const lastRoomStartAt = useRef(0);
+	const copyFeedbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const termsHistory = useRef<string[]>([state.termsBody]);
 	const termsHistoryIndex = useRef(0);
+	const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
 	const nowMs = useVisibleTimestamp(1000);
 	const encryptedDraftFromUrl = useMemo(() => getEncryptedDraftFromUrl(), []);
 	const updatedAtFormatter = useMemo(
@@ -764,15 +878,22 @@ export function SecureDraftSessionPanel({
 		recordTermsHistory(state.termsBody);
 	}, [recordTermsHistory, state.termsBody]);
 
-	function updateStatus(tone: "success" | "error" | "info", text: string): void {
+	const updateStatus = useCallback((tone: "success" | "error" | "info", text: string): void => {
 		dispatchPanel({ type: "SET_STATUS", status: { tone, text } });
-	}
+	}, []);
 
 	async function copyValue(value: string, label: string): Promise<boolean> {
 		if (value === "") return false;
 		try {
 			await navigator.clipboard.writeText(value);
-			updateStatus("success", `${label} Copied!`);
+			setCopiedLabel(label);
+			if (copyFeedbackTimeout.current !== null) {
+				clearTimeout(copyFeedbackTimeout.current);
+			}
+			copyFeedbackTimeout.current = setTimeout(() => {
+				setCopiedLabel(null);
+			}, 1500);
+			updateStatus("success", "Copied!");
 			return true;
 		} catch {
 			updateStatus(
@@ -782,6 +903,39 @@ export function SecureDraftSessionPanel({
 			return false;
 		}
 	}
+
+	const clearShareSecrets = useCallback(
+		async (statusText: string): Promise<void> => {
+			const roomId = panel.roomId;
+			dispatchPanel({ type: "CLEAR_SHARE_SECRETS" });
+			setCopiedLabel(null);
+			removeDraftShareParamsFromUrl();
+			try {
+				await deleteLiveRoomSnapshot(roomId);
+			} catch {
+				// The local keys are still cleared even if the transient relay room is already gone.
+			}
+			updateStatus("success", statusText);
+		},
+		[panel.roomId, updateStatus],
+	);
+
+	useEffect(
+		(): (() => void) => () => {
+			if (copyFeedbackTimeout.current !== null) clearTimeout(copyFeedbackTimeout.current);
+		},
+		[],
+	);
+
+	useEffect(() => {
+		if (!submissionComplete) return;
+		const timeout = window.setTimeout(() => {
+			void clearShareSecrets("Draft share links and session keys cleared after submission.");
+		}, 0);
+		return (): void => {
+			window.clearTimeout(timeout);
+		};
+	}, [clearShareSecrets, submissionComplete]);
 
 	async function handleCreateShare(): Promise<void> {
 		if (panel.isSharing) return;
@@ -909,15 +1063,63 @@ export function SecureDraftSessionPanel({
 		}
 	}
 
+	return {
+		panel,
+		connected,
+		counterparty,
+		collaboration,
+		encryptedDraftFromUrl,
+		urlAllowedWallets,
+		liveRoomLocked,
+		updatedAtFormatter,
+		nowMs,
+		copiedLabel,
+		updateTermsBodyWithHistory,
+		undoTermsBody,
+		redoTermsBody,
+		handleCreateShare,
+		handleStartLiveRoom,
+		copyValue,
+		clearShareSecrets,
+		handleImport,
+		setImportKey: (value: string): void => {
+			dispatchPanel({ type: "SET_IMPORT_KEY", importKey: value });
+		},
+	};
+}
+
+export function SecureDraftSessionPanel(props: SecureDraftSessionPanelProps): React.JSX.Element {
+	const {
+		panel,
+		connected,
+		counterparty,
+		collaboration,
+		encryptedDraftFromUrl,
+		urlAllowedWallets,
+		liveRoomLocked,
+		updatedAtFormatter,
+		nowMs,
+		copiedLabel,
+		updateTermsBodyWithHistory,
+		undoTermsBody,
+		redoTermsBody,
+		handleCreateShare,
+		handleStartLiveRoom,
+		copyValue,
+		clearShareSecrets,
+		handleImport,
+		setImportKey,
+	} = useSecureDraftSessionPanelController(props);
+
 	return (
 		<section className="rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
 			<DraftTermsEditor
-				state={state}
+				state={props.state}
 				collaboration={collaboration}
 				updatedAtFormatter={updatedAtFormatter}
 				nowMs={nowMs}
 				onTermsBodyChange={updateTermsBodyWithHistory}
-				onTermsFormatChange={onTermsFormatChange}
+				onTermsFormatChange={props.onTermsFormatChange}
 				onTermsUndo={undoTermsBody}
 				onTermsRedo={redoTermsBody}
 			/>
@@ -931,7 +1133,7 @@ export function SecureDraftSessionPanel({
 				liveRoomLocked={liveRoomLocked}
 				updatedAtFormatter={updatedAtFormatter}
 				nowMs={nowMs}
-				emailAddress={state.form.clientEmail}
+				emailAddress={props.state.form.clientEmail}
 				onCreateShare={() => {
 					void handleCreateShare();
 				}}
@@ -941,12 +1143,17 @@ export function SecureDraftSessionPanel({
 				onCopy={(value, label) => {
 					void copyValue(value, label);
 				}}
+				onEmailShare={openEmailShare}
+				onEndLiveRoom={() => {
+					void clearShareSecrets(
+						"Live sync ended. Share links and session keys were cleared.",
+					);
+				}}
 				onImport={() => {
 					void handleImport();
 				}}
-				onImportKeyChange={(value) => {
-					dispatchPanel({ type: "SET_IMPORT_KEY", importKey: value });
-				}}
+				onImportKeyChange={setImportKey}
+				copiedLabel={copiedLabel}
 			/>
 		</section>
 	);

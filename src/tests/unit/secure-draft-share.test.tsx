@@ -17,6 +17,7 @@ import {
 const CLIENT = "0x1111111111111111111111111111111111111111";
 const FREELANCER = "0x2222222222222222222222222222222222222222";
 let writeTextMock: jest.MockedFunction<(text: string) => Promise<void>>;
+let fetchMock: jest.MockedFunction<typeof fetch>;
 
 function decodeDraftEnvelope(encryptedDraft: string): { salt: string; iv: string } {
 	const normalized = encryptedDraft.replaceAll("-", "+").replaceAll("_", "/");
@@ -162,6 +163,13 @@ describe("SecureDraftSessionPanel", () => {
 				writeText: writeTextMock,
 			},
 		});
+		fetchMock = jest
+			.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>()
+			.mockResolvedValue({
+				ok: true,
+				json: async (): Promise<unknown> => await Promise.resolve({ snapshot: null }),
+			} as Response);
+		globalThis.fetch = fetchMock;
 	});
 
 	it("updates terms with format controls and formatting snippets", () => {
@@ -172,6 +180,7 @@ describe("SecureDraftSessionPanel", () => {
 			<SecureDraftSessionPanel
 				state={state}
 				connectedWallet={FREELANCER}
+				submissionComplete={false}
 				onTermsBodyChange={onTermsBodyChange}
 				onTermsFormatChange={onTermsFormatChange}
 				onImportDraft={jest.fn()}
@@ -193,6 +202,7 @@ describe("SecureDraftSessionPanel", () => {
 			<SecureDraftSessionPanel
 				state={state}
 				connectedWallet={FREELANCER}
+				submissionComplete={false}
 				onTermsBodyChange={onTermsBodyChange}
 				onTermsFormatChange={jest.fn()}
 				onImportDraft={jest.fn()}
@@ -214,6 +224,32 @@ describe("SecureDraftSessionPanel", () => {
 		expect(onTermsBodyChange).toHaveBeenCalledWith("# Scope\n\n**Initial draft**");
 	});
 
+	it("inserts a local image file into markdown terms", async () => {
+		const onTermsBodyChange = jest.fn();
+		render(
+			<SecureDraftSessionPanel
+				state={state}
+				connectedWallet={FREELANCER}
+				submissionComplete={false}
+				onTermsBodyChange={onTermsBodyChange}
+				onTermsFormatChange={jest.fn()}
+				onImportDraft={jest.fn()}
+			/>,
+		);
+
+		const imageFile = new File(["image-bytes"], "milestone-proof.png", { type: "image/png" });
+		fireEvent.click(screen.getByRole("button", { name: "Insert Image terms snippet" }));
+		fireEvent.change(screen.getByLabelText("Upload Contract Terms Image"), {
+			target: { files: [imageFile] },
+		});
+
+		await waitFor(() => {
+			expect(onTermsBodyChange).toHaveBeenCalledWith(
+				expect.stringContaining("![milestone proof](data:image/png;base64,"),
+			);
+		});
+	});
+
 	it("keeps controlled editor history available for undo and redo shortcuts", () => {
 		function ControlledDraftPanel(): React.JSX.Element {
 			const [termsBody, setTermsBody] = useState(state.termsBody);
@@ -221,6 +257,7 @@ describe("SecureDraftSessionPanel", () => {
 				<SecureDraftSessionPanel
 					state={{ ...state, termsBody }}
 					connectedWallet={FREELANCER}
+					submissionComplete={false}
 					onTermsBodyChange={setTermsBody}
 					onTermsFormatChange={jest.fn()}
 					onImportDraft={jest.fn()}
@@ -253,6 +290,7 @@ describe("SecureDraftSessionPanel", () => {
 			<SecureDraftSessionPanel
 				state={state}
 				connectedWallet={FREELANCER}
+				submissionComplete={false}
 				onTermsBodyChange={jest.fn()}
 				onTermsFormatChange={jest.fn()}
 				onImportDraft={onImportDraft}
@@ -266,15 +304,13 @@ describe("SecureDraftSessionPanel", () => {
 		expect(
 			screen.getByText(/Creating another link replaces the active link and key shown here/u),
 		).toBeInTheDocument();
-		expect(screen.getByRole("link", { name: "Email Link And Key" })).toHaveAttribute(
-			"href",
-			expect.stringContaining("mailto:client%40example.com"),
-		);
+		expect(screen.getByRole("button", { name: "Email Link And Key" })).toBeEnabled();
 
 		fireEvent.click(screen.getByRole("button", { name: "Copy Session Key" }));
 		await waitFor(() => {
 			expect(writeTextMock).toHaveBeenCalledWith(expect.any(String));
 		});
+		expect(await screen.findByRole("button", { name: "Copied!" })).toBeEnabled();
 
 		const lastClipboardCall = writeTextMock.mock.calls.at(-1);
 		if (lastClipboardCall === undefined) throw new Error("missing session key");
@@ -290,6 +326,7 @@ describe("SecureDraftSessionPanel", () => {
 			<SecureDraftSessionPanel
 				state={state}
 				connectedWallet={FREELANCER}
+				submissionComplete={false}
 				onTermsBodyChange={jest.fn()}
 				onTermsFormatChange={jest.fn()}
 				onImportDraft={onImportDraft}
@@ -313,6 +350,7 @@ describe("SecureDraftSessionPanel", () => {
 			<SecureDraftSessionPanel
 				state={state}
 				connectedWallet={FREELANCER}
+				submissionComplete={false}
 				onTermsBodyChange={jest.fn()}
 				onTermsFormatChange={jest.fn()}
 				onImportDraft={jest.fn()}
@@ -320,9 +358,12 @@ describe("SecureDraftSessionPanel", () => {
 		);
 
 		fireEvent.click(screen.getByRole("button", { name: "Start Live Room" }));
-		await screen.findByText("Live Room Link Copied!");
+		await screen.findByText("Copied!");
 
 		const encryptedUrl = screen.getByText(/tl_draft=/).textContent;
 		expect(encryptedUrl).toContain("tl_room=");
+		fireEvent.click(screen.getByRole("button", { name: "End Live Sync" }));
+		await screen.findByText("Live sync ended. Share links and session keys were cleared.");
+		expect(screen.queryByText(/tl_draft=/)).not.toBeInTheDocument();
 	});
 });

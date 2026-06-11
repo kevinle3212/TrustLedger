@@ -214,7 +214,13 @@ export function ConnectButtonInner({
 				onPointerEnter={() => {
 					setWalletMenuOpen(true);
 				}}
+				onMouseEnter={() => {
+					setWalletMenuOpen(true);
+				}}
 				onPointerLeave={() => {
+					setWalletMenuOpen(false);
+				}}
+				onMouseLeave={() => {
 					setWalletMenuOpen(false);
 				}}
 				onFocus={() => {

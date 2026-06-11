@@ -26,6 +26,25 @@ function formatTermsMode(format: ContractTermsFormat): string {
 	return "Markdown";
 }
 
+function summarizeTerms(value: string): {
+	readonly sectionCount: number;
+	readonly wordCount: number;
+	readonly firstClause: string;
+} {
+	const text = value
+		.replace(/<[^>]*>/gu, " ")
+		.replace(/[#>*_`[\]()!]/gu, " ")
+		.replace(/\s+/gu, " ")
+		.trim();
+	const wordCount = text === "" ? 0 : text.split(/\s+/u).length;
+	const sectionCount = Math.max(
+		value.match(/^#{1,6}\s+/gmu)?.length ?? 0,
+		value.match(/<h[1-6][\s>]/giu)?.length ?? 0,
+	);
+	const firstClause = text === "" ? "" : (text.split(/(?<=[.!?])\s+/u)[0] ?? text);
+	return { sectionCount, wordCount, firstClause };
+}
+
 export function ContractLivePreview({
 	form,
 	paymentToken,
@@ -61,10 +80,7 @@ export function ContractLivePreview({
 		form.holdBack === "none"
 			? t("holdbackNone")
 			: `${form.holdBack}% for ${warrantyPeriodDays} ${t("daysUnit")}`;
-	const termsExcerpt =
-		termsBody.trim() === ""
-			? t("previewNotSet")
-			: termsBody.trim().replace(/\s+/g, " ").slice(0, 180);
+	const termsSummary = useMemo(() => summarizeTerms(termsBody), [termsBody]);
 	const lastUpdated =
 		termsLastUpdatedAt === null
 			? t("previewNotSet")
@@ -127,7 +143,7 @@ export function ContractLivePreview({
 				<span className="font-medium text-gray-500">Warranty Hold-Back</span>
 				<span className="text-gray-900 dark:text-white">{holdBack}</span>
 
-				<span className="font-medium text-gray-500">Terms Format</span>
+				<span className="font-medium text-gray-500">Draft Terms Format</span>
 				<span className="text-gray-900 dark:text-white">
 					{formatTermsMode(termsFormat)}
 				</span>
@@ -138,12 +154,39 @@ export function ContractLivePreview({
 
 			<div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-950">
 				<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-					Editable Terms Excerpt
+					Draft Contract Terms
 				</p>
-				<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					{termsExcerpt}
-					{termsBody.trim().length > 180 ? "..." : ""}
-				</p>
+				<div className="mt-3 grid gap-3 text-sm">
+					<div className="grid grid-cols-2 gap-3">
+						<div className="rounded-lg bg-gray-50 p-3 dark:bg-white/5">
+							<p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+								Sections
+							</p>
+							<p className="mt-1 font-semibold text-gray-950 dark:text-white">
+								{termsSummary.sectionCount.toString()}
+							</p>
+						</div>
+						<div className="rounded-lg bg-gray-50 p-3 dark:bg-white/5">
+							<p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+								Words
+							</p>
+							<p className="mt-1 font-semibold text-gray-950 dark:text-white">
+								{termsSummary.wordCount.toString()}
+							</p>
+						</div>
+					</div>
+					<div>
+						<p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+							First Clause
+						</p>
+						<p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
+							{termsSummary.firstClause === ""
+								? t("previewNotSet")
+								: termsSummary.firstClause.slice(0, 220)}
+							{termsSummary.firstClause.length > 220 ? "..." : ""}
+						</p>
+					</div>
+				</div>
 			</div>
 
 			<p className="mt-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-semibold leading-5 text-amber-900 shadow-sm dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
