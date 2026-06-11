@@ -1,4 +1,8 @@
-import type { GET as GetRoute, POST as PostRoute } from "@/app/api/create-collab/[roomId]/route";
+import type {
+	DELETE as DeleteRoute,
+	GET as GetRoute,
+	POST as PostRoute,
+} from "@/app/api/create-collab/[roomId]/route";
 
 jest.mock("next/server", () => ({
 	NextResponse: {
@@ -17,6 +21,7 @@ interface RouteParams {
 }
 
 interface RouteModule {
+	readonly DELETE: typeof DeleteRoute;
 	readonly GET: typeof GetRoute;
 	readonly POST: typeof PostRoute;
 }
@@ -63,6 +68,26 @@ describe("create collaboration relay", () => {
 		expect(body.snapshot.encryptedDraft).toBe(encryptedDraft);
 		expect(JSON.stringify(body)).not.toContain("termsBody");
 		expect(body.snapshot.authorWallet).toBe("0x1111111111111111111111111111111111111111");
+	});
+
+	it("deletes live room snapshots when collaboration ends", async () => {
+		const { DELETE, GET, POST } = await loadRoute();
+		await POST(
+			request({
+				eventId: "event_444444444444",
+				encryptedDraft: "encrypted_snapshot_payload",
+				authorWallet: null,
+				updatedAt: "2026-06-09T12:00:00.000Z",
+			}),
+			params("room_222222222222"),
+		);
+
+		await expect(DELETE(request(), params("room_222222222222"))).resolves.toHaveProperty(
+			"status",
+			200,
+		);
+		const getResponse = await GET(request(), params("room_222222222222"));
+		await expect(getResponse.json()).resolves.toEqual({ snapshot: null });
 	});
 
 	it("rejects invalid rooms, authors, and oversized payloads", async () => {

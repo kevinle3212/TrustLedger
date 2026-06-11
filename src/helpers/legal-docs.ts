@@ -148,6 +148,10 @@ export function resolveLegalLocale(locale: string): LegalLocale {
 	return isLegalLocale(locale) ? locale : LEGAL_SOURCE_LOCALE;
 }
 
+export function formatLegalLocaleDisplay(locale: LegalLocale): string {
+	return `${LEGAL_LOCALE_ENGLISH_NAMES[locale]} (${locale})`;
+}
+
 export function buildLegalTranslationPrompt(document: LegalDocument, locale: LegalLocale): string {
 	const languageName = LEGAL_LOCALE_ENGLISH_NAMES[locale];
 	if (locale === LEGAL_SOURCE_LOCALE) {

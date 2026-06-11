@@ -19,6 +19,16 @@ import { useMemo, useSyncExternalStore } from "react";
 import { useAccount, useChainId, useReadContract, useReadContracts } from "wagmi";
 
 const subscribeNoop = (): (() => void) => (): void => undefined;
+const ENGLISH_LANGUAGE_DISPLAY_NAMES = new Intl.DisplayNames(["en"], { type: "language" });
+const ACTIVITY_LINE_LABELS = [
+	"Pending",
+	"Active",
+	"Submitted",
+	"Approved",
+	"Disputed",
+	"Resolved",
+] as const;
+const ACTIVITY_LINE_GUIDES = [32, 64, 96, 128] as const;
 
 function useMounted(): boolean {
 	return useSyncExternalStore(
@@ -240,6 +250,101 @@ function OutcomeGraph({
 	);
 }
 
+function formatLocaleDisplay(locale: string): string {
+	const languageName = ENGLISH_LANGUAGE_DISPLAY_NAMES.of(locale) ?? locale;
+	return `${languageName.charAt(0).toUpperCase()}${languageName.slice(1)} (${locale})`;
+}
+
+function ActivityLineChart({
+	summary,
+}: {
+	readonly summary: WalletAnalyticsSummary | null;
+}): React.JSX.Element {
+	const values = [
+		summary?.statusCounts[0] ?? 0,
+		summary?.statusCounts[1] ?? 0,
+		summary?.statusCounts[2] ?? 0,
+		summary?.statusCounts[3] ?? 0,
+		summary?.statusCounts[4] ?? 0,
+		summary?.statusCounts[5] ?? 0,
+	];
+	const maxValue = Math.max(...values, 1);
+	const points = values
+		.map((value, index) => {
+			const x = 24 + index * 48;
+			const y = 128 - (value / maxValue) * 96;
+			return `${x.toString()},${y.toString()}`;
+		})
+		.join(" ");
+
+	return (
+		<div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
+			<div className="flex items-start justify-between gap-4">
+				<div>
+					<h2 className="text-xl font-semibold text-gray-950 dark:text-white">
+						Contract State Trend
+					</h2>
+					<p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+						A lightweight view of how this wallet&apos;s visible contracts are
+						distributed.
+					</p>
+				</div>
+				<span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800 dark:border-sky-400/30 dark:bg-sky-400/10 dark:text-sky-100">
+					Line Chart
+				</span>
+			</div>
+			<svg
+				viewBox="0 0 288 164"
+				role="img"
+				aria-label="Line chart of wallet contract states"
+				className="mt-5 h-auto w-full overflow-visible"
+			>
+				{ACTIVITY_LINE_GUIDES.map((y) => (
+					<line
+						key={y}
+						x1="24"
+						x2="264"
+						y1={y}
+						y2={y}
+						className="stroke-gray-200 dark:stroke-white/10"
+					/>
+				))}
+				<polyline
+					points={points}
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="4"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					className="text-indigo-600 dark:text-indigo-300"
+				/>
+				{values.map((value, index) => {
+					const x = 24 + index * 48;
+					const y = 128 - (value / maxValue) * 96;
+					return (
+						<g key={ACTIVITY_LINE_LABELS[index]}>
+							<circle
+								cx={x}
+								cy={y}
+								r="5"
+								className="fill-white stroke-indigo-600 stroke-[3] dark:fill-gray-950 dark:stroke-indigo-300"
+							/>
+							<text
+								x={x}
+								y="156"
+								textAnchor="middle"
+								className="fill-gray-500 text-[9px] font-semibold dark:fill-gray-400"
+							>
+								{ACTIVITY_LINE_LABELS[index]}
+							</text>
+						</g>
+					);
+				})}
+			</svg>
+		</div>
+	);
+}
+
 export function AnalyticsPageInner(): React.JSX.Element {
 	const t = useTranslations("Analytics");
 	const locale = useLocale();
@@ -302,6 +407,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 	const reputation = formatReputationScore(reputationData);
 	const maxStatus = Math.max(...(summary?.statusCounts ?? [0]), 1);
 	const loading = countLoading || contractsLoading;
+	const localeDisplay = formatLocaleDisplay(locale);
 
 	if (!isConnected || address === undefined) {
 		return <WalletRequiredPage />;
@@ -366,6 +472,10 @@ export function AnalyticsPageInner(): React.JSX.Element {
 				<OutcomeGraph summary={summary} />
 			</section>
 
+			<section className="mt-8">
+				<ActivityLineChart summary={summary} />
+			</section>
+
 			<section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)]">
 				<div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
 					<div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -377,7 +487,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 								{t("statusBody")}
 							</p>
 						</div>
-						<span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-600 dark:border-white/10 dark:text-gray-300">
+						<span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800 shadow-sm shadow-cyan-950/5 dark:border-cyan-300/30 dark:bg-cyan-300/15 dark:text-cyan-100">
 							{t("publicOnly")}
 						</span>
 					</div>
@@ -457,7 +567,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 							<div className="flex items-center justify-between gap-4">
 								<dt className="text-gray-500 dark:text-gray-400">{t("locale")}</dt>
 								<dd className="font-medium text-gray-900 dark:text-white">
-									{locale}
+									{localeDisplay}
 								</dd>
 							</div>
 						</dl>

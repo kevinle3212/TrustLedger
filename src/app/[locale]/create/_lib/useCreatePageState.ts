@@ -135,6 +135,7 @@ export function useCreatePageState(): {
 		args: readonly unknown[];
 	} | null;
 	hasBlockingErrors: boolean;
+	setProposerRole: (role: CreateState["proposerRole"]) => void;
 	set: (key: keyof FormFields, value: string) => void;
 	markTouched: (key: string) => void;
 	showError: (key: string) => string | undefined;
@@ -160,7 +161,7 @@ export function useCreatePageState(): {
 		isSuccess,
 		data: receipt,
 	} = useWaitForTransactionReceipt({ hash: txHash });
-	const { role: globalRole } = useRole();
+	const { role: globalRole, setRole: setGlobalRole } = useRole();
 
 	const [state, dispatch] = useReducer(
 		createReducer,
@@ -229,6 +230,11 @@ export function useCreatePageState(): {
 
 	function set(key: keyof FormFields, value: string): void {
 		dispatch({ type: "SET_FIELD", key, value });
+	}
+
+	function setProposerRole(role: CreateState["proposerRole"]): void {
+		setGlobalRole(role);
+		dispatch({ type: "SET_PROPOSER_ROLE", role });
 	}
 
 	function markTouched(key: string): void {
@@ -397,6 +403,12 @@ export function useCreatePageState(): {
 			// Browsers can deny localStorage in private or sandboxed contexts.
 		}
 	}, []);
+
+	useEffect(() => {
+		if (globalRole !== state.proposerRole) {
+			dispatch({ type: "SET_PROPOSER_ROLE", role: globalRole });
+		}
+	}, [globalRole, state.proposerRole]);
 
 	function applySharedDraft(draft: ShareableDraft): void {
 		dispatch({
@@ -657,6 +669,7 @@ export function useCreatePageState(): {
 		missingFieldLabels,
 		txArgs,
 		hasBlockingErrors,
+		setProposerRole,
 		set,
 		markTouched,
 		showError,

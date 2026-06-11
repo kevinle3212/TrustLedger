@@ -37,7 +37,7 @@ export function CreatePageControls({
 }): React.JSX.Element {
 	const t = useTranslations("Create");
 	const tNav = useTranslations("Nav");
-	const { state, dispatch, isConnected, isUsdc, usdcAddress } = page;
+	const { state, dispatch, isConnected, isUsdc, usdcAddress, setProposerRole } = page;
 	const { proposerRole, paymentToken } = state;
 
 	return (
@@ -50,7 +50,7 @@ export function CreatePageControls({
 							key={role}
 							type="button"
 							onClick={() => {
-								dispatch({ type: "SET_PROPOSER_ROLE", role });
+								setProposerRole(role);
 							}}
 							className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
 								proposerRole === role

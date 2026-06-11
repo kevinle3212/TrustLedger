@@ -6,6 +6,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import {
+	formatLegalLocaleDisplay,
 	getLegalDocumentBySlug,
 	LEGAL_DOCUMENTS,
 	type LegalDocument,
@@ -466,6 +467,7 @@ export default async function LegalDocumentPage({
 	if (document === undefined) notFound();
 
 	const legalLocale = resolveLegalLocale(locale);
+	const legalLocaleDisplay = formatLegalLocaleDisplay(legalLocale);
 	const markdown = await readLegalMarkdown(document, legalLocale);
 	const blocks = parseMarkdown(markdown);
 
@@ -491,7 +493,7 @@ export default async function LegalDocumentPage({
 				<p className="mt-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
 					{t("document.sourceFile")}{" "}
 					<span className="font-mono">{document.sourceFile}</span>. {t("document.locale")}{" "}
-					<span className="font-semibold">{legalLocale}</span>.
+					<span className="font-semibold">{legalLocaleDisplay}</span>.
 				</p>
 			</header>
 

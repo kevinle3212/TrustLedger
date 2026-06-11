@@ -37,7 +37,9 @@ wallet-specific metrics without scraping sensitive wallet or browser data.
 
 The wallet analytics page lives at `/[locale]/analytics`. Connected users can
 open it from the wallet address hover menu in the navigation bar or from the
-footer Guide.
+footer Guide. The page shows a public-state badge, a compact contract-state line
+chart, and locale diagnostics as a readable language name plus code such as
+`English (en)`.
 
 The page reads:
 

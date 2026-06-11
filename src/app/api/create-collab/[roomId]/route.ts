@@ -125,3 +125,14 @@ export async function POST(
 		},
 	});
 }
+
+export async function DELETE(
+	_request: Request,
+	{ params }: { readonly params: Promise<{ readonly roomId: string }> },
+): Promise<NextResponse> {
+	const { roomId } = await params;
+	if (!ROOM_ID_PATTERN.test(roomId)) return badRequest("Invalid collaboration room.");
+
+	snapshots.delete(roomId);
+	return NextResponse.json({ deleted: true });
+}

@@ -144,10 +144,11 @@ variables exist in `.env.example`, but current source does not consume them.
 
 The create-contract page supports encrypted draft sharing before deployment.
 `SecureDraftSessionPanel.tsx` lets parties write terms in Markdown, HTML, or
-plain text, apply small formatting helpers, and share a link plus a separate
-session key. The default share action creates a one-time encrypted draft link;
-live co-editing starts only when the user explicitly chooses **Start live
-room**.
+plain text, apply small formatting helpers, upload local image attachments into
+the draft body, and share a link plus a separate session key. The terms editor
+handles Ctrl/Cmd+Z and redo shortcuts inside the collaborative draft area. The
+default share action creates a one-time encrypted draft link; live co-editing
+starts only when the user explicitly chooses **Start Live Room**.
 
 Collaboration is intentionally plaintext-blind:
 
@@ -162,6 +163,13 @@ Collaboration is intentionally plaintext-blind:
   `/api/create-collab/[roomId]` for cross-browser updates.
 - `/api/create-collab/[roomId]` stores only short-lived encrypted snapshots with
   size limits, room validation, TTL pruning, and no plaintext contract terms.
+- The UI clears local share URLs and session keys after the user ends live sync
+  or completes contract submission. Ending live sync also calls
+  `DELETE /api/create-collab/[roomId]` so transient room snapshots are removed
+  from the relay when they are no longer needed.
+- Copy actions show **Copied!** briefly and then return to **Copy Link** or
+  **Copy Session Key**. The email helper opens a `mailto:` draft with the share
+  link and separate session key; it never sends email server-side.
 
 This is a production-shaped collaboration seam without committing the project to
 a vendor. For high-volume production rooms, replace the in-memory relay behind

@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import {
 	buildLegalTranslationPrompt,
+	formatLegalLocaleDisplay,
 	getLegalTranslationStatus,
 	LEGAL_DOCUMENTS,
 	resolveLegalLocale,
@@ -24,6 +25,7 @@ export default async function LegalPage({
 	setRequestLocale(locale);
 	const t = await getTranslations({ locale, namespace: "Legal" });
 	const legalLocale = resolveLegalLocale(locale);
+	const legalLocaleDisplay = formatLegalLocaleDisplay(legalLocale);
 	const translationStatus = getLegalTranslationStatus(locale);
 
 	return (
@@ -39,8 +41,8 @@ export default async function LegalPage({
 					{t("intro")}
 				</p>
 				<p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					{t("currentLocale")} <span className="font-semibold">{legalLocale}</span>.{" "}
-					{t("translationStatus")}{" "}
+					{t("currentLocale")} <span className="font-semibold">{legalLocaleDisplay}</span>
+					. {t("translationStatus")}{" "}
 					<span className="font-semibold">{t(`status.${translationStatus}`)}</span>
 				</p>
 			</section>
