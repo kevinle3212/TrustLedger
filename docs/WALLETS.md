@@ -34,7 +34,10 @@ it when changing Reown AppKit, supported chains, or wallet metadata.
 <!-- docs-section-nav:end -->
 
 The frontend uses Reown AppKit with wagmi and viem. Configuration lives in
-`src/lib/wagmi.ts`.
+`src/lib/wagmi.ts`. The navigation wallet control is split into a lightweight
+disconnected shell and the connected menu. Keep the connected path loaded when a
+wallet is already connected so copy-address, analytics, dashboard, and
+disconnect actions are immediately available without opening the AppKit modal.
 
 Supported frontend networks are:
 

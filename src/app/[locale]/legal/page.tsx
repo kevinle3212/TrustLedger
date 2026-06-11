@@ -10,11 +10,18 @@ import {
 	resolveLegalLocale,
 } from "@/helpers/legal-docs";
 
-export const metadata: Metadata = {
-	title: "Legal Center - TrustLedger",
-	description:
-		"TrustLedger legal, policy, compliance, risk disclosure, and security document index.",
-};
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const t = await getTranslations({ locale, namespace: "Legal" });
+	return {
+		title: t("metadata.title"),
+		description: t("metadata.description"),
+	};
+}
 
 export default async function LegalPage({
 	params,
