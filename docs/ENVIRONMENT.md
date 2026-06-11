@@ -62,6 +62,9 @@ configuration surfaces kept current:
 | Email provider dashboard          | Magic links and lifecycle notifications      | Verify sender domain, SPF/DKIM/DMARC, suppression handling, rate limits, and provider API keys.                                                                                                               |
 | WalletConnect/Reown dashboard     | Wallet modal relay                           | Create and configure `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` for the production domain.                                                                                                                        |
 | IPFS / storage provider           | Contract files and proof uploads             | Configure Pinata or the selected provider, review token scope, and rotate any exposed upload token.                                                                                                           |
+| Request timeout policy            | UI responsiveness and API reliability        | Keep external fetches and RPC transports bounded through `src/lib/fetchTimeout.ts` and explicit viem `http()` timeouts. Do not add provider calls that can wait indefinitely.                                 |
+| Local repository location         | File watching, rebuilds, and local tooling   | Keep working clones outside `~/Desktop`, `~/Documents`, iCloud Drive, Dropbox, OneDrive, Google Drive, Box Drive, network shares, and external drives. Prefer `~/Development/TrustLedger`.                    |
+| Browser automation fallback       | UI validation and performance profiling      | Prefer the Codex in-app browser when available. If `iab` cannot be acquired, use installed Playwright with explicit user approval for the local Chromium process and document that fallback in the run notes. |
 | Monitoring provider               | Production operations                        | Configure uptime, logs, alert routing, cost/error dashboards, and health-check bearer tokens.                                                                                                                 |
 | Docker and Kubernetes             | Container deploys                            | Set `k8s/configmap.yaml`, generate ignored `k8s/secret.yaml`, build images, and run Docker storage checks after heavy sessions.                                                                               |
 | External audit package            | Mainnet readiness                            | Provide auditor scope, engagement details, final report, accepted/rejected findings, and remediation evidence before mainnet.                                                                                 |
@@ -70,6 +73,13 @@ When a new package script depends on external state, update this table and the
 owning docs in the same change. For example, scripts that call `gh api` must
 document the required GitHub CLI authentication and permissions here, not only
 inside `package.json`.
+
+TrustLedger request paths must fail closed and visibly: RPC reads, AI summaries,
+oracle prices, email providers, IPFS uploads, and collaboration relay calls use
+short explicit timeouts. When adding a new provider integration, route it
+through the shared timeout helper or an equivalent provider-native timeout and
+return a structured error instead of leaving the browser in a permanent loading
+state.
 
 ## Root Deployment And Test Variables
 
@@ -116,16 +126,16 @@ inside `package.json`.
 These variables are safe to expose to the browser because their names start with
 `NEXT_PUBLIC_`. Do not put private keys or bearer tokens in them.
 
-| Variable                               | Required For                        | Consumed By                    |
-| -------------------------------------- | ----------------------------------- | ------------------------------ |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | WalletConnect relay wallets         | `src/lib/wagmi.ts`             |
-| `NEXT_PUBLIC_SITE_URL`                 | Wallet metadata origin fallback     | `src/lib/wagmi.ts`             |
-| `NEXT_PUBLIC_APP_URL`                  | Magic links and wallet origin alias | API routes, `src/lib/wagmi.ts` |
-| `NEXT_PUBLIC_GITHUB_URL`               | Navbar source link                  | Frontend components            |
-| `NEXT_PUBLIC_PINATA_JWT`               | IPFS uploads                        | Frontend upload code           |
-| `NEXT_PUBLIC_SOLANA_CLUSTER`           | Native Solana support label         | `src/helpers/solana.ts`        |
-| `NEXT_PUBLIC_SOLANA_PROGRAM_ID`        | SOL escrow submission               | `src/lib/solanaEscrow.ts`      |
-| `NEXT_BASE_PATH`                       | Hosting under a subpath             | `src/next.config.ts`           |
+| Variable                               | Required For                                          | Consumed By                                  |
+| -------------------------------------- | ----------------------------------------------------- | -------------------------------------------- |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | WalletConnect relay wallets                           | `src/lib/wagmi.ts`                           |
+| `NEXT_PUBLIC_SITE_URL`                 | Wallet metadata origin fallback                       | `src/lib/wagmi.ts`                           |
+| `NEXT_PUBLIC_APP_URL`                  | Magic links and wallet origin alias                   | API routes, `src/lib/wagmi.ts`               |
+| `NEXT_PUBLIC_GITHUB_URL`               | Navbar source link and public GitHub analytics source | Frontend components, `/api/analytics/github` |
+| `NEXT_PUBLIC_PINATA_JWT`               | IPFS uploads                                          | Frontend upload code                         |
+| `NEXT_PUBLIC_SOLANA_CLUSTER`           | Native Solana support label                           | `src/helpers/solana.ts`                      |
+| `NEXT_PUBLIC_SOLANA_PROGRAM_ID`        | SOL escrow submission                                 | `src/lib/solanaEscrow.ts`                    |
+| `NEXT_BASE_PATH`                       | Hosting under a subpath                               | `src/next.config.ts`                         |
 
 ## Frontend Contract Variables
 
@@ -232,6 +242,14 @@ operator alert routing are ready. The server endpoint honors Do Not Track and
 Global Privacy Control, strips query strings, and does not store wallet
 addresses, raw IP addresses, raw user agents, emails, documents, session keys,
 or private wallet material.
+
+Set `NEXT_PUBLIC_GITHUB_URL` to a public GitHub repository URL when the public
+status page should show repository activity. `/api/analytics/github` verifies
+the GitHub repository is public before returning commit, pull request, language,
+star, fork, and code-change totals. If GitHub reports the repository as private,
+missing, or inaccessible, the public status page omits the GitHub section
+entirely. `GITHUB_TOKEN` is optional and server-only; use it only to raise
+GitHub API rate limits for public metadata reads.
 
 ## Admin And Health Variables
 

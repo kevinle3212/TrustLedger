@@ -32,6 +32,16 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
   frontend from `src/` with `rtk npm run dev:frontend`; if sandboxed binding
   blocks the check, rerun that command with escalation using the user's
   repository-level pre-authorization for localhost browser validation.
+- Prefer the Codex in-app Browser plugin for localhost checks. If `iab` cannot
+  be acquired, do not stop the investigation: fall back to the installed
+  Playwright package, request escalation for the local Chromium process when
+  sandboxing blocks launch, and report the fallback explicitly.
+- Keep working clones outside iCloud-synced locations such as `~/Desktop`,
+  `~/Documents`, and `~/Library/Mobile Documents`. Preferred local roots are
+  `~/Development`, `~/Projects`, `~/Code`, and `~/Workspace`.
+- Keep external fetches and RPC transports bounded by explicit timeouts. New
+  provider integrations should reuse `src/lib/fetchTimeout.ts` or an equivalent
+  provider-native timeout so UI loading states cannot wait indefinitely.
 - Prefer targeted checks before broad gates, and check for duplicate
   build/dev/doctor processes when commands appear stuck.
 - Secret scanning: `npm run secrets:check` requires `gitleaks` and scans git

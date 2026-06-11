@@ -36,7 +36,10 @@ export async function GET(
 	if (TRUSTLEDGER_ADDRESS === "0x0000000000000000000000000000000000000000")
 		return NextResponse.json({ error: "TrustLedger address not configured" }, { status: 500 });
 
-	const client = createPublicClient({ chain: sepolia, transport: http(rpcUrl) });
+	const client = createPublicClient({
+		chain: sepolia,
+		transport: http(rpcUrl, { retryCount: 1, timeout: 10_000 }),
+	});
 
 	let c: {
 		client: string;

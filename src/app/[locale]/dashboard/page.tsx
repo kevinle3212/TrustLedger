@@ -1328,19 +1328,18 @@ export default function DashboardPage(): React.JSX.Element {
 	useEffect(() => {
 		if (!isConnected || address === undefined) return;
 		let active = true;
+		let timer: number | null = null;
 		void readDashboardVisitedPreference().then((visited) => {
 			if (!active || visited) return;
-			const timer = window.setTimeout(() => {
+			timer = window.setTimeout(() => {
 				if (!active) return;
 				setShowIntroActions(true);
 				setWalkthroughOpen(true);
 			}, 0);
-			return (): void => {
-				window.clearTimeout(timer);
-			};
 		});
 		return (): void => {
 			active = false;
+			if (timer !== null) window.clearTimeout(timer);
 		};
 	}, [address, isConnected]);
 

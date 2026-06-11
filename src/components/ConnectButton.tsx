@@ -19,6 +19,11 @@ function prepareWalletUi(): void {
 	void preloadWalletButton();
 }
 
+function WalletButtonLoading(): React.JSX.Element {
+	const t = useTranslations("Common");
+	return <ConnectButtonShell compact label={t("openingWallet")} busy />;
+}
+
 const WalletButton = dynamic(
 	async () => {
 		const mod = await preloadWalletButton();
@@ -26,7 +31,7 @@ const WalletButton = dynamic(
 	},
 	{
 		ssr: false,
-		loading: () => <ConnectButtonShell compact />,
+		loading: () => <WalletButtonLoading />,
 	},
 );
 
@@ -45,11 +50,13 @@ function ConnectButtonShell({
 	onClick,
 	onPrepare,
 	label,
+	busy = false,
 }: {
 	compact?: boolean;
 	onClick?: () => void;
 	onPrepare?: () => void;
 	label?: string;
+	busy?: boolean;
 }): React.JSX.Element {
 	const t = useTranslations("Common");
 	const className =
@@ -59,6 +66,7 @@ function ConnectButtonShell({
 	return (
 		<button
 			type="button"
+			aria-busy={busy}
 			onClick={onClick}
 			onFocus={onPrepare}
 			onPointerEnter={onPrepare}
@@ -88,6 +96,7 @@ function ConnectButtonShell({
 
 export function ConnectButton({ compact = false }: { compact?: boolean } = {}): React.JSX.Element {
 	const [loadWalletUi, setLoadWalletUi] = useState(false);
+	const [loadingWalletUi, setLoadingWalletUi] = useState(false);
 	const [openOnLoadKey, setOpenOnLoadKey] = useState(0);
 	const { address, isConnected, connector } = useAccount();
 	const t = useTranslations("Common");
@@ -101,6 +110,7 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 	}, [isConnected, mounted, connector?.name]);
 
 	function loadAndOpen(): void {
+		setLoadingWalletUi(true);
 		setLoadWalletUi(true);
 		if (!isConnected) {
 			setOpenOnLoadKey((value) => value + 1);
@@ -108,6 +118,7 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 	}
 
 	const shouldLoadWalletUi = loadWalletUi || (mounted && isConnected);
+	const shellLabel = loadingWalletUi ? t("openingWallet") : undefined;
 
 	if (!shouldLoadWalletUi) {
 		const remembered = mounted ? getLastWallet() : null;
@@ -122,7 +133,8 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 				compact={compact}
 				onClick={loadAndOpen}
 				onPrepare={prepareWalletUi}
-				label={label}
+				label={shellLabel ?? label}
+				busy={loadingWalletUi}
 			/>
 		);
 	}

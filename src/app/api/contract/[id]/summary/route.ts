@@ -4,6 +4,7 @@ import { sepolia } from "viem/chains";
 import { STATUS_LABELS, TRUSTLEDGER_ABI } from "@/lib/abi";
 import { getUsdcAddress, TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { summarizeContract } from "@/services/contractSummary";
+import type { Contract } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,27 @@ function tokenSymbol(token: string): "ETH" | "USDC" | "Unknown" {
 	if (token === "0x0000000000000000000000000000000000000000") return "ETH";
 	if (token.toLowerCase() === getUsdcAddress(sepolia.id)?.toLowerCase()) return "USDC";
 	return "Unknown";
+}
+
+function isAddress(value: unknown): value is `0x${string}` {
+	return typeof value === "string" && /^0x[a-fA-F0-9]{40}$/.test(value);
+}
+
+function isContract(value: unknown): value is Contract {
+	if (typeof value !== "object" || value === null) return false;
+	const record = value as Record<string, unknown>;
+	return (
+		isAddress(record["client"]) &&
+		isAddress(record["freelancer"]) &&
+		isAddress(record["token"]) &&
+		typeof record["status"] === "number" &&
+		typeof record["amount"] === "bigint" &&
+		typeof record["projectDeadline"] === "bigint" &&
+		typeof record["acceptanceDeadline"] === "bigint" &&
+		typeof record["warrantyDeadline"] === "bigint" &&
+		typeof record["holdBackBps"] === "number" &&
+		typeof record["proposedByClient"] === "boolean"
+	);
 }
 
 export async function GET(
@@ -32,13 +54,26 @@ export async function GET(
 	if (TRUSTLEDGER_ADDRESS === "0x0000000000000000000000000000000000000000")
 		return NextResponse.json({ error: "TrustLedger address not configured" }, { status: 500 });
 
-	const client = createPublicClient({ chain: sepolia, transport: http(rpcUrl) });
-	const contract = await client.readContract({
-		address: TRUSTLEDGER_ADDRESS,
-		abi: TRUSTLEDGER_ABI,
-		functionName: "getContract",
-		args: [BigInt(id)],
+	const client = createPublicClient({
+		chain: sepolia,
+		transport: http(rpcUrl, { retryCount: 1, timeout: 10_000 }),
 	});
+	let contract: Contract;
+	try {
+		const result = await client.readContract({
+			address: TRUSTLEDGER_ADDRESS,
+			abi: TRUSTLEDGER_ABI,
+			functionName: "getContract",
+			args: [BigInt(id)],
+		});
+		if (!isContract(result)) throw new Error("contract response had an unexpected shape");
+		contract = result;
+	} catch (error) {
+		return NextResponse.json(
+			{ error: error instanceof Error ? error.message : "failed to read contract" },
+			{ status: 502 },
+		);
+	}
 	const symbol = tokenSymbol(contract.token);
 	const contractHash = keccak256(
 		toBytes(

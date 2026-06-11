@@ -102,6 +102,17 @@ commands with `rtk` when available.
   the frontend from `src/` with `rtk npm run dev:frontend`; if sandboxed server
   binding blocks the check, rerun the same command with escalation and state
   that the user pre-authorized localhost browser validation for this repository.
+- Prefer the Codex in-app Browser plugin for localhost UI checks. If `iab`
+  cannot be acquired, fall back to the installed Playwright package, request
+  escalation for Chromium when sandboxing blocks launch, and document that
+  fallback in the run notes or final report.
+- Keep working clones outside iCloud-synced locations such as `~/Desktop`,
+  `~/Documents`, and `~/Library/Mobile Documents`; prefer `~/Development`,
+  `~/Projects`, `~/Code`, or `~/Workspace` so file watchers, Next.js, Turbopack,
+  TypeScript, and `node_modules` operations are not competing with cloud sync.
+- Keep external fetches and RPC transports bounded by explicit timeouts. New
+  provider integrations should reuse `src/lib/fetchTimeout.ts` or an equivalent
+  provider-native timeout so UI loading states cannot wait indefinitely.
 - SWC cache/policy work: use `src/.agents/skills/swc-config/SKILL.md`, keep
   generated native binaries ignored, and run `npm run swc:populate` before
   frontend builds or push-time checks.

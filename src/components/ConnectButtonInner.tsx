@@ -2,7 +2,7 @@
 
 import { useAppKit, useAppKitTheme } from "@reown/appkit/react";
 import { useTheme } from "next-themes";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useAccount } from "wagmi";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -118,6 +118,17 @@ export function ConnectButtonInner({
 	const [walletMenuOpen, setWalletMenuOpen] = useState(false);
 	const lastOpenedKeyRef = useRef(0);
 	const walletMenuRef = useRef<HTMLDivElement>(null);
+	const copyFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const clearCopyFeedbackTimer = useCallback((): void => {
+		if (copyFeedbackTimerRef.current !== null) {
+			clearTimeout(copyFeedbackTimerRef.current);
+			copyFeedbackTimerRef.current = null;
+		}
+	}, []);
+
+	useEffect(() => {
+		return clearCopyFeedbackTimer;
+	}, [clearCopyFeedbackTimer]);
 
 	// Persist the connector label (localStorage only - no React state) whenever a
 	// connection is active, so the reconnect hint survives logout / session expiry.
@@ -202,8 +213,10 @@ export function ConnectButtonInner({
 		const copyAddress = (): void => {
 			void navigator.clipboard.writeText(address).then(() => {
 				setCopied(true);
-				setTimeout(() => {
+				clearCopyFeedbackTimer();
+				copyFeedbackTimerRef.current = setTimeout(() => {
 					setCopied(false);
+					copyFeedbackTimerRef.current = null;
 				}, 1500);
 			});
 		};

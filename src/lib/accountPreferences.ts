@@ -1,5 +1,7 @@
 "use client";
 
+import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
+
 const DASHBOARD_VISITED_KEY = "tl_visited";
 const PROFILE_STORAGE_HANDLE = ["trustledger", "profile", "handle"].join(":");
 
@@ -30,9 +32,13 @@ export async function readDashboardVisitedPreference(): Promise<boolean> {
 	if (token === null || token === "") return localVisited;
 
 	try {
-		const response = await fetch("/api/accounts/profile", {
-			headers: { authorization: `Bearer ${token}` },
-		});
+		const response = await fetchWithTimeout(
+			"/api/accounts/profile",
+			{
+				headers: { authorization: `Bearer ${token}` },
+			},
+			REQUEST_TIMEOUT_MS.accountPreference,
+		);
 		if (!response.ok) return localVisited;
 		const payload = (await response.json()) as {
 			profile?: { onboardingComplete?: unknown };
@@ -53,14 +59,18 @@ export async function markDashboardVisitedPreference(): Promise<void> {
 	}
 	if (token === null || token === "") return;
 	try {
-		await fetch("/api/accounts/profile", {
-			method: "PATCH",
-			headers: {
-				"authorization": `Bearer ${token}`,
-				"content-type": "application/json",
+		await fetchWithTimeout(
+			"/api/accounts/profile",
+			{
+				method: "PATCH",
+				headers: {
+					"authorization": `Bearer ${token}`,
+					"content-type": "application/json",
+				},
+				body: JSON.stringify({ onboardingComplete: true }),
 			},
-			body: JSON.stringify({ onboardingComplete: true }),
-		});
+			REQUEST_TIMEOUT_MS.accountPreference,
+		);
 	} catch {
 		// Local storage is already updated, so the account write is best-effort.
 	}

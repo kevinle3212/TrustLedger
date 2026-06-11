@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { GitHubStatsSection } from "./_components/GitHubStatsSection";
 
 export async function generateMetadata({
 	params,
@@ -61,6 +62,8 @@ export default async function StatusPage({
 					</a>
 				))}
 			</section>
+
+			<GitHubStatsSection />
 
 			<div className="mt-8">
 				<Link

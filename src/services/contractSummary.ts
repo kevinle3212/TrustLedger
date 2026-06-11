@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
+import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
 
 export type ContractSummaryProvider = "disabled" | "groq" | "gemini";
 
@@ -104,26 +105,30 @@ async function callGroq(input: ContractSummaryInput): Promise<string> {
 	const apiKey = process.env["GROQ_API_KEY"];
 	if (apiKey === undefined || apiKey === "") throw new Error("GROQ_API_KEY not set");
 	const model = process.env["GROQ_MODEL"] ?? "llama-3.3-70b-versatile";
-	const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-		method: "POST",
-		headers: {
-			"authorization": `Bearer ${apiKey}`,
-			"content-type": "application/json",
+	const response = await fetchWithTimeout(
+		"https://api.groq.com/openai/v1/chat/completions",
+		{
+			method: "POST",
+			headers: {
+				"authorization": `Bearer ${apiKey}`,
+				"content-type": "application/json",
+			},
+			body: JSON.stringify({
+				model,
+				temperature: 0.2,
+				max_tokens: 120,
+				messages: [
+					{
+						role: "system",
+						content:
+							"You write precise escrow-contract summaries for a privacy-focused SaaS product.",
+					},
+					{ role: "user", content: prompt(input) },
+				],
+			}),
 		},
-		body: JSON.stringify({
-			model,
-			temperature: 0.2,
-			max_tokens: 120,
-			messages: [
-				{
-					role: "system",
-					content:
-						"You write precise escrow-contract summaries for a privacy-focused SaaS product.",
-				},
-				{ role: "user", content: prompt(input) },
-			],
-		}),
-	});
+		REQUEST_TIMEOUT_MS.aiSummary,
+	);
 	if (!response.ok) throw new Error(`Groq summary failed: ${response.status.toString()}`);
 	const body = (await response.json()) as {
 		choices?: readonly { message?: { content?: string } }[];
@@ -137,7 +142,7 @@ async function callGemini(input: ContractSummaryInput): Promise<string> {
 	const apiKey = process.env["GEMINI_API_KEY"] ?? process.env["GOOGLE_GENERATIVE_AI_API_KEY"];
 	if (apiKey === undefined || apiKey === "") throw new Error("GEMINI_API_KEY not set");
 	const model = process.env["GEMINI_MODEL"] ?? "gemini-2.5-flash";
-	const response = await fetch(
+	const response = await fetchWithTimeout(
 		`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
 		{
 			method: "POST",
@@ -147,6 +152,7 @@ async function callGemini(input: ContractSummaryInput): Promise<string> {
 				contents: [{ parts: [{ text: prompt(input) }] }],
 			}),
 		},
+		REQUEST_TIMEOUT_MS.aiSummary,
 	);
 	if (!response.ok) throw new Error(`Gemini summary failed: ${response.status.toString()}`);
 	const body = (await response.json()) as {
