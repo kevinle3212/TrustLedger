@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { timingSafeEqualString } from "./bearerAuth";
 
 interface AdminAccount {
 	readonly email: string;
@@ -41,14 +42,6 @@ function clientIp(headers: Headers): string {
 
 function isLoopbackIp(ip: string): boolean {
 	return ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1";
-}
-
-function timingSafeEqualString(left: string, right: string): boolean {
-	const leftBuffer = Buffer.from(left);
-	const rightBuffer = Buffer.from(right);
-	return (
-		leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer)
-	);
 }
 
 function sessionSecret(): string | undefined {

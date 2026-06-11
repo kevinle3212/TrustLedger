@@ -636,7 +636,7 @@ function EvidencePanel({
 							<a
 								href={item.uri}
 								target="_blank"
-								rel="noreferrer"
+								rel="noopener noreferrer"
 								className="mt-2 block break-all text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
 							>
 								{item.uri}

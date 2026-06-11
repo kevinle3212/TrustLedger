@@ -257,6 +257,25 @@ export interface EmailCta {
 	href: string;
 }
 
+export function escapeEmailHtml(value: string): string {
+	return value
+		.replace(/&/gu, "&amp;")
+		.replace(/</gu, "&lt;")
+		.replace(/>/gu, "&gt;")
+		.replace(/"/gu, "&quot;")
+		.replace(/'/gu, "&#39;");
+}
+
+function safeEmailHref(value: string): string {
+	try {
+		const url = new URL(value);
+		if (url.protocol === "https:" || url.protocol === "http:") return url.toString();
+	} catch {
+		return "#";
+	}
+	return "#";
+}
+
 export function emailShell(
 	title: string,
 	bodyHtml: string,
@@ -266,18 +285,20 @@ export function emailShell(
 	const button =
 		cta === undefined
 			? ""
-			: `<a href="${cta.href}" style="display:inline-block;background:${ACCENT};color:#fff;font-weight:600;font-size:14px;padding:12px 28px;border-radius:10px;text-decoration:none;margin-top:8px">${cta.label}</a>`;
+			: `<a href="${escapeEmailHtml(safeEmailHref(cta.href))}" style="display:inline-block;background:${ACCENT};color:#fff;font-weight:600;font-size:14px;padding:12px 28px;border-radius:10px;text-decoration:none;margin-top:8px">${escapeEmailHtml(cta.label)}</a>`;
 	const footerText =
 		footer ?? "You are receiving this because you are a party to a TrustLedger contract.";
+	const safeTitle = escapeEmailHtml(title);
+	const safeFooterText = escapeEmailHtml(footerText);
 	return `
 <!DOCTYPE html>
 <html>
 <body style="font-family:sans-serif;background:#0f0f14;color:#e5e7eb;padding:40px 0;margin:0">
   <div style="max-width:480px;margin:0 auto;background:#1a1a2e;border-radius:16px;padding:40px;border:1px solid rgba(255,255,255,0.08)">
-    <h1 style="margin:0 0 16px;font-size:22px;color:#fff">${title}</h1>
+    <h1 style="margin:0 0 16px;font-size:22px;color:#fff">${safeTitle}</h1>
     <div style="margin:0 0 24px;color:#d1d5db;font-size:14px;line-height:1.6">${bodyHtml}</div>
     ${button}
-    <p style="margin:32px 0 0;color:#6b7280;font-size:12px">${footerText}</p>
+    <p style="margin:32px 0 0;color:#6b7280;font-size:12px">${safeFooterText}</p>
   </div>
 </body>
 </html>`;

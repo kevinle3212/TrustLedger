@@ -1,4 +1,5 @@
-import { sendEmail } from "@/services/email";
+import { emailShell, sendEmail } from "@/services/email";
+import { buildNotification } from "@/services/notifications";
 
 describe("email service", () => {
 	const originalEnv = process.env;
@@ -69,5 +70,33 @@ describe("email service", () => {
 			provider: "postmark",
 			error: "POSTMARK_SERVER_TOKEN not set",
 		});
+	});
+
+	it("escapes email shell text and rejects unsafe CTA links", () => {
+		const html = emailShell(
+			"<img src=x onerror=alert(1)>",
+			"<strong>Intentional Markup</strong>",
+			{ label: "<Click>", href: 'javascript:alert("x")' },
+			"Footer <script>alert(1)</script>",
+		);
+
+		expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
+		expect(html).toContain("<strong>Intentional Markup</strong>");
+		expect(html).toContain('href="#"');
+		expect(html).toContain("&lt;Click&gt;");
+		expect(html).toContain("Footer &lt;script&gt;alert(1)&lt;/script&gt;");
+	});
+
+	it("escapes dynamic notification fields before rendering HTML", () => {
+		const html = buildNotification("dispute_resolved", {
+			appUrl: "https://trustledger.example",
+			contractId: '7"><img src=x onerror=alert(1)>',
+			detail: "<script>alert(1)</script>",
+		}).html;
+
+		expect(html).toContain("#7&quot;&gt;&lt;img src=x onerror=alert(1)&gt;");
+		expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+		expect(html).not.toContain("<script>alert(1)</script>");
+		expect(html).not.toContain("<img src=x onerror=alert(1)>");
 	});
 });

@@ -5,6 +5,7 @@ import {
 	type DeadlineKind,
 	type NotificationType,
 } from "@/services/notifications";
+import { isAuthorizedBearer } from "@/services/bearerAuth";
 
 // POST /api/notifications
 // Sends a single contract-lifecycle email (new offer, work submitted, approval,
@@ -37,12 +38,12 @@ const VALID_TYPES: readonly NotificationType[] = [
 
 const VALID_DEADLINE_KINDS: readonly DeadlineKind[] = ["project", "acceptance", "warranty"];
 
-/** Constant-time-ish bearer check against NOTIFICATIONS_SECRET. */
+/** Constant-time bearer check against NOTIFICATIONS_SECRET. */
 function isAuthorized(req: NextRequest): boolean {
-	const secret = process.env["NOTIFICATIONS_SECRET"];
-	if (secret === undefined || secret === "") return false;
-	const header = req.headers.get("authorization");
-	return header === `Bearer ${secret}`;
+	return isAuthorizedBearer(
+		req.headers.get("authorization"),
+		process.env["NOTIFICATIONS_SECRET"],
+	);
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {

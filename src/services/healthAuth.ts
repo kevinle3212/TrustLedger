@@ -1,3 +1,5 @@
+import { isAuthorizedBearer } from "./bearerAuth";
+
 function parseCsv(value: string | undefined): string[] {
 	return (
 		value?.split(",").flatMap((part) => {
@@ -21,8 +23,7 @@ function isLoopbackIp(ip: string): boolean {
 
 export function isAuthorizedHealthRequest(request: Pick<Request, "headers">): boolean {
 	const token = process.env["HEALTH_CHECK_TOKEN"] ?? process.env["ADMIN_API_TOKEN"];
-	const authorization = request.headers.get("authorization");
-	if (token !== undefined && token !== "" && authorization === `Bearer ${token}`) {
+	if (isAuthorizedBearer(request.headers.get("authorization"), token)) {
 		return true;
 	}
 

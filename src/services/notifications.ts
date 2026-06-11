@@ -10,7 +10,7 @@
 // once the Phase 6 off-chain account database replaces the current env-based
 // recipient map.
 
-import { emailShell } from "./email";
+import { emailShell, escapeEmailHtml } from "./email";
 
 /** Every kind of lifecycle email TrustLedger can send. */
 export type NotificationType =
@@ -75,6 +75,8 @@ export function buildNotification(
 	data: NotificationData,
 ): RenderedNotification {
 	const cta = { label: "Open Dashboard", href: `${data.appUrl}/dashboard` };
+	const contractId = escapeEmailHtml(data.contractId);
+	const detail = data.detail !== undefined ? escapeEmailHtml(data.detail) : undefined;
 	const tag = `TrustLedger #${data.contractId}`;
 
 	switch (type) {
@@ -83,7 +85,7 @@ export function buildNotification(
 				subject: `New contract offer — ${tag}`,
 				html: emailShell(
 					"New contract offer",
-					`Contract <strong>#${data.contractId}</strong> is awaiting your review and acceptance. Connect your wallet to view the terms and accept or reject the offer.`,
+					`Contract <strong>#${contractId}</strong> is awaiting your review and acceptance. Connect your wallet to view the terms and accept or reject the offer.`,
 					cta,
 				),
 			};
@@ -92,7 +94,7 @@ export function buildNotification(
 				subject: `Work submitted for review — ${tag}`,
 				html: emailShell(
 					"Deliverable submitted",
-					`The freelancer submitted proof-of-work for contract <strong>#${data.contractId}</strong>. Review it and approve the work or open a dispute before the acceptance window closes.`,
+					`The freelancer submitted proof-of-work for contract <strong>#${contractId}</strong>. Review it and approve the work or open a dispute before the acceptance window closes.`,
 					cta,
 				),
 			};
@@ -101,7 +103,7 @@ export function buildNotification(
 				subject: `Work approved — ${tag}`,
 				html: emailShell(
 					"Work approved",
-					`The client approved your deliverable for contract <strong>#${data.contractId}</strong>. Payment has been released according to the escrow terms.`,
+					`The client approved your deliverable for contract <strong>#${contractId}</strong>. Payment has been released according to the escrow terms.`,
 					cta,
 				),
 			};
@@ -110,7 +112,7 @@ export function buildNotification(
 				subject: `Dispute opened — ${tag}`,
 				html: emailShell(
 					"Dispute opened",
-					`A dispute was opened on contract <strong>#${data.contractId}</strong> and routed to arbitration. Submit your evidence so jurors can review both sides before ruling.`,
+					`A dispute was opened on contract <strong>#${contractId}</strong> and routed to arbitration. Submit your evidence so jurors can review both sides before ruling.`,
 					cta,
 				),
 			};
@@ -119,8 +121,8 @@ export function buildNotification(
 				subject: `Dispute resolved — ${tag}`,
 				html: emailShell(
 					"Dispute resolved",
-					`Arbitration executed a ruling on contract <strong>#${data.contractId}</strong>.${
-						data.detail !== undefined ? ` ${data.detail}` : ""
+					`Arbitration executed a ruling on contract <strong>#${contractId}</strong>.${
+						detail !== undefined ? ` ${detail}` : ""
 					} Funds were distributed according to the jurors' decision.`,
 					cta,
 				),
@@ -130,8 +132,8 @@ export function buildNotification(
 				subject: `New rating received — ${tag}`,
 				html: emailShell(
 					"New reputation rating",
-					`Your counterparty submitted a rating for contract <strong>#${data.contractId}</strong>.${
-						data.detail !== undefined ? ` ${data.detail}` : ""
+					`Your counterparty submitted a rating for contract <strong>#${contractId}</strong>.${
+						detail !== undefined ? ` ${detail}` : ""
 					} Visit your reputation page to see how it affects your score.`,
 					{ label: "View Reputation", href: `${data.appUrl}/reputation` },
 				),
@@ -147,7 +149,7 @@ export function buildNotification(
 				subject: `Reminder: ${label} approaching — ${tag}`,
 				html: emailShell(
 					"Deadline reminder",
-					`The ${label} for contract <strong>#${data.contractId}</strong> is approaching.${whenLine} Take action before it elapses to avoid an automatic on-chain outcome (for example a reclaim or auto-release).`,
+					`The ${label} for contract <strong>#${contractId}</strong> is approaching.${whenLine} Take action before it elapses to avoid an automatic on-chain outcome (for example a reclaim or auto-release).`,
 					cta,
 				),
 			};

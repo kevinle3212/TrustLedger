@@ -9,6 +9,7 @@ import {
 	type DeadlineScanContract,
 	findDeadlineReminders,
 } from "@/services/notifications";
+import { isAuthorizedBearer } from "@/services/bearerAuth";
 
 // GET /api/cron/deadline-reminders
 //
@@ -52,7 +53,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 	const cronSecret = process.env["CRON_SECRET"];
 	if (cronSecret === undefined || cronSecret === "")
 		return NextResponse.json({ error: "CRON_SECRET not set" }, { status: 500 });
-	if (req.headers.get("authorization") !== `Bearer ${cronSecret}`)
+	if (!isAuthorizedBearer(req.headers.get("authorization"), cronSecret))
 		return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
 	const rpcUrl = process.env["SEPOLIA_RPC_URL"];

@@ -107,7 +107,13 @@ Public frontend variables are visible in the browser. Never store private keys,
 API bearer tokens, or HMAC secrets in `NEXT_PUBLIC_*` variables.
 
 Magic links depend on `MAGIC_LINK_SECRET`. Notifications and cron routes depend
-on bearer secrets. Rotate those secrets if they are exposed.
+on bearer secrets. Bearer-token checks use exact constant-time comparison
+through `src/services/bearerAuth.ts`; rotate those secrets if they are exposed.
+
+Outbound lifecycle emails escape dynamic notification values before inserting
+them into HTML and only allow HTTP(S) CTA links. Keep any future email templates
+on the shared `emailShell` and notification rendering helpers so contract IDs,
+status details, titles, labels, footers, and href attributes stay sanitized.
 
 `GET /api/health/runtime` is public and should only report that the Next.js API
 runtime responds. `GET /api/health` is admin-gated with `HEALTH_CHECK_TOKEN`,

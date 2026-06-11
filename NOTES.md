@@ -31,6 +31,45 @@ might benefit from. Keep private or unpolished jotting in `NOTES.local.md`
 
 ## Research and Ideas
 
+### Phase 7 Security and Consistency Sweep (2026-06-11)
+
+This pass addressed actionable Phase 7 items 1 and 2 without changing the
+roadmap checkbox state.
+
+Caught and fixed:
+
+- Bearer checks for `NOTIFICATIONS_SECRET`, `CRON_SECRET`, health auth, and
+  admin bearer auth were using raw string comparison or duplicated comparison
+  logic. Added `src/services/bearerAuth.ts` with `crypto.timingSafeEqual` and
+  routed those boundaries through the shared helper.
+- Notification email HTML accepted dynamic `contractId`, `detail`, shell title,
+  footer, CTA label, and CTA href values without centralized escaping. Added
+  HTML escaping and HTTP(S)-only CTA href normalization, plus unit coverage for
+  malicious-looking values.
+- Two external links used bare `rel="noreferrer"`. Normalized all
+  `target="_blank"` anchors to `rel="noopener noreferrer"` and verified that
+  every `_blank` anchor in `src/app` and `src/components` includes the full rel
+  attribute.
+
+Validation evidence:
+
+- `npm run test:unit -- bearer-auth email` from `src/`: passed.
+- `npm run lint:frontend` from `src/`: passed.
+- `npm run typecheck` from `src/`: passed.
+- `npm run secrets:check`: passed.
+- `bash tools/remove-duplicates.sh --fail-on-found .`: passed.
+- Root production `npm audit --omit=dev`: passed with zero vulnerabilities.
+
+Limitations:
+
+- Full root `npm audit` and frontend `npm audit --omit=dev` were blocked by the
+  approval policy because they disclose dependency metadata to the npm registry.
+- `gitleaks` is not installed in the local environment, so the repository's
+  `npm run secrets:check` guard was used as the local secret-scan evidence.
+- This was a focused local security and consistency pass, not a full external
+  audit. Phase 7 must remain open until external dependency alerts, full npm
+  audits, contract static analysis, and broader end-to-end evidence are added.
+
 ### Phase 1 Package Migration Follow-Ups (2026-06-10)
 
 The root Hardhat 3 migration cleared the previous root dev-tool audit findings

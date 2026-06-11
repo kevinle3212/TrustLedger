@@ -45,6 +45,26 @@ upgrades over overrides, and document ecosystem-blocked findings in
 `docs/reports/dependency-health-report.md`. Restricted environments may block
 `npm audit` because it sends dependency metadata to npm.
 
+### Phase 7 Sweep Notes (2026-06-11)
+
+- Hardened privileged bearer-token checks by centralizing exact token matching
+  in `src/services/bearerAuth.ts` with `crypto.timingSafeEqual`. The
+  notification API, deadline-reminder cron route, admin auth, and health auth
+  now use the same helper.
+- Hardened outbound notification email rendering by escaping dynamic
+  notification fields and email shell text, while constraining CTA links to
+  `http:` or `https:` URLs. This covers contract IDs, optional detail text,
+  titles, footers, labels, and href attributes before provider delivery.
+- Normalized remaining `target="_blank"` links to `rel="noopener noreferrer"`.
+- Local checks run: focused bearer/email Jest tests, frontend lint, frontend
+  typecheck, `npm run secrets:check`, duplicate-path sweep, and root production
+  `npm audit --omit=dev` with zero reported vulnerabilities.
+- Not completed from this environment: frontend npm audit and full root audit
+  were blocked by approval policy because they disclose dependency metadata to
+  the npm registry; `gitleaks` is not installed locally. Phase 7 remains open
+  until those external scans and the full contract/static-analysis evidence are
+  completed.
+
 ## Secrets Management
 
 Never commit `.env`, private keys, seed phrases, API tokens, Vercel tokens,
