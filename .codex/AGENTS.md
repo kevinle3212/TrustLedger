@@ -67,6 +67,11 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
   project surfaces, and agent instructions stay current without duplicated
   guidance. Remove or update stale references to moved or renamed code, assets,
   commands, environment variables, and docs.
+- Configuration docs: when scripts, hooks, workflows, provider integrations, or
+  external CLI assumptions change, update
+  `docs/ENVIRONMENT.md#configuration-beyond-env` plus the nearest owner doc.
+  Keep `package.json` command assumptions, such as `gh api` authentication,
+  documented outside the script itself.
 - UI copy follows root `AGENTS.md`: Title Case for labels/buttons/headings and
   sentence case for complete explanatory sentences, while preserving acronyms
   such as `HTML`, `FAQ`, `URL`, `ETH`, `USDC`, and `IPFS`.

@@ -12,6 +12,7 @@
 
 <!-- docs-toc:start -->
 
+- [Configuration Beyond `.env`](#configuration-beyond-env)
 - [Root Deployment And Test Variables](#root-deployment-and-test-variables)
 - [L2 Variables](#l2-variables)
 - [Frontend Public Variables](#frontend-public-variables)
@@ -33,6 +34,42 @@
 This document lists environment variables consumed by TrustLedger contracts,
 scripts, workflows, and frontend code. Read it before deploying, running fork
 tests, or configuring Vercel.
+
+## Configuration Beyond `.env`
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+`.env`, `src/.env.local`, and deployment secrets are only part of the setup. A
+complete operator or maintainer environment also needs these non-env
+configuration surfaces kept current:
+
+| Surface                           | Required For                                 | Configure / Verify                                                                                                                                                                                            |
+| --------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node and npm                      | All JavaScript, Hardhat, docs, and frontend  | Node `22.x` and npm `11.12.1`; use `bash tools/setup.sh` or the package manager noted in `package.json`.                                                                                                      |
+| Foundry                           | Solidity build, tests, deploys, verification | Install `forge`, `cast`, and `anvil`; run `npm run foundry:build` and `npm run foundry:test`.                                                                                                                 |
+| Contract vendors                  | Solidity imports and tests                   | OpenZeppelin is pinned as `contracts/lib/openzeppelin-contracts` and also listed in root `package.json` for Hardhat imports. `forge-std` is vendored at `contracts/lib/forge-std`, not installed through npm. |
+| Git submodules / vendored code    | Clean clone reproducibility                  | Run `git submodule update --init --recursive`; do not add `forge-std` to root `package.json` unless Foundry imports are intentionally migrated away from vendored libs.                                       |
+| SWC cache                         | Next.js builds in restricted environments    | Run `npm run swc:populate` before frontend builds and push-time checks.                                                                                                                                       |
+| Gitleaks                          | Local secret scanning                        | Install `gitleaks`; run `npm run secrets:check` and `npm run secrets:gitleaks:staged`.                                                                                                                        |
+| GitHub CLI authentication         | `security:alerts` and `security:dependabot`  | Install `gh`, authenticate with repo security-alert access, and keep `jq` installed for the package scripts that call the GitHub API.                                                                         |
+| GitHub Actions repository secrets | CI deploys and security automation           | Configure `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, deployment RPC keys, explorer keys, and any workflow-only provider tokens in GitHub Secrets.                                                  |
+| GitHub repository settings        | Server-side safety                           | Enable the ruleset in [GitHub Rulesets](GITHUB-RULESETS.md), secret scanning, push protection, Dependabot alerts, and CodeQL/code scanning alerts.                                                            |
+| Vercel project settings           | Production frontend and API routes           | Link the project, set all required public and server-only environment variables, configure the production domain, and confirm cron authorization.                                                             |
+| Email provider dashboard          | Magic links and lifecycle notifications      | Verify sender domain, SPF/DKIM/DMARC, suppression handling, rate limits, and provider API keys.                                                                                                               |
+| WalletConnect/Reown dashboard     | Wallet modal relay                           | Create and configure `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` for the production domain.                                                                                                                        |
+| IPFS / storage provider           | Contract files and proof uploads             | Configure Pinata or the selected provider, review token scope, and rotate any exposed upload token.                                                                                                           |
+| Monitoring provider               | Production operations                        | Configure uptime, logs, alert routing, cost/error dashboards, and health-check bearer tokens.                                                                                                                 |
+| Docker and Kubernetes             | Container deploys                            | Set `k8s/configmap.yaml`, generate ignored `k8s/secret.yaml`, build images, and run Docker storage checks after heavy sessions.                                                                               |
+| External audit package            | Mainnet readiness                            | Provide auditor scope, engagement details, final report, accepted/rejected findings, and remediation evidence before mainnet.                                                                                 |
+
+When a new package script depends on external state, update this table and the
+owning docs in the same change. For example, scripts that call `gh api` must
+document the required GitHub CLI authentication and permissions here, not only
+inside `package.json`.
 
 ## Root Deployment And Test Variables
 

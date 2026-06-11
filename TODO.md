@@ -199,6 +199,16 @@ mainnet launch deliverables.
       issues, rerun Hardhat and Foundry validation, and add the final audit
       report to the documentation before treating the contracts as
       mainnet-ready.
+    - **Blocked on external inputs (2026-06-11):** this cannot be completed by
+      repository changes alone. Needed from project maintainers: selected
+      independent auditor or audit firm, signed engagement or audit scope,
+      auditor-requested scope freeze date, final audit report, finding severity
+      list, accepted/rejected finding decisions with rationale, remediation
+      owners, and links or files for final validation evidence. Once those are
+      available, add the report under `docs/reports/`, update
+      `docs/AUDIT-READINESS.md`, rerun `npm run quality`, `npm run build`,
+      `npm run impeccable`, Slither/Semgrep/security scans, and then this item
+      can be checked off.
 
 - [ ] Prepare TrustLedger for mainnet deployment with a formal, evidence-backed
       release package.

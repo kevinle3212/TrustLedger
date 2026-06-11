@@ -59,7 +59,11 @@ Actions, Docker, and Kubernetes files.
 <!-- docs-section-nav:end -->
 
 Create `.env` from `.env.example` and fill the variables needed for your target.
-Read [Environment](ENVIRONMENT.md) for the full matrix.
+Read [Environment](ENVIRONMENT.md) for the full matrix and the
+[Configuration Beyond `.env`](ENVIRONMENT.md#configuration-beyond-env)
+checklist. Deployment also depends on configured provider dashboards, GitHub or
+Vercel secrets, GitHub CLI access for security-alert scripts, Foundry, Gitleaks,
+WalletConnect/Reown, email sender verification, and monitoring setup.
 
 For Ethereum Sepolia deploys, set:
 

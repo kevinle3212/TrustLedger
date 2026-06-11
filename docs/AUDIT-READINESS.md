@@ -148,6 +148,10 @@ Before sending this package to an auditor, attach current outputs from:
   controls outside this repository.
 - Hardhat 3.x migration is complete, but external auditor engagement and a
   signed final report remain launch-blocking work outside this repository.
+- Maintainers still need to provide the selected independent auditor, signed
+  engagement or audit scope, scope-freeze date, final report, severity list,
+  accepted/rejected finding decisions, remediation owners, and final validation
+  evidence before the Phase 9 audit item can be closed.
 
 ## Remediation Tracker
 

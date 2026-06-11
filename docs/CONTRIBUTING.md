@@ -49,6 +49,12 @@ For manual setup, install root dependencies:
 npm install
 ```
 
+Root `package.json` includes `@openzeppelin/contracts` because Hardhat,
+TypeScript scripts, and npm-based tooling resolve OpenZeppelin through Node.
+Foundry test helpers are different: `forge-std` is vendored under
+`contracts/lib/forge-std` and is intentionally not an npm package. Keep that
+split unless the contract import strategy is deliberately changed.
+
 Install frontend dependencies:
 
 ```bash

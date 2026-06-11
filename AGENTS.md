@@ -108,6 +108,11 @@ commands with `rtk` when available.
   guidance changes, use `src/.agents/skills/update-context/SKILL.md` to update
   the nearest authoritative docs/comments, remove or update stale references to
   moved or renamed code/assets/commands, and run the relevant validation.
+- When adding or changing scripts, workflows, deployment steps, provider
+  integrations, CLI dependencies, or external service requirements, update
+  `docs/ENVIRONMENT.md#configuration-beyond-env` and the nearest owning docs in
+  the same change. For example, if a `package.json` script calls `gh api`, the
+  docs must state the required GitHub CLI authentication and permissions.
 
 ## UI Copy
 
