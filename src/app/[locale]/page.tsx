@@ -81,11 +81,11 @@ export default async function HomePage({
 						href={solanaExplorerUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						aria-label={`View Solana system program on ${solanaNetwork.label}`}
+						aria-label={t("viewSolanaProgram", { network: solanaNetwork.label })}
 						className="tl-link-underline mt-4 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200"
 					>
-						Solana Native-Program: {solanaNetwork.label}
-						{solanaStatusIsValid ? "" : " (check config)"}
+						{t("solanaNativeProgram", { network: solanaNetwork.label })}
+						{solanaStatusIsValid ? "" : ` ${t("checkConfig")}`}
 					</a>
 					<ChainModePreviewToggle />
 					<div className="mt-8 flex flex-col gap-3 sm:flex-row">

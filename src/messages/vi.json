@@ -92,7 +92,8 @@
 		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
 		"back": "Quay Lại",
 		"nextStep": "Bước Tiếp Theo",
-		"nextGuide": "Hướng Dẫn Tiếp Theo"
+		"nextGuide": "Hướng Dẫn Tiếp Theo",
+		"taskCounter": "Tác Vụ {current} / {total}"
 	},
 	"Home": {
 		"builtOn": "Xây dựng trên Ethereum Sepolia",
@@ -145,7 +146,10 @@
 				"note": "92 Average Score",
 				"kicker": "History from completed work"
 			}
-		}
+		},
+		"viewSolanaProgram": "Xem chương trình hệ thống Solana trên {network}",
+		"solanaNativeProgram": "Chương trình gốc Solana: {network}",
+		"checkConfig": "(kiểm tra cấu hình)"
 	},
 	"Dashboard": {
 		"connectWallet": "Kết nối ví của bạn để xem hợp đồng.",
@@ -244,7 +248,10 @@
 		"walkthroughStepTab": "Bước {step}",
 		"walkthroughPrevious": "Bước Trước",
 		"walkthroughNext": "Bước Tiếp Theo",
-		"walkthroughFinish": "Hoàn Tất Hướng Dẫn"
+		"walkthroughFinish": "Hoàn Tất Hướng Dẫn",
+		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
+		"exampleAmount": "0.75 ETH",
+		"loadingContracts": "Đang tải hợp đồng"
 	},
 	"Create": {
 		"connectWallet": "Kết nối ví của bạn để đề xuất hợp đồng.",
@@ -345,7 +352,69 @@
 		"confirmSendQuestion": "Are you sure you want to send this to the {role}?",
 		"confirmSendDescription": "After you confirm, your wallet will open and the contract proposal will be submitted on-chain. Keep editing if any term is wrong.",
 		"keepEditing": "Keep editing",
-		"confirmAndSend": "Confirm And Send"
+		"confirmAndSend": "Confirm And Send",
+		"plainText": "Văn Bản Thuần",
+		"escrowAmountPreview": "Số tiền ký quỹ",
+		"acceptanceWindowPreview": "Thời hạn chấp nhận",
+		"arbitrationFeePreview": "Phí trọng tài",
+		"draftTermsFormat": "Định dạng điều khoản nháp",
+		"lastUpdated": "Cập nhật lần cuối:",
+		"draftTerms": "Điều khoản hợp đồng nháp",
+		"sections": "Phần",
+		"words": "Từ",
+		"firstClause": "Điều khoản đầu tiên",
+		"draftCacheWarning": "Không xóa cookie hoặc bộ nhớ đệm trình duyệt cho đến khi hoàn tất, vì thao tác đó sẽ đặt lại tiến trình nháp cục bộ.",
+		"secureDraftSession": "Phiên nháp bảo mật",
+		"collaborativeContractTerms": "Điều khoản hợp đồng cộng tác",
+		"secureDraftBody": "Viết điều khoản bằng Markdown, HTML hoặc văn bản thuần trước khi triển khai. Bản nháp chia sẻ được mã hóa trong trình duyệt và yêu cầu ví được phép cùng khóa phiên riêng để giải mã. Chỉ mở phòng trực tiếp khi cả hai bên muốn cùng chỉnh sửa liên tục.",
+		"syncingLive": "Đang đồng bộ trực tiếp...",
+		"liveSyncOn": "Đồng bộ trực tiếp bật",
+		"liveSyncOff": "Đồng bộ trực tiếp tắt",
+		"insertDefaultTemplate": "Chèn mẫu mặc định",
+		"insertSnippetAria": "Chèn đoạn điều khoản {label}",
+		"uploadTermsImage": "Tải lên hình ảnh điều khoản hợp đồng",
+		"termsEditorAria": "Trình chỉnh sửa điều khoản hợp đồng cộng tác",
+		"termsPlaceholder": "Viết điều khoản hợp đồng trước khi triển khai.",
+		"contractAttachmentAlt": "Tệp đính kèm hợp đồng",
+		"allowedWallet": "Ví được phép",
+		"connectYourWallet": "Kết nối ví của bạn",
+		"counterpartyWallet": "Ví của bên đối tác",
+		"enterCounterpartyWallet": "Nhập ví của bên đối tác trong chi tiết hợp đồng bên dưới",
+		"creatingEncryptedLink": "Đang tạo liên kết mã hóa...",
+		"createLinkIn": "Tạo liên kết sau {seconds} giây",
+		"createEncryptedShareLink": "Tạo liên kết chia sẻ mã hóa",
+		"startingLiveRoom": "Đang bắt đầu phòng trực tiếp...",
+		"startLiveRoomIn": "Bắt đầu phòng trực tiếp sau {seconds} giây",
+		"liveRoomStarted": "Phòng trực tiếp đã bắt đầu",
+		"startLiveRoom": "Bắt đầu phòng trực tiếp",
+		"copied": "Đã sao chép!",
+		"copyLink": "Sao Chép Liên Kết",
+		"copySessionKey": "Sao Chép Khóa Phiên",
+		"emailLinkAndKey": "Gửi liên kết và khóa qua email",
+		"endLiveSync": "Kết thúc đồng bộ trực tiếp",
+		"replaceLinkWarning": "Tạo liên kết khác sẽ thay thế liên kết và khóa đang hiển thị. Không dùng liên kết hoặc khóa cũ sau khi tạo liên kết mới; URL ảnh chụp mã hóa đã chia sẻ không thể bị thu hồi nếu không có dịch vụ thu hồi phía máy chủ.",
+		"shareLink": "Liên kết chia sẻ",
+		"liveRoomStatus": "Phòng trực tiếp {roomId}: các chỉnh sửa được mã hóa trước khi rời trình duyệt. Cập nhật từ xa gần nhất: {time}.",
+		"liveRoomLoadAdvice": "Không thể tải phòng nháp trực tiếp. Kiểm tra liên kết phiên, khóa phiên, ví hoặc thời hạn phòng.",
+		"encryptedDraftNotice": "URL này chứa bản nháp mã hóa cho {wallets}. Kết nối ví phù hợp, dán khóa riêng, rồi nhập bản nháp.",
+		"allowedWallets": "Ví được phép",
+		"sessionKey": "Khóa phiên",
+		"pasteSessionKey": "Dán khóa phiên",
+		"importingDraft": "Đang nhập bản nháp...",
+		"importDraft": "Nhập bản nháp",
+		"contractDocumentDraftHint": "Tải lên PDF hợp đồng đã mã hóa hoặc nhập URI hiện có sau khi soạn nháp. Nếu bạn cũng đã viết điều khoản ở trên, hãy giữ cả hai bản khớp nhau trước khi xem trước và gửi; URI tải lên hoặc nhập thủ công là nguồn tài liệu được băm cho đề xuất trên chuỗi.",
+		"contractDocumentUriPlaceholder": "ipfs://Qm…",
+		"previewSelectedFile": "Xem trước tệp đã chọn",
+		"pinataJwtPlaceholder": "eyJhbGciOiJIUzI1NiIs…",
+		"solanaWalletOpens": "Ví Solana mở khi xác nhận",
+		"solanaWalletConnected": "Ví Solana đã kết nối: {address}",
+		"solanaSimulationReady": "TrustLedger sẽ mô phỏng lệnh ký quỹ Solana trước khi yêu cầu chữ ký của bạn.",
+		"solanaProgramMissing": "Đặt NEXT_PUBLIC_SOLANA_PROGRAM_ID trước khi có thể gửi lưu ký SOL.",
+		"connectEvmWallet": "Kết nối ví EVM của bạn",
+		"connectEvmWalletHint": "Dùng nút ví ở đầu trang trước khi gửi ký quỹ ETH hoặc USDC.",
+		"acceptanceWindowDateTime": "Ngày và giờ của thời hạn chấp nhận",
+		"daysButton": "{days} ngày",
+		"emailPlaceholder": "client@example.com"
 	},
 	"Juror": {
 		"connectWallet": "Kết nối ví của bạn để quản lý đăng ký thẩm phán.",
@@ -430,7 +499,9 @@
 		"trustLedgerNotConfiguredNoHint": "TrustLedger chưa được cấu hình cho {network}. Hãy đặt các biến địa chỉ hợp đồng NEXT_PUBLIC_* cho mạng này rồi triển khai lại.",
 		"findingRegistry": "Đang tìm registry uy tín…",
 		"registryLookupError": "Không thể tìm registry uy tín cho mạng này. Hãy kiểm tra ví của bạn đang kết nối với mạng TrustLedger được hỗ trợ.",
-		"registryLabel": "registry {address}"
+		"registryLabel": "registry {address}",
+		"transactionLink": "tx ↗",
+		"walletAddressPlaceholder": "0x…"
 	},
 	"Arbitration": {
 		"dispute": "Tranh Chấp",
@@ -477,7 +548,19 @@
 		"revealVote": "Tiết Lộ Phiếu",
 		"voteRevealed": "Đã tiết lộ phiếu thành công.",
 		"contract": "Hợp đồng",
-		"phaseUnknown": "Giai đoạn {phase}"
+		"phaseUnknown": "Giai đoạn {phase}",
+		"evidenceSubmitted": "Bằng chứng đã được gửi.",
+		"evidenceSummary": "Tóm tắt bằng chứng",
+		"supportingEvidenceUri": "URI bằng chứng hỗ trợ",
+		"evidenceUriPlaceholder": "ipfs://, ar://, or https://",
+		"requestedCompletionPercentage": "Phần trăm hoàn thành được yêu cầu",
+		"submittingEvidence": "Đang gửi...",
+		"submitEvidence": "Gửi Bằng Chứng",
+		"evidence": "Bằng Chứng",
+		"evidenceSubmittedCount": "Đã gửi {count}",
+		"noEvidence": "Chưa có bằng chứng nào được gửi.",
+		"requestsCompletion": "Yêu cầu hoàn thành {percent}%",
+		"saltPlaceholder": "0x…"
 	},
 	"Client": {
 		"contractTitle": "Hợp Đồng #{id}",
@@ -599,7 +682,10 @@
 		"decryptAndDownload": "Giải Mã & Tải Xuống",
 		"fileDownloaded": "✓ Tệp đã tải xuống.",
 		"decryptAnother": "Giải mã cái khác",
-		"decryptionFailed": "Giải mã thất bại — sai cụm mật khẩu hoặc gói bị hỏng."
+		"decryptionFailed": "Giải mã thất bại — sai cụm mật khẩu hoặc gói bị hỏng.",
+		"encryptedBundleJson": "JSON gói mã hóa",
+		"passphraseAria": "Mật khẩu để giải mã",
+		"outputFilenameAria": "Tên tệp đầu ra"
 	},
 	"ContractStatus": {
 		"PENDING": "Đang Chờ",
@@ -638,19 +724,42 @@
 		"statusTitle": "Contract Status Mix",
 		"statusBody": "Status bars summarize public TrustLedger contracts that include this wallet.",
 		"publicOnly": "Chỉ Trạng Thái Công Khai",
-		"insightTitle": "Operational Insight",
+		"insightTitle": "Thông tin vận hành",
 		"emptyInsight": "No public contracts were found for this wallet yet.",
 		"reputation": "Reputation",
 		"ratings": "Ratings",
 		"localTitle": "Local App Signals",
 		"connector": "Last Connector",
 		"notStored": "Not Stored",
-		"guideState": "Guide State",
+		"guideState": "Trạng thái hướng dẫn",
 		"locale": "Ngôn Ngữ",
 		"actionsTitle": "Next Actions",
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
-		"openReputation": "Open Reputation"
+		"openReputation": "Open Reputation",
+		"roleMixTitle": "Phân bổ vai trò",
+		"roleMixBody": "Cách ví này xuất hiện trong các hợp đồng hiển thị.",
+		"rolesCount": "{count} vai trò",
+		"roleMixAria": "Phân bổ vai trò khách hàng và freelancer",
+		"clientRole": "Khách hàng",
+		"freelancerRole": "Freelancer",
+		"outcomeCompleted": "Đã hoàn thành",
+		"outcomeActive": "Đang hoạt động",
+		"outcomeDisputed": "Đang tranh chấp",
+		"outcomeSnapshotTitle": "Ảnh chụp kết quả",
+		"outcomeSnapshotBody": "Mức hoàn thành, công việc đang hoạt động và tranh chấp hiển thị cho ví này.",
+		"activityTitle": "Xu hướng trạng thái hợp đồng",
+		"activityBody": "Chế độ xem nhẹ về cách các hợp đồng hiển thị của ví này được phân bổ.",
+		"lineChart": "Biểu đồ đường",
+		"lineChartAria": "Biểu đồ đường của trạng thái hợp đồng theo ví",
+		"guideStateCompleted": "Hướng dẫn bảng điều khiển đã bỏ qua hoặc hoàn tất",
+		"guideStateAvailable": "Hướng dẫn bảng điều khiển có sẵn",
+		"localStorageUnavailable": "Bộ nhớ trình duyệt cục bộ không khả dụng",
+		"loadingLocalState": "Đang tải trạng thái cục bộ",
+		"insightNoContracts": "Chưa tìm thấy hợp đồng TrustLedger công khai nào cho ví đã kết nối này.",
+		"insightHighDispute": "Tỷ lệ tranh chấp cao hơn đang hiển thị trong các trạng thái hợp đồng công khai. Hãy xem lại điều khoản, mốc công việc và chất lượng bằng chứng trước khi bắt đầu công việc mới.",
+		"insightHealthy": "Hầu hết hợp đồng hiển thị đã hoàn tất hoặc được giải quyết, cho thấy lịch sử quy trình TrustLedger lành mạnh.",
+		"insightDeveloping": "Hoạt động công khai của bạn vẫn đang phát triển. Theo dõi các trạng thái đã cấp vốn, đã gửi, đã phê duyệt và đang tranh chấp khi bạn sử dụng nền tảng."
 	},
 	"Footer": {
 		"authorsAndContributors": "Tác giả và cộng tác viên:",
@@ -699,7 +808,8 @@
 		"detailTitle": "Need operational detail?",
 		"detailBody": "The developer docs cover deployment, faucets, tests, and contract behavior.",
 		"createContract": "Create Contract",
-		"faucetGuide": "Sepolia Faucet Guide"
+		"faucetGuide": "Sepolia Faucet Guide",
+		"githubDiscussions": "Thảo Luận GitHub"
 	},
 	"About": {
 		"eyebrow": "About TrustLedger",
@@ -813,5 +923,88 @@
 				"description": "Công bố có trách nhiệm, phạm vi bảo mật được hỗ trợ và báo cáo lỗ hổng."
 			}
 		}
+	},
+	"Account": {
+		"eyebrow": "Tài Khoản Ngoài Chuỗi",
+		"title": "Hồ Sơ và Tùy Chọn Theo Ví",
+		"intro": "TrustLedger account services use signed wallet authentication for profile preferences, notifications, and encrypted in-app messaging metadata. The service never asks for passwords, seed phrases, private keys, raw documents, or session keys.",
+		"openWalletAnalytics": "Mở Phân Tích Ví",
+		"securityBoundary": "Ranh Giới Bảo Mật",
+		"securityTypedChallenges": "Sign Typed Wallet Challenges Only",
+		"securityShortSessions": "Use Short-Lived Server Sessions",
+		"securityProfilePreferences": "Store Profile Preferences Off-Chain",
+		"securityNoDocuments": "Keep Documents And Keys Out Of Account APIs",
+		"profilePreferencesTitle": "Profile Preferences",
+		"profilePreferencesBody": "Display name, avatar URL, notification preferences, and dashboard onboarding state can follow the wallet across devices once a signed session exists.",
+		"encryptedMessagingTitle": "Encrypted Messaging Ready",
+		"encryptedMessagingBody": "The API boundary is designed for encrypted message envelopes; plaintext personal contact details do not belong in platform messages.",
+		"externalDatabaseTitle": "External Database Needed",
+		"externalDatabaseBody": "Production persistence should use Postgres, Supabase, or another managed database configured through deployment secrets."
+	},
+	"Status": {
+		"metadata": {
+			"title": "Platform Status | TrustLedger",
+			"description": "Public TrustLedger operations center for runtime health, privacy-safe analytics, and contract summary metrics."
+		},
+		"eyebrow": "Trạng Thái Nền Tảng",
+		"title": "Trung Tâm Vận Hành Công Khai",
+		"intro": "Review public runtime health, privacy-safe analytics artifacts, and contract summary metrics without exposing admin tokens, RPC credentials, API keys, raw documents, or private wallet material.",
+		"openWalletAnalytics": "Mở Phân Tích Ví",
+		"links": {
+			"runtimeHealth": "Runtime Health",
+			"fullHealthReport": "Full Health Report",
+			"publicStatusApi": "Public Status API",
+			"scientificAnalyticsApi": "Scientific Analytics API"
+		}
+	},
+	"NotFound": {
+		"eyebrow": "Không Tìm Thấy Trang",
+		"title": "Tuyến này không có trong sổ cái.",
+		"body": "The link may be old, locale-specific, or tied to a contract that is not available from this route. Use the actions below to get back to a known workflow.",
+		"rootTitle": "Tuyến TrustLedger này không tồn tại.",
+		"rootBody": "Chọn một tuyến có ngôn ngữ để tiếp tục.",
+		"openDashboard": "Mở Bảng Điều Khiển",
+		"readFaq": "Đọc FAQ",
+		"goHome": "Về Trang Chủ"
+	},
+	"Admin": {
+		"metadata": {
+			"title": "Admin Dashboard | TrustLedger",
+			"description": "Restricted read-only TrustLedger operator dashboard."
+		},
+		"signInMetadata": {
+			"title": "Admin Sign In - TrustLedger",
+			"description": "Restricted TrustLedger operator sign-in."
+		},
+		"eyebrow": "Bảng Điều Khiển Vận Hành Hạn Chế",
+		"title": "Bảng Quản Trị TrustLedger",
+		"intro": "Read-only operational overview for health, contracts, disputes, jurors, reputation, notifications, oracle freshness, deployment metadata, security reports, rate limits, and audit-readiness.",
+		"roles": "Roles: {roles}",
+		"mode": "Mode: {mode}",
+		"readOnly": "chỉ đọc",
+		"mutatingActionsEnabled": "mutating actions enabled",
+		"mutationWarning": "Admin mutations are disabled. Future actions must require explicit confirmation, server-side authorization, and persistent audit trails before they are enabled.",
+		"metricsAria": "Admin deployment and analytics metrics",
+		"healthTitle": "Operational Health",
+		"healthBody": "Read-only status distribution across server, Vercel, analytics, contracts, notifications, oracle, and security checks.",
+		"checksCount": "{count} Checks",
+		"trafficTitle": "Traffic Analytics",
+		"trafficBody": "Aggregate page views and frontend errors. Private wallet data, IPs, user agents, cookies, and query strings are excluded.",
+		"enabled": "Enabled",
+		"localOnly": "Local Only",
+		"events": "Events",
+		"pageViews": "Page Views",
+		"frontendErrors": "Frontend Errors",
+		"trafficEmpty": "No aggregate traffic events are stored for the current runtime.",
+		"contractId": "Contract ID",
+		"disputeId": "Dispute ID",
+		"walletAddress": "Địa chỉ ví",
+		"lookupPlaceholder": "Read-only lookup scaffold",
+		"signInEyebrow": "Restricted Operator Access",
+		"signInTitle": "TrustLedger admin sign in",
+		"signInIntro": "Use a configured admin account. Passwords are verified against server-side PBKDF2 hashes, and access can also be restricted by IP and wallet allowlist.",
+		"emailOrUsername": "Email or username",
+		"password": "Mật khẩu",
+		"openAdminDashboard": "Mở bảng quản trị"
 	}
 }

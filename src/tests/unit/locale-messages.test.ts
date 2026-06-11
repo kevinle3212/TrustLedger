@@ -19,6 +19,8 @@ const localizedMessages = {
 	"zh-CN": zhCnMessages,
 } satisfies Record<string, MessageTree>;
 
+const PLACEHOLDER_TRANSLATION_PREFIX_PATTERN = /^(?:Tiếng Việt|Português|中文|العربية|हिन्दी):\s+/u;
+
 function flattenMessageKeys(tree: MessageTree, prefix = ""): string[] {
 	return Object.entries(tree).flatMap(([key, value]) => {
 		const nextPrefix = prefix === "" ? key : `${prefix}.${key}`;
@@ -29,6 +31,15 @@ function flattenMessageKeys(tree: MessageTree, prefix = ""): string[] {
 	});
 }
 
+function flattenMessageValues(tree: MessageTree): string[] {
+	return Object.values(tree).flatMap((value) => {
+		if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+			return flattenMessageValues(value as MessageTree);
+		}
+		return typeof value === "string" ? [value] : [];
+	});
+}
+
 describe("locale message files", () => {
 	it("keep every non-English locale structurally equivalent to English", () => {
 		const englishKeys = flattenMessageKeys(enMessages).sort();
@@ -36,6 +47,15 @@ describe("locale message files", () => {
 		for (const messages of Object.values(localizedMessages)) {
 			const localeKeys = flattenMessageKeys(messages).sort();
 			expect(localeKeys).toEqual(englishKeys);
+		}
+	});
+
+	it("do not use placeholder-prefixed English locale values", () => {
+		for (const messages of Object.values(localizedMessages)) {
+			const placeholders = flattenMessageValues(messages).filter((value) =>
+				PLACEHOLDER_TRANSLATION_PREFIX_PATTERN.test(value),
+			);
+			expect(placeholders).toEqual([]);
 		}
 	});
 });

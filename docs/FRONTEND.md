@@ -283,8 +283,9 @@ defined terms, numbering, links, and Markdown formatting.
 The frontend uses `next-intl`. Keep user-visible strings in the established
 message structure and verify locale routing before moving text into components.
 Every key in `src/messages/en.json` must exist in each supported locale file.
-Run `npm run test:frontend:unit -- locale-messages.test.ts` after adding or
-moving visible copy so missing locale equivalents fail before review.
+Run `npm run i18n:scan` after adding or moving visible copy. The scanner checks
+locale key parity, blocks placeholder-prefixed translations, and fails when JSX
+or visible attributes contain hard-coded English instead of message keys.
 
 ## Styling And Motion
 

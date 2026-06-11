@@ -1,4 +1,4 @@
-import { buildWalletAnalyticsSummary, getAnalyticsInsight } from "@/lib/walletAnalytics";
+import { buildWalletAnalyticsSummary } from "@/lib/walletAnalytics";
 import type { Contract } from "@/types";
 
 const WALLET = "0x1111111111111111111111111111111111111111";
@@ -48,17 +48,18 @@ describe("wallet analytics", () => {
 		expect(summary.asFreelancer).toBe(1);
 		expect(summary.completed).toBe(1);
 		expect(summary.disputed).toBe(1);
+		expect(summary.completionRatePct).toBe(50);
+		expect(summary.disputeRatePct).toBe(50);
 		expect(summary.totalEscrowedWei).toBe(1_000_000_000_000_000_002n);
 		expect(summary.statusCounts[3]).toBe(1);
 		expect(summary.statusCounts[4]).toBe(1);
-		expect(getAnalyticsInsight(summary)).toMatch(/higher dispute rate/u);
 	});
 
-	it("returns a privacy-safe empty state insight", () => {
+	it("keeps empty analytics privacy-safe", () => {
 		const summary = buildWalletAnalyticsSummary([], WALLET);
 
 		expect(summary.totalContracts).toBe(0);
 		expect(summary.privacyScore).toBe(100);
-		expect(getAnalyticsInsight(summary)).toMatch(/No public TrustLedger contracts/u);
+		expect(summary.statusCounts).toEqual([0, 0, 0, 0, 0, 0, 0]);
 	});
 });

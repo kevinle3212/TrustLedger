@@ -63,7 +63,7 @@ export function PartiesPaymentSection({
 			>
 				<Input
 					type="email"
-					placeholder="client@example.com"
+					placeholder={t("emailPlaceholder")}
 					value={form.clientEmail}
 					onChange={(e) => {
 						set("clientEmail", e.target.value);

@@ -92,7 +92,8 @@
 		"stepAnalyticsTaskThree": "Use the dashboard and reputation links for deeper follow-up.",
 		"back": "वापस",
 		"nextStep": "अगला चरण",
-		"nextGuide": "अगली गाइड"
+		"nextGuide": "अगली गाइड",
+		"taskCounter": "कार्य {current} / {total}"
 	},
 	"Home": {
 		"builtOn": "Ethereum Sepolia पर निर्मित",
@@ -145,7 +146,10 @@
 				"note": "92 Average Score",
 				"kicker": "History from completed work"
 			}
-		}
+		},
+		"viewSolanaProgram": "{network} पर Solana सिस्टम प्रोग्राम देखें",
+		"solanaNativeProgram": "Solana नेटिव प्रोग्राम: {network}",
+		"checkConfig": "(कॉन्फिग जांचें)"
 	},
 	"Dashboard": {
 		"connectWallet": "अपने अनुबंध देखने के लिए वॉलेट कनेक्ट करें।",
@@ -244,7 +248,10 @@
 		"walkthroughStepTab": "चरण {step}",
 		"walkthroughPrevious": "पिछला चरण",
 		"walkthroughNext": "अगला चरण",
-		"walkthroughFinish": "वॉकथ्रू समाप्त करें"
+		"walkthroughFinish": "वॉकथ्रू समाप्त करें",
+		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
+		"exampleAmount": "0.75 ETH",
+		"loadingContracts": "कॉन्ट्रैक्ट लोड हो रहे हैं"
 	},
 	"Create": {
 		"connectWallet": "अनुबंध प्रस्तावित करने के लिए वॉलेट कनेक्ट करें।",
@@ -345,7 +352,69 @@
 		"confirmSendQuestion": "Are you sure you want to send this to the {role}?",
 		"confirmSendDescription": "After you confirm, your wallet will open and the contract proposal will be submitted on-chain. Keep editing if any term is wrong.",
 		"keepEditing": "Keep editing",
-		"confirmAndSend": "Confirm And Send"
+		"confirmAndSend": "Confirm And Send",
+		"plainText": "सादा पाठ",
+		"escrowAmountPreview": "एस्क्रो राशि",
+		"acceptanceWindowPreview": "स्वीकृति अवधि",
+		"arbitrationFeePreview": "मध्यस्थता शुल्क",
+		"draftTermsFormat": "ड्राफ्ट शर्तों का प्रारूप",
+		"lastUpdated": "अंतिम अपडेट:",
+		"draftTerms": "ड्राफ्ट अनुबंध शर्तें",
+		"sections": "अनुभाग",
+		"words": "शब्द",
+		"firstClause": "पहला क्लॉज",
+		"draftCacheWarning": "पूरा होने तक कुकी या ब्राउज़र कैश साफ न करें, क्योंकि इससे स्थानीय ड्राफ्ट प्रगति रीसेट हो जाती है।",
+		"secureDraftSession": "सुरक्षित ड्राफ्ट सत्र",
+		"collaborativeContractTerms": "सहयोगी अनुबंध शर्तें",
+		"secureDraftBody": "डिप्लॉयमेंट से पहले Markdown, HTML या सादे टेक्स्ट में शर्तें लिखें। साझा ड्राफ्ट ब्राउज़र में एन्क्रिप्ट होते हैं और डिक्रिप्ट करने के लिए अनुमत वॉलेट तथा अलग सत्र कुंजी चाहिए। लाइव रूम तभी शुरू करें जब दोनों पक्ष लगातार साथ में संपादन करना चाहें।",
+		"syncingLive": "लाइव सिंक हो रहा है...",
+		"liveSyncOn": "लाइव सिंक चालू",
+		"liveSyncOff": "लाइव सिंक बंद",
+		"insertDefaultTemplate": "डिफॉल्ट टेम्पलेट डालें",
+		"insertSnippetAria": "{label} शर्तों का स्निपेट डालें",
+		"uploadTermsImage": "अनुबंध शर्तों की छवि अपलोड करें",
+		"termsEditorAria": "सहयोगी अनुबंध शर्तें संपादक",
+		"termsPlaceholder": "डिप्लॉयमेंट से पहले अनुबंध शर्तें लिखें।",
+		"contractAttachmentAlt": "अनुबंध संलग्नक",
+		"allowedWallet": "अनुमत वॉलेट",
+		"connectYourWallet": "अपना वॉलेट कनेक्ट करें",
+		"counterpartyWallet": "प्रतिपक्ष वॉलेट",
+		"enterCounterpartyWallet": "नीचे अनुबंध विवरण में प्रतिपक्ष वॉलेट दर्ज करें",
+		"creatingEncryptedLink": "एन्क्रिप्टेड लिंक बनाया जा रहा है...",
+		"createLinkIn": "{seconds} सेकंड में लिंक बनाएं",
+		"createEncryptedShareLink": "एन्क्रिप्टेड शेयर लिंक बनाएं",
+		"startingLiveRoom": "लाइव रूम शुरू हो रहा है...",
+		"startLiveRoomIn": "{seconds} सेकंड में लाइव रूम शुरू करें",
+		"liveRoomStarted": "लाइव रूम शुरू हो गया",
+		"startLiveRoom": "लाइव रूम शुरू करें",
+		"copied": "कॉपी हुआ!",
+		"copyLink": "लिंक कॉपी करें",
+		"copySessionKey": "सेशन कुंजी कॉपी करें",
+		"emailLinkAndKey": "लिंक और कुंजी ईमेल करें",
+		"endLiveSync": "लाइव सिंक समाप्त करें",
+		"replaceLinkWarning": "दूसरा लिंक बनाने से यहां दिख रहा सक्रिय लिंक और कुंजी बदल जाते हैं। नया लिंक बनने के बाद पुराने लिंक या कुंजी का उपयोग न करें; जो एन्क्रिप्टेड स्नैपशॉट URL पहले साझा हो चुके हैं, उन्हें बैकएंड रिवोकेशन सेवा के बिना वापस नहीं लिया जा सकता।",
+		"shareLink": "शेयर लिंक",
+		"liveRoomStatus": "लाइव रूम {roomId}: संपादन ब्राउज़र छोड़ने से पहले एन्क्रिप्ट होते हैं। अंतिम रिमोट अपडेट: {time}।",
+		"liveRoomLoadAdvice": "लाइव ड्राफ्ट रूम लोड नहीं हो सका। सत्र लिंक, सत्र कुंजी, वॉलेट या रूम की समाप्ति जांचें।",
+		"encryptedDraftNotice": "इस URL में {wallets} के लिए एन्क्रिप्टेड ड्राफ्ट है। मिलते हुए वॉलेट को कनेक्ट करें, अलग कुंजी पेस्ट करें, फिर आयात करें।",
+		"allowedWallets": "अनुमत वॉलेट",
+		"sessionKey": "सत्र कुंजी",
+		"pasteSessionKey": "सत्र कुंजी पेस्ट करें",
+		"importingDraft": "ड्राफ्ट आयात हो रहा है...",
+		"importDraft": "ड्राफ्ट आयात करें",
+		"contractDocumentDraftHint": "ड्राफ्ट करने के बाद एन्क्रिप्टेड अनुबंध PDF अपलोड करें या मौजूदा URI दर्ज करें। अगर आपने ऊपर भी शर्तें लिखी हैं, तो पूर्वावलोकन और सबमिशन से पहले दोनों प्रतियों को मिलाकर रखें; अपलोड किया गया या मैनुअल URI ऑन-चेन प्रस्ताव के लिए हैश किया गया दस्तावेज स्रोत है।",
+		"contractDocumentUriPlaceholder": "ipfs://Qm…",
+		"previewSelectedFile": "चयनित फ़ाइल का पूर्वावलोकन करें",
+		"pinataJwtPlaceholder": "eyJhbGciOiJIUzI1NiIs…",
+		"solanaWalletOpens": "पुष्टि पर Solana वॉलेट खुलेगा",
+		"solanaWalletConnected": "Solana वॉलेट कनेक्टेड: {address}",
+		"solanaSimulationReady": "TrustLedger आपका हस्ताक्षर मांगने से पहले Solana एस्क्रो निर्देश का सिमुलेशन करेगा।",
+		"solanaProgramMissing": "SOL कस्टडी सबमिट करने से पहले NEXT_PUBLIC_SOLANA_PROGRAM_ID सेट करें।",
+		"connectEvmWallet": "अपना EVM वॉलेट कनेक्ट करें",
+		"connectEvmWalletHint": "ETH या USDC एस्क्रो सबमिट करने से पहले हेडर वॉलेट बटन का उपयोग करें।",
+		"acceptanceWindowDateTime": "स्वीकृति अवधि की तारीख और समय",
+		"daysButton": "{days} दिन",
+		"emailPlaceholder": "client@example.com"
 	},
 	"Juror": {
 		"connectWallet": "अपनी जूरर नामांकन प्रबंधित करने के लिए वॉलेट कनेक्ट करें।",
@@ -430,7 +499,9 @@
 		"trustLedgerNotConfiguredNoHint": "TrustLedger {network} के लिए कॉन्फ़िगर नहीं है। इस नेटवर्क के NEXT_PUBLIC_* कॉन्ट्रैक्ट एड्रेस वैरिएबल सेट करके फिर से डिप्लॉय करें।",
 		"findingRegistry": "प्रतिष्ठा रजिस्ट्री खोजी जा रही है…",
 		"registryLookupError": "इस नेटवर्क के लिए प्रतिष्ठा रजिस्ट्री खोजी नहीं जा सकी। जांचें कि आपका वॉलेट समर्थित TrustLedger नेटवर्क से जुड़ा है।",
-		"registryLabel": "रजिस्ट्री {address}"
+		"registryLabel": "रजिस्ट्री {address}",
+		"transactionLink": "tx ↗",
+		"walletAddressPlaceholder": "0x…"
 	},
 	"Arbitration": {
 		"dispute": "विवाद",
@@ -477,7 +548,19 @@
 		"revealVote": "वोट प्रकट करें",
 		"voteRevealed": "वोट सफलतापूर्वक प्रकट हुआ।",
 		"contract": "अनुबंध",
-		"phaseUnknown": "चरण {phase}"
+		"phaseUnknown": "चरण {phase}",
+		"evidenceSubmitted": "साक्ष्य सबमिट किया गया।",
+		"evidenceSummary": "साक्ष्य सारांश",
+		"supportingEvidenceUri": "सहायक साक्ष्य URI",
+		"evidenceUriPlaceholder": "ipfs://, ar://, or https://",
+		"requestedCompletionPercentage": "अनुरोधित पूर्णता प्रतिशत",
+		"submittingEvidence": "सबमिट हो रहा है...",
+		"submitEvidence": "साक्ष्य जमा करें",
+		"evidence": "साक्ष्य",
+		"evidenceSubmittedCount": "{count} सबमिट किए गए",
+		"noEvidence": "अभी तक कोई साक्ष्य सबमिट नहीं किया गया है।",
+		"requestsCompletion": "{percent}% पूर्णता का अनुरोध करता है",
+		"saltPlaceholder": "0x…"
 	},
 	"Client": {
 		"contractTitle": "अनुबंध #{id}",
@@ -599,7 +682,10 @@
 		"decryptAndDownload": "डिक्रिप्ट करें और डाउनलोड करें",
 		"fileDownloaded": "✓ फ़ाइल डाउनलोड हुई।",
 		"decryptAnother": "एक और डिक्रिप्ट करें",
-		"decryptionFailed": "डिक्रिप्शन विफल — गलत पासफ़्रेज़ या दूषित बंडल।"
+		"decryptionFailed": "डिक्रिप्शन विफल — गलत पासफ़्रेज़ या दूषित बंडल।",
+		"encryptedBundleJson": "एन्क्रिप्टेड बंडल JSON",
+		"passphraseAria": "डिक्रिप्शन के लिए पासफ्रेज",
+		"outputFilenameAria": "आउटपुट फ़ाइल नाम"
 	},
 	"ContractStatus": {
 		"PENDING": "लंबित",
@@ -638,19 +724,42 @@
 		"statusTitle": "Contract Status Mix",
 		"statusBody": "Status bars summarize public TrustLedger contracts that include this wallet.",
 		"publicOnly": "केवल सार्वजनिक स्थिति",
-		"insightTitle": "Operational Insight",
+		"insightTitle": "संचालन संबंधी जानकारी",
 		"emptyInsight": "No public contracts were found for this wallet yet.",
 		"reputation": "Reputation",
 		"ratings": "Ratings",
 		"localTitle": "Local App Signals",
 		"connector": "Last Connector",
 		"notStored": "Not Stored",
-		"guideState": "Guide State",
+		"guideState": "गाइड स्थिति",
 		"locale": "भाषा",
 		"actionsTitle": "Next Actions",
 		"actionsBody": "Use these metrics to decide whether to inspect contract details, review reputation history, or create a cleaner contract workflow.",
 		"openDashboard": "Open Dashboard",
-		"openReputation": "Open Reputation"
+		"openReputation": "Open Reputation",
+		"roleMixTitle": "भूमिका मिश्रण",
+		"roleMixBody": "यह वॉलेट दृश्यमान अनुबंधों में कैसे दिखाई देता है।",
+		"rolesCount": "{count} भूमिकाएं",
+		"roleMixAria": "क्लाइंट और फ्रीलांसर भूमिका मिश्रण",
+		"clientRole": "क्लाइंट",
+		"freelancerRole": "फ्रीलांसर",
+		"outcomeCompleted": "पूर्ण",
+		"outcomeActive": "सक्रिय",
+		"outcomeDisputed": "विवादित",
+		"outcomeSnapshotTitle": "परिणाम स्नैपशॉट",
+		"outcomeSnapshotBody": "इस वॉलेट के लिए दृश्यमान पूर्णता, सक्रिय कार्य और विवाद।",
+		"activityTitle": "अनुबंध स्थिति प्रवृत्ति",
+		"activityBody": "इस वॉलेट के दृश्यमान अनुबंध कैसे वितरित हैं, इसका हल्का दृश्य।",
+		"lineChart": "लाइन चार्ट",
+		"lineChartAria": "वॉलेट अनुबंध स्थितियों का लाइन चार्ट",
+		"guideStateCompleted": "डैशबोर्ड गाइड छोड़ी गई या पूरी हुई",
+		"guideStateAvailable": "डैशबोर्ड गाइड उपलब्ध",
+		"localStorageUnavailable": "स्थानीय ब्राउज़र स्टोरेज उपलब्ध नहीं",
+		"loadingLocalState": "स्थानीय स्थिति लोड हो रही है",
+		"insightNoContracts": "इस कनेक्टेड वॉलेट के लिए अभी तक कोई सार्वजनिक TrustLedger अनुबंध नहीं मिला।",
+		"insightHighDispute": "सार्वजनिक अनुबंध स्थितियों में उच्च विवाद दर दिखाई दे रही है। नया काम शुरू करने से पहले शर्तें, माइलस्टोन और साक्ष्य गुणवत्ता की समीक्षा करें।",
+		"insightHealthy": "अधिकांश दृश्यमान अनुबंध पूर्ण या हल हो चुके हैं, जो स्वस्थ TrustLedger वर्कफ़्लो इतिहास दर्शाता है।",
+		"insightDeveloping": "आपकी सार्वजनिक गतिविधि अभी विकसित हो रही है। प्लेटफ़ॉर्म का उपयोग करते समय फंडेड, सबमिटेड, अप्रूव्ड और विवादित स्थितियों को ट्रैक करें।"
 	},
 	"Footer": {
 		"authorsAndContributors": "लेखक और योगदानकर्ता:",
@@ -699,7 +808,8 @@
 		"detailTitle": "Need operational detail?",
 		"detailBody": "The developer docs cover deployment, faucets, tests, and contract behavior.",
 		"createContract": "Create Contract",
-		"faucetGuide": "Sepolia Faucet Guide"
+		"faucetGuide": "Sepolia Faucet Guide",
+		"githubDiscussions": "GitHub चर्चाएँ"
 	},
 	"About": {
 		"eyebrow": "About TrustLedger",
@@ -813,5 +923,88 @@
 				"description": "जिम्मेदार प्रकटीकरण, समर्थित सुरक्षा दायरा और vulnerability reporting।"
 			}
 		}
+	},
+	"Account": {
+		"eyebrow": "ऑफ-चेन खाता",
+		"title": "वॉलेट-गेटेड प्रोफ़ाइल और प्राथमिकताएँ",
+		"intro": "TrustLedger account services use signed wallet authentication for profile preferences, notifications, and encrypted in-app messaging metadata. The service never asks for passwords, seed phrases, private keys, raw documents, or session keys.",
+		"openWalletAnalytics": "वॉलेट एनालिटिक्स खोलें",
+		"securityBoundary": "सुरक्षा सीमा",
+		"securityTypedChallenges": "Sign Typed Wallet Challenges Only",
+		"securityShortSessions": "Use Short-Lived Server Sessions",
+		"securityProfilePreferences": "Store Profile Preferences Off-Chain",
+		"securityNoDocuments": "Keep Documents And Keys Out Of Account APIs",
+		"profilePreferencesTitle": "Profile Preferences",
+		"profilePreferencesBody": "Display name, avatar URL, notification preferences, and dashboard onboarding state can follow the wallet across devices once a signed session exists.",
+		"encryptedMessagingTitle": "Encrypted Messaging Ready",
+		"encryptedMessagingBody": "The API boundary is designed for encrypted message envelopes; plaintext personal contact details do not belong in platform messages.",
+		"externalDatabaseTitle": "External Database Needed",
+		"externalDatabaseBody": "Production persistence should use Postgres, Supabase, or another managed database configured through deployment secrets."
+	},
+	"Status": {
+		"metadata": {
+			"title": "Platform Status | TrustLedger",
+			"description": "Public TrustLedger operations center for runtime health, privacy-safe analytics, and contract summary metrics."
+		},
+		"eyebrow": "प्लेटफ़ॉर्म स्थिति",
+		"title": "सार्वजनिक संचालन केंद्र",
+		"intro": "Review public runtime health, privacy-safe analytics artifacts, and contract summary metrics without exposing admin tokens, RPC credentials, API keys, raw documents, or private wallet material.",
+		"openWalletAnalytics": "वॉलेट एनालिटिक्स खोलें",
+		"links": {
+			"runtimeHealth": "Runtime Health",
+			"fullHealthReport": "Full Health Report",
+			"publicStatusApi": "Public Status API",
+			"scientificAnalyticsApi": "Scientific Analytics API"
+		}
+	},
+	"NotFound": {
+		"eyebrow": "पेज नहीं मिला",
+		"title": "यह रूट लेजर में नहीं है।",
+		"body": "The link may be old, locale-specific, or tied to a contract that is not available from this route. Use the actions below to get back to a known workflow.",
+		"rootTitle": "यह TrustLedger रूट मौजूद नहीं है।",
+		"rootBody": "जारी रखने के लिए locale-aware रूट चुनें।",
+		"openDashboard": "डैशबोर्ड खोलें",
+		"readFaq": "FAQ पढ़ें",
+		"goHome": "होम जाएँ"
+	},
+	"Admin": {
+		"metadata": {
+			"title": "Admin Dashboard | TrustLedger",
+			"description": "Restricted read-only TrustLedger operator dashboard."
+		},
+		"signInMetadata": {
+			"title": "Admin Sign In - TrustLedger",
+			"description": "Restricted TrustLedger operator sign-in."
+		},
+		"eyebrow": "प्रतिबंधित ऑपरेटर कंसोल",
+		"title": "TrustLedger एडमिन डैशबोर्ड",
+		"intro": "Read-only operational overview for health, contracts, disputes, jurors, reputation, notifications, oracle freshness, deployment metadata, security reports, rate limits, and audit-readiness.",
+		"roles": "Roles: {roles}",
+		"mode": "Mode: {mode}",
+		"readOnly": "केवल पढ़ें",
+		"mutatingActionsEnabled": "mutating actions enabled",
+		"mutationWarning": "Admin mutations are disabled. Future actions must require explicit confirmation, server-side authorization, and persistent audit trails before they are enabled.",
+		"metricsAria": "Admin deployment and analytics metrics",
+		"healthTitle": "Operational Health",
+		"healthBody": "Read-only status distribution across server, Vercel, analytics, contracts, notifications, oracle, and security checks.",
+		"checksCount": "{count} Checks",
+		"trafficTitle": "Traffic Analytics",
+		"trafficBody": "Aggregate page views and frontend errors. Private wallet data, IPs, user agents, cookies, and query strings are excluded.",
+		"enabled": "Enabled",
+		"localOnly": "Local Only",
+		"events": "Events",
+		"pageViews": "Page Views",
+		"frontendErrors": "Frontend Errors",
+		"trafficEmpty": "No aggregate traffic events are stored for the current runtime.",
+		"contractId": "Contract ID",
+		"disputeId": "Dispute ID",
+		"walletAddress": "वॉलेट पता",
+		"lookupPlaceholder": "Read-only lookup scaffold",
+		"signInEyebrow": "Restricted Operator Access",
+		"signInTitle": "TrustLedger admin sign in",
+		"signInIntro": "Use a configured admin account. Passwords are verified against server-side PBKDF2 hashes, and access can also be restricted by IP and wallet allowlist.",
+		"emailOrUsername": "Email or username",
+		"password": "पासवर्ड",
+		"openAdminDashboard": "एडमिन डैशबोर्ड खोलें"
 	}
 }

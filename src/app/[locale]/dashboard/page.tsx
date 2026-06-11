@@ -451,7 +451,7 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 			<input
 				aria-label={t("deliverableUrl")}
 				type="url"
-				placeholder="https://… or ipfs://… or Qm… / baf…"
+				placeholder={t("deliverableUrlPlaceholder")}
 				value={uri}
 				onChange={(e) => {
 					setUri(e.target.value);
@@ -944,7 +944,9 @@ function ExampleContractPreview(): React.JSX.Element {
 			</div>
 			<div className="tl-kv-grid mt-4 text-sm">
 				<span className="text-gray-500 dark:text-gray-400">{t("amount")}</span>
-				<span className="font-medium text-gray-900 dark:text-white">0.75 ETH</span>
+				<span className="font-medium text-gray-900 dark:text-white">
+					{t("exampleAmount")}
+				</span>
 				<span className="text-gray-500 dark:text-gray-400">{t("deadline")}</span>
 				<span className="text-gray-900 dark:text-white">{t("exampleDeadline")}</span>
 				<span className="text-gray-500 dark:text-gray-400">{t("document")}</span>
@@ -1228,12 +1230,14 @@ function ContractList({
 	showIntroActions,
 	onShowHelp,
 	onSkipIntro,
+	loadingLabel,
 }: {
 	address: `0x${string}`;
 	role: "client" | "freelancer";
 	showIntroActions: boolean;
 	onShowHelp: () => void;
 	onSkipIntro: () => void;
+	loadingLabel: string;
 }): React.JSX.Element {
 	const { data: nextId } = useReadContract({
 		address: TRUSTLEDGER_ADDRESS,
@@ -1285,7 +1289,7 @@ function ContractList({
 
 	if (isLoading && visibleContracts.length === 0) {
 		return (
-			<div className="space-y-4" aria-live="polite" aria-label="Loading contracts">
+			<div className="space-y-4" aria-live="polite" aria-label={loadingLabel}>
 				{[0, 1, 2].map((item) => (
 					<div
 						key={item}
@@ -1403,6 +1407,7 @@ export default function DashboardPage(): React.JSX.Element {
 				showIntroActions={showIntroActions}
 				onShowHelp={openWalkthrough}
 				onSkipIntro={skipIntro}
+				loadingLabel={t("loadingContracts")}
 			/>
 			<DashboardHelpButton onClick={openWalkthrough} />
 			<DashboardWalkthrough open={walkthroughOpen} onClose={closeWalkthrough} />

@@ -9,7 +9,6 @@ import { formatAddress } from "@/lib/utils";
 import {
 	ANALYTICS_STATUS_LABELS,
 	buildWalletAnalyticsSummary,
-	getAnalyticsInsight,
 	type WalletAnalyticsSummary,
 } from "@/lib/walletAnalytics";
 import { getContractDeployment, getNetworkName, ZERO_ADDRESS } from "@/lib/wagmi";
@@ -21,12 +20,12 @@ import { useAccount, useChainId, useReadContract, useReadContracts } from "wagmi
 const subscribeNoop = (): (() => void) => (): void => undefined;
 const ENGLISH_LANGUAGE_DISPLAY_NAMES = new Intl.DisplayNames(["en"], { type: "language" });
 const ACTIVITY_LINE_LABELS = [
-	"Pending",
-	"Active",
-	"Submitted",
-	"Approved",
-	"Disputed",
-	"Resolved",
+	"PENDING",
+	"ACTIVE",
+	"SUBMITTED",
+	"APPROVED",
+	"DISPUTED",
+	"RESOLVED",
 ] as const;
 const ACTIVITY_LINE_GUIDES = [32, 64, 96, 128] as const;
 
@@ -40,11 +39,9 @@ function useMounted(): boolean {
 
 function readDashboardGuideState(): string {
 	try {
-		return readLocalDashboardVisited()
-			? "Dashboard Guide Skipped Or Completed"
-			: "Dashboard Guide Available";
+		return readLocalDashboardVisited() ? "guideStateCompleted" : "guideStateAvailable";
 	} catch {
-		return "Local Browser Storage Unavailable";
+		return "localStorageUnavailable";
 	}
 }
 
@@ -98,6 +95,7 @@ function RoleDonut({
 }: {
 	readonly summary: WalletAnalyticsSummary | null;
 }): React.JSX.Element {
+	const t = useTranslations("Analytics");
 	const totalRoles = (summary?.asClient ?? 0) + (summary?.asFreelancer ?? 0);
 	const clientShare =
 		totalRoles === 0 ? 0 : Math.round(((summary?.asClient ?? 0) / totalRoles) * 100);
@@ -112,18 +110,18 @@ function RoleDonut({
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h2 className="text-xl font-semibold text-gray-950 dark:text-white">
-						Role Mix
+						{t("roleMixTitle")}
 					</h2>
 					<p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-						How this wallet appears across visible contracts.
+						{t("roleMixBody")}
 					</p>
 				</div>
 				<span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-600 dark:border-white/10 dark:text-gray-300">
-					{totalRoles.toString()} Roles
+					{t("rolesCount", { count: totalRoles })}
 				</span>
 			</div>
 			<div className="mt-6 grid gap-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center">
-				<svg viewBox="0 0 120 120" role="img" aria-label="Client and freelancer role mix">
+				<svg viewBox="0 0 120 120" role="img" aria-label={t("roleMixAria")}>
 					<circle
 						cx="60"
 						cy="60"
@@ -175,14 +173,14 @@ function RoleDonut({
 						textAnchor="middle"
 						className="fill-gray-500 text-[9px] font-semibold uppercase dark:fill-gray-400"
 					>
-						Client
+						{t("clientRole")}
 					</text>
 				</svg>
 				<div className="grid gap-3 text-sm">
 					<div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 p-3 dark:border-white/10">
 						<span className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-200">
 							<span className="h-2.5 w-2.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
-							Client
+							{t("clientRole")}
 						</span>
 						<span className="font-mono text-gray-500 dark:text-gray-400">
 							{(summary?.asClient ?? 0).toString()}
@@ -191,7 +189,7 @@ function RoleDonut({
 					<div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 p-3 dark:border-white/10">
 						<span className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-200">
 							<span className="h-2.5 w-2.5 rounded-full bg-emerald-500 dark:bg-emerald-300" />
-							Freelancer
+							{t("freelancerRole")}
 						</span>
 						<span className="font-mono text-gray-500 dark:text-gray-400">
 							{(summary?.asFreelancer ?? 0).toString()}
@@ -208,20 +206,25 @@ function OutcomeGraph({
 }: {
 	readonly summary: WalletAnalyticsSummary | null;
 }): React.JSX.Element {
+	const t = useTranslations("Analytics");
 	const total = Math.max(summary?.totalContracts ?? 0, 1);
 	const outcomes = [
-		{ label: "Completed", value: summary?.completed ?? 0, className: "bg-emerald-500" },
-		{ label: "Active", value: summary?.active ?? 0, className: "bg-indigo-500" },
-		{ label: "Disputed", value: summary?.disputed ?? 0, className: "bg-red-500" },
+		{
+			label: t("outcomeCompleted"),
+			value: summary?.completed ?? 0,
+			className: "bg-emerald-500",
+		},
+		{ label: t("outcomeActive"), value: summary?.active ?? 0, className: "bg-indigo-500" },
+		{ label: t("outcomeDisputed"), value: summary?.disputed ?? 0, className: "bg-red-500" },
 	] as const;
 
 	return (
 		<div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/[0.03]">
 			<h2 className="text-xl font-semibold text-gray-950 dark:text-white">
-				Outcome Snapshot
+				{t("outcomeSnapshotTitle")}
 			</h2>
 			<p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-				Visible completion, active work, and disputes for this wallet.
+				{t("outcomeSnapshotBody")}
 			</p>
 			<div className="mt-6 grid gap-4">
 				{outcomes.map((outcome) => {
@@ -260,6 +263,8 @@ function ActivityLineChart({
 }: {
 	readonly summary: WalletAnalyticsSummary | null;
 }): React.JSX.Element {
+	const t = useTranslations("Analytics");
+	const tStatus = useTranslations("ContractStatus");
 	const values = [
 		summary?.statusCounts[0] ?? 0,
 		summary?.statusCounts[1] ?? 0,
@@ -282,21 +287,20 @@ function ActivityLineChart({
 			<div className="flex items-start justify-between gap-4">
 				<div>
 					<h2 className="text-xl font-semibold text-gray-950 dark:text-white">
-						Contract State Trend
+						{t("activityTitle")}
 					</h2>
 					<p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-						A lightweight view of how this wallet&apos;s visible contracts are
-						distributed.
+						{t("activityBody")}
 					</p>
 				</div>
 				<span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800 dark:border-sky-400/30 dark:bg-sky-400/10 dark:text-sky-100">
-					Line Chart
+					{t("lineChart")}
 				</span>
 			</div>
 			<svg
 				viewBox="0 0 288 164"
 				role="img"
-				aria-label="Line chart of wallet contract states"
+				aria-label={t("lineChartAria")}
 				className="mt-5 h-auto w-full overflow-visible"
 			>
 				{ACTIVITY_LINE_GUIDES.map((y) => (
@@ -335,7 +339,7 @@ function ActivityLineChart({
 								textAnchor="middle"
 								className="fill-gray-500 text-[9px] font-semibold dark:fill-gray-400"
 							>
-								{ACTIVITY_LINE_LABELS[index]}
+								{tStatus(ACTIVITY_LINE_LABELS[index] ?? "PENDING")}
 							</text>
 						</g>
 					);
@@ -347,13 +351,14 @@ function ActivityLineChart({
 
 export function AnalyticsPageInner(): React.JSX.Element {
 	const t = useTranslations("Analytics");
+	const tStatus = useTranslations("ContractStatus");
 	const locale = useLocale();
 	const { address, isConnected } = useAccount();
 	const chainId = useChainId();
 	const deployment = getContractDeployment(chainId);
 	const networkName = getNetworkName(chainId);
 	const mounted = useMounted();
-	const localGuideState = mounted ? readDashboardGuideState() : "Loading Local State";
+	const localGuideState = mounted ? readDashboardGuideState() : "loadingLocalState";
 	const rememberedWallet = mounted ? getLastWallet() : null;
 
 	const { data: nextId, isLoading: countLoading } = useReadContract({
@@ -408,6 +413,16 @@ export function AnalyticsPageInner(): React.JSX.Element {
 	const maxStatus = Math.max(...(summary?.statusCounts ?? [0]), 1);
 	const loading = countLoading || contractsLoading;
 	const localeDisplay = formatLocaleDisplay(locale);
+	const analyticsInsight =
+		summary === null
+			? t("emptyInsight")
+			: summary.totalContracts === 0
+				? t("insightNoContracts")
+				: summary.disputeRatePct >= 25
+					? t("insightHighDispute")
+					: summary.completionRatePct >= 75
+						? t("insightHealthy")
+						: t("insightDeveloping");
 
 	if (!isConnected || address === undefined) {
 		return <WalletRequiredPage />;
@@ -499,7 +514,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 								<div key={label} className="grid gap-2">
 									<div className="flex items-center justify-between text-sm">
 										<span className="font-medium text-gray-700 dark:text-gray-200">
-											{label}
+											{tStatus(label)}
 										</span>
 										<span className="font-mono text-gray-500 dark:text-gray-400">
 											{value}
@@ -523,7 +538,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 							{t("insightTitle")}
 						</h2>
 						<p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-300">
-							{summary === null ? t("emptyInsight") : getAnalyticsInsight(summary)}
+							{analyticsInsight}
 						</p>
 						<div className="mt-5 grid grid-cols-2 gap-3 text-sm">
 							<div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-white/10 dark:bg-gray-950">
@@ -561,7 +576,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 									{t("guideState")}
 								</dt>
 								<dd className="text-right font-medium text-gray-900 dark:text-white">
-									{localGuideState}
+									{t(localGuideState)}
 								</dd>
 							</div>
 							<div className="flex items-center justify-between gap-4">

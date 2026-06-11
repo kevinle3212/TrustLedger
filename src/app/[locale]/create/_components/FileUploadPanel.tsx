@@ -101,7 +101,7 @@ export function FileUploadPanel({
 					rel="noopener noreferrer"
 					className="tl-button-motion inline-flex min-h-10 items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 dark:border-white/10 dark:text-gray-200 dark:hover:border-white/20"
 				>
-					Preview Selected File
+					{t("previewSelectedFile")}
 				</a>
 			)}
 
@@ -120,7 +120,7 @@ export function FileUploadPanel({
 				<Field label={t("pinataJwt")} hint={t("pinataJwtHint")} error={pinataJwtError}>
 					<Input
 						type="password"
-						placeholder="eyJhbGciOiJIUzI1NiIs…"
+						placeholder={t("pinataJwtPlaceholder")}
 						value={pinataJwt}
 						onChange={(e) => {
 							onPinataJwtChange(e.target.value);
