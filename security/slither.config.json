@@ -1,0 +1,12 @@
+{
+	"//": "Slither static-analysis config for the Foundry contracts in contracts/. Run: slither contracts --config-file security/slither.config.json",
+	"compile_force_framework": "foundry",
+	"filter_paths": "contracts/lib/|contracts/test/|contracts/script/|contracts/src/mocks/",
+	"detectors_to_exclude": "naming-convention,solc-version,pragma",
+	"exclude_informational": false,
+	"exclude_low": false,
+	"exclude_medium": false,
+	"exclude_high": false,
+	"disable_color": false,
+	"legacy_ast": false
+}

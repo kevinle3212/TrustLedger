@@ -239,6 +239,12 @@ risk, or policy language should use `.sixth/skills/legal-compliance/SKILL.md`
 and check [Legal And Compliance](../docs/LEGAL.md), [Security](../SECURITY.md),
 and [Security Docs](../docs/SECURITY.md).
 
+Frontend security helpers live in [`security/`](security/README.md): reach for
+`@/security` (safe clipboard, CSP headers, rate limiting, CSRF origin checks,
+sanitizers, EVM address safety) instead of hand-rolling them. Contract-side
+tooling and the review checklist live in the repo-root
+[`security/`](../security/README.md).
+
 ## Styling Architecture
 
 The app uses Tailwind CSS v4 through `app/globals.scss` and

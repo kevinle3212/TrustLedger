@@ -141,6 +141,7 @@ flowchart TB
 ├── infra/                  Backend service infrastructure examples
 ├── docs/                   MkDocs guides, deployment, security, reports, runbooks
 ├── scripts/                Hardhat deploy/demo scripts and GitHub Models tooling
+├── security/               Contract Slither config, review checklist, threat model
 ├── test/                   Hardhat TypeScript contract tests
 ├── tools/                  Setup, SWC, logs, docs links, Kubernetes helper scripts
 ├── utils/                  Python contract-template PDF utility
@@ -461,6 +462,12 @@ and deployment credentials as sensitive. Server routes validate request
 boundaries and avoid returning secret values. Smart contract changes must
 prioritize access control, reentrancy resistance, event coverage, gas awareness,
 and audit-ready clarity.
+
+Security tooling is split by tier: [`security/`](security/README.md) holds the
+contract Slither config, pre-merge `CHECKLIST.md`, and `THREAT-MODEL.md`;
+[`src/security/`](src/security/README.md) holds the wired-in frontend helpers
+(safe clipboard, CSP headers, rate limiting, CSRF, sanitization, EVM address
+safety).
 
 Read [Security](SECURITY.md) and [Security Docs](docs/SECURITY.md).
 

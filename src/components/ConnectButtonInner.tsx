@@ -10,6 +10,7 @@ import { getLastWallet, setLastWallet } from "@/lib/lastWallet";
 import { formatAddress } from "@/lib/utils";
 import { APPKIT_FONT_FAMILY } from "@/lib/wagmi";
 import { ensureAppKit } from "@/lib/appkit";
+import { copyToClipboard } from "@/security/clipboard";
 
 ensureAppKit();
 
@@ -211,7 +212,10 @@ export function ConnectButtonInner({
 
 	if (isConnected && address !== undefined) {
 		const copyAddress = (): void => {
-			void navigator.clipboard.writeText(address).then(() => {
+			// copyToClipboard is best-effort and never throws/rejects (safe on insecure
+			// origins and in-app webviews where navigator.clipboard is undefined).
+			void copyToClipboard(address).then((ok) => {
+				if (!ok) return;
 				setCopied(true);
 				clearCopyFeedbackTimer();
 				copyFeedbackTimerRef.current = setTimeout(() => {

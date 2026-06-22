@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
+import { copyToClipboard } from "@/security/clipboard";
 import type { CreateState, ContractTermsFormat } from "../_lib/types";
 import { convertContractTerms, DEFAULT_CONTRACT_TERMS } from "../_lib/contractTerms";
 import {
@@ -891,24 +892,24 @@ function useSecureDraftSessionPanelController({
 
 	async function copyValue(value: string, label: string): Promise<boolean> {
 		if (value === "") return false;
-		try {
-			await navigator.clipboard.writeText(value);
-			setCopiedLabel(label);
-			if (copyFeedbackTimeout.current !== null) {
-				clearTimeout(copyFeedbackTimeout.current);
-			}
-			copyFeedbackTimeout.current = setTimeout(() => {
-				setCopiedLabel(null);
-			}, 1500);
-			updateStatus("success", "Copied!");
-			return true;
-		} catch {
+		// Best-effort copy; never throws, so a denied/unavailable clipboard surfaces
+		// as a recoverable status message rather than an uncaught error.
+		if (!(await copyToClipboard(value))) {
 			updateStatus(
 				"error",
 				`Unable to copy ${label}. Copy it manually from the share link field below.`,
 			);
 			return false;
 		}
+		setCopiedLabel(label);
+		if (copyFeedbackTimeout.current !== null) {
+			clearTimeout(copyFeedbackTimeout.current);
+		}
+		copyFeedbackTimeout.current = setTimeout(() => {
+			setCopiedLabel(null);
+		}, 1500);
+		updateStatus("success", "Copied!");
+		return true;
 	}
 
 	const clearShareSecrets = useCallback(
