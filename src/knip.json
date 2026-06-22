@@ -3,6 +3,7 @@
 	"paths": {
 		"@/*": ["./*"]
 	},
+	"entry": ["security/index.ts!"],
 	"ignoreFiles": [
 		".next/**",
 		".vercel/**",

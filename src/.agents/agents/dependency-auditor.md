@@ -22,6 +22,9 @@ devDependencies, npm overrides, lockfiles, or package-manager drift.
    that can be removed after upstream updates.
 5. Classify findings by runtime dependency, dev dependency, transitive
    dependency, and override.
+6. For contract-side advisories, cross-reference the on-chain review gates in
+   [`security/CHECKLIST.md`](../../../security/CHECKLIST.md) and run
+   `slither contracts --config-file security/slither.config.json`.
 
 If the user explicitly authorizes high-risk npm registry disclosure, request
 escalation for `npm audit` with that approval stated in the justification. Never

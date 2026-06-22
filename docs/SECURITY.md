@@ -18,6 +18,7 @@
 - [Arbitration Risks](#arbitration-risks)
 - [Frontend And API Risks](#frontend-and-api-risks)
 - [CI Security Checks](#ci-security-checks)
+- [Security Tooling Layout](#security-tooling-layout)
 - [Reporting Vulnerabilities](#reporting-vulnerabilities)
 
 <!-- docs-toc:end -->
@@ -170,6 +171,34 @@ Do Not Track and Global Privacy Control, strips query strings, and stores no raw
 IP addresses, wallet addresses, user agents, emails, documents, session keys, or
 private wallet material. Update privacy and cookie disclosures before enabling
 analytics in production.
+
+## Security Tooling Layout
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Security helpers and review material are split by tier so each side has one
+place to look.
+
+| Location                                                                             | Scope                                                     | Key contents                                                                                                                                          |
+| ------------------------------------------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`security/`](https://github.com/kevinle3212/TrustLedger/tree/main/security)         | Contracts and on-chain backend (Foundry/Solidity, Solana) | `slither.config.json` static-analysis config, `CHECKLIST.md` pre-merge/pre-deploy review gate, `THREAT-MODEL.md` assets/actors/invariants.            |
+| [`src/security/`](https://github.com/kevinle3212/TrustLedger/tree/main/src/security) | Frontend (Next.js client and proxy)                       | `clipboard`, `headers` (CSP), `rateLimit`, `csrf`, `sanitize`, `address` helpers plus a barrel that re-exports `lib/validation` and `lib/encryption`. |
+
+The frontend toolkit is wired in, not speculative: `headers` and `rateLimit`
+back `src/proxy.ts`, and `clipboard` backs every copy-to-clipboard control.
+Reach for `@/security` instead of hand-rolling clipboard, header, sanitization,
+or address logic. Each directory has its own `README.md` with the full module
+map.
+
+Before merging a contract change, complete the
+[`security/CHECKLIST.md`](https://github.com/kevinle3212/TrustLedger/blob/main/security/CHECKLIST.md)
+gate and re-check
+[`security/THREAT-MODEL.md`](https://github.com/kevinle3212/TrustLedger/blob/main/security/THREAT-MODEL.md)
+whenever a fund-handling path, role set, or the dispute/juror mechanism changes.
 
 ## Reporting Vulnerabilities
 
