@@ -23,7 +23,13 @@ const RATING_SUBMITTED_EVENT = parseAbiItem(
 const RECOVERY_EVENT = parseAbiItem(
 	"event RecoveryAchieved(address indexed user, uint8 indexed bonus)",
 );
-const MAX_LOG_BLOCK_RANGE = 49_999n;
+// Free-tier RPC endpoints (e.g. WalletConnect/Blockchain API) reject `eth_getLogs`
+// requests spanning more than 10,000 blocks, so each request must cover at most a
+// 10,000-block inclusive window (toBlock - fromBlock <= 9,999).
+const LOG_CHUNK_SIZE = 9_999n;
+// When the registry deployment block cannot be discovered, scan this many blocks
+// back from head. Chunking splits the window into LOG_CHUNK_SIZE-sized requests.
+const MAX_LOOKBACK_BLOCKS = 49_999n;
 
 // The reputation history feed entry shape is modelled by the shared
 // `ReputationHistoryEntry` type (imported above as `HistoryEntry`) from `@/types`.
@@ -115,7 +121,7 @@ function RatingHistoryFeed({
 				(await findDeploymentBlock(publicClient, registryAddress, latestBlock));
 			const firstBlock =
 				discoveredDeployBlock ??
-				(latestBlock > MAX_LOG_BLOCK_RANGE ? latestBlock - MAX_LOG_BLOCK_RANGE : 0n);
+				(latestBlock > MAX_LOOKBACK_BLOCKS ? latestBlock - MAX_LOOKBACK_BLOCKS : 0n);
 
 			async function getLogsInChunks<TLog>(
 				getLogsForRange: (fromBlock: bigint, toBlock: bigint) => Promise<TLog[]>,
@@ -123,9 +129,9 @@ function RatingHistoryFeed({
 				const ranges: { fromBlock: bigint; toBlock: bigint }[] = [];
 				for (let fromBlock = firstBlock; fromBlock <= latestBlock; ) {
 					const toBlock =
-						fromBlock + MAX_LOG_BLOCK_RANGE > latestBlock
+						fromBlock + LOG_CHUNK_SIZE > latestBlock
 							? latestBlock
-							: fromBlock + MAX_LOG_BLOCK_RANGE;
+							: fromBlock + LOG_CHUNK_SIZE;
 					ranges.push({ fromBlock, toBlock });
 					fromBlock = toBlock + 1n;
 				}
