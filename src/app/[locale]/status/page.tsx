@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getGitHubAnalytics } from "@/services/githubAnalytics";
 import { GitHubStatsSection } from "./_components/GitHubStatsSection";
 
 export async function generateMetadata({
@@ -30,7 +31,10 @@ export default async function StatusPage({
 }): Promise<React.JSX.Element> {
 	const { locale } = await params;
 	setRequestLocale(locale);
-	const t = await getTranslations({ locale, namespace: "Status" });
+	const [t, githubAnalytics] = await Promise.all([
+		getTranslations({ locale, namespace: "Status" }),
+		getGitHubAnalytics(),
+	]);
 
 	return (
 		<main className="tl-site-frame py-12">
@@ -63,7 +67,7 @@ export default async function StatusPage({
 				))}
 			</section>
 
-			<GitHubStatsSection />
+			<GitHubStatsSection summary={githubAnalytics.available ? githubAnalytics : null} />
 
 			<div className="mt-8">
 				<Link

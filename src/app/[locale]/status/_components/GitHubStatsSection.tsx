@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 interface GitHubAnalyticsSummary {
@@ -28,17 +27,24 @@ interface GitHubAnalyticsSummary {
 	readonly checkedAt: string;
 }
 
-type GitHubAnalyticsResponse = GitHubAnalyticsSummary | { readonly available: false };
+// Hoisted so the formatters are built once per module load rather than rebuilt
+// on every render/call (Intl constructors are comparatively expensive).
+const integerFormat = new Intl.NumberFormat();
+const oneDecimalFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 });
+const dateTimeFormat = new Intl.DateTimeFormat(undefined, {
+	dateStyle: "medium",
+	timeStyle: "short",
+});
 
 function formatMetric(value: number | null, fallback: string): string {
-	return value === null ? fallback : new Intl.NumberFormat().format(value);
+	return value === null ? fallback : integerFormat.format(value);
 }
 
 function formatStorage(kilobytes: number): string {
 	if (kilobytes >= 1024) {
-		return `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(kilobytes / 1024)} MB`;
+		return `${oneDecimalFormat.format(kilobytes / 1024)} MB`;
 	}
-	return `${new Intl.NumberFormat().format(kilobytes)} KB`;
+	return `${integerFormat.format(kilobytes)} KB`;
 }
 
 function StatCell({
@@ -59,32 +65,12 @@ function StatCell({
 	);
 }
 
-export function GitHubStatsSection(): React.JSX.Element | null {
+export function GitHubStatsSection({
+	summary,
+}: {
+	readonly summary: GitHubAnalyticsSummary | null;
+}): React.JSX.Element | null {
 	const t = useTranslations("Status.github");
-	const [summary, setSummary] = useState<GitHubAnalyticsSummary | null>(null);
-
-	useEffect(() => {
-		const controller = new AbortController();
-		async function loadGitHubAnalytics(): Promise<void> {
-			try {
-				const response = await fetch("/api/analytics/github", {
-					headers: { Accept: "application/json" },
-					signal: controller.signal,
-				});
-				if (!response.ok || response.status === 204) return;
-				const payload = (await response.json()) as GitHubAnalyticsResponse;
-				if (payload.available) setSummary(payload);
-			} catch (error) {
-				if (!controller.signal.aborted) {
-					console.warn("GitHub analytics unavailable", error);
-				}
-			}
-		}
-		void loadGitHubAnalytics();
-		return (): void => {
-			controller.abort();
-		};
-	}, []);
 
 	if (summary === null) return null;
 
@@ -93,10 +79,7 @@ export function GitHubStatsSection(): React.JSX.Element | null {
 	const updatedLabel =
 		summary.repository.pushedAt === null
 			? t("updatedUnknown")
-			: new Intl.DateTimeFormat(undefined, {
-					dateStyle: "medium",
-					timeStyle: "short",
-				}).format(new Date(summary.repository.pushedAt));
+			: dateTimeFormat.format(new Date(summary.repository.pushedAt));
 
 	return (
 		<section className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/[0.03]">
