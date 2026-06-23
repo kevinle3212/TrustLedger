@@ -412,7 +412,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 								{t("statusBody")}
 							</p>
 						</div>
-						<span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800 shadow-sm shadow-cyan-950/5 dark:border-cyan-300/30 dark:bg-cyan-300/15 dark:text-cyan-100">
+						<span className="rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800 dark:border-cyan-300/30 dark:bg-cyan-300/15 dark:text-cyan-100">
 							{t("publicOnly")}
 						</span>
 					</div>
