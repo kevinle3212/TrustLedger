@@ -150,6 +150,24 @@ npm run doctor            # React Doctor (score + verbose findings)
 
 ---
 
+## 7.1 Quality Standards (Mandatory)
+
+`docs/QUALITY-STANDARDS.md` is the canonical documentation, quality,
+performance, accessibility, and deployment specification. Enforce it and
+validate compliance before completing any task or approving any change.
+
+- React Doctor must stay at 100/100. No PR, merge, release, deployment, or
+  production promotion may proceed below 100/100. Proactively identify and
+  resolve anything blocking the score; treat warnings and regressions as
+  high-priority.
+- Block deployment/merge when React Doctor, type-check, lint, tests, build,
+  accessibility, performance, or security checks fail.
+- Add TSDoc to new code elements; document API routes and smart-contract
+  surfaces; keep `controllers/` separation and `CREDITS.md` current.
+
+See `docs/QUALITY-STANDARDS.md` for the full specification and the
+post-modification verification checklist.
+
 ## 8. Documentation
 
 Use `src/.claude/skills/update-context/SKILL.md` after repository changes so
