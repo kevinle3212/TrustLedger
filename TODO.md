@@ -309,6 +309,70 @@ mainnet launch deliverables.
       standalone document that fully explains the platform, its design
       decisions, and its implementation details.
 
+## Phase 10 — Analytics, Staking, and Platform Hardening (In Progress)
+
+This phase tracks the remaining scope of the analytics/staking/core/infra
+initiative. The first slice — the shared connected-wallet menu, the `core/`
+layer, and Recharts-backed analytics visuals — landed already; the items below
+are the parts that need external credentials, on-chain deploys, or a dedicated
+test/IaC pass before they can be completed and verified.
+
+- [ ] Ship full on-chain staking with both SOL and USDC.
+    - **Prerequisites:** a deployed staking contract per chain and funded deploy
+      keys. Ethereum/Sepolia path needs the Solidity staking contract plus
+      `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, and the USDC token address for
+      the target network. Solana path needs an Anchor/native program, a funded
+      Devnet keypair, the SPL USDC mint address, and the published program ID in
+      `NEXT_PUBLIC_SOLANA_STAKING_PROGRAM_ID`.
+    - **Scope:** asset-selector dropdowns for stake/unstake, dual-asset balance
+      reads, validation, reward math, schemas, APIs, and analytics; edge/failure
+      cases (insufficient balance, decimals mismatch, rejected approval, network
+      switch mid-flow) covered by tests.
+    - **Verify:** Hardhat + Foundry contract tests, Anchor tests, frontend unit
+      tests for both assets, and `npm run quality` + `npm run build` green.
+
+- [ ] Complete the admin analytics dashboard (platform, infra, deployment).
+    - **Prerequisites:** read-only API credentials, kept server-side only:
+      `VERCEL_TOKEN` (+ `VERCEL_TEAM_ID`, `VERCEL_PROJECT_ID`) for Web/Speed
+      Analytics, deployment status, and build health; an error/monitoring token
+      (e.g. Sentry `SENTRY_AUTH_TOKEN`) for error rates; and the existing
+      admin-health gate token for the analytics endpoints.
+    - **Scope:** platform usage, active users, staking/escrow/dispute metrics,
+      contract activity, API performance, error rates, build health, and
+      deployment/infrastructure metrics, rendered with the shared Recharts
+      wrappers in `src/components/charts/`.
+    - **Verify:** charts render with accessible names in unit tests; no secret
+      is exposed to the client (`NEXT_PUBLIC_*` audit); `npm run quality` green.
+
+- [ ] Finish the app-wide dropdown / context / action menu audit implementation.
+    - **Scope:** apply the consolidated `ConnectedWalletMenu` portal pattern to
+      remaining surfaces — the mobile navigation menu and row-level action menus
+      (dashboard, contracts, disputes) — so menus never clip and behave
+      consistently.
+    - **Verify:** React Doctor score does not regress; portal/overflow
+      regression tests pass.
+
+- [ ] Provision infrastructure-as-code under `infra/<tool>/`.
+    - **Prerequisites:** a chosen cloud target and validated credentials before
+      anything is committed (per `docs/infra.md` "Not yet provisioned").
+      Terraform needs provider credentials and a backend; Ansible needs
+      inventory and SSH access; alerting/metrics need a backend (e.g.
+      Prometheus/Alertmanager).
+    - **Scope:** Terraform modules (networking, cluster, DNS, secrets manager),
+      Ansible playbooks for VM-based admin-API hosts, alerting rules, a metrics
+      backend, and automated backup/restore jobs, each with a matching section
+      in `docs/infra.md` and a runbook.
+    - **Verify:** `terraform validate` and `ansible-lint` run clean in CI before
+      merge.
+
+- [ ] Build out the full automated test matrix.
+    - **Scope:** end-to-end (Playwright), accessibility (axe), performance
+      (Lighthouse CI), and security (extended Semgrep/dependency) suites
+      covering the analytics, staking, and wallet-menu flows.
+    - **Prerequisites:** Playwright browsers installed in CI; Lighthouse CI
+      budget config; any preview-deploy URL/token the E2E suite targets.
+    - **Verify:** all suites green in CI and wired into the quality pipeline.
+
 ## Completed
 
 - [x] Update all packages to their latest versions, upgrade Hardhat to 3.x, and

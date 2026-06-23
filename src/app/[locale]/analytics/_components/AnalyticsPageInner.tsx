@@ -1,6 +1,7 @@
 "use client";
 
 import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import dynamic from "next/dynamic";
 import { Link } from "@/i18n/navigation";
 import { REPUTATION_REGISTRY_ABI, TRUSTLEDGER_ABI } from "@/lib/abi";
 import { getLastWallet } from "@/lib/lastWallet";
@@ -17,6 +18,17 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useSyncExternalStore } from "react";
 import { useAccount, useChainId, useReadContract, useReadContracts } from "wagmi";
 
+// Recharts is heavy; load the chart wrappers on demand so it stays out of the
+// initial bundle. The analytics view is client-gated, so `ssr: false` is safe.
+const BreakdownDonut = dynamic(
+	async () => (await import("@/components/charts/BreakdownDonut")).BreakdownDonut,
+	{ ssr: false },
+);
+const TrendLineChart = dynamic(
+	async () => (await import("@/components/charts/TrendLineChart")).TrendLineChart,
+	{ ssr: false },
+);
+
 const subscribeNoop = (): (() => void) => (): void => undefined;
 const ENGLISH_LANGUAGE_DISPLAY_NAMES = new Intl.DisplayNames(["en"], { type: "language" });
 const ACTIVITY_LINE_LABELS = [
@@ -27,7 +39,6 @@ const ACTIVITY_LINE_LABELS = [
 	"DISPUTED",
 	"RESOLVED",
 ] as const;
-const ACTIVITY_LINE_GUIDES = [32, 64, 96, 128] as const;
 
 function useMounted(): boolean {
 	return useSyncExternalStore(
@@ -96,14 +107,14 @@ function RoleDonut({
 	readonly summary: WalletAnalyticsSummary | null;
 }): React.JSX.Element {
 	const t = useTranslations("Analytics");
-	const totalRoles = (summary?.asClient ?? 0) + (summary?.asFreelancer ?? 0);
-	const clientShare =
-		totalRoles === 0 ? 0 : Math.round(((summary?.asClient ?? 0) / totalRoles) * 100);
-	const freelancerShare = totalRoles === 0 ? 0 : 100 - clientShare;
-	const radius = 42;
-	const circumference = 2 * Math.PI * radius;
-	const clientOffset = circumference * (1 - clientShare / 100);
-	const freelancerArcLength = (freelancerShare / 100) * circumference;
+	const clientCount = summary?.asClient ?? 0;
+	const freelancerCount = summary?.asFreelancer ?? 0;
+	const totalRoles = clientCount + freelancerCount;
+	const clientShare = totalRoles === 0 ? 0 : Math.round((clientCount / totalRoles) * 100);
+	const roleData = [
+		{ name: t("clientRole"), value: clientCount, color: "#6366f1" },
+		{ name: t("freelancerRole"), value: freelancerCount, color: "#10b981" },
+	];
 
 	return (
 		<div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
@@ -121,61 +132,17 @@ function RoleDonut({
 				</span>
 			</div>
 			<div className="mt-6 grid gap-5 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-center">
-				<svg viewBox="0 0 120 120" role="img" aria-label={t("roleMixAria")}>
-					<circle
-						cx="60"
-						cy="60"
-						r={radius}
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="14"
-						className="text-gray-100 dark:text-white/10"
-					/>
-					{totalRoles > 0 && (
-						<>
-							<circle
-								cx="60"
-								cy="60"
-								r={radius}
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="14"
-								strokeDasharray={circumference}
-								strokeDashoffset={clientOffset}
-								strokeLinecap="round"
-								className="origin-center -rotate-90 text-indigo-600 dark:text-indigo-400"
-							/>
-							<circle
-								cx="60"
-								cy="60"
-								r={radius}
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="14"
-								strokeDasharray={`${freelancerArcLength.toString()} ${circumference.toString()}`}
-								strokeDashoffset={(-clientShare / 100) * circumference}
-								strokeLinecap="round"
-								className="origin-center -rotate-90 text-emerald-500 dark:text-emerald-300"
-							/>
-						</>
-					)}
-					<text
-						x="60"
-						y="56"
-						textAnchor="middle"
-						className="fill-gray-950 text-[18px] font-semibold dark:fill-white"
-					>
-						{clientShare}%
-					</text>
-					<text
-						x="60"
-						y="75"
-						textAnchor="middle"
-						className="fill-gray-500 text-[9px] font-semibold uppercase dark:fill-gray-400"
-					>
-						{t("clientRole")}
-					</text>
-				</svg>
+				<div className="relative">
+					<BreakdownDonut data={roleData} ariaLabel={t("roleMixAria")} height={144} />
+					<div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+						<span className="text-lg font-semibold text-gray-950 dark:text-white">
+							{clientShare}%
+						</span>
+						<span className="text-[10px] font-semibold uppercase text-gray-500 dark:text-gray-400">
+							{t("clientRole")}
+						</span>
+					</div>
+				</div>
 				<div className="grid gap-3 text-sm">
 					<div className="flex items-center justify-between gap-4 rounded-xl border border-gray-200 p-3 dark:border-white/10">
 						<span className="flex items-center gap-2 font-medium text-gray-700 dark:text-gray-200">
@@ -265,22 +232,10 @@ function ActivityLineChart({
 }): React.JSX.Element {
 	const t = useTranslations("Analytics");
 	const tStatus = useTranslations("ContractStatus");
-	const values = [
-		summary?.statusCounts[0] ?? 0,
-		summary?.statusCounts[1] ?? 0,
-		summary?.statusCounts[2] ?? 0,
-		summary?.statusCounts[3] ?? 0,
-		summary?.statusCounts[4] ?? 0,
-		summary?.statusCounts[5] ?? 0,
-	];
-	const maxValue = Math.max(...values, 1);
-	const points = values
-		.map((value, index) => {
-			const x = 24 + index * 48;
-			const y = 128 - (value / maxValue) * 96;
-			return `${x.toString()},${y.toString()}`;
-		})
-		.join(" ");
+	const points = ACTIVITY_LINE_LABELS.map((label, index) => ({
+		label: tStatus(label),
+		value: summary?.statusCounts[index] ?? 0,
+	}));
 
 	return (
 		<div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-white/10 dark:bg-white/[0.03]">
@@ -297,54 +252,9 @@ function ActivityLineChart({
 					{t("lineChart")}
 				</span>
 			</div>
-			<svg
-				viewBox="0 0 288 164"
-				role="img"
-				aria-label={t("lineChartAria")}
-				className="mt-5 h-auto w-full overflow-visible"
-			>
-				{ACTIVITY_LINE_GUIDES.map((y) => (
-					<line
-						key={y}
-						x1="24"
-						x2="264"
-						y1={y}
-						y2={y}
-						className="stroke-gray-200 dark:stroke-white/10"
-					/>
-				))}
-				<polyline
-					points={points}
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="4"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					className="text-indigo-600 dark:text-indigo-300"
-				/>
-				{values.map((value, index) => {
-					const x = 24 + index * 48;
-					const y = 128 - (value / maxValue) * 96;
-					return (
-						<g key={ACTIVITY_LINE_LABELS[index]}>
-							<circle
-								cx={x}
-								cy={y}
-								r="5"
-								className="fill-white stroke-indigo-600 stroke-[3] dark:fill-gray-950 dark:stroke-indigo-300"
-							/>
-							<text
-								x={x}
-								y="156"
-								textAnchor="middle"
-								className="fill-gray-500 text-[9px] font-semibold dark:fill-gray-400"
-							>
-								{tStatus(ACTIVITY_LINE_LABELS[index] ?? "PENDING")}
-							</text>
-						</g>
-					);
-				})}
-			</svg>
+			<div className="mt-5">
+				<TrendLineChart data={points} ariaLabel={t("lineChartAria")} />
+			</div>
 		</div>
 	);
 }
