@@ -4,6 +4,7 @@ import { routing } from "@/i18n/routing";
 import { isSameOriginRequest } from "@/security/csrf";
 import { applySecurityHeaders } from "@/security/headers";
 import { createRateLimiter } from "@/security/rateLimit";
+import { isTrustedServiceRequest } from "@/security/serviceAuth";
 
 // Routing proxy (Next.js 16's replacement for the deprecated `middleware.ts`
 // convention) that runs before every matched request. It does two things, both
@@ -15,12 +16,15 @@ import { createRateLimiter } from "@/security/rateLimit";
 //   2. Lightweight rate limiting for `/api/*` — a first line of defence for the
 //      email-sending and on-chain-reading endpoints against accidental loops and
 //      casual abuse.
-//   3. Origin-based CSRF protection for `/api/*` — cross-origin state-changing
-//      requests are rejected before they reach a route handler.
+//   3. CSRF protection for `/api/*` — state-changing requests must be either
+//      same-origin (browser) or carry a valid internal service token (cron,
+//      webhooks, server-to-server). Anything else is rejected before it reaches
+//      a route handler.
 //
 // The security headers and Content-Security-Policy live in `@/security/headers`
-// (with their full rationale); the rate limiter is `@/security/rateLimit` and
-// the origin check is `@/security/csrf`.
+// (with their full rationale); the rate limiter is `@/security/rateLimit`, the
+// origin check is `@/security/csrf`, and the service-token check is
+// `@/security/serviceAuth`.
 
 const RATE_LIMIT = 30; // requests …
 const WINDOW_MS = 60_000; // … per minute per IP
@@ -37,9 +41,10 @@ function clientIp(req: NextRequest): string {
 export function proxy(req: NextRequest): NextResponse {
 	const isApiRoute = req.nextUrl.pathname.startsWith("/api/");
 
-	// Reject cross-origin state-changing API requests before any side effects.
-	// Read-only methods and same-origin requests pass through untouched.
-	if (isApiRoute && !isSameOriginRequest(req)) {
+	// Reject state-changing API requests that are neither same-origin (browser)
+	// nor authenticated with a trusted service token (cron / server-to-server).
+	// Read-only methods always pass through untouched.
+	if (isApiRoute && !isSameOriginRequest(req) && !isTrustedServiceRequest(req)) {
 		const res = NextResponse.json({ error: "cross-origin request rejected" }, { status: 403 });
 		applySecurityHeaders(res.headers);
 		return res;

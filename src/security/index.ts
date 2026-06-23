@@ -24,6 +24,9 @@ export { createRateLimiter, type RateLimiter } from "./rateLimit";
 // Origin/CSRF protection for API routes
 export { isSameOriginRequest } from "./csrf";
 
+// Trusted server-to-server (bearer service token) request recognition
+export { isTrustedServiceRequest } from "./serviceAuth";
+
 // Input/output sanitization
 export {
 	escapeHtml,

@@ -158,7 +158,7 @@ flowchart TB
 ```
 
 <details>
-<summary>Frontend source map</summary>
+<summary>Frontend Source Map</summary>
 
 `src/` is the deployed Next.js application and has its own deeper map in
 [src/README.md](src/README.md).
@@ -210,7 +210,7 @@ src/
 </details>
 
 <details>
-<summary>Smart contract and chain tooling map</summary>
+<summary>Smart Contract and Chain Tooling Map</summary>
 
 ```text
 contracts/
@@ -235,7 +235,7 @@ while Foundry is the primary Solidity unit/fuzz harness.
 </details>
 
 <details>
-<summary>Documentation, automation, and agent map</summary>
+<summary>Documentation, Automation, and Agent Map</summary>
 
 ```text
 docs/
@@ -268,7 +268,7 @@ src/.agents/, src/.claude/, src/skills/
 </details>
 
 <details>
-<summary>Generated, cache, and local-only folders</summary>
+<summary>Generated, Cache, and Local-Only Folders</summary>
 
 These folders may appear during local work and should not be edited by hand:
 `src/.next/`, `.vercel/output/`, `artifacts/`, `hardhat-cache/`,
@@ -280,7 +280,7 @@ Read [SWC And Generated Build Artifacts](docs/SWC.md).
 </details>
 
 <details>
-<summary>Legal and security document map</summary>
+<summary>Legal and Security Document Map</summary>
 
 Root legal documents are formatted and linted as Markdown, referenced by the
 frontend legal center, and excluded from build/deploy paths when the build does
