@@ -1,6 +1,7 @@
 import createIntlMiddleware from "next-intl/middleware";
 import { type NextRequest, NextResponse } from "next/server";
 import { routing } from "@/i18n/routing";
+import { isSameOriginRequest } from "@/security/csrf";
 import { applySecurityHeaders } from "@/security/headers";
 import { createRateLimiter } from "@/security/rateLimit";
 
@@ -14,9 +15,12 @@ import { createRateLimiter } from "@/security/rateLimit";
 //   2. Lightweight rate limiting for `/api/*` — a first line of defence for the
 //      email-sending and on-chain-reading endpoints against accidental loops and
 //      casual abuse.
+//   3. Origin-based CSRF protection for `/api/*` — cross-origin state-changing
+//      requests are rejected before they reach a route handler.
 //
 // The security headers and Content-Security-Policy live in `@/security/headers`
-// (with their full rationale); the rate limiter is `@/security/rateLimit`.
+// (with their full rationale); the rate limiter is `@/security/rateLimit` and
+// the origin check is `@/security/csrf`.
 
 const RATE_LIMIT = 30; // requests …
 const WINDOW_MS = 60_000; // … per minute per IP
@@ -31,8 +35,18 @@ function clientIp(req: NextRequest): string {
 }
 
 export function proxy(req: NextRequest): NextResponse {
+	const isApiRoute = req.nextUrl.pathname.startsWith("/api/");
+
+	// Reject cross-origin state-changing API requests before any side effects.
+	// Read-only methods and same-origin requests pass through untouched.
+	if (isApiRoute && !isSameOriginRequest(req)) {
+		const res = NextResponse.json({ error: "cross-origin request rejected" }, { status: 403 });
+		applySecurityHeaders(res.headers);
+		return res;
+	}
+
 	// Rate-limit API routes only; static assets and pages are cheap and cacheable.
-	if (req.nextUrl.pathname.startsWith("/api/") && apiRateLimiter.check(clientIp(req))) {
+	if (isApiRoute && apiRateLimiter.check(clientIp(req))) {
 		const res = NextResponse.json(
 			{ error: "rate limit exceeded, try again shortly" },
 			{ status: 429 },
@@ -42,9 +56,7 @@ export function proxy(req: NextRequest): NextResponse {
 		return res;
 	}
 
-	const res = req.nextUrl.pathname.startsWith("/api/")
-		? NextResponse.next()
-		: handleI18nRouting(req);
+	const res = isApiRoute ? NextResponse.next() : handleI18nRouting(req);
 	applySecurityHeaders(res.headers);
 	return res;
 }

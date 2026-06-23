@@ -28,8 +28,9 @@
 
 The core layer (`src/core/`) is TrustLedger's framework-agnostic foundation: a
 small set of reusable modules that the app, API routes, and feature code build
-on. It is documented in [`src/core/README.md`](../src/core/README.md); this page
-covers usage and integration guidance.
+on. It is documented in
+[`src/core/README.md`](https://github.com/kevinle3212/TrustLedger/blob/main/src/core/README.md);
+this page covers usage and integration guidance.
 
 ## Importing
 

@@ -15,7 +15,7 @@ import {
 ```
 
 `@/core` resolves to [`index.ts`](./index.ts), which re-exports the canonical
-surface in [`core.ts`](./core.ts). See [`docs/core.md`](../../docs/core.md) for
+surface in [`core.ts`](./core.ts). See [`docs/CORE.md`](../../docs/CORE.md) for
 usage guidance and examples.
 
 ## Module map

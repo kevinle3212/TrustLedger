@@ -41,7 +41,6 @@ languages:
 - json
 - cpp
 - html
-- matlab
 - scss
 - solidity
 

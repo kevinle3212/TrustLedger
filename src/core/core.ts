@@ -3,7 +3,7 @@
  *
  * Re-exports every core module so consumers can `import { logger, analytics,
  * isEnabled, can, TTLCache } from "@/core"`. See `core/README.md` for the module
- * map and `docs/core.md` for usage guidance.
+ * map and `docs/CORE.md` for usage guidance.
  *
  * Modules: configuration, error handling, logging, telemetry, events, feature
  * flags, permissions, validation, caching, analytics, shared utilities, and the

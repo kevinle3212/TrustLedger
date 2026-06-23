@@ -46,6 +46,7 @@ arbitration, reputation, notifications, and production-grade Next.js tooling.
 - [Authentication Architecture](#authentication-architecture)
 - [Database Architecture](#database-architecture)
 - [API Architecture](#api-architecture)
+- [Frontend Pages](#frontend-pages)
 - [Smart Contract Architecture](#smart-contract-architecture)
 - [Oracle Architecture](#oracle-architecture)
 - [Deployment](#deployment)
@@ -425,6 +426,34 @@ wallet authorization, and migration strategy before adoption.
 | `GET /api/cron/deadline-reminders` | Scan deadlines and send reminders.               | Bearer secret      |
 | `GET /api/oracle/rates`            | Fetch supported display exchange rate.           | Public             |
 | `GET /api/oracle/status`           | Report oracle provider, TTL, pairs, cache state. | Public             |
+
+## Frontend Pages
+
+The canonical production base URL is `https://trustledger-zeta.vercel.app`. All
+user-facing routes are locale-prefixed (e.g., `/en/dashboard`).
+
+| Page              | Production URL                                                                    | Access |
+| ----------------- | --------------------------------------------------------------------------------- | ------ |
+| Home              | [/en](https://trustledger-zeta.vercel.app/en)                                     | Public |
+| About             | [/en/about](https://trustledger-zeta.vercel.app/en/about)                         | Public |
+| Analytics         | [/en/analytics](https://trustledger-zeta.vercel.app/en/analytics)                 | Public |
+| Arbitration       | [/en/arbitration/\[id\]](https://trustledger-zeta.vercel.app/en/arbitration)      | Wallet |
+| Client Accept     | [/en/client/accept](https://trustledger-zeta.vercel.app/en/client/accept)         | Token  |
+| Create Contract   | [/en/create](https://trustledger-zeta.vercel.app/en/create)                       | Wallet |
+| Dashboard         | [/en/dashboard](https://trustledger-zeta.vercel.app/en/dashboard)                 | Wallet |
+| FAQ               | [/en/faq](https://trustledger-zeta.vercel.app/en/faq)                             | Public |
+| Freelancer Review | [/en/freelancer/review](https://trustledger-zeta.vercel.app/en/freelancer/review) | Token  |
+| Juror Dashboard   | [/en/juror](https://trustledger-zeta.vercel.app/en/juror)                         | Wallet |
+| Legal Index       | [/en/legal](https://trustledger-zeta.vercel.app/en/legal)                         | Public |
+| Legal Document    | [/en/legal/\[slug\]](https://trustledger-zeta.vercel.app/en/legal/terms)          | Public |
+| Reputation        | [/en/reputation](https://trustledger-zeta.vercel.app/en/reputation)               | Public |
+| Status            | [/en/status](https://trustledger-zeta.vercel.app/en/status)                       | Public |
+| Account           | [/en/account](https://trustledger-zeta.vercel.app/en/account)                     | Wallet |
+| Admin             | [/en/admin](https://trustledger-zeta.vercel.app/en/admin)                         | Admin  |
+| Admin Sign-In     | [/en/admin/sign-in](https://trustledger-zeta.vercel.app/en/admin/sign-in)         | Public |
+
+Read [Frontend](docs/FRONTEND.md) for per-page details, route auth, and
+deployment notes.
 
 ## Smart Contract Architecture
 

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useVisibleTimestamp } from "@/hooks/useVisibleTimestamp";
-import { copyToClipboard } from "@/security/clipboard";
+import { copyToClipboard } from "@/security";
 import type { CreateState, ContractTermsFormat } from "../_lib/types";
 import { convertContractTerms, DEFAULT_CONTRACT_TERMS } from "../_lib/contractTerms";
 import {

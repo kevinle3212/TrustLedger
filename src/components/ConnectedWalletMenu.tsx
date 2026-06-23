@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { formatAddress } from "@/lib/utils";
-import { copyToClipboard } from "@/security/clipboard";
+import { copyToClipboard } from "@/security";
 
 /** Clipboard "copy" glyph. */
 function CopyIcon(): React.JSX.Element {

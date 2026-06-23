@@ -354,14 +354,14 @@ test/IaC pass before they can be completed and verified.
 
 - [ ] Provision infrastructure-as-code under `infra/<tool>/`.
     - **Prerequisites:** a chosen cloud target and validated credentials before
-      anything is committed (per `docs/infra.md` "Not yet provisioned").
+      anything is committed (per `docs/INFRA.md` "Not yet provisioned").
       Terraform needs provider credentials and a backend; Ansible needs
       inventory and SSH access; alerting/metrics need a backend (e.g.
       Prometheus/Alertmanager).
     - **Scope:** Terraform modules (networking, cluster, DNS, secrets manager),
       Ansible playbooks for VM-based admin-API hosts, alerting rules, a metrics
       backend, and automated backup/restore jobs, each with a matching section
-      in `docs/infra.md` and a runbook.
+      in `docs/INFRA.md` and a runbook.
     - **Verify:** `terraform validate` and `ansible-lint` run clean in CI before
       merge.
 

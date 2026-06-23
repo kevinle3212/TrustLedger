@@ -45,7 +45,7 @@ The charts are reusable, client-only wrappers in `src/components/charts/`
 (`TrendLineChart`, `BreakdownDonut`) built on `recharts`. Each takes its
 accessible name via an `ariaLabel` prop (localized strings stay in the page) and
 is loaded with `next/dynamic` (`ssr: false`) so Recharts is excluded from the
-initial bundle. See [`core.md`](core.md) for the shared core layer the analytics
+initial bundle. See [`CORE.md`](CORE.md) for the shared core layer the analytics
 event client (`@/core` → `analytics.track`) is built on.
 
 The page reads:

@@ -77,6 +77,7 @@ nav:
     - Contributing: CONTRIBUTING.md
     - Frontend: FRONTEND.md
     - Analytics And Native Kernels: ANALYTICS.md
+    - Core Layer: CORE.md
     - Oracle: ORACLE.md
     - Solana: SOLANA.md
     - Utilities: UTILITIES.md
@@ -87,6 +88,7 @@ nav:
     - FAQ: FAQ.md
     - Docker: DOCKER.md
     - Kubernetes: KUBERNETES.md
+    - Infrastructure: INFRA.md
     - GitHub Models: GITHUB_MODELS.md
     - Contract Reference: CONTRACTS.md
     - Reports:

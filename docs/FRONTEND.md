@@ -14,6 +14,7 @@
 
 - [Stack](#stack)
 - [Commands](#commands)
+- [Available Pages](#available-pages)
 - [Wallet Configuration](#wallet-configuration)
 - [Contract Addresses](#contract-addresses)
 - [Files And Storage](#files-and-storage)
@@ -81,6 +82,46 @@ Run frontend commands from `src/`.
 | Install Playwright browser | `npm run install:playwright` |
 | Run E2E tests              | `npm run test:e2e`           |
 | Run React Doctor           | `npm run doctor`             |
+
+## Available Pages
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+All user-facing routes are locale-prefixed. The canonical production base is
+`https://trustledger-zeta.vercel.app`. English links use the `/en` prefix.
+
+| Page              | Production URL                                                                    | Access | Description                                                                                               |
+| ----------------- | --------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------- |
+| Home              | [/en](https://trustledger-zeta.vercel.app/en)                                     | Public | Landing page with contract phase walkthrough, value proposition, and chain-mode preview toggle.           |
+| About             | [/en/about](https://trustledger-zeta.vercel.app/en/about)                         | Public | Project background, contributors, and live age timer counting up from launch.                             |
+| Analytics         | [/en/analytics](https://trustledger-zeta.vercel.app/en/analytics)                 | Public | Privacy-respecting event dashboard powered by the `/api/analytics/events` collector.                      |
+| Arbitration       | [/en/arbitration/\[id\]](https://trustledger-zeta.vercel.app/en/arbitration)      | Wallet | Per-dispute juror panel: commit-reveal voting, evidence submission, appeals, and reward claims.           |
+| Client Accept     | [/en/client/accept](https://trustledger-zeta.vercel.app/en/client/accept)         | Token  | Magic-link page for clients to review and fund a proposed contract.                                       |
+| Create Contract   | [/en/create](https://trustledger-zeta.vercel.app/en/create)                       | Wallet | Contract creation wizard with encrypted live draft collaboration and IPFS attachment support.             |
+| Dashboard         | [/en/dashboard](https://trustledger-zeta.vercel.app/en/dashboard)                 | Wallet | Contract management hub: active, submitted, disputed, and resolved contracts for clients and freelancers. |
+| FAQ               | [/en/faq](https://trustledger-zeta.vercel.app/en/faq)                             | Public | Product FAQ and wallet/transaction recovery guide.                                                        |
+| Freelancer Review | [/en/freelancer/review](https://trustledger-zeta.vercel.app/en/freelancer/review) | Token  | Magic-link page for freelancers to review a client-proposed contract before accepting.                    |
+| Juror Dashboard   | [/en/juror](https://trustledger-zeta.vercel.app/en/juror)                         | Wallet | Juror staking, eligibility status, and open-dispute list.                                                 |
+| Legal Index       | [/en/legal](https://trustledger-zeta.vercel.app/en/legal)                         | Public | Index of all legal documents (terms, privacy policy, cookie policy, etc.).                                |
+| Legal Document    | [/en/legal/\[slug\]](https://trustledger-zeta.vercel.app/en/legal/terms)          | Public | Individual localized legal document (e.g., `/en/legal/terms`, `/en/legal/privacy`).                       |
+| Reputation        | [/en/reputation](https://trustledger-zeta.vercel.app/en/reputation)               | Public | Wallet reputation lookup, rating history, and recovery-mode status.                                       |
+| Status            | [/en/status](https://trustledger-zeta.vercel.app/en/status)                       | Public | GitHub analytics, deployment health, and project activity metrics.                                        |
+| Account           | [/en/account](https://trustledger-zeta.vercel.app/en/account)                     | Wallet | Connected wallet session overview and notification settings.                                              |
+| Admin             | [/en/admin](https://trustledger-zeta.vercel.app/en/admin)                         | Admin  | Read-only admin dashboard (requires magic-link session).                                                  |
+| Admin Sign-In     | [/en/admin/sign-in](https://trustledger-zeta.vercel.app/en/admin/sign-in)         | Public | Magic-link sign-in entry point for the admin dashboard.                                                   |
+
+**Access key:**
+
+- **Public** — no wallet or auth required.
+- **Wallet** — connected wallet required; wallet-check gating is enforced
+  client-side.
+- **Token** — HMAC magic-link token required (delivered via email).
+- **Admin** — active admin magic-link session required; server-side redirect
+  enforced.
 
 ## Wallet Configuration
 

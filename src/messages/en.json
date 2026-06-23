@@ -395,7 +395,7 @@
 		"livePreview": "Live preview",
 		"previewTitle": "Draft Contract Terms",
 		"previewSubtitle": "This preview updates as you edit. Nothing is deployed until you review and confirm.",
-		"previewNotSet": "Not set",
+		"previewNotSet": "Not Set",
 		"counterparty": "Counterparty",
 		"recipientRole": "Recipient role",
 		"isClient": "Client",

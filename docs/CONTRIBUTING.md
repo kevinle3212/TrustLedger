@@ -90,9 +90,9 @@ web_dashboard_open_on_launch: false
 ```
 
 Open the dashboard manually at
-[http://localhost:24282/dashboard/index.html](http://localhost:24282/dashboard/index.html).
-If that port is already in use, Serena may choose the next available port, such
-as `24283` or `24284`.
+[http://localhost:24282/dashboard/](http://localhost:24282/dashboard/). If that
+port is already in use, Serena may choose the next available port, such as
+`24283` or `24284`.
 
 ## Development Workflow
 

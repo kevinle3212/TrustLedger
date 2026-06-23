@@ -45,7 +45,8 @@
 		"**/PRIVACY_POLICY.md",
 		"**/RISK_DISCLOSURE.md",
 		"**/TERMS_AND_CONDITIONS.md",
-		"**/TRADEMARK_POLICY.md"
+		"**/TRADEMARK_POLICY.md",
+		"**/security/CHECKLIST.md"
 	],
 	"eslint.useFlatConfig": true,
 	"css.lint.unknownAtRules": "ignore",
