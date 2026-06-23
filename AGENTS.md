@@ -55,6 +55,29 @@ commands with `rtk` when available.
   instead of duplicating long instructions, unless the target agent does not
   support reference-style guidance.
 
+## Quality Standards (Mandatory)
+
+`docs/QUALITY-STANDARDS.md` is the canonical documentation, quality,
+performance, accessibility, and deployment specification. All agents must
+enforce it and validate compliance before completing tasks or approving changes.
+Non-negotiables:
+
+- React Doctor must stay at 100/100. No PR, merge, release, deployment, or
+  production promotion may proceed below 100/100. Treat failures, warnings,
+  regressions, and recommendations as high priority.
+- Block deployments and merges when React Doctor, type-check, lint, tests,
+  build, accessibility, performance, or security checks fail.
+- Remove unused code, dead files, stale imports, obsolete assets, duplicate
+  logic, and unreachable code introduced or exposed by your change.
+- Add TSDoc to new functions, classes, types, hooks, services, controllers, and
+  public APIs; document API routes, smart-contract surfaces, and keep docs in
+  sync within the same PR.
+- Maintain the `controllers/` directory for business-logic separation and the
+  `CREDITS.md` acknowledgements file.
+
+See `docs/QUALITY-STANDARDS.md` for the full eleven-point specification and
+verification checklist.
+
 ## Code Hygiene (Mandatory)
 
 These rules are mandatory when refactoring, migrating, or moving/renaming files:

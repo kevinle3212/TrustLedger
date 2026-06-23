@@ -11,3 +11,7 @@
 
 Cursor should route frontend, backend, contract, security, docs, and testing
 context based on the modified path globs in `.cursor/rules/`.
+
+All edits must comply with `docs/QUALITY-STANDARDS.md`: React Doctor stays at
+100/100, and merges and deployments are blocked when React Doctor, type-check,
+lint, tests, build, accessibility, performance, or security checks fail.

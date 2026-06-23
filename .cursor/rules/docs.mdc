@@ -11,4 +11,7 @@ Keep docs accurate, concise, and command-copyable. Use
 `src/.agents/skills/update-context/SKILL.md` after repository changes. Update
 README, environment, testing, CI, security, website, agent guidance, and roadmap
 docs whenever behavior, architecture, tools, security posture, or workflows
-change. Do not mark roadmap items complete without objective evidence.
+change. Do not mark roadmap items complete without objective evidence. Follow the
+documentation standards in `docs/QUALITY-STANDARDS.md`: TSDoc on new code
+elements, full API-route and smart-contract documentation, and docs kept in sync
+within the same PR.
