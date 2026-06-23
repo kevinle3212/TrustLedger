@@ -88,4 +88,15 @@ describe("ConnectButton", () => {
 
 		expect(screen.getByRole("button", { name: "Copy wallet address" })).toBeInTheDocument();
 	});
+
+	it("renders the menu in a body portal with fixed positioning so navbar overflow cannot clip it", () => {
+		render(<ConnectButton compact />);
+
+		const menu = screen.getByRole("menu", { name: "Wallet Menu" });
+
+		// createPortal mounts the menu as a direct child of document.body, escaping
+		// the navbar's overflow-x-auto scroll container.
+		expect(menu.parentElement).toBe(document.body);
+		expect(menu.style.position).toBe("fixed");
+	});
 });

@@ -55,6 +55,26 @@ commands with `rtk` when available.
   instead of duplicating long instructions, unless the target agent does not
   support reference-style guidance.
 
+## Code Hygiene (Mandatory)
+
+These rules are mandatory when refactoring, migrating, or moving/renaming files:
+
+- Remove unused code that your change makes dead — functions, variables,
+  components, types, and branches that are no longer reachable.
+- Remove dead imports and unreachable code introduced or exposed by the change.
+- Remove obsolete files after a migration, and remove unused dependencies once
+  their last consumer is gone (verify with `npm run lint:knip`).
+- Do not leave duplicate implementations. Prefer consolidation over
+  fragmentation: extract one shared implementation rather than copy-pasting.
+- Fix every lint, type, and build warning your change produces before opening a
+  PR — do not defer them.
+- Validate all moved/renamed files: update imports, path aliases, CI/CD config,
+  tests, and docs so nothing references the old location.
+- Keep documentation synchronized with code changes in the same PR.
+
+Scope discipline still applies: do not delete pre-existing dead code unrelated
+to your change — surface it instead (see `CLAUDE.md` §3).
+
 ## Routing
 
 - Frontend work: `src/app`, `src/components`, `src/contexts`, `src/lib`, and

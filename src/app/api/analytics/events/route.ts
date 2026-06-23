@@ -1,3 +1,4 @@
+import { logger, normalizeError } from "@/core";
 import { isAuthorizedHealthRequest } from "@/services/healthAuth";
 import {
 	recordAnalyticsEvent,
@@ -25,7 +26,8 @@ export async function POST(request: Request): Promise<NextResponse> {
 	let body: unknown;
 	try {
 		body = await request.json();
-	} catch {
+	} catch (error: unknown) {
+		logger.warn("analytics:invalid-json", { message: normalizeError(error).message });
 		return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
 	}
 

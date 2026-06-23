@@ -37,9 +37,16 @@ wallet-specific metrics without scraping sensitive wallet or browser data.
 
 The wallet analytics page lives at `/[locale]/analytics`. Connected users can
 open it from the wallet address hover menu in the navigation bar or from the
-footer Guide. The page shows a public-state badge, a compact contract-state line
-chart, and locale diagnostics as a readable language name plus code such as
-`English (en)`.
+footer Guide. The page shows a public-state badge, interactive Recharts visuals
+(a contract-state trend line and a client/freelancer role-mix donut), and locale
+diagnostics as a readable language name plus code such as `English (en)`.
+
+The charts are reusable, client-only wrappers in `src/components/charts/`
+(`TrendLineChart`, `BreakdownDonut`) built on `recharts`. Each takes its
+accessible name via an `ariaLabel` prop (localized strings stay in the page) and
+is loaded with `next/dynamic` (`ssr: false`) so Recharts is excluded from the
+initial bundle. See [`core.md`](core.md) for the shared core layer the analytics
+event client (`@/core` → `analytics.track`) is built on.
 
 The page reads:
 
