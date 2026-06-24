@@ -62,7 +62,7 @@ jobs:
                       input: "Vercel build failed because a public contract address was missing. No transactions were submitted."
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             # Tolerate transient GitHub Models rate limits (HTTP 429). A 429 is
             # an infrastructure/quota issue, not a prompt regression, so it must
@@ -105,7 +105,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 5
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - name: Run gh models eval
               continue-on-error: true
@@ -127,7 +127,7 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 5
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - uses: actions/setup-python@v6
               with:
@@ -145,7 +145,7 @@ jobs:
         name: Error handling (invalid model)
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - uses: actions/setup-python@v6
               with:
@@ -180,7 +180,7 @@ jobs:
         runs-on: ubuntu-latest
         if: github.event_name == 'workflow_dispatch'
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
 
             - uses: actions/setup-python@v6
               with:
