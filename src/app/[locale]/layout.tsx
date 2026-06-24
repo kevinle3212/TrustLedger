@@ -4,7 +4,7 @@
  * next-intl messages available to Client Components via NextIntlClientProvider.
  */
 import dynamic from "next/dynamic";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -23,10 +23,25 @@ const ReactScanMonitor =
 			})
 		: null;
 
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+};
+
 export const metadata: Metadata = {
 	title: "TrustLedger - Decentralized Freelance Escrow",
 	description:
 		"Create trustless freelance contracts on Ethereum Sepolia. Funds held in escrow, released on approval or arbitration.",
+	icons: {
+		// Explicit icon list so Safari picks up the project favicon rather than
+		// the Vercel deployment default. Apple touch icon uses logo.png (public/)
+		// because Safari requires PNG for apple-touch-icon — SVG is not accepted.
+		icon: [
+			{ url: "/favicon.ico", sizes: "any" },
+			{ url: "/icon.svg", type: "image/svg+xml" },
+		],
+		apple: { url: "/logo.png" },
+	},
 };
 
 /** Generate static params for all supported locales. */

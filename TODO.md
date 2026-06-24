@@ -167,6 +167,20 @@ mainnet launch deliverables.
       grammar, punctuation, capitalization, or syntax errors in every sentence,
       heading, and code block comment across all documentation files.
 
+- [ ] Upgrade `src/` to ESLint 10 once the Next.js lint stack supports it. The
+      frontend is pinned to ESLint 9 because the plugins pulled in transitively
+      by `eslint-config-next@16.2.9` do not yet support ESLint 10:
+    - `eslint-plugin-react@7.37.5` — peer caps at `^9.7` and still calls the
+      removed `context.getFilename()` (the hard crash on the
+      `react/display-name` rule under ESLint 10).
+    - `eslint-plugin-jsx-a11y@6.10.2` — `eslint` peer `^9`, no `^10`.
+    - `eslint-plugin-import@2.32.0` — `eslint` peer `^9`, no `^10`.
+    - When those ship ESLint 10 support, bump `src/` to ESLint 10, remove the
+      engine guard at the top of `src/eslint.config.mjs`, and drop the
+      `--no-config-lookup -c eslint.config.mjs` hardening on the root
+      `lint:ts`/`lint:js`/`lint:config`/`fix:ts` scripts so a bare
+      `npx eslint src/...` from the repo root no longer needs guarding.
+
 ## Phase 8 — Privacy (Post-Launch)
 
 - [ ] Investigate privacy improvements using zero-knowledge proofs and/or a
@@ -361,14 +375,6 @@ test/IaC pass before they can be completed and verified.
     - **Verify:** charts render with accessible names in unit tests; no secret
       is exposed to the client (`NEXT_PUBLIC_*` audit); `npm run quality` green.
 
-- [ ] Finish the app-wide dropdown / context / action menu audit implementation.
-    - **Scope:** apply the consolidated `ConnectedWalletMenu` portal pattern to
-      remaining surfaces — the mobile navigation menu and row-level action menus
-      (dashboard, contracts, disputes) — so menus never clip and behave
-      consistently.
-    - **Verify:** React Doctor score does not regress; portal/overflow
-      regression tests pass.
-
 - [ ] Provision infrastructure-as-code under `infra/<tool>/`.
     - **Prerequisites:** a chosen cloud target and validated credentials before
       anything is committed (per `docs/INFRA.md` "Not yet provisioned").
@@ -382,15 +388,79 @@ test/IaC pass before they can be completed and verified.
     - **Verify:** `terraform validate` and `ansible-lint` run clean in CI before
       merge.
 
-- [ ] Build out the full automated test matrix.
+## Future Infrastructure: Full Local Chain (Anvil) E2E
+
+Deferred follow-up to the automated test matrix. The connected-wallet E2E suite
+currently uses a deterministic mock wagmi connector
+(`NEXT_PUBLIC_E2E_MOCK_WALLET=1`) that reports a connected account without a
+real chain, so contract reads stay disabled (zero-address). The next step is a
+full local chain so staking, escrow, and dispute flows can be exercised
+on-chain.
+
+- **Purpose:** full on-chain staking lifecycle testing (deposit, register,
+  unstake, reward math, dispute/settlement) against a real EVM node rather than
+  the UI-only mock connector.
+- **Components:**
+    - [ ] Anvil local node: start a Foundry Anvil instance with deterministic
+          accounts and a fixed mnemonic/chain ID for reproducible runs.
+    - [ ] CI contract deployment step: compile and deploy the escrow,
+          arbitration, juror-registry, and staking contracts to the Anvil node,
+          then export the addresses into the frontend build env
+          (`NEXT_PUBLIC_*_ADDRESS`) for an Anvil-targeted E2E build.
+    - [ ] Funded deterministic account test harness: a fixture that wires the
+          mock/injected connector to an Anvil private key, funds it, and exposes
+          helpers for balance/allowance assertions.
+    - [ ] Full on-chain staking lifecycle E2E: Playwright specs (new `@onchain`
+          tag) that stake at/above the minimum, register as a juror, read back
+          on-chain state, and unstake, asserting real contract reads.
+- **Note:** deferred due to infrastructure complexity and flakiness risk (node
+  startup, deploy timing, nonce/funding races). Keep it out of the required CI
+  gates until it runs deterministically; gate it behind a separate opt-in job so
+  a flaky chain never blocks unrelated PRs.
+
+## Completed
+
+- [x] Build out the full automated test matrix.
     - **Scope:** end-to-end (Playwright), accessibility (axe), performance
       (Lighthouse CI), and security (extended Semgrep/dependency) suites
       covering the analytics, staking, and wallet-menu flows.
-    - **Prerequisites:** Playwright browsers installed in CI; Lighthouse CI
-      budget config; any preview-deploy URL/token the E2E suite targets.
-    - **Verify:** all suites green in CI and wired into the quality pipeline.
+    - Completed 2026-06-24: added Playwright E2E specs for the analytics gate,
+      juror staking validation (min-stake reject/accept), and the connected
+      wallet menu (open, copy address, navigate), plus an env-gated mock wagmi
+      connector (`NEXT_PUBLIC_E2E_MOCK_WALLET=1` in `src/lib/wagmi.ts` and
+      `src/components/Providers.tsx`) so the connected flows run without a real
+      chain. Disconnected and accessibility specs run via `npm run test:e2e`;
+      the connected suite is tagged `@wallet` and runs via
+      `npm run test:e2e:wallet` against its own mock-wallet build.
+    - Added `axe` accessibility coverage for `/en/analytics` and `/en/juror` in
+      the canonical `accessibility.spec.ts` route sweep, and Lighthouse CI
+      performance budgets (`src/.lighthouserc.json`, error-level assertions for
+      performance/accessibility/best-practices/SEO).
+    - Wired three new CI jobs into `.github/workflows/ci.yml`: `lighthouse`
+      (LHCI autorun), `e2e-wallet` (mock-wallet build + connected suite), and
+      Playwright browser install on the existing frontend job. Tightened
+      `.github/workflows/security.yml` to blocking (removed all
+      `continue-on-error`), expanded Semgrep with curated rule packs
+      (OWASP/secrets/JS/TS/React/Next.js), and scoped OSV-Scanner to owned
+      lockfiles with `osv-scanner.toml` ignoring three documented dev-only
+      transitive advisories.
+    - Verified locally: Slither clean (medium+), connected E2E 6/6, disconnected
+      and accessibility E2E green, LHCI error-level assertions pass, root and
+      frontend `npm audit` (high) clean, Semgrep 0 findings, OSV 0 after config,
+      `tsc --noEmit` clean. Full on-chain staking lifecycle E2E is tracked
+      separately under "Future Infrastructure: Full Local Chain (Anvil) E2E".
 
-## Completed
+- [x] Finish the app-wide dropdown / context / action menu audit implementation.
+    - Completed 2026-06-24: extracted the `ConnectedWalletMenu` portal/position/
+      outside-click/escape/hover logic into the shared `usePortalMenu` hook and
+      refactored `ConnectedWalletMenu` onto it. Added `MobileNavMenu` (hamburger
+      disclosure, `role="menu"`) wired into `Navbar` below the `lg` breakpoint,
+      with the desktop nav and mobile menu sharing `NAV_LINKS` from
+      `components/nav-links.ts`. Added the disclosure-pattern `RowActionMenu`
+      (kebab trigger, renders nothing when no actions apply) and applied it to
+      dashboard contract cards and arbitration dispute actions. Added the four
+      i18n keys across all 8 locales and portal/overflow regression tests. React
+      Doctor stays 100/100; tsc, lint, and tests green for the changed surfaces.
 
 - [x] Update all packages to their latest versions, upgrade Hardhat to 3.x, and
       confirm that all tests and code still work, so the project benefits from

@@ -90,6 +90,11 @@ src/playwright/.cache/
 src/playwright/.auth/
 src/.playwright-cli/
 
+# ─── Lighthouse CI ────────────────────────────────────────────────────────────
+# Transient LHCI run output (reports, manifest). Never a source of failures.
+.lighthouseci/
+src/.lighthouseci/
+
 # ─── Logs ─────────────────────────────────────────────────────────────────────
 *.log
 logs/

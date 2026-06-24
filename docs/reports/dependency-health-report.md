@@ -157,7 +157,7 @@ these categories:
 - **Kellen Snider** — Founding Engineer
   ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
 
-See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.
+See [`CREDITS.md`](../CREDITS.md) for the complete acknowledgement list.
 
 ## Legal
 
@@ -171,5 +171,5 @@ This document is part of TrustLedger, an open-source decentralized escrow and
 arbitration protocol. Use of this software and documentation is subject to the
 [Terms and Conditions](../TERMS_AND_CONDITIONS.md),
 [Privacy Policy](../PRIVACY_POLICY.md), and
-[Risk Disclosure](../RISK_DISCLOSURE.md). See [`LEGAL.md`](LEGAL.md) for the
+[Risk Disclosure](../RISK_DISCLOSURE.md). See [`LEGAL.md`](../LEGAL.md) for the
 full compliance and licensing overview.

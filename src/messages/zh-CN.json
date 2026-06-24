@@ -12,7 +12,9 @@
 		"viewGitHub": "在 GitHub 上查看代码",
 		"changeLanguage": "切换语言",
 		"skipToMain": "跳转到主要内容",
-		"faq": "常见问题"
+		"faq": "常见问题",
+		"openMenu": "打开菜单",
+		"closeMenu": "关闭菜单"
 	},
 	"FooterHelp": {
 		"buttonLabel": "指南",
@@ -251,7 +253,8 @@
 		"walkthroughFinish": "完成指引",
 		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
 		"exampleAmount": "0.75 ETH",
-		"loadingContracts": "正在加载合约"
+		"loadingContracts": "正在加载合约",
+		"contractActions": "合同操作"
 	},
 	"Create": {
 		"connectWallet": "连接您的钱包以提议合同。",
@@ -560,7 +563,8 @@
 		"evidenceSubmittedCount": "已提交 {count} 项",
 		"noEvidence": "尚未提交任何证据。",
 		"requestsCompletion": "请求完成 {percent}%",
-		"saltPlaceholder": "0x…"
+		"saltPlaceholder": "0x…",
+		"disputeActions": "争议操作"
 	},
 	"Client": {
 		"contractTitle": "合同 #{id}",

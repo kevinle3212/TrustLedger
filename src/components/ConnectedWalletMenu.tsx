@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { formatAddress } from "@/lib/utils";
 import { copyToClipboard } from "@/security";
+import { usePortalMenu } from "@/hooks/usePortalMenu";
 
 /** Clipboard "copy" glyph. */
 function CopyIcon(): React.JSX.Element {
@@ -45,21 +46,6 @@ function CheckIcon(): React.JSX.Element {
 		</svg>
 	);
 }
-
-// Hydration-safe "are we on the client yet?" flag - mirrors the pattern used by
-// the wallet button. The portal can only target document.body on the client.
-const subscribeNoop = (): (() => void) => (): void => undefined;
-function useMounted(): boolean {
-	return useSyncExternalStore(
-		subscribeNoop,
-		() => true,
-		() => false,
-	);
-}
-
-/** Delay before a hover-out closes the menu, so the pointer can cross the gap
- * between the trigger and the portaled menu without it snapping shut. */
-const HOVER_CLOSE_DELAY_MS = 150;
 
 interface MenuLink {
 	href: string;
@@ -102,17 +88,19 @@ export function ConnectedWalletMenu({
 	onManageWallet: () => void;
 }): React.JSX.Element {
 	const t = useTranslations("Common");
-	const mounted = useMounted();
+	const {
+		mounted,
+		open: walletMenuOpen,
+		triggerRef,
+		menuRef,
+		menuStyle,
+		openMenu: openWalletMenu,
+		closeMenu: closeWalletMenu,
+		toggle: toggleWalletMenu,
+		scheduleClose,
+	} = usePortalMenu<HTMLDivElement, HTMLDivElement>();
 	const [copied, setCopied] = useState(false);
-	const [walletMenuOpen, setWalletMenuOpen] = useState(false);
-	const [menuPosition, setMenuPosition] = useState<{ top: number; right: number }>({
-		top: 0,
-		right: 0,
-	});
-	const triggerRef = useRef<HTMLDivElement>(null);
-	const menuRef = useRef<HTMLDivElement>(null);
 	const copyFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const clearCopyFeedbackTimer = useCallback((): void => {
 		if (copyFeedbackTimerRef.current !== null) {
@@ -121,94 +109,9 @@ export function ConnectedWalletMenu({
 		}
 	}, []);
 
-	const clearCloseTimer = useCallback((): void => {
-		if (closeTimerRef.current !== null) {
-			clearTimeout(closeTimerRef.current);
-			closeTimerRef.current = null;
-		}
-	}, []);
-
-	// Tear down both timers on unmount so a pending close/copy callback never
+	// Tear down the copy-feedback timer on unmount so a pending callback never
 	// fires against an unmounted component.
-	useEffect(() => {
-		return (): void => {
-			clearCopyFeedbackTimer();
-			clearCloseTimer();
-		};
-	}, [clearCopyFeedbackTimer, clearCloseTimer]);
-
-	const updatePosition = useCallback((): void => {
-		const trigger = triggerRef.current;
-		if (trigger === null) return;
-		const rect = trigger.getBoundingClientRect();
-		setMenuPosition({ top: rect.bottom, right: Math.max(window.innerWidth - rect.right, 0) });
-	}, []);
-
-	// Hold the latest reposition handler in a ref so the scroll/resize listeners
-	// subscribe once per open (not on every render) while still running current logic.
-	const updatePositionRef = useRef(updatePosition);
-	useEffect(() => {
-		updatePositionRef.current = updatePosition;
-	}, [updatePosition]);
-
-	const openWalletMenu = useCallback((): void => {
-		clearCloseTimer();
-		updatePosition();
-		setWalletMenuOpen(true);
-	}, [clearCloseTimer, updatePosition]);
-
-	const scheduleClose = useCallback((): void => {
-		clearCloseTimer();
-		closeTimerRef.current = setTimeout(() => {
-			setWalletMenuOpen(false);
-			closeTimerRef.current = null;
-		}, HOVER_CLOSE_DELAY_MS);
-	}, [clearCloseTimer]);
-
-	const closeWalletMenu = useCallback((): void => {
-		clearCloseTimer();
-		setWalletMenuOpen(false);
-	}, [clearCloseTimer]);
-
-	// Keep the menu anchored to the trigger while it is open and the page moves.
-	useEffect(() => {
-		if (!walletMenuOpen) return;
-		const reposition = (): void => {
-			updatePositionRef.current();
-		};
-		reposition();
-		window.addEventListener("scroll", reposition, true);
-		window.addEventListener("resize", reposition);
-		return (): void => {
-			window.removeEventListener("scroll", reposition, true);
-			window.removeEventListener("resize", reposition);
-		};
-	}, [walletMenuOpen]);
-
-	// Close on outside click / Escape. The menu lives in a portal, so "inside"
-	// means either the trigger or the menu subtree.
-	useEffect(() => {
-		function closeOnOutsideClick(event: MouseEvent): void {
-			const target = event.target;
-			if (!(target instanceof Node)) return;
-			if (triggerRef.current?.contains(target) === true) return;
-			if (menuRef.current?.contains(target) === true) return;
-			closeWalletMenu();
-		}
-
-		function closeOnEscape(event: KeyboardEvent): void {
-			if (event.key === "Escape") {
-				closeWalletMenu();
-			}
-		}
-
-		document.addEventListener("mousedown", closeOnOutsideClick);
-		document.addEventListener("keydown", closeOnEscape);
-		return (): void => {
-			document.removeEventListener("mousedown", closeOnOutsideClick);
-			document.removeEventListener("keydown", closeOnEscape);
-		};
-	}, [closeWalletMenu]);
+	useEffect(() => clearCopyFeedbackTimer, [clearCopyFeedbackTimer]);
 
 	function copyAddress(): void {
 		// copyToClipboard is best-effort and never throws/rejects (safe on insecure
@@ -239,7 +142,7 @@ export function ConnectedWalletMenu({
 			role="menu"
 			tabIndex={-1}
 			aria-label={t("walletMenu")}
-			style={{ position: "fixed", top: menuPosition.top, right: menuPosition.right }}
+			style={menuStyle}
 			onPointerEnter={openWalletMenu}
 			onMouseEnter={openWalletMenu}
 			onPointerLeave={scheduleClose}
@@ -288,13 +191,7 @@ export function ConnectedWalletMenu({
 			<div className="grid max-w-full grid-cols-[minmax(0,1fr)_2.5rem] items-stretch overflow-hidden rounded-lg bg-indigo-600 text-white sm:inline-grid sm:grid-cols-[minmax(0,1fr)_2.75rem]">
 				<button
 					type="button"
-					onClick={() => {
-						if (walletMenuOpen) {
-							closeWalletMenu();
-						} else {
-							openWalletMenu();
-						}
-					}}
+					onClick={toggleWalletMenu}
 					aria-haspopup="menu"
 					aria-expanded={walletMenuOpen}
 					aria-label={t("connectedAs", { address })}

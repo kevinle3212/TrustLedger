@@ -1,0 +1,24 @@
+# OSV-Scanner configuration (see .github/workflows/security.yml).
+#
+# The CI OSV job is blocking: any unignored advisory fails the build. The
+# entries below are development-only, transitive advisories that are never
+# shipped in a runtime or production bundle, and all sit below the `high`
+# severity threshold the rest of the pipeline gates on (`npm audit
+# --audit-level=high`). They are ignored with a review date rather than forced
+# through risky major upgrades of transitive dev tooling (e.g. js-yaml 3 -> 4).
+# Revisit on the review date: drop any entry whose dependency has been upgraded.
+
+[[IgnoredVulns]]
+id = "GHSA-h67p-54hq-rp68"
+ignoreUntil = 2026-09-24
+reason = "Dev-only transitive js-yaml; medium severity, not shipped. Review for upgrade to >=4.2.0."
+
+[[IgnoredVulns]]
+id = "GHSA-4x5r-pxfx-6jf8"
+ignoreUntil = 2026-09-24
+reason = "Dev-only transitive @babel/core; low severity, build-time only. Review for upgrade to >=7.29.6."
+
+[[IgnoredVulns]]
+id = "GHSA-8988-4f7v-96qf"
+ignoreUntil = 2026-09-24
+reason = "Dev-only transitive @opentelemetry/core; medium severity, not shipped. Review for upgrade to >=2.8.0."

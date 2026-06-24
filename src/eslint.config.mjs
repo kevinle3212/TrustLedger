@@ -1,9 +1,62 @@
 // eslint.config.mjs - ESLint 9 flat config, type-aware, maximum strictness for Next.js/React
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { dirname, join } from "node:path";
+
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettierConfig from "eslint-config-prettier";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+
+// Engine guard: this frontend config targets ESLint 9. eslint-plugin-react
+// (pulled in via eslint-config-next) still calls the removed
+// `context.getFilename()`, so an ESLint 10+ engine crashes with a cryptic
+// "Error while loading rule 'react/display-name'". That happens on a bare
+// `npx eslint src/...` from the repo root, whose contracts toolchain resolves
+// ESLint 10 and then loads this file. Detect the running engine's major
+// version (walk up from its CLI entry to the owning package.json) and fail
+// fast with the fix. Fail open when the version cannot be determined so
+// editor/API integrations are never blocked.
+const runningEslintMajor = (() => {
+	const cli = process.argv[1] ?? "";
+	// argv[1] is usually the `.bin/eslint` symlink; resolve it to the real
+	// bin path so the walk-up reaches the owning eslint package.
+	let resolvedCli = cli;
+	try {
+		resolvedCli = realpathSync(cli);
+	} catch {
+		// Not a real path (e.g. API embedding) — fall back to argv as-is.
+	}
+	let dir = dirname(resolvedCli);
+	for (let depth = 0; depth < 6; depth += 1) {
+		const manifest = join(dir, "package.json");
+		if (existsSync(manifest)) {
+			try {
+				const pkg = JSON.parse(readFileSync(manifest, "utf8"));
+				if (pkg.name === "eslint") {
+					return Number.parseInt(pkg.version, 10);
+				}
+			} catch {
+				// Unreadable manifest — keep walking up.
+			}
+		}
+		const parent = dirname(dir);
+		if (parent === dir) {
+			break;
+		}
+		dir = parent;
+	}
+	return null;
+})();
+
+if (runningEslintMajor !== null && runningEslintMajor >= 10) {
+	throw new Error(
+		`Frontend ESLint config requires ESLint 9 but was loaded by ESLint ${runningEslintMajor}. ` +
+			"A bare `npx eslint` from the repo root uses the contracts ESLint 10, which crashes " +
+			"on eslint-plugin-react. Run `npm run lint:frontend` from the repo root, or " +
+			"`npm run lint:frontend:ts` from src/.",
+	);
+}
 
 export default [
 	{
