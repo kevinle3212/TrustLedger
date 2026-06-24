@@ -277,7 +277,7 @@ export const E2E_MOCK_ADDRESS: `0x${string}` = "0x70997970C51812dc3A010C7d01b50e
  * `NEXT_PUBLIC_E2E_MOCK_WALLET=1`. Used by Playwright connected-flow specs so a
  * fake account is available without a real wallet. Never set in production.
  */
-export const isE2eMockWallet = process.env["NEXT_PUBLIC_E2E_MOCK_WALLET"] === "1";
+export const isE2eMockWallet = process.env.NEXT_PUBLIC_E2E_MOCK_WALLET === "1";
 
 /**
  * Builds a standalone wagmi config backed by wagmi's `mock` connector. Bypasses
