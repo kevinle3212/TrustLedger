@@ -1,5 +1,57 @@
 # TrustLedger — Terms and Conditions
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [1. Definitions](#1-definitions)
+- [2. Eligibility and Account Creation](#2-eligibility-and-account-creation)
+- [3. User Accounts and Credentials](#3-user-accounts-and-credentials)
+- [4. Acceptable Use Policy](#4-acceptable-use-policy)
+- [5. Intellectual Property](#5-intellectual-property)
+- [6. Relationship Between Apache-2.0 and These Terms](#6-relationship-between-apache-20-and-these-terms)
+- [7. User Content and Submissions](#7-user-content-and-submissions)
+- [8. Feedback and Enhancement Requests](#8-feedback-and-enhancement-requests)
+- [9. Blockchain, Smart Contracts, and Cryptocurrency](#9-blockchain-smart-contracts-and-cryptocurrency)
+- [10. Escrow and Contract Workflow](#10-escrow-and-contract-workflow)
+- [11. Arbitration and Dispute Resolution Features](#11-arbitration-and-dispute-resolution-features)
+- [12. Reputation System](#12-reputation-system)
+- [13. Marketplace and Collaboration Disclaimers](#13-marketplace-and-collaboration-disclaimers)
+- [14. Financial Platform Protections](#14-financial-platform-protections)
+- [15. No Fiduciary Relationship](#15-no-fiduciary-relationship)
+- [16. Anti-Fraud, Anti-Scam, and Due Diligence Obligations](#16-anti-fraud-anti-scam-and-due-diligence-obligations)
+- [17. Decision-Making Disclaimer and User Responsibility](#17-decision-making-disclaimer-and-user-responsibility)
+- [18. AI, Automation, and Generated Outputs](#18-ai-automation-and-generated-outputs)
+- [19. Storage Systems, IPFS, and File Handling](#19-storage-systems-ipfs-and-file-handling)
+- [20. Oracle and Price-Feed Services](#20-oracle-and-price-feed-services)
+- [21. Authentication, Magic Links, and Email Services](#21-authentication-magic-links-and-email-services)
+- [22. Privacy and Data Handling](#22-privacy-and-data-handling)
+- [23. Security](#23-security)
+- [24. Third-Party Services and Integrations](#24-third-party-services-and-integrations)
+- [25. No Professional Advice](#25-no-professional-advice)
+- [26. Future Features and Platform Evolution](#26-future-features-and-platform-evolution)
+- [27. Disclaimers of Warranties](#27-disclaimers-of-warranties)
+- [28. Limitation of Liability](#28-limitation-of-liability)
+- [29. Indemnification](#29-indemnification)
+- [30. Suspension and Termination](#30-suspension-and-termination)
+- [31. Modifications to the Services and These Terms](#31-modifications-to-the-services-and-these-terms)
+- [32. DMCA and Copyright Complaints](#32-dmca-and-copyright-complaints)
+- [33. Governing Law, Venue, and Dispute Resolution](#33-governing-law-venue-and-dispute-resolution)
+- [34. General Provisions](#34-general-provisions)
+- [35. Contact Information](#35-contact-information)
+- [36. Version History](#36-version-history)
+- [Authors and Contributors](#authors-and-contributors)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -23,48 +75,15 @@
 
 ---
 
-## Table of Contents
-
-1. [Definitions](#1-definitions)
-2. [Eligibility and Account Creation](#2-eligibility-and-account-creation)
-3. [User Accounts and Credentials](#3-user-accounts-and-credentials)
-4. [Acceptable Use Policy](#4-acceptable-use-policy)
-5. [Intellectual Property](#5-intellectual-property)
-6. [Relationship Between Apache-2.0 and These Terms](#6-relationship-between-apache-20-and-these-terms)
-7. [User Content and Submissions](#7-user-content-and-submissions)
-8. [Feedback and Enhancement Requests](#8-feedback-and-enhancement-requests)
-9. [Blockchain, Smart Contracts, and Cryptocurrency](#9-blockchain-smart-contracts-and-cryptocurrency)
-10. [Escrow and Contract Workflow](#10-escrow-and-contract-workflow)
-11. [Arbitration and Dispute Resolution Features](#11-arbitration-and-dispute-resolution-features)
-12. [Reputation System](#12-reputation-system)
-13. [Marketplace and Collaboration Disclaimers](#13-marketplace-and-collaboration-disclaimers)
-14. [Financial Platform Protections](#14-financial-platform-protections)
-15. [No Fiduciary Relationship](#15-no-fiduciary-relationship)
-16. [Anti-Fraud, Anti-Scam, and Due Diligence Obligations](#16-anti-fraud-anti-scam-and-due-diligence-obligations)
-17. [Decision-Making Disclaimer and User Responsibility](#17-decision-making-disclaimer-and-user-responsibility)
-18. [AI, Automation, and Generated Outputs](#18-ai-automation-and-generated-outputs)
-19. [Storage Systems, IPFS, and File Handling](#19-storage-systems-ipfs-and-file-handling)
-20. [Oracle and Price-Feed Services](#20-oracle-and-price-feed-services)
-21. [Authentication, Magic Links, and Email Services](#21-authentication-magic-links-and-email-services)
-22. [Privacy and Data Handling](#22-privacy-and-data-handling)
-23. [Security](#23-security)
-24. [Third-Party Services and Integrations](#24-third-party-services-and-integrations)
-25. [No Professional Advice](#25-no-professional-advice)
-26. [Future Features and Platform Evolution](#26-future-features-and-platform-evolution)
-27. [Disclaimers of Warranties](#27-disclaimers-of-warranties)
-28. [Limitation of Liability](#28-limitation-of-liability)
-29. [Indemnification](#29-indemnification)
-30. [Suspension and Termination](#30-suspension-and-termination)
-31. [Modifications to the Services and These Terms](#31-modifications-to-the-services-and-these-terms)
-32. [DMCA and Copyright Complaints](#32-dmca-and-copyright-complaints)
-33. [Governing Law, Venue, and Dispute Resolution](#33-governing-law-venue-and-dispute-resolution)
-34. [General Provisions](#34-general-provisions)
-35. [Contact Information](#35-contact-information)
-36. [Version History](#36-version-history)
-
 ---
 
 ## 1. Definitions
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 For the purposes of these Terms and Conditions ("**Terms**"), the following
 definitions apply. Defined terms may be used in the singular or the plural.
@@ -209,6 +228,12 @@ Services.
 
 ## 2. Eligibility and Account Creation
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **2.1 Minimum Age.** You must be at least eighteen (18) years of age, or the age
 of legal majority in Your jurisdiction, whichever is greater, to access or use
 the Services. By accessing or using the Services, You represent and warrant that
@@ -270,6 +295,12 @@ to You in Your jurisdiction.
 ---
 
 ## 3. User Accounts and Credentials
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **3.1 Wallet Ownership and Security.** You are solely and exclusively
 responsible for maintaining the confidentiality and security of Your Wallet's
@@ -339,6 +370,12 @@ Operator may purge inactive session data at its discretion without notice.
 ---
 
 ## 4. Acceptable Use Policy
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **4.1 Permitted Use.** Subject to Your compliance with these Terms, the Operator
 grants You a limited, non-exclusive, non-transferable, revocable right to access
@@ -496,6 +533,12 @@ activity. Users are solely responsible for their own compliance.
 
 ## 5. Intellectual Property
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **5.1 Platform Ownership.** The TrustLedger Platform, including the Frontend
 Application, Smart Contracts, documentation, design systems, visual identity,
 Marks, brand assets, user interface elements, marketing materials, trade
@@ -586,6 +629,12 @@ patent license granted to You under the Apache License.
 ---
 
 ## 6. Relationship Between Apache-2.0 and These Terms
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **6.1 Dual Governance Framework.** The TrustLedger repository is made available
 under two overlapping governance frameworks that serve distinct, complementary
@@ -684,6 +733,12 @@ Both frameworks apply concurrently to a developer who uses both.
 
 ## 7. User Content and Submissions
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **7.1 Ownership of User Content.** As between You and the Operator, You retain
 ownership of User Content that You submit to the Services, subject to the
 license grant in Section 7.2 and the limitations described in this Section.
@@ -744,6 +799,12 @@ any such dispute.
 
 ## 8. Feedback and Enhancement Requests
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **8.1 Voluntary Feedback.** If You provide Feedback to the Operator, You grant
 the Operator a perpetual, irrevocable, worldwide, royalty-free, fully paid-up,
 sublicensable, and transferable license to use, reproduce, modify, adapt,
@@ -768,6 +829,12 @@ information that is subject to third-party confidentiality obligations.
 ---
 
 ## 9. Blockchain, Smart Contracts, and Cryptocurrency
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **9.1 Inherent Blockchain Risks.** You acknowledge that blockchain technology,
 smart contracts, and cryptocurrency transactions involve significant,
@@ -882,6 +949,12 @@ deployments may be reset, paused, or discontinued at any time.
 
 ## 10. Escrow and Contract Workflow
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **10.1 Technology Provider Only.** The Platform provides technology tools that
 enable Users to create, negotiate, fund, and manage escrow arrangements between
 themselves. The Operator is solely a technology provider and is not a party to
@@ -954,6 +1027,12 @@ understanding, is legally valid, or has not been falsified.
 
 ## 11. Arbitration and Dispute Resolution Features
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **11.1 Platform Arbitration System — Technology Only.** The Platform includes a
 smart contract-based dispute resolution system that uses selected jurors to
 adjudicate escrow disputes based on submitted evidence and commit-reveal voting.
@@ -1012,6 +1091,12 @@ of the Arbitration Smart Contract.
 
 ## 12. Reputation System
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **12.1 Ratings Are Immutable.** The ReputationRegistry Contract stores numeric
 ratings submitted by escrow parties upon conclusion of a contract. Ratings are
 permanently and immutably recorded on-chain once submitted. The Operator cannot
@@ -1044,6 +1129,12 @@ high-value or high-risk transaction.
 ---
 
 ## 13. Marketplace and Collaboration Disclaimers
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **13.1 Technology Provider Status.** TrustLedger is solely and exclusively a
 technology provider. The Operator is not a freelance marketplace, labor agency,
@@ -1091,6 +1182,12 @@ Your own due diligence.
 ---
 
 ## 14. Financial Platform Protections
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **14.1 Not a Financial Institution.** The Operator is not a bank, credit union,
 savings institution, broker-dealer, investment adviser, registered investment
@@ -1158,6 +1255,12 @@ behalf of Users.
 
 ## 15. No Fiduciary Relationship
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **15.1 No Fiduciary Duty.** The relationship between You and the Operator is
 that of independent parties bound only by these Terms. Nothing in these Terms,
 the Platform, or any communication between You and the Operator creates,
@@ -1201,6 +1304,12 @@ any third party.
 ---
 
 ## 16. Anti-Fraud, Anti-Scam, and Due Diligence Obligations
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **16.1 Fraud Risk Acknowledgment.** You acknowledge that internet-connected
 platforms, including the TrustLedger Platform, may attract bad actors, scammers,
@@ -1287,6 +1396,12 @@ independently verify that information through sources other than the Platform.
 
 ## 17. Decision-Making Disclaimer and User Responsibility
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **17.1 User Decisions Are User Responsibility.** All decisions made in
 connection with, through, or in reliance upon the Platform are Your sole and
 exclusive responsibility. The Platform provides technology, tools,
@@ -1358,6 +1473,12 @@ interactions do not guarantee future reliability, honesty, or performance.
 
 ## 18. AI, Automation, and Generated Outputs
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **18.1 AI Outputs May Be Inaccurate.** Where the Services incorporate or
 integrate artificial intelligence, large language models, machine learning
 systems, or other automated content generation tools, any AI Output produced by
@@ -1410,6 +1531,12 @@ Limitation of Liability in Section 28.
 
 ## 19. Storage Systems, IPFS, and File Handling
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **19.1 IPFS Storage.** The Platform may use IPFS, including via Pinata or
 similar pinning services, to store evidence URIs, contract document references,
 and proof-of-work metadata. IPFS is a decentralized protocol operated
@@ -1453,6 +1580,12 @@ violate these Terms.
 
 ## 20. Oracle and Price-Feed Services
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **20.1 Display Purposes Only.** Exchange rate data and other market data
 provided by the Platform's oracle features is for informational and display
 purposes only. Such data may be delayed, inaccurate, stale, incomplete, or
@@ -1477,6 +1610,12 @@ incorrect price feeds.
 ---
 
 ## 21. Authentication, Magic Links, and Email Services
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **21.1 Magic Link Authentication.** The Platform may offer email-based magic
 link authentication. Magic links are temporary, single-use, and expire within a
@@ -1511,6 +1650,12 @@ responsible for any loss resulting from session expiration.
 ---
 
 ## 22. Privacy and Data Handling
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **22.1 Data Collection.** The Platform may collect certain information in
 connection with Your use of the Services, including wallet addresses, email
@@ -1565,6 +1710,12 @@ connection with the Services and is incorporated by reference into these Terms.
 
 ## 23. Security
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **23.1 Unaudited Contracts.** As expressly noted in the Platform's technical
 documentation, **THE SMART CONTRACTS ASSOCIATED WITH THE PLATFORM HAVE NOT, AS
 OF THE EFFECTIVE DATE, BEEN SUBJECT TO AN INDEPENDENT THIRD-PARTY SECURITY
@@ -1615,6 +1766,12 @@ modified contracts deployed by third parties.
 
 ## 24. Third-Party Services and Integrations
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **24.1 Third-Party Services.** The Platform integrates with or depends upon
 third-party services, including without limitation: Alchemy, Infura, and other
 blockchain node providers; Reown AppKit, wagmi, viem, and wallet-connection
@@ -1657,6 +1814,12 @@ caused by such changes.
 
 ## 25. No Professional Advice
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **25.1 Not Legal Advice.** Nothing in the Services, the Smart Contracts, the
 Frontend Application, the documentation, or any communication from the Operator
 constitutes legal advice. The Platform is a technology tool, not a law firm. You
@@ -1698,6 +1861,12 @@ on such information.
 ---
 
 ## 26. Future Features and Platform Evolution
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **26.1 Broad Application of These Terms.** These Terms are drafted to cover not
 only the current functionality of the Platform but also all future features,
@@ -1750,6 +1919,12 @@ supplemented by applicable pricing and payment terms.
 ---
 
 ## 27. Disclaimers of Warranties
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **27.1 "AS IS" and "AS AVAILABLE."** THE PLATFORM AND ALL SERVICES ARE PROVIDED
 STRICTLY "AS IS," "AS AVAILABLE," AND "WITH ALL FAULTS," WITHOUT WARRANTY OF ANY
@@ -1841,6 +2016,12 @@ Platform for any particular use.
 ---
 
 ## 28. Limitation of Liability
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **28.1 Exclusion of Damages.** TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE
 LAW, IN NO EVENT SHALL ANY RELEASED PARTY BE LIABLE TO YOU OR ANY THIRD PARTY
@@ -2009,6 +2190,12 @@ members, and shall be subject to the cap in Section 28.2.
 
 ## 29. Indemnification
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **29.1 Indemnification Obligation.** You agree, to the fullest extent permitted
 by applicable law, to defend, indemnify, and hold harmless each of the Released
 Parties from and against any and all claims, demands, actions, proceedings,
@@ -2084,6 +2271,12 @@ limit the scope of Your indemnification obligations.
 
 ## 30. Suspension and Termination
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **30.1 Operator's Rights.** The Operator reserves the right, in its sole and
 absolute discretion, at any time and for any reason or no reason, with or
 without prior notice, to:
@@ -2143,6 +2336,12 @@ Resolution), and 34 (General Provisions).
 
 ## 31. Modifications to the Services and These Terms
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **31.1 Service Modifications.** The Operator reserves the right, at any time and
 in its sole discretion, to: (a) modify, update, add, remove, or deprecate any
 feature, function, API, integration, network support, or component of the
@@ -2169,6 +2368,12 @@ without liability to any User.
 ---
 
 ## 32. DMCA and Copyright Complaints
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **32.1 DMCA Notice.** The Operator responds to valid notices of alleged
 copyright infringement in accordance with the Digital Millennium Copyright Act
@@ -2220,6 +2425,12 @@ misrepresentations.
 ---
 
 ## 33. Governing Law, Venue, and Dispute Resolution
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **33.1 Governing Law.** These Terms and any dispute arising out of or relating
 to these Terms, the Services, or the Platform shall be governed by and construed
@@ -2353,6 +2564,12 @@ these Terms in all other respects.
 
 ## 34. General Provisions
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **34.1 Entire Agreement.** These Terms, together with the Apache License (as
 applicable to the Licensed Code), the Privacy Policy, the Acceptable Use Policy,
 the Risk Disclosure, the Disclaimer, and any supplemental terms specifically
@@ -2458,6 +2675,12 @@ necessary to comply, and all other provisions remain in full force.
 
 ## 35. Contact Information
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 For questions about these Terms, to report potential violations, to submit DMCA
 notices, to report security vulnerabilities, or for other inquiries:
 
@@ -2473,6 +2696,12 @@ Risk Disclosure: See `RISK_DISCLOSURE.md`.
 ---
 
 ## 36. Version History
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 | Version | Date         | Notes                                                           |
 | ------- | ------------ | --------------------------------------------------------------- |
@@ -2501,6 +2730,12 @@ understood, and agree to be legally bound by these Terms and Conditions in their
 entirety, and that You are entering into a legally binding agreement._
 
 ## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
   ([LinkedIn](https://www.linkedin.com/in/lekevin1))
