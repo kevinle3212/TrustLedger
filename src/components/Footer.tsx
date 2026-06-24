@@ -61,6 +61,26 @@ function AboutFooterIcon(): React.JSX.Element {
 	);
 }
 
+function StatsFooterIcon(): React.JSX.Element {
+	return (
+		<svg
+			aria-hidden="true"
+			viewBox="0 0 20 20"
+			className="size-4"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.7"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<path d="M3 17h14" />
+			<path d="M6 17V9" />
+			<path d="M10 17V4" />
+			<path d="M14 17v-5" />
+		</svg>
+	);
+}
+
 /** Site-wide footer with navigation links, legal notices, and social icons. */
 export function Footer(): React.JSX.Element {
 	const t = useTranslations("Footer");
@@ -115,6 +135,14 @@ export function Footer(): React.JSX.Element {
 					>
 						<AboutFooterIcon />
 						<span>{t("about")}</span>
+					</Link>
+					<Link
+						href="/stats"
+						className="tl-button-motion inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white sm:w-auto"
+						aria-label={t("openStats")}
+					>
+						<StatsFooterIcon />
+						<span>{t("stats")}</span>
 					</Link>
 					<FooterHelp />
 					<LocaleSwitcher />

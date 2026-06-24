@@ -1,0 +1,84 @@
+{
+	"generatedAt": "2026-06-24T23:34:31.622Z",
+	"totals": {
+		"files": 765,
+		"directories": 267,
+		"lines": 123360,
+		"bytes": 12378782,
+		"languages": 12
+	},
+	"languages": [
+		{
+			"name": "TypeScript",
+			"files": 253,
+			"lines": 33929,
+			"share": 27.5
+		},
+		{
+			"name": "Solidity",
+			"files": 73,
+			"lines": 33545,
+			"share": 27.2
+		},
+		{
+			"name": "Markdown",
+			"files": 193,
+			"lines": 32608,
+			"share": 26.4
+		},
+		{
+			"name": "JSON",
+			"files": 49,
+			"lines": 11536,
+			"share": 9.4
+		},
+		{
+			"name": "YAML",
+			"files": 38,
+			"lines": 2712,
+			"share": 2.2
+		},
+		{
+			"name": "JavaScript",
+			"files": 24,
+			"lines": 2496,
+			"share": 2
+		},
+		{
+			"name": "Python",
+			"files": 6,
+			"lines": 2002,
+			"share": 1.6
+		},
+		{
+			"name": "Shell",
+			"files": 8,
+			"lines": 1499,
+			"share": 1.2
+		},
+		{
+			"name": "CSS",
+			"files": 4,
+			"lines": 1444,
+			"share": 1.2
+		},
+		{
+			"name": "Rust",
+			"files": 5,
+			"lines": 649,
+			"share": 0.5
+		},
+		{
+			"name": "HTML",
+			"files": 2,
+			"lines": 506,
+			"share": 0.4
+		},
+		{
+			"name": "TOML",
+			"files": 13,
+			"lines": 434,
+			"share": 0.4
+		}
+	]
+}

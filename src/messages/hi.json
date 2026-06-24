@@ -417,7 +417,9 @@
 		"connectEvmWalletHint": "ETH या USDC एस्क्रो सबमिट करने से पहले हेडर वॉलेट बटन का उपयोग करें।",
 		"acceptanceWindowDateTime": "स्वीकृति अवधि की तारीख और समय",
 		"daysButton": "{days} दिन",
-		"emailPlaceholder": "client@example.com"
+		"emailPlaceholder": "client@example.com",
+		"holdbackDetailNone": "कोई वारंटी आरक्षित राशि नहीं",
+		"holdbackDetailPercent": "वारंटी अवधि के दौरान {percent}% रोका गया"
 	},
 	"Juror": {
 		"connectWallet": "अपनी जूरर नामांकन प्रबंधित करने के लिए वॉलेट कनेक्ट करें।",
@@ -773,7 +775,9 @@
 		"about": "परिचय",
 		"openFaq": "अक्सर पूछे जाने वाले प्रश्न खोलें",
 		"openLegal": "कानूनी केंद्र खोलें",
-		"openAbout": "परियोजना परिचय पृष्ठ खोलें"
+		"openAbout": "परियोजना परिचय पृष्ठ खोलें",
+		"stats": "आँकड़े",
+		"openStats": "परियोजना आँकड़े खोलें"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -948,7 +952,13 @@
 		"autoLogoutTitle": "Auto-Logout Timeout",
 		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
 		"autoLogoutLabel": "Disconnect after",
-		"autoLogoutNote": "Takes effect on the next wallet connection."
+		"autoLogoutNote": "Takes effect on the next wallet connection.",
+		"timeout1Min": "1 मिनट",
+		"timeout5Min": "5 मिनट",
+		"timeout10Min": "10 मिनट",
+		"timeout15Min": "15 मिनट",
+		"timeout30Min": "30 मिनट",
+		"timeout1Hr": "1 घंटा"
 	},
 	"Status": {
 		"metadata": {
@@ -1036,5 +1046,22 @@
 		"emailOrUsername": "Email or username",
 		"password": "पासवर्ड",
 		"openAdminDashboard": "एडमिन डैशबोर्ड खोलें"
+	},
+	"Stats": {
+		"eyebrow": "परियोजना का पैमाना",
+		"title": "कोडबेस आँकड़े",
+		"intro": "TrustLedger कोडबेस के पैमाने पर एक पारदर्शी नज़र: कोड की कुल पंक्तियाँ, फ़ाइलें, निर्देशिकाएँ और इसे बनाने वाली भाषाएँ। हर आँकड़ा git द्वारा ट्रैक की गई स्रोत फ़ाइलों से गणना किया जाता है और इसमें कोई निजी जानकारी नहीं होती।",
+		"statLines": "कोड की पंक्तियाँ",
+		"statFiles": "फ़ाइलें",
+		"statDirectories": "निर्देशिकाएँ",
+		"statLanguages": "भाषाएँ",
+		"statSize": "स्रोत आकार",
+		"viewAbout": "परियोजना के बारे में",
+		"generated": "{date} को बनाया गया",
+		"generatedNote": "हर प्रोडक्शन बिल्ड पर आँकड़े फिर से बनाए जाते हैं, इसलिए वे हमेशा नवीनतम स्रोत को दर्शाते हैं।",
+		"languagesTitle": "भाषा विवरण",
+		"languagesIntro": "ट्रैक किए गए पूरे कोडबेस में भाषा के अनुसार स्रोत पंक्तियों का हिस्सा।",
+		"languageMeta": "{lines} पंक्तियाँ · {files} फ़ाइलें · {share}%",
+		"viewWalletAnalytics": "वॉलेट एनालिटिक्स देखें"
 	}
 }

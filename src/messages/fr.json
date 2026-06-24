@@ -417,7 +417,9 @@
 		"connectEvmWalletHint": "Utilisez le bouton de portefeuille dans l’en-tête avant de soumettre un séquestre ETH ou USDC.",
 		"acceptanceWindowDateTime": "Date et heure de la fenêtre d’acceptation",
 		"daysButton": "{days} Jours",
-		"emailPlaceholder": "client@example.com"
+		"emailPlaceholder": "client@example.com",
+		"holdbackDetailNone": "Aucune réserve de garantie",
+		"holdbackDetailPercent": "{percent}% retenu pendant la garantie"
 	},
 	"Juror": {
 		"connectWallet": "Connectez votre portefeuille pour gérer votre inscription de juré.",
@@ -773,7 +775,9 @@
 		"about": "À Propos",
 		"openFaq": "Ouvrir la foire aux questions",
 		"openLegal": "Ouvrir le centre juridique",
-		"openAbout": "Ouvrir la page à propos du projet"
+		"openAbout": "Ouvrir la page à propos du projet",
+		"stats": "Statistiques",
+		"openStats": "Ouvrir les statistiques du projet"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -948,7 +952,13 @@
 		"autoLogoutTitle": "Auto-Logout Timeout",
 		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
 		"autoLogoutLabel": "Disconnect after",
-		"autoLogoutNote": "Takes effect on the next wallet connection."
+		"autoLogoutNote": "Takes effect on the next wallet connection.",
+		"timeout1Min": "1 min",
+		"timeout5Min": "5 min",
+		"timeout10Min": "10 min",
+		"timeout15Min": "15 min",
+		"timeout30Min": "30 min",
+		"timeout1Hr": "1 h"
 	},
 	"Status": {
 		"metadata": {
@@ -1036,5 +1046,22 @@
 		"emailOrUsername": "E-mail ou nom d’utilisateur",
 		"password": "Mot de passe",
 		"openAdminDashboard": "Ouvrir le tableau admin"
+	},
+	"Stats": {
+		"eyebrow": "Échelle Du Projet",
+		"title": "Statistiques Du Code",
+		"intro": "Un aperçu transparent de l'échelle du code de TrustLedger : nombre total de lignes de code, de fichiers, de répertoires et des langages qui le composent. Chaque chiffre est calculé à partir des fichiers source suivis par git et ne contient aucune information privée.",
+		"statLines": "Lignes De Code",
+		"statFiles": "Fichiers",
+		"statDirectories": "Répertoires",
+		"statLanguages": "Langages",
+		"statSize": "Taille Du Code",
+		"viewAbout": "À Propos Du Projet",
+		"generated": "Généré le {date}",
+		"generatedNote": "Les statistiques sont régénérées à chaque build de production, elles reflètent donc toujours le code le plus récent.",
+		"languagesTitle": "Répartition Par Langage",
+		"languagesIntro": "Part des lignes de code par langage dans l'ensemble du code suivi.",
+		"languageMeta": "{lines} lignes · {files} fichiers · {share}%",
+		"viewWalletAnalytics": "Voir les Analyses du Portefeuille"
 	}
 }
