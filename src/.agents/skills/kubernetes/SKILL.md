@@ -4,7 +4,6 @@ description:
     Use when adding, reviewing, deploying, debugging, or documenting TrustLedger
     Kubernetes manifests, secrets, probes, images, Kustomize output, or cluster
     rollout steps.
-version: "1.0.0"
 ---
 
 # Kubernetes

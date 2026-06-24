@@ -23,6 +23,8 @@
     - [Analytics and events](#analytics-and-events)
 - [Adding a module](#adding-a-module)
 - [Configuration reference](#configuration-reference)
+- [Authors and Contributors](#authors-and-contributors)
+- [Legal](#legal)
 
 <!-- docs-toc:end -->
 
@@ -212,3 +214,33 @@ Keep modules dependency-free and SSR-safe (no top-level browser globals).
 | `NEXT_PUBLIC_ANALYTICS_ENDPOINT` | Analytics POST endpoint (default `/api/analytics/events`) |
 | `NEXT_PUBLIC_ANALYTICS_DISABLED` | `true` disables `analytics.track`                         |
 | `NEXT_PUBLIC_FLAG_<NAME>`        | Per-flag override (`true`/`false`)                        |
+
+## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.
+
+## Legal
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+This document is part of TrustLedger, an open-source decentralized escrow and
+arbitration protocol. Use of this software and documentation is subject to the
+[Terms and Conditions](../TERMS_AND_CONDITIONS.md),
+[Privacy Policy](../PRIVACY_POLICY.md), and
+[Risk Disclosure](../RISK_DISCLOSURE.md). See [`LEGAL.md`](LEGAL.md) for the
+full compliance and licensing overview.

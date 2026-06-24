@@ -43,24 +43,28 @@ export class AppError extends Error {
 	}
 }
 
+/** Thrown when user-supplied input fails a validation check. Maps to HTTP 422. */
 export class ValidationError extends AppError {
 	public constructor(message: string, context?: Record<string, unknown>) {
 		super("VALIDATION", message, { context });
 	}
 }
 
+/** Thrown when a requested resource does not exist. Maps to HTTP 404. */
 export class NotFoundError extends AppError {
 	public constructor(message: string, context?: Record<string, unknown>) {
 		super("NOT_FOUND", message, { context });
 	}
 }
 
+/** Thrown when the caller lacks permission to perform an action. Maps to HTTP 403. */
 export class PermissionError extends AppError {
 	public constructor(message: string, context?: Record<string, unknown>) {
 		super("PERMISSION", message, { context });
 	}
 }
 
+/** Thrown when an outbound network request fails or times out. Maps to HTTP 502/503. */
 export class NetworkError extends AppError {
 	public constructor(
 		message: string,

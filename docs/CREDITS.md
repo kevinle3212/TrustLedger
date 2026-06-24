@@ -1,5 +1,52 @@
 # Credits
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [Authors and Contributors](#authors-and-contributors)
+- [Core Technologies](#core-technologies)
+- [Frontend Libraries](#frontend-libraries)
+    - [Wallet and Chain](#wallet-and-chain)
+    - [Data Fetching and State](#data-fetching-and-state)
+    - [UI and Visualisation](#ui-and-visualisation)
+    - [Internationalisation](#internationalisation)
+    - [Theming](#theming)
+    - [Email](#email)
+    - [Storage](#storage)
+- [Smart-Contract Libraries](#smart-contract-libraries)
+- [Rust and Solana Program](#rust-and-solana-program)
+- [Python Utilities and AI](#python-utilities-and-ai)
+    - [Contract PDF Generation (`utils/`)](#contract-pdf-generation-utils)
+    - [GitHub Models AI Integration (`scripts/models/`)](#github-models-ai-integration-scriptsmodels)
+    - [Analytics Generation (`scripts/analytics/`)](#analytics-generation-scriptsanalytics)
+    - [Type Checking](#type-checking)
+    - [Documentation Build](#documentation-build)
+- [Tooling and Quality](#tooling-and-quality)
+    - [Linting and Formatting](#linting-and-formatting)
+    - [Testing](#testing)
+    - [React Health](#react-health)
+    - [Smart-Contract Quality](#smart-contract-quality)
+    - [Security Scanning](#security-scanning)
+    - [Commit and Release Hygiene](#commit-and-release-hygiene)
+    - [Type Generation](#type-generation)
+    - [Dependency Management](#dependency-management)
+    - [Environment and Secrets](#environment-and-secrets)
+    - [Code Intelligence](#code-intelligence)
+- [DevOps and Infrastructure](#devops-and-infrastructure)
+- [License](#license)
+- [Legal](#legal)
+
+<!-- docs-toc:end -->
+
 TrustLedger is a full-stack decentralized escrow, arbitration, and reputation
 system. It was originally built on Ethereum and now supports Solana and USDC,
 with commit-reveal arbitration, Chainlink VRF juror selection, and on-chain
@@ -14,6 +61,12 @@ reputation on Sepolia.
 ---
 
 ## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
   ([LinkedIn](https://www.linkedin.com/in/lekevin1))
@@ -45,6 +98,12 @@ Automated dependency maintenance is handled by
 
 ## Core Technologies
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[Next.js](https://nextjs.org) 16** (App Router) — React meta-framework
   providing file-based routing, React Server Components, API route handlers,
   image optimisation, and the Vercel deployment integration. All pages use the
@@ -73,7 +132,19 @@ Automated dependency maintenance is handled by
 
 ## Frontend Libraries
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 ### Wallet and Chain
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[wagmi](https://wagmi.sh) v2** — React hooks for EVM wallet connection,
   contract reads/writes, and chain switching. The primary interface between the
@@ -91,11 +162,23 @@ Automated dependency maintenance is handled by
 
 ### Data Fetching and State
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[@tanstack/react-query](https://tanstack.com/query) v5** — server-state
   caching, background refetching, and optimistic updates. All on-chain data
   queries flow through React Query.
 
 ### UI and Visualisation
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[recharts](https://recharts.org) v3** — composable charting library built on
   D3. Used in the analytics dashboard. Code-split via Next.js `dynamic()` to
@@ -103,21 +186,45 @@ Automated dependency maintenance is handled by
 
 ### Internationalisation
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[next-intl](https://next-intl.dev) v4** — locale routing, message
   formatting, and server-component i18n for the App Router. All user-facing
   strings live in `messages/`.
 
 ### Theming
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[next-themes](https://github.com/pacocoursey/next-themes) v0.4** —
   flicker-free dark/light theme switching with system preference detection.
 
 ### Email
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[Resend](https://resend.com) v6** — transactional email API. Used by the
   magic-link and notification API routes.
 
 ### Storage
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[Arweave](https://www.arweave.org)** — permanent, decentralised document
   storage. Contract documents can optionally be archived to Arweave after
@@ -126,6 +233,12 @@ Automated dependency maintenance is handled by
 ---
 
 ## Smart-Contract Libraries
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[OpenZeppelin Contracts](https://openzeppelin.com/contracts) v5** —
   industry-standard audited base contracts. TrustLedger uses `Ownable`,
@@ -147,6 +260,12 @@ Automated dependency maintenance is handled by
 ---
 
 ## Rust and Solana Program
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 The Solana escrow program lives in `programs/solana-escrow/` and is compiled
 with `cargo build-sbf`. All unsafe code is forbidden at the crate level.
@@ -171,10 +290,22 @@ with `cargo build-sbf`. All unsafe code is forbidden at the crate level.
 
 ## Python Utilities and AI
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 Python is used for three purposes: contract PDF generation, GitHub Models AI
 integration, and analytics generation.
 
 ### Contract PDF Generation (`utils/`)
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[ReportLab](https://www.reportlab.com) 4.4.10** — PDF layout and rendering
   engine. Used by `utils/generate_contract.py` to produce `sample-contract.pdf`,
@@ -184,6 +315,12 @@ integration, and analytics generation.
   type stubs for ReportLab, enabling mypy and Pylance to resolve types.
 
 ### GitHub Models AI Integration (`scripts/models/`)
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[azure-ai-inference](https://pypi.org/project/azure-ai-inference/)** — Azure
   AI Inference SDK. Provides `ChatCompletionsClient` and message types for
@@ -195,6 +332,12 @@ integration, and analytics generation.
   the `github-models.yml` workflow.
 
 ### Analytics Generation (`scripts/analytics/`)
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[NumPy](https://numpy.org) 2.4** — numerical array operations.
 - **[pandas](https://pandas.pydata.org) 2.3** — tabular data manipulation and
@@ -210,11 +353,23 @@ integration, and analytics generation.
 
 ### Type Checking
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[mypy](https://mypy-lang.org)** — strict static type checker for all Python
   scripts (`utils/generate_contract.py`, `scripts/models/github_models.py`,
   `scripts/analytics/generate_wallet_analytics.py`). Run via `npm run lint:py`.
 
 ### Documentation Build
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[MkDocs](https://www.mkdocs.org) ≥1.6, <2** — static site generator that
   transforms `docs/*.md` into the GitHub Pages site at
@@ -227,7 +382,19 @@ integration, and analytics generation.
 
 ## Tooling and Quality
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 ### Linting and Formatting
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[ESLint](https://eslint.org) v9/v10** — JavaScript and TypeScript linting.
   The root workspace uses flat config (`eslint.config.mjs`) at v10; the frontend
@@ -252,6 +419,12 @@ integration, and analytics generation.
 
 ### Testing
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[Jest](https://jestjs.io) v30** with `jest-environment-jsdom` — unit test
   runner for the frontend. Run with `npm run test:unit`. Coverage report via
   `npm run test:coverage`.
@@ -271,6 +444,12 @@ integration, and analytics generation.
 
 ### React Health
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[React Doctor](https://www.npmjs.com/package/react-doctor) v0.5** — React
   codebase health analyser. Checks for anti-patterns, accessibility issues, and
   bundle quality. Score must stay at 100/100. Run with `npm run doctor`.
@@ -279,6 +458,12 @@ integration, and analytics generation.
   `NODE_ENV=development`.
 
 ### Smart-Contract Quality
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **Foundry `forge fmt`** — canonical Solidity formatter (configuration in
   `foundry.toml` `[fmt]` section). Run with `npm run lint:forge`.
@@ -292,6 +477,12 @@ integration, and analytics generation.
 
 ### Security Scanning
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[Semgrep](https://semgrep.dev)** — multi-language static analysis. Runs in
   CI via `.github/workflows/security.yml` on every PR. False positives require a
   `# nosemgrep: <rule-id>` comment with justification.
@@ -303,6 +494,12 @@ integration, and analytics generation.
 
 ### Commit and Release Hygiene
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[Husky](https://typicode.github.io/husky/) v9** — Git hooks manager. The
   pre-commit hook runs React Doctor `--staged` and the full lint suite. Never
   bypass with `--no-verify`.
@@ -312,17 +509,35 @@ integration, and analytics generation.
 
 ### Type Generation
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[TypeChain](https://github.com/dethcrypto/TypeChain)** (via
   `@nomicfoundation/hardhat-typechain`) — generates TypeScript typings from
   compiled Solidity ABI artefacts. Output lives in `typechain-types/`.
 
 ### Dependency Management
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[Dependabot](https://docs.github.com/en/code-security/dependabot)** —
   automated pull requests for npm and GitHub Actions dependency updates.
   Configuration in `.github/dependabot.yml`.
 
 ### Environment and Secrets
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[dotenv](https://github.com/motdotla/dotenv)** — loads `.env` into
   `process.env` for Hardhat scripts and tooling.
@@ -333,6 +548,12 @@ integration, and analytics generation.
 
 ### Code Intelligence
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 - **[@costline/nexus-graph](https://npmjs.com/package/@costline/nexus-graph)** —
   symbol-level dependency graph and MCP server for code navigation. Index with
   `npm run nexus:index`; serve with `npm run nexus:server`.
@@ -340,6 +561,12 @@ integration, and analytics generation.
 ---
 
 ## DevOps and Infrastructure
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **[Vercel](https://vercel.com)** — frontend hosting, preview deployments, and
   production promotion. The `src/` directory is the Vercel project root.
@@ -366,6 +593,27 @@ integration, and analytics generation.
 
 ## License
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 TrustLedger is released under the **Apache License 2.0**. See
 [`LICENSE`](LICENSE) for the full text. Third-party dependencies remain under
 their respective licenses.
+
+## Legal
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+This document is part of TrustLedger, an open-source decentralized escrow and
+arbitration protocol. Use of this software and documentation is subject to the
+[Terms and Conditions](../TERMS_AND_CONDITIONS.md),
+[Privacy Policy](../PRIVACY_POLICY.md), and
+[Risk Disclosure](../RISK_DISCLOSURE.md). See [`LEGAL.md`](LEGAL.md) for the
+full compliance and licensing overview.

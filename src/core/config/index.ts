@@ -43,6 +43,7 @@ export interface PublicConfig {
 	readonly analyticsEnabled: boolean;
 }
 
+/** Frozen public configuration derived from `NEXT_PUBLIC_*` environment variables. Safe to import in client components. */
 export const config: PublicConfig = Object.freeze({
 	appEnv: readAppEnv(),
 	isProduction: process.env.NODE_ENV === "production",

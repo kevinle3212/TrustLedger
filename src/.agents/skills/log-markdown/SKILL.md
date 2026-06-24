@@ -2,7 +2,6 @@
 name: log-markdown
 description:
     Format any file written under logs/ as markdownlint-compliant Markdown.
-version: "1.0.0"
 ---
 
 # Log Markdown

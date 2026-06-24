@@ -3,8 +3,10 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
 
+/** AI provider used to generate contract summaries, or `"disabled"` when the feature is off. */
 export type ContractSummaryProvider = "disabled" | "groq" | "gemini";
 
+/** Structured contract metadata passed to the AI summariser. */
 export interface ContractSummaryInput {
 	readonly contractId: string;
 	readonly contractHash: string;
@@ -21,6 +23,7 @@ export interface ContractSummaryInput {
 	readonly sourceMetadataVersion: string;
 }
 
+/** Result returned by the contract summary service, including the generated text and telemetry. */
 export interface ContractSummary {
 	readonly provider: ContractSummaryProvider;
 	readonly cacheKey: string;
@@ -31,6 +34,7 @@ export interface ContractSummary {
 	readonly costUsdEstimate: number;
 }
 
+/** Aggregated telemetry for the contract summary service (calls, cache hits, errors, latency, cost). */
 export interface ContractSummaryMetrics {
 	readonly calls: number;
 	readonly cacheHits: number;

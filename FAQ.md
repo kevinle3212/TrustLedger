@@ -41,3 +41,21 @@ Freelancer proposals are accepted and funded by the client with
 Start with [docs/Home.md](docs/Home.md). For AI helper scripts, read
 [scripts/models/README.md](scripts/models/README.md) and
 [docs/GITHUB_MODELS.md](docs/GITHUB_MODELS.md).
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.
+
+## Legal
+
+TrustLedger is an open-source decentralized escrow and arbitration protocol. Use
+of this software and documentation is subject to the project's
+[Terms and Conditions](TERMS_AND_CONDITIONS.md),
+[Privacy Policy](PRIVACY_POLICY.md), and [Risk Disclosure](RISK_DISCLOSURE.md).
+See [`docs/LEGAL.md`](docs/LEGAL.md) for the full compliance and licensing
+overview.

@@ -21,6 +21,7 @@ function ShieldIcon(): React.JSX.Element {
 	);
 }
 
+/** Fallback page shown to unauthenticated users on wallet-gated routes. Prompts connection. */
 export function WalletRequiredPage(): React.JSX.Element {
 	const t = useTranslations("Common");
 

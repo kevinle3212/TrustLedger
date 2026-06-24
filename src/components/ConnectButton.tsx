@@ -95,6 +95,7 @@ function ConnectButtonShell({
 	);
 }
 
+/** Wallet connect/disconnect button. Set `compact` for icon-only display in tight layouts. */
 export function ConnectButton({ compact = false }: { compact?: boolean } = {}): React.JSX.Element {
 	const [loadWalletUi, setLoadWalletUi] = useState(false);
 	const [loadingWalletUi, setLoadingWalletUi] = useState(false);

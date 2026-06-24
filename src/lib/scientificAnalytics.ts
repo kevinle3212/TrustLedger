@@ -7,6 +7,7 @@ interface ScientificAnalyticsArtifact {
 	readonly purpose: string;
 }
 
+/** Manifest describing scientific analytics outputs (metrics, libraries, and artifact paths) generated from wallet data. */
 export interface ScientificAnalyticsManifest {
 	readonly title: string;
 	readonly privacyBoundary: readonly string[];
@@ -42,6 +43,7 @@ const ARTIFACTS: readonly ScientificAnalyticsArtifact[] = [
 	},
 ];
 
+/** Builds the scientific analytics manifest from the bundled wallet-analytics report JSON and the static artifact list. */
 export function buildScientificAnalyticsManifest(): ScientificAnalyticsManifest {
 	return {
 		title: report.title,

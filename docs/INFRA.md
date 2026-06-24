@@ -20,6 +20,8 @@
 - [Monitoring, logging, and health](#monitoring-logging-and-health)
 - [Operational runbook](#operational-runbook)
 - [Not yet provisioned (follow-up)](#not-yet-provisioned-follow-up)
+- [Authors and Contributors](#authors-and-contributors)
+- [Legal](#legal)
 
 <!-- docs-toc:end -->
 
@@ -168,3 +170,33 @@ cloud target and validated against real credentials before use:
 
 Add these under `infra/<tool>/` with a matching section here and run the tool's
 own validator (`terraform validate`, `ansible-lint`) in CI before merging.
+
+## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.
+
+## Legal
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+This document is part of TrustLedger, an open-source decentralized escrow and
+arbitration protocol. Use of this software and documentation is subject to the
+[Terms and Conditions](../TERMS_AND_CONDITIONS.md),
+[Privacy Policy](../PRIVACY_POLICY.md), and
+[Risk Disclosure](../RISK_DISCLOSURE.md). See [`LEGAL.md`](LEGAL.md) for the
+full compliance and licensing overview.

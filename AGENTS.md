@@ -1,9 +1,21 @@
 # AGENTS.md
 
-> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
-> development. His vision, ideas, and dedication during the project's founding
-> were invaluable to the codebase we build on today. See
-> [`CREDITS.md`](./CREDITS.md).
+> **Kevin K. Le** ([LinkedIn](https://linkedin.com/in/lekevin1)) — Founder,
+> Founding Engineer, and Current Lead Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon.
+>
+> **Kellen Snider** — Founding Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon. His vision, ideas, and dedication
+> during TrustLedger's Ethereum development were invaluable to the codebase we
+> build on today.
+>
+> See [`CREDITS.md`](./CREDITS.md).
+
+Before beginning any task, read [`AGENT-CONTEXT.md`](./AGENT-CONTEXT.md) and
+locate the section matching your role (Principal and Staff Engineer, Solutions
+Architect, DevOps Engineer, Security Engineer, QA Lead, UX Engineer, or
+Technical Writer). That section lists the directories, commands, and invariants
+that govern your work. Violating any invariant there is a regression.
 
 TrustLedger agent guidance is intentionally layered to avoid contradictions.
 

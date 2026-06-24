@@ -3,6 +3,7 @@ import "server-only";
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { verifyTypedData } from "viem";
 
+/** Off-chain user profile stored in the TrustLedger accounts database and returned by `GET /api/accounts/profile`. */
 export interface AccountProfile {
 	readonly walletAddress: `0x${string}`;
 	readonly displayName: string;
@@ -14,6 +15,7 @@ export interface AccountProfile {
 	readonly updatedAt: string;
 }
 
+/** JWT session claims for an authenticated wallet account. */
 export interface AccountSession {
 	readonly walletAddress: `0x${string}`;
 	readonly issuedAt: number;

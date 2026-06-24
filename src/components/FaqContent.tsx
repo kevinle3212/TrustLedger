@@ -27,6 +27,7 @@ function FaqIcon(): React.JSX.Element {
 	);
 }
 
+/** Renders the FAQ accordion sections for the `/faq` page. */
 export function FaqContent(): React.JSX.Element {
 	const t = useTranslations("FAQ");
 	const items = FAQ_ITEM_KEYS.map(

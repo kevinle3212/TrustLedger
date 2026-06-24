@@ -1,6 +1,7 @@
 import { buildHealthReport } from "@/services/health";
 import { getOracleStatus } from "@/services/oracle";
 
+/** A single status row in an admin dashboard report section. */
 export interface AdminReportItem {
 	readonly label: string;
 	readonly status: "ok" | "warning" | "blocked";
@@ -19,6 +20,7 @@ interface AdminReportMetric {
 	readonly detail: string;
 }
 
+/** Full admin dashboard report returned by the `/api/admin/summary` endpoint. */
 export interface AdminDashboardReport {
 	readonly generatedAt: string;
 	readonly readOnly: boolean;

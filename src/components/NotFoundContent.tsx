@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
+/** 404 page body rendered by the `not-found.tsx` App Router segment. */
 export function NotFoundContent(): React.JSX.Element {
 	const t = useTranslations("NotFound");
 

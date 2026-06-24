@@ -12,6 +12,12 @@ interface Entry<V> {
 	expiresAt: number;
 }
 
+/**
+ * In-memory TTL cache with LRU eviction.
+ *
+ * Entries expire after `defaultTtlMs` milliseconds (or a per-`set` override).
+ * When `maxEntries` is reached the oldest entry is evicted before inserting the new one.
+ */
 export class TTLCache<V = unknown> implements CacheStore<V> {
 	private readonly store = new Map<string, Entry<V>>();
 

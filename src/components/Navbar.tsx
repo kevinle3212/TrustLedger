@@ -64,6 +64,7 @@ function RoleToggle(): React.JSX.Element {
 	);
 }
 
+/** Top navigation bar with TrustLedger branding, main links, locale switcher, and wallet connect button. */
 export function Navbar(): React.JSX.Element {
 	const path = usePathname();
 	const githubUrl = process.env.NEXT_PUBLIC_GITHUB_URL;

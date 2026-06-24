@@ -399,3 +399,12 @@ Classification Risk, including user's own regulatory obligations and
 cross-border risk), Section 13 (Cross-Chain Bridge Risk), and Section 14
 (Governance and Protocol Attack Risk). Summary and Related Documents renumbered
 accordingly._
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

@@ -61,6 +61,7 @@ function AboutFooterIcon(): React.JSX.Element {
 	);
 }
 
+/** Site-wide footer with navigation links, legal notices, and social icons. */
 export function Footer(): React.JSX.Element {
 	const t = useTranslations("Footer");
 

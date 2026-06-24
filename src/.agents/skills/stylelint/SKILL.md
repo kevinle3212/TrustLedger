@@ -3,7 +3,6 @@ name: stylelint
 description:
     Use when changing `src/app/**/*.css` or `src/app/**/*.scss`, Tailwind helper
     CSS, dark mode, animation utilities, or responsive SCSS.
-version: "1.0.0"
 ---
 
 # Stylelint

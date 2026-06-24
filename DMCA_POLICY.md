@@ -142,3 +142,12 @@ Subject line: "DMCA Notice" or "DMCA Counter-Notice"
 
 _This DMCA and Intellectual Property Policy was last reviewed and updated on
 June 9, 2026._
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

@@ -1,5 +1,5 @@
 site_name: TrustLedger
-site_description: A decentralized escrow and dispute resolution protocol for freelance and contract agreements, built on Ethereum.
+site_description: A decentralized escrow, arbitration, and reputation protocol for freelance agreements on EVM chains, with native Solana support in development.
 site_url: https://kevinle3212.github.io/TrustLedger
 site_author: TrustLedger
 repo_name: kevinle3212/TrustLedger
@@ -97,6 +97,9 @@ nav:
           - Dependency Health Report: reports/dependency-health-report.md
     - Miscellaneous: MISCELLANEOUS.md
     - Presentation: PRESENTATION.md
+    - Credits: CREDITS.md
+    - Agent and Task Context: AGENT-CONTEXT.md
+    - Quality Standards: QUALITY-STANDARDS.md
     - Demo: DEMO.md
 
 docs_dir: docs

@@ -264,3 +264,12 @@ following a comprehensive legal red-team audit. Changes include: addition of
 Section 17 (Statutory Rights Not Waived) with explicit carve-outs for Operator
 gross negligence, willful misconduct, and fraud; preservation of mandatory
 consumer statutory rights; supervisory authority access rights._
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

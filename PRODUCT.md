@@ -80,3 +80,21 @@ status badges, error/success indicators, action buttons) has a non-color
 fallback: icon, label, or shape. Palette verified at 4.5:1 body text contrast
 and 3:1 for large/bold text. Reduced-motion preference already honored globally
 in `globals.scss`.
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.
+
+## Legal
+
+TrustLedger is an open-source decentralized escrow and arbitration protocol. Use
+of this software and documentation is subject to the project's
+[Terms and Conditions](TERMS_AND_CONDITIONS.md),
+[Privacy Policy](PRIVACY_POLICY.md), and [Risk Disclosure](RISK_DISCLOSURE.md).
+See [`docs/LEGAL.md`](docs/LEGAL.md) for the full compliance and licensing
+overview.

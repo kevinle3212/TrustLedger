@@ -4,7 +4,6 @@ description:
     Use after frontend UI changes, navigation changes, form changes, or
     accessibility-sensitive work. Runs Playwright routes with axe-core WCAG A/AA
     checks.
-version: "1.0.0"
 ---
 
 # Playwright Accessibility

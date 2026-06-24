@@ -2,6 +2,7 @@ import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { arbitrum, type AppKitNetwork, base, optimism, sepolia } from "@reown/appkit/networks";
 import { FEATURED_WALLET_IDS } from "./walletIds";
 
+/** The all-zero EVM address used as a sentinel for "no token" (native ETH) in escrow contracts. */
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 interface ContractDeployment {
@@ -145,6 +146,10 @@ const CONTRACT_DEPLOYMENTS: Record<number, ContractDeployment> = {
 	},
 };
 
+/**
+ * Returns the contract addresses for the given chain.
+ * Falls back to zero-address placeholders when `chainId` has no configured deployment.
+ */
 export function getContractDeployment(chainId: number): ContractDeployment {
 	return (
 		CONTRACT_DEPLOYMENTS[chainId] ?? {
@@ -157,10 +162,12 @@ export function getContractDeployment(chainId: number): ContractDeployment {
 	);
 }
 
+/** Returns the human-readable network name for a chain ID, falling back to `"chain <id>"`. */
 export function getNetworkName(chainId: number): string {
 	return CHAIN_NAMES[chainId] ?? `chain ${chainId.toString()}`;
 }
 
+/** Returns the network names for all chains that have a non-zero `TrustLedger` contract address configured. */
 export function getConfiguredDeploymentNetworkNames(): string[] {
 	const configured = new Set<string>();
 	for (const [chainId, deployment] of Object.entries(CONTRACT_DEPLOYMENTS)) {
@@ -261,6 +268,10 @@ const EXPLORERS: Record<number, string> = {
 	10: "https://optimistic.etherscan.io", // OP Mainnet
 };
 
+/**
+ * Returns the block-explorer transaction URL for the given chain and transaction hash.
+ * Falls back to Sepolia Etherscan when `chainId` has no configured explorer.
+ */
 export function getExplorerTxUrl(chainId: number, txHash: string): string {
 	return `${EXPLORERS[chainId] ?? "https://sepolia.etherscan.io"}/tx/${txHash}`;
 }

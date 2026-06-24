@@ -3,7 +3,6 @@ name: eslint-strict
 description:
     Use after JavaScript, TypeScript, config, script, or tool changes. Covers
     root ESLint and frontend ESLint.
-version: "1.0.0"
 ---
 
 # ESLint Strict

@@ -3,7 +3,6 @@ name: dependency-audit
 description:
     Review npm dependency freshness, vulnerabilities, devDependencies, and
     overrides for TrustLedger.
-version: "1.0.0"
 ---
 
 # Dependency Audit
