@@ -47,6 +47,7 @@ src/out/
 src/coverage/
 src/test-results/
 src/playwright-report/
+src/.playwright-cli/
 .mypy_cache/
 .venv-docs/
 .git/

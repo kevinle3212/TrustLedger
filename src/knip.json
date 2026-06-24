@@ -18,6 +18,8 @@
 	],
 	"ignoreIssues": {
 		"components/ReactScanMonitor.tsx": ["unlisted"],
+		"controllers/accountProfileController.ts": ["unlisted"],
+		"controllers/result.ts": ["unlisted"],
 		"lib/accountPreferences.ts": ["exports"],
 		"lib/solanaEscrow.ts": ["exports"],
 		"lib/wagmi.ts": ["exports"],

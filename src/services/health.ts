@@ -54,6 +54,12 @@ function checkPrivacyAnalytics(): HealthCheck {
 	};
 }
 
+/**
+ * Builds the runtime liveness report (process-level signals only) used by the
+ * unauthenticated `/api/health/runtime` probe.
+ *
+ * @returns A {@link HealthReport} describing runtime health.
+ */
 export function buildRuntimeHealthReport(): HealthReport {
 	return {
 		ok: true,
@@ -68,6 +74,12 @@ export function buildRuntimeHealthReport(): HealthReport {
 	};
 }
 
+/**
+ * Builds the full operational readiness report, checking configuration
+ * *presence* (never values) for required integrations.
+ *
+ * @returns A {@link HealthReport}; `ok` is `false` when a required check fails.
+ */
 export function buildHealthReport(): HealthReport {
 	const checks: HealthCheck[] = [
 		...buildRuntimeHealthReport().checks,

@@ -1,7 +1,9 @@
 # TrustLedger Cursor Context
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](../../CREDITS.md).
 
 TrustLedger is an EVM freelance escrow, arbitration, reputation, and frontend
 dApp. `src/` is the Next.js app and API layer. `contracts/` is the Solidity and

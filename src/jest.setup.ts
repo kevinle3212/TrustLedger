@@ -54,7 +54,7 @@ jest.mock("next-intl", () => ({
 			translateForTest(namespace, key, values),
 }));
 
-globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
+globalThis.TextDecoder = TextDecoder;
 globalThis.TextEncoder = TextEncoder;
 if (typeof window !== "undefined") {
 	installBrowserMocks();

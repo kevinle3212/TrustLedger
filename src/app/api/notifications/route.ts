@@ -46,6 +46,28 @@ function isAuthorized(req: NextRequest): boolean {
 	);
 }
 
+/**
+ * `POST /api/notifications` — sends a single contract-lifecycle email to one
+ * recipient.
+ *
+ * - **Auth:** required. `Authorization: Bearer <NOTIFICATIONS_SECRET>`. Because
+ *   it can send arbitrary email, it is gated to trusted server-side callers
+ *   (other API routes, the deadline cron, a future backend) and must never be
+ *   invoked from the browser.
+ * - **Request body (JSON):** `type` ({@link NotificationType}, required), `to`
+ *   (recipient email, required), `contractId` (string, required),
+ *   `deadlineKind` ({@link DeadlineKind}, `deadline_reminder` only),
+ *   `deadlineTs` (unix seconds, `deadline_reminder` only), `detail` (optional).
+ * - **Responses:**
+ *   - `200` `{ ok: true }` when sent.
+ *   - `400` `{ error }` for invalid JSON or fields.
+ *   - `401` `{ error: "unauthorized" }`.
+ *   - `500` when `NOTIFICATIONS_SECRET` is unset.
+ *   - `502` `{ error }` when the email provider fails.
+ *
+ * @param req - Incoming request carrying the bearer token and JSON body.
+ * @returns JSON acknowledgement or an error.
+ */
 export async function POST(req: NextRequest): Promise<NextResponse> {
 	if (
 		process.env["NOTIFICATIONS_SECRET"] === undefined ||

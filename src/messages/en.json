@@ -940,7 +940,11 @@
 		"encryptedMessagingTitle": "Encrypted Messaging Ready",
 		"encryptedMessagingBody": "The API boundary is designed for encrypted message envelopes; plaintext personal contact details do not belong in platform messages.",
 		"externalDatabaseTitle": "External Database Needed",
-		"externalDatabaseBody": "Production persistence should use Postgres, Supabase, or another managed database configured through deployment secrets."
+		"externalDatabaseBody": "Production persistence should use Postgres, Supabase, or another managed database configured through deployment secrets.",
+		"autoLogoutTitle": "Auto-Logout Timeout",
+		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
+		"autoLogoutLabel": "Disconnect after",
+		"autoLogoutNote": "Takes effect on the next wallet connection."
 	},
 	"Status": {
 		"metadata": {

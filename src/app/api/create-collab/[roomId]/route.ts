@@ -57,6 +57,21 @@ function badRequest(message: string): NextResponse<{ error: string }> {
 	return NextResponse.json({ error: message }, { status: 400 });
 }
 
+/**
+ * `GET /api/create-collab/:roomId` — fetches the latest encrypted draft snapshot
+ * for a collaboration room.
+ *
+ * - **Auth:** none; payloads are end-to-end encrypted and rooms expire after a
+ *   6-hour TTL. The server stores only opaque ciphertext.
+ * - **Path params:** `roomId` — 12–80 chars, `[A-Za-z0-9_-]`.
+ * - **Responses:**
+ *   - `200` `{ snapshot }` (or `{ snapshot: null }` when none exists).
+ *   - `400` `{ error }` for an invalid room id.
+ *
+ * @param _request - Incoming request (unused).
+ * @param context - Route context whose `params` resolves to `{ roomId }`.
+ * @returns JSON snapshot payload or an error.
+ */
 export async function GET(
 	_request: Request,
 	{ params }: { readonly params: Promise<{ readonly roomId: string }> },
@@ -79,6 +94,23 @@ export async function GET(
 	});
 }
 
+/**
+ * `POST /api/create-collab/:roomId` — stores an encrypted draft snapshot for a
+ * collaboration room (overwriting any previous one).
+ *
+ * - **Auth:** none; the server validates shape and size only and never decrypts.
+ * - **Path params:** `roomId` — 12–80 chars, `[A-Za-z0-9_-]`.
+ * - **Request body (JSON):** `eventId` (12–120 chars), `encryptedDraft`
+ *   (non-empty, ≤ 96 000 chars), `authorWallet` (`0x` address or `null`),
+ *   `updatedAt` (ISO date string).
+ * - **Responses:**
+ *   - `200` `{ snapshot: { eventId, updatedAt } }` on store.
+ *   - `400` `{ error }` for an invalid room id, payload, or field.
+ *
+ * @param request - Incoming request carrying the JSON snapshot.
+ * @param context - Route context whose `params` resolves to `{ roomId }`.
+ * @returns JSON acknowledgement or an error.
+ */
 export async function POST(
 	request: Request,
 	{ params }: { readonly params: Promise<{ readonly roomId: string }> },
@@ -126,6 +158,20 @@ export async function POST(
 	});
 }
 
+/**
+ * `DELETE /api/create-collab/:roomId` — removes a collaboration room's stored
+ * snapshot.
+ *
+ * - **Auth:** none.
+ * - **Path params:** `roomId` — 12–80 chars, `[A-Za-z0-9_-]`.
+ * - **Responses:**
+ *   - `200` `{ deleted: true }` (idempotent — succeeds even if absent).
+ *   - `400` `{ error }` for an invalid room id.
+ *
+ * @param _request - Incoming request (unused).
+ * @param context - Route context whose `params` resolves to `{ roomId }`.
+ * @returns JSON acknowledgement or an error.
+ */
 export async function DELETE(
 	_request: Request,
 	{ params }: { readonly params: Promise<{ readonly roomId: string }> },

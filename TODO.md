@@ -1,7 +1,9 @@
 # To-Do List
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](./CREDITS.md).
 
 Tasks are grouped into phases and ordered so that earlier work unblocks later
 work. Complete each phase roughly in order: tooling and architecture come first,
@@ -101,6 +103,21 @@ mainnet launch deliverables.
       preferences when a signed account token exists, with the previous local
       fallback preserved. Production completion still requires the external
       database and encrypted-message persistence listed in Phase 9.
+
+- [ ] Persist the wallet auto-logout timeout preference in the off-chain
+      database instead of localStorage, so the setting follows the wallet across
+      devices. Recommended database: **PostgreSQL** (via Supabase or a
+      self-hosted instance) — already the leading candidate for Phase 6 user
+      profiles and consistent with the existing `PATCH /api/accounts/profile`
+      pattern. Add an `inactivity_timeout_ms` column to the user profile table
+      (integer, nullable, default `null` meaning "use the app default of 10
+      minutes"). On `/account` page load, read the value via the authenticated
+      session and seed `localStorage` so the existing
+      `readInactivityTimeoutMs()` / `writeInactivityTimeoutMs()` flow picks it
+      up with no further change to `useInactivityLogout`. On save, write both
+      localStorage (immediate effect) and `PATCH /api/accounts/profile` (cross-
+      device sync). `localStorage` remains the source of truth when no signed
+      session exists.
 
 ## Phase 7 — Testing, Quality, and Accessibility
 

@@ -21,6 +21,26 @@ import { resolveDocUrl } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * `GET /api/contract/:id` — server-side aggregation of a single escrow contract.
+ *
+ * Reads the on-chain `getContract(id)` struct and returns a JSON-safe shape
+ * (bigints serialized to strings, status label resolved, document/deliverable
+ * URIs resolved to gateway URLs). Moves on-chain reads off the client.
+ *
+ * - **Auth:** none (contract data is already public on-chain; no secrets, no
+ *   document decryption here).
+ * - **Path params:** `id` — non-negative integer contract id.
+ * - **Responses:**
+ *   - `200` JSON-safe contract object.
+ *   - `400` `{ error }` when `id` is not a non-negative integer.
+ *   - `500` `{ error }` when `SEPOLIA_RPC_URL` or the contract address is
+ *     unconfigured.
+ *
+ * @param _req - Incoming request (unused).
+ * @param context - Route context whose `params` resolves to `{ id }`.
+ * @returns JSON contract payload or an error.
+ */
 export async function GET(
 	_req: NextRequest,
 	{ params }: { params: Promise<{ id: string }> },

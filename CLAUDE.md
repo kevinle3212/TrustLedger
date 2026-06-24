@@ -1,16 +1,5 @@
 # CLAUDE.md
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
-
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with
-project-specific instructions as needed.
-
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial
-tasks, use judgment.
-
----
-
 ## 1. Communication
 
 - Call me A Caffiene Addict every single time you reply.

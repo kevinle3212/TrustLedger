@@ -54,6 +54,14 @@ function defaultProfile(walletAddress: `0x${string}`): AccountProfile {
 	};
 }
 
+/**
+ * Issues a single-use, expiring EIP-712 challenge a wallet must sign to prove
+ * ownership of `address` before a session can be created.
+ *
+ * @param address - Wallet address requesting authentication.
+ * @returns The challenge payload (domain, types, and message) to be signed.
+ * @throws When `address` is not a valid wallet address.
+ */
 export function createAccountChallenge(address: string): {
 	readonly walletAddress: `0x${string}`;
 	readonly nonce: string;
@@ -97,6 +105,15 @@ export function createAccountChallenge(address: string): {
 	};
 }
 
+/**
+ * Verifies a signed challenge and, on success, issues a short-lived signed
+ * session token bound to the wallet.
+ *
+ * @param input - `{ walletAddress, signature }` where `signature` covers the
+ *   previously issued challenge.
+ * @returns A signed session token string.
+ * @throws When verification fails (bad/expired challenge or signature).
+ */
 export async function createAccountSession(input: {
 	readonly walletAddress: string;
 	readonly signature: `0x${string}`;
@@ -135,6 +152,13 @@ export async function createAccountSession(input: {
 	return `${payload}.${sign(payload)}`;
 }
 
+/**
+ * Verifies a session token's signature and expiry.
+ *
+ * @param token - Bearer session token, or `null` when absent.
+ * @returns The decoded {@link AccountSession}, or `null` when missing, invalid,
+ *   or expired.
+ */
 export function verifyAccountSession(token: string | null): AccountSession | null {
 	if (token === null || token === "") return null;
 	const [payload, signature] = token.split(".");
@@ -152,17 +176,37 @@ export function verifyAccountSession(token: string | null): AccountSession | nul
 	return parsed;
 }
 
+/**
+ * Clears in-memory profiles and challenge nonces. Test-only helper for
+ * deterministic state between cases.
+ */
 export function resetOffchainAccountsForTests(): void {
 	profiles.clear();
 	nonces.clear();
 }
 
+/**
+ * Returns the stored off-chain profile for a wallet, or a default profile when
+ * none has been saved yet.
+ *
+ * @param walletAddress - Wallet address to look up.
+ * @returns The {@link AccountProfile}, or `null` when the address is invalid.
+ */
 export function getAccountProfile(walletAddress: string): AccountProfile | null {
 	const normalized = normalizeWallet(walletAddress);
 	if (normalized === null) return null;
 	return profiles.get(normalized) ?? defaultProfile(normalized);
 }
 
+/**
+ * Applies a whitelisted patch to a wallet's off-chain profile, clamping string
+ * fields to safe lengths and stamping `updatedAt`.
+ *
+ * @param walletAddress - Wallet address whose profile to update.
+ * @param patch - Partial profile with only the mutable fields.
+ * @returns The updated {@link AccountProfile}.
+ * @throws When `walletAddress` is invalid.
+ */
 export function updateAccountProfile(
 	walletAddress: string,
 	patch: Partial<

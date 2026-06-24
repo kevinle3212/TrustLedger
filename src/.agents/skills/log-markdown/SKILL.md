@@ -7,9 +7,6 @@ version: "1.0.0"
 
 # Log Markdown
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
-
 Use this skill before writing or updating any file under `logs/`.
 
 ## Requirements

@@ -164,10 +164,20 @@ async function callGemini(input: ContractSummaryInput): Promise<string> {
 	return content;
 }
 
+/**
+ * Returns aggregate metrics about AI contract-summary usage (provider, counts,
+ * cache state) for the status/admin surfaces.
+ *
+ * @returns The current {@link ContractSummaryMetrics}.
+ */
 export function getContractSummaryMetrics(): ContractSummaryMetrics {
 	return { ...METRICS };
 }
 
+/**
+ * Resets cached summaries and metrics. Test-only helper for deterministic
+ * behavior between cases.
+ */
 export function resetContractSummaryForTests(): void {
 	SUMMARY_CACHE.clear();
 	(METRICS as { calls: number }).calls = 0;
@@ -177,6 +187,14 @@ export function resetContractSummaryForTests(): void {
 	(METRICS as { estimatedCostUsd: number }).estimatedCostUsd = 0;
 }
 
+/**
+ * Produces a human-readable summary of an escrow contract, using the configured
+ * AI provider when enabled and falling back to a deterministic template
+ * otherwise. Results are cached.
+ *
+ * @param input - Contract fields to summarize ({@link ContractSummaryInput}).
+ * @returns The generated {@link ContractSummary}.
+ */
 export async function summarizeContract(input: ContractSummaryInput): Promise<ContractSummary> {
 	const key = cacheKey(input);
 	const cached = SUMMARY_CACHE.get(key);

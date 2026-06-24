@@ -46,6 +46,13 @@ function analyticsRetentionDays(): number {
 	return parsed;
 }
 
+/**
+ * Reports whether the request opted out of analytics via privacy signals (for
+ * example Do-Not-Track / Global Privacy Control).
+ *
+ * @param headers - Incoming request headers.
+ * @returns `true` when the event must not be recorded.
+ */
 export function shouldRespectPrivacyHeaders(headers: Headers): boolean {
 	return headers.get("dnt") === "1" || headers.get("sec-gpc") === "1";
 }
@@ -71,6 +78,13 @@ function pruneExpired(now = Date.now()): void {
 	globalStore.__trustledgerAnalyticsEvents = retained;
 }
 
+/**
+ * Records a privacy-safe analytics event in the in-memory aggregate store.
+ *
+ * @param input - Validated event input ({@link AnalyticsEventInput}).
+ * @returns The stored {@link AnalyticsEventRecord}, or `null` when the event is
+ *   dropped (for example by sampling).
+ */
 export function recordAnalyticsEvent(input: AnalyticsEventInput): AnalyticsEventRecord | null {
 	if (!analyticsEnabled()) return null;
 	pruneExpired();
@@ -85,6 +99,11 @@ export function recordAnalyticsEvent(input: AnalyticsEventInput): AnalyticsEvent
 	return record;
 }
 
+/**
+ * Produces an aggregated, non-identifying summary of recorded analytics events.
+ *
+ * @returns An {@link AnalyticsEventSummary} of counts and breakdowns.
+ */
 export function summarizeAnalyticsEvents(): AnalyticsEventSummary {
 	pruneExpired();
 	const events = store();

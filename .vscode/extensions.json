@@ -36,11 +36,13 @@
 		"eamodio.gitlens",
 		"Gruntfuggly.todo-tree",
 		"coderabbit.coderabbit-vscode",
+		"pkief.material-icon-theme",
 
 		// AI Coding Assistants
 		"anthropic.claude-code",
 		"GitHub.copilot-chat",
 		"openai.chatgpt",
-		"ms-playwright.playwright"
+		"ms-playwright.playwright",
+		"ms-vscode.vscode-chat-customizations-evaluations"
 	]
 }

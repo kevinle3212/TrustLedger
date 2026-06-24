@@ -39,6 +39,12 @@ function configuredDetail(name: string): string {
 	return hasEnv(name) ? `${name} is configured.` : `${name} is not configured.`;
 }
 
+/**
+ * Assembles the admin dashboard report — operational metrics and status items
+ * surfaced behind the admin-authorized `/api/admin/summary` endpoint.
+ *
+ * @returns An {@link AdminDashboardReport} aggregating current platform metrics.
+ */
 export function buildAdminDashboardReport(): AdminDashboardReport {
 	const health = buildHealthReport();
 	const oracle = getOracleStatus();

@@ -40,6 +40,22 @@ function isContract(value: unknown): value is Contract {
 	);
 }
 
+/**
+ * `GET /api/contract/:id/summary` — human-readable summary of a single escrow
+ * contract, derived from on-chain state.
+ *
+ * - **Auth:** none (contract data is public on-chain).
+ * - **Path params:** `id` — non-negative integer contract id.
+ * - **Responses:**
+ *   - `200` contract summary payload.
+ *   - `400` `{ error }` when `id` is not a non-negative integer.
+ *   - `500` `{ error }` when `SEPOLIA_RPC_URL` or the contract address is
+ *     unconfigured.
+ *
+ * @param _req - Incoming request (unused).
+ * @param context - Route context whose `params` resolves to `{ id }`.
+ * @returns JSON summary payload or an error.
+ */
 export async function GET(
 	_req: NextRequest,
 	{ params }: { params: Promise<{ id: string }> },

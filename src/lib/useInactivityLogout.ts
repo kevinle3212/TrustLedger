@@ -24,7 +24,7 @@ const ACTIVITY_EVENTS = ["mousemove", "keydown", "click", "scroll", "touchstart"
  * a subsequent reconnect re-prompts the wallet. Mount it once, app-wide, inside
  * the wagmi provider (see `components/Providers.tsx`).
  */
-export function useInactivityLogout(): void {
+export function useInactivityLogout(timeoutMs?: number): void {
 	const { isConnected } = useAccount();
 	const { disconnect } = useDisconnect();
 	const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -36,11 +36,13 @@ export function useInactivityLogout(): void {
 	useEffect(() => {
 		if (!isConnected) return;
 
+		const limit = timeoutMs ?? INACTIVITY_LIMIT_MS;
+
 		const reset = (): void => {
 			if (timerRef.current !== null) clearTimeout(timerRef.current);
 			timerRef.current = setTimeout(() => {
 				disconnect();
-			}, INACTIVITY_LIMIT_MS);
+			}, limit);
 		};
 
 		const onActivity = (): void => {
@@ -69,5 +71,5 @@ export function useInactivityLogout(): void {
 			document.removeEventListener("visibilitychange", onVisibility);
 			if (timerRef.current !== null) clearTimeout(timerRef.current);
 		};
-	}, [isConnected, disconnect]);
+	}, [isConnected, disconnect, timeoutMs]);
 }

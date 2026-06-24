@@ -1,7 +1,9 @@
 # TrustLedger Frontend And API
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](../CREDITS.md).
 
 `src/` is the TrustLedger Next.js application. It contains the localized browser
 UI, wallet wiring, API routes, server-side services, tests, public assets, and
