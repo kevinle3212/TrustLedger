@@ -152,4 +152,13 @@ function main() {
 	);
 }
 
-main();
+try {
+	main();
+} catch (error) {
+	// Never fail the build over statistics: deployments fall back to the
+	// committed `src/content/codebase-stats.json` snapshot when git or the
+	// filesystem is unavailable in the build sandbox.
+	process.stderr.write(
+		`Skipping codebase stats regeneration: ${error instanceof Error ? error.message : String(error)}\n`,
+	);
+}

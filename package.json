@@ -108,7 +108,7 @@
 		"docker:frontend:test": "npm run docker:storage:prune && docker compose run --rm frontend-test && npm run docker:storage:prune",
 		"native:check": "node tools/check-native.mjs",
 		"analytics:generate": "python3 scripts/analytics/generate_wallet_analytics.py",
-		"stats:generate": "node scripts/generate-codebase-stats.mjs",
+		"stats:generate": "node src/scripts/generate-codebase-stats.mjs",
 		"analytics:check": "python3 scripts/analytics/generate_wallet_analytics.py --check",
 		"env:sync": "node tools/sync-env-defaults.mjs",
 		"env:sync:vercel": "node tools/sync-vercel-env.mjs",
