@@ -42,6 +42,7 @@ export function RoleProvider({ children }: { children: React.ReactNode }): React
 	return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 }
 
+/** Hook to read and update the active dashboard role (`"client"` or `"freelancer"`). Must be used inside `RoleProvider`. */
 export function useRole(): { role: Role; setRole: (r: Role) => void } {
 	return use(RoleContext);
 }

@@ -1,5 +1,6 @@
 type AnalyticsEventName = "page_view" | "frontend_error";
 
+/** Input for recording a single privacy-safe analytics event. */
 export interface AnalyticsEventInput {
 	readonly name: AnalyticsEventName;
 	readonly path: string;
@@ -8,6 +9,7 @@ export interface AnalyticsEventInput {
 	readonly occurredAt?: string;
 }
 
+/** A stored analytics event record after normalisation (referrer stripped, locale clamped). */
 export interface AnalyticsEventRecord {
 	readonly name: AnalyticsEventName;
 	readonly path: string;
@@ -15,6 +17,7 @@ export interface AnalyticsEventRecord {
 	readonly occurredAt: string;
 }
 
+/** Aggregated analytics summary returned by `GET /api/analytics/events`. */
 export interface AnalyticsEventSummary {
 	readonly enabled: boolean;
 	readonly retentionDays: number;

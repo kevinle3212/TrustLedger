@@ -3,7 +3,6 @@ name: swc-config
 description:
     Use when changing Next.js compiler behavior, SWC policy files, transform
     assumptions, or generated SWC cache handling.
-version: "1.0.0"
 ---
 
 # SWC Config

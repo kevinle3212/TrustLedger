@@ -1,3 +1,11 @@
+---
+name: legal-compliance
+description:
+    Use when TrustLedger product, frontend, API, wallet, arbitration, risk,
+    privacy, security, or user-policy changes could require legal document
+    review or updates.
+---
+
 # Legal Compliance Skill
 
 Use this Codex-facing frontend skill when React pages, API routes, docs, wallet

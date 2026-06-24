@@ -571,3 +571,12 @@ statement; breach notification timeline specifics; SCC/IDTA transfer mechanism
 disclosure; consent withdrawal mechanism; California Shine the Light disclosure;
 cookie policy correction; response timeline commitments; and first-party privacy
 analytics disclosure._
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

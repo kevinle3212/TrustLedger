@@ -7,6 +7,7 @@ export const FieldIdContext = createContext<string | undefined>(undefined);
 
 const BASE_INPUT_CLASS =
 	"min-h-11 w-full min-w-0 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:border-transparent transition";
+/** Shared Tailwind class for form input backgrounds across light and dark modes. */
 export const INPUT_BG = "bg-gray-50 dark:bg-white/5";
 const VALID_BORDER = "border border-gray-200 dark:border-white/10 focus:ring-indigo-500";
 const ERROR_BORDER = "border border-red-500 dark:border-red-500 focus:ring-red-500";

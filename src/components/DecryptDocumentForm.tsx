@@ -70,6 +70,7 @@ function reducer(state: State, action: Action): State {
 /// Full-width decrypt panel for AES-256-GCM encrypted IPFS documents.
 /// Rendered by ContractCard below the info grid when the user toggles decrypt open.
 /// Supports fetching the bundle from a gateway URL or accepting a pasted JSON bundle.
+/** Form for decrypting an encrypted contract document using the user's connected wallet private key. */
 export function DecryptDocumentForm({
 	gatewayUrl,
 	onClose,

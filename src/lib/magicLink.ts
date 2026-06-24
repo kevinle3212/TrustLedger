@@ -5,6 +5,7 @@
 // and the Next.js API route (Edge/Node), so we avoid importing a server-only JWT library.
 // The "."-joined format is intentionally JWT-like but simpler: no header segment, just payload.sig.
 
+/** JWT payload embedded in magic-link tokens sent to contract counterparties for review. */
 export interface MagicLinkPayload {
 	contractId: string;
 	clientEmail: string;

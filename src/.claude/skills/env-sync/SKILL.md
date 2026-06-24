@@ -1,3 +1,8 @@
+---
+name: env-sync
+description: Use when a change adds, removes, renames, or newly requires an environment variable across frontend, API, Docker, Kubernetes, or docs.
+---
+
 # Env Sync
 
 Use when a change adds, removes, renames, or newly requires an environment

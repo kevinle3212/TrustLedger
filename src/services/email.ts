@@ -262,6 +262,7 @@ export interface EmailCta {
 	href: string;
 }
 
+/** Escapes `&`, `<`, `>`, `"`, and `'` for safe HTML email interpolation. */
 export function escapeEmailHtml(value: string): string {
 	return value
 		.replace(/&/gu, "&amp;")
@@ -281,6 +282,15 @@ function safeEmailHref(value: string): string {
 	return "#";
 }
 
+/**
+ * Wraps `bodyHtml` in the TrustLedger branded email shell.
+ *
+ * @param title - Email heading text.
+ * @param bodyHtml - Pre-escaped inner HTML body content.
+ * @param cta - Optional call-to-action button.
+ * @param footer - Optional footer override; defaults to the standard TrustLedger disclaimer.
+ * @returns A complete HTML email string ready to send.
+ */
 export function emailShell(
 	title: string,
 	bodyHtml: string,

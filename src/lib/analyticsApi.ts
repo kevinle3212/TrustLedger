@@ -1,5 +1,6 @@
 import { isAddress } from "viem";
 
+/** Privacy-safe analytics metadata for a connected wallet address. */
 export interface WalletAnalyticsMetadata {
 	readonly address: `0x${string}`;
 	readonly privacyBoundary: readonly string[];
@@ -17,6 +18,12 @@ function fingerprintAddress(address: string): string {
 	return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
+/**
+ * Builds analytics metadata for the given wallet address.
+ *
+ * @param address - EIP-55 checksummed Ethereum address.
+ * @returns Metadata object, or `null` if `address` is not a valid EVM address.
+ */
 export function buildWalletAnalyticsMetadata(address: string): WalletAnalyticsMetadata | null {
 	if (!isAddress(address)) return null;
 	return {

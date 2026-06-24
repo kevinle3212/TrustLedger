@@ -1,3 +1,4 @@
+/** Converts a duration in days to seconds as a `bigint` for on-chain timestamps. */
 export function daysToSeconds(days: number): bigint {
 	return BigInt(Math.floor(days * 24 * 60 * 60));
 }
@@ -33,6 +34,7 @@ export function resolveDocUrl(uri: string): string | undefined {
 	return undefined;
 }
 
+/** Truncates an Ethereum address to `0x1234…5678` display format. */
 export function formatAddress(addr: string): string {
 	return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
@@ -78,10 +80,17 @@ function formatFutureDateFromDays(days: number): string {
 	return formatDateMMDDYYYY(date);
 }
 
+/**
+ * Formats a deadline as `"<relativeLabel> (MM/DD/YYYY)"` for display in UI fields.
+ *
+ * @param days - Number of days from today to the deadline.
+ * @param relativeLabel - Human-readable label (e.g. `"in 14 days"`).
+ */
 export function formatDeadlineWithRelativeDays(days: number, relativeLabel: string): string {
 	return `${relativeLabel} (${formatFutureDateFromDays(days)})`;
 }
 
+/** Tailwind badge class pairs keyed by numeric escrow status index (0–6). */
 export const STATUS_COLORS: Record<number, string> = {
 	0: "bg-yellow-500/20 text-yellow-300", // PENDING
 	1: "bg-blue-500/20 text-blue-300", // ACTIVE

@@ -6,7 +6,6 @@ description:
     diagnostics. Covers lint, accessibility, bundle size, architecture. Includes
     a regression check and a full local-triage workflow that fetches the
     canonical playbook.
-version: "1.1.0"
 ---
 
 # React Doctor

@@ -1,9 +1,11 @@
+/** A single named health probe result used in the operational health report. */
 export interface HealthCheck {
 	readonly name: string;
 	readonly ok: boolean;
 	readonly detail: string;
 }
 
+/** Aggregated health report returned by `GET /api/health`. `ok` is `false` if any check fails. */
 export interface HealthReport {
 	readonly ok: boolean;
 	readonly checkedAt: string;

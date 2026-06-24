@@ -3,7 +3,6 @@ name: knip
 description:
     Use when adding dependencies, scripts, exports, files, or frontend/backend
     modules. Detects unused files, exports, dependencies, and binaries.
-version: "1.0.0"
 ---
 
 # Knip

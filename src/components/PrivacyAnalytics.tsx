@@ -24,6 +24,7 @@ function sendAnalytics(name: "page_view" | "frontend_error", path: string, local
 	}).catch((): undefined => undefined);
 }
 
+/** Client-side analytics beacon that fires a `page_view` event on route changes. Renders nothing. */
 export function PrivacyAnalytics(): null {
 	const pathname = usePathname();
 	const locale = useLocale();

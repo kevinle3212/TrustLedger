@@ -373,6 +373,7 @@ function FooterHelpDialog({
 	);
 }
 
+/** Expandable help/documentation links panel rendered in the site footer. */
 export function FooterHelp(): React.JSX.Element {
 	const [open, setOpen] = useState(false);
 	const [activeGuide, setActiveGuide] = useState(0);

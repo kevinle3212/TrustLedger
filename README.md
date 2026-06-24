@@ -9,10 +9,16 @@
 
 # TrustLedger
 
-> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
-> development. His vision, ideas, and dedication during the project's founding
-> were invaluable to the codebase we build on today. See
-> [`CREDITS.md`](./CREDITS.md).
+> **Kevin K. Le** ([LinkedIn](https://linkedin.com/in/lekevin1)) — Founder,
+> Founding Engineer, and Current Lead Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon.
+>
+> **Kellen Snider** — Founding Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon. His vision, ideas, and dedication
+> during TrustLedger's Ethereum development were invaluable to the codebase we
+> build on today.
+>
+> See [`CREDITS.md`](./CREDITS.md).
 
 TrustLedger is a decentralized escrow, arbitration, and reputation system for
 freelance agreements on EVM chains. It helps a client lock funds, a freelancer
@@ -195,7 +201,6 @@ src/
 ├── contexts/                      Role and cross-cutting React context providers.
 ├── helpers/                       Typed frontend helpers for legal docs and Solana.
 ├── hooks/                         Client hooks for dispute and contract helpers.
-├── helpers/                       Legal localization and Solana support helpers.
 ├── i18n/                          next-intl routing, request config, navigation wrappers.
 ├── lib/                           ABI, chain config, validation, encryption, storage helpers.
 ├── messages/                      Locale JSON dictionaries.
@@ -626,3 +631,12 @@ resources that make TrustLedger possible.
 
 Apache License 2.0. See [LICENSE](LICENSE) when present or the package metadata
 for licensing details.
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

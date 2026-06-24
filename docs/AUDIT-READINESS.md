@@ -12,7 +12,6 @@
 
 <!-- docs-toc:start -->
 
-- [Table Of Contents](#table-of-contents)
 - [Scope](#scope)
 - [Deployment Assumptions](#deployment-assumptions)
 - [Threat Model](#threat-model)
@@ -21,33 +20,21 @@
 - [Validation Evidence](#validation-evidence)
 - [Known Risks](#known-risks)
 - [Remediation Tracker](#remediation-tracker)
+- [Authors and Contributors](#authors-and-contributors)
+- [Legal](#legal)
 
 <!-- docs-toc:end -->
 
-> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
-> development. His vision, ideas, and dedication during the project's founding
-> were invaluable to the codebase we build on today. See
-> [`CREDITS.md`](../CREDITS.md).
-
-[Home](Home.md) | [Table Of Contents](#table-of-contents) |
-[Top](#audit-readiness)
-
-## Table Of Contents
-
-<!-- docs-section-nav:start -->
-
-[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
-
-<!-- docs-section-nav:end -->
-
-- [Scope](#scope)
-- [Deployment Assumptions](#deployment-assumptions)
-- [Threat Model](#threat-model)
-- [Trust Boundaries](#trust-boundaries)
-- [Invariants](#invariants)
-- [Validation Evidence](#validation-evidence)
-- [Known Risks](#known-risks)
-- [Remediation Tracker](#remediation-tracker)
+> **Kevin K. Le** ([LinkedIn](https://linkedin.com/in/lekevin1)) — Founder,
+> Founding Engineer, and Current Lead Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon.
+>
+> **Kellen Snider** — Founding Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon. His vision, ideas, and dedication
+> during TrustLedger's Ethereum development were invaluable to the codebase we
+> build on today.
+>
+> See [`CREDITS.md`](CREDITS.md).
 
 ## Scope
 
@@ -169,5 +156,32 @@ Before sending this package to an auditor, attach current outputs from:
 | Final audit report           | High     | Project Maintainers | Open   | Add signed report to `docs/reports/` once received.              |
 | Mainnet deployment checklist | High     | Project Maintainers | Open   | Validate secrets, RPCs, monitoring, and addresses before launch. |
 
-[Home](Home.md) | [Table Of Contents](#table-of-contents) |
-[Top](#audit-readiness)
+## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.
+
+## Legal
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+This document is part of TrustLedger, an open-source decentralized escrow and
+arbitration protocol. Use of this software and documentation is subject to the
+[Terms and Conditions](../TERMS_AND_CONDITIONS.md),
+[Privacy Policy](../PRIVACY_POLICY.md), and
+[Risk Disclosure](../RISK_DISCLOSURE.md). See [`LEGAL.md`](LEGAL.md) for the
+full compliance and licensing overview.

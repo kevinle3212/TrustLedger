@@ -54,6 +54,7 @@ interface GitHubAnalyticsUnavailable {
 	readonly checkedAt: string;
 }
 
+/** Union result type from the GitHub analytics fetch — either a populated summary or an unavailable sentinel. */
 export type GitHubAnalyticsResult = GitHubAnalyticsSummary | GitHubAnalyticsUnavailable;
 
 const GITHUB_API_BASE = "https://api.github.com";

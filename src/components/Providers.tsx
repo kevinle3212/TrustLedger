@@ -29,6 +29,7 @@ function InactivityWatcher(): null {
 	return null;
 }
 
+/** Root client provider tree wrapping the app with Wagmi, AppKit, React Query, and other shared contexts. */
 export function Providers({ children }: { children: React.ReactNode }): React.JSX.Element {
 	const [queryClient] = useState(() => new QueryClient());
 

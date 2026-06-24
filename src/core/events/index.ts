@@ -15,6 +15,7 @@ export interface AppEventMap {
 	"analytics:track": { name: string; properties?: Record<string, unknown> | undefined };
 }
 
+/** Union of all typed application event names derived from `AppEventMap`. */
 export type AppEventName = keyof AppEventMap;
 type Handler<E extends AppEventName> = (payload: AppEventMap[E]) => void;
 

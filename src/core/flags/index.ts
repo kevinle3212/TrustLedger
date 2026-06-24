@@ -17,6 +17,7 @@ export const FLAG_DEFAULTS = {
 	adminAnalytics: true,
 } as const;
 
+/** Union of all valid runtime feature flag names derived from `FLAG_DEFAULTS`. */
 export type FlagName = keyof typeof FLAG_DEFAULTS;
 
 const overrides = new Map<FlagName, boolean>();

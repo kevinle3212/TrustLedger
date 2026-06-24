@@ -1,7 +1,6 @@
 ---
 name: update-context
 description: Keep docs, comments, agent instructions, and visible project surfaces synchronized after code, config, workflow, deployment, or website changes.
-version: "1.0.0"
 ---
 
 # Update Context

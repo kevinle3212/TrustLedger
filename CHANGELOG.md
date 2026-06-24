@@ -24,3 +24,12 @@ that are present in the working tree but not tied to a tagged release.
 
 > **TODO:** Replace this reconstructed `Unreleased` section with tag-based
 > release notes when versioned releases exist.
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

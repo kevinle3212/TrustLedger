@@ -27,6 +27,7 @@ const TRUSTLEDGER_SOLANA_CREATE_ESCROW_DISCRIMINATOR = 0;
 
 type PublicKeyLike = PublicKey | string | { toBase58: () => string };
 
+/** Minimal Solana wallet interface compatible with Phantom and other injected providers. */
 export interface TrustLedgerSolanaWallet {
 	readonly publicKey?: PublicKeyLike | null;
 	readonly connect?: (options?: {
@@ -38,6 +39,7 @@ export interface TrustLedgerSolanaWallet {
 	) => Promise<{ signature: string } | string>;
 }
 
+/** Parameters needed to build a `create_escrow` Solana transaction. */
 export interface SolanaEscrowBuildInput {
 	readonly form: FormFields;
 	readonly proposerRole: "client" | "freelancer";
@@ -46,6 +48,7 @@ export interface SolanaEscrowBuildInput {
 	readonly programId?: PublicKey;
 }
 
+/** Unsigned transaction draft returned by {@link buildCreateSolanaEscrowTransaction}. */
 export interface SolanaEscrowTransactionDraft {
 	readonly transaction: Transaction;
 	readonly escrowAddress: string;
@@ -54,6 +57,7 @@ export interface SolanaEscrowTransactionDraft {
 	readonly contractHash: `0x${string}`;
 }
 
+/** Result returned after a `create_escrow` Solana transaction is confirmed on-chain. */
 export interface SolanaEscrowSubmissionResult {
 	readonly signature: string;
 	readonly explorerUrl: string;
@@ -61,6 +65,7 @@ export interface SolanaEscrowSubmissionResult {
 	readonly programId: string;
 }
 
+/** Returns the Solana cluster (`mainnet-beta`, `devnet`, or `localnet`) from `NEXT_PUBLIC_SOLANA_CLUSTER`. */
 export function getConfiguredSolanaCluster(): SolanaCluster {
 	return resolveSolanaCluster(process.env["NEXT_PUBLIC_SOLANA_CLUSTER"]);
 }
@@ -72,6 +77,7 @@ function getConfiguredSolanaRpcUrl(): string {
 	);
 }
 
+/** Returns the deployed TrustLedger Solana program `PublicKey`, or `null` if `NEXT_PUBLIC_SOLANA_PROGRAM_ID` is unset or invalid. */
 export function getTrustLedgerSolanaProgramId(): PublicKey | null {
 	const rawProgramId = process.env["NEXT_PUBLIC_SOLANA_PROGRAM_ID"]?.trim();
 	if (rawProgramId === undefined || rawProgramId === "") return null;
@@ -82,6 +88,7 @@ export function getTrustLedgerSolanaProgramId(): PublicKey | null {
 	}
 }
 
+/** Returns the browser-injected Solana wallet (Phantom or `window.solana`), or `null` on the server or when no wallet is present. */
 export function getInjectedSolanaWallet(): TrustLedgerSolanaWallet | null {
 	if (typeof window === "undefined") return null;
 	const candidateWindow = window as typeof window & {
@@ -91,12 +98,18 @@ export function getInjectedSolanaWallet(): TrustLedgerSolanaWallet | null {
 	return candidateWindow.phantom?.solana ?? candidateWindow.solana ?? null;
 }
 
+/** Normalises a `PublicKey | string | { toBase58 }` value to a `PublicKey` instance. */
 export function normalizeSolanaPublicKey(value: PublicKeyLike): PublicKey {
 	if (value instanceof PublicKey) return value;
 	if (typeof value === "string") return new PublicKey(value);
 	return new PublicKey(value.toBase58());
 }
 
+/**
+ * Parses a user-entered SOL amount string into lamports (`bigint`).
+ *
+ * @throws If the input is not a valid non-negative decimal, has more than 9 decimal places, or is zero.
+ */
 export function parseSolToLamports(value: string): bigint {
 	const trimmed = value.trim();
 	if (!/^\d+(?:\.\d+)?$/u.test(trimmed)) {
@@ -157,6 +170,11 @@ function writeU64Le(target: Uint8Array, offset: number, value: bigint): void {
 	target.set(bytes, offset);
 }
 
+/**
+ * Serialises a `create_escrow` instruction payload into the raw byte layout expected by the TrustLedger Solana program.
+ *
+ * @throws If `contractHash` is not 32 bytes or the encoded URI exceeds 1024 bytes.
+ */
 export function encodeCreateSolanaEscrowInstruction(params: {
 	readonly amountLamports: bigint;
 	readonly durationSeconds: bigint;
@@ -201,6 +219,14 @@ export function encodeCreateSolanaEscrowInstruction(params: {
 	return data;
 }
 
+/**
+ * Builds an unsigned `create_escrow` Solana `Transaction` from form input.
+ *
+ * Derives the escrow PDA, encodes the instruction, and returns a {@link SolanaEscrowTransactionDraft}
+ * ready to be signed and submitted.
+ *
+ * @throws If `NEXT_PUBLIC_SOLANA_PROGRAM_ID` is unset or any input value is invalid.
+ */
 export function buildCreateSolanaEscrowTransaction(
 	input: SolanaEscrowBuildInput,
 ): SolanaEscrowTransactionDraft {

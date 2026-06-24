@@ -263,3 +263,12 @@ _This Acceptable Use Policy (Version 2.0.0) was last reviewed and updated on
 June 9, 2026, following a comprehensive legal red-team audit. Changes include:
 addition of §5.7 (self-dealing/wash trading), §5.8 (AI-generated abuse), §5.9
 (facilitation of prohibited activity), and §5.10 (false reporting)._
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

@@ -1,5 +1,6 @@
 import type { Contract } from "@/types";
 
+/** Display labels for each numeric escrow status index, used in analytics charts and summaries. */
 export const ANALYTICS_STATUS_LABELS = [
 	"Pending",
 	"Active",
@@ -10,6 +11,7 @@ export const ANALYTICS_STATUS_LABELS = [
 	"Cancelled",
 ] as const;
 
+/** Aggregated analytics summary for a single wallet address across all its TrustLedger contracts. */
 export interface WalletAnalyticsSummary {
 	readonly totalContracts: number;
 	readonly asClient: number;
@@ -34,6 +36,12 @@ function percent(part: number, total: number): number {
 	return Math.round((part / total) * 100);
 }
 
+/**
+ * Computes a {@link WalletAnalyticsSummary} for `walletAddress` from the full on-chain contract list.
+ *
+ * @param contracts - All contracts visible to the caller (client or freelancer matching is done internally).
+ * @param walletAddress - The wallet to summarise.
+ */
 export function buildWalletAnalyticsSummary(
 	contracts: readonly Contract[],
 	walletAddress: `0x${string}`,

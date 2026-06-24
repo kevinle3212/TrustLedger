@@ -64,6 +64,7 @@ export function subscribeInactivityTimeout(onChange: () => void): () => void {
 const DASHBOARD_VISITED_KEY = "tl_visited";
 const PROFILE_STORAGE_HANDLE = ["trustledger", "profile", "handle"].join(":");
 
+/** Returns `true` if the user has completed the dashboard onboarding guide (local flag only). */
 export function readLocalDashboardVisited(): boolean {
 	try {
 		return window.localStorage.getItem(DASHBOARD_VISITED_KEY) === "1";

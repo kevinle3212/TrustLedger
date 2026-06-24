@@ -1,3 +1,10 @@
+---
+name: env-sync
+description:
+    Use whenever a change introduces, removes, renames, or newly requires an
+    environment variable across frontend, API, Docker, Kubernetes, or docs.
+---
+
 # Env Sync
 
 Use this skill whenever frontend, API, workflow, Docker, Kubernetes, or docs

@@ -2499,3 +2499,12 @@ using the TrustLedger Platform or Services in any way, You acknowledge that You
 have had a reasonable opportunity to read these Terms, that You have read,
 understood, and agree to be legally bound by these Terms and Conditions in their
 entirety, and that You are entering into a legally binding agreement._
+
+## Authors and Contributors
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.

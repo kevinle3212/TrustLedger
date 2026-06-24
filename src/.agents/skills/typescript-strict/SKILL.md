@@ -3,7 +3,6 @@ name: typescript-strict
 description:
     Use after TypeScript, API route, service, script, test, or shared type
     changes. Runs the strict root and frontend TypeScript checks.
-version: "1.0.0"
 ---
 
 # TypeScript Strict

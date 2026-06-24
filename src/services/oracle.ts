@@ -1,5 +1,6 @@
 import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
 
+/** A single price rate fetched from the oracle source (CoinGecko or a configured override). */
 export interface OracleRate {
 	readonly base: OracleAsset;
 	readonly quote: OracleQuote;
@@ -12,12 +13,14 @@ export interface OracleRate {
 export type OracleAsset = "eth" | "usdc";
 export type OracleQuote = "usd";
 
+/** A supported asset/quote trading pair for the oracle. */
 export interface OraclePair {
 	readonly base: OracleAsset;
 	readonly quote: OracleQuote;
 	readonly providerId: string;
 }
 
+/** Runtime configuration and cache state returned by `GET /api/oracle/status`. */
 export interface OracleStatus {
 	readonly source: string;
 	readonly ttlMs: number;

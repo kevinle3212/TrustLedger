@@ -10,6 +10,7 @@ import { PermissionError } from "@/core/errors";
 
 export type Role = "guest" | "client" | "freelancer" | "juror" | "admin";
 
+/** Union of all permission action strings checked by the TrustLedger authorisation system. */
 export type Action =
 	| "contract:create"
 	| "contract:view"

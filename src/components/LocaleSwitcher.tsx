@@ -67,6 +67,7 @@ function focusLocaleOption(nextIndex: number): void {
 	document.getElementById(`locale-option-${nextLocale}`)?.focus();
 }
 
+/** Dropdown for switching the active locale; updates the URL prefix via `next-intl`. */
 export function LocaleSwitcher(): React.JSX.Element {
 	const locale = useLocale() as (typeof routing.locales)[number];
 	const router = useRouter();

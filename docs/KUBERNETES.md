@@ -18,13 +18,21 @@
 - [Preview And Apply](#preview-and-apply)
 - [Rust Admin API](#rust-admin-api)
 - [Reproducibility Notes](#reproducibility-notes)
+- [Authors and Contributors](#authors-and-contributors)
+- [Legal](#legal)
 
 <!-- docs-toc:end -->
 
-> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
-> development. His vision, ideas, and dedication during the project's founding
-> were invaluable to the codebase we build on today. See
-> [`CREDITS.md`](../CREDITS.md).
+> **Kevin K. Le** ([LinkedIn](https://linkedin.com/in/lekevin1)) — Founder,
+> Founding Engineer, and Current Lead Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon.
+>
+> **Kellen Snider** — Founding Engineer; Software Engineer at the Oregon
+> Blockchain Group, University of Oregon. His vision, ideas, and dedication
+> during TrustLedger's Ethereum development were invaluable to the codebase we
+> build on today.
+>
+> See [`CREDITS.md`](CREDITS.md).
 
 TrustLedger includes a Kubernetes base for running the production Next.js
 frontend alongside the Docker image in `docker/Dockerfile.frontend`.
@@ -215,3 +223,33 @@ curl -H "Authorization: Bearer $TRUSTLEDGER_ADMIN_API_TOKEN" \
   `k8s/kustomization.yaml` so placeholder secrets are never applied by default.
 - Use Kustomize overlays outside the base for production-specific hostnames,
   image tags, resource sizes, and ingress class settings.
+
+## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+- **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
+  ([LinkedIn](https://www.linkedin.com/in/lekevin1))
+- **Kellen Snider** — Founding Engineer
+  ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/))
+
+See [`CREDITS.md`](CREDITS.md) for the complete acknowledgement list.
+
+## Legal
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+This document is part of TrustLedger, an open-source decentralized escrow and
+arbitration protocol. Use of this software and documentation is subject to the
+[Terms and Conditions](../TERMS_AND_CONDITIONS.md),
+[Privacy Policy](../PRIVACY_POLICY.md), and
+[Risk Disclosure](../RISK_DISCLOSURE.md). See [`LEGAL.md`](LEGAL.md) for the
+full compliance and licensing overview.
