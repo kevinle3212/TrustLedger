@@ -18,8 +18,10 @@
 
 <!-- docs-toc:end -->
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](../CREDITS.md).
 
 TrustLedger relies on Next.js and its bundled SWC compiler for frontend builds.
 The repository does not use a root `.swcrc` because Next.js owns the runtime

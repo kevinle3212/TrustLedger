@@ -5,9 +5,6 @@ description: Use when changing wallet reads, event scans, rendering loops, large
 
 # Performance Review
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
-
 ## Checklist
 
 - Avoid adding client dependencies for server-only tasks.

@@ -92,18 +92,40 @@ function parseRatePayload(
 	};
 }
 
+/**
+ * Type guard for the supported oracle base asset allowlist.
+ *
+ * @param value - Candidate asset symbol.
+ * @returns `true` when `value` is a supported {@link OracleAsset}.
+ */
 export function isOracleAsset(value: string): value is OracleAsset {
 	return Object.hasOwn(ASSET_IDS, value);
 }
 
+/**
+ * Type guard for the supported oracle quote-currency allowlist.
+ *
+ * @param value - Candidate quote symbol.
+ * @returns `true` when `value` is a supported {@link OracleQuote}.
+ */
 export function isOracleQuote(value: string): value is OracleQuote {
 	return value === "usd";
 }
 
+/**
+ * Clears the in-memory oracle rate cache. Test-only helper for deterministic
+ * fetch behavior between cases.
+ */
 export function resetOracleCacheForTests(): void {
 	cache = undefined;
 }
 
+/**
+ * Returns public oracle metadata (provider shape, supported pairs, TTL, cache
+ * state). Performs no provider fetch and never exposes credentials.
+ *
+ * @returns The current {@link OracleStatus}.
+ */
 export function getOracleStatus(): OracleStatus {
 	const source = process.env.ORACLE_PRICE_SOURCE_URL ?? DEFAULT_ORACLE_SOURCE_URL;
 	return {
@@ -124,6 +146,15 @@ export function getOracleStatus(): OracleStatus {
 	};
 }
 
+/**
+ * Fetches an exchange rate from the configured provider, serving a brief
+ * server-side cache when warm and marking provider-failure fallbacks as stale.
+ *
+ * @param base - Supported base asset (for example `eth`).
+ * @param quote - Supported quote currency (for example `usd`).
+ * @returns The resolved {@link OracleRate}.
+ * @throws When the provider fetch fails and no usable value is available.
+ */
 export async function fetchOracleRate(base: OracleAsset, quote: OracleQuote): Promise<OracleRate> {
 	const now = Date.now();
 	if (cache?.rate.base === base && cache.expiresAtMs > now) {

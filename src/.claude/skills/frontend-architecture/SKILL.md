@@ -5,9 +5,6 @@ description: Use when changing Next.js routes, React component structure, wallet
 
 # Frontend Architecture
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
-
 ## Checklist
 
 - Preserve App Router layout boundaries under `app/[locale]/`.

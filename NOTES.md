@@ -11,8 +11,10 @@
   approved command escalation instead of weakening application code or hiding
   real build failures.
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](./CREDITS.md).
 
 Public, shareable working notes for TrustLedger: ideas, research findings, and
 decisions that are worth recording but are not yet ready for the formal

@@ -17,6 +17,8 @@ echo "pre-commit: analytics"
 npm run analytics:check
 echo "pre-commit: docs navigation"
 npm run docs:nav:check
+echo "pre-commit: auto-format"
+npx prettier --write .
 echo "pre-commit: formatting"
 npm run lint:prettier
 echo "pre-commit: CI TypeScript parity"

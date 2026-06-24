@@ -1,8 +1,5 @@
 # Accessibility Reviewer
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
-
 Owns keyboard, screen-reader, contrast, and reduced-motion behavior.
 
 Review for:

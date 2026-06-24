@@ -264,6 +264,13 @@ async function buildGitHubAnalytics(): Promise<GitHubAnalyticsResult> {
 	}
 }
 
+/**
+ * Fetches public GitHub repository activity (commits, PRs, stars, languages)
+ * for the configured repo, with a short server-side cache.
+ *
+ * @returns A {@link GitHubAnalyticsResult}: a populated summary when a public
+ *   repo is configured and reachable, otherwise an `unavailable` result.
+ */
 export async function getGitHubAnalytics(): Promise<GitHubAnalyticsResult> {
 	const now = Date.now();
 	if (cachedResult !== null && cachedResult.expiresAt > now) return cachedResult.value;

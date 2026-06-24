@@ -1,7 +1,9 @@
 # Copilot instructions
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](../CREDITS.md).
 
 Follow root `AGENTS.md` first, then `.cursor/instructions/precedence.md` for
 path routing context.

@@ -22,8 +22,10 @@
 
 <!-- docs-toc:end -->
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](../CREDITS.md).
 
 This document explains how to run TrustLedger tests and quality gates. Use it
 before opening a PR or debugging a failing GitHub Actions job.

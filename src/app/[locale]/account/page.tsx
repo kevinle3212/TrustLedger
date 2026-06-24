@@ -1,6 +1,7 @@
 "use client";
 
 import { ConnectButton } from "@/components/ConnectButton";
+import { InactivityTimeoutSetting } from "@/components/InactivityTimeoutSetting";
 import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -69,6 +70,20 @@ export default function AccountPage(): React.JSX.Element {
 						</p>
 					</article>
 				))}
+			</section>
+
+			<section className="mt-6">
+				<article className="tl-motion-card rounded-2xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.03]">
+					<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
+						{t("autoLogoutTitle")}
+					</h2>
+					<p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+						{t("autoLogoutBody")}
+					</p>
+					<div className="mt-4 max-w-xs">
+						<InactivityTimeoutSetting />
+					</div>
+				</article>
 			</section>
 		</main>
 	);

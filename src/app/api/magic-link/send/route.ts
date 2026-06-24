@@ -4,6 +4,24 @@ import { emailShell, sendEmail } from "@/services/email";
 
 const EXPIRY_SECONDS = 72 * 60 * 60; // 72 hours
 
+/**
+ * `POST /api/magic-link/send` — emails a signed, expiring magic link inviting a
+ * counterparty to review a contract.
+ *
+ * - **Auth:** none, but requires `MAGIC_LINK_SECRET` to be configured; the link
+ *   itself is a signed token with a 72-hour expiry.
+ * - **Request body (JSON):** `contractId` (string, required), `clientEmail`
+ *   (email, required), `clientAddress` (`0x` address, required), `role`
+ *   (`"client" | "freelancer"`, optional, defaults to `"client"`).
+ * - **Responses:**
+ *   - `200` `{ ok: true }` when the email is sent.
+ *   - `400` `{ error }` for invalid JSON or fields.
+ *   - `500` when `MAGIC_LINK_SECRET` is unset.
+ *   - `502` `{ error }` when the email provider fails.
+ *
+ * @param req - Incoming request carrying the JSON body.
+ * @returns JSON acknowledgement or an error.
+ */
 export async function POST(req: NextRequest): Promise<NextResponse> {
 	const secret = process.env["MAGIC_LINK_SECRET"];
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

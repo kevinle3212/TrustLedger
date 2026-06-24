@@ -43,6 +43,7 @@ src/.vercel/
 .claude/
 .serena/
 .sixth/
+src/.playwright-cli/
 
 # ─── Git hooks (no file extension — prettier cannot infer a parser) ───────────
 .husky/

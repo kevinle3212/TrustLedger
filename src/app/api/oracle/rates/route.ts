@@ -1,14 +1,25 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { fetchOracleRate, isOracleAsset, isOracleQuote } from "@/services/oracle";
 
-// GET /api/oracle/rates?base=eth&quote=usd
-//
-// Server-side oracle endpoint for exchange-rate data used by stablecoin/payment
-// UX. The route validates the symbol allowlist, fetches from a configurable
-// provider, caches briefly server-side, and marks fallback values as stale.
-
 export const dynamic = "force-dynamic";
 
+/**
+ * `GET /api/oracle/rates?base=eth&quote=usd` — server-side exchange-rate lookup
+ * for stablecoin/payment UX.
+ *
+ * - **Auth:** none.
+ * - **Query:** `base` (oracle asset, default `eth`), `quote` (oracle quote,
+ *   default `usd`); both validated against an allowlist.
+ * - **Behavior:** fetches from a configurable provider, caches briefly
+ *   server-side, and marks fallback values as stale.
+ * - **Responses:**
+ *   - `200` `{ ok: true, rate }`.
+ *   - `400` `{ error }` for an unsupported base or quote asset.
+ *   - `502` `{ error }` when the provider fetch fails.
+ *
+ * @param req - Incoming request carrying the `base`/`quote` query params.
+ * @returns JSON rate payload or an error.
+ */
 export async function GET(req: NextRequest): Promise<NextResponse> {
 	const base = req.nextUrl.searchParams.get("base") ?? "eth";
 	const quote = req.nextUrl.searchParams.get("quote") ?? "usd";

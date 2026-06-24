@@ -1,8 +1,5 @@
 # Legal Compliance Skill
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
-
 Use this Codex-facing frontend skill when React pages, API routes, docs, wallet
 flows, dispute UX, risk copy, or compliance-sensitive product behavior could
 change legal obligations.

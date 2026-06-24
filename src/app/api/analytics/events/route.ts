@@ -18,6 +18,20 @@ function isAnalyticsEventInput(value: unknown): value is AnalyticsEventInput {
 	);
 }
 
+/**
+ * `POST /api/analytics/events` — records a single privacy-safe analytics event.
+ *
+ * - **Auth:** none, but honors Do-Not-Track / privacy headers.
+ * - **Request body (JSON):** `{ name: "page_view" | "frontend_error", path:
+ *   string, locale?: string }`.
+ * - **Responses:**
+ *   - `200` `{ ok: true }` when recorded.
+ *   - `204` when privacy headers opt out, or the event is dropped by sampling.
+ *   - `400` `{ error }` for invalid JSON or an invalid event shape.
+ *
+ * @param request - Incoming request carrying the JSON event.
+ * @returns JSON acknowledgement, a `204`, or an error.
+ */
 export async function POST(request: Request): Promise<NextResponse> {
 	if (shouldRespectPrivacyHeaders(request.headers)) {
 		return new NextResponse(null, { status: 204 });
@@ -41,6 +55,20 @@ export async function POST(request: Request): Promise<NextResponse> {
 		: NextResponse.json({ ok: true });
 }
 
+/**
+ * `GET /api/analytics/events` — returns aggregated analytics (admin/health
+ * authorized).
+ *
+ * - **Auth:** required. {@link isAuthorizedHealthRequest} (bearer/loopback/IP
+ *   allowlist).
+ * - **Request:** no parameters.
+ * - **Responses:**
+ *   - `200` aggregated analytics summary.
+ *   - `401` `{ error: "Unauthorized" }`.
+ *
+ * @param request - Incoming request (provides auth headers).
+ * @returns JSON analytics summary or an error.
+ */
 export function GET(request: Request): NextResponse {
 	if (!isAuthorizedHealthRequest(request)) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -940,7 +940,11 @@
 		"encryptedMessagingTitle": "Messagerie Chiffrée Prête",
 		"encryptedMessagingBody": "La limite API est conçue pour des enveloppes de messages chiffrées; les coordonnées personnelles en clair n’ont pas leur place dans les messages de plateforme.",
 		"externalDatabaseTitle": "Base de Données Externe Nécessaire",
-		"externalDatabaseBody": "La persistance de production doit utiliser Postgres, Supabase ou une autre base gérée configurée par secrets de déploiement."
+		"externalDatabaseBody": "La persistance de production doit utiliser Postgres, Supabase ou une autre base gérée configurée par secrets de déploiement.",
+		"autoLogoutTitle": "Auto-Logout Timeout",
+		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
+		"autoLogoutLabel": "Disconnect after",
+		"autoLogoutNote": "Takes effect on the next wallet connection."
 	},
 	"Status": {
 		"metadata": {

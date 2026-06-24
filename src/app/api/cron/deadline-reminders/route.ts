@@ -49,6 +49,24 @@ function loadEmailMap(): Record<string, string> {
 	}
 }
 
+/**
+ * `GET /api/cron/deadline-reminders` — scheduled scanner that emails contract
+ * parties when a project, acceptance, or warranty deadline is within the
+ * reminder window. Wired as a daily Vercel Cron in `vercel.json`.
+ *
+ * - **Auth:** required. `Authorization: Bearer <CRON_SECRET>` (Vercel attaches
+ *   this to cron invocations). Anonymous calls are rejected.
+ * - **Request:** no parameters.
+ * - **Behavior:** recipient resolution is a stopgap reading an address→email map
+ *   from `NOTIFICATION_EMAILS` (JSON); unknown addresses are counted as skipped.
+ * - **Responses:**
+ *   - `200` `{ ...counts }` summary of reminders sent/skipped.
+ *   - `401` `{ error: "unauthorized" }`.
+ *   - `500` `{ error }` when `CRON_SECRET` or `SEPOLIA_RPC_URL` is unset.
+ *
+ * @param req - Incoming request carrying the cron bearer token.
+ * @returns JSON run summary or an error.
+ */
 export async function GET(req: NextRequest): Promise<NextResponse> {
 	const cronSecret = process.env["CRON_SECRET"];
 	if (cronSecret === undefined || cronSecret === "")

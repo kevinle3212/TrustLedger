@@ -9,8 +9,10 @@
 
 # TrustLedger
 
-**Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
-[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
+> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
+> development. His vision, ideas, and dedication during the project's founding
+> were invaluable to the codebase we build on today. See
+> [`CREDITS.md`](./CREDITS.md).
 
 TrustLedger is a decentralized escrow, arbitration, and reputation system for
 freelance agreements on EVM chains. It helps a client lock funds, a freelancer
@@ -613,8 +615,12 @@ and validation evidence.
 
 ## Credits
 
-TrustLedger was created by Kevin Le with contributions from Kellen Snider and
-the early university demo context that shaped the project.
+TrustLedger was built by [Kevin Le](https://www.linkedin.com/in/lekevin1) with
+co-founding contributions from
+[Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/), whose
+Ethereum architecture and engineering were foundational to this project. See
+[`CREDITS.md`](CREDITS.md) for the full list of people, technologies, and
+resources that make TrustLedger possible.
 
 ## License
 

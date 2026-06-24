@@ -10,11 +10,20 @@ interface AdminAccount {
 	readonly nonDeletable: boolean;
 }
 
+/**
+ * Authenticated admin session, embedded (signed) in the admin session cookie and
+ * reconstructed on each request.
+ */
 export interface AdminSession {
+	/** Lowercased admin email. */
 	readonly email: string;
+	/** Lowercased admin username. */
 	readonly username: string;
+	/** Optional lowercased wallet address bound to the account. */
 	readonly walletAddress?: string;
+	/** Roles granted to the session (for example `owner`, `admin`, `operator`). */
 	readonly roles: readonly string[];
+	/** Expiry as a unix timestamp in seconds. */
 	readonly expiresAt: number;
 }
 
@@ -145,6 +154,13 @@ function verifyAdminPassword(password: string, encodedHash: string): boolean {
 	return timingSafeEqualString(actual, expected);
 }
 
+/**
+ * Checks the request IP against the `ADMIN_ALLOWED_IPS` allowlist.
+ *
+ * @param headers - Request headers used to resolve the client IP.
+ * @returns `true` when the allowlist is empty (no restriction), the IP is
+ *   listed, or (outside production) the IP is loopback.
+ */
 export function isAdminIpAllowed(headers: Headers): boolean {
 	const allowedIps = parseCsv(process.env["ADMIN_ALLOWED_IPS"]);
 	if (allowedIps.length === 0) return true;
@@ -159,6 +175,20 @@ function isWalletAllowed(walletAddress: string | undefined): boolean {
 	return normalized !== undefined && allowedWallets.includes(normalized);
 }
 
+/**
+ * Verifies admin login credentials against the configured admin accounts.
+ *
+ * Matches by username or email, enforces the optional wallet allowlist and any
+ * wallet bound to the account, and checks the password with a constant-time
+ * PBKDF2 comparison.
+ *
+ * @param input - Login attempt.
+ * @param input.usernameOrEmail - Username or email (case-insensitive).
+ * @param input.password - Plaintext password to verify.
+ * @param input.walletAddress - Optional connected wallet to bind/verify.
+ * @returns A fresh {@link AdminSession} on success, or `undefined` when
+ *   authentication fails for any reason (account, wallet, or password).
+ */
 export function authenticateAdminCredentials(input: {
 	readonly usernameOrEmail: string;
 	readonly password: string;
@@ -203,6 +233,15 @@ function verifyAdminSessionToken(token: string | undefined): AdminSession | unde
 	return parsed;
 }
 
+/**
+ * Builds a `Set-Cookie` header carrying the signed admin session.
+ *
+ * The cookie is `HttpOnly`, `SameSite=Lax`, 30-minute `Max-Age`, and `Secure` in
+ * production.
+ *
+ * @param session - Session to sign and embed.
+ * @returns A `Set-Cookie` header value.
+ */
 export function adminCookieHeader(session: AdminSession): string {
 	return [
 		`${ADMIN_COOKIE_NAME}=${signAdminSession(session)}`,
@@ -216,10 +255,26 @@ export function adminCookieHeader(session: AdminSession): string {
 		.join("; ");
 }
 
+/**
+ * Builds a `Set-Cookie` header that immediately clears the admin session cookie
+ * (used on logout).
+ *
+ * @returns A `Set-Cookie` header value with `Max-Age=0`.
+ */
 export function expiredAdminCookieHeader(): string {
 	return `${ADMIN_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
 }
 
+/**
+ * Reconstructs an {@link AdminSession} from request headers.
+ *
+ * Accepts either a static `Authorization: Bearer <ADMIN_API_TOKEN>` (yielding a
+ * short-lived token-admin session) or the signed session cookie. The cookie
+ * signature and expiry are both verified.
+ *
+ * @param headers - Request headers.
+ * @returns The session, or `undefined` when no valid credential is present.
+ */
 export function adminSessionFromHeaders(headers: Headers): AdminSession | undefined {
 	const token = process.env["ADMIN_API_TOKEN"];
 	const authorization = headers.get("authorization");
@@ -242,6 +297,14 @@ export function adminSessionFromHeaders(headers: Headers): AdminSession | undefi
 	return verifyAdminSessionToken(sessionCookie?.slice(ADMIN_COOKIE_NAME.length + 1));
 }
 
+/**
+ * Top-level admin authorization gate: requires both an allowed IP and a valid
+ * admin session.
+ *
+ * @param headers - Request headers.
+ * @returns `true` only when {@link isAdminIpAllowed} and
+ *   {@link adminSessionFromHeaders} both pass.
+ */
 export function isAuthorizedAdminRequest(headers: Headers): boolean {
 	return isAdminIpAllowed(headers) && adminSessionFromHeaders(headers) !== undefined;
 }
