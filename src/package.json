@@ -56,9 +56,10 @@
 	"scripts": {
 		"dev:frontend": "NODE_OPTIONS='--disable-warning=DEP0205' next dev",
 		"swc:populate": "node ../tools/ensure-swc-cache.mjs",
+		"stats:generate": "node ../scripts/generate-codebase-stats.mjs",
 		"prebuild:frontend": "npm run swc:populate",
-		"build:frontend": "NODE_OPTIONS='--disable-warning=DEP0205' next build",
-		"vercel-build": "next build",
+		"build:frontend": "npm run stats:generate && NODE_OPTIONS='--disable-warning=DEP0205' next build",
+		"vercel-build": "npm run stats:generate && next build",
 		"start:frontend": "next start",
 		"start:e2e:standalone": "node ../tools/start-standalone-e2e.mjs",
 		"typecheck": "npx tsc --noEmit",

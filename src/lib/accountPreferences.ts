@@ -8,14 +8,17 @@ const INACTIVITY_TIMEOUT_KEY = "trustledger:inactivity:timeout";
 /** Default auto-logout timeout (10 minutes). */
 export const DEFAULT_INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000;
 
-/** Available timeout options in milliseconds. */
+/**
+ * Available timeout options in milliseconds. `labelKey` resolves against the
+ * `Account` message namespace so the labels stay localized.
+ */
 export const INACTIVITY_TIMEOUT_OPTIONS = [
-	{ ms: 1 * 60 * 1000, label: "1 Min" },
-	{ ms: 5 * 60 * 1000, label: "5 Min" },
-	{ ms: 10 * 60 * 1000, label: "10 Min" },
-	{ ms: 15 * 60 * 1000, label: "15 Min" },
-	{ ms: 30 * 60 * 1000, label: "30 Min" },
-	{ ms: 60 * 60 * 1000, label: "1 Hr" },
+	{ ms: 1 * 60 * 1000, labelKey: "timeout1Min" },
+	{ ms: 5 * 60 * 1000, labelKey: "timeout5Min" },
+	{ ms: 10 * 60 * 1000, labelKey: "timeout10Min" },
+	{ ms: 15 * 60 * 1000, labelKey: "timeout15Min" },
+	{ ms: 30 * 60 * 1000, labelKey: "timeout30Min" },
+	{ ms: 60 * 60 * 1000, labelKey: "timeout1Hr" },
 ] as const;
 
 /** Reads the user's preferred inactivity timeout from localStorage. Falls back to the default. */

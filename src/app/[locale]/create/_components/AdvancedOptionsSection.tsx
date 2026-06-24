@@ -14,14 +14,13 @@ interface Props {
 }
 
 const HOLD_BACK_OPTIONS = [
-	{ value: "none", labelKey: "holdbackNone", detail: "No warranty reserve" },
-	{ value: "5", labelKey: null, detail: "5% held during warranty" },
-	{ value: "10", labelKey: null, detail: "10% held during warranty" },
-	{ value: "15", labelKey: null, detail: "15% held during warranty" },
+	{ value: "none", labelKey: "holdbackNone" },
+	{ value: "5", labelKey: null },
+	{ value: "10", labelKey: null },
+	{ value: "15", labelKey: null },
 ] as const satisfies readonly {
 	readonly value: FormFields["holdBack"];
 	readonly labelKey: "holdbackNone" | null;
-	readonly detail: string;
 }[];
 
 function HoldBackMenu({
@@ -37,6 +36,10 @@ function HoldBackMenu({
 	const selected =
 		HOLD_BACK_OPTIONS.find((option) => option.value === value) ?? HOLD_BACK_OPTIONS[0];
 	const selectedLabel = selected.labelKey === null ? `${selected.value}%` : t(selected.labelKey);
+	const holdBackDetail = (option: (typeof HOLD_BACK_OPTIONS)[number]): string =>
+		option.value === "none"
+			? t("holdbackDetailNone")
+			: t("holdbackDetailPercent", { percent: option.value });
 
 	useEffect(() => {
 		function closeOnOutsideClick(event: MouseEvent): void {
@@ -71,7 +74,7 @@ function HoldBackMenu({
 			>
 				<span className="tl-choice-menu__main">
 					<span className="tl-choice-menu__label">{selectedLabel}</span>
-					<span className="tl-choice-menu__detail">{selected.detail}</span>
+					<span className="tl-choice-menu__detail">{holdBackDetail(selected)}</span>
 				</span>
 				<span className="tl-choice-menu__chevron" aria-hidden="true">
 					⌄
@@ -99,7 +102,7 @@ function HoldBackMenu({
 											{optionLabel}
 										</span>
 										<span className="tl-choice-menu__option-detail">
-											{option.detail}
+											{holdBackDetail(option)}
 										</span>
 									</span>
 									<span className="tl-choice-menu__check" aria-hidden="true">

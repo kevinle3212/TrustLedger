@@ -417,7 +417,9 @@
 		"connectEvmWalletHint": "استخدم زر المحفظة في الترويسة قبل إرسال ضمان ETH أو USDC.",
 		"acceptanceWindowDateTime": "تاريخ ووقت نافذة القبول",
 		"daysButton": "{days} أيام",
-		"emailPlaceholder": "client@example.com"
+		"emailPlaceholder": "client@example.com",
+		"holdbackDetailNone": "لا يوجد احتياطي ضمان",
+		"holdbackDetailPercent": "يتم حجز {percent}% خلال فترة الضمان"
 	},
 	"Juror": {
 		"connectWallet": "اربط محفظتك لإدارة تسجيل المحلف.",
@@ -773,7 +775,9 @@
 		"about": "حول",
 		"openFaq": "فتح الأسئلة الشائعة",
 		"openLegal": "فتح المركز القانوني",
-		"openAbout": "فتح صفحة نبذة عن المشروع"
+		"openAbout": "فتح صفحة نبذة عن المشروع",
+		"stats": "إحصاءات",
+		"openStats": "فتح إحصاءات المشروع"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -948,7 +952,13 @@
 		"autoLogoutTitle": "Auto-Logout Timeout",
 		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
 		"autoLogoutLabel": "Disconnect after",
-		"autoLogoutNote": "Takes effect on the next wallet connection."
+		"autoLogoutNote": "Takes effect on the next wallet connection.",
+		"timeout1Min": "دقيقة واحدة",
+		"timeout5Min": "5 دقائق",
+		"timeout10Min": "10 دقائق",
+		"timeout15Min": "15 دقيقة",
+		"timeout30Min": "30 دقيقة",
+		"timeout1Hr": "ساعة واحدة"
 	},
 	"Status": {
 		"metadata": {
@@ -1036,5 +1046,22 @@
 		"emailOrUsername": "Email or username",
 		"password": "كلمة المرور",
 		"openAdminDashboard": "فتح لوحة الإدارة"
+	},
+	"Stats": {
+		"eyebrow": "حجم المشروع",
+		"title": "إحصاءات قاعدة الشيفرة",
+		"intro": "نظرة شفافة على حجم قاعدة شيفرة TrustLedger: إجمالي أسطر الشيفرة والملفات والأدلة واللغات التي تتكوّن منها. تُحتسب كل قيمة من ملفات المصدر المتتبَّعة عبر git ولا تحتوي على أي معلومات خاصة.",
+		"statLines": "أسطر الشيفرة",
+		"statFiles": "الملفات",
+		"statDirectories": "الأدلة",
+		"statLanguages": "اللغات",
+		"statSize": "حجم المصدر",
+		"viewAbout": "حول المشروع",
+		"generated": "أُنشئت في {date}",
+		"generatedNote": "تُعاد إنشاء الإحصاءات مع كل بناء إنتاجي، لذا فهي تعكس دائمًا أحدث مصدر.",
+		"languagesTitle": "التوزيع حسب اللغة",
+		"languagesIntro": "نسبة أسطر المصدر حسب اللغة عبر قاعدة الشيفرة المتتبَّعة.",
+		"languageMeta": "{lines} سطر · {files} ملف · {share}%",
+		"viewWalletAnalytics": "عرض تحليلات المحفظة"
 	}
 }

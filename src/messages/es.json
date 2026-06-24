@@ -417,7 +417,9 @@
 		"connectEvmWalletHint": "Usa el botón de billetera del encabezado antes de enviar escrow en ETH o USDC.",
 		"acceptanceWindowDateTime": "Fecha y hora de la ventana de aceptación",
 		"daysButton": "{days} Días",
-		"emailPlaceholder": "client@example.com"
+		"emailPlaceholder": "client@example.com",
+		"holdbackDetailNone": "Sin reserva de garantía",
+		"holdbackDetailPercent": "{percent}% retenido durante la garantía"
 	},
 	"Juror": {
 		"connectWallet": "Conecta tu billetera para administrar tu registro de jurado.",
@@ -773,7 +775,9 @@
 		"about": "Acerca de",
 		"openFaq": "Abrir preguntas frecuentes",
 		"openLegal": "Abrir centro legal",
-		"openAbout": "Abrir página sobre el proyecto"
+		"openAbout": "Abrir página sobre el proyecto",
+		"stats": "Estadísticas",
+		"openStats": "Abrir estadísticas del proyecto"
 	},
 	"FAQ": {
 		"eyebrow": "Preguntas Frecuentes",
@@ -948,7 +952,13 @@
 		"autoLogoutTitle": "Auto-Logout Timeout",
 		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
 		"autoLogoutLabel": "Disconnect after",
-		"autoLogoutNote": "Takes effect on the next wallet connection."
+		"autoLogoutNote": "Takes effect on the next wallet connection.",
+		"timeout1Min": "1 min",
+		"timeout5Min": "5 min",
+		"timeout10Min": "10 min",
+		"timeout15Min": "15 min",
+		"timeout30Min": "30 min",
+		"timeout1Hr": "1 h"
 	},
 	"Status": {
 		"metadata": {
@@ -1036,5 +1046,22 @@
 		"emailOrUsername": "Email o nombre de usuario",
 		"password": "Contraseña",
 		"openAdminDashboard": "Abrir panel de admin"
+	},
+	"Stats": {
+		"eyebrow": "Escala Del Proyecto",
+		"title": "Estadísticas Del Código",
+		"intro": "Una visión transparente de la escala del código de TrustLedger: total de líneas de código, archivos, directorios y los lenguajes que lo componen. Cada cifra se calcula a partir de los archivos de código versionados con git y no contiene información privada.",
+		"statLines": "Líneas De Código",
+		"statFiles": "Archivos",
+		"statDirectories": "Directorios",
+		"statLanguages": "Lenguajes",
+		"statSize": "Tamaño Del Código",
+		"viewAbout": "Sobre El Proyecto",
+		"generated": "Generado el {date}",
+		"generatedNote": "Las estadísticas se regeneran en cada compilación de producción, por lo que siempre reflejan el código más reciente.",
+		"languagesTitle": "Desglose Por Lenguaje",
+		"languagesIntro": "Proporción de líneas de código por lenguaje en todo el código rastreado.",
+		"languageMeta": "{lines} líneas · {files} archivos · {share}%",
+		"viewWalletAnalytics": "Ver Analíticas de Billetera"
 	}
 }

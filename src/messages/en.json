@@ -473,7 +473,9 @@
 		"connectEvmWalletHint": "Use the header wallet button before submitting ETH or USDC escrow.",
 		"acceptanceWindowDateTime": "Acceptance window date and time",
 		"daysButton": "{days} Days",
-		"emailPlaceholder": "client@example.com"
+		"emailPlaceholder": "client@example.com",
+		"holdbackDetailNone": "No warranty reserve",
+		"holdbackDetailPercent": "{percent}% held during warranty"
 	},
 	"Juror": {
 		"connectWallet": "Connect your wallet to manage your juror registration.",
@@ -773,7 +775,9 @@
 		"about": "About",
 		"openFaq": "Open frequently asked questions",
 		"openLegal": "Open legal center",
-		"openAbout": "Open project about page"
+		"openAbout": "Open project about page",
+		"stats": "Stats",
+		"openStats": "Open project statistics"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -948,7 +952,13 @@
 		"autoLogoutTitle": "Auto-Logout Timeout",
 		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
 		"autoLogoutLabel": "Disconnect after",
-		"autoLogoutNote": "Takes effect on the next wallet connection."
+		"autoLogoutNote": "Takes effect on the next wallet connection.",
+		"timeout1Min": "1 Min",
+		"timeout5Min": "5 Min",
+		"timeout10Min": "10 Min",
+		"timeout15Min": "15 Min",
+		"timeout30Min": "30 Min",
+		"timeout1Hr": "1 Hr"
 	},
 	"Status": {
 		"metadata": {
@@ -1036,5 +1046,22 @@
 		"emailOrUsername": "Email or username",
 		"password": "Password",
 		"openAdminDashboard": "Open admin dashboard"
+	},
+	"Stats": {
+		"eyebrow": "Project Scale",
+		"title": "Codebase Statistics",
+		"intro": "A transparent look at the scale of the TrustLedger codebase: total lines of code, files, directories, and the languages that make it up. Every figure is computed from git-tracked source files and contains no private information.",
+		"statLines": "Lines Of Code",
+		"statFiles": "Files",
+		"statDirectories": "Directories",
+		"statLanguages": "Languages",
+		"statSize": "Source Size",
+		"viewAbout": "About The Project",
+		"generated": "Generated {date}",
+		"generatedNote": "Statistics regenerate on every production build, so they always reflect the latest source.",
+		"languagesTitle": "Language Breakdown",
+		"languagesIntro": "Share of source lines by language across the tracked codebase.",
+		"languageMeta": "{lines} lines · {files} files · {share}%",
+		"viewWalletAnalytics": "View Wallet Analytics"
 	}
 }

@@ -13,10 +13,11 @@
 > Founding Engineer, and Current Lead Engineer; Software Engineer at the Oregon
 > Blockchain Group, University of Oregon.
 >
-> **Kellen Snider** — Founding Engineer; Software Engineer at the Oregon
-> Blockchain Group, University of Oregon. His vision, ideas, and dedication
-> during TrustLedger's Ethereum development were invaluable to the codebase we
-> build on today.
+> **Kellen Snider**
+> ([LinkedIn](https://www.linkedin.com/in/kellen-snider-683396256/)) — Founder,
+> Founding Engineer; Software Engineer at the Oregon Blockchain Group,
+> University of Oregon. His vision, ideas, and dedication during TrustLedger's
+> Ethereum development were invaluable to the codebase we build on today.
 >
 > See [`CREDITS.md`](./CREDITS.md).
 
@@ -433,6 +434,7 @@ wallet authorization, and migration strategy before adoption.
 | `GET /api/cron/deadline-reminders` | Scan deadlines and send reminders.               | Bearer secret      |
 | `GET /api/oracle/rates`            | Fetch supported display exchange rate.           | Public             |
 | `GET /api/oracle/status`           | Report oracle provider, TTL, pairs, cache state. | Public             |
+| `GET /api/analytics/codebase`      | Codebase scale: lines, files, language mix.      | Public             |
 
 ## Frontend Pages
 
@@ -455,6 +457,7 @@ user-facing routes are locale-prefixed (e.g., `/en/dashboard`).
 | Legal Document    | [/en/legal/\[slug\]](https://trustledger-zeta.vercel.app/en/legal/terms)          | Public |
 | Reputation        | [/en/reputation](https://trustledger-zeta.vercel.app/en/reputation)               | Public |
 | Status            | [/en/status](https://trustledger-zeta.vercel.app/en/status)                       | Public |
+| Stats             | [/en/stats](https://trustledger-zeta.vercel.app/en/stats)                         | Public |
 | Account           | [/en/account](https://trustledger-zeta.vercel.app/en/account)                     | Wallet |
 | Admin             | [/en/admin](https://trustledger-zeta.vercel.app/en/admin)                         | Admin  |
 | Admin Sign-In     | [/en/admin/sign-in](https://trustledger-zeta.vercel.app/en/admin/sign-in)         | Public |

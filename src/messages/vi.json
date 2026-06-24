@@ -417,7 +417,9 @@
 		"connectEvmWalletHint": "Dùng nút ví ở đầu trang trước khi gửi ký quỹ ETH hoặc USDC.",
 		"acceptanceWindowDateTime": "Ngày và giờ của thời hạn chấp nhận",
 		"daysButton": "{days} ngày",
-		"emailPlaceholder": "client@example.com"
+		"emailPlaceholder": "client@example.com",
+		"holdbackDetailNone": "Không giữ lại bảo hành",
+		"holdbackDetailPercent": "Giữ lại {percent}% trong thời gian bảo hành"
 	},
 	"Juror": {
 		"connectWallet": "Kết nối ví của bạn để quản lý đăng ký thẩm phán.",
@@ -773,7 +775,9 @@
 		"about": "Giới thiệu",
 		"openFaq": "Mở câu hỏi thường gặp",
 		"openLegal": "Mở trung tâm pháp lý",
-		"openAbout": "Mở trang giới thiệu dự án"
+		"openAbout": "Mở trang giới thiệu dự án",
+		"stats": "Thống kê",
+		"openStats": "Mở thống kê dự án"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -948,7 +952,13 @@
 		"autoLogoutTitle": "Auto-Logout Timeout",
 		"autoLogoutBody": "Disconnect the wallet automatically after this period of inactivity.",
 		"autoLogoutLabel": "Disconnect after",
-		"autoLogoutNote": "Takes effect on the next wallet connection."
+		"autoLogoutNote": "Takes effect on the next wallet connection.",
+		"timeout1Min": "1 phút",
+		"timeout5Min": "5 phút",
+		"timeout10Min": "10 phút",
+		"timeout15Min": "15 phút",
+		"timeout30Min": "30 phút",
+		"timeout1Hr": "1 giờ"
 	},
 	"Status": {
 		"metadata": {
@@ -1036,5 +1046,22 @@
 		"emailOrUsername": "Email or username",
 		"password": "Mật khẩu",
 		"openAdminDashboard": "Mở bảng quản trị"
+	},
+	"Stats": {
+		"eyebrow": "Quy Mô Dự Án",
+		"title": "Thống Kê Mã Nguồn",
+		"intro": "Một cái nhìn minh bạch về quy mô mã nguồn TrustLedger: tổng số dòng mã, tệp, thư mục và các ngôn ngữ tạo nên nó. Mọi số liệu đều được tính từ các tệp nguồn được git theo dõi và không chứa thông tin riêng tư.",
+		"statLines": "Dòng Mã",
+		"statFiles": "Tệp",
+		"statDirectories": "Thư Mục",
+		"statLanguages": "Ngôn Ngữ",
+		"statSize": "Kích Thước Mã Nguồn",
+		"viewAbout": "Về Dự Án",
+		"generated": "Được tạo vào {date}",
+		"generatedNote": "Thống kê được tạo lại trong mỗi lần xây dựng bản phát hành, vì vậy luôn phản ánh mã nguồn mới nhất.",
+		"languagesTitle": "Phân Tích Theo Ngôn Ngữ",
+		"languagesIntro": "Tỷ lệ dòng mã theo ngôn ngữ trên toàn bộ mã nguồn được theo dõi.",
+		"languageMeta": "{lines} dòng · {files} tệp · {share}%",
+		"viewWalletAnalytics": "Xem Phân Tích Ví"
 	}
 }
