@@ -3,10 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { BreakdownDonut } from "@/components/charts/BreakdownDonut";
 import { TrendLineChart } from "@/components/charts/TrendLineChart";
 
-// Recharts' ResponsiveContainer relies on ResizeObserver, which jsdom lacks.
+// Recharts' ResponsiveContainer measures its container via ResizeObserver.
+// jsdom never fires the callback, so Recharts falls back to -1×-1 and warns.
+// Invoke the callback immediately with a non-zero size to suppress the warning.
 beforeAll(() => {
-	globalThis.ResizeObserver = jest.fn(() => ({
-		observe: (): void => undefined,
+	globalThis.ResizeObserver = jest.fn((callback: ResizeObserverCallback) => ({
+		observe(): void {
+			callback([{ contentRect: { width: 400, height: 300 } } as ResizeObserverEntry], this);
+		},
 		unobserve: (): void => undefined,
 		disconnect: (): void => undefined,
 	}));

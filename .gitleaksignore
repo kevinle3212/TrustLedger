@@ -1,2 +1,11 @@
 # Keep fingerprint ignores rare: prefer scoped .gitleaks.toml allowlists for
 # stable public constants so shallow CI checkouts do not break on new commit SHAs.
+#
+# Format: <filepath>:<rule-id>:<start-line>
+# Generate with: gitleaks detect --report-format json | python3 -c "import json,sys;[print(x['Fingerprint']) for x in json.load(sys.stdin)]"
+
+# .impeccable/live/server.json — local Impeccable dev-server config; the
+# detected value is an auto-generated UUID session identifier, not an API key.
+# The file is git-ignored (.impeccable/live/* in .gitignore) so this entry only
+# suppresses noise when running `gitleaks detect --no-git` locally.
+.impeccable/live/server.json:generic-api-key:1

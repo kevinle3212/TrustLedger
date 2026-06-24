@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ContrastToggle } from "@/components/ContrastToggle";
+import { MobileNavMenu } from "@/components/MobileNavMenu";
+import { NAV_LINKS } from "@/components/nav-links";
 
 /** GitHub mark SVG icon. */
 function GitHubIcon(): React.JSX.Element {
@@ -97,45 +99,23 @@ export function Navbar(): React.JSX.Element {
 				</Link>
 				<nav
 					aria-label={t("mainNav")}
-					className="tl-nav-scroller order-3 -mx-1 flex min-w-0 max-w-full items-center gap-x-3 overflow-x-auto px-1 pb-1 sm:col-span-2 sm:gap-x-6 lg:order-none lg:col-span-1 lg:mx-0 lg:justify-center lg:px-0 lg:pb-0"
+					className="tl-nav-scroller order-3 -mx-1 hidden min-w-0 max-w-full items-center gap-x-3 overflow-x-auto px-1 pb-1 sm:col-span-2 sm:gap-x-6 lg:order-none lg:col-span-1 lg:mx-0 lg:flex lg:justify-center lg:px-0 lg:pb-0"
 				>
-					<Link
-						href="/create"
-						aria-current={path === "/create" ? "page" : undefined}
-						className={linkClass("/create")}
-					>
-						{t("newContract")}
-					</Link>
-					<Link
-						href="/dashboard"
-						aria-current={path === "/dashboard" ? "page" : undefined}
-						className={linkClass("/dashboard")}
-					>
-						{t("dashboard")}
-					</Link>
-					<Link
-						href="/juror"
-						aria-current={path === "/juror" ? "page" : undefined}
-						className={linkClass("/juror")}
-					>
-						{t("juror")}
-					</Link>
-					<Link
-						href="/reputation"
-						aria-current={path === "/reputation" ? "page" : undefined}
-						className={linkClass("/reputation")}
-					>
-						{t("reputation")}
-					</Link>
-					<Link
-						href="/faq"
-						aria-current={path === "/faq" ? "page" : undefined}
-						className={linkClass("/faq")}
-					>
-						{t("faq")}
-					</Link>
+					{NAV_LINKS.map((link) => (
+						<Link
+							key={link.href}
+							href={link.href}
+							aria-current={path === link.href ? "page" : undefined}
+							className={linkClass(link.href)}
+						>
+							{t(link.labelKey)}
+						</Link>
+					))}
 				</nav>
 				<div className="tl-nav-scroller -mx-1 flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto px-1 pb-1 sm:justify-end lg:mx-0 lg:justify-end lg:px-0 lg:pb-0">
+					<div className="shrink-0 lg:hidden">
+						<MobileNavMenu />
+					</div>
 					<RoleToggle />
 					{githubUrl !== undefined && githubUrl !== "" && (
 						<a

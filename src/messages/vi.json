@@ -12,7 +12,9 @@
 		"viewGitHub": "Xem mã nguồn trên GitHub",
 		"changeLanguage": "Đổi ngôn ngữ",
 		"skipToMain": "Chuyển đến nội dung chính",
-		"faq": "Câu hỏi thường gặp"
+		"faq": "Câu hỏi thường gặp",
+		"openMenu": "Mở menu",
+		"closeMenu": "Đóng menu"
 	},
 	"FooterHelp": {
 		"buttonLabel": "Hướng Dẫn",
@@ -251,7 +253,8 @@
 		"walkthroughFinish": "Hoàn Tất Hướng Dẫn",
 		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
 		"exampleAmount": "0.75 ETH",
-		"loadingContracts": "Đang tải hợp đồng"
+		"loadingContracts": "Đang tải hợp đồng",
+		"contractActions": "Hành động hợp đồng"
 	},
 	"Create": {
 		"connectWallet": "Kết nối ví của bạn để đề xuất hợp đồng.",
@@ -560,7 +563,8 @@
 		"evidenceSubmittedCount": "Đã gửi {count}",
 		"noEvidence": "Chưa có bằng chứng nào được gửi.",
 		"requestsCompletion": "Yêu cầu hoàn thành {percent}%",
-		"saltPlaceholder": "0x…"
+		"saltPlaceholder": "0x…",
+		"disputeActions": "Hành động tranh chấp"
 	},
 	"Client": {
 		"contractTitle": "Hợp Đồng #{id}",

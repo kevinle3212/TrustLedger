@@ -12,7 +12,9 @@
 		"viewGitHub": "Ver código en GitHub",
 		"changeLanguage": "Cambiar idioma",
 		"skipToMain": "Saltar al contenido principal",
-		"faq": "Preguntas frecuentes"
+		"faq": "Preguntas frecuentes",
+		"openMenu": "Abrir menú",
+		"closeMenu": "Cerrar menú"
 	},
 	"FooterHelp": {
 		"buttonLabel": "Guía",
@@ -251,7 +253,8 @@
 		"walkthroughFinish": "Finalizar Guía",
 		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
 		"exampleAmount": "0.75 ETH",
-		"loadingContracts": "Cargando contratos"
+		"loadingContracts": "Cargando contratos",
+		"contractActions": "Acciones del contrato"
 	},
 	"Create": {
 		"connectWallet": "Conecta tu billetera para proponer un contrato.",
@@ -560,7 +563,8 @@
 		"evidenceSubmittedCount": "{count} enviadas",
 		"noEvidence": "Aún no se ha enviado evidencia.",
 		"requestsCompletion": "Solicita {percent}% de finalización",
-		"saltPlaceholder": "0x…"
+		"saltPlaceholder": "0x…",
+		"disputeActions": "Acciones de la disputa"
 	},
 	"Client": {
 		"contractTitle": "Contrato #{id}",

@@ -12,6 +12,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { useRole } from "@/contexts/RoleContext";
 import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import { RowActionMenu } from "@/components/RowActionMenu";
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 
@@ -638,135 +639,137 @@ function ContractCard({
 				/>
 			)}
 
-			{/* Actions — each block is gated by role (isClient/isFreelancer) and status number */}
-			<div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-				{/* status 0 = PENDING: freelancer-proposed → client accepts (funding) or rejects */}
-				{isClient && status === 0 && !contract.proposedByClient && (
-					<>
-						{isToken ? (
+			{/* Actions gated by role (isClient/isFreelancer) and status; discrete transactions collapse into a portal RowActionMenu, while the freelancer's deliverable form stays inline (forms cannot live in a disclosure). */}
+			<div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+				<RowActionMenu label={t("contractActions")} align="left">
+					{/* status 0 = PENDING: freelancer-proposed → client accepts (funding) or rejects */}
+					{isClient && status === 0 && !contract.proposedByClient && (
+						<>
+							{isToken ? (
+								<TokenFundButton
+									label={t("approveFundUsdc")}
+									contractId={id}
+									functionName="acceptContract"
+									tokenAddress={contract.token}
+									amount={contract.amount}
+									userAddress={address}
+								/>
+							) : (
+								<ActionButton
+									label={t("acceptFund")}
+									contractId={id}
+									functionName="acceptContract"
+									value={contract.amount}
+								/>
+							)}
+							<ActionButton
+								label={t("reject")}
+								contractId={id}
+								functionName="rejectContract"
+							/>
+						</>
+					)}
+					{/* status 0 = PENDING: client-proposed, freelancer accepted → client funds */}
+					{isClient &&
+						status === 0 &&
+						contract.proposedByClient &&
+						contract.freelancerAccepted &&
+						(isToken ? (
 							<TokenFundButton
 								label={t("approveFundUsdc")}
 								contractId={id}
-								functionName="acceptContract"
+								functionName="fundContractByClient"
 								tokenAddress={contract.token}
 								amount={contract.amount}
 								userAddress={address}
 							/>
 						) : (
 							<ActionButton
-								label={t("acceptFund")}
+								label={t("fundContract")}
 								contractId={id}
-								functionName="acceptContract"
+								functionName="fundContractByClient"
 								value={contract.amount}
 							/>
+						))}
+					{/* status 0 = PENDING: client-proposed → freelancer accepts or rejects */}
+					{isFreelancer && status === 0 && contract.proposedByClient && (
+						<>
+							<ActionButton
+								label={t("acceptOffer")}
+								contractId={id}
+								functionName="acceptContractByFreelancer"
+							/>
+							<ActionButton
+								label={t("rejectOffer")}
+								contractId={id}
+								functionName="rejectContractByFreelancer"
+							/>
+						</>
+					)}
+					{/* status 0 = PENDING: freelancer can withdraw their own unfunded proposal */}
+					{isFreelancer && status === 0 && !contract.proposedByClient && (
+						<ActionButton
+							label={t("withdrawProposal")}
+							contractId={id}
+							functionName="cancelProposal"
+						/>
+					)}
+					{/* status 0 = PENDING: client can withdraw their own unfunded proposal (before freelancer accepts or after) */}
+					{isClient &&
+						status === 0 &&
+						contract.proposedByClient &&
+						!contract.freelancerAccepted && (
+							<ActionButton
+								label={t("withdrawOffer")}
+								contractId={id}
+								functionName="withdrawClientProposal"
+							/>
 						)}
+					{/* status 2 = SUBMITTED: client reviews the proof-of-work */}
+					{isClient && status === 2 && (
+						<>
+							<ActionButton
+								label={t("approveWork")}
+								contractId={id}
+								functionName="approveWork"
+							/>
+							<ActionButton
+								label={t("dispute")}
+								contractId={id}
+								functionName="disputeWork"
+							/>
+						</>
+					)}
+					{/* status 1 = ACTIVE: client can reclaim funds if the freelancer missed the deadline */}
+					{isClient && status === 1 && now > contract.projectDeadline && (
 						<ActionButton
-							label={t("reject")}
+							label={t("reclaimDeadline")}
 							contractId={id}
-							functionName="rejectContract"
-						/>
-					</>
-				)}
-				{/* status 0 = PENDING: client-proposed, freelancer accepted → client funds */}
-				{isClient &&
-					status === 0 &&
-					contract.proposedByClient &&
-					contract.freelancerAccepted &&
-					(isToken ? (
-						<TokenFundButton
-							label={t("approveFundUsdc")}
-							contractId={id}
-							functionName="fundContractByClient"
-							tokenAddress={contract.token}
-							amount={contract.amount}
-							userAddress={address}
-						/>
-					) : (
-						<ActionButton
-							label={t("fundContract")}
-							contractId={id}
-							functionName="fundContractByClient"
-							value={contract.amount}
-						/>
-					))}
-				{/* status 0 = PENDING: client-proposed → freelancer accepts or rejects */}
-				{isFreelancer && status === 0 && contract.proposedByClient && (
-					<>
-						<ActionButton
-							label={t("acceptOffer")}
-							contractId={id}
-							functionName="acceptContractByFreelancer"
-						/>
-						<ActionButton
-							label={t("rejectOffer")}
-							contractId={id}
-							functionName="rejectContractByFreelancer"
-						/>
-					</>
-				)}
-				{/* status 0 = PENDING: freelancer can withdraw their own unfunded proposal */}
-				{isFreelancer && status === 0 && !contract.proposedByClient && (
-					<ActionButton
-						label={t("withdrawProposal")}
-						contractId={id}
-						functionName="cancelProposal"
-					/>
-				)}
-				{/* status 0 = PENDING: client can withdraw their own unfunded proposal (before freelancer accepts or after) */}
-				{isClient &&
-					status === 0 &&
-					contract.proposedByClient &&
-					!contract.freelancerAccepted && (
-						<ActionButton
-							label={t("withdrawOffer")}
-							contractId={id}
-							functionName="withdrawClientProposal"
+							functionName="claimAfterDeadlineMiss"
 						/>
 					)}
-				{/* status 2 = SUBMITTED: client reviews the proof-of-work */}
-				{isClient && status === 2 && (
-					<>
-						<ActionButton
-							label={t("approveWork")}
-							contractId={id}
-							functionName="approveWork"
-						/>
-						<ActionButton
-							label={t("dispute")}
-							contractId={id}
-							functionName="disputeWork"
-						/>
-					</>
-				)}
-				{/* status 1 = ACTIVE: client can reclaim funds if the freelancer missed the deadline */}
-				{isClient && status === 1 && now > contract.projectDeadline && (
-					<ActionButton
-						label={t("reclaimDeadline")}
-						contractId={id}
-						functionName="claimAfterDeadlineMiss"
-					/>
-				)}
-				{/* status 2 = SUBMITTED: either party can trigger auto-release after acceptance window */}
-				{status === 2 &&
-					now > contract.acceptanceDeadline &&
-					contract.acceptanceDeadline > BigInt(0) && (
-						<ActionButton
-							label={t("releaseAfterWindow")}
-							contractId={id}
-							functionName="claimAfterAcceptanceWindow"
-						/>
-					)}
-				{/* status 3 = APPROVED: freelancer claims the warranty holdback after the warranty period */}
-				{isFreelancer &&
-					status === 3 &&
-					contract.holdBackAmount > BigInt(0) &&
-					now > contract.warrantyDeadline && (
-						<ActionButton
-							label={t("claimWarrantyFunds")}
-							contractId={id}
-							functionName="claimWarrantyFunds"
-						/>
-					)}
+					{/* status 2 = SUBMITTED: either party can trigger auto-release after acceptance window */}
+					{status === 2 &&
+						now > contract.acceptanceDeadline &&
+						contract.acceptanceDeadline > BigInt(0) && (
+							<ActionButton
+								label={t("releaseAfterWindow")}
+								contractId={id}
+								functionName="claimAfterAcceptanceWindow"
+							/>
+						)}
+					{/* status 3 = APPROVED: freelancer claims the warranty holdback after the warranty period */}
+					{isFreelancer &&
+						status === 3 &&
+						contract.holdBackAmount > BigInt(0) &&
+						now > contract.warrantyDeadline && (
+							<ActionButton
+								label={t("claimWarrantyFunds")}
+								contractId={id}
+								functionName="claimWarrantyFunds"
+							/>
+						)}
+				</RowActionMenu>
 				{/* status 1 = ACTIVE: freelancer submits their deliverable */}
 				{isFreelancer && status === 1 && <SubmitWorkForm contractId={id} />}
 			</div>

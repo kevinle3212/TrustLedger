@@ -69,6 +69,9 @@ nav:
     - Audit Readiness: AUDIT-READINESS.md
     - GitHub Rulesets: GITHUB-RULESETS.md
     - Legal And Compliance: LEGAL.md
+    - Terms and Conditions: TERMS_AND_CONDITIONS.md
+    - Privacy Policy: PRIVACY_POLICY.md
+    - Risk Disclosure: RISK_DISCLOSURE.md
     - Admin Dashboard: ADMIN.md
     - Environment: ENVIRONMENT.md
     - Sepolia Faucets: FAUCETS.md
@@ -116,6 +119,10 @@ extra:
           link: https://github.com/kevinle3212/TrustLedger
           name: TrustLedger on GitHub
     generator: false
+
+validation:
+    links:
+        not_found: info
 
 plugins:
     - search

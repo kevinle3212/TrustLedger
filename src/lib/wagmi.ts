@@ -1,5 +1,13 @@
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { arbitrum, type AppKitNetwork, base, optimism, sepolia } from "@reown/appkit/networks";
+import { createConfig, http } from "wagmi";
+import { mock } from "wagmi/connectors";
+import {
+	arbitrum as arbitrumChain,
+	base as baseChain,
+	optimism as optimismChain,
+	sepolia as sepoliaChain,
+} from "viem/chains";
 import { FEATURED_WALLET_IDS } from "./walletIds";
 
 /** The all-zero EVM address used as a sentinel for "no token" (native ETH) in escrow contracts. */
@@ -258,7 +266,40 @@ export const wagmiAdapter = new WagmiAdapter({
  * can offer Coinbase Wallet (no longer deprecated), MetaMask, WalletConnect,
  * Phantom, Tangem, and every other WalletConnect-registry wallet.
  */
-export const config = wagmiAdapter.wagmiConfig;
+/**
+ * Deterministic EOA used by the env-gated E2E mock wallet. Matches Anvil's
+ * second default account so on-chain follow-up tests can reuse the same key.
+ */
+export const E2E_MOCK_ADDRESS: `0x${string}` = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
+/**
+ * True only when the build opts into the deterministic mock wallet via
+ * `NEXT_PUBLIC_E2E_MOCK_WALLET=1`. Used by Playwright connected-flow specs so a
+ * fake account is available without a real wallet. Never set in production.
+ */
+export const isE2eMockWallet = process.env.NEXT_PUBLIC_E2E_MOCK_WALLET === "1";
+
+/**
+ * Builds a standalone wagmi config backed by wagmi's `mock` connector. Bypasses
+ * Reown AppKit entirely: the connector reports a connected account so the
+ * connected UI (wallet menu, analytics shell, juror staking panel) renders.
+ * Contract reads stay disabled (zero-address deployments), so no chain is hit.
+ */
+function createE2eMockConfig(): ReturnType<typeof createConfig> {
+	return createConfig({
+		chains: [sepoliaChain, arbitrumChain, baseChain, optimismChain],
+		connectors: [mock({ accounts: [E2E_MOCK_ADDRESS], features: { reconnect: true } })],
+		transports: {
+			[sepoliaChain.id]: http(),
+			[arbitrumChain.id]: http(),
+			[baseChain.id]: http(),
+			[optimismChain.id]: http(),
+		},
+		ssr: true,
+	});
+}
+
+export const config = isE2eMockWallet ? createE2eMockConfig() : wagmiAdapter.wagmiConfig;
 export { FEATURED_WALLET_IDS };
 
 const EXPLORERS: Record<number, string> = {

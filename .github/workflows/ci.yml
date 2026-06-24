@@ -2,7 +2,6 @@ name: CI
 
 on:
     push:
-        branches: [main]
     pull_request:
         branches: [main]
 
@@ -51,6 +50,77 @@ jobs:
               run: npm run test:e2e
               env:
                   NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+
+    lighthouse:
+        name: Lighthouse CI (performance budgets)
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: src
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: src/package-lock.json
+
+            - name: Install dependencies
+              run: npx --yes npm@11.12.1 ci
+
+            - name: Build
+              run: npm run build:frontend
+              env:
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+
+            # LHCI runs via npx to avoid lockfile churn. Assertions are
+            # error-level (src/.lighthouserc.json): a budget miss fails the job.
+            - name: Run Lighthouse CI
+              run: npx --yes @lhci/cli@0.15.x autorun
+              env:
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+
+    e2e-wallet:
+        name: E2E (connected wallet, mock connector)
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: src
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 22
+                  cache: npm
+                  cache-dependency-path: src/package-lock.json
+
+            - name: Install dependencies
+              run: npx --yes npm@11.12.1 ci
+
+            - name: Install Playwright browser
+              run: npx playwright install --with-deps chromium
+
+            # The mock-wallet flag is inlined at build time, so the connected
+            # suite needs its own build. The deterministic mock connector
+            # (NEXT_PUBLIC_E2E_MOCK_WALLET=1) reports a connected account without
+            # a real wallet; contract reads stay disabled (zero-address).
+            - name: Build (mock wallet)
+              run: npm run build:frontend
+              env:
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+                  NEXT_PUBLIC_E2E_MOCK_WALLET: "1"
+
+            - name: Playwright E2E (connected)
+              run: npm run test:e2e:wallet
+              env:
+                  NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: ""
+                  NEXT_PUBLIC_E2E_MOCK_WALLET: "1"
 
     typescript:
         name: TypeScript (lint + typecheck)

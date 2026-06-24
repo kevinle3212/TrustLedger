@@ -1,5 +1,37 @@
 # TrustLedger — Risk Disclosure
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [1. Introduction](#1-introduction)
+- [2. Financial Risk](#2-financial-risk)
+- [3. Smart Contract Risk](#3-smart-contract-risk)
+- [4. Blockchain Network Risk](#4-blockchain-network-risk)
+- [5. Technology and Infrastructure Risk](#5-technology-and-infrastructure-risk)
+- [6. Security Risk](#6-security-risk)
+- [7. Counterparty and Marketplace Risk](#7-counterparty-and-marketplace-risk)
+- [8. Legal and Regulatory Risk](#8-legal-and-regulatory-risk)
+- [9. AI and Automation Risk](#9-ai-and-automation-risk)
+- [10. Pseudorandomness Risk](#10-pseudorandomness-risk)
+- [11. Platform Continuity and Abandonment Risk](#11-platform-continuity-and-abandonment-risk)
+- [12. Regulatory Classification Risk](#12-regulatory-classification-risk)
+- [13. Cross-Chain Bridge Risk](#13-cross-chain-bridge-risk)
+- [14. Governance and Protocol Attack Risk](#14-governance-and-protocol-attack-risk)
+- [15. Summary: You Assume All Risks](#15-summary-you-assume-all-risks)
+- [16. Related Documents](#16-related-documents)
+- [Authors and Contributors](#authors-and-contributors)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -18,6 +50,12 @@
 
 ## 1. Introduction
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 TrustLedger operates at the intersection of blockchain technology, smart
 contracts, cryptocurrency, decentralized systems, and marketplace interactions.
 Each of these domains carries significant risks. This document is designed to
@@ -29,6 +67,12 @@ All capitalized terms have the meanings set forth in the Terms and Conditions.
 ---
 
 ## 2. Financial Risk
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **2.1 Cryptocurrency Volatility.** Cryptocurrency values are highly volatile.
 Assets deposited into an escrow may decline substantially in value between
@@ -65,6 +109,12 @@ fulfilled. Counterparties may fail to perform.
 
 ## 3. Smart Contract Risk
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **3.1 Unaudited Code.** **THE SMART CONTRACTS HAVE NOT BEEN INDEPENDENTLY
 AUDITED AS OF THE EFFECTIVE DATE.** Smart contracts are software and may contain
 bugs, logical errors, mathematical errors, or other defects. These defects could
@@ -95,6 +145,12 @@ accounting.
 
 ## 4. Blockchain Network Risk
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **4.1 Network Congestion.** High network activity may delay Transaction
 confirmation. Time-sensitive contract actions (such as approving work within an
 acceptance window) may be affected by network congestion.
@@ -118,6 +174,12 @@ blockchain network availability.
 ---
 
 ## 5. Technology and Infrastructure Risk
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **5.1 Platform Availability.** The Frontend Application, API routes, email
 services, and other Platform infrastructure may experience downtime, outages,
@@ -146,6 +208,12 @@ may be adversely affected.
 
 ## 6. Security Risk
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **6.1 Cybersecurity.** The Platform may be targeted by cyberattacks, including
 DDoS attacks, smart contract exploits, phishing campaigns, and account
 takeovers. No system is completely secure.
@@ -170,6 +238,12 @@ addresses and usage information.
 ---
 
 ## 7. Counterparty and Marketplace Risk
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **7.1 No Identity Verification.** The Operator does not verify the identity,
 credentials, qualifications, or good faith of any User. You may transact with
@@ -197,6 +271,12 @@ fair, accurate, or legally enforceable.
 
 ## 8. Legal and Regulatory Risk
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **8.1 Regulatory Uncertainty.** The legal status of blockchain technology,
 cryptocurrency, smart contracts, and decentralized platforms varies
 significantly by jurisdiction and is subject to rapid change. Regulatory changes
@@ -223,6 +303,12 @@ arise from Your use of the Platform.
 
 ## 9. AI and Automation Risk
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **9.1 AI Output Errors.** AI-generated content or analysis may be inaccurate,
 incomplete, or misleading. Reliance on AI outputs without independent
 verification may lead to harmful decisions.
@@ -240,6 +326,12 @@ requirements, or the specific facts of Your situation.
 
 ## 10. Pseudorandomness Risk
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 Where the Arbitration Smart Contract uses pseudo-random juror selection based on
 blockchain parameters (`block.prevrandao`, `block.timestamp`, and dispute ID),
 this selection is not equivalent to cryptographically secure randomness. Block
@@ -249,6 +341,12 @@ limitation of the non-VRF arbitration path.
 ---
 
 ## 11. Platform Continuity and Abandonment Risk
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **11.1 Project Discontinuation.** TrustLedger is a student project operated by a
 university organization. The Operator may discontinue the Platform, cease
@@ -283,6 +381,12 @@ dispute is resolved.
 ---
 
 ## 12. Regulatory Classification Risk
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **12.1 Platform Regulatory Classification.** The Operator does not believe that
 it operates a regulated financial service. However, regulators in various
@@ -322,6 +426,12 @@ jurisdictions.
 
 ## 13. Cross-Chain Bridge Risk
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 If You use cross-chain bridges, relay networks, wrapped token protocols, or
 cross-chain interoperability solutions in connection with the Platform
 (including to move assets from one supported network to another):
@@ -342,6 +452,12 @@ Operator and the Escrow Contract until received at the destination.
 ---
 
 ## 14. Governance and Protocol Attack Risk
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 If the Platform introduces token-based governance, DAO voting, or other on-chain
 governance mechanisms:
@@ -365,6 +481,12 @@ free from manipulation.
 
 ## 15. Summary: You Assume All Risks
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **BY USING THE TRUSTLEDGER PLATFORM, YOU EXPRESSLY ACKNOWLEDGE AND ASSUME ALL
 RISKS DESCRIBED IN THIS DOCUMENT AND ALL OTHER RISKS ASSOCIATED WITH BLOCKCHAIN
 TECHNOLOGY, SMART CONTRACTS, CRYPTOCURRENCY, DECENTRALIZED SYSTEMS, MARKETPLACE
@@ -382,6 +504,12 @@ INTERACTIONS, AND ONLINE PLATFORMS. YOU AGREE THAT:**
 ---
 
 ## 16. Related Documents
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 This Risk Disclosure should be read together with:
 
@@ -401,6 +529,12 @@ cross-border risk), Section 13 (Cross-Chain Bridge Risk), and Section 14
 accordingly._
 
 ## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
   ([LinkedIn](https://www.linkedin.com/in/lekevin1))

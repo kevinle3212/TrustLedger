@@ -8,5 +8,9 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
+# ─── Lighthouse CI ────────────────────────────────────────────────────────────
+# Transient LHCI run output (reports, manifest). Never a source of failures.
+.lighthouseci/
+
 # ─── Vercel ───────────────────────────────────────────────────────────────────
 .vercel/

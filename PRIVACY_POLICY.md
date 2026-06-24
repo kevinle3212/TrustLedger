@@ -1,5 +1,37 @@
 # TrustLedger — Privacy Policy
 
+<a id="top"></a>
+
+<!-- docs-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-nav:end -->
+
+## Table of Contents
+
+<!-- docs-toc:start -->
+
+- [1. Introduction and Scope](#1-introduction-and-scope)
+- [2. Information We Collect](#2-information-we-collect)
+- [3. How We Use Information](#3-how-we-use-information)
+- [4. Blockchain and Public Data](#4-blockchain-and-public-data)
+- [5. Cookies and Tracking Technologies](#5-cookies-and-tracking-technologies)
+- [6. Third-Party Service Processors](#6-third-party-service-processors)
+- [7. Data Sharing and Disclosure](#7-data-sharing-and-disclosure)
+- [8. Data Retention](#8-data-retention)
+- [9. Security of Information](#9-security-of-information)
+- [10. International Data Transfers](#10-international-data-transfers)
+- [11. Your Rights and Choices](#11-your-rights-and-choices)
+- [12. Children's Privacy](#12-childrens-privacy)
+- [13. No Professional Advice](#13-no-professional-advice)
+- [14. Limitations of This Policy](#14-limitations-of-this-policy)
+- [15. Changes to This Policy](#15-changes-to-this-policy)
+- [16. Contact Information](#16-contact-information)
+- [Authors and Contributors](#authors-and-contributors)
+
+<!-- docs-toc:end -->
+
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
@@ -8,28 +40,15 @@
 
 ---
 
-## Table of Contents
-
-1. [Introduction and Scope](#1-introduction-and-scope)
-2. [Information We Collect](#2-information-we-collect)
-3. [How We Use Information](#3-how-we-use-information)
-4. [Blockchain and Public Data](#4-blockchain-and-public-data)
-5. [Cookies and Tracking Technologies](#5-cookies-and-tracking-technologies)
-6. [Third-Party Service Processors](#6-third-party-service-processors)
-7. [Data Sharing and Disclosure](#7-data-sharing-and-disclosure)
-8. [Data Retention](#8-data-retention)
-9. [Security of Information](#9-security-of-information)
-10. [International Data Transfers](#10-international-data-transfers)
-11. [Your Rights and Choices](#11-your-rights-and-choices)
-12. [Children's Privacy](#12-childrens-privacy)
-13. [No Professional Advice](#13-no-professional-advice)
-14. [Limitations of This Policy](#14-limitations-of-this-policy)
-15. [Changes to This Policy](#15-changes-to-this-policy)
-16. [Contact Information](#16-contact-information)
-
 ---
 
 ## 1. Introduction and Scope
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **1.1 Who We Are.** TrustLedger is a decentralized escrow, arbitration, and
 reputation platform operated by TrustLedger. This Privacy Policy describes how
@@ -65,6 +84,12 @@ direct all data protection inquiries to the contact address in Section 16.
 ---
 
 ## 2. Information We Collect
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **2.1 Information You Provide Directly.**
 
@@ -137,6 +162,12 @@ or biometric data.
 
 ## 3. How We Use Information
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 We use the information collected for the following purposes. For each purpose,
 we identify the lawful basis we rely upon under applicable data protection law
 (including the GDPR and UK GDPR where applicable). Where multiple bases may
@@ -194,6 +225,12 @@ withdrawal, and does not affect processing conducted on other legal bases.
 
 ## 4. Blockchain and Public Data
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **4.1 Public Nature of Blockchain Data.** All Transactions submitted to a
 blockchain are permanently and publicly visible on the relevant blockchain
 network. This includes:
@@ -229,6 +266,12 @@ responsible for deanonymization by third parties.
 
 ## 5. Cookies and Tracking Technologies
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **5.1 Types of Technologies Used.** The Platform may use the following
 technologies:
 
@@ -260,6 +303,12 @@ used may be directed to the address in Section 16.
 
 ## 6. Third-Party Service Processors
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **6.1 Processors.** In operating the Platform, we share data with third-party
 service providers that process data on our behalf, including:
 
@@ -283,6 +332,12 @@ You interact with.
 ---
 
 ## 7. Data Sharing and Disclosure
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **7.1 We Do Not Sell Data.** We do not sell, rent, or trade Your personal
 information to third parties for their marketing purposes.
@@ -314,6 +369,12 @@ Your prior consent.
 
 ## 8. Data Retention
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **8.1 General Retention.** We retain non-public personal data for as long as
 necessary to fulfill the purposes described in this Policy, including to provide
 the Services, comply with legal obligations, resolve disputes, and enforce our
@@ -344,6 +405,12 @@ enforcement request.
 
 ## 9. Security of Information
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **9.1 Security Measures.** The Operator implements reasonable technical and
 organizational measures designed to protect non-public data against unauthorized
 access, alteration, disclosure, or destruction. These measures include transport
@@ -373,6 +440,12 @@ will follow the most stringent applicable requirement.
 
 ## 10. International Data Transfers
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **10.1 Global Operations.** The Services may be operated from and may process
 data in the United States and in other countries. By using the Services, You
 consent to the transfer, storage, and processing of Your information in any
@@ -394,6 +467,12 @@ acknowledge and accept this risk.
 ---
 
 ## 11. Your Rights and Choices
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **11.1 Access and Correction.** Depending on Your jurisdiction, You may have the
 right to request access to, or correction of, personal data we hold about You.
@@ -492,6 +571,12 @@ claims.
 
 ## 12. Children's Privacy
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 **12.1 Not for Children.** The Services are not directed to children under the
 age of eighteen (18). We do not knowingly collect personal information from
 children under the age of eighteen. If we learn that we have collected personal
@@ -521,6 +606,12 @@ address in Section 16 to confirm this policy.
 
 ## 13. No Professional Advice
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 Nothing in this Privacy Policy constitutes legal advice regarding data
 protection law, GDPR compliance, CCPA compliance, or any other privacy
 regulation. You should consult a qualified privacy attorney regarding Your
@@ -529,6 +620,12 @@ specific data protection obligations.
 ---
 
 ## 14. Limitations of This Policy
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 **14.1 No Guarantees.** This Policy describes our current data practices, but we
 cannot guarantee that all data handling will occur exactly as described due to
@@ -545,6 +642,12 @@ Platform.
 
 ## 15. Changes to This Policy
 
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
 We may update this Privacy Policy at any time. Material changes will be
 communicated by updating the "Last Updated" date and, where appropriate, by
 posting a notice on the Platform. Your continued use of the Services after any
@@ -553,6 +656,12 @@ modification constitutes Your acceptance of the updated Policy.
 ---
 
 ## 16. Contact Information
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 Privacy inquiries, data access requests, and deletion requests:
 
@@ -573,6 +682,12 @@ cookie policy correction; response timeline commitments; and first-party privacy
 analytics disclosure._
 
 ## Authors and Contributors
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
 
 - **Kevin K. Le** — Founder, Founding Engineer, and Current Lead Engineer
   ([LinkedIn](https://www.linkedin.com/in/lekevin1))

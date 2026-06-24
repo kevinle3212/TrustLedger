@@ -11,6 +11,7 @@ import {
 	useWaitForTransactionReceipt,
 } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
+import { RowActionMenu } from "@/components/RowActionMenu";
 import { encodePacked, formatEther, keccak256 } from "viem";
 import { ARBITRATION_ABI } from "@/lib/abi";
 import { ARBITRATION_ADDRESS } from "@/lib/wagmi";
@@ -738,34 +739,6 @@ function DisputeActions({
 					</div>
 				)}
 
-			{state.isConnected &&
-				state.isSelectedJuror &&
-				dispute.finalized &&
-				state.isMajorityJuror === true && (
-					<PermissionlessButton
-						label={t("claimReward")}
-						disputeId={disputeId}
-						functionName="claimReward"
-					/>
-				)}
-
-			{(phase === 0 || phase === 4) &&
-				(state.phaseDeadlinePassed || dispute.jurorCount >= dispute.maxJurors) && (
-					<PermissionlessButton
-						label={t("advanceToReveal")}
-						disputeId={disputeId}
-						functionName="advanceToReveal"
-					/>
-				)}
-
-			{(phase === 1 || phase === 5) && state.phaseDeadlinePassed && (
-				<PermissionlessButton
-					label={t("finalizeDispute")}
-					disputeId={disputeId}
-					functionName="finalizeDispute"
-				/>
-			)}
-
 			{state.isConnected && state.isParty && state.appealWindowOpen && (
 				<div className="flex flex-col gap-2">
 					<p className="text-xs font-medium text-red-500 dark:text-red-400">
@@ -775,18 +748,49 @@ function DisputeActions({
 				</div>
 			)}
 
-			{state.canExecute && (
-				<div className="flex flex-col gap-1">
-					<p className="text-xs text-gray-500 dark:text-gray-400">
-						{t("appealWindowElapsed")}
-					</p>
+			{/* Discrete, permissionless actions collapse into a portal disclosure so the
+			    panel stays compact and the panel escapes any surrounding overflow; the
+			    commit/reveal/appeal/evidence forms above stay inline. Renders nothing
+			    when no permissionless action currently applies. */}
+			<RowActionMenu label={t("disputeActions")} align="left">
+				{state.isConnected &&
+					state.isSelectedJuror &&
+					dispute.finalized &&
+					state.isMajorityJuror === true && (
+						<PermissionlessButton
+							label={t("claimReward")}
+							disputeId={disputeId}
+							functionName="claimReward"
+						/>
+					)}
+				{(phase === 0 || phase === 4) &&
+					(state.phaseDeadlinePassed || dispute.jurorCount >= dispute.maxJurors) && (
+						<PermissionlessButton
+							label={t("advanceToReveal")}
+							disputeId={disputeId}
+							functionName="advanceToReveal"
+						/>
+					)}
+				{(phase === 1 || phase === 5) && state.phaseDeadlinePassed && (
 					<PermissionlessButton
-						label={t("executeRuling")}
+						label={t("finalizeDispute")}
 						disputeId={disputeId}
-						functionName="executeRuling"
+						functionName="finalizeDispute"
 					/>
-				</div>
-			)}
+				)}
+				{state.canExecute && (
+					<div className="flex flex-col gap-1">
+						<p className="text-xs text-gray-500 dark:text-gray-400">
+							{t("appealWindowElapsed")}
+						</p>
+						<PermissionlessButton
+							label={t("executeRuling")}
+							disputeId={disputeId}
+							functionName="executeRuling"
+						/>
+					</div>
+				)}
+			</RowActionMenu>
 
 			{state.isConnected && !state.isSelectedJuror && !state.isParty && dispute.finalized && (
 				<p className="text-sm text-gray-500">{t("notPartyOrJuror")}</p>

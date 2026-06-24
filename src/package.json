@@ -81,7 +81,8 @@
 		"test:unit": "jest --runInBand",
 		"i18n:scan": "jest --runInBand tests/unit/no-visible-jsx-literals.test.ts tests/unit/locale-messages.test.ts",
 		"test:coverage": "jest --coverage",
-		"test:e2e": "env -u NO_COLOR playwright test",
+		"test:e2e": "env -u NO_COLOR playwright test --grep-invert @wallet",
+		"test:e2e:wallet": "env -u NO_COLOR playwright test --project=chromium --grep @wallet",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:headed": "playwright test --headed",
 		"install:playwright": "playwright install chromium"

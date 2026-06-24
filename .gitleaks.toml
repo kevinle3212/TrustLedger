@@ -7,9 +7,11 @@ useDefault = true
 description = "Generated and vendored paths are excluded from local filesystem scanning."
 paths = [
 	'''^\.git/''',
+	'''^\.impeccable/''',
 	'''^\.mypy_cache/''',
 	'''^\.nexus/''',
 	'''^\.serena/''',
+	'''^\.vercel/''',
 	'''^artifacts/''',
 	'''^cache/''',
 	'''^contracts/cache/''',
@@ -18,8 +20,10 @@ paths = [
 	'''^dist/''',
 	'''^logs/''',
 	'''^node_modules/''',
+	'''^programs/.*/target/''',
 	'''^site/''',
 	'''^src/\.next/''',
+	'''^src/\.vercel/''',
 	'''^src/node_modules/''',
 	'''^testing/''',
 	'''^tmp/''',

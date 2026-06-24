@@ -2,9 +2,9 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
-import { useState, useSyncExternalStore } from "react";
-import { WagmiProvider } from "wagmi";
-import { config } from "@/lib/wagmi";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { useAccount, useConnect, WagmiProvider } from "wagmi";
+import { config, isE2eMockWallet } from "@/lib/wagmi";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
 import {
 	DEFAULT_INACTIVITY_TIMEOUT_MS,
@@ -29,6 +29,24 @@ function InactivityWatcher(): null {
 	return null;
 }
 
+/**
+ * Connects the deterministic mock wallet on mount when the E2E mock build is
+ * active (`NEXT_PUBLIC_E2E_MOCK_WALLET=1`). Renders nothing and is never mounted
+ * in production builds, where {@link isE2eMockWallet} is false.
+ */
+function E2eMockWalletAutoConnect(): null {
+	const { connect, connectors } = useConnect();
+	const { isConnected } = useAccount();
+
+	useEffect(() => {
+		if (isConnected) return;
+		const mockConnector = connectors[0];
+		if (mockConnector !== undefined) connect({ connector: mockConnector });
+	}, [isConnected, connect, connectors]);
+
+	return null;
+}
+
 /** Root client provider tree wrapping the app with Wagmi, AppKit, React Query, and other shared contexts. */
 export function Providers({ children }: { children: React.ReactNode }): React.JSX.Element {
 	const [queryClient] = useState(() => new QueryClient());
@@ -43,6 +61,7 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 			<RoleProvider>
 				<WagmiProvider config={config}>
 					<QueryClientProvider client={queryClient}>
+						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : null}
 						<InactivityWatcher />
 						{children}
 					</QueryClientProvider>

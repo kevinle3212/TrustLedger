@@ -12,7 +12,9 @@
 		"viewGitHub": "عرض الكود على GitHub",
 		"changeLanguage": "تغيير اللغة",
 		"skipToMain": "الانتقال إلى المحتوى الرئيسي",
-		"faq": "الأسئلة الشائعة"
+		"faq": "الأسئلة الشائعة",
+		"openMenu": "فتح القائمة",
+		"closeMenu": "إغلاق القائمة"
 	},
 	"FooterHelp": {
 		"buttonLabel": "الدليل",
@@ -251,7 +253,8 @@
 		"walkthroughFinish": "إنهاء الدليل",
 		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
 		"exampleAmount": "0.75 ETH",
-		"loadingContracts": "جارٍ تحميل العقود"
+		"loadingContracts": "جارٍ تحميل العقود",
+		"contractActions": "إجراءات العقد"
 	},
 	"Create": {
 		"connectWallet": "اربط محفظتك لاقتراح عقد.",
@@ -560,7 +563,8 @@
 		"evidenceSubmittedCount": "تم إرسال {count}",
 		"noEvidence": "لم يتم إرسال أي دليل بعد.",
 		"requestsCompletion": "يطلب إنجاز {percent}%",
-		"saltPlaceholder": "0x…"
+		"saltPlaceholder": "0x…",
+		"disputeActions": "إجراءات النزاع"
 	},
 	"Client": {
 		"contractTitle": "عقد #{id}",

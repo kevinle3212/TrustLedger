@@ -1,18 +1,18 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Read the preferred dev-server port from the environment, defaulting to Next's port.
-const PORT = process.env["PORT"] ?? "3000";
+const PORT = process.env.PORT ?? "3000";
 // Some managed sandboxes reject binding directly to 127.0.0.1. Binding through
 // localhost keeps the server local while allowing the OS to choose the loopback
 // family it permits. Override when a CI host requires a specific interface.
-const WEB_SERVER_HOST = process.env["PLAYWRIGHT_WEB_SERVER_HOST"] ?? "localhost";
+const WEB_SERVER_HOST = process.env.PLAYWRIGHT_WEB_SERVER_HOST ?? "localhost";
 // Let CI or a developer point tests at an already-running deployment when needed.
-const BASE_URL = process.env["PLAYWRIGHT_BASE_URL"] ?? `http://${WEB_SERVER_HOST}:${PORT}`;
+const BASE_URL = process.env.PLAYWRIGHT_BASE_URL ?? `http://${WEB_SERVER_HOST}:${PORT}`;
 // Convert CI from an optional string into an explicit boolean for strict linting.
-const isCi = process.env["CI"] !== undefined && process.env["CI"] !== "";
+const isCi = process.env.CI !== undefined && process.env.CI !== "";
 // Production E2E runs avoid noisy framework development warnings. Developers can
 // opt back into `next dev` with PLAYWRIGHT_USE_DEV_SERVER=1 when debugging HMR.
-const useDevServer = process.env["PLAYWRIGHT_USE_DEV_SERVER"] === "1";
+const useDevServer = process.env.PLAYWRIGHT_USE_DEV_SERVER === "1";
 // CI builds the app immediately before E2E. Serving that production build keeps
 // logs clean and catches production-only routing/static-generation regressions.
 const webServerEnvPrefix = "env -u NO_COLOR";

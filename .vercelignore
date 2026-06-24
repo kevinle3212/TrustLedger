@@ -48,6 +48,8 @@ src/coverage/
 src/test-results/
 src/playwright-report/
 src/.playwright-cli/
+.lighthouseci/
+src/.lighthouseci/
 .mypy_cache/
 .venv-docs/
 .git/

@@ -12,7 +12,9 @@
 		"viewGitHub": "GitHub पर कोड देखें",
 		"changeLanguage": "भाषा बदलें",
 		"skipToMain": "मुख्य सामग्री पर जाएं",
-		"faq": "अक्सर पूछे जाने वाले प्रश्न"
+		"faq": "अक्सर पूछे जाने वाले प्रश्न",
+		"openMenu": "मेन्यू खोलें",
+		"closeMenu": "मेन्यू बंद करें"
 	},
 	"FooterHelp": {
 		"buttonLabel": "गाइड",
@@ -251,7 +253,8 @@
 		"walkthroughFinish": "वॉकथ्रू समाप्त करें",
 		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
 		"exampleAmount": "0.75 ETH",
-		"loadingContracts": "कॉन्ट्रैक्ट लोड हो रहे हैं"
+		"loadingContracts": "कॉन्ट्रैक्ट लोड हो रहे हैं",
+		"contractActions": "अनुबंध कार्रवाइयाँ"
 	},
 	"Create": {
 		"connectWallet": "अनुबंध प्रस्तावित करने के लिए वॉलेट कनेक्ट करें।",
@@ -560,7 +563,8 @@
 		"evidenceSubmittedCount": "{count} सबमिट किए गए",
 		"noEvidence": "अभी तक कोई साक्ष्य सबमिट नहीं किया गया है।",
 		"requestsCompletion": "{percent}% पूर्णता का अनुरोध करता है",
-		"saltPlaceholder": "0x…"
+		"saltPlaceholder": "0x…",
+		"disputeActions": "विवाद कार्रवाइयाँ"
 	},
 	"Client": {
 		"contractTitle": "अनुबंध #{id}",

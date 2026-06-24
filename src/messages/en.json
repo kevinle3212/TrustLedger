@@ -12,7 +12,9 @@
 		"viewGitHub": "View source on GitHub",
 		"changeLanguage": "Change language",
 		"skipToMain": "Skip to main content",
-		"faq": "FAQ"
+		"faq": "FAQ",
+		"openMenu": "Open Menu",
+		"closeMenu": "Close Menu"
 	},
 	"FooterHelp": {
 		"buttonLabel": "Guide",
@@ -307,7 +309,8 @@
 		"walkthroughFinish": "Finish Walkthrough",
 		"deliverableUrlPlaceholder": "https://… or ipfs://… or Qm… / baf…",
 		"exampleAmount": "0.75 ETH",
-		"loadingContracts": "Loading contracts"
+		"loadingContracts": "Loading contracts",
+		"contractActions": "Contract Actions"
 	},
 	"Create": {
 		"connectWallet": "Connect your wallet to propose a contract.",
@@ -616,7 +619,8 @@
 		"evidenceSubmittedCount": "{count} submitted",
 		"noEvidence": "No evidence has been submitted yet.",
 		"requestsCompletion": "Requests {percent}% completion",
-		"saltPlaceholder": "0x…"
+		"saltPlaceholder": "0x…",
+		"disputeActions": "Dispute Actions"
 	},
 	"Client": {
 		"contractTitle": "Contract #{id}",

@@ -4,7 +4,6 @@ on:
     pull_request:
         branches: [main]
     push:
-        branches: [main]
     schedule:
         # Weekly full scan, Mondays at 13:00 UTC (catches CVEs published in
         # transitive deps even if no commits land that week).
@@ -71,9 +70,9 @@ jobs:
                   slither-args: '--filter-paths "lib/|test/" --exclude-informational --exclude-low'
                   fail-on: medium
                   sarif: results.sarif
-              # Non-blocking until you've triaged false positives. Flip to false
-              # once the ruleset is tuned.
-              continue-on-error: true
+              # Blocking: a medium+ Slither finding fails the job. Suppress
+              # triaged false positives in contracts/slither.config or with
+              # inline `// slither-disable-next-line <check>` plus justification.
 
             - name: Upload SARIF to GitHub Security
               # hashFiles returns '' when the file does not exist, preventing a
@@ -157,10 +156,9 @@ jobs:
               run: npm run tmp:check
 
             - name: Run audit
-              # --omit=dev scans prod deps only. High threshold avoids noise from
-              # informational advisories. Bump to 'moderate' once you're stable.
+              # Blocking: --omit=dev scans prod deps only; a high+ advisory fails
+              # the job. Tighten to 'moderate' once the tree stays clean there.
               run: npm audit --omit=dev --audit-level=high
-              continue-on-error: true
 
     # ---------------------------------------------------------------------------
     # Separate audit for the frontend (src/) package tree, which is independent
@@ -187,7 +185,41 @@ jobs:
             - name: Run audit
               run: npx --yes npm@11.12.1 audit --omit=dev --audit-level=high
               working-directory: src
-              continue-on-error: true
+
+    # ---------------------------------------------------------------------------
+    # OSV-Scanner (Google's vulnerability scanner) cross-checks every committed
+    # lockfile against the OSV database. It catches advisories npm audit misses
+    # (e.g. GitHub Security Advisories without npm equivalents) and covers the
+    # root, frontend, and any nested lockfiles in one pass. SARIF lands in the
+    # Security tab. Blocking: a discovered CVE fails the job.
+    # ---------------------------------------------------------------------------
+    osv-scanner:
+        name: OSV-Scanner (dependency CVEs)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            # Scoped to the lockfiles we own and ship. Vendored submodules
+            # (contracts/lib/*) carry upstream's own dev lockfiles and are out of
+            # scope here, matching the Slither/Semgrep exclusions. Dev-only
+            # sub-high advisories are filtered via osv-scanner.toml.
+            - name: Run OSV-Scanner
+              uses: google/osv-scanner-action/osv-scanner-action@v2.2.4
+              with:
+                  scan-args: |-
+                      --config=osv-scanner.toml
+                      --lockfile=package-lock.json
+                      --lockfile=src/package-lock.json
+                      --format=sarif
+                      --output=osv-results.sarif
+
+            - name: Upload SARIF to GitHub Security
+              if: always() && hashFiles('osv-results.sarif') != ''
+              uses: github/codeql-action/upload-sarif@v4
+              with:
+                  sarif_file: osv-results.sarif
+                  category: osv-scanner
 
     # ---------------------------------------------------------------------------
     # CodeQL on the TypeScript side. Free for public repos. Catches things like
@@ -228,10 +260,19 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v7
 
+            # `auto` is augmented with explicit curated rule packs so coverage no
+            # longer depends on Semgrep's registry heuristics: OWASP Top Ten,
+            # secrets, and the JS/TS/React/Next.js security and supply-chain sets.
             - name: Run Semgrep
               run: >
                   semgrep scan
                   --config auto
+                  --config p/owasp-top-ten
+                  --config p/secrets
+                  --config p/javascript
+                  --config p/typescript
+                  --config p/react
+                  --config p/nextjs
                   --sarif
                   --output semgrep.sarif
                   --exclude "contracts/lib"
@@ -243,7 +284,6 @@ jobs:
                   --exclude "node_modules"
                   --exclude "site"
                   --error
-              continue-on-error: true
 
             - name: Upload SARIF to GitHub Security
               if: always() && hashFiles('semgrep.sarif') != ''
