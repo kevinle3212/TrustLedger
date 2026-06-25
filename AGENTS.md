@@ -59,6 +59,38 @@ commands with `rtk` when available.
   volume, and build-cache growth. If build cache is multiple GB and no active
   Dockerfile iteration depends on it, run `npm run docker:storage:prune`.
 
+## Commit Messages
+
+Every commit message is validated by `commitlint` (`commitlint.config.js`, run
+by the Husky `commit-msg` hook). That file is the single source of truth; the
+rules below mirror it. A message that violates any rule is rejected, so verify
+before committing — do not use `--no-verify`.
+
+- **Header length is the most common failure.** The header
+  (`type(scope): subject`) must be **72 characters or fewer**, counting the
+  type, scope, punctuation, spaces, and subject together. Count it before
+  committing; if it is too long, move detail into the body, not a longer header.
+- **Type** (required, lower-case): one of `build`, `chore`, `ci`, `docs`,
+  `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
+- **Scope** (optional, kebab-case) must be one of the `scope-enum` values:
+  `agents`, `api`, `arbitration`, `ci`, `contracts`, `deps`, `docker`, `docs`,
+  `frontend`, `k8s`, `logs`, `security`, `swc`, `tests`, `tooling`, `types`,
+  `vercel`. An out-of-list scope (for example `trustledger` or `juror-registry`)
+  is rejected — drop the scope or pick the closest allowed value.
+- **Subject** (required): lower-case or sentence-case, no trailing period, no
+  mid-word capitals (`eslint`, not `ESLint`).
+- **Body** (optional): separate from the header with one blank line; wrap each
+  line at **100 characters**.
+- **Footer** (optional, e.g. `Co-Authored-By:`): precede with one blank line;
+  wrap each line at **100 characters**.
+
+```bash
+# Header > 72 chars must move detail into a body
+git commit -m "fix(frontend): wallet session persistence, navbar, and warning" \
+  -m "Init AppKit on mount, move desktop nav to xl, and disable webstorage." \
+  -m "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+```
+
 ## Agent Learning Hygiene
 
 - When an agent makes a complex mistake that takes substantial time, tool usage,
