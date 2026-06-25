@@ -74,7 +74,10 @@ the agent and user. For example:
 - Commit messages are enforced by `commitlint` (`commitlint.config.js`, run by
   the Husky `commit-msg` hook). Every message you write or hand to the user MUST
   satisfy, or the commit is rejected:
-    - **Header** `type(scope): subject`, max **72 characters** total.
+    - **Header** `type(scope): subject`, max **72 characters** total. This is
+      the most common rejection — count the full header (type + scope +
+      punctuation + spaces + subject) before committing, and push extra detail
+      into the body rather than lengthening the header.
     - **Type** lower-case, one of: `build`, `chore`, `ci`, `docs`, `feat`,
       `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
     - **Scope** optional, kebab-case, one of: `agents`, `api`, `arbitration`,

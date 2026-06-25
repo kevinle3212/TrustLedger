@@ -32,7 +32,7 @@ function RoleToggle(): React.JSX.Element {
 	const { role, setRole } = useRole();
 	const t = useTranslations("Nav");
 	return (
-		<fieldset className="grid min-w-0 grid-cols-2 rounded-full border border-gray-200 p-0.5 text-xs font-medium dark:border-white/10 sm:inline-grid sm:w-auto sm:shrink-0">
+		<fieldset className="grid shrink-0 grid-cols-2 rounded-full border border-gray-200 p-0.5 text-xs font-medium dark:border-white/10 sm:inline-grid sm:w-auto">
 			<legend className="sr-only">{t("activeRole")}</legend>
 			<button
 				type="button"
@@ -40,7 +40,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("client");
 				}}
-				className={`tl-button-motion min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
+				className={`tl-button-motion min-h-10 min-w-[4.5rem] rounded-full px-3 py-1 text-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 ${
 					role === "client"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -54,7 +54,7 @@ function RoleToggle(): React.JSX.Element {
 				onClick={() => {
 					setRole("freelancer");
 				}}
-				className={`tl-button-motion min-h-10 min-w-0 rounded-full px-2 py-1 text-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 sm:px-3 ${
+				className={`tl-button-motion min-h-10 min-w-[4.5rem] rounded-full px-3 py-1 text-center whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-indigo-500 sm:min-h-9 ${
 					role === "freelancer"
 						? "bg-indigo-600 text-white"
 						: "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -81,7 +81,7 @@ export function Navbar(): React.JSX.Element {
 
 	return (
 		<header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
-			<div className="tl-site-frame grid min-w-0 gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)] lg:min-h-16 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:py-0">
+			<div className="tl-site-frame grid min-w-0 gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)] xl:min-h-16 xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:items-center xl:py-0">
 				<Link
 					href="/"
 					aria-current={path === "/" ? "page" : undefined}
@@ -99,7 +99,7 @@ export function Navbar(): React.JSX.Element {
 				</Link>
 				<nav
 					aria-label={t("mainNav")}
-					className="tl-nav-scroller order-3 -mx-1 hidden min-w-0 max-w-full items-center gap-x-3 overflow-x-auto px-1 pb-1 sm:col-span-2 sm:gap-x-6 lg:order-none lg:col-span-1 lg:mx-0 lg:flex lg:justify-center lg:px-0 lg:pb-0"
+					className="tl-nav-scroller order-3 -mx-1 hidden min-w-0 max-w-full items-center gap-x-3 overflow-x-auto px-1 pb-1 sm:col-span-2 sm:gap-x-5 xl:order-none xl:col-span-1 xl:mx-0 xl:flex xl:justify-center xl:gap-x-6 xl:px-0 xl:pb-0"
 				>
 					{NAV_LINKS.map((link) => (
 						<Link
@@ -112,8 +112,8 @@ export function Navbar(): React.JSX.Element {
 						</Link>
 					))}
 				</nav>
-				<div className="tl-nav-scroller -mx-1 flex min-w-0 flex-nowrap items-center gap-2 overflow-x-auto px-1 pb-1 sm:justify-end lg:mx-0 lg:justify-end lg:px-0 lg:pb-0">
-					<div className="shrink-0 lg:hidden">
+				<div className="tl-nav-scroller flex min-w-0 flex-wrap items-center justify-end gap-2 lg:flex-nowrap lg:overflow-x-auto">
+					<div className="shrink-0 xl:hidden">
 						<MobileNavMenu />
 					</div>
 					<RoleToggle />

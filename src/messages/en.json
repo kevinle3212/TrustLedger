@@ -712,6 +712,7 @@
 		"copied": "Copied!",
 		"copyAddress": "Copy address",
 		"walletMenu": "Wallet Menu",
+		"statistics": "Statistics",
 		"dashboard": "Dashboard",
 		"analytics": "Analytics",
 		"analyticsHint": "View wallet-safe stats and public contract metrics.",

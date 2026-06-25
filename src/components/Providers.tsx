@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useAccount, useConnect, WagmiProvider } from "wagmi";
 import { config, isE2eMockWallet } from "@/lib/wagmi";
+import { getLastWallet } from "@/lib/lastWallet";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
 import {
 	DEFAULT_INACTIVITY_TIMEOUT_MS,
@@ -26,6 +27,32 @@ function InactivityWatcher(): null {
 	);
 
 	useInactivityLogout(timeoutMs);
+	return null;
+}
+
+/**
+ * Initializes Reown AppKit once on the client, after hydration, but only when a
+ * wallet was previously used in this browser. AppKit owns the wallet-session
+ * reconnection that restores a connected account across page reloads and direct
+ * navigations; when it is only created on demand (the first time the wallet
+ * modal opens), a refresh drops the connection because its reconnect logic never
+ * runs.
+ *
+ * The `getLastWallet()` gate keeps first-time visitors — and clean-profile
+ * tooling such as Lighthouse — from paying the heavy AppKit init and the
+ * WalletConnect network/console activity it triggers (which also tanks the
+ * best-practices budget when no project ID is configured), while returning users
+ * still get their session restored. The module is imported dynamically so AppKit
+ * stays in a lazy chunk off the initial critical path. Skipped under the E2E
+ * mock build, which bypasses AppKit entirely.
+ */
+function AppKitInitializer(): null {
+	useEffect(() => {
+		if (getLastWallet() === null) return;
+		void import("@/lib/appkit").then((mod) => {
+			mod.ensureAppKit();
+		});
+	}, []);
 	return null;
 }
 
@@ -61,7 +88,7 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 			<RoleProvider>
 				<WagmiProvider config={config}>
 					<QueryClientProvider client={queryClient}>
-						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : null}
+						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : <AppKitInitializer />}
 						<InactivityWatcher />
 						{children}
 					</QueryClientProvider>

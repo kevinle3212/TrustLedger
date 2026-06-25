@@ -159,24 +159,34 @@ project follows
 | `perf` | Performance improvement |
 | `revert` | Reverts a prior commit |
 
-**Scope** (optional): a short kebab-case noun scoping the change, such as
-`arbitration`, `juror-registry`, `reputation`, `frontend`, `deploy`, or `docs`.
+**Scope** (optional, kebab-case): must be one of the `scope-enum` values —
+`agents`, `api`, `arbitration`, `ci`, `contracts`, `deps`, `docker`, `docs`,
+`frontend`, `k8s`, `logs`, `security`, `swc`, `tests`, `tooling`, `types`,
+`vercel`. Any other scope (for example `trustledger` or `juror-registry`) is
+rejected — drop the scope or pick the closest allowed value.
 
-**Rules enforced by commitlint:**
+**Rules enforced by commitlint** (see `commitlint.config.js` for the source of
+truth):
 
-- Type is required
-- Description is required  -  imperative mood, no trailing period
-- Max subject line length: 100 characters
-- No `Co-Authored-By` footer
+- Type is required and lower-case.
+- Subject is required, lower-case or sentence-case, no trailing period, no
+  mid-word capitals (`eslint`, not `ESLint`).
+- **Header (`type(scope): subject`) max length: 72 characters.** This is the
+  most common failure — count the whole header before committing and move extra
+  detail into the body rather than lengthening the header.
+- Body and footer lines max 100 characters each, and each must be preceded by
+  one blank line.
+- A `Co-Authored-By:` footer is allowed (and expected for agent commits); place
+  it after a blank line.
 
 **Good examples:**
 
 ```text
 feat(arbitration): add severe minority slashing threshold constant
-fix(trustledger): prevent double payout on re-executed ruling
-docs: add rtk and Excalidraw references to MISCELLANEOUS.md
+fix(contracts): prevent double payout on re-executed ruling
+docs: add rtk and excalidraw references to miscellaneous.md
 chore: run prettier --write across all files
-refactor(juror-registry): extract stake validation into private helper
+refactor(contracts): extract stake validation into private helper
 test: add fuzz coverage for payout conservation on split rulings
 ci: pin forge to stable in lint workflow
 ```
@@ -188,6 +198,8 @@ fixed stuff
 Update files
 WIP
 feat: Add new feature.      ← trailing period
+fix(trustledger): patch payout      ← scope not in scope-enum
+fix(frontend): persist wallet session, fix navbar overflow, silence storage warning      ← header is 83 chars (> 72)
 ```
 
 ### Commit
