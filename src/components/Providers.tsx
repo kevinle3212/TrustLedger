@@ -30,6 +30,24 @@ function InactivityWatcher(): null {
 }
 
 /**
+ * Initializes Reown AppKit once on the client, after hydration. AppKit owns the
+ * wallet-session reconnection that restores a connected account across page
+ * reloads and direct navigations; when it is only created on demand (the first
+ * time the wallet modal opens), a refresh drops the connection because its
+ * reconnect logic never runs. The module is imported dynamically so AppKit stays
+ * in a lazy chunk off the initial critical path while still booting on every
+ * page load. Skipped under the E2E mock build, which bypasses AppKit entirely.
+ */
+function AppKitInitializer(): null {
+	useEffect(() => {
+		void import("@/lib/appkit").then((mod) => {
+			mod.ensureAppKit();
+		});
+	}, []);
+	return null;
+}
+
+/**
  * Connects the deterministic mock wallet on mount when the E2E mock build is
  * active (`NEXT_PUBLIC_E2E_MOCK_WALLET=1`). Renders nothing and is never mounted
  * in production builds, where {@link isE2eMockWallet} is false.
@@ -61,7 +79,7 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 			<RoleProvider>
 				<WagmiProvider config={config}>
 					<QueryClientProvider client={queryClient}>
-						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : null}
+						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : <AppKitInitializer />}
 						<InactivityWatcher />
 						{children}
 					</QueryClientProvider>

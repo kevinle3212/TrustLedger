@@ -55,6 +55,7 @@ interface MenuLink {
 const MENU_LINKS: readonly MenuLink[] = [
 	{ href: "/dashboard", labelKey: "dashboard" },
 	{ href: "/analytics", labelKey: "analytics" },
+	{ href: "/stats", labelKey: "statistics" },
 	{ href: "/create", labelKey: "createContract" },
 	{ href: "/reputation", labelKey: "reputation" },
 	{ href: "/account", labelKey: "account" },
