@@ -120,9 +120,6 @@
 		"previewFundEscrow": "Financer L’escrow",
 		"previewSubmitWork": "Soumettre Le Travail",
 		"previewReleasePayout": "Libérer Le Paiement",
-		"previewDraftHashQueued": "Hash Du Brouillon En File !",
-		"previewDocumentEncrypted": "Document Chiffré !",
-		"previewPayoutReceiptReady": "Reçu De Paiement Prêt !",
 		"previewJurorStake": "0,04 ETH En Stake",
 		"previewRevealWindowOpen": "Fenêtre De Révélation Ouverte",
 		"previewRatingsReceived": "12 Notes Reçues",
@@ -151,7 +148,12 @@
 		},
 		"viewSolanaProgram": "Voir le programme système Solana sur {network}",
 		"solanaNativeProgram": "Programme Natif Solana : {network}",
-		"checkConfig": "(vérifier la configuration)"
+		"checkConfig": "(vérifier la configuration)",
+		"unverified": "Non vérifié",
+		"verificationTitle": "Vérification",
+		"verifyStageAnchored": "Hash du brouillon ancré",
+		"verifyStageFunded": "Séquestre financé",
+		"verifyStageApproved": "Livrable approuvé"
 	},
 	"Dashboard": {
 		"connectWallet": "Connectez votre portefeuille pour voir vos contrats.",
@@ -1057,7 +1059,6 @@
 		"statLanguages": "Langages",
 		"statSize": "Taille Du Code",
 		"viewAbout": "À Propos Du Projet",
-		"generated": "Généré le {date}",
 		"generatedNote": "Les statistiques sont régénérées à chaque build de production, elles reflètent donc toujours le code le plus récent.",
 		"languagesTitle": "Répartition Par Langage",
 		"languagesIntro": "Part des lignes de code par langage dans l'ensemble du code suivi.",

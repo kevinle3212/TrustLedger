@@ -18,18 +18,20 @@ const TRANSLATIONS: Record<string, string> = {
 	"exampleContractProgress": "Example contract progress",
 	"nextPreview": "Next Preview",
 	"previousPreview": "Previous Preview",
-	"previewDraftHashQueued": "Draft Hash Queued!",
-	"previewDocumentEncrypted": "Document Encrypted!",
 	"previewFundEscrow": "Fund Escrow",
 	"previewJurorStake": "0.04 ETH Staked",
 	"previewMajorityVote": "Majority Vote",
-	"previewPayoutReceiptReady": "Payout Receipt Ready!",
 	"previewRatingsReceived": "12 Ratings Received",
 	"previewRecoveryBonus": "+8 Recovery Bonus",
 	"previewReleasePayout": "Release Payout",
 	"previewRevealWindowOpen": "Reveal Window Open",
 	"previewSubmitWork": "Submit Work",
 	"verified": "Verified",
+	"unverified": "Unverified",
+	"verificationTitle": "Verification",
+	"verifyStageAnchored": "Draft hash anchored",
+	"verifyStageFunded": "Escrow funded",
+	"verifyStageApproved": "Deliverable approved",
 };
 
 jest.mock("next-intl", () => ({
@@ -54,44 +56,46 @@ const DEFAULT_PROPS = {
 } as const;
 
 describe("InteractiveContractPreview", () => {
-	it("starts active and advances through the contract phases", () => {
+	const fill = (): HTMLElement => {
+		const el = document.querySelector<HTMLElement>(".tl-verify-progress > div");
+		if (el === null) throw new Error("verification fill bar not rendered");
+		return el;
+	};
+
+	it("starts on pending, unverified at 0% verification progress", () => {
 		render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
 
-		expect(screen.getByText("0.75 ETH")).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /02 Active/u })).toHaveAttribute(
-			"aria-pressed",
-			"true",
-		);
-
-		fireEvent.click(screen.getByRole("button", { name: /Submit Work/u }));
-
-		expect(screen.getByRole("button", { name: /03 Approved/u })).toHaveAttribute(
-			"aria-pressed",
-			"true",
-		);
-		expect(screen.getByText("Payout Receipt Ready!")).toBeInTheDocument();
-	});
-
-	it("allows direct phase selection", () => {
-		render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
-
-		fireEvent.click(screen.getByRole("button", { name: /01 Pending/u }));
-
+		expect(screen.getByText("0.25 ETH")).toBeInTheDocument();
 		expect(screen.getByRole("button", { name: /01 Pending/u })).toHaveAttribute(
 			"aria-pressed",
 			"true",
 		);
-		expect(screen.getByText("Draft Hash Queued!")).toBeInTheDocument();
+		expect(screen.getByText("Unverified")).toBeInTheDocument();
+		expect(fill()).toHaveStyle({ width: "0%" });
 	});
 
-	it("restarts the document progress animation when a phase is selected", () => {
-		const { container } = render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
-		const progressBefore = container.querySelector(".tl-contract-install-progress");
+	it("fills verification as phases complete and verifies only when approved", () => {
+		render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
 
-		fireEvent.click(screen.getByRole("button", { name: /01 Pending/u }));
+		// Active clears two of three stages but is still Unverified.
+		fireEvent.click(screen.getByRole("button", { name: /02 Active/u }));
+		expect(fill()).toHaveStyle({ width: "67%" });
+		expect(screen.getByText("Unverified")).toBeInTheDocument();
 
-		const progressAfter = container.querySelector(".tl-contract-install-progress");
-		expect(progressBefore).not.toBe(progressAfter);
-		expect(progressAfter).toBeInTheDocument();
+		// Approved clears the final stage and flips the badge to Verified.
+		fireEvent.click(screen.getByRole("button", { name: /03 Approved/u }));
+		expect(fill()).toHaveStyle({ width: "100%" });
+		expect(screen.getByText("Verified")).toBeInTheDocument();
+	});
+
+	it("restarts the verification progress animation when a phase is selected", () => {
+		render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
+		const before = fill();
+
+		fireEvent.click(screen.getByRole("button", { name: /03 Approved/u }));
+
+		const after = fill();
+		expect(before).not.toBe(after);
+		expect(after).toBeInTheDocument();
 	});
 });

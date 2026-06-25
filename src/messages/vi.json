@@ -120,9 +120,6 @@
 		"previewFundEscrow": "Nạp Escrow",
 		"previewSubmitWork": "Gửi Công Việc",
 		"previewReleasePayout": "Giải Ngân",
-		"previewDraftHashQueued": "Hash Bản Nháp Đã Xếp Hàng!",
-		"previewDocumentEncrypted": "Tài Liệu Đã Mã Hóa!",
-		"previewPayoutReceiptReady": "Biên Nhận Thanh Toán Sẵn Sàng!",
 		"previewJurorStake": "0.04 ETH Staked",
 		"previewRevealWindowOpen": "Reveal Window Open",
 		"previewRatingsReceived": "12 Ratings Received",
@@ -151,7 +148,12 @@
 		},
 		"viewSolanaProgram": "Xem chương trình hệ thống Solana trên {network}",
 		"solanaNativeProgram": "Chương trình gốc Solana: {network}",
-		"checkConfig": "(kiểm tra cấu hình)"
+		"checkConfig": "(kiểm tra cấu hình)",
+		"unverified": "Chưa xác minh",
+		"verificationTitle": "Xác minh",
+		"verifyStageAnchored": "Đã neo hash bản nháp",
+		"verifyStageFunded": "Đã nạp ký quỹ",
+		"verifyStageApproved": "Đã duyệt sản phẩm bàn giao"
 	},
 	"Dashboard": {
 		"connectWallet": "Kết nối ví của bạn để xem hợp đồng.",
@@ -1057,7 +1059,6 @@
 		"statLanguages": "Ngôn Ngữ",
 		"statSize": "Kích Thước Mã Nguồn",
 		"viewAbout": "Về Dự Án",
-		"generated": "Được tạo vào {date}",
 		"generatedNote": "Thống kê được tạo lại trong mỗi lần xây dựng bản phát hành, vì vậy luôn phản ánh mã nguồn mới nhất.",
 		"languagesTitle": "Phân Tích Theo Ngôn Ngữ",
 		"languagesIntro": "Tỷ lệ dòng mã theo ngôn ngữ trên toàn bộ mã nguồn được theo dõi.",

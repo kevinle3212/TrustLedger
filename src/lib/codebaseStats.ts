@@ -18,10 +18,15 @@ interface CodebaseLanguageStat {
 	readonly share: number;
 }
 
-/** Build-time snapshot of the codebase scale, generated from git-tracked files. */
+/**
+ * Build-time snapshot of the codebase scale, generated from git-tracked files.
+ *
+ * The snapshot is intentionally free of timestamps or build metadata so that an
+ * identical source tree always produces byte-for-byte identical output. The
+ * file only changes when tracked source files are added, removed, renamed, or
+ * edited.
+ */
 export interface CodebaseStats {
-	/** ISO-8601 timestamp of when the snapshot was generated. */
-	readonly generatedAt: string;
 	readonly totals: CodebaseStatsTotals;
 	readonly languages: readonly CodebaseLanguageStat[];
 }

@@ -31,7 +31,6 @@ export default async function StatsPage({
 	const stats = getCodebaseStats();
 
 	const formatNumber = (value: number): string => format.number(value);
-	const generatedDate = format.dateTime(new Date(stats.generatedAt), { dateStyle: "long" });
 
 	const summaryCards = [
 		{ label: t("statLines"), value: formatNumber(stats.totals.lines) },
@@ -71,7 +70,7 @@ export default async function StatsPage({
 				</div>
 				<aside className="tl-motion-card rounded-2xl border border-indigo-200 bg-indigo-50/70 p-5 dark:border-indigo-400/20 dark:bg-indigo-400/10">
 					<p className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">
-						{t("generated", { date: generatedDate })}
+						{t("eyebrow")}
 					</p>
 					<p className="mt-2 text-sm leading-6 text-indigo-950 dark:text-indigo-50">
 						{t("generatedNote")}

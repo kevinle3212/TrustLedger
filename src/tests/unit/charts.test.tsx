@@ -3,9 +3,10 @@ import { render, screen } from "@testing-library/react";
 import { BreakdownDonut } from "@/components/charts/BreakdownDonut";
 import { TrendLineChart } from "@/components/charts/TrendLineChart";
 
-// Recharts' ResponsiveContainer measures its container via ResizeObserver.
-// jsdom never fires the callback, so Recharts falls back to -1×-1 and warns.
-// Invoke the callback immediately with a non-zero size to suppress the warning.
+// Recharts' ResponsiveContainer measures its container via ResizeObserver,
+// which jsdom never drives. The charts seed a positive `initialDimension`
+// height, so the first render no longer warns about -1×-1; this mock simply
+// supplies a realistic measured size to the observe path under test.
 beforeAll(() => {
 	globalThis.ResizeObserver = jest.fn((callback: ResizeObserverCallback) => ({
 		observe(): void {

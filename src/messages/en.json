@@ -176,9 +176,6 @@
 		"previewFundEscrow": "Fund Escrow",
 		"previewSubmitWork": "Submit Work",
 		"previewReleasePayout": "Release Payout",
-		"previewDraftHashQueued": "Draft Hash Queued!",
-		"previewDocumentEncrypted": "Document Encrypted!",
-		"previewPayoutReceiptReady": "Payout Receipt Ready!",
 		"previewJurorStake": "0.04 ETH Staked",
 		"previewRevealWindowOpen": "Reveal Window Open",
 		"previewRatingsReceived": "12 Ratings Received",
@@ -207,7 +204,12 @@
 		},
 		"viewSolanaProgram": "View Solana system program on {network}",
 		"solanaNativeProgram": "Solana Native-Program: {network}",
-		"checkConfig": "(check config)"
+		"checkConfig": "(check config)",
+		"unverified": "Unverified",
+		"verificationTitle": "Verification",
+		"verifyStageAnchored": "Draft hash anchored",
+		"verifyStageFunded": "Escrow funded",
+		"verifyStageApproved": "Deliverable approved"
 	},
 	"Dashboard": {
 		"connectWallet": "Connect your wallet to see your contracts.",
@@ -1057,7 +1059,6 @@
 		"statLanguages": "Languages",
 		"statSize": "Source Size",
 		"viewAbout": "About The Project",
-		"generated": "Generated {date}",
 		"generatedNote": "Statistics regenerate on every production build, so they always reflect the latest source.",
 		"languagesTitle": "Language Breakdown",
 		"languagesIntro": "Share of source lines by language across the tracked codebase.",

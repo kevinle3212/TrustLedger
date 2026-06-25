@@ -36,7 +36,10 @@ export function TrendLineChart({
 }): React.JSX.Element {
 	return (
 		<div role="img" aria-label={ariaLabel} style={{ width: "100%", height }}>
-			<ResponsiveContainer width="100%" height="100%">
+			{/* Seed the known height so the first render (before the container is
+			    measured) never falls back to Recharts' -1×-1 default, which both
+			    avoids a mis-sized first paint and silences the dimension warning. */}
+			<ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 0, height }}>
 				<LineChart data={[...data]} margin={{ top: 8, right: 16, bottom: 8, left: -16 }}>
 					<CartesianGrid
 						strokeDasharray="3 3"
