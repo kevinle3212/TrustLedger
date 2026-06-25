@@ -120,9 +120,6 @@
 		"previewFundEscrow": "资助 Escrow",
 		"previewSubmitWork": "提交工作",
 		"previewReleasePayout": "释放付款",
-		"previewDraftHashQueued": "草稿 Hash 已排队！",
-		"previewDocumentEncrypted": "文档已加密！",
-		"previewPayoutReceiptReady": "付款收据已就绪！",
 		"previewJurorStake": "0.04 ETH Staked",
 		"previewRevealWindowOpen": "Reveal Window Open",
 		"previewRatingsReceived": "12 Ratings Received",
@@ -151,7 +148,12 @@
 		},
 		"viewSolanaProgram": "在 {network} 上查看 Solana 系统程序",
 		"solanaNativeProgram": "Solana 原生程序：{network}",
-		"checkConfig": "（检查配置）"
+		"checkConfig": "（检查配置）",
+		"unverified": "未验证",
+		"verificationTitle": "验证",
+		"verifyStageAnchored": "草稿哈希已上链",
+		"verifyStageFunded": "托管已注资",
+		"verifyStageApproved": "交付物已批准"
 	},
 	"Dashboard": {
 		"connectWallet": "连接您的钱包以查看合同。",
@@ -1057,7 +1059,6 @@
 		"statLanguages": "语言",
 		"statSize": "源代码大小",
 		"viewAbout": "关于项目",
-		"generated": "生成于 {date}",
 		"generatedNote": "统计数据在每次生产构建时重新生成，因此始终反映最新的源代码。",
 		"languagesTitle": "语言细分",
 		"languagesIntro": "整个被跟踪代码库中各语言所占源代码行数的比例。",

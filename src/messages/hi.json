@@ -120,9 +120,6 @@
 		"previewFundEscrow": "Escrow फ़ंड करें",
 		"previewSubmitWork": "काम जमा करें",
 		"previewReleasePayout": "भुगतान जारी करें",
-		"previewDraftHashQueued": "ड्राफ्ट हैश कतार में!",
-		"previewDocumentEncrypted": "दस्तावेज़ एन्क्रिप्टेड!",
-		"previewPayoutReceiptReady": "भुगतान रसीद तैयार!",
 		"previewJurorStake": "0.04 ETH Staked",
 		"previewRevealWindowOpen": "Reveal Window Open",
 		"previewRatingsReceived": "12 Ratings Received",
@@ -151,7 +148,12 @@
 		},
 		"viewSolanaProgram": "{network} पर Solana सिस्टम प्रोग्राम देखें",
 		"solanaNativeProgram": "Solana नेटिव प्रोग्राम: {network}",
-		"checkConfig": "(कॉन्फिग जांचें)"
+		"checkConfig": "(कॉन्फिग जांचें)",
+		"unverified": "असत्यापित",
+		"verificationTitle": "सत्यापन",
+		"verifyStageAnchored": "ड्राफ्ट हैश एंकर किया गया",
+		"verifyStageFunded": "एस्क्रो वित्तपोषित",
+		"verifyStageApproved": "डिलीवरेबल स्वीकृत"
 	},
 	"Dashboard": {
 		"connectWallet": "अपने अनुबंध देखने के लिए वॉलेट कनेक्ट करें।",
@@ -1057,7 +1059,6 @@
 		"statLanguages": "भाषाएँ",
 		"statSize": "स्रोत आकार",
 		"viewAbout": "परियोजना के बारे में",
-		"generated": "{date} को बनाया गया",
 		"generatedNote": "हर प्रोडक्शन बिल्ड पर आँकड़े फिर से बनाए जाते हैं, इसलिए वे हमेशा नवीनतम स्रोत को दर्शाते हैं।",
 		"languagesTitle": "भाषा विवरण",
 		"languagesIntro": "ट्रैक किए गए पूरे कोडबेस में भाषा के अनुसार स्रोत पंक्तियों का हिस्सा।",

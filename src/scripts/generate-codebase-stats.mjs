@@ -48,6 +48,13 @@ const LINE_COUNT_EXCLUDED_BASENAMES = new Set([
 	"poetry.lock",
 ]);
 
+/**
+ * The generated snapshot itself, relative to the repository root. Skipping it
+ * breaks the self-reference: counting its own line and byte size would let each
+ * regeneration perturb the next, defeating deterministic output.
+ */
+const GENERATED_SNAPSHOT_RELATIVE_PATH = "src/content/codebase-stats.json";
+
 /** Resolves the repository root so the script works from any working directory. */
 function repositoryRoot() {
 	return execFileSync("git", ["rev-parse", "--show-toplevel"], {
@@ -84,6 +91,7 @@ function main() {
 	let countedFiles = 0;
 
 	for (const relativePath of files) {
+		if (relativePath === GENERATED_SNAPSHOT_RELATIVE_PATH) continue;
 		const absolutePath = join(root, relativePath);
 		let stats;
 		try {
@@ -130,7 +138,6 @@ function main() {
 		.sort((a, b) => b.lines - a.lines);
 
 	const snapshot = {
-		generatedAt: new Date().toISOString(),
 		totals: {
 			files: countedFiles,
 			directories: directories.size,

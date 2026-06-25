@@ -71,6 +71,21 @@ the agent and user. For example:
 
 - Never commit directly to `main`. Always branch first using a conventional name
   (`feat/...`, `fix/...`, `chore/...`).
+- Commit messages are enforced by `commitlint` (`commitlint.config.js`, run by
+  the Husky `commit-msg` hook). Every message you write or hand to the user MUST
+  satisfy, or the commit is rejected:
+    - **Header** `type(scope): subject`, max **72 characters** total.
+    - **Type** lower-case, one of: `build`, `chore`, `ci`, `docs`, `feat`,
+      `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
+    - **Scope** optional, kebab-case, one of: `agents`, `api`, `arbitration`,
+      `ci`, `contracts`, `deps`, `docker`, `docs`, `frontend`, `k8s`, `logs`,
+      `security`, `swc`, `tests`, `tooling`, `types`, `vercel`.
+    - **Subject** all lower-case OR sentence-case (no mid-word capitals like
+      `ESLint`/`WalletConnect` — write `eslint`/`walletconnect`), no trailing
+      period, not empty.
+    - **Body** separated from the header by one blank line; lines max 100 chars.
+    - **Footer** (e.g. `Co-Authored-By:`) preceded by one blank line; lines max
+      100 chars.
 - Before merging into `main`, the branch must be green:
     - Tests: `forge test`, Hardhat tests, any others.
     - Lint/format: `npm run lint`, `prettier --check .`, `forge fmt --check`,

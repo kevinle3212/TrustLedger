@@ -120,9 +120,6 @@
 		"previewFundEscrow": "Financiar Escrow",
 		"previewSubmitWork": "Enviar Trabalho",
 		"previewReleasePayout": "Liberar Pagamento",
-		"previewDraftHashQueued": "Hash Do Rascunho Na Fila!",
-		"previewDocumentEncrypted": "Documento Criptografado!",
-		"previewPayoutReceiptReady": "Recibo De Pagamento Pronto!",
 		"previewJurorStake": "0.04 ETH Staked",
 		"previewRevealWindowOpen": "Reveal Window Open",
 		"previewRatingsReceived": "12 Ratings Received",
@@ -151,7 +148,12 @@
 		},
 		"viewSolanaProgram": "Ver programa do sistema Solana em {network}",
 		"solanaNativeProgram": "Programa nativo da Solana: {network}",
-		"checkConfig": "(verificar configuração)"
+		"checkConfig": "(verificar configuração)",
+		"unverified": "Não verificado",
+		"verificationTitle": "Verificação",
+		"verifyStageAnchored": "Hash do rascunho ancorado",
+		"verifyStageFunded": "Garantia financiada",
+		"verifyStageApproved": "Entrega aprovada"
 	},
 	"Dashboard": {
 		"connectWallet": "Conecte sua carteira para ver seus contratos.",
@@ -1057,7 +1059,6 @@
 		"statLanguages": "Linguagens",
 		"statSize": "Tamanho Do Código",
 		"viewAbout": "Sobre O Projeto",
-		"generated": "Gerado em {date}",
 		"generatedNote": "As estatísticas são geradas novamente a cada compilação de produção, portanto sempre refletem o código mais recente.",
 		"languagesTitle": "Detalhamento Por Linguagem",
 		"languagesIntro": "Proporção de linhas de código por linguagem em todo o código rastreado.",

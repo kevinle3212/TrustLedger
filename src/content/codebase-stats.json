@@ -1,18 +1,17 @@
 {
-	"generatedAt": "2026-06-24T23:41:36.604Z",
 	"totals": {
-		"files": 765,
+		"files": 764,
 		"directories": 267,
-		"lines": 123360,
-		"bytes": 12378799,
+		"lines": 123432,
+		"bytes": 12383820,
 		"languages": 12
 	},
 	"languages": [
 		{
 			"name": "TypeScript",
 			"files": 253,
-			"lines": 33929,
-			"share": 27.5
+			"lines": 34038,
+			"share": 27.6
 		},
 		{
 			"name": "Solidity",
@@ -28,9 +27,9 @@
 		},
 		{
 			"name": "JSON",
-			"files": 49,
-			"lines": 11536,
-			"share": 9.4
+			"files": 48,
+			"lines": 11492,
+			"share": 9.3
 		},
 		{
 			"name": "YAML",
@@ -41,7 +40,7 @@
 		{
 			"name": "JavaScript",
 			"files": 24,
-			"lines": 2496,
+			"lines": 2503,
 			"share": 2
 		},
 		{

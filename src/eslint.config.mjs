@@ -60,7 +60,12 @@ if (runningEslintMajor !== null && runningEslintMajor >= 10) {
 
 export default [
 	{
-		ignores: [".next/**", "out/**", "next-env.d.ts", "postcss.config.mjs", "eslint.config.mjs"],
+		// `.mjs` files are plain ESM (config + build scripts like
+		// `scripts/generate-codebase-stats.mjs`) and are not part of the
+		// type-aware `tsconfig.json` project. Globbing every `.mjs` keeps the
+		// typescript-eslint parser from throwing "file was not found in any of
+		// the provided project(s)" on current and future scripts.
+		ignores: [".next/**", "out/**", "next-env.d.ts", "**/*.mjs"],
 	},
 
 	// Next.js base: @next/next, react, react-hooks, jsx-a11y rules

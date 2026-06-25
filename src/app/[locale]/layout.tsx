@@ -28,19 +28,33 @@ export const viewport: Viewport = {
 	initialScale: 1,
 };
 
+// Absolute origin for canonical/OG/icon URLs. Safari resolves the favicon
+// against this base, so an absolute href avoids serving the Vercel deployment
+// default. Mirrors the wallet `appUrl` resolution (site URL, then app URL).
+const siteOrigin =
+	process.env.NEXT_PUBLIC_SITE_URL ??
+	process.env.NEXT_PUBLIC_APP_URL ??
+	"https://trustledger.vercel.app";
+
 export const metadata: Metadata = {
+	metadataBase: new URL(siteOrigin),
 	title: "TrustLedger - Decentralized Freelance Escrow",
 	description:
 		"Create trustless freelance contracts on Ethereum Sepolia. Funds held in escrow, released on approval or arbitration.",
 	icons: {
-		// Explicit icon list so Safari picks up the project favicon rather than
-		// the Vercel deployment default. Apple touch icon uses logo.png (public/)
-		// because Safari requires PNG for apple-touch-icon — SVG is not accepted.
+		// Explicit, Safari-friendly icon set so the project mark is used instead
+		// of the Vercel deployment default. `favicon.ico` is listed first for
+		// Safari tabs (multi-size raster); `icon.svg` covers SVG-capable browsers.
 		icon: [
 			{ url: "/favicon.ico", sizes: "any" },
 			{ url: "/icon.svg", type: "image/svg+xml" },
 		],
-		apple: { url: "/logo.png" },
+		shortcut: "/favicon.ico",
+		// 180×180 PNG: Safari rejects SVG and oversized images for the home-screen
+		// touch icon, so this replaces the 1254×1254 logo.png that Safari ignored.
+		apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+		// Safari pinned-tab / Touch Bar monochrome glyph.
+		other: [{ rel: "mask-icon", url: "/icon.svg", color: "#4f46e5" }],
 	},
 };
 

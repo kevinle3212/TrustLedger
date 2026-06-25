@@ -11,6 +11,23 @@
   approved command escalation instead of weakening application code or hiding
   real build failures.
 
+## WalletConnect localStorage Warning and Node Pin (2026-06-24)
+
+- The project targets Node 22 (`engines: >=22.0.0 <23`); use the version manager
+  files (`.nvmrc` / `.node-version`, now mirrored in `src/`) and run `nvm use`
+  so dev and CI match.
+- On Node 24+ the build/SSR step emits an `ExperimentalWarning` that
+  `localStorage is not available because --localstorage-file was not provided`.
+  Source: `@walletconnect/keyvaluestorage@1.1.1`, whose `dist/index.es.js` reads
+  `globalThis.localStorage` at module load; Node 24+ turned that global into a
+  getter that warns.
+- Fixed with `patch-package`
+  (`src/patches/@walletconnect+keyvaluestorage+1.1.1.patch`), which drops the
+  `globalThis.localStorage` branch so Node falls back to the in-memory stub
+  (pre-Node-24 behavior); browsers still use `window.localStorage`. The patch
+  reapplies automatically via the `postinstall` script in `src/package.json`
+  after every `npm install`.
+
 > Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
 > development. His vision, ideas, and dedication during the project's founding
 > were invaluable to the codebase we build on today. See

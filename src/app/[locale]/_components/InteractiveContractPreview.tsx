@@ -19,27 +19,34 @@ interface InteractiveContractPreviewProps {
 
 const PHASES = ["PENDING", "ACTIVE", "APPROVED"] as const satisfies readonly ContractPhase[];
 
+// Verification is a track distinct from the PENDING → ACTIVE → APPROVED status.
+// A contract is Unverified at 0% and only becomes Verified once every required
+// stage clears. Each stage completes when the phase reaches `completesAtIndex`,
+// so the bar fills as the example contract progresses.
+const VERIFICATION_STAGES = [
+	{ key: "verifyStageAnchored", completesAtIndex: 1 },
+	{ key: "verifyStageFunded", completesAtIndex: 1 },
+	{ key: "verifyStageApproved", completesAtIndex: 2 },
+] as const;
+
 const PHASE_META = {
 	PENDING: {
 		amount: "0.25 ETH",
 		holdBack: "5%",
 		progress: 26,
 		actionKey: "previewFundEscrow",
-		documentStateKey: "previewDraftHashQueued",
 	},
 	ACTIVE: {
 		amount: "0.75 ETH",
 		holdBack: "10%",
 		progress: 62,
 		actionKey: "previewSubmitWork",
-		documentStateKey: "previewDocumentEncrypted",
 	},
 	APPROVED: {
 		amount: "0.75 ETH",
 		holdBack: "0%",
 		progress: 100,
 		actionKey: "previewReleasePayout",
-		documentStateKey: "previewPayoutReceiptReady",
 	},
 } as const satisfies Record<
 	ContractPhase,
@@ -48,7 +55,6 @@ const PHASE_META = {
 		readonly holdBack: string;
 		readonly progress: number;
 		readonly actionKey: string;
-		readonly documentStateKey: string;
 	}
 >;
 
@@ -81,7 +87,8 @@ export function InteractiveContractPreview({
 	statuses,
 }: InteractiveContractPreviewProps): React.JSX.Element {
 	const t = useTranslations("Home");
-	const [phase, setPhase] = useState<ContractPhase>("ACTIVE");
+	// Open on PENDING so the example contract starts Unverified at 0% progress.
+	const [phase, setPhase] = useState<ContractPhase>("PENDING");
 	const [scene, setScene] = useState<PreviewScene>("contract");
 	const [pulseKey, setPulseKey] = useState(0);
 	const scenes = useMemo(
@@ -103,6 +110,17 @@ export function InteractiveContractPreview({
 	const activeScene = scenes[sceneIndex] ?? scenes[0] ?? FALLBACK_SCENE;
 
 	const phaseIndex = useMemo(() => PHASES.indexOf(phase), [phase]);
+
+	// Derive verification progress from the stages cleared at the current phase.
+	const verification = useMemo(() => {
+		const stages = VERIFICATION_STAGES.map((stage) => ({
+			label: t(stage.key),
+			complete: phaseIndex >= stage.completesAtIndex,
+		}));
+		const completed = stages.filter((stage) => stage.complete).length;
+		const percent = Math.round((completed / stages.length) * 100);
+		return { stages, percent, verified: completed === stages.length };
+	}, [phaseIndex, t]);
 
 	function updatePhase(nextPhase: ContractPhase): void {
 		setPhase(nextPhase);
@@ -214,22 +232,84 @@ export function InteractiveContractPreview({
 					</span>
 				</div>
 
-				<div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
-					<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-						{scene === "contract" ? t(meta.documentStateKey) : activeScene.note}
-					</p>
-					<div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-3">
-						<div className="tl-contract-hash h-2 rounded-full bg-gray-200 dark:bg-white/10">
+				{scene === "contract" ? (
+					<div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
+						<div className="flex items-center justify-between gap-3">
+							<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+								{t("verificationTitle")}
+							</p>
+							<span
+								className={
+									verification.verified
+										? "tl-signature-stamp rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200"
+										: "rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[0.68rem] font-bold text-amber-700 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-200"
+								}
+							>
+								{verification.verified ? t("verified") : t("unverified")}
+							</span>
+						</div>
+						{/* Decorative fill bar. The Verified/Unverified badge and the stage
+						    list below convey verification state to assistive tech, so this
+						    bar is hidden to avoid a prohibited aria-label on a roleless div. */}
+						<div
+							className="tl-verify-progress mt-2 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-white/10"
+							aria-hidden="true"
+						>
 							<div
-								key={`document-progress-${String(pulseKey)}`}
-								className="tl-contract-install-progress h-full rounded-full"
+								key={`verify-progress-${String(pulseKey)}`}
+								className={`h-full rounded-full transition-[width] duration-500 ease-out ${
+									verification.verified
+										? "bg-emerald-500 dark:bg-emerald-400"
+										: "bg-indigo-600 dark:bg-indigo-400"
+								}`}
+								style={{ width: `${String(verification.percent)}%` }}
 							/>
 						</div>
-						<span className="tl-signature-stamp rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
-							{t("verified")}
-						</span>
+						<ul className="mt-3 grid gap-1.5">
+							{verification.stages.map((stage) => (
+								<li
+									key={stage.label}
+									className="flex items-center gap-2 text-[0.72rem] text-gray-600 dark:text-gray-300"
+								>
+									<span
+										aria-hidden="true"
+										className={`flex size-4 items-center justify-center rounded-full text-[0.6rem] font-bold ${
+											stage.complete
+												? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-gray-950"
+												: "border border-gray-300 text-transparent dark:border-white/20"
+										}`}
+									>
+										✓
+									</span>
+									<span
+										className={
+											stage.complete ? "" : "text-gray-400 dark:text-gray-500"
+										}
+									>
+										{stage.label}
+									</span>
+								</li>
+							))}
+						</ul>
 					</div>
-				</div>
+				) : (
+					<div className="mt-5 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-white/10 dark:bg-white/5">
+						<p className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+							{activeScene.note}
+						</p>
+						<div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-3">
+							<div className="tl-contract-hash h-2 rounded-full bg-gray-200 dark:bg-white/10">
+								<div
+									key={`document-progress-${String(pulseKey)}`}
+									className="tl-contract-install-progress h-full rounded-full"
+								/>
+							</div>
+							<span className="tl-signature-stamp rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-400/10 dark:text-emerald-200">
+								{t("verified")}
+							</span>
+						</div>
+					</div>
+				)}
 			</div>
 
 			<div className="relative mt-4 grid gap-2 text-center text-xs font-medium text-gray-600 dark:text-gray-300 sm:grid-cols-3">

@@ -120,9 +120,6 @@
 		"previewFundEscrow": "تمويل Escrow",
 		"previewSubmitWork": "إرسال العمل",
 		"previewReleasePayout": "إطلاق الدفع",
-		"previewDraftHashQueued": "تمت جدولة hash المسودة!",
-		"previewDocumentEncrypted": "تم تشفير المستند!",
-		"previewPayoutReceiptReady": "إيصال الدفع جاهز!",
 		"previewJurorStake": "0.04 ETH Staked",
 		"previewRevealWindowOpen": "Reveal Window Open",
 		"previewRatingsReceived": "12 Ratings Received",
@@ -151,7 +148,12 @@
 		},
 		"viewSolanaProgram": "عرض برنامج نظام Solana على {network}",
 		"solanaNativeProgram": "برنامج Solana الأصلي: {network}",
-		"checkConfig": "(تحقق من الإعداد)"
+		"checkConfig": "(تحقق من الإعداد)",
+		"unverified": "غير موثّق",
+		"verificationTitle": "التحقق",
+		"verifyStageAnchored": "تم تثبيت بصمة المسودة",
+		"verifyStageFunded": "تم تمويل الضمان",
+		"verifyStageApproved": "تمت الموافقة على التسليم"
 	},
 	"Dashboard": {
 		"connectWallet": "اربط محفظتك لعرض عقودك.",
@@ -1057,7 +1059,6 @@
 		"statLanguages": "اللغات",
 		"statSize": "حجم المصدر",
 		"viewAbout": "حول المشروع",
-		"generated": "أُنشئت في {date}",
 		"generatedNote": "تُعاد إنشاء الإحصاءات مع كل بناء إنتاجي، لذا فهي تعكس دائمًا أحدث مصدر.",
 		"languagesTitle": "التوزيع حسب اللغة",
 		"languagesIntro": "نسبة أسطر المصدر حسب اللغة عبر قاعدة الشيفرة المتتبَّعة.",
