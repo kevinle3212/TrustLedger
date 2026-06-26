@@ -298,7 +298,7 @@ not need their bodies. Keep legal/compliance edits synchronized with
 
 ```text
 ACCEPTABLE_USE_POLICY.md           Acceptable use and prohibited conduct.
-COMMUNITY_GUIDELINES.md           Community, evidence, and juror conduct.
+COMMUNITY_GUIDELINES.md            Community, evidence, and juror conduct.
 CONTENT_POLICY.md                  User content, evidence, and deliverable rules.
 COOKIE_POLICY.md                   Cookies, local storage, and consent expectations.
 DISCLAIMER.md                      No-advice and warranty disclaimers.

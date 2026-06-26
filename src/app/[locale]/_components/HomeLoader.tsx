@@ -132,6 +132,15 @@ export function HomeLoader(): React.JSX.Element | null {
 				<style>{".tl-home-loader{display:none!important}"}</style>
 			</noscript>
 			<div className="tl-home-loader__panel">
+				<div className="tl-loader-orbit" aria-hidden="true">
+					<span className="tl-loader-orbit__core" />
+					<span className="tl-loader-orbit__ring" />
+					<span className="tl-loader-orbit__dot tl-loader-orbit__dot--1" />
+					<span className="tl-loader-orbit__dot tl-loader-orbit__dot--2" />
+					<span className="tl-loader-orbit__dot tl-loader-orbit__dot--3" />
+					<span className="tl-loader-shape tl-loader-shape--a" />
+					<span className="tl-loader-shape tl-loader-shape--b" />
+				</div>
 				<p className="tl-home-loader__title">{t("title")}</p>
 				<p className="tl-home-loader__subtitle tl-text-muted">{t("subtitle")}</p>
 				<progress

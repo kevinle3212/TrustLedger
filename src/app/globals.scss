@@ -330,6 +330,75 @@ $tl-sweep-highlight: rgb(255 255 255 / 26%);
 		rgb(255 255 255 / 10%);
 }
 
+/* Decorative animated connectors behind the example-contract stage. Faint
+   "wires" carry a single glowing pulse each, produced by animating
+   stroke-dashoffset of a short dash with a long gap — cheap, smooth, and paused
+   off-screen via the data-active flag set by an IntersectionObserver. */
+@keyframes tl-flow-travel {
+	from {
+		stroke-dashoffset: 0;
+	}
+
+	to {
+		stroke-dashoffset: -360;
+	}
+}
+
+.tl-flow {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	overflow: hidden;
+	border-radius: inherit;
+	pointer-events: none;
+}
+
+.tl-flow__svg {
+	width: 100%;
+	height: 100%;
+	opacity: 0.5;
+}
+
+.dark .tl-flow__svg {
+	opacity: 0.62;
+}
+
+.tl-flow__wires path {
+	fill: none;
+	stroke: rgb(99 102 241 / 13%);
+	stroke-width: 1.25;
+}
+
+.dark .tl-flow__wires path {
+	stroke: rgb(129 140 248 / 18%);
+}
+
+.tl-flow__pulse {
+	fill: none;
+	stroke: #6366f1;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-dasharray: 5 355;
+	filter: drop-shadow(0 0 3px rgb(99 102 241 / 65%));
+	animation: tl-flow-travel 4.2s linear infinite;
+	will-change: stroke-dashoffset;
+}
+
+.tl-flow__pulse--slow {
+	stroke: #10b981;
+	filter: drop-shadow(0 0 3px rgb(16 185 129 / 65%));
+	animation-duration: 6.4s;
+}
+
+.tl-flow__pulse--fast {
+	stroke: #818cf8;
+	animation-duration: 3.3s;
+}
+
+.tl-flow[data-active="false"] .tl-flow__pulse {
+	animation-play-state: paused;
+}
+
 .tl-hero-copy-glow {
 	position: relative;
 	overflow: visible;
@@ -1189,6 +1258,135 @@ html.high-contrast :focus-visible {
    shift. Background is provided by the `tl-surface-page` utility so it tracks
    light/dark/high-contrast automatically.
    --------------------------------------------------------------------------- */
+
+/* Decorative loading insignia for the HomeLoader: a pulsing core, a slowly
+   rotating dashed ring, three orbiting particles, and two drifting geometric
+   shapes. Everything animates with transform/opacity only (compositor-friendly)
+   and is purely ornamental (aria-hidden), so it never blocks interaction. Motion
+   is frozen automatically under prefers-reduced-motion via the global rule. */
+@keyframes tl-loader-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes tl-loader-pulse {
+	0%,
+	100% {
+		opacity: 0.85;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 1;
+		transform: scale(1.14);
+	}
+}
+
+@keyframes tl-loader-drift {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+
+	50% {
+		transform: translateY(-0.45rem) rotate(8deg);
+	}
+}
+
+.tl-loader-orbit {
+	position: relative;
+	width: 4.5rem;
+	height: 4.5rem;
+	margin-bottom: 0.25rem;
+}
+
+.tl-loader-orbit__core {
+	position: absolute;
+	inset: 50% auto auto 50%;
+	width: 1rem;
+	height: 1rem;
+	margin: -0.5rem 0 0 -0.5rem;
+	border-radius: 9999px;
+	background: radial-gradient(circle at 35% 30%, #a5b4fc, #4f46e5);
+	box-shadow: 0 0 1rem rgb(99 102 241 / 55%);
+	animation: tl-loader-pulse 1.8s ease-in-out infinite;
+}
+
+.tl-loader-orbit__ring {
+	position: absolute;
+	inset: 0;
+	border: 1px dashed rgb(99 102 241 / 32%);
+	border-radius: 9999px;
+	animation: tl-loader-spin 9s linear infinite;
+}
+
+.dark .tl-loader-orbit__ring {
+	border-color: rgb(129 140 248 / 38%);
+}
+
+.tl-loader-orbit__dot {
+	position: absolute;
+	inset: 0;
+	animation: tl-loader-spin var(--tl-orbit-duration, 3.4s) linear infinite;
+
+	&::before {
+		position: absolute;
+		top: -0.16rem;
+		left: 50%;
+		width: 0.5rem;
+		height: 0.5rem;
+		margin-left: -0.25rem;
+		border-radius: 9999px;
+		background: var(--tl-orbit-color, #6366f1);
+		box-shadow: 0 0 0.5rem var(--tl-orbit-color, #6366f1);
+		content: "";
+	}
+}
+
+.tl-loader-orbit__dot--1 {
+	--tl-orbit-duration: 3.4s;
+	--tl-orbit-color: #6366f1;
+}
+
+.tl-loader-orbit__dot--2 {
+	--tl-orbit-duration: 5.2s;
+	--tl-orbit-color: #10b981;
+
+	transform: rotate(140deg) scale(0.72);
+}
+
+.tl-loader-orbit__dot--3 {
+	--tl-orbit-duration: 4.3s;
+	--tl-orbit-color: #38bdf8;
+
+	transform: rotate(255deg) scale(0.86);
+}
+
+.tl-loader-shape {
+	position: absolute;
+	width: 0.55rem;
+	height: 0.55rem;
+	background: rgb(99 102 241 / 22%);
+	animation: tl-loader-drift 3.6s ease-in-out infinite;
+}
+
+.tl-loader-shape--a {
+	top: -0.35rem;
+	right: -0.5rem;
+	border-radius: 0.15rem;
+	transform: rotate(12deg);
+}
+
+.tl-loader-shape--b {
+	bottom: -0.35rem;
+	left: -0.6rem;
+	border-radius: 9999px;
+	background: rgb(16 185 129 / 22%);
+	animation-delay: 1.2s;
+	animation-duration: 4.4s;
+}
+
 .tl-home-loader {
 	position: fixed;
 	inset: 0;
