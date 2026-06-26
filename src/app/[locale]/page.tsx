@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { CSSProperties } from "react";
 import { Link } from "@/i18n/navigation";
 import { ChainModePreviewToggle } from "@/app/[locale]/_components/ChainModePreviewToggle";
+import { HomeLoader } from "@/app/[locale]/_components/HomeLoader";
 import { InteractiveContractPreview } from "@/app/[locale]/_components/InteractiveContractPreview";
 import {
 	getSolanaExplorerAddressUrl,
@@ -36,7 +37,7 @@ export default async function HomePage({
 		{ title: t("featureArbitrationTitle"), desc: t("featureArbitrationDesc") },
 		{ title: t("featureWarrantyTitle"), desc: t("featureWarrantyDesc") },
 	];
-	const solanaCluster = resolveSolanaCluster(process.env["NEXT_PUBLIC_SOLANA_CLUSTER"]);
+	const solanaCluster = resolveSolanaCluster(process.env.NEXT_PUBLIC_SOLANA_CLUSTER);
 	const solanaNetwork = getSolanaNetworkConfig(solanaCluster);
 	const solanaSystemProgramAddress = "11111111111111111111111111111111";
 	const solanaExplorerUrl = getSolanaExplorerAddressUrl(
@@ -58,6 +59,7 @@ export default async function HomePage({
 
 	return (
 		<div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 py-16 sm:py-24">
+			<HomeLoader />
 			<section className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center">
 				<div className="tl-hero-copy-glow max-w-2xl">
 					<a

@@ -142,12 +142,15 @@ jobs:
                   GITLEAKS_VERSION: 8.30.1
               run: |
                   set -euo pipefail
-                  release_api="https://api.github.com/repos/gitleaks/gitleaks/releases/tags/v${GITLEAKS_VERSION}"
-                  archive_url="$(curl -fsSL "${release_api}" | jq -r '.assets[].browser_download_url | select(test("linux_x64\\.tar\\.gz$"))')"
-                  checksum_url="$(curl -fsSL "${release_api}" | jq -r '.assets[].browser_download_url | select(test("checksums\\.txt$"))')"
-                  archive_name="$(basename "${archive_url}")"
-                  curl -fsSL "${archive_url}" -o gitleaks.tar.gz
-                  curl -fsSL "${checksum_url}" -o checksums.txt
+                  # Download release assets directly. The asset names are
+                  # deterministic, so we avoid the api.github.com releases
+                  # endpoint, whose unauthenticated 60-req/hr rate limit is
+                  # routinely exhausted on shared runners and returns HTTP 403.
+                  # Release download URLs are not subject to that API limit.
+                  base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+                  archive_name="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+                  curl -fsSL "${base}/${archive_name}" -o gitleaks.tar.gz
+                  curl -fsSL "${base}/gitleaks_${GITLEAKS_VERSION}_checksums.txt" -o checksums.txt
                   grep " ${archive_name}$" checksums.txt | sed "s# ${archive_name}# gitleaks.tar.gz#" | sha256sum --check
                   tar -xzf gitleaks.tar.gz gitleaks
                   sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
@@ -370,3 +373,12 @@ jobs:
 
             - name: Check Solana program
               run: npm run solana:program:check
+
+            - name: Check Solana staking program formatting
+              run: npm run solana:staking:fmt
+
+            - name: Check Solana staking program
+              run: npm run solana:staking:check
+
+            - name: Run Solana staking program tests
+              run: npm run solana:staking:test

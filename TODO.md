@@ -361,6 +361,20 @@ test/IaC pass before they can be completed and verified.
       switch mid-flow) covered by tests.
     - **Verify:** Hardhat + Foundry contract tests, Anchor tests, frontend unit
       tests for both assets, and `npm run quality` + `npm run build` green.
+    - **Status (USDC shipped; SOL pending deploy):** The dual-asset selector,
+      decimal-aware balance reads (ETH 18 / USDC 6 / SOL 9), validation, reward
+      math, adapters, schemas, APIs, and analytics are built. USDC staking is
+      fully live: `StakingVault` is deployed and Etherscan-verified on Sepolia
+      (`0xE183ebD22D879d126378A541F893BDB5d4BF3817`), reward-funded, and
+      exercised end-to-end on a real chain (approve → stake → accrue → claim →
+      unstake) by both the Anvil integration test
+      (`src/tests/unit/staking-integration.test.ts`) and a live Sepolia
+      read-back. ETH staking remains via `JurorRegistry`. Remaining for full
+      completion: deploy the Solana staking program (`programs/solana-staking`)
+      to Devnet and publish `NEXT_PUBLIC_SOLANA_STAKING_PROGRAM_ID`; until then
+      the SOL adapter stays correctly gated to "unavailable". Production L2
+      vault deploys are tracked in Phase 11. Do not ship fabricated addresses or
+      a mocked on-chain path to `main`.
 
 - [ ] Complete the admin analytics dashboard (platform, infra, deployment).
     - **Prerequisites:** read-only API credentials, kept server-side only:
@@ -387,6 +401,49 @@ test/IaC pass before they can be completed and verified.
       in `docs/INFRA.md` and a runbook.
     - **Verify:** `terraform validate` and `ansible-lint` run clean in CI before
       merge.
+
+## Phase 11 — Production L2 Staking Deployments (Blocked: Real Funds)
+
+USDC staking is deployed, Etherscan-verified, reward-funded, and end-to-end
+tested on Sepolia (`StakingVault 0xE183ebD22D879d126378A541F893BDB5d4BF3817`).
+The exact same scripts deploy to the production L2s — each chain is blocked
+**only** on real funds plus per-chain RPC/explorer credentials. Revisit this the
+moment real funds are available; do not deploy with fabricated addresses, and
+the UI stays gated to "unavailable" per chain until a real vault address is
+published.
+
+- [ ] Deploy `StakingVault` to Arbitrum One (42161), Base (8453), and Optimism
+      (10).
+    - **Prerequisites (per chain — real funds):**
+        - Real ETH for gas on the deployer
+          (`0xeC85f08b9320D3f6EB4B41b893ec13c8A3C945e0`) on that L2 (currently 0
+          on all three).
+        - Real USDC for the reward pool — amount per chain is a business
+          decision, not a testnet default.
+        - `STAKING_USDC_ADDRESS` = the chain's native USDC (defaults already in
+          `src/lib/wagmi.ts`: Arbitrum
+          `0xaf88d065e77c8cC2239327C5EDb3A432268e5831`, Base
+          `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`, Optimism
+          `0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85`).
+        - RPC + explorer keys in `.env`: `ARBITRUM_RPC_URL` / `BASE_RPC_URL` /
+          `OPTIMISM_RPC_URL` and `ARBISCAN_API_KEY` / `BASESCAN_API_KEY` /
+          `OPTIMISM_ETHERSCAN_API_KEY` (all currently unset).
+    - **Steps (proven on Sepolia):**
+        1. Fund the deployer with gas + USDC on the target L2.
+        2. Add per-chain npm scripts mirroring `foundry:deploy:staking:sepolia`
+           and `foundry:fund:staking:sepolia` (swap `--rpc-url <chain>`).
+        3. Set `STAKING_USDC_ADDRESS` for the chain, then run
+           `DeployStaking.s.sol` with `--broadcast --verify`.
+        4. Publish the vault address into
+           `NEXT_PUBLIC_STAKING_VAULT_ADDRESS_<CHAIN>` (local `.env` + Vercel
+           Production/Preview), then redeploy (`vercel --prod`).
+        5. Fund rewards: set `STAKING_VAULT_ADDRESS` + `STAKING_REWARD_AMOUNT`,
+           run `FundStaking.s.sol`.
+        6. Live read-back: `approve → stake → claim → unstake` via `cast`
+           against the deployed vault.
+    - **Verify:** vault reads (`STAKING_TOKEN`, `owner`, decimals) match the
+      target chain; the USDC staking UI flips from "unavailable" to "available"
+      on that network; `npm run quality` + `npm run build` stay green.
 
 ## Future Infrastructure: Full Local Chain (Anvil) E2E
 

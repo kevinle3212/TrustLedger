@@ -1,18 +1,23 @@
 import codebaseStats from "@/content/codebase-stats.json";
 
-/** Aggregate line, file, directory, and language counts for the codebase. */
+/** Aggregate line, file, directory, and category counts for the codebase. */
 interface CodebaseStatsTotals {
 	readonly files: number;
 	readonly directories: number;
 	readonly lines: number;
 	readonly bytes: number;
-	readonly languages: number;
+	readonly categories: number;
 }
 
-/** Per-language contribution to the tracked codebase. */
-interface CodebaseLanguageStat {
+/**
+ * Per-category contribution to the tracked codebase. A category is a file-type
+ * grouping (for example `TypeScript`, `React`, `Images`, or
+ * `Ignore/System Files`); only categories with at least one file are emitted.
+ */
+interface CodebaseCategoryStat {
 	readonly name: string;
 	readonly files: number;
+	/** Source lines; `0` for binary asset categories that are not read. */
 	readonly lines: number;
 	/** Percentage of total counted lines, rounded to one decimal place. */
 	readonly share: number;
@@ -28,7 +33,7 @@ interface CodebaseLanguageStat {
  */
 export interface CodebaseStats {
 	readonly totals: CodebaseStatsTotals;
-	readonly languages: readonly CodebaseLanguageStat[];
+	readonly categories: readonly CodebaseCategoryStat[];
 }
 
 /**

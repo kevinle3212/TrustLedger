@@ -108,11 +108,22 @@ performance, accessibility, and deployment specification. All agents must
 enforce it and validate compliance before completing tasks or approving changes.
 Non-negotiables:
 
+- Every change must pass TypeScript (`npx tsc --noEmit`), ESLint, the test
+  suites, and the production build (`next build`) before it can merge or deploy.
 - React Doctor must stay at 100/100. No PR, merge, release, deployment, or
   production promotion may proceed below 100/100. Treat failures, warnings,
   regressions, and recommendations as high priority.
+- Maintain Lighthouse scores of **95+** in every category (Performance,
+  Accessibility, Best Practices, SEO) before deployment, and target **100**
+  where realistically achievable; document any blocker preventing a perfect
+  score.
 - Block deployments and merges when React Doctor, type-check, lint, tests,
-  build, accessibility, performance, or security checks fail.
+  build, Lighthouse, accessibility, performance, or security checks fail.
+- Preserve accessibility and security standards on every change; never weaken a
+  hard gate to ship faster.
+- Investigate and resolve new warnings (build, lint, test, runtime, console,
+  tooling) at their root cause instead of suppressing them; suppress only a
+  verified false positive, with an inline justification.
 - Remove unused code, dead files, stale imports, obsolete assets, duplicate
   logic, and unreachable code introduced or exposed by your change.
 - Add TSDoc to new functions, classes, types, hooks, services, controllers, and

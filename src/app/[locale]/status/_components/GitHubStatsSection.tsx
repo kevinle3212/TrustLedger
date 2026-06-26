@@ -98,7 +98,7 @@ export function GitHubStatsSection({
 				<a
 					href={summary.repository.url}
 					target="_blank"
-					rel="noreferrer"
+					rel="noopener noreferrer"
 					className="tl-button-motion inline-flex min-h-11 items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-gray-300 hover:text-gray-950 dark:border-white/10 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-white/20 dark:hover:text-white"
 				>
 					{t("openRepository")}

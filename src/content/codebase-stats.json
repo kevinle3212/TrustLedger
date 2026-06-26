@@ -1,64 +1,70 @@
 {
 	"totals": {
-		"files": 771,
+		"files": 760,
 		"directories": 268,
-		"lines": 123493,
-		"bytes": 12783177,
-		"languages": 12
+		"lines": 125804,
+		"bytes": 11626725,
+		"categories": 25
 	},
-	"languages": [
-		{
-			"name": "TypeScript",
-			"files": 254,
-			"lines": 34083,
-			"share": 27.6
-		},
+	"categories": [
 		{
 			"name": "Solidity",
 			"files": 73,
 			"lines": 33545,
-			"share": 27.2
+			"share": 26.7
 		},
 		{
 			"name": "Markdown",
-			"files": 193,
-			"lines": 32640,
-			"share": 26.4
+			"files": 199,
+			"lines": 32853,
+			"share": 26.1
+		},
+		{
+			"name": "TypeScript",
+			"files": 159,
+			"lines": 19106,
+			"share": 15.2
+		},
+		{
+			"name": "React",
+			"files": 95,
+			"lines": 15037,
+			"share": 12
 		},
 		{
 			"name": "JSON",
 			"files": 48,
-			"lines": 11471,
-			"share": 9.3
-		},
-		{
-			"name": "YAML",
-			"files": 38,
-			"lines": 2712,
-			"share": 2.2
+			"lines": 11511,
+			"share": 9.1
 		},
 		{
 			"name": "JavaScript",
 			"files": 24,
-			"lines": 2508,
-			"share": 2
+			"lines": 2709,
+			"share": 2.2
+		},
+		{
+			"name": "YAML",
+			"files": 36,
+			"lines": 2686,
+			"share": 2.1
 		},
 		{
 			"name": "Python",
-			"files": 6,
-			"lines": 2002,
-			"share": 1.6
+			"files": 21,
+			"lines": 2246,
+			"share": 1.8
 		},
 		{
 			"name": "Shell",
-			"files": 8,
-			"lines": 1499,
+			"files": 11,
+			"lines": 1564,
 			"share": 1.2
 		},
 		{
 			"name": "CSS",
 			"files": 4,
-			"lines": 1444,
+			"lines": 1533,
 			"share": 1.2
 		},
 		{
@@ -68,16 +74,88 @@
 			"share": 0.5
 		},
 		{
+			"name": "Ignore/System Files",
+			"files": 22,
+			"lines": 510,
+			"share": 0.4
+		},
+		{
 			"name": "HTML",
 			"files": 2,
 			"lines": 506,
 			"share": 0.4
 		},
 		{
+			"name": "Text Files",
+			"files": 10,
+			"lines": 471,
+			"share": 0.4
+		},
+		{
 			"name": "TOML",
 			"files": 13,
 			"lines": 434,
-			"share": 0.4
+			"share": 0.3
+		},
+		{
+			"name": "Docker",
+			"files": 5,
+			"lines": 217,
+			"share": 0.2
+		},
+		{
+			"name": "PowerShell",
+			"files": 2,
+			"lines": 86,
+			"share": 0.1
+		},
+		{
+			"name": "Configuration Files",
+			"files": 4,
+			"lines": 68,
+			"share": 0.1
+		},
+		{
+			"name": "C",
+			"files": 2,
+			"lines": 42,
+			"share": 0
+		},
+		{
+			"name": "C++",
+			"files": 1,
+			"lines": 23,
+			"share": 0
+		},
+		{
+			"name": "Patch",
+			"files": 1,
+			"lines": 8,
+			"share": 0
+		},
+		{
+			"name": "SVG",
+			"files": 9,
+			"lines": 0,
+			"share": 0
+		},
+		{
+			"name": "Images",
+			"files": 8,
+			"lines": 0,
+			"share": 0
+		},
+		{
+			"name": "ICO",
+			"files": 2,
+			"lines": 0,
+			"share": 0
+		},
+		{
+			"name": "PDF",
+			"files": 2,
+			"lines": 0,
+			"share": 0
 		}
 	]
 }

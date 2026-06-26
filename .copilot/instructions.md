@@ -21,3 +21,9 @@ path routing context.
 - Do not include secrets, `.env` values, tokens, mnemonics, private keys, or raw
   credentials in instructions, logs, prompts, or generated files.
 - Prefer targeted tests and the existing project scripts over ad hoc commands.
+- Enforce `docs/QUALITY-STANDARDS.md`: every change must pass TypeScript,
+  ESLint, the tests, and the production build; keep React Doctor at 100/100 and
+  Lighthouse at 95+ in every category (Performance, Accessibility, Best
+  Practices, SEO) before deployment (target 100 where achievable). Never
+  introduce unused code, preserve accessibility and security, and investigate
+  and resolve new warnings at their root cause instead of suppressing them.

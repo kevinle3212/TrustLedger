@@ -67,19 +67,19 @@ export interface SolanaEscrowSubmissionResult {
 
 /** Returns the Solana cluster (`mainnet-beta`, `devnet`, or `localnet`) from `NEXT_PUBLIC_SOLANA_CLUSTER`. */
 export function getConfiguredSolanaCluster(): SolanaCluster {
-	return resolveSolanaCluster(process.env["NEXT_PUBLIC_SOLANA_CLUSTER"]);
+	return resolveSolanaCluster(process.env.NEXT_PUBLIC_SOLANA_CLUSTER);
 }
 
 function getConfiguredSolanaRpcUrl(): string {
 	return (
-		process.env["NEXT_PUBLIC_SOLANA_RPC_URL"] ??
+		process.env.NEXT_PUBLIC_SOLANA_RPC_URL ??
 		getSolanaNetworkConfig(getConfiguredSolanaCluster()).rpcUrl
 	);
 }
 
 /** Returns the deployed TrustLedger Solana program `PublicKey`, or `null` if `NEXT_PUBLIC_SOLANA_PROGRAM_ID` is unset or invalid. */
 export function getTrustLedgerSolanaProgramId(): PublicKey | null {
-	const rawProgramId = process.env["NEXT_PUBLIC_SOLANA_PROGRAM_ID"]?.trim();
+	const rawProgramId = process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID?.trim();
 	if (rawProgramId === undefined || rawProgramId === "") return null;
 	try {
 		return new PublicKey(rawProgramId);

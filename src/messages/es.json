@@ -153,7 +153,12 @@
 		"verificationTitle": "Verificación",
 		"verifyStageAnchored": "Hash del borrador anclado",
 		"verifyStageFunded": "Depósito financiado",
-		"verifyStageApproved": "Entrega aprobada"
+		"verifyStageApproved": "Entrega aprobada",
+		"loading": {
+			"title": "Cargando TrustLedger",
+			"subtitle": "Preparando tu espacio de garantía seguro",
+			"progressLabel": "Progreso de carga de la página"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "Conecta tu billetera para ver tus contratos.",
@@ -474,7 +479,22 @@
 		"noLocalDrafts": "No se encontraron borradores locales de arbitraje en este dispositivo.",
 		"notTimestamped": "Sin Marca de Tiempo",
 		"requestedCompletion": "Finalización Solicitada: {percent}%",
-		"openDraftCase": "Abrir Caso Borrador"
+		"openDraftCase": "Abrir Caso Borrador",
+		"selectAsset": "Activo",
+		"assetReady": "Listo",
+		"assetSoon": "Pronto",
+		"assetConfiguredSoon": "El staking de {asset} en cadena está configurado para esta red y se habilitará pronto.",
+		"assetUnavailable": "El staking de {asset} aún no está disponible en esta red.",
+		"usdcStakeTitle": "Hacer staking de USDC",
+		"usdcStakeSubtitle": "Deposita USDC en la bóveda de staking para ganar recompensas.",
+		"walletBalanceLabel": "Saldo de la Cartera",
+		"stakedBalanceLabel": "En Staking",
+		"claimableLabel": "Recompensas Disponibles",
+		"claimRewards": "Reclamar Recompensas",
+		"txProcessing": "Procesando…",
+		"txConfirmed": "Transacción confirmada.",
+		"insufficientBalance": "Saldo insuficiente.",
+		"invalidAmount": "Introduce una cantidad válida."
 	},
 	"Reputation": {
 		"title": "Reputación",
@@ -1057,13 +1077,13 @@
 		"statLines": "Líneas De Código",
 		"statFiles": "Archivos",
 		"statDirectories": "Directorios",
-		"statLanguages": "Lenguajes",
+		"statCategories": "Tipos De Archivo",
 		"statSize": "Tamaño Del Código",
 		"viewAbout": "Sobre El Proyecto",
 		"generatedNote": "Las estadísticas se regeneran en cada compilación de producción, por lo que siempre reflejan el código más reciente.",
-		"languagesTitle": "Desglose Por Lenguaje",
-		"languagesIntro": "Proporción de líneas de código por lenguaje en todo el código rastreado.",
-		"languageMeta": "{lines} líneas · {files} archivos · {share}%",
+		"categoriesTitle": "Desglose Por Tipo De Archivo",
+		"categoriesIntro": "Proporción de líneas de código por categoría de tipo de archivo en el código rastreado. Solo se muestran las categorías presentes en el repositorio.",
+		"categoryMeta": "{lines} líneas · {files} archivos · {share}%",
 		"viewWalletAnalytics": "Ver Analíticas de Billetera"
 	}
 }

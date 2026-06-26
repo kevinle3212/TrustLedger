@@ -153,7 +153,12 @@
 		"verificationTitle": "Vérification",
 		"verifyStageAnchored": "Hash du brouillon ancré",
 		"verifyStageFunded": "Séquestre financé",
-		"verifyStageApproved": "Livrable approuvé"
+		"verifyStageApproved": "Livrable approuvé",
+		"loading": {
+			"title": "Chargement de TrustLedger",
+			"subtitle": "Préparation de votre espace de séquestre sécurisé",
+			"progressLabel": "Progression du chargement de la page"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "Connectez votre portefeuille pour voir vos contrats.",
@@ -474,7 +479,22 @@
 		"noLocalDrafts": "Aucun brouillon local d’arbitrage trouvé sur cet appareil.",
 		"notTimestamped": "Sans Horodatage",
 		"requestedCompletion": "Achèvement Demandé : {percent}%",
-		"openDraftCase": "Ouvrir le Cas Brouillon"
+		"openDraftCase": "Ouvrir le Cas Brouillon",
+		"selectAsset": "Actif",
+		"assetReady": "Prêt",
+		"assetSoon": "Bientôt",
+		"assetConfiguredSoon": "Le staking de {asset} on-chain est configuré pour ce réseau et sera bientôt disponible.",
+		"assetUnavailable": "Le staking de {asset} n’est pas encore disponible sur ce réseau.",
+		"usdcStakeTitle": "Staker des USDC",
+		"usdcStakeSubtitle": "Déposez des USDC dans le coffre de staking pour gagner des récompenses.",
+		"walletBalanceLabel": "Solde du Portefeuille",
+		"stakedBalanceLabel": "Stakés",
+		"claimableLabel": "Récompenses Disponibles",
+		"claimRewards": "Réclamer les Récompenses",
+		"txProcessing": "Traitement…",
+		"txConfirmed": "Transaction confirmée.",
+		"insufficientBalance": "Solde insuffisant.",
+		"invalidAmount": "Saisissez un montant valide."
 	},
 	"Reputation": {
 		"title": "Réputation",
@@ -1057,13 +1077,13 @@
 		"statLines": "Lignes De Code",
 		"statFiles": "Fichiers",
 		"statDirectories": "Répertoires",
-		"statLanguages": "Langages",
+		"statCategories": "Types De Fichiers",
 		"statSize": "Taille Du Code",
 		"viewAbout": "À Propos Du Projet",
 		"generatedNote": "Les statistiques sont régénérées à chaque build de production, elles reflètent donc toujours le code le plus récent.",
-		"languagesTitle": "Répartition Par Langage",
-		"languagesIntro": "Part des lignes de code par langage dans l'ensemble du code suivi.",
-		"languageMeta": "{lines} lignes · {files} fichiers · {share}%",
+		"categoriesTitle": "Répartition Par Type De Fichier",
+		"categoriesIntro": "Part des lignes de code par catégorie de type de fichier dans le code suivi. Seules les catégories présentes dans le dépôt sont affichées.",
+		"categoryMeta": "{lines} lignes · {files} fichiers · {share}%",
 		"viewWalletAnalytics": "Voir les Analyses du Portefeuille"
 	}
 }

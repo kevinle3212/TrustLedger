@@ -28,6 +28,11 @@ test.describe("public app routes", () => {
 	}
 });
 
+// Desktop-only assertion: it forces a 1440×1000 viewport and checks the
+// desktop shell width bounds, which are meaningless on a mobile viewport. The
+// desktop `chromium` project runs it for real; on the `mobile-chrome` project
+// `isMobile` is true, so it is intentionally skipped (this is the expected
+// "1 skipped" in `npm run test:e2e`, not a disabled or broken test).
 test("desktop reputation keeps the primary page width readable", async ({ page, isMobile }) => {
 	test.skip(isMobile, "Desktop shell width is covered by the chromium project.");
 

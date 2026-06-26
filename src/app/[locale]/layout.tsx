@@ -36,27 +36,65 @@ const siteOrigin =
 	process.env.NEXT_PUBLIC_APP_URL ??
 	"https://trustledger.vercel.app";
 
-export const metadata: Metadata = {
-	metadataBase: new URL(siteOrigin),
-	title: "TrustLedger - Decentralized Freelance Escrow",
-	description:
-		"Create trustless freelance contracts on Ethereum Sepolia. Funds held in escrow, released on approval or arbitration.",
-	icons: {
-		// Explicit, Safari-friendly icon set so the project mark is used instead
-		// of the Vercel deployment default. `favicon.ico` is listed first for
-		// Safari tabs (multi-size raster); `icon.svg` covers SVG-capable browsers.
-		icon: [
-			{ url: "/favicon.ico", sizes: "any" },
-			{ url: "/icon.svg", type: "image/svg+xml" },
-		],
-		shortcut: "/favicon.ico",
-		// 180×180 PNG: Safari rejects SVG and oversized images for the home-screen
-		// touch icon, so this replaces the 1254×1254 logo.png that Safari ignored.
-		apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-		// Safari pinned-tab / Touch Bar monochrome glyph.
-		other: [{ rel: "mask-icon", url: "/icon.svg", color: "#4f46e5" }],
-	},
-};
+const siteTitle = "TrustLedger - Decentralized Freelance Escrow";
+const siteDescription =
+	"Create trustless freelance contracts on Ethereum Sepolia. Funds held in escrow, released on approval or arbitration.";
+
+/**
+ * Per-locale document metadata. Builds the canonical URL and `hreflang`
+ * alternates for the active locale (strong SEO signals), and supplies
+ * OpenGraph/Twitter tags for rich link previews. The Safari-friendly icon set
+ * is preserved so the project mark is used instead of the deployment default.
+ */
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const canonical = `${siteOrigin}/${locale}`;
+	const languages = Object.fromEntries(
+		routing.locales.map((supported) => [supported, `${siteOrigin}/${supported}`]),
+	);
+
+	return {
+		metadataBase: new URL(siteOrigin),
+		title: siteTitle,
+		description: siteDescription,
+		applicationName: "TrustLedger",
+		alternates: { canonical, languages },
+		openGraph: {
+			type: "website",
+			siteName: "TrustLedger",
+			title: siteTitle,
+			description: siteDescription,
+			url: canonical,
+			locale,
+			images: [{ url: "/icon-512.png", width: 512, height: 512, alt: "TrustLedger" }],
+		},
+		twitter: {
+			card: "summary",
+			title: siteTitle,
+			description: siteDescription,
+			images: ["/icon-512.png"],
+		},
+		icons: {
+			// Explicit, Safari-friendly icon set so the project mark is used instead
+			// of the Vercel deployment default. `favicon.ico` is listed first for
+			// Safari tabs (multi-size raster); `icon.svg` covers SVG-capable browsers.
+			icon: [
+				{ url: "/favicon.ico", sizes: "any" },
+				{ url: "/icon.svg", type: "image/svg+xml" },
+			],
+			shortcut: "/favicon.ico",
+			// 180×180 PNG: Safari rejects SVG and oversized images for the home-screen
+			// touch icon, so this replaces the 1254×1254 logo.png that Safari ignored.
+			apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+			// Safari pinned-tab / Touch Bar monochrome glyph.
+			other: [{ rel: "mask-icon", url: "/icon.svg", color: "#4f46e5" }],
+		},
+	};
+}
 
 /** Generate static params for all supported locales. */
 export function generateStaticParams(): { locale: string }[] {

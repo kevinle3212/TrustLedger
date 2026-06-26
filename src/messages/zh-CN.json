@@ -153,7 +153,12 @@
 		"verificationTitle": "验证",
 		"verifyStageAnchored": "草稿哈希已上链",
 		"verifyStageFunded": "托管已注资",
-		"verifyStageApproved": "交付物已批准"
+		"verifyStageApproved": "交付物已批准",
+		"loading": {
+			"title": "正在加载 TrustLedger",
+			"subtitle": "正在准备您的安全托管工作区",
+			"progressLabel": "页面加载进度"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "连接您的钱包以查看合同。",
@@ -474,7 +479,22 @@
 		"noLocalDrafts": "此设备上未找到本地仲裁草稿。",
 		"notTimestamped": "未加时间戳",
 		"requestedCompletion": "请求完成度：{percent}%",
-		"openDraftCase": "打开草稿案件"
+		"openDraftCase": "打开草稿案件",
+		"selectAsset": "资产",
+		"assetReady": "就绪",
+		"assetSoon": "即将推出",
+		"assetConfiguredSoon": "{asset} 链上质押已为此网络配置，即将开放。",
+		"assetUnavailable": "此网络暂不支持 {asset} 质押。",
+		"usdcStakeTitle": "质押 USDC",
+		"usdcStakeSubtitle": "将 USDC 存入质押金库以赚取奖励。",
+		"walletBalanceLabel": "钱包余额",
+		"stakedBalanceLabel": "已质押",
+		"claimableLabel": "可领取奖励",
+		"claimRewards": "领取奖励",
+		"txProcessing": "处理中…",
+		"txConfirmed": "交易已确认。",
+		"insufficientBalance": "余额不足。",
+		"invalidAmount": "请输入有效金额。"
 	},
 	"Reputation": {
 		"title": "信誉",
@@ -1057,13 +1077,13 @@
 		"statLines": "代码行数",
 		"statFiles": "文件",
 		"statDirectories": "目录",
-		"statLanguages": "语言",
+		"statCategories": "文件类型",
 		"statSize": "源代码大小",
 		"viewAbout": "关于项目",
 		"generatedNote": "统计数据在每次生产构建时重新生成，因此始终反映最新的源代码。",
-		"languagesTitle": "语言细分",
-		"languagesIntro": "整个被跟踪代码库中各语言所占源代码行数的比例。",
-		"languageMeta": "{lines} 行 · {files} 个文件 · {share}%",
+		"categoriesTitle": "文件类型分布",
+		"categoriesIntro": "按文件类型类别统计的源代码行占比，基于受跟踪的代码库。仅显示仓库中实际存在的类别。",
+		"categoryMeta": "{lines} 行 · {files} 个文件 · {share}%",
 		"viewWalletAnalytics": "查看钱包分析"
 	}
 }

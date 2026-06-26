@@ -1661,3 +1661,81 @@ export const STATUS_LABELS = [
 	"Resolved",
 	"Cancelled",
 ] as const;
+
+/**
+ * Minimal `StakingVault` surface used by the USDC staking flow. Only the four functions the UI
+ * actually calls are declared: `stake`/`withdraw` move USDC in and out, `getReward` claims
+ * accrued rewards, and the views `balanceOf`/`earned` back the runtime {@link StakeReader}.
+ */
+export const STAKING_VAULT_ABI = [
+	{
+		type: "function",
+		name: "stake",
+		stateMutability: "nonpayable",
+		inputs: [{ name: "amount", type: "uint256" }],
+		outputs: [],
+	},
+	{
+		type: "function",
+		name: "withdraw",
+		stateMutability: "nonpayable",
+		inputs: [{ name: "amount", type: "uint256" }],
+		outputs: [],
+	},
+	{
+		type: "function",
+		name: "getReward",
+		stateMutability: "nonpayable",
+		inputs: [],
+		outputs: [],
+	},
+	{
+		type: "function",
+		name: "balanceOf",
+		stateMutability: "view",
+		inputs: [{ name: "account", type: "address" }],
+		outputs: [{ name: "", type: "uint256" }],
+	},
+	{
+		type: "function",
+		name: "earned",
+		stateMutability: "view",
+		inputs: [{ name: "account", type: "address" }],
+		outputs: [{ name: "", type: "uint256" }],
+	},
+] as const;
+
+/**
+ * Minimal ERC-20 surface for the USDC staking token: `approve` authorizes the vault to pull a
+ * stake, `allowance` checks whether an approval is already in place, and `balanceOf` reads the
+ * spendable wallet balance for the runtime {@link StakeReader}.
+ */
+export const ERC20_ABI = [
+	{
+		type: "function",
+		name: "approve",
+		stateMutability: "nonpayable",
+		inputs: [
+			{ name: "spender", type: "address" },
+			{ name: "amount", type: "uint256" },
+		],
+		outputs: [{ name: "", type: "bool" }],
+	},
+	{
+		type: "function",
+		name: "allowance",
+		stateMutability: "view",
+		inputs: [
+			{ name: "owner", type: "address" },
+			{ name: "spender", type: "address" },
+		],
+		outputs: [{ name: "", type: "uint256" }],
+	},
+	{
+		type: "function",
+		name: "balanceOf",
+		stateMutability: "view",
+		inputs: [{ name: "account", type: "address" }],
+		outputs: [{ name: "", type: "uint256" }],
+	},
+] as const;

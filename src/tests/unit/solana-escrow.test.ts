@@ -10,7 +10,7 @@ import {
 } from "@/lib/solanaEscrow";
 import type { FormFields } from "@/app/[locale]/create/_lib/types";
 
-const previousProgramId = process.env["NEXT_PUBLIC_SOLANA_PROGRAM_ID"];
+const previousProgramId = process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID;
 const payerAddress = "9xQeWvG816bUx9EPfVb6i4VzvABAGG6x9G3Y9ncUUXjP";
 const counterpartyAddress = "7oS8AQkXghx1JYDwQ4TDDN5J9LNf9jXTG8DcZxK5fJLy";
 const testHash = "0x1111111111111111111111111111111111111111111111111111111111111111";
@@ -55,7 +55,11 @@ function findViableProgramId(): PublicKey {
 
 describe("solana escrow client", () => {
 	afterEach(() => {
-		process.env["NEXT_PUBLIC_SOLANA_PROGRAM_ID"] = previousProgramId;
+		if (previousProgramId === undefined) {
+			delete process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID;
+		} else {
+			process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID = previousProgramId;
+		}
 	});
 
 	it("parses SOL to lamports without floating point rounding", () => {
@@ -68,7 +72,7 @@ describe("solana escrow client", () => {
 	});
 
 	it("returns null when the program ID is not configured", () => {
-		process.env["NEXT_PUBLIC_SOLANA_PROGRAM_ID"] = "";
+		process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID = "";
 
 		expect(getTrustLedgerSolanaProgramId()).toBeNull();
 	});
@@ -94,7 +98,7 @@ describe("solana escrow client", () => {
 
 	it("builds a configured Solana escrow transaction with the expected accounts", () => {
 		const testProgramId = findViableProgramId();
-		process.env["NEXT_PUBLIC_SOLANA_PROGRAM_ID"] = testProgramId.toBase58();
+		process.env.NEXT_PUBLIC_SOLANA_PROGRAM_ID = testProgramId.toBase58();
 
 		const draft = buildCreateSolanaEscrowTransaction({
 			form: baseForm,

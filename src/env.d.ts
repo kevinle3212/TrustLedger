@@ -37,6 +37,26 @@ declare namespace NodeJS {
 		NEXT_PUBLIC_USDC_ADDRESS_ARBITRUM?: string;
 		NEXT_PUBLIC_USDC_ADDRESS_BASE?: string;
 		NEXT_PUBLIC_USDC_ADDRESS_OPTIMISM?: string;
+		// Solana escrow (programs/solana-escrow). Public address of the deployed escrow
+		// program; unset/invalid disables SOL escrow submission (src/lib/solanaEscrow.ts).
+		NEXT_PUBLIC_SOLANA_PROGRAM_ID?: string;
+		// Solana cluster label (mainnet-beta | devnet | localnet). Defaults to devnet.
+		NEXT_PUBLIC_SOLANA_CLUSTER?: string;
+		// Optional Solana RPC override; falls back to the cluster's default endpoint.
+		NEXT_PUBLIC_SOLANA_RPC_URL?: string;
+		// ─── Dual-asset staking ────────────────────────────────────────────────────
+		// Deployed StakingVault (USDC staking) addresses. Published by the staking deploy
+		// (npm run foundry:deploy:staking:sepolia). No hardcoded default: an unset/zero value
+		// means USDC staking is not yet configured on that network. Source: src/lib/wagmi.ts.
+		NEXT_PUBLIC_STAKING_VAULT_ADDRESS?: string;
+		NEXT_PUBLIC_STAKING_VAULT_ADDRESS_SEPOLIA?: string;
+		NEXT_PUBLIC_STAKING_VAULT_ADDRESS_ARBITRUM?: string;
+		NEXT_PUBLIC_STAKING_VAULT_ADDRESS_BASE?: string;
+		NEXT_PUBLIC_STAKING_VAULT_ADDRESS_OPTIMISM?: string;
+		// Public Solana program ID of the deployed native SOL staking program
+		// (programs/solana-staking). Required before SOL staking is enabled; safe to expose
+		// (program IDs are public addresses).
+		NEXT_PUBLIC_SOLANA_STAKING_PROGRAM_ID?: string;
 		// ─── Wallet connection ─────────────────────────────────────────────────────
 		// Powers the Reown AppKit connect modal (src/lib/wagmi.ts). Without it
 		// QR/mobile flows (MetaMask, Tangem, WalletConnect) fail. Not a secret —

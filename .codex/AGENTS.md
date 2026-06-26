@@ -64,10 +64,16 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
   justification.
 - SWC changes: use `src/.agents/skills/swc-config/SKILL.md`, then run
   `npm run swc:populate` and the relevant build.
-- Quality standards: enforce `docs/QUALITY-STANDARDS.md`. React Doctor must stay
-  at 100/100; block merges and deployments when React Doctor, type-check, lint,
-  tests, build, accessibility, performance, or security checks fail. Validate
-  compliance before completing tasks.
+- Quality standards: enforce `docs/QUALITY-STANDARDS.md`. Every change must pass
+  TypeScript, ESLint, the test suites, and the production build. React Doctor
+  must stay at 100/100, and Lighthouse must stay at 95+ in every category
+  (Performance, Accessibility, Best Practices, SEO) before deployment — target
+  100 where achievable and document any blocker. Block merges and deployments
+  when React Doctor, type-check, lint, tests, build, Lighthouse, accessibility,
+  performance, or security checks fail. Never introduce unused code, preserve
+  accessibility and security standards, and investigate and resolve new warnings
+  at their root cause instead of suppressing them. Validate compliance before
+  completing tasks.
 - React diagnostics: use `src/skills/react-doctor/SKILL.md` and keep the score
   from regressing.
 - Legal and compliance-sensitive changes: use
