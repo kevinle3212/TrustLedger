@@ -18,7 +18,7 @@ import { LEGAL_DOCUMENTS } from "@/helpers/legal-docs";
  *   `MarkdownContent` — no bespoke parsing or fs wiring required.
  */
 
-export type ContentCollectionId = "legal" | "docs" | "licenses";
+type ContentCollectionId = "legal" | "docs" | "licenses";
 
 export interface ContentDocument {
 	/** Stable URL slug for the document. */
