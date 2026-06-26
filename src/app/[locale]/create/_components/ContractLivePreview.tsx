@@ -104,25 +104,35 @@ export function ContractLivePreview({
 			</div>
 
 			<div className="tl-kv-grid mt-6 rounded-xl border border-gray-200 bg-white p-4 text-sm shadow-[inset_0_1px_0_rgb(255_255_255/0.8)] dark:border-white/10 dark:bg-gray-950">
-				<span className="font-medium text-gray-500">{t("counterparty")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("counterparty")}
+				</span>
 				<span className="font-mono text-xs text-gray-900 dark:text-white">
 					{fallback(form.client, t("previewNotSet"))}
 				</span>
 
-				<span className="font-medium text-gray-500">{t("recipientRole")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("recipientRole")}
+				</span>
 				<span className="text-gray-900 dark:text-white">
 					{isClientProposing ? t("isFreelancer") : t("isClient")}
 				</span>
 
-				<span className="font-medium text-gray-500">{t("escrowAmountPreview")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("escrowAmountPreview")}
+				</span>
 				<span className="font-medium text-gray-900 dark:text-white">{amount}</span>
 
-				<span className="font-medium text-gray-500">{t("contractDocumentTitle")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("contractDocumentTitle")}
+				</span>
 				<span className="font-mono text-xs text-gray-900 dark:text-white">
 					{fallback(form.contractURI, t("previewNotSet"))}
 				</span>
 
-				<span className="font-medium text-gray-500">{t("deadline")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("deadline")}
+				</span>
 				<span className="text-gray-900 dark:text-white">
 					{projectDays > 0
 						? formatDeadlineWithRelativeDays(
@@ -132,26 +142,36 @@ export function ContractLivePreview({
 						: t("previewNotSet")}
 				</span>
 
-				<span className="font-medium text-gray-500">{t("acceptanceWindowPreview")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("acceptanceWindowPreview")}
+				</span>
 				<span className="text-gray-900 dark:text-white">
 					{form.acceptanceWindowDays.trim() === "" ? "0" : form.acceptanceWindowDays}{" "}
 					{t("daysUnit")}
 				</span>
 
-				<span className="font-medium text-gray-500">{t("arbitrationFeePreview")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("arbitrationFeePreview")}
+				</span>
 				<span className="text-gray-900 dark:text-white">
 					{form.arbitrationFeePct.trim() === "" ? "0" : form.arbitrationFeePct}%
 				</span>
 
-				<span className="font-medium text-gray-500">{t("warrantyHoldback")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("warrantyHoldback")}
+				</span>
 				<span className="text-gray-900 dark:text-white">{holdBack}</span>
 
-				<span className="font-medium text-gray-500">{t("draftTermsFormat")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("draftTermsFormat")}
+				</span>
 				<span className="text-gray-900 dark:text-white">
 					{formatTermsMode(termsFormat, t)}
 				</span>
 
-				<span className="font-medium text-gray-500">{t("lastUpdated")}</span>
+				<span className="font-medium text-gray-500 dark:text-gray-400">
+					{t("lastUpdated")}
+				</span>
 				<span className="text-gray-900 dark:text-white">{lastUpdated}</span>
 			</div>
 

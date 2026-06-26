@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { usePortalMenu } from "@/hooks/usePortalMenu";
 import { NAV_LINKS } from "@/components/nav-links";
@@ -55,11 +55,18 @@ function CloseIcon(): React.JSX.Element {
  */
 export function MobileNavMenu(): React.JSX.Element {
 	const t = useTranslations("Nav");
+	const locale = useLocale();
 	const path = usePathname();
+	// The hamburger trigger sits at the inline-start edge of the navbar on mobile,
+	// so the menu must anchor to that edge and extend toward center. The hook
+	// defaults to right-alignment (for right-edge triggers like the wallet menu),
+	// which would push this menu's content off-screen. In RTL (`ar`) the start edge
+	// is the right, mirroring the layout's `dir` mapping.
+	const align = locale === "ar" ? "right" : "left";
 	const { mounted, open, triggerRef, menuRef, menuStyle, toggle, closeMenu } = usePortalMenu<
 		HTMLButtonElement,
 		HTMLDivElement
-	>();
+	>({ align });
 
 	const menuVisibility = open
 		? "pointer-events-auto translate-y-0 opacity-100"
@@ -72,7 +79,7 @@ export function MobileNavMenu(): React.JSX.Element {
 			tabIndex={-1}
 			aria-label={t("mainNav")}
 			style={menuStyle}
-			className={`z-[60] w-64 pt-2 transition duration-150 ease-out ${menuVisibility}`}
+			className={`z-[60] w-[min(16rem,calc(100vw-1.5rem))] pt-2 transition duration-150 ease-out ${menuVisibility}`}
 		>
 			<div className="rounded-xl border border-gray-200 bg-white p-2 text-gray-900 shadow-lg shadow-gray-950/10 dark:border-white/10 dark:bg-gray-950 dark:text-white">
 				{NAV_LINKS.map((link) => (

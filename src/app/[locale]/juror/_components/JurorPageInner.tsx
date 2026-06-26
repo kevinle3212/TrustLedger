@@ -115,7 +115,7 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 					className={`w-fit rounded-full px-2 py-0.5 text-xs font-medium ${
 						eligible === true
 							? "bg-green-500/20 text-green-600 dark:text-green-300"
-							: "bg-gray-500/20 text-gray-500 dark:text-gray-400"
+							: "bg-gray-500/20 text-gray-600 dark:text-gray-400"
 					}`}
 				>
 					{eligible === true
@@ -156,7 +156,7 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 				<span
 					className={
 						lockElapsed
-							? "text-green-500 dark:text-green-400"
+							? "text-green-700 dark:text-green-400"
 							: "text-yellow-600 dark:text-yellow-300"
 					}
 				>
@@ -284,7 +284,7 @@ function RegisterForm(): React.JSX.Element {
 	if (isSuccess)
 		return (
 			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-3">
-				<p className="text-sm text-green-500 dark:text-green-400">
+				<p className="text-sm text-green-700 dark:text-green-400">
 					{t("registered", { days: SEVEN_DAYS_S / 86400 })}
 				</p>
 				<button

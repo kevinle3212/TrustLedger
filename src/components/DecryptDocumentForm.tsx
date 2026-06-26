@@ -233,7 +233,7 @@ export function DecryptDocumentForm({
 			/>
 
 			{status === "done" ? (
-				<p className="text-xs text-green-500 dark:text-green-400">
+				<p className="text-xs text-green-700 dark:text-green-400">
 					{t("fileDownloaded")}{" "}
 					<button
 						type="button"

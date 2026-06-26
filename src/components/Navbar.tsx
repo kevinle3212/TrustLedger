@@ -80,7 +80,7 @@ export function Navbar(): React.JSX.Element {
 		}`;
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
+		<header className="tl-safe-top sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
 			<div className="tl-site-frame grid min-w-0 gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)] xl:min-h-16 xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:items-center xl:py-0">
 				<Link
 					href="/"

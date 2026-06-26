@@ -173,7 +173,7 @@ function CommitForm({
 				<p className="text-sm text-green-600 dark:text-green-300 font-medium">
 					{t("voteCommitted")}
 				</p>
-				<p className="text-xs text-green-500/80 dark:text-green-400/80 mt-1">
+				<p className="text-xs text-green-700/80 dark:text-green-400/80 mt-1">
 					{t("saltSaved")}
 				</p>
 			</div>
@@ -251,7 +251,7 @@ function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 	}
 
 	if (isSuccess)
-		return <p className="text-sm text-green-500 dark:text-green-400">{t("voteRevealed")}</p>;
+		return <p className="text-sm text-green-700 dark:text-green-400">{t("voteRevealed")}</p>;
 
 	return (
 		<form onSubmit={handleReveal} className="flex flex-col gap-3">
@@ -329,7 +329,7 @@ function AppealButton({
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
 	if (isSuccess)
-		return <p className="text-sm text-green-500 dark:text-green-400">{t("appealFiled")}</p>;
+		return <p className="text-sm text-green-700 dark:text-green-400">{t("appealFiled")}</p>;
 
 	return (
 		<div className="flex flex-col gap-1">
@@ -407,7 +407,7 @@ function EvidenceForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 
 	if (isSuccess) {
 		return (
-			<p className="text-sm text-green-500 dark:text-green-400">{t("evidenceSubmitted")}</p>
+			<p className="text-sm text-green-700 dark:text-green-400">{t("evidenceSubmitted")}</p>
 		);
 	}
 

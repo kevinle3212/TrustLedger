@@ -34,7 +34,7 @@ export function CreateSuccessView({
 		<div className="max-w-lg mx-auto px-6 py-24 flex flex-col items-center gap-6 text-center">
 			<div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center">
 				<svg
-					className="w-8 h-8 text-green-500 dark:text-green-400"
+					className="w-8 h-8 text-green-700 dark:text-green-400"
 					fill="none"
 					viewBox="0 0 24 24"
 					stroke="currentColor"
@@ -72,7 +72,7 @@ export function CreateSuccessView({
 						</span>
 					)}
 					{magicLinkStatus === "sent" && (
-						<span className="text-green-500 dark:text-green-400">
+						<span className="text-green-700 dark:text-green-400">
 							{isClientProposing
 								? t("reviewLinkSent", { email: clientEmail })
 								: t("magicLinkSent", { email: clientEmail })}

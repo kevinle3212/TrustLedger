@@ -3,6 +3,23 @@
 	margin-inline: auto;
 }
 
+/* iOS safe-area helpers. With `viewport-fit=cover` the layout extends under the
+ * notch and home indicator; these utilities pad content back inside the safe
+ * area. `env(safe-area-inset-*)` resolves to 0 on non-notched devices and when
+ * `viewport-fit=cover` is absent, so each rule is a no-op elsewhere. The `max()`
+ * guards keep the declarations valid where `env()` is unsupported. */
+.tl-safe-x {
+	padding-inline: max(0px, env(safe-area-inset-left)) max(0px, env(safe-area-inset-right));
+}
+
+.tl-safe-top {
+	padding-top: env(safe-area-inset-top);
+}
+
+.tl-safe-bottom {
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
 .tl-app-shell {
 	width: min(100% - 2rem, 72rem);
 	margin-inline: auto;
