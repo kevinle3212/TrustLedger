@@ -1268,3 +1268,105 @@ html.high-contrast :focus-visible {
 .dark .tl-home-loader__percent {
 	color: #a5b4fc;
 }
+
+/* ─── Staking asset selector (ETH / USDC / SOL) ──────────────────────────────
+   Segmented radiogroup rendered by AssetSelector. Each option is a real <button>
+   with role="radio"; the group owns keyboard arrow navigation and roving focus,
+   so the styles only carry the visual segmented-control treatment. Unconfigured
+   assets stay selectable (they reveal an availability panel) but their status
+   badge reads "Soon" in a muted tone so the inactive state is visible, not
+   hidden. */
+.tl-asset-selector {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.tl-asset-option {
+	display: flex;
+	flex: 1 1 7rem;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 6.5rem;
+	padding: 0.75rem 0.875rem;
+	border: 1px solid rgb(17 24 39 / 12%);
+	border-radius: 0.875rem;
+	background: rgb(255 255 255 / 80%);
+	text-align: left;
+	cursor: pointer;
+	transition:
+		border-color 150ms ease,
+		background-color 150ms ease,
+		box-shadow 150ms ease;
+}
+
+.tl-asset-option:hover {
+	border-color: rgb(99 102 241 / 45%);
+}
+
+.tl-asset-option:focus-visible {
+	outline: 2px solid #6366f1;
+	outline-offset: 2px;
+}
+
+.tl-asset-option--selected {
+	border-color: #6366f1;
+	background: rgb(99 102 241 / 10%);
+	box-shadow: 0 0 0 1px #6366f1 inset;
+}
+
+.tl-asset-option__symbol {
+	font-weight: 600;
+	font-size: 0.9375rem;
+	letter-spacing: -0.01em;
+	color: #111827;
+}
+
+.tl-asset-option__name {
+	font-size: 0.75rem;
+	color: rgb(17 24 39 / 60%);
+}
+
+.tl-asset-option__status {
+	margin-top: 0.125rem;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: rgb(17 24 39 / 45%);
+}
+
+.tl-asset-option__status--ready {
+	color: #15803d;
+}
+
+.dark .tl-asset-option {
+	border-color: rgb(255 255 255 / 12%);
+	background: rgb(255 255 255 / 5%);
+}
+
+.dark .tl-asset-option:hover {
+	border-color: rgb(129 140 248 / 55%);
+}
+
+.dark .tl-asset-option--selected {
+	border-color: #818cf8;
+	background: rgb(129 140 248 / 16%);
+	box-shadow: 0 0 0 1px #818cf8 inset;
+}
+
+.dark .tl-asset-option__symbol {
+	color: #f9fafb;
+}
+
+.dark .tl-asset-option__name {
+	color: rgb(255 255 255 / 65%);
+}
+
+.dark .tl-asset-option__status {
+	color: rgb(255 255 255 / 50%);
+}
+
+.dark .tl-asset-option__status--ready {
+	color: #4ade80;
+}

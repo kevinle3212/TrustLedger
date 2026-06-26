@@ -47,6 +47,31 @@ export function getLastWallet(): string | null {
 	}
 }
 
+/**
+ * wagmi persists the id of the most recently used connector under this key (the
+ * default `wagmi` storage prefix + `.recentConnectorId`). Its presence is the
+ * canonical "this browser has an active wallet session to restore" signal —
+ * independent of our human-readable {@link getLastWallet} label, which exists
+ * only for the reconnect hint and can be absent even when a session persists.
+ */
+const WAGMI_RECENT_CONNECTOR_KEY = "wagmi.recentConnectorId";
+
+/**
+ * Returns true when wagmi has a persisted wallet session in this browser. Used to
+ * decide whether AppKit must initialize on mount so its connectors are registered
+ * and wagmi's reconnection can restore the account across reloads and direct URL
+ * navigation. Falls back to `false` in non-browser or sandboxed contexts.
+ */
+export function hasPersistedWalletSession(): boolean {
+	if (typeof window === "undefined") return false;
+	try {
+		const recent = window.localStorage.getItem(WAGMI_RECENT_CONNECTOR_KEY);
+		return recent !== null && recent !== "" && recent !== "null";
+	} catch {
+		return false;
+	}
+}
+
 /** Remembers `name` as the most recently used connector label. */
 export function setLastWallet(name: string): void {
 	if (typeof window === "undefined") return;

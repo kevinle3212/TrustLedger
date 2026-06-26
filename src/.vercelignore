@@ -1,0 +1,43 @@
+# src/.vercelignore — excludes used when this directory is the Vercel deploy root.
+#
+# The Vercel project is linked as "src" (see src/.vercel/project.json), so when a
+# deploy uses src/ as its root, Vercel reads THIS file — not the repository-root
+# .vercelignore. Without it, local build output and dev caches (multi-hundred-MB
+# Turbopack .sst files, the SWC native binary, node_modules) are uploaded and the
+# deploy fails with "File size limit exceeded (100 MB)". Vercel installs deps and
+# builds fresh on its own runners, so none of these local artifacts are needed.
+
+# ─── Dependencies and build output (rebuilt fresh on Vercel) ──────────────────
+node_modules/
+.next/
+.swc/
+.turbo/
+out/
+dist/
+*.tsbuildinfo
+
+# ─── Vercel local link/cache (never upload the local .vercel workspace) ───────
+.vercel/
+
+# ─── Test, coverage, and tooling artifacts ────────────────────────────────────
+coverage/
+test-results/
+playwright-report/
+.playwright-cli/
+.lighthouseci/
+.nexus/
+
+# ─── Local environment files — never upload secrets ───────────────────────────
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# ─── Editor, agent, and OS generated files ────────────────────────────────────
+.vscode/
+.claude/
+.agents/
+.serena/
+.DS_Store
+Thumbs.db
+*.log

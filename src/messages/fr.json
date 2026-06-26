@@ -156,7 +156,7 @@
 		"verifyStageApproved": "Livrable approuvé",
 		"loading": {
 			"title": "Chargement de TrustLedger",
-			"subtitle": "Préparation de votre espace de séquestre sécurisé",
+			"subtitle": "Nous préparons votre espace de séquestre sécurisé.",
 			"progressLabel": "Progression du chargement de la page"
 		}
 	},

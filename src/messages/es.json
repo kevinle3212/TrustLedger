@@ -156,7 +156,7 @@
 		"verifyStageApproved": "Entrega aprobada",
 		"loading": {
 			"title": "Cargando TrustLedger",
-			"subtitle": "Preparando tu espacio de garantía seguro",
+			"subtitle": "Estamos preparando tu espacio de garantía seguro.",
 			"progressLabel": "Progreso de carga de la página"
 		}
 	},

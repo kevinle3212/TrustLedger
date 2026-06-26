@@ -5,7 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useAccount, useConnect, WagmiProvider } from "wagmi";
 import { config, isE2eMockWallet } from "@/lib/wagmi";
-import { getLastWallet } from "@/lib/lastWallet";
+import { getLastWallet, hasPersistedWalletSession } from "@/lib/lastWallet";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
 import {
 	DEFAULT_INACTIVITY_TIMEOUT_MS,
@@ -38,17 +38,21 @@ function InactivityWatcher(): null {
  * modal opens), a refresh drops the connection because its reconnect logic never
  * runs.
  *
- * The `getLastWallet()` gate keeps first-time visitors — and clean-profile
- * tooling such as Lighthouse — from paying the heavy AppKit init and the
- * WalletConnect network/console activity it triggers (which also tanks the
- * best-practices budget when no project ID is configured), while returning users
- * still get their session restored. The module is imported dynamically so AppKit
+ * The gate keeps first-time visitors — and clean-profile tooling such as
+ * Lighthouse — from paying the heavy AppKit init and the WalletConnect
+ * network/console activity it triggers (which also tanks the best-practices
+ * budget when no project ID is configured), while returning users still get
+ * their session restored. It fires when EITHER our reconnect-hint label
+ * ({@link getLastWallet}) OR wagmi's own persisted session
+ * ({@link hasPersistedWalletSession}) is present: the wagmi signal is the
+ * authoritative one, so a session is restored even if the optional label was
+ * never written or was cleared. The module is imported dynamically so AppKit
  * stays in a lazy chunk off the initial critical path. Skipped under the E2E
  * mock build, which bypasses AppKit entirely.
  */
 function AppKitInitializer(): null {
 	useEffect(() => {
-		if (getLastWallet() === null) return;
+		if (getLastWallet() === null && !hasPersistedWalletSession()) return;
 		void import("@/lib/appkit").then((mod) => {
 			mod.ensureAppKit();
 		});

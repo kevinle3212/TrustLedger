@@ -156,7 +156,7 @@
 		"verifyStageApproved": "Đã duyệt sản phẩm bàn giao",
 		"loading": {
 			"title": "Đang tải TrustLedger",
-			"subtitle": "Đang chuẩn bị không gian ký quỹ an toàn của bạn",
+			"subtitle": "Chúng tôi đang chuẩn bị không gian ký quỹ an toàn của bạn.",
 			"progressLabel": "Tiến trình tải trang"
 		}
 	},

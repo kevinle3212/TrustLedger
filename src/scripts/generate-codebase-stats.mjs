@@ -352,7 +352,23 @@ function main() {
 	const outputDir = join(root, "src", "content");
 	mkdirSync(outputDir, { recursive: true });
 	const outputPath = join(outputDir, "codebase-stats.json");
-	writeFileSync(outputPath, `${JSON.stringify(snapshot, null, "\t")}\n`, "utf8");
+	const serialized = `${JSON.stringify(snapshot, null, "\t")}\n`;
+
+	// Idempotent write: the snapshot is a deterministic function of the tracked
+	// fileset, so only rewrite when the computed bytes actually differ. Builds,
+	// dev runs, and test runs that change no tracked source therefore never touch
+	// this file's mtime or git status — it changes only on real code changes.
+	let existing;
+	try {
+		existing = readFileSync(outputPath, "utf8");
+	} catch {
+		existing = undefined; // First generation, or the snapshot was removed.
+	}
+	if (existing === serialized) {
+		process.stdout.write(`Codebase stats unchanged -> ${outputPath}\n`);
+		return;
+	}
+	writeFileSync(outputPath, serialized, "utf8");
 
 	process.stdout.write(
 		`Codebase stats: ${snapshot.totals.lines.toLocaleString()} lines across ` +
