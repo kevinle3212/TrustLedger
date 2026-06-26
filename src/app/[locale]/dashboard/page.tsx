@@ -272,7 +272,7 @@ function TokenFundButton({
 
 	if (fundSuccess) {
 		return (
-			<span className="text-xs text-green-500 dark:text-green-400 px-3 py-1.5">
+			<span className="text-xs text-green-700 dark:text-green-400 px-3 py-1.5">
 				{t("funded")}
 			</span>
 		);
@@ -345,7 +345,7 @@ function RatingForm({ contractId }: { contractId: bigint }): React.JSX.Element {
 
 	if (isSuccess) {
 		return (
-			<p className="text-xs text-green-500 dark:text-green-400">
+			<p className="text-xs text-green-700 dark:text-green-400">
 				{t("ratingSubmitted")}{" "}
 				<button
 					type="button"
@@ -438,7 +438,7 @@ function SubmitWorkForm({ contractId }: { contractId: bigint }): React.JSX.Eleme
 	}
 
 	if (isSuccess)
-		return <p className="text-xs text-green-500 dark:text-green-400">{t("workSubmitted")}</p>;
+		return <p className="text-xs text-green-700 dark:text-green-400">{t("workSubmitted")}</p>;
 
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">

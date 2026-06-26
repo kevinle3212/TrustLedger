@@ -26,6 +26,9 @@ const ReactScanMonitor =
 export const viewport: Viewport = {
 	width: "device-width",
 	initialScale: 1,
+	// Extend the layout under iOS notches/home indicator so backgrounds reach the
+	// screen edges; the `tl-safe-*` utilities pad content back inside the safe area.
+	viewportFit: "cover",
 };
 
 // Absolute origin for canonical/OG/icon URLs. Safari resolves the favicon
@@ -125,7 +128,10 @@ export default async function LocaleLayout({
 
 	return (
 		<html lang={locale} dir={dir} className="h-full antialiased" suppressHydrationWarning>
-			<body className="tl-surface-page min-h-full flex flex-col" suppressHydrationWarning>
+			<body
+				className="tl-surface-page tl-safe-x min-h-full flex flex-col"
+				suppressHydrationWarning
+			>
 				<NextIntlClientProvider messages={messages}>
 					<a href="#main-content" className="skip-link">
 						{t("skipToMain")}

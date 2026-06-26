@@ -413,7 +413,11 @@ function MarkdownBlockView({
 		}
 		case "table":
 			return (
-				<div className="mt-6 overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10">
+				<div
+					// react-doctor-disable-next-line react-doctor/no-noninteractive-tabindex -- A keyboard-scrollable region must be focusable so keyboard users can scroll wide tables; this is the WCAG fix axe's scrollable-region-focusable rule requires.
+					tabIndex={0}
+					className="mt-6 overflow-x-auto rounded-xl border border-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:border-white/10"
+				>
 					<table className="min-w-full divide-y divide-gray-200 text-left text-sm dark:divide-white/10">
 						<thead className="bg-gray-50 text-gray-950 dark:bg-white/5 dark:text-white">
 							<tr>

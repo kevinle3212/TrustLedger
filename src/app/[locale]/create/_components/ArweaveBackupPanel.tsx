@@ -60,7 +60,7 @@ export function ArweaveBackupPanel({
 				<span className="text-xs text-gray-500">{t("uploadingToArweave")}</span>
 			)}
 			{arweaveStatus === "done" && arweaveUri !== "" && (
-				<span className="text-xs text-green-500 dark:text-green-400 font-mono break-all">
+				<span className="text-xs text-green-700 dark:text-green-400 font-mono break-all">
 					✓ {arweaveUri}
 				</span>
 			)}

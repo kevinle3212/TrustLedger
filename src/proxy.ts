@@ -67,10 +67,13 @@ export function proxy(req: NextRequest): NextResponse {
 }
 
 // Run on everything except Next internals and static files. The negative
-// lookahead keeps `_next/static`, `_next/image`, the favicon, and common asset
-// extensions out of the proxy to avoid needless work on cached resources.
+// lookahead keeps `_next/static`, `_next/image`, the favicon, the root metadata
+// routes (manifest/robots/sitemap), and common asset extensions out of the proxy.
+// Without the metadata exclusions, next-intl rewrites e.g. `/manifest.webmanifest`
+// to `/en/manifest.webmanifest`, which 404s — breaking the PWA manifest and SEO
+// crawling of robots.txt/sitemap.xml.
 export const config = {
 	matcher: [
-		"/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+		"/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
 	],
 };

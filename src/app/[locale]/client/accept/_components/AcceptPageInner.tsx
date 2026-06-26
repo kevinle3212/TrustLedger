@@ -182,7 +182,7 @@ export function AcceptPageInner({ initialPayload, tokenError }: Props): React.JS
 					className={`w-16 h-16 rounded-full ${accepted ? "bg-green-500/10" : "bg-gray-500/10"} flex items-center justify-center mx-auto mb-4`}
 				>
 					<svg
-						className={`w-8 h-8 ${accepted ? "text-green-500 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
+						className={`w-8 h-8 ${accepted ? "text-green-700 dark:text-green-400" : "text-gray-500 dark:text-gray-400"}`}
 						fill="none"
 						viewBox="0 0 24 24"
 						stroke="currentColor"

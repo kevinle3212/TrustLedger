@@ -278,7 +278,7 @@ export function UsdcStakePanel({ account }: { account: `0x${string}` }): React.J
 			</button>
 
 			{confirmed && (
-				<p className="text-xs text-green-500 dark:text-green-400">{t("txConfirmed")}</p>
+				<p className="text-xs text-green-700 dark:text-green-400">{t("txConfirmed")}</p>
 			)}
 			{error !== undefined && (
 				<p className="text-xs text-red-500 dark:text-red-400">{error}</p>

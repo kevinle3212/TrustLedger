@@ -42,7 +42,7 @@ export function CreatePageControls({
 
 	return (
 		<>
-			<div className="mb-6 flex items-center gap-3">
+			<div className="mb-6 flex flex-wrap items-center gap-3">
 				<span className="text-sm text-gray-500 dark:text-gray-400">{t("iAmThe")}</span>
 				<div className="flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-white/5">
 					{(["freelancer", "client"] as const).map((role) => (
@@ -67,7 +67,7 @@ export function CreatePageControls({
 				</span>
 			</div>
 
-			<div className="mb-6 flex items-center gap-3">
+			<div className="mb-6 flex flex-wrap items-center gap-3">
 				<span className="text-sm text-gray-500 dark:text-gray-400">
 					{t("paymentCurrency")}
 				</span>
