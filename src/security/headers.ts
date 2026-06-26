@@ -9,6 +9,7 @@
  * CSP tradeoffs:
  *   • script-src 'unsafe-inline' — Next.js injects inline hydration scripts;
  *     nonce-based CSP is the proper upgrade but needs extra proxy infrastructure.
+ *     'unsafe-eval' is added in development only (see {@link SCRIPT_SRC}).
  *   • style-src 'unsafe-inline' — Reown AppKit injects inline styles for its modal.
  *   • connect-src https: wss: — broad allow covers arbitrary RPC providers,
  *     WalletConnect relay, Pinata, block explorers, and wallet APIs without
@@ -19,10 +20,21 @@
  *   • frame-ancestors 'none' — belt-and-suspenders with X-Frame-Options: DENY.
  */
 
+/**
+ * In development, React injects `eval()` for debugging features (callstack
+ * reconstruction across environments), which a strict `script-src` blocks and
+ * logs as a console error. `'unsafe-eval'` is gated to development only and is
+ * never present in production builds, so the production policy stays strict.
+ */
+const SCRIPT_SRC =
+	process.env.NODE_ENV === "development"
+		? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+		: "script-src 'self' 'unsafe-inline'";
+
 /** Ordered Content-Security-Policy directives. */
 const CSP_DIRECTIVES: readonly string[] = [
 	"default-src 'self'",
-	"script-src 'self' 'unsafe-inline'",
+	SCRIPT_SRC,
 	"style-src 'self' 'unsafe-inline'",
 	"img-src 'self' data: blob: https:",
 	"font-src 'self'",
