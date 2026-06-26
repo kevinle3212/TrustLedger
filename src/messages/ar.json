@@ -153,7 +153,12 @@
 		"verificationTitle": "التحقق",
 		"verifyStageAnchored": "تم تثبيت بصمة المسودة",
 		"verifyStageFunded": "تم تمويل الضمان",
-		"verifyStageApproved": "تمت الموافقة على التسليم"
+		"verifyStageApproved": "تمت الموافقة على التسليم",
+		"loading": {
+			"title": "جارٍ تحميل TrustLedger",
+			"subtitle": "جارٍ تحضير مساحة الضمان الآمنة الخاصة بك",
+			"progressLabel": "تقدّم تحميل الصفحة"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "اربط محفظتك لعرض عقودك.",
@@ -474,7 +479,22 @@
 		"noLocalDrafts": "لم يتم العثور على مسودات تحكيم محلية على هذا الجهاز.",
 		"notTimestamped": "بدون طابع زمني",
 		"requestedCompletion": "نسبة الإكمال المطلوبة: {percent}%",
-		"openDraftCase": "فتح قضية المسودة"
+		"openDraftCase": "فتح قضية المسودة",
+		"selectAsset": "الأصل",
+		"assetReady": "جاهز",
+		"assetSoon": "قريبًا",
+		"assetConfiguredSoon": "تم تكوين تخزين {asset} على السلسلة لهذه الشبكة وسيتاح قريبًا.",
+		"assetUnavailable": "تخزين {asset} غير متاح بعد على هذه الشبكة.",
+		"usdcStakeTitle": "إيداع USDC للتجميد",
+		"usdcStakeSubtitle": "أودِع USDC في خزنة التجميد لكسب المكافآت.",
+		"walletBalanceLabel": "رصيد المحفظة",
+		"stakedBalanceLabel": "المجمَّد",
+		"claimableLabel": "المكافآت القابلة للمطالبة",
+		"claimRewards": "المطالبة بالمكافآت",
+		"txProcessing": "جارٍ المعالجة…",
+		"txConfirmed": "تم تأكيد المعاملة.",
+		"insufficientBalance": "الرصيد غير كافٍ.",
+		"invalidAmount": "أدخل مبلغًا صالحًا."
 	},
 	"Reputation": {
 		"title": "السمعة",
@@ -1057,13 +1077,13 @@
 		"statLines": "أسطر الشيفرة",
 		"statFiles": "الملفات",
 		"statDirectories": "الأدلة",
-		"statLanguages": "اللغات",
+		"statCategories": "أنواع الملفات",
 		"statSize": "حجم المصدر",
 		"viewAbout": "حول المشروع",
 		"generatedNote": "تُعاد إنشاء الإحصاءات مع كل بناء إنتاجي، لذا فهي تعكس دائمًا أحدث مصدر.",
-		"languagesTitle": "التوزيع حسب اللغة",
-		"languagesIntro": "نسبة أسطر المصدر حسب اللغة عبر قاعدة الشيفرة المتتبَّعة.",
-		"languageMeta": "{lines} سطر · {files} ملف · {share}%",
+		"categoriesTitle": "توزيع أنواع الملفات",
+		"categoriesIntro": "نسبة أسطر المصدر حسب فئة نوع الملف عبر الشيفرة المتعقَّبة. تُعرض فقط الفئات الموجودة في المستودع.",
+		"categoryMeta": "{lines} سطر · {files} ملف · {share}%",
 		"viewWalletAnalytics": "عرض تحليلات المحفظة"
 	}
 }

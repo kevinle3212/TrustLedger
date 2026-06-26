@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
 	useAccount,
+	useChainId,
 	useReadContract,
 	useReadContracts,
 	useWriteContract,
@@ -12,6 +13,10 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import { formatEther, parseEther } from "viem";
+import { AssetSelector } from "@/components/staking/AssetSelector";
+import { UsdcStakePanel } from "@/components/staking/UsdcStakePanel";
+import { getAllStakeAssetStatuses, getStakeAssetStatus } from "@/lib/staking/config";
+import type { StakeAssetId } from "@/lib/staking/assets";
 import { ARBITRATION_ABI, JUROR_REGISTRY_ABI } from "@/lib/abi";
 import { ARBITRATION_ADDRESS, JUROR_REGISTRY_ADDRESS } from "@/lib/wagmi";
 import { formatAddress, formatDeadline } from "@/lib/utils";
@@ -198,6 +203,47 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 							})}
 						</p>
 					)}
+				</div>
+			)}
+		</div>
+	);
+}
+
+// Asset-aware staking entry point. The selector chooses which asset to stake; ETH renders the
+// existing JurorRegistry register flow, while USDC and SOL render their on-chain availability
+// (driven by getAllStakeAssetStatuses) until their contracts/program are configured for the
+// connected network. No mocked transaction path is shown for an unconfigured asset.
+function AssetStakeSwitcher({ address }: { address: `0x${string}` }): React.JSX.Element {
+	const t = useTranslations("Juror");
+	const chainId = useChainId();
+	const [asset, setAsset] = useState<StakeAssetId>("ETH");
+
+	const statuses = useMemo(() => getAllStakeAssetStatuses({ chainId }), [chainId]);
+	const selectedStatus = useMemo(() => getStakeAssetStatus(asset, { chainId }), [asset, chainId]);
+
+	return (
+		<div className="flex flex-col gap-4">
+			<AssetSelector
+				statuses={statuses}
+				value={asset}
+				onChange={setAsset}
+				groupLabel={t("selectAsset")}
+				statusLabel={(configured) => (configured ? t("assetReady") : t("assetSoon"))}
+			/>
+			{asset === "ETH" ? (
+				<RegisterForm />
+			) : asset === "USDC" && selectedStatus.configured ? (
+				<UsdcStakePanel account={address} />
+			) : (
+				<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-2">
+					<p className="font-semibold text-gray-900 dark:text-white">
+						{selectedStatus.asset.symbol}
+					</p>
+					<p className="text-sm text-gray-500 dark:text-gray-400">
+						{selectedStatus.configured
+							? t("assetConfiguredSoon", { asset: selectedStatus.asset.symbol })
+							: t("assetUnavailable", { asset: selectedStatus.asset.symbol })}
+					</p>
 				</div>
 			)}
 		</div>
@@ -704,7 +750,7 @@ export function JurorPageInner(): React.JSX.Element {
 					<ManageStakePanel address={address} />
 				</div>
 				<div className="tl-stack-side">
-					<RegisterForm />
+					<AssetStakeSwitcher address={address} />
 				</div>
 			</div>
 		</div>

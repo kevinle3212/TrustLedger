@@ -153,7 +153,12 @@
 		"verificationTitle": "Xác minh",
 		"verifyStageAnchored": "Đã neo hash bản nháp",
 		"verifyStageFunded": "Đã nạp ký quỹ",
-		"verifyStageApproved": "Đã duyệt sản phẩm bàn giao"
+		"verifyStageApproved": "Đã duyệt sản phẩm bàn giao",
+		"loading": {
+			"title": "Đang tải TrustLedger",
+			"subtitle": "Đang chuẩn bị không gian ký quỹ an toàn của bạn",
+			"progressLabel": "Tiến trình tải trang"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "Kết nối ví của bạn để xem hợp đồng.",
@@ -474,7 +479,22 @@
 		"noLocalDrafts": "Không tìm thấy bản nháp trọng tài cục bộ trên thiết bị này.",
 		"notTimestamped": "Chưa Có Dấu Thời Gian",
 		"requestedCompletion": "Mức Hoàn Thành Yêu Cầu: {percent}%",
-		"openDraftCase": "Mở Vụ Bản Nháp"
+		"openDraftCase": "Mở Vụ Bản Nháp",
+		"selectAsset": "Tài sản",
+		"assetReady": "Sẵn sàng",
+		"assetSoon": "Sắp có",
+		"assetConfiguredSoon": "Staking {asset} on-chain đã được cấu hình cho mạng này và sẽ sớm khả dụng.",
+		"assetUnavailable": "Staking {asset} chưa khả dụng trên mạng này.",
+		"usdcStakeTitle": "Stake USDC",
+		"usdcStakeSubtitle": "Gửi USDC vào kho staking để nhận phần thưởng.",
+		"walletBalanceLabel": "Số Dư Ví",
+		"stakedBalanceLabel": "Đã Stake",
+		"claimableLabel": "Phần Thưởng Có Thể Nhận",
+		"claimRewards": "Nhận Thưởng",
+		"txProcessing": "Đang xử lý…",
+		"txConfirmed": "Giao dịch đã được xác nhận.",
+		"insufficientBalance": "Số dư không đủ.",
+		"invalidAmount": "Nhập số tiền hợp lệ."
 	},
 	"Reputation": {
 		"title": "Uy Tín",
@@ -1057,13 +1077,13 @@
 		"statLines": "Dòng Mã",
 		"statFiles": "Tệp",
 		"statDirectories": "Thư Mục",
-		"statLanguages": "Ngôn Ngữ",
+		"statCategories": "Loại Tệp",
 		"statSize": "Kích Thước Mã Nguồn",
 		"viewAbout": "Về Dự Án",
 		"generatedNote": "Thống kê được tạo lại trong mỗi lần xây dựng bản phát hành, vì vậy luôn phản ánh mã nguồn mới nhất.",
-		"languagesTitle": "Phân Tích Theo Ngôn Ngữ",
-		"languagesIntro": "Tỷ lệ dòng mã theo ngôn ngữ trên toàn bộ mã nguồn được theo dõi.",
-		"languageMeta": "{lines} dòng · {files} tệp · {share}%",
+		"categoriesTitle": "Phân Tích Theo Loại Tệp",
+		"categoriesIntro": "Tỷ lệ dòng mã theo từng loại tệp trong mã nguồn được theo dõi. Chỉ hiển thị các loại tệp hiện có trong kho lưu trữ.",
+		"categoryMeta": "{lines} dòng · {files} tệp · {share}%",
 		"viewWalletAnalytics": "Xem Phân Tích Ví"
 	}
 }

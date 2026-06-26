@@ -12,7 +12,11 @@ Use React, Next.js App Router, strict TypeScript, accessible controls, stable
 responsive layouts, localized copy, and existing Tailwind conventions. Keep
 wallet logic isolated to wagmi/Reown helpers and avoid exposing non-`NEXT_PUBLIC_*`
 values to the browser. Run `cd src && npx tsc --noEmit`, `npm run lint:frontend`,
-and relevant Jest/Playwright tests after frontend changes. Enforce
-`docs/QUALITY-STANDARDS.md`: keep React Doctor at 100/100 (`npm run doctor`),
-hold the line on accessibility, re-render/performance, and bundle health, and
-do not merge below 100/100.
+relevant Jest/Playwright tests, and the production build (`npm run build:frontend`)
+after frontend changes. Enforce `docs/QUALITY-STANDARDS.md`: keep React Doctor at
+100/100 (`npm run doctor`) and do not merge below it; maintain Lighthouse 95+ in
+every category (Performance, Accessibility, Best Practices, SEO) before
+deployment and target 100 where achievable; hold the line on accessibility,
+security, re-render/performance, and bundle health; never introduce unused code;
+and investigate and resolve new warnings at their root cause instead of
+suppressing them.

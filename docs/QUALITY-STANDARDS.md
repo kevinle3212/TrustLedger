@@ -89,6 +89,11 @@ fail:
   `forge fmt --check`, `forge lint`).
 - Tests (`forge test`, Hardhat, Jest, Playwright, any others).
 - Build validation (`forge build`, `next build`, any other build step).
+- Lighthouse below **95** in any category — Performance, Accessibility, Best
+  Practices, or SEO. Maintain **95+** before any deployment and target **100**
+  where realistically achievable; document any blocker preventing a perfect
+  score. Lighthouse CI runs the desktop preset over a 3-run median
+  (`src/.lighthouserc.json`).
 - Accessibility checks, performance audits, and security checks (`security.yml`,
   Semgrep).
 
@@ -96,6 +101,11 @@ Remove unused code, dead files, stale imports, obsolete assets, duplicate logic,
 and unreachable code whenever you modify a surface. Scope discipline still
 applies: surface unrelated pre-existing dead code instead of deleting it (see
 `CLAUDE.md` §3, root `AGENTS.md` Code Hygiene).
+
+Investigate and resolve new warnings — build, lint, type-check, test, runtime,
+browser console, or tooling (including Node experimental warnings) — at their
+root cause instead of silencing them. Suppress a finding only when it is a
+verified false positive, and always with an inline justification comment.
 
 ---
 

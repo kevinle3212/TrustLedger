@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 
 /**
  * `GET /api/analytics/codebase` — public snapshot of the codebase scale
- * (lines of code, file and directory counts, and a per-language breakdown).
+ * (lines of code, file and directory counts, and a per-category file-type
+ * breakdown that only includes categories present in the repository).
  *
  * - **Auth:** none.
  * - **Request:** no parameters.

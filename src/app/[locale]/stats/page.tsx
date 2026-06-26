@@ -7,7 +7,7 @@ import { getCodebaseStats } from "@/lib/codebaseStats";
 export const metadata: Metadata = {
 	title: "Project Statistics | TrustLedger",
 	description:
-		"Lines of code, file and directory counts, and the language breakdown of the TrustLedger codebase.",
+		"Lines of code, file and directory counts, and the file-type category breakdown of the TrustLedger codebase.",
 };
 
 /** Formats a byte count as a human-readable size using locale-aware numbers. */
@@ -36,7 +36,7 @@ export default async function StatsPage({
 		{ label: t("statLines"), value: formatNumber(stats.totals.lines) },
 		{ label: t("statFiles"), value: formatNumber(stats.totals.files) },
 		{ label: t("statDirectories"), value: formatNumber(stats.totals.directories) },
-		{ label: t("statLanguages"), value: formatNumber(stats.totals.languages) },
+		{ label: t("statCategories"), value: formatNumber(stats.totals.categories) },
 		{ label: t("statSize"), value: formatSize(stats.totals.bytes, formatNumber) },
 	];
 
@@ -96,26 +96,26 @@ export default async function StatsPage({
 
 			<section className="mt-10">
 				<h2 className="text-lg font-semibold text-gray-950 dark:text-white">
-					{t("languagesTitle")}
+					{t("categoriesTitle")}
 				</h2>
 				<p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
-					{t("languagesIntro")}
+					{t("categoriesIntro")}
 				</p>
 				<ul className="mt-5 grid gap-3">
-					{stats.languages.map((language) => (
+					{stats.categories.map((category) => (
 						<li
-							key={language.name}
+							key={category.name}
 							className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03]"
 						>
 							<div className="flex items-baseline justify-between gap-3">
 								<span className="text-sm font-semibold text-gray-950 dark:text-white">
-									{language.name}
+									{category.name}
 								</span>
 								<span className="text-sm tabular-nums text-gray-600 dark:text-gray-300">
-									{t("languageMeta", {
-										lines: formatNumber(language.lines),
-										files: formatNumber(language.files),
-										share: formatNumber(language.share),
+									{t("categoryMeta", {
+										lines: formatNumber(category.lines),
+										files: formatNumber(category.files),
+										share: formatNumber(category.share),
 									})}
 								</span>
 							</div>
@@ -125,7 +125,7 @@ export default async function StatsPage({
 							>
 								<div
 									className="h-full rounded-full bg-indigo-500 dark:bg-indigo-400"
-									style={{ width: `${String(language.share)}%` }}
+									style={{ width: `${String(category.share)}%` }}
 								/>
 							</div>
 						</li>

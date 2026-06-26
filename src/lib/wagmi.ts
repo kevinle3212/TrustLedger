@@ -70,6 +70,14 @@ const PUBLIC_ENV = {
 	NEXT_PUBLIC_USDC_ADDRESS_ARBITRUM: process.env.NEXT_PUBLIC_USDC_ADDRESS_ARBITRUM,
 	NEXT_PUBLIC_USDC_ADDRESS_BASE: process.env.NEXT_PUBLIC_USDC_ADDRESS_BASE,
 	NEXT_PUBLIC_USDC_ADDRESS_OPTIMISM: process.env.NEXT_PUBLIC_USDC_ADDRESS_OPTIMISM,
+	NEXT_PUBLIC_STAKING_VAULT_ADDRESS: process.env.NEXT_PUBLIC_STAKING_VAULT_ADDRESS,
+	NEXT_PUBLIC_STAKING_VAULT_ADDRESS_SEPOLIA:
+		process.env.NEXT_PUBLIC_STAKING_VAULT_ADDRESS_SEPOLIA,
+	NEXT_PUBLIC_STAKING_VAULT_ADDRESS_ARBITRUM:
+		process.env.NEXT_PUBLIC_STAKING_VAULT_ADDRESS_ARBITRUM,
+	NEXT_PUBLIC_STAKING_VAULT_ADDRESS_BASE: process.env.NEXT_PUBLIC_STAKING_VAULT_ADDRESS_BASE,
+	NEXT_PUBLIC_STAKING_VAULT_ADDRESS_OPTIMISM:
+		process.env.NEXT_PUBLIC_STAKING_VAULT_ADDRESS_OPTIMISM,
 	NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
 	NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 	NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
@@ -208,6 +216,32 @@ const USDC_ADDRESSES: Record<number, `0x${string}`> = {
 /** Returns the USDC address for a chain, or undefined if not supported. */
 export function getUsdcAddress(chainId: number): `0x${string}` | undefined {
 	return USDC_ADDRESSES[chainId];
+}
+
+// Deployed StakingVault (USDC staking) address per chain. There is no hardcoded default:
+// the vault must be deployed and its address published into env before USDC staking is
+// enabled. An unset value resolves to the zero address, which the UI treats as
+// "USDC staking not configured on this network".
+const STAKING_VAULT_ADDRESSES: Record<number, `0x${string}`> = {
+	// Local Hardhat/Anvil: published by a local DeployStaking run for end-to-end testing.
+	31337: readAddress("NEXT_PUBLIC_STAKING_VAULT_ADDRESS") ?? ZERO_ADDRESS,
+	11155111:
+		readAddress("NEXT_PUBLIC_STAKING_VAULT_ADDRESS_SEPOLIA") ??
+		readAddress("NEXT_PUBLIC_STAKING_VAULT_ADDRESS") ??
+		ZERO_ADDRESS,
+	42161: readAddress("NEXT_PUBLIC_STAKING_VAULT_ADDRESS_ARBITRUM") ?? ZERO_ADDRESS,
+	8453: readAddress("NEXT_PUBLIC_STAKING_VAULT_ADDRESS_BASE") ?? ZERO_ADDRESS,
+	10: readAddress("NEXT_PUBLIC_STAKING_VAULT_ADDRESS_OPTIMISM") ?? ZERO_ADDRESS,
+};
+
+/**
+ * Returns the deployed StakingVault address for a chain, or `undefined` when no vault is
+ * configured there. A configured-but-zero address (placeholder) is treated as unconfigured.
+ */
+export function getStakingVaultAddress(chainId: number): `0x${string}` | undefined {
+	const address = STAKING_VAULT_ADDRESSES[chainId];
+	if (address === undefined || address === ZERO_ADDRESS) return undefined;
+	return address;
 }
 
 const wcProjectId = PUBLIC_ENV.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;

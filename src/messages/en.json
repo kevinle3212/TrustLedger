@@ -209,7 +209,12 @@
 		"verificationTitle": "Verification",
 		"verifyStageAnchored": "Draft hash anchored",
 		"verifyStageFunded": "Escrow funded",
-		"verifyStageApproved": "Deliverable approved"
+		"verifyStageApproved": "Deliverable approved",
+		"loading": {
+			"title": "Loading TrustLedger",
+			"subtitle": "Preparing your secure escrow workspace",
+			"progressLabel": "Page loading progress"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "Connect your wallet to see your contracts.",
@@ -530,7 +535,22 @@
 		"noLocalDrafts": "No local arbitration drafts found on this device.",
 		"notTimestamped": "Not Timestamped",
 		"requestedCompletion": "Requested Completion: {percent}%",
-		"openDraftCase": "Open Draft Case"
+		"openDraftCase": "Open Draft Case",
+		"selectAsset": "Asset",
+		"assetReady": "Ready",
+		"assetSoon": "Soon",
+		"assetConfiguredSoon": "On-chain {asset} staking is configured for this network and unlocks shortly.",
+		"assetUnavailable": "{asset} staking is not yet available on this network.",
+		"usdcStakeTitle": "Stake USDC",
+		"usdcStakeSubtitle": "Deposit USDC into the staking vault to earn rewards.",
+		"walletBalanceLabel": "Wallet Balance",
+		"stakedBalanceLabel": "Staked",
+		"claimableLabel": "Claimable Rewards",
+		"claimRewards": "Claim Rewards",
+		"txProcessing": "Processing…",
+		"txConfirmed": "Transaction confirmed.",
+		"insufficientBalance": "Insufficient balance.",
+		"invalidAmount": "Enter a valid amount."
 	},
 	"Reputation": {
 		"title": "Reputation",
@@ -1053,17 +1073,17 @@
 	"Stats": {
 		"eyebrow": "Project Scale",
 		"title": "Codebase Statistics",
-		"intro": "A transparent look at the scale of the TrustLedger codebase: total lines of code, files, directories, and the languages that make it up. Every figure is computed from git-tracked source files and contains no private information.",
+		"intro": "A transparent look at the scale of the TrustLedger codebase: total lines of code, files, directories, and the file-type categories that make it up. Every figure is computed from git-tracked source files and contains no private information.",
 		"statLines": "Lines Of Code",
 		"statFiles": "Files",
 		"statDirectories": "Directories",
-		"statLanguages": "Languages",
+		"statCategories": "File Types",
 		"statSize": "Source Size",
 		"viewAbout": "About The Project",
 		"generatedNote": "Statistics regenerate on every production build, so they always reflect the latest source.",
-		"languagesTitle": "Language Breakdown",
-		"languagesIntro": "Share of source lines by language across the tracked codebase.",
-		"languageMeta": "{lines} lines · {files} files · {share}%",
+		"categoriesTitle": "File-Type Breakdown",
+		"categoriesIntro": "Share of source lines by file-type category across the tracked codebase. Only categories present in the repository are shown.",
+		"categoryMeta": "{lines} lines · {files} files · {share}%",
 		"viewWalletAnalytics": "View Wallet Analytics"
 	}
 }

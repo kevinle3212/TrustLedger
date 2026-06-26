@@ -153,7 +153,12 @@
 		"verificationTitle": "Verificação",
 		"verifyStageAnchored": "Hash do rascunho ancorado",
 		"verifyStageFunded": "Garantia financiada",
-		"verifyStageApproved": "Entrega aprovada"
+		"verifyStageApproved": "Entrega aprovada",
+		"loading": {
+			"title": "Carregando o TrustLedger",
+			"subtitle": "Preparando seu espaço de custódia seguro",
+			"progressLabel": "Progresso de carregamento da página"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "Conecte sua carteira para ver seus contratos.",
@@ -474,7 +479,22 @@
 		"noLocalDrafts": "Nenhum rascunho local de arbitragem foi encontrado neste dispositivo.",
 		"notTimestamped": "Sem Registro de Tempo",
 		"requestedCompletion": "Conclusão Solicitada: {percent}%",
-		"openDraftCase": "Abrir Caso Rascunho"
+		"openDraftCase": "Abrir Caso Rascunho",
+		"selectAsset": "Ativo",
+		"assetReady": "Pronto",
+		"assetSoon": "Em breve",
+		"assetConfiguredSoon": "O staking de {asset} on-chain está configurado para esta rede e será habilitado em breve.",
+		"assetUnavailable": "O staking de {asset} ainda não está disponível nesta rede.",
+		"usdcStakeTitle": "Fazer staking de USDC",
+		"usdcStakeSubtitle": "Deposite USDC no cofre de staking para ganhar recompensas.",
+		"walletBalanceLabel": "Saldo da Carteira",
+		"stakedBalanceLabel": "Em Staking",
+		"claimableLabel": "Recompensas Disponíveis",
+		"claimRewards": "Resgatar Recompensas",
+		"txProcessing": "Processando…",
+		"txConfirmed": "Transação confirmada.",
+		"insufficientBalance": "Saldo insuficiente.",
+		"invalidAmount": "Insira um valor válido."
 	},
 	"Reputation": {
 		"title": "Reputação",
@@ -1057,13 +1077,13 @@
 		"statLines": "Linhas De Código",
 		"statFiles": "Arquivos",
 		"statDirectories": "Diretórios",
-		"statLanguages": "Linguagens",
+		"statCategories": "Tipos De Arquivo",
 		"statSize": "Tamanho Do Código",
 		"viewAbout": "Sobre O Projeto",
 		"generatedNote": "As estatísticas são geradas novamente a cada compilação de produção, portanto sempre refletem o código mais recente.",
-		"languagesTitle": "Detalhamento Por Linguagem",
-		"languagesIntro": "Proporção de linhas de código por linguagem em todo o código rastreado.",
-		"languageMeta": "{lines} linhas · {files} arquivos · {share}%",
+		"categoriesTitle": "Distribuição Por Tipo De Arquivo",
+		"categoriesIntro": "Proporção de linhas de código por categoria de tipo de arquivo no código rastreado. Apenas as categorias presentes no repositório são exibidas.",
+		"categoryMeta": "{lines} linhas · {files} arquivos · {share}%",
 		"viewWalletAnalytics": "Ver Análises da Carteira"
 	}
 }

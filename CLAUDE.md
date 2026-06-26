@@ -163,12 +163,22 @@ npm run doctor            # React Doctor (score + verbose findings)
 performance, accessibility, and deployment specification. Enforce it and
 validate compliance before completing any task or approving any change.
 
+- Every change must pass TypeScript (`npx tsc --noEmit`), ESLint, the test
+  suites, and the production build (`next build`) before merge or deploy.
 - React Doctor must stay at 100/100. No PR, merge, release, deployment, or
   production promotion may proceed below 100/100. Proactively identify and
   resolve anything blocking the score; treat warnings and regressions as
   high-priority.
+- Maintain Lighthouse scores of 95+ in every category (Performance,
+  Accessibility, Best Practices, SEO) before deployment; target 100 where
+  realistically achievable and document any remaining blocker.
 - Block deployment/merge when React Doctor, type-check, lint, tests, build,
-  accessibility, performance, or security checks fail.
+  Lighthouse, accessibility, performance, or security checks fail.
+- Do not introduce unused code, and preserve accessibility and security
+  standards on every change.
+- Investigate and resolve new warnings (build, lint, test, runtime, console,
+  tooling) at their root cause instead of suppressing them; suppress only a
+  verified false positive, with an inline justification.
 - Add TSDoc to new code elements; document API routes and smart-contract
   surfaces; keep `controllers/` separation and `CREDITS.md` current.
 

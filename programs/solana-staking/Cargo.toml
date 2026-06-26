@@ -1,0 +1,31 @@
+[package]
+name = "trustledger-solana-staking"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/kevinle3212/TrustLedger"
+rust-version = "1.89"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+solana-program = "4"
+solana-sdk-ids = "3"
+solana-system-interface = { version = "3", features = ["bincode"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+unused_must_use = "deny"
+missing_docs = "deny"
+unexpected_cfgs = "allow"
+
+[lints.clippy]
+all = "deny"
+pedantic = "deny"
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"

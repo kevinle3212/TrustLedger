@@ -153,7 +153,12 @@
 		"verificationTitle": "सत्यापन",
 		"verifyStageAnchored": "ड्राफ्ट हैश एंकर किया गया",
 		"verifyStageFunded": "एस्क्रो वित्तपोषित",
-		"verifyStageApproved": "डिलीवरेबल स्वीकृत"
+		"verifyStageApproved": "डिलीवरेबल स्वीकृत",
+		"loading": {
+			"title": "TrustLedger लोड हो रहा है",
+			"subtitle": "आपका सुरक्षित एस्क्रो वर्कस्पेस तैयार किया जा रहा है",
+			"progressLabel": "पृष्ठ लोडिंग प्रगति"
+		}
 	},
 	"Dashboard": {
 		"connectWallet": "अपने अनुबंध देखने के लिए वॉलेट कनेक्ट करें।",
@@ -474,7 +479,22 @@
 		"noLocalDrafts": "इस डिवाइस पर कोई स्थानीय arbitration ड्राफ्ट नहीं मिला।",
 		"notTimestamped": "समय-मुद्रित नहीं",
 		"requestedCompletion": "अनुरोधित पूर्णता: {percent}%",
-		"openDraftCase": "ड्राफ्ट केस खोलें"
+		"openDraftCase": "ड्राफ्ट केस खोलें",
+		"selectAsset": "एसेट",
+		"assetReady": "तैयार",
+		"assetSoon": "जल्द आ रहा है",
+		"assetConfiguredSoon": "{asset} ऑन-चेन स्टेकिंग इस नेटवर्क के लिए कॉन्फ़िगर है और जल्द ही उपलब्ध होगी।",
+		"assetUnavailable": "{asset} स्टेकिंग अभी इस नेटवर्क पर उपलब्ध नहीं है।",
+		"usdcStakeTitle": "USDC स्टेक करें",
+		"usdcStakeSubtitle": "पुरस्कार अर्जित करने के लिए स्टेकिंग वॉल्ट में USDC जमा करें।",
+		"walletBalanceLabel": "वॉलेट शेष",
+		"stakedBalanceLabel": "स्टेक किया गया",
+		"claimableLabel": "प्राप्त करने योग्य पुरस्कार",
+		"claimRewards": "पुरस्कार प्राप्त करें",
+		"txProcessing": "प्रोसेस हो रहा है…",
+		"txConfirmed": "लेन-देन की पुष्टि हुई।",
+		"insufficientBalance": "अपर्याप्त शेष।",
+		"invalidAmount": "मान्य राशि दर्ज करें।"
 	},
 	"Reputation": {
 		"title": "प्रतिष्ठा",
@@ -1057,13 +1077,13 @@
 		"statLines": "कोड की पंक्तियाँ",
 		"statFiles": "फ़ाइलें",
 		"statDirectories": "निर्देशिकाएँ",
-		"statLanguages": "भाषाएँ",
+		"statCategories": "फ़ाइल प्रकार",
 		"statSize": "स्रोत आकार",
 		"viewAbout": "परियोजना के बारे में",
 		"generatedNote": "हर प्रोडक्शन बिल्ड पर आँकड़े फिर से बनाए जाते हैं, इसलिए वे हमेशा नवीनतम स्रोत को दर्शाते हैं।",
-		"languagesTitle": "भाषा विवरण",
-		"languagesIntro": "ट्रैक किए गए पूरे कोडबेस में भाषा के अनुसार स्रोत पंक्तियों का हिस्सा।",
-		"languageMeta": "{lines} पंक्तियाँ · {files} फ़ाइलें · {share}%",
+		"categoriesTitle": "फ़ाइल-प्रकार विश्लेषण",
+		"categoriesIntro": "ट्रैक किए गए कोडबेस में फ़ाइल-प्रकार श्रेणी के अनुसार स्रोत पंक्तियों का हिस्सा। केवल रिपॉज़िटरी में मौजूद श्रेणियाँ ही दिखाई जाती हैं।",
+		"categoryMeta": "{lines} पंक्तियाँ · {files} फ़ाइलें · {share}%",
 		"viewWalletAnalytics": "वॉलेट एनालिटिक्स देखें"
 	}
 }

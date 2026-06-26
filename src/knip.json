@@ -22,6 +22,8 @@
 		"controllers/result.ts": ["unlisted"],
 		"lib/accountPreferences.ts": ["exports"],
 		"lib/solanaEscrow.ts": ["exports"],
+		"lib/staking/assets.ts": ["exports"],
+		"lib/staking/execution.ts": ["exports"],
 		"lib/wagmi.ts": ["exports"],
 		"services/contractSummary.ts": ["exports", "types", "unlisted"],
 		"services/health.ts": ["types"],

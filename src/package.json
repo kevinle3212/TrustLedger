@@ -62,7 +62,7 @@
 		"build:frontend": "npm run stats:generate && NODE_OPTIONS=--no-experimental-webstorage next build",
 		"vercel-build": "npm run stats:generate && NODE_OPTIONS=--no-experimental-webstorage next build",
 		"start:frontend": "NODE_OPTIONS=--no-experimental-webstorage next start",
-		"start:e2e:standalone": "node ../tools/start-standalone-e2e.mjs",
+		"start:e2e:standalone": "NODE_OPTIONS=--no-experimental-webstorage node ../tools/start-standalone-e2e.mjs",
 		"typecheck": "npx tsc --noEmit",
 		"quality": "npm run typecheck && npm run lint:frontend && npm run i18n:scan && npm run test:unit",
 		"quality:all": "npm run quality && npm run build:frontend && npm run doctor && npm run test:e2e",
@@ -83,10 +83,10 @@
 		"test:unit": "jest --runInBand",
 		"i18n:scan": "jest --runInBand tests/unit/no-visible-jsx-literals.test.ts tests/unit/locale-messages.test.ts",
 		"test:coverage": "jest --coverage",
-		"test:e2e": "env -u NO_COLOR playwright test --grep-invert @wallet",
-		"test:e2e:wallet": "env -u NO_COLOR playwright test --project=chromium --grep @wallet",
-		"test:e2e:ui": "playwright test --ui",
-		"test:e2e:headed": "playwright test --headed",
+		"test:e2e": "NODE_OPTIONS=--no-experimental-webstorage env -u NO_COLOR playwright test --grep-invert @wallet",
+		"test:e2e:wallet": "NODE_OPTIONS=--no-experimental-webstorage env -u NO_COLOR playwright test --project=chromium --grep @wallet",
+		"test:e2e:ui": "NODE_OPTIONS=--no-experimental-webstorage playwright test --ui",
+		"test:e2e:headed": "NODE_OPTIONS=--no-experimental-webstorage playwright test --headed",
 		"install:playwright": "playwright install chromium"
 	},
 	"dependencies": {
