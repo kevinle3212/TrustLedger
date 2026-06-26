@@ -212,7 +212,7 @@
 		"verifyStageApproved": "Deliverable approved",
 		"loading": {
 			"title": "Loading TrustLedger",
-			"subtitle": "Preparing your secure escrow workspace",
+			"subtitle": "We’re preparing your secure escrow workspace.",
 			"progressLabel": "Page loading progress"
 		}
 	},

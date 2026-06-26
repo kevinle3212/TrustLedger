@@ -156,7 +156,7 @@
 		"verifyStageApproved": "交付物已批准",
 		"loading": {
 			"title": "正在加载 TrustLedger",
-			"subtitle": "正在准备您的安全托管工作区",
+			"subtitle": "正在为您准备安全的托管工作区。",
 			"progressLabel": "页面加载进度"
 		}
 	},

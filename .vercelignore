@@ -30,6 +30,8 @@ node_modules/
 src/node_modules/
 /.next/
 src/.next/
+/.swc/
+src/.swc/
 /.turbo/
 src/.turbo/
 /.vercel/output/
