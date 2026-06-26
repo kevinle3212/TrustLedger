@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
+import { ContractFlowConnectors } from "./ContractFlowConnectors";
+
 type ContractPhase = "PENDING" | "ACTIVE" | "APPROVED";
 type PreviewScene = "contract" | "juror" | "reputation";
 
@@ -136,6 +138,7 @@ export function InteractiveContractPreview({
 	return (
 		<div className="tl-contract-stage tl-motion-card rounded-2xl border border-gray-200 bg-gray-50 p-5 dark:border-white/10 dark:bg-white/5">
 			<div className="tl-contract-orbit" aria-hidden="true" />
+			<ContractFlowConnectors />
 			<div className="relative mb-4 flex items-center justify-between gap-3">
 				<button
 					type="button"

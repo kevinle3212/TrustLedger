@@ -37,6 +37,8 @@
 		"Gruntfuggly.todo-tree",
 		"coderabbit.coderabbit-vscode",
 		"pkief.material-icon-theme",
+		"aaron-bond.better-comments",
+		"oderwat.indent-rainbow",
 
 		// AI Coding Assistants
 		"anthropic.claude-code",

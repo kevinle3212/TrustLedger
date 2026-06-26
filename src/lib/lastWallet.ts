@@ -56,17 +56,42 @@ export function getLastWallet(): string | null {
  */
 const WAGMI_RECENT_CONNECTOR_KEY = "wagmi.recentConnectorId";
 
+// AppKit persists its own restore signals under these keys, independent of
+// wagmi's recent-connector record. `syncExistingConnection` (the routine that
+// actually restores the account when AppKit initializes) reads the connected
+// namespaces, so these are the *authoritative* "there is a session to restore"
+// markers. A profile can carry the AppKit keys without the wagmi one (or vice
+// versa) depending on connector type and write ordering, so the init gate must
+// accept any of them or it will skip restoration and leave the user logged out.
+const APPKIT_CONNECTED_NAMESPACES_KEY = "@appkit/connected_namespaces";
+const APPKIT_CONNECTION_STATUS_KEY = "@appkit/connection_status";
+
+function hasNonEmptyStorageValue(key: string): boolean {
+	const value = window.localStorage.getItem(key);
+	return value !== null && value !== "" && value !== "null" && value !== "[]";
+}
+
 /**
- * Returns true when wagmi has a persisted wallet session in this browser. Used to
- * decide whether AppKit must initialize on mount so its connectors are registered
- * and wagmi's reconnection can restore the account across reloads and direct URL
- * navigation. Falls back to `false` in non-browser or sandboxed contexts.
+ * Returns true when this browser holds a wallet session to restore. Used to
+ * decide whether AppKit must initialize on load so its connectors are registered
+ * and {@link https://docs.reown.com AppKit's} `syncExistingConnection` can
+ * restore the account across reloads and direct URL navigation.
+ *
+ * Checks AppKit's own restore markers (`@appkit/connected_namespaces`,
+ * `@appkit/connection_status`) as well as wagmi's recent-connector record so the
+ * gate matches AppKit's actual restore condition rather than a single proxy
+ * signal. Falls back to `false` in non-browser or sandboxed contexts.
  */
 export function hasPersistedWalletSession(): boolean {
 	if (typeof window === "undefined") return false;
 	try {
-		const recent = window.localStorage.getItem(WAGMI_RECENT_CONNECTOR_KEY);
-		return recent !== null && recent !== "" && recent !== "null";
+		if (window.localStorage.getItem(APPKIT_CONNECTION_STATUS_KEY) === "connected") {
+			return true;
+		}
+		return (
+			hasNonEmptyStorageValue(APPKIT_CONNECTED_NAMESPACES_KEY) ||
+			hasNonEmptyStorageValue(WAGMI_RECENT_CONNECTOR_KEY)
+		);
 	} catch {
 		return false;
 	}

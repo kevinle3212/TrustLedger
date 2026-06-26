@@ -30,34 +30,46 @@ function InactivityWatcher(): null {
 	return null;
 }
 
+// Guards the gated AppKit init so it kicks off at most once per page load even
+// though the lazy initializer below runs on the first render of every mounted
+// `Providers` (and twice under React StrictMode in development).
+let appKitInitStarted = false;
+
 /**
- * Initializes Reown AppKit once on the client, after hydration, but only when a
- * wallet was previously used in this browser. AppKit owns the wallet-session
- * reconnection that restores a connected account across page reloads and direct
- * navigations; when it is only created on demand (the first time the wallet
- * modal opens), a refresh drops the connection because its reconnect logic never
- * runs.
+ * Starts Reown AppKit initialization at the earliest client opportunity when a
+ * wallet session exists to restore. AppKit owns the reconnection that restores a
+ * connected account across reloads and direct navigations (its
+ * `syncExistingConnection` routine); when AppKit is only created on demand (the
+ * first time the wallet modal opens), a refresh drops the connection because
+ * that reconnect logic never runs.
+ *
+ * Why render-time and not a `useEffect`: effects fire after the whole tree
+ * commits, child-first, so an effect here would run *after* `<WagmiProvider>`
+ * has already mounted. Kicking the (cached) dynamic import during the first
+ * render starts the AppKit chunk fetch as early as possible, shrinking the
+ * disconnected→connected window. `reconnectOnMount` is disabled on the provider
+ * (see below) so wagmi never settles to "disconnected" before AppKit restores.
  *
  * The gate keeps first-time visitors — and clean-profile tooling such as
  * Lighthouse — from paying the heavy AppKit init and the WalletConnect
- * network/console activity it triggers (which also tanks the best-practices
- * budget when no project ID is configured), while returning users still get
- * their session restored. It fires when EITHER our reconnect-hint label
- * ({@link getLastWallet}) OR wagmi's own persisted session
- * ({@link hasPersistedWalletSession}) is present: the wagmi signal is the
- * authoritative one, so a session is restored even if the optional label was
- * never written or was cleared. The module is imported dynamically so AppKit
- * stays in a lazy chunk off the initial critical path. Skipped under the E2E
- * mock build, which bypasses AppKit entirely.
+ * network/console activity it triggers, while returning users get their session
+ * restored. It fires when our reconnect-hint label ({@link getLastWallet}) OR
+ * any of AppKit's/wagmi's persisted session markers
+ * ({@link hasPersistedWalletSession}) are present. The module is imported
+ * dynamically so AppKit stays in a lazy chunk off the initial critical path. A
+ * no-op during SSR (the gate reads `window`) and under the E2E mock build, which
+ * bypasses AppKit entirely.
  */
-function AppKitInitializer(): null {
-	useEffect(() => {
-		if (getLastWallet() === null && !hasPersistedWalletSession()) return;
+function useStartAppKit(): void {
+	useState(() => {
+		if (appKitInitStarted || isE2eMockWallet) return null;
+		if (getLastWallet() === null && !hasPersistedWalletSession()) return null;
+		appKitInitStarted = true;
 		void import("@/lib/appkit").then((mod) => {
 			mod.ensureAppKit();
 		});
-	}, []);
-	return null;
+		return null;
+	});
 }
 
 /**
@@ -82,6 +94,10 @@ function E2eMockWalletAutoConnect(): null {
 export function Providers({ children }: { children: React.ReactNode }): React.JSX.Element {
 	const [queryClient] = useState(() => new QueryClient());
 
+	// Start AppKit before <WagmiProvider> mounts so its connectors are registered
+	// in time for AppKit's own session restore (no-op under the E2E mock build).
+	useStartAppKit();
+
 	return (
 		<ThemeProvider
 			attribute="class"
@@ -90,9 +106,18 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 			disableTransitionOnChange
 		>
 			<RoleProvider>
-				<WagmiProvider config={config}>
+				{/*
+				 * reconnectOnMount is disabled for the real wallet path: AppKit (not
+				 * wagmi) owns session restoration via `syncExistingConnection`. Leaving
+				 * it on lets wagmi attempt a reconnect before AppKit has registered its
+				 * connectors, settling state to "disconnected" and causing a logged-out
+				 * flash — or a stuck logged-out state — on refresh and direct
+				 * navigation. The E2E mock path keeps it on so the mock connector
+				 * rehydrates across navigations in tests.
+				 */}
+				<WagmiProvider config={config} reconnectOnMount={isE2eMockWallet}>
 					<QueryClientProvider client={queryClient}>
-						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : <AppKitInitializer />}
+						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : null}
 						<InactivityWatcher />
 						{children}
 					</QueryClientProvider>
