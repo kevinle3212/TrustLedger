@@ -368,6 +368,19 @@ function main() {
 		process.stdout.write(`Codebase stats unchanged -> ${outputPath}\n`);
 		return;
 	}
+
+	// `--check` verifies the committed snapshot matches the tracked source
+	// without writing. Used by the CI/pre-commit drift gate so a stale snapshot
+	// can never be committed; it never mutates the working tree.
+	if (process.argv.includes("--check")) {
+		process.stderr.write(
+			`Codebase stats are stale. Run \`npm run stats:generate\` and commit ` +
+				`${GENERATED_SNAPSHOT_RELATIVE_PATH}.\n`,
+		);
+		process.exitCode = 1;
+		return;
+	}
+
 	writeFileSync(outputPath, serialized, "utf8");
 
 	process.stdout.write(

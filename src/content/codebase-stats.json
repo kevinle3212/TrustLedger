@@ -1,9 +1,9 @@
 {
 	"totals": {
-		"files": 788,
+		"files": 794,
 		"directories": 273,
-		"lines": 130031,
-		"bytes": 11792031,
+		"lines": 130836,
+		"bytes": 11817147,
 		"categories": 25
 	},
 	"categories": [
@@ -11,7 +11,7 @@
 			"name": "Solidity",
 			"files": 78,
 			"lines": 34405,
-			"share": 26.5
+			"share": 26.3
 		},
 		{
 			"name": "Markdown",
@@ -21,26 +21,26 @@
 		},
 		{
 			"name": "TypeScript",
-			"files": 175,
-			"lines": 20840,
-			"share": 16
+			"files": 178,
+			"lines": 21151,
+			"share": 16.2
 		},
 		{
 			"name": "React",
-			"files": 98,
-			"lines": 15258,
-			"share": 11.7
+			"files": 101,
+			"lines": 15698,
+			"share": 12
 		},
 		{
 			"name": "JSON",
 			"files": 48,
-			"lines": 11645,
-			"share": 9
+			"lines": 11646,
+			"share": 8.9
 		},
 		{
 			"name": "JavaScript",
 			"files": 24,
-			"lines": 2725,
+			"lines": 2740,
 			"share": 2.1
 		},
 		{
@@ -58,8 +58,7 @@
 		{
 			"name": "CSS",
 			"files": 4,
-			"lines": 1850,
-			"lines": 1849,
+			"lines": 1887,
 			"share": 1.4
 		},
 		{

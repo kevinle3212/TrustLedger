@@ -16,6 +16,8 @@ export default [
 			"contracts/out/**",
 			"contracts/cache/**",
 			"contracts/broadcast/**",
+			".venv-docs/**",
+			"site/**",
 			"src/**",
 			"*.config.cjs",
 			"scripts/**/*.js",
