@@ -1,9 +1,9 @@
 {
 	"totals": {
-		"files": 794,
-		"directories": 273,
-		"lines": 130836,
-		"bytes": 11817147,
+		"files": 795,
+		"directories": 274,
+		"lines": 130840,
+		"bytes": 11817290,
 		"categories": 25
 	},
 	"categories": [
@@ -76,7 +76,7 @@
 		{
 			"name": "Ignore/System Files",
 			"files": 23,
-			"lines": 555,
+			"lines": 559,
 			"share": 0.4
 		},
 		{
@@ -111,7 +111,7 @@
 		},
 		{
 			"name": "Configuration Files",
-			"files": 4,
+			"files": 5,
 			"lines": 68,
 			"share": 0.1
 		},

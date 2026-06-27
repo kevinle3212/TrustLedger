@@ -145,6 +145,10 @@ NOTES.local.md
 .impeccable/live/*
 !.impeccable/live/config.json
 
+# ─── Playwright CLI session artifacts (logs/snapshots; keep dir marker) ──────
+.playwright-cli/*
+!.playwright-cli/.gitkeep
+
 # ─── Miscellaneous ───────────────────────────────────────────────────────────
 .idea/
 assets/presentation/
