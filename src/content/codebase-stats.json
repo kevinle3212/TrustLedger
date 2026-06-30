@@ -1,9 +1,9 @@
 {
 	"totals": {
-		"files": 795,
-		"directories": 274,
-		"lines": 130840,
-		"bytes": 11817290,
+		"files": 796,
+		"directories": 275,
+		"lines": 130959,
+		"bytes": 11823131,
 		"categories": 25
 	},
 	"categories": [
@@ -16,7 +16,7 @@
 		{
 			"name": "Markdown",
 			"files": 200,
-			"lines": 32959,
+			"lines": 33050,
 			"share": 25.2
 		},
 		{
@@ -34,7 +34,7 @@
 		{
 			"name": "JSON",
 			"files": 48,
-			"lines": 11646,
+			"lines": 11648,
 			"share": 8.9
 		},
 		{
@@ -122,15 +122,15 @@
 			"share": 0
 		},
 		{
-			"name": "C++",
-			"files": 1,
-			"lines": 23,
+			"name": "Patch",
+			"files": 2,
+			"lines": 34,
 			"share": 0
 		},
 		{
-			"name": "Patch",
+			"name": "C++",
 			"files": 1,
-			"lines": 8,
+			"lines": 23,
 			"share": 0
 		},
 		{

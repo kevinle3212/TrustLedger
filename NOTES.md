@@ -1,5 +1,60 @@
 # Notes
 
+## Agent Tooling Caveats (2026-06-29)
+
+These caveats cover the local agent tooling (`gstack`, `nexus`, Node, Python)
+and the workarounds applied. They are environment/tooling notes, not product
+behavior.
+
+### Node version: keep agent tooling on Node 22, not 26
+
+- The machine default is Node `v26.3.1` (Homebrew). It is ahead of several
+  native and bundled tools and breaks them:
+    - **nexus** — its native `better-sqlite3` (via `@costline/nexus-graph`) is
+      compiled per Node ABI. After any Node upgrade it fails with
+      `ERR_DLOPEN_FAILED` / MCP error `-32000`. Fix:
+      `npm rebuild better-sqlite3`.
+    - **gstack setup** — bundled `playwright-core@1.58.2` hangs forever during
+      Chromium _extraction_ under Node 26 (its out-of-process download worker
+      stalls; download reaches 100%, then no progress). Install the browser
+      under Node 22 instead, then re-run `./setup` (it detects the cached
+      browser and skips the step):
+
+        ```bash
+        PATH="$HOME/.nvm/versions/node/v22.22.3/bin:$PATH" \
+          node ~/.claude/skills/gstack/node_modules/.bin/playwright install chromium
+        ```
+
+        If it hangs again, the cause is usually a stale
+        `~/Library/Caches/ms-playwright/__dirlock` held by no live process —
+        remove that file and retry.
+
+### gstack: Cursor host needs manual linking in 1.58.5.0
+
+- `./setup --host cursor` is rejected by the setup wrapper in gstack `1.58.5.0`
+  (its host validation omits `cursor`), even though `hosts/cursor.ts` and the
+  doc generator fully support it. Codex auto-detect was also unreliable; install
+  it explicitly with `./setup --host codex`.
+- Cursor was wired manually: `bun run gen:skill-docs --host cursor` stages
+  skills under `~/.claude/skills/gstack/.cursor/skills/gstack-*`, then each is
+  symlinked into `~/.cursor/skills/gstack-*`.
+- This manual wiring is not recreated by `./setup`. After a `/gstack-upgrade`,
+  re-run `./setup --host cursor` if the version now supports it, otherwise
+  re-link.
+
+### nexus: indexer ignore patterns patched via patch-package
+
+- `@costline/nexus-graph` hardcodes its indexer ignore list and exposes no
+  `--ignore` flag, so it logged `parse error … Invalid argument` for generated
+  output (e.g. `site/`, the mkdocs build). Patched `IGNORE_PATTERNS`
+  (`dist/indexer/indexFile.js`) and the watcher regex
+  (`dist/indexer/watcher.js`) to also ignore `**/site/**` and `**/.next/**`.
+- The change is durable: `patches/@costline+nexus-graph+0.1.1.patch` is tracked
+  and reapplied by the `postinstall` script (`patch-package`). Still-noisy
+  generated/vendored paths (`hardhat-cache/`, `contracts/lib/`, large generated
+  files like `src/lib/abi.ts`) are caught-and-skipped already and remain
+  cosmetic; extend the same patch if you want them silenced.
+
 ## Sandbox DNS Handling (2026-06-10)
 
 - The repository cannot directly allowlist DNS from inside source code; sandbox
