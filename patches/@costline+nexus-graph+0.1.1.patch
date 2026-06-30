@@ -1,0 +1,26 @@
+diff --git a/node_modules/@costline/nexus-graph/dist/indexer/indexFile.js b/node_modules/@costline/nexus-graph/dist/indexer/indexFile.js
+index c5f019c..a26f299 100644
+--- a/node_modules/@costline/nexus-graph/dist/indexer/indexFile.js
++++ b/node_modules/@costline/nexus-graph/dist/indexer/indexFile.js
+@@ -48,6 +48,8 @@ const IGNORE_PATTERNS = [
+     '**/dist/**',
+     '**/build/**',
+     '**/.git/**',
++    '**/site/**',
++    '**/.next/**',
+ ];
+ /**
+  * Parse and index a single file (Python, TypeScript, or JavaScript).
+diff --git a/node_modules/@costline/nexus-graph/dist/indexer/watcher.js b/node_modules/@costline/nexus-graph/dist/indexer/watcher.js
+index 3cbfba2..82ae540 100644
+--- a/node_modules/@costline/nexus-graph/dist/indexer/watcher.js
++++ b/node_modules/@costline/nexus-graph/dist/indexer/watcher.js
+@@ -40,7 +40,7 @@ const indexFile_1 = require("./indexFile");
+ function watchProject(projectRoot, db) {
+     const watcher = (0, chokidar_1.watch)('**/*.{py,ts,tsx,js,jsx}', {
+         cwd: projectRoot,
+-        ignored: /(^|[/\\])(\.git|__pycache__|\.venv|venv|node_modules|dist|build)[/\\]/,
++        ignored: /(^|[/\\])(\.git|__pycache__|\.venv|venv|node_modules|dist|build|site|\.next)[/\\]/,
+         persistent: true,
+         ignoreInitial: true,
+     });

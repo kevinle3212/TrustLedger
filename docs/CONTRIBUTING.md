@@ -59,6 +59,12 @@ For manual setup, install root dependencies:
 npm install
 ```
 
+`npm install` runs a `postinstall` step (`patch-package`) that reapplies the
+tracked patches under `patches/`. These patch local-only fixes into dependencies
+— currently `@costline/nexus-graph`, whose code-graph indexer is adjusted to
+skip generated output (`site/`, `.next/`). Do not run installs with
+`--ignore-scripts`, or the patches will not apply.
+
 Root `package.json` includes `@openzeppelin/contracts` because Hardhat,
 TypeScript scripts, and npm-based tooling resolve OpenZeppelin through Node.
 Foundry test helpers are different: `forge-std` is vendored under
