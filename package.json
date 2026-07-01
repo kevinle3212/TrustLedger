@@ -222,7 +222,7 @@
 		"hardhat": "^3.9.0",
 		"husky": "^9.1.7",
 		"knip": "^6.18.0",
-		"markdownlint-cli2": "^0.22.1",
+		"markdownlint-cli2": "^0.23.0",
 		"patch-package": "^8.0.1",
 		"prettier": "^3.8.4",
 		"solhint": "^6.2.3",
