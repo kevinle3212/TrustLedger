@@ -1,0 +1,21 @@
+{
+	"mcpServers": {
+		"serena": {
+			"command": "serena",
+			"args": ["start-mcp-server", "--context=agent", "--project-from-cwd"],
+			"env": {
+				"NO_COLOR": "1"
+			}
+		},
+		"nexus": {
+			"command": "node",
+			"args": ["./scripts/nexus-mcp.js", "server", "--project", "."],
+			"env": {
+				"NODE_ENV": "development",
+				"NO_COLOR": "1",
+				"NEXUS_MCP_TIMEOUT_MS": "120000",
+				"NEXUS_MAX_TREE_SITTER_TS_BYTES": "25000"
+			}
+		}
+	}
+}

@@ -66,6 +66,20 @@ const config = {
 				rules: ["react-doctor/no-initialize-state"],
 			},
 			{
+				// global-error.tsx is the root error boundary: Next.js renders it
+				// *outside* the locale layout, so globals.scss is not loaded and the
+				// i18n provider is unavailable. Inline styles are therefore the only
+				// reliable styling (Tailwind/CSS classes have no stylesheet), and the
+				// recovery link uses a plain <a> to force a full document reload — the
+				// correct way to escape a crashed root rather than re-running the
+				// client navigation that just failed. Both rules are unavoidable here.
+				files: ["app/global-error.tsx"],
+				rules: [
+					"react-doctor/nextjs-no-a-element",
+					"react-doctor/no-inline-exhaustive-style",
+				],
+			},
+			{
 				// findDeploymentBlock performs a dependent binary search over chain
 				// history. Each midpoint depends on the previous getCode result, so
 				// Promise.all would change the algorithm rather than improve it.

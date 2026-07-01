@@ -2,7 +2,10 @@
 	"mcpServers": {
 		"serena": {
 			"command": "serena",
-			"args": ["start-mcp-server", "--context=claude-code", "--project", "."]
+			"args": ["start-mcp-server", "--context=claude-code", "--project", "."],
+			"env": {
+				"NO_COLOR": "1"
+			}
 		},
 		"nexus": {
 			"command": "node",

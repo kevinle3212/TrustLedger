@@ -32,3 +32,9 @@ obligations.
   legal document is still pending review.
 - Record transient review notes in ignored `logs/` markdown when a long legal
   issue list is useful.
+- Privacy & cookie sync (mandatory): any change to how personal data is
+  collected, stored, exported, deleted, or shared, or to cookies/`localStorage`/
+  analytics/consent, must update `src/content/legal/PRIVACY_POLICY.md` (bump its
+  `Last Updated`/`Version`) and `src/content/legal/COOKIE_POLICY.md` (cookie
+  inventory + consent behavior) in the same branch. Keep the inventory
+  consistent with `lib/cookie-consent.ts`; claim only functionality that exists.

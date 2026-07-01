@@ -10,6 +10,7 @@
 		"roleFreelancer": "Freelance",
 		"logoAlt": "Logo TrustLedger",
 		"viewGitHub": "Voir le code sur GitHub",
+		"viewDocs": "Voir la documentation",
 		"changeLanguage": "Changer de langue",
 		"skipToMain": "Aller au contenu principal",
 		"faq": "FAQ",
@@ -800,7 +801,11 @@
 		"openLegal": "Ouvrir le centre juridique",
 		"openAbout": "Ouvrir la page à propos du projet",
 		"stats": "Statistiques",
-		"openStats": "Ouvrir les statistiques du projet"
+		"openStats": "Ouvrir les statistiques du projet",
+		"privacy": "Confidentialité",
+		"openPrivacy": "Ouvrir la politique de confidentialité",
+		"cookiePreferences": "Préférences de Cookies",
+		"openCookiePreferences": "Ouvrir les préférences de cookies"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -1085,5 +1090,123 @@
 		"categoriesIntro": "Part des lignes de code par catégorie de type de fichier dans le code suivi. Seules les catégories présentes dans le dépôt sont affichées.",
 		"categoryMeta": "{lines} lignes · {files} fichiers · {share}%",
 		"viewWalletAnalytics": "Voir les Analyses du Portefeuille"
+	},
+	"CookieConsent": {
+		"regionLabel": "Consentement aux cookies",
+		"title": "Nous respectons votre vie privée",
+		"body": "Nous utilisons des cookies strictement nécessaires au fonctionnement de TrustLedger et, uniquement avec votre consentement, des cookies fonctionnels et d'analyse. Vous pouvez tout accepter, tout refuser ou choisir les catégories à autoriser.",
+		"learnMore": "En savoir plus dans notre",
+		"cookiePolicy": "Politique de Cookies",
+		"privacyPolicy": "Politique de Confidentialité",
+		"and": "et",
+		"acceptAll": "Tout Accepter",
+		"rejectAll": "Tout Refuser",
+		"customize": "Personnaliser",
+		"close": "Fermer",
+		"preferencesTitle": "Préférences de Cookies",
+		"preferencesBody": "Choisissez les catégories de cookies que TrustLedger peut utiliser. Les cookies strictement nécessaires sont toujours actifs. Vous pouvez modifier votre choix à tout moment.",
+		"necessaryTitle": "Strictement Nécessaires",
+		"necessaryBody": "Requis pour les fonctions essentielles telles que la sécurité, le réseau et l'accessibilité. Ils ne peuvent pas être désactivés.",
+		"alwaysOn": "Toujours Actifs",
+		"functionalTitle": "Fonctionnels",
+		"functionalBody": "Mémorisent vos préférences comme le thème, le contraste et la langue pour améliorer votre expérience.",
+		"analyticsTitle": "Analyse",
+		"analyticsBody": "Nous aident à comprendre l'utilisation agrégée et respectueuse de la vie privée afin d'améliorer la plateforme.",
+		"savePreferences": "Enregistrer les Préférences"
+	},
+	"Unauthorized": {
+		"eyebrow": "Non autorisé",
+		"message": "Désolé. Vous n'avez pas accès à cette ressource.",
+		"body": "Votre portefeuille ou votre session n'est pas autorisé à consulter cette page. Connectez le bon compte, changez de rôle ou revenez à une page accessible.",
+		"goHome": "Accueil",
+		"openDashboard": "Ouvrir le Tableau de Bord",
+		"readFaq": "Lire la FAQ",
+		"metadataTitle": "401 - Non autorisé"
+	},
+	"ErrorPages": {
+		"goHome": "Aller à l'Accueil",
+		"goBack": "Retour",
+		"openDashboard": "Ouvrir le Tableau de Bord",
+		"tryAgain": "Réessayer",
+		"codes": {
+			"400": {
+				"eyebrow": "Requête Incorrecte",
+				"title": "La requête n'a pas pu être lue.",
+				"body": "La requête était mal formée, le serveur n'a donc pas pu la traiter. Vérifiez le lien et réessayez, ou revenez à une route connue.",
+				"metadataTitle": "400 - Requête incorrecte"
+			},
+			"403": {
+				"eyebrow": "Interdit",
+				"title": "Vous ne pouvez pas accéder à cette ressource.",
+				"body": "Votre portefeuille ou votre session n'a pas l'autorisation d'accéder à cette page. Connectez un compte autorisé, changez de rôle, ou revenez à une page accessible.",
+				"metadataTitle": "403 - Interdit"
+			},
+			"405": {
+				"eyebrow": "Méthode Non Autorisée",
+				"title": "Cette action n'est pas prise en charge ici.",
+				"body": "La requête a utilisé une méthode que cette route n'accepte pas. Revenez à la page précédente et essayez une action prise en charge.",
+				"metadataTitle": "405 - Méthode non autorisée"
+			},
+			"408": {
+				"eyebrow": "Délai de Requête Dépassé",
+				"title": "La requête a pris trop de temps.",
+				"body": "Le serveur a cessé d'attendre avant la fin de la requête. Vérifiez votre connexion et réessayez.",
+				"metadataTitle": "408 - Délai de requête dépassé"
+			},
+			"429": {
+				"eyebrow": "Trop de Requêtes",
+				"title": "Vous allez un peu trop vite.",
+				"body": "Nous avons reçu trop de requêtes depuis cette connexion en peu de temps. Patientez un instant, puis réessayez.",
+				"metadataTitle": "429 - Trop de requêtes"
+			},
+			"500": {
+				"eyebrow": "Erreur Serveur",
+				"title": "Une erreur est survenue de notre côté.",
+				"body": "Une erreur inattendue a interrompu le serveur. Le problème a été enregistré — réessayez dans un instant, ou revenez à l'accueil.",
+				"metadataTitle": "500 - Erreur serveur"
+			},
+			"502": {
+				"eyebrow": "Passerelle Incorrecte",
+				"title": "Nous avons reçu une réponse invalide.",
+				"body": "Un service dont dépend cette page a renvoyé une réponse inattendue. C'est généralement temporaire — réessayez sous peu.",
+				"metadataTitle": "502 - Passerelle incorrecte"
+			},
+			"503": {
+				"eyebrow": "Service Indisponible",
+				"title": "Ce service est temporairement indisponible.",
+				"body": "Le serveur est surchargé ou en maintenance et ne peut pas traiter la requête pour le moment. Réessayez dans quelques minutes.",
+				"metadataTitle": "503 - Service indisponible"
+			},
+			"504": {
+				"eyebrow": "Délai de Passerelle Dépassé",
+				"title": "Un service externe a expiré.",
+				"body": "Un service dont dépend cette page a mis trop de temps à répondre. C'est généralement temporaire — réessayez sous peu.",
+				"metadataTitle": "504 - Délai de passerelle dépassé"
+			},
+			"generic": {
+				"eyebrow": "Une Erreur Est Survenue",
+				"title": "Une erreur est survenue.",
+				"body": "Une erreur inattendue a interrompu cette page. Vous pouvez réessayer, ou revenir à une page que vous savez fonctionnelle."
+			}
+		}
+	},
+	"Privacy": {
+		"title": "Confidentialité et Droits sur les Données",
+		"intro": "TrustLedger ne conserve aucune base de données de comptes. Tout ce que nous retenons à votre sujet réside dans ce navigateur, aux côtés de l'enregistrement public que vos transactions laissent sur la chaîne. Utilisez les commandes ci-dessous pour exporter ou effacer ce que cet appareil conserve.",
+		"collectTitle": "Ce Que Nous Collectons",
+		"collectWallet": "L'adresse de votre portefeuille connecté, utilisée pour lire votre activité sur la chaîne.",
+		"collectPreferences": "Les préférences locales telles que votre rôle, votre thème et le délai de déconnexion automatique.",
+		"collectConsent": "Vos choix de consentement aux cookies et à l'analyse.",
+		"collectOnChain": "Des données de transaction publiques et immuables enregistrées sur la blockchain.",
+		"policyLink": "Consultez notre <link>Politique de Confidentialité</link> pour tous les détails.",
+		"downloadButton": "Télécharger Mes Données",
+		"cookiePreferencesButton": "Préférences de Cookies",
+		"deleteButton": "Supprimer Mes Données",
+		"deleteConfirmTitle": "Supprimer les Données Locales ?",
+		"deleteConfirmBody": "Cela efface toutes les préférences, tous les choix de consentement et tous les enregistrements de connexion du portefeuille stockés dans ce navigateur et vous déconnecte de cet appareil. Cette action est irréversible.",
+		"deleteImmutableWarning": "Les transactions déjà enregistrées sur la blockchain sont publiques et permanentes. Elles ne peuvent être supprimées ni par TrustLedger ni par quiconque.",
+		"deleteConfirmAction": "Oui, Supprimer Mes Données",
+		"deleteCancelAction": "Annuler",
+		"deleteDone": "Vos données locales ont été supprimées et votre portefeuille déconnecté de ce navigateur."
 	}
 }

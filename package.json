@@ -83,6 +83,7 @@
 		"typecheck:hardhat": "tsc -p tsconfig.hardhat.json --noEmit",
 		"typecheck:frontend": "cd src && npx tsc --noEmit",
 		"doctor": "cd src && npm run doctor",
+		"audit:new": "bash audits/scripts/new-audit.sh",
 		"impeccable": "npm run doctor && npm run lint:frontend && npm run test:e2e",
 		"ci:typescript": "npm run contracts:vendor:check && npm run secrets:check && npm run compile && npm run logs:check && npm run tmp:check && npm run stats:check && npx tsc -p tsconfig.hardhat.json --noEmit && npm run lint:config && npm run lint:ts && npm run lint:js && npm run lint:sol && npm run lint:md && npm run lint:cursor && npm run lint:k8s && npm run lint:logs && npm run docs:nav:check && npm run i18n:scan && npx prettier --check .",
 		"quality": "npm run secrets:check && npm run docs:nav:check && npm run analytics:check && npm run logs:check && npm run tmp:check && npm run lint && npm run typecheck && npm run i18n:scan && npm run test",

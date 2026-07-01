@@ -10,6 +10,7 @@
 		"roleFreelancer": "Freelancer",
 		"logoAlt": "TrustLedger logo",
 		"viewGitHub": "View source on GitHub",
+		"viewDocs": "View documentation",
 		"changeLanguage": "Change language",
 		"skipToMain": "Skip to main content",
 		"faq": "FAQ",
@@ -800,7 +801,11 @@
 		"openLegal": "Open legal center",
 		"openAbout": "Open project about page",
 		"stats": "Stats",
-		"openStats": "Open project statistics"
+		"openStats": "Open project statistics",
+		"privacy": "Privacy",
+		"openPrivacy": "Open the privacy policy",
+		"cookiePreferences": "Cookie Preferences",
+		"openCookiePreferences": "Open cookie preferences"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -1085,5 +1090,123 @@
 		"categoriesIntro": "Share of source lines by file-type category across the tracked codebase. Only categories present in the repository are shown.",
 		"categoryMeta": "{lines} lines · {files} files · {share}%",
 		"viewWalletAnalytics": "View Wallet Analytics"
+	},
+	"CookieConsent": {
+		"regionLabel": "Cookie consent",
+		"title": "We value your privacy",
+		"body": "We use strictly necessary cookies to run TrustLedger, and—only with your consent—functional and analytics cookies. You can accept all, reject all, or choose which categories to allow.",
+		"learnMore": "Learn more in our",
+		"cookiePolicy": "Cookie Policy",
+		"privacyPolicy": "Privacy Policy",
+		"and": "and",
+		"acceptAll": "Accept All",
+		"rejectAll": "Reject All",
+		"customize": "Customize",
+		"close": "Close",
+		"preferencesTitle": "Cookie Preferences",
+		"preferencesBody": "Choose which categories of cookies TrustLedger may use. Strictly necessary cookies are always active. You can change your choice at any time.",
+		"necessaryTitle": "Strictly Necessary",
+		"necessaryBody": "Required for core features such as security, networking, and accessibility. These cannot be switched off.",
+		"alwaysOn": "Always On",
+		"functionalTitle": "Functional",
+		"functionalBody": "Remember preferences such as theme, contrast, and language to improve your experience.",
+		"analyticsTitle": "Analytics",
+		"analyticsBody": "Help us understand aggregate, privacy-preserving usage so we can improve the platform.",
+		"savePreferences": "Save Preferences"
+	},
+	"Unauthorized": {
+		"eyebrow": "Unauthorized",
+		"message": "Sorry. You don't have access to this resource.",
+		"body": "Your wallet or session is not authorized to view this page. Connect the right account, switch roles, or head back to a page you can access.",
+		"goHome": "Go Home",
+		"openDashboard": "Open Dashboard",
+		"readFaq": "Read FAQ",
+		"metadataTitle": "401 - Unauthorized"
+	},
+	"ErrorPages": {
+		"goHome": "Go Home",
+		"goBack": "Go Back",
+		"openDashboard": "Open Dashboard",
+		"tryAgain": "Try Again",
+		"codes": {
+			"400": {
+				"eyebrow": "Bad Request",
+				"title": "The request could not be read.",
+				"body": "Something about the request was malformed, so the server could not process it. Check the link and try again, or head back to a known route.",
+				"metadataTitle": "400 - Bad Request"
+			},
+			"403": {
+				"eyebrow": "Forbidden",
+				"title": "You can't access this resource.",
+				"body": "Your wallet or session doesn't have permission for this page. Connect an authorized account, switch roles, or return to a page you can access.",
+				"metadataTitle": "403 - Forbidden"
+			},
+			"405": {
+				"eyebrow": "Method Not Allowed",
+				"title": "That action isn't supported here.",
+				"body": "The request used a method this route doesn't accept. Return to the previous page and try a supported action.",
+				"metadataTitle": "405 - Method Not Allowed"
+			},
+			"408": {
+				"eyebrow": "Request Timeout",
+				"title": "The request took too long.",
+				"body": "The server stopped waiting before the request finished. Check your connection and try again.",
+				"metadataTitle": "408 - Request Timeout"
+			},
+			"429": {
+				"eyebrow": "Too Many Requests",
+				"title": "You're going a little too fast.",
+				"body": "We've received too many requests from this connection in a short window. Wait a moment, then try again.",
+				"metadataTitle": "429 - Too Many Requests"
+			},
+			"500": {
+				"eyebrow": "Server Error",
+				"title": "Something went wrong on our end.",
+				"body": "An unexpected error interrupted the server. The issue has been logged — retry in a moment, or head back home.",
+				"metadataTitle": "500 - Server Error"
+			},
+			"502": {
+				"eyebrow": "Bad Gateway",
+				"title": "We got an invalid response upstream.",
+				"body": "A service this page depends on returned an unexpected response. This is usually temporary — try again shortly.",
+				"metadataTitle": "502 - Bad Gateway"
+			},
+			"503": {
+				"eyebrow": "Service Unavailable",
+				"title": "This service is temporarily down.",
+				"body": "The server is overloaded or under maintenance and can't handle the request right now. Please try again in a few minutes.",
+				"metadataTitle": "503 - Service Unavailable"
+			},
+			"504": {
+				"eyebrow": "Gateway Timeout",
+				"title": "An upstream service timed out.",
+				"body": "A service this page depends on took too long to respond. This is usually temporary — try again shortly.",
+				"metadataTitle": "504 - Gateway Timeout"
+			},
+			"generic": {
+				"eyebrow": "Something Went Wrong",
+				"title": "Something went wrong.",
+				"body": "An unexpected error interrupted this page. You can try again, or head back to a page you know works."
+			}
+		}
+	},
+	"Privacy": {
+		"title": "Privacy & Data Rights",
+		"intro": "TrustLedger keeps no account database. Everything we remember about you lives in this browser, alongside the public record your transactions leave on-chain. Use the controls below to export or erase what this device holds.",
+		"collectTitle": "What We Collect",
+		"collectWallet": "Your connected wallet address, used to read your on-chain activity.",
+		"collectPreferences": "Local preferences such as your role, theme, and auto-logout timeout.",
+		"collectConsent": "Your cookie and analytics consent choices.",
+		"collectOnChain": "Public, immutable transaction data recorded on the blockchain.",
+		"policyLink": "Read our <link>Privacy Policy</link> for the full detail.",
+		"downloadButton": "Download My Data",
+		"cookiePreferencesButton": "Cookie Preferences",
+		"deleteButton": "Delete My Data",
+		"deleteConfirmTitle": "Delete Local Data?",
+		"deleteConfirmBody": "This erases every preference, consent choice, and wallet-connection record stored in this browser and signs you out of this device. It cannot be undone.",
+		"deleteImmutableWarning": "Transactions already recorded on the blockchain are public and permanent. They cannot be deleted by TrustLedger or anyone else.",
+		"deleteConfirmAction": "Yes, Delete My Data",
+		"deleteCancelAction": "Cancel",
+		"deleteDone": "Your local data has been deleted and your wallet disconnected from this browser."
 	}
 }

@@ -10,6 +10,7 @@
 		"roleFreelancer": "自由职业者",
 		"logoAlt": "TrustLedger 标志",
 		"viewGitHub": "在 GitHub 上查看代码",
+		"viewDocs": "查看文档",
 		"changeLanguage": "切换语言",
 		"skipToMain": "跳转到主要内容",
 		"faq": "常见问题",
@@ -800,7 +801,11 @@
 		"openLegal": "打开法律中心",
 		"openAbout": "打开项目介绍页",
 		"stats": "统计",
-		"openStats": "打开项目统计"
+		"openStats": "打开项目统计",
+		"privacy": "隐私",
+		"openPrivacy": "打开隐私政策",
+		"cookiePreferences": "Cookie 偏好",
+		"openCookiePreferences": "打开 Cookie 偏好设置"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -1085,5 +1090,123 @@
 		"categoriesIntro": "按文件类型类别统计的源代码行占比，基于受跟踪的代码库。仅显示仓库中实际存在的类别。",
 		"categoryMeta": "{lines} 行 · {files} 个文件 · {share}%",
 		"viewWalletAnalytics": "查看钱包分析"
+	},
+	"CookieConsent": {
+		"regionLabel": "Cookie 同意",
+		"title": "我们重视您的隐私",
+		"body": "我们使用严格必要的 Cookie 来运行 TrustLedger，并且仅在您同意的情况下使用功能性和分析性 Cookie。您可以全部接受、全部拒绝或选择允许的类别。",
+		"learnMore": "了解更多，请参阅我们的",
+		"cookiePolicy": "Cookie 政策",
+		"privacyPolicy": "隐私政策",
+		"and": "和",
+		"acceptAll": "全部接受",
+		"rejectAll": "全部拒绝",
+		"customize": "自定义",
+		"close": "关闭",
+		"preferencesTitle": "Cookie 偏好",
+		"preferencesBody": "选择 TrustLedger 可以使用的 Cookie 类别。严格必要的 Cookie 始终启用。您可以随时更改您的选择。",
+		"necessaryTitle": "严格必要",
+		"necessaryBody": "用于安全、网络和无障碍等核心功能，无法关闭。",
+		"alwaysOn": "始终启用",
+		"functionalTitle": "功能性",
+		"functionalBody": "记住主题、对比度和语言等偏好，以改善您的体验。",
+		"analyticsTitle": "分析",
+		"analyticsBody": "帮助我们了解聚合且保护隐私的使用情况，以改进平台。",
+		"savePreferences": "保存偏好"
+	},
+	"Unauthorized": {
+		"eyebrow": "未授权",
+		"message": "抱歉，您无权访问此资源。",
+		"body": "您的钱包或会话无权查看此页面。请连接正确的账户、切换角色，或返回到您可以访问的页面。",
+		"goHome": "返回首页",
+		"openDashboard": "打开仪表板",
+		"readFaq": "阅读常见问题",
+		"metadataTitle": "401 - 未授权"
+	},
+	"ErrorPages": {
+		"goHome": "返回首页",
+		"goBack": "返回上一页",
+		"openDashboard": "打开仪表板",
+		"tryAgain": "重试",
+		"codes": {
+			"400": {
+				"eyebrow": "错误请求",
+				"title": "无法读取该请求。",
+				"body": "请求格式有误，服务器无法处理。请检查链接后重试，或返回到一个已知的页面。",
+				"metadataTitle": "400 - 错误请求"
+			},
+			"403": {
+				"eyebrow": "禁止访问",
+				"title": "你无权访问此资源。",
+				"body": "你的钱包或会话没有访问此页面的权限。请连接已授权的账户、切换角色，或返回到你有权访问的页面。",
+				"metadataTitle": "403 - 禁止访问"
+			},
+			"405": {
+				"eyebrow": "方法不被允许",
+				"title": "此处不支持该操作。",
+				"body": "请求使用了此路由不接受的方法。请返回上一页并尝试受支持的操作。",
+				"metadataTitle": "405 - 方法不被允许"
+			},
+			"408": {
+				"eyebrow": "请求超时",
+				"title": "请求耗时过长。",
+				"body": "服务器在请求完成前停止了等待。请检查你的网络连接后重试。",
+				"metadataTitle": "408 - 请求超时"
+			},
+			"429": {
+				"eyebrow": "请求过多",
+				"title": "你的操作有点太快了。",
+				"body": "我们在短时间内收到了来自此连接的过多请求。请稍候片刻再试。",
+				"metadataTitle": "429 - 请求过多"
+			},
+			"500": {
+				"eyebrow": "服务器错误",
+				"title": "我们这边出了点问题。",
+				"body": "一个意外错误中断了服务器。该问题已被记录——请稍后重试，或返回首页。",
+				"metadataTitle": "500 - 服务器错误"
+			},
+			"502": {
+				"eyebrow": "网关错误",
+				"title": "我们收到了无效的上游响应。",
+				"body": "此页面依赖的某个服务返回了意外响应。这通常是暂时的——请稍后重试。",
+				"metadataTitle": "502 - 网关错误"
+			},
+			"503": {
+				"eyebrow": "服务不可用",
+				"title": "此服务暂时不可用。",
+				"body": "服务器过载或正在维护，目前无法处理该请求。请几分钟后重试。",
+				"metadataTitle": "503 - 服务不可用"
+			},
+			"504": {
+				"eyebrow": "网关超时",
+				"title": "上游服务超时。",
+				"body": "此页面依赖的某个服务响应过慢。这通常是暂时的——请稍后重试。",
+				"metadataTitle": "504 - 网关超时"
+			},
+			"generic": {
+				"eyebrow": "出现问题",
+				"title": "出现问题。",
+				"body": "一个意外错误中断了此页面。你可以重试，或返回到一个你确定可用的页面。"
+			}
+		}
+	},
+	"Privacy": {
+		"title": "隐私与数据权利",
+		"intro": "TrustLedger 不保存任何账户数据库。我们记住的关于你的一切都存放在此浏览器中，以及你的交易在链上留下的公开记录。使用下方的控件可导出或清除此设备保存的数据。",
+		"collectTitle": "我们收集什么",
+		"collectWallet": "你已连接的钱包地址，用于读取你的链上活动。",
+		"collectPreferences": "本地偏好设置，例如你的角色、主题和自动登出时限。",
+		"collectConsent": "你对 Cookie 和分析的同意选择。",
+		"collectOnChain": "记录在区块链上的公开、不可更改的交易数据。",
+		"policyLink": "阅读我们的<link>隐私政策</link>以了解全部细节。",
+		"downloadButton": "下载我的数据",
+		"cookiePreferencesButton": "Cookie 偏好设置",
+		"deleteButton": "删除我的数据",
+		"deleteConfirmTitle": "删除本地数据？",
+		"deleteConfirmBody": "这将清除此浏览器中存储的所有偏好设置、同意选择和钱包连接记录，并将你从此设备登出。此操作无法撤销。",
+		"deleteImmutableWarning": "已记录在区块链上的交易是公开且永久的。TrustLedger 或任何人都无法删除它们。",
+		"deleteConfirmAction": "是的，删除我的数据",
+		"deleteCancelAction": "取消",
+		"deleteDone": "你的本地数据已删除，你的钱包已从此浏览器断开连接。"
 	}
 }

@@ -89,6 +89,22 @@ describe("ConnectButton", () => {
 		expect(screen.getByRole("button", { name: "Copy wallet address" })).toBeInTheDocument();
 	});
 
+	it("shows a busy shell instead of the logged-out CTA while a session is restoring", () => {
+		mockUseAccount.mockReturnValue({
+			address: undefined,
+			isConnected: false,
+			connector: undefined,
+			status: "reconnecting",
+		});
+
+		render(<ConnectButton />);
+
+		// No connected menu yet, and the CTA is marked busy so a returning user does
+		// not see a logged-out flash while `reconnectOnMount` restores the session.
+		expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+		expect(screen.getByRole("button")).toHaveAttribute("aria-busy", "true");
+	});
+
 	it("renders the menu in a body portal with fixed positioning so navbar overflow cannot clip it", () => {
 		render(<ConnectButton compact />);
 

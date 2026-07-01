@@ -11,18 +11,21 @@ command = "serena"
 args = ["start-mcp-server", "--project-from-cwd", "--context=codex"]
 
 # Nexus Graph mirrors the Claude setup: it serves a pre-indexed code graph for
-# token-budgeted context. Refresh the graph with `npm run nexus:index` after
+# token-budgeted context via the project wrapper (matches `.mcp.json` and the
+# `nexus:server` npm script). Refresh the graph with `npm run nexus:index` after
 # large refactors.
 [mcp_servers.nexus]
 startup_timeout_sec = 120
-command = "./node_modules/.bin/nexus-graph"
-args = ["server", "--project", "."]
+command = "node"
+args = ["./scripts/nexus-mcp.js", "server", "--project", "."]
 
 # MCP env values here must be non-secret runtime hints only. Put API keys in
 # `.env`, `.env.local`, Vercel env vars, or shell exports instead.
 [mcp_servers.nexus.env]
 NODE_ENV = "development"
 NO_COLOR = "1"
+NEXUS_MCP_TIMEOUT_MS = "120000"
+NEXUS_MAX_TREE_SITTER_TS_BYTES = "25000"
 
 # Hooks keep Serena active/reminding during sessions. JS REPL stays disabled to
 # reduce idle tooling overhead unless a task explicitly needs it.

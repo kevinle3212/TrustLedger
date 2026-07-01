@@ -10,6 +10,7 @@
 		"roleFreelancer": "Freelancer",
 		"logoAlt": "Logo do TrustLedger",
 		"viewGitHub": "Ver código no GitHub",
+		"viewDocs": "Ver documentação",
 		"changeLanguage": "Mudar idioma",
 		"skipToMain": "Ir para o conteúdo principal",
 		"faq": "Perguntas Frequentes",
@@ -800,7 +801,11 @@
 		"openLegal": "Abrir centro legal",
 		"openAbout": "Abrir página sobre o projeto",
 		"stats": "Estatísticas",
-		"openStats": "Abrir estatísticas do projeto"
+		"openStats": "Abrir estatísticas do projeto",
+		"privacy": "Privacidade",
+		"openPrivacy": "Abrir a política de privacidade",
+		"cookiePreferences": "Preferências de Cookies",
+		"openCookiePreferences": "Abrir as preferências de cookies"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -1085,5 +1090,123 @@
 		"categoriesIntro": "Proporção de linhas de código por categoria de tipo de arquivo no código rastreado. Apenas as categorias presentes no repositório são exibidas.",
 		"categoryMeta": "{lines} linhas · {files} arquivos · {share}%",
 		"viewWalletAnalytics": "Ver Análises da Carteira"
+	},
+	"CookieConsent": {
+		"regionLabel": "Consentimento de cookies",
+		"title": "Valorizamos a sua privacidade",
+		"body": "Usamos cookies estritamente necessários para o funcionamento do TrustLedger e, apenas com o seu consentimento, cookies funcionais e de análise. Pode aceitar todos, rejeitar todos ou escolher quais categorias permitir.",
+		"learnMore": "Saiba mais na nossa",
+		"cookiePolicy": "Política de Cookies",
+		"privacyPolicy": "Política de Privacidade",
+		"and": "e",
+		"acceptAll": "Aceitar Tudo",
+		"rejectAll": "Rejeitar Tudo",
+		"customize": "Personalizar",
+		"close": "Fechar",
+		"preferencesTitle": "Preferências de Cookies",
+		"preferencesBody": "Escolha quais categorias de cookies o TrustLedger pode usar. Os cookies estritamente necessários estão sempre ativos. Pode alterar a sua escolha a qualquer momento.",
+		"necessaryTitle": "Estritamente Necessários",
+		"necessaryBody": "Necessários para funções essenciais como segurança, rede e acessibilidade. Não podem ser desativados.",
+		"alwaysOn": "Sempre Ativos",
+		"functionalTitle": "Funcionais",
+		"functionalBody": "Lembram preferências como tema, contraste e idioma para melhorar a sua experiência.",
+		"analyticsTitle": "Análise",
+		"analyticsBody": "Ajudam-nos a entender o uso agregado e que preserva a privacidade para melhorarmos a plataforma.",
+		"savePreferences": "Guardar Preferências"
+	},
+	"Unauthorized": {
+		"eyebrow": "Não autorizado",
+		"message": "Desculpe. Você não tem acesso a este recurso.",
+		"body": "A sua carteira ou sessão não está autorizada a ver esta página. Ligue a conta correta, mude de função ou volte a uma página a que tenha acesso.",
+		"goHome": "Início",
+		"openDashboard": "Abrir o Painel",
+		"readFaq": "Ler as Perguntas Frequentes",
+		"metadataTitle": "401 - Não autorizado"
+	},
+	"ErrorPages": {
+		"goHome": "Ir para o Início",
+		"goBack": "Voltar",
+		"openDashboard": "Abrir Painel",
+		"tryAgain": "Tentar Novamente",
+		"codes": {
+			"400": {
+				"eyebrow": "Requisição Inválida",
+				"title": "Não foi possível ler a requisição.",
+				"body": "A requisição estava malformada, então o servidor não pôde processá-la. Verifique o link e tente novamente, ou volte para uma rota conhecida.",
+				"metadataTitle": "400 - Requisição inválida"
+			},
+			"403": {
+				"eyebrow": "Proibido",
+				"title": "Você não pode acessar este recurso.",
+				"body": "Sua carteira ou sessão não tem permissão para esta página. Conecte uma conta autorizada, troque de função ou volte para uma página acessível.",
+				"metadataTitle": "403 - Proibido"
+			},
+			"405": {
+				"eyebrow": "Método Não Permitido",
+				"title": "Essa ação não é permitida aqui.",
+				"body": "A requisição usou um método que esta rota não aceita. Volte para a página anterior e tente uma ação compatível.",
+				"metadataTitle": "405 - Método não permitido"
+			},
+			"408": {
+				"eyebrow": "Tempo de Requisição Esgotado",
+				"title": "A requisição demorou demais.",
+				"body": "O servidor parou de aguardar antes de a requisição terminar. Verifique sua conexão e tente novamente.",
+				"metadataTitle": "408 - Tempo de requisição esgotado"
+			},
+			"429": {
+				"eyebrow": "Muitas Requisições",
+				"title": "Você está indo rápido demais.",
+				"body": "Recebemos muitas requisições desta conexão em pouco tempo. Aguarde um momento e tente novamente.",
+				"metadataTitle": "429 - Muitas requisições"
+			},
+			"500": {
+				"eyebrow": "Erro do Servidor",
+				"title": "Algo deu errado do nosso lado.",
+				"body": "Um erro inesperado interrompeu o servidor. O problema foi registrado — tente novamente em instantes ou volte para o início.",
+				"metadataTitle": "500 - Erro do servidor"
+			},
+			"502": {
+				"eyebrow": "Gateway Inválido",
+				"title": "Recebemos uma resposta inválida.",
+				"body": "Um serviço do qual esta página depende retornou uma resposta inesperada. Costuma ser temporário — tente novamente em breve.",
+				"metadataTitle": "502 - Gateway inválido"
+			},
+			"503": {
+				"eyebrow": "Serviço Indisponível",
+				"title": "Este serviço está temporariamente fora do ar.",
+				"body": "O servidor está sobrecarregado ou em manutenção e não pode atender à requisição agora. Tente novamente em alguns minutos.",
+				"metadataTitle": "503 - Serviço indisponível"
+			},
+			"504": {
+				"eyebrow": "Tempo de Gateway Esgotado",
+				"title": "Um serviço externo expirou.",
+				"body": "Um serviço do qual esta página depende demorou demais para responder. Costuma ser temporário — tente novamente em breve.",
+				"metadataTitle": "504 - Tempo de gateway esgotado"
+			},
+			"generic": {
+				"eyebrow": "Algo Deu Errado",
+				"title": "Algo deu errado.",
+				"body": "Um erro inesperado interrompeu esta página. Você pode tentar novamente ou voltar para uma página que sabe que funciona."
+			}
+		}
+	},
+	"Privacy": {
+		"title": "Privacidade e Direitos sobre Dados",
+		"intro": "A TrustLedger não mantém nenhuma base de dados de contas. Tudo o que lembramos sobre você fica neste navegador, junto ao registro público que suas transações deixam na cadeia. Use os controles abaixo para exportar ou apagar o que este dispositivo guarda.",
+		"collectTitle": "O Que Coletamos",
+		"collectWallet": "O endereço da sua carteira conectada, usado para ler sua atividade na cadeia.",
+		"collectPreferences": "Preferências locais como seu papel, tema e tempo de logout automático.",
+		"collectConsent": "Suas escolhas de consentimento de cookies e análise.",
+		"collectOnChain": "Dados de transações públicos e imutáveis registrados na blockchain.",
+		"policyLink": "Leia nossa <link>Política de Privacidade</link> para todos os detalhes.",
+		"downloadButton": "Baixar Meus Dados",
+		"cookiePreferencesButton": "Preferências de Cookies",
+		"deleteButton": "Excluir Meus Dados",
+		"deleteConfirmTitle": "Excluir os Dados Locais?",
+		"deleteConfirmBody": "Isto apaga todas as preferências, escolhas de consentimento e registros de conexão da carteira armazenados neste navegador e desconecta você deste dispositivo. Não pode ser desfeito.",
+		"deleteImmutableWarning": "As transações já registradas na blockchain são públicas e permanentes. Não podem ser excluídas pela TrustLedger nem por ninguém.",
+		"deleteConfirmAction": "Sim, Excluir Meus Dados",
+		"deleteCancelAction": "Cancelar",
+		"deleteDone": "Seus dados locais foram excluídos e sua carteira desconectada deste navegador."
 	}
 }

@@ -5,6 +5,10 @@ import { parse } from "@babel/parser";
 import traverse, { type TraverseOptions } from "@babel/traverse";
 
 const SOURCE_ROOTS = ["app", "components"] as const;
+// `global-error.tsx` is the root error boundary: Next.js renders it *outside* the
+// locale layout (no `NextIntlClientProvider`), so it cannot read locale messages
+// and must ship self-contained English copy. It is exempt from the no-literals rule.
+const EXCLUDED_FILES = new Set(["app/global-error.tsx"]);
 const CHECKED_ATTRIBUTES = new Set(["alt", "aria-label", "placeholder", "title"]);
 const ALLOWED_LITERAL_PATTERN =
 	/^(?:[A-Z]{2,}|0x\.\.\.|0x...|404|#|%|ETH|USDC|SOL|HTML|FAQ|URL|URI|IPFS|ENS|API|JSON|PDF|AR|KB|SF|TrustLedger|WalletConnect|Reown|Sepolia|Solana Devnet|Arbitrum One|Base|Optimism|GitHub|LinkedIn|Kevin Le|Kellen Snider|© 2026 TrustLedger)$/u;
@@ -36,7 +40,7 @@ describe("visible JSX copy", () => {
 		const sourceRoot = process.cwd();
 		const files = SOURCE_ROOTS.flatMap((directory) =>
 			collectSourceFiles(path.join(sourceRoot, directory)),
-		);
+		).filter((file) => !EXCLUDED_FILES.has(path.relative(sourceRoot, file)));
 		const violations: string[] = [];
 
 		for (const file of files) {

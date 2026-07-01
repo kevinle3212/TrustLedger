@@ -11,12 +11,14 @@
 		},
 		"nexus": {
 			"type": "stdio",
-			"command": "./node_modules/.bin/nexus-graph",
+			"command": "node",
 			"tools": ["*"],
-			"args": ["server", "--project", "."],
+			"args": ["./scripts/nexus-mcp.js", "server", "--project", "."],
 			"env": {
 				"NODE_ENV": "development",
-				"NO_COLOR": "1"
+				"NO_COLOR": "1",
+				"NEXUS_MCP_TIMEOUT_MS": "120000",
+				"NEXUS_MAX_TREE_SITTER_TS_BYTES": "25000"
 			}
 		}
 	}

@@ -142,6 +142,7 @@ These variables are safe to expose to the browser because their names start with
 | `NEXT_PUBLIC_SITE_URL`                 | Wallet metadata origin fallback                       | `src/lib/wagmi.ts`                           |
 | `NEXT_PUBLIC_APP_URL`                  | Magic links and wallet origin alias                   | API routes, `src/lib/wagmi.ts`               |
 | `NEXT_PUBLIC_GITHUB_URL`               | Navbar source link and public GitHub analytics source | Frontend components, `/api/analytics/github` |
+| `NEXT_PUBLIC_DOCS_URL`                 | Navbar Docs link (beside GitHub); hidden when unset   | `src/components/Navbar.tsx`                  |
 | `NEXT_PUBLIC_PINATA_JWT`               | IPFS uploads                                          | Frontend upload code                         |
 | `NEXT_PUBLIC_SOLANA_CLUSTER`           | Native Solana support label                           | `src/helpers/solana.ts`                      |
 | `NEXT_PUBLIC_SOLANA_PROGRAM_ID`        | SOL escrow submission                                 | `src/lib/solanaEscrow.ts`                    |

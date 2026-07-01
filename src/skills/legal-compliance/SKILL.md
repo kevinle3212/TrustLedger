@@ -28,3 +28,9 @@ paths, or user obligations.
 - Flag jurisdiction-specific coverage, privacy rights, taxes, sanctions,
   securities, employment classification, and consumer-protection issues for
   qualified counsel review.
+- Privacy & cookie sync (mandatory): any change to how personal data is
+  collected, stored, exported, deleted, or shared, or to cookies/`localStorage`/
+  analytics/consent, must update `src/content/legal/PRIVACY_POLICY.md` (bump its
+  `Last Updated`/`Version`) and `src/content/legal/COOKIE_POLICY.md` (cookie
+  inventory + consent behavior) in the same branch. Keep the inventory
+  consistent with `lib/cookie-consent.ts`; claim only functionality that exists.

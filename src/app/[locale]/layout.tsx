@@ -13,6 +13,7 @@ import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PrivacyAnalytics } from "@/components/PrivacyAnalytics";
+import { CookieConsent } from "@/components/CookieConsent";
 import "../globals.scss";
 
 const ReactScanMonitor =
@@ -93,8 +94,10 @@ export async function generateMetadata({
 			// 180×180 PNG: Safari rejects SVG and oversized images for the home-screen
 			// touch icon, so this replaces the 1254×1254 logo.png that Safari ignored.
 			apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-			// Safari pinned-tab / Touch Bar monochrome glyph.
-			other: [{ rel: "mask-icon", url: "/icon.svg", color: "#4f46e5" }],
+			// Safari pinned-tab / Touch Bar monochrome glyph. Safari flattens the SVG
+			// to a single-color silhouette, so this points at a dedicated monochrome
+			// shape rather than the multi-fill `icon.svg`.
+			other: [{ rel: "mask-icon", url: "/mask-icon.svg", color: "#4f46e5" }],
 		},
 	};
 }
@@ -144,6 +147,7 @@ export default async function LocaleLayout({
 						<Footer />
 					</Providers>
 					<PrivacyAnalytics />
+					<CookieConsent />
 					{ReactScanMonitor !== null && <ReactScanMonitor />}
 				</NextIntlClientProvider>
 			</body>

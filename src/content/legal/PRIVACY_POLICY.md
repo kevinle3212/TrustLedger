@@ -3,8 +3,8 @@
 **Authors & Contributors:** [Kevin Le](https://www.linkedin.com/in/lekevin1),
 [Kellen Snider](https://www.linkedin.com/in/kellen-snider-683396256/)
 
-**Effective Date:** June 9, 2026 **Last Updated:** June 10, 2026 **Version:**
-2.1.0
+**Effective Date:** June 9, 2026 **Last Updated:** June 30, 2026 **Version:**
+2.2.0
 
 ---
 
@@ -400,7 +400,11 @@ right to request access to, or correction of, personal data we hold about You.
 To make such a request, contact us at the address in Section 16. We will respond
 to requests within the timeframes required by applicable law (generally 30 days
 under the GDPR; 45 days under the CCPA, subject to a 45-day extension where
-reasonably necessary).
+reasonably necessary). For data stored locally in Your browser (Your
+preferences, consent choices, connected wallet address, and wallet-connection
+records), You can download a copy at any time using the "Download My Data"
+control in Your account settings, which produces a structured, machine-readable
+JSON file.
 
 **11.2 Deletion (Right to Erasure).** You may request deletion of certain
 non-public personal data we hold about You, such as Your email address. We will
@@ -409,7 +413,11 @@ our legal obligations (including data retention obligations). We cannot delete
 data recorded on public blockchains or permanently pinned to IPFS. Deletion
 requests may be denied where data is required for the performance of a contract,
 compliance with a legal obligation, or the establishment, exercise, or defense
-of legal claims.
+of legal claims. You can also erase all data stored locally in Your browser —
+preferences, consent choices, and wallet-connection records — at any time using
+the "Delete My Data" control in Your account settings; this signs Your wallet
+out of the device but cannot affect immutable data already recorded on public
+blockchains.
 
 **11.3 Opt-Out of Notifications.** You may opt out of non-essential email
 notifications by following the unsubscribe instructions in any email we send or
@@ -417,9 +425,11 @@ by contacting us. You cannot opt out of service-essential communications (such
 as security notices or legally required disclosures).
 
 **11.4 Cookie Controls.** You can control cookies through your browser settings.
-Essential cookies cannot be disabled without affecting core functionality.
-Details on the specific cookies used and instructions for controlling them are
-available upon request to the address in Section 16.
+Essential cookies cannot be disabled without affecting core functionality. You
+can also review, change, or withdraw Your cookie and analytics consent at any
+time using the in-app cookie preferences manager, available from the site footer
+and Your account settings. Details on the specific cookies used and instructions
+for controlling them are available upon request to the address in Section 16.
 
 **11.5 GDPR and UK GDPR Rights.** If You are located in the European Economic
 Area, the United Kingdom, or Switzerland, You may have the following rights

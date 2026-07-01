@@ -22,6 +22,12 @@ configuration, tests, user-facing copy, or agent guidance.
 4. Add or adjust tests and validation commands when behavior or tooling changes.
 5. Keep generated run notes under `logs/` as markdownlint-compliant Markdown.
    Run `npm run logs:check` after writing log files.
+6. Privacy or cookie behavior changed? Also sync the live policy sources
+   `src/content/legal/PRIVACY_POLICY.md` (bump `Last Updated`/`Version`) and
+   `src/content/legal/COOKIE_POLICY.md` (cookie inventory + consent behavior),
+   kept consistent with `lib/cookie-consent.ts`. See the "Privacy & Cookie
+   Feature Sync" section in `skills/legal-compliance/SKILL.md`. Claim only
+   functionality that exists.
 
 ## Validation
 

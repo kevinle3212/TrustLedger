@@ -171,6 +171,13 @@ to your change — surface it instead (see `CLAUDE.md` §3).
 - Legal or compliance-sensitive work: root legal draft markdown files,
   `docs/LEGAL.md`, the website legal center, `SECURITY.md`, and
   `.sixth/skills/legal-compliance/SKILL.md`.
+- Privacy or cookie work: any change to how personal data is collected, stored,
+  exported, deleted, or shared, or to cookies/`localStorage`/analytics/consent,
+  must update the live policy sources `src/content/legal/PRIVACY_POLICY.md`
+  (bump `Last Updated`/`Version`) and `src/content/legal/COOKIE_POLICY.md`
+  (cookie inventory + consent behavior) in the same branch, kept consistent with
+  `lib/cookie-consent.ts`. See `.sixth/skills/legal-compliance/SKILL.md`
+  ("Privacy & Cookie Feature Sync"). Claim only functionality that exists.
 - Testing work: `src/tests`, `test`, `contracts/test`, and
   `.cursor/rules/testing.mdc`.
 - Documentation work: root markdown, `docs/`, `src/README.md`, and

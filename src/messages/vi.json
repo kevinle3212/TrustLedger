@@ -10,6 +10,7 @@
 		"roleFreelancer": "Người làm tự do",
 		"logoAlt": "Logo TrustLedger",
 		"viewGitHub": "Xem mã nguồn trên GitHub",
+		"viewDocs": "Xem tài liệu",
 		"changeLanguage": "Đổi ngôn ngữ",
 		"skipToMain": "Chuyển đến nội dung chính",
 		"faq": "Câu hỏi thường gặp",
@@ -800,7 +801,11 @@
 		"openLegal": "Mở trung tâm pháp lý",
 		"openAbout": "Mở trang giới thiệu dự án",
 		"stats": "Thống kê",
-		"openStats": "Mở thống kê dự án"
+		"openStats": "Mở thống kê dự án",
+		"privacy": "Quyền riêng tư",
+		"openPrivacy": "Mở chính sách quyền riêng tư",
+		"cookiePreferences": "Tùy Chọn Cookie",
+		"openCookiePreferences": "Mở tùy chọn cookie"
 	},
 	"FAQ": {
 		"eyebrow": "FAQ",
@@ -1085,5 +1090,123 @@
 		"categoriesIntro": "Tỷ lệ dòng mã theo từng loại tệp trong mã nguồn được theo dõi. Chỉ hiển thị các loại tệp hiện có trong kho lưu trữ.",
 		"categoryMeta": "{lines} dòng · {files} tệp · {share}%",
 		"viewWalletAnalytics": "Xem Phân Tích Ví"
+	},
+	"CookieConsent": {
+		"regionLabel": "Đồng ý cookie",
+		"title": "Chúng tôi tôn trọng quyền riêng tư của bạn",
+		"body": "Chúng tôi sử dụng cookie thực sự cần thiết để vận hành TrustLedger, và chỉ khi có sự đồng ý của bạn mới dùng cookie chức năng và phân tích. Bạn có thể chấp nhận tất cả, từ chối tất cả hoặc chọn danh mục cho phép.",
+		"learnMore": "Tìm hiểu thêm trong",
+		"cookiePolicy": "Chính Sách Cookie",
+		"privacyPolicy": "Chính Sách Quyền Riêng Tư",
+		"and": "và",
+		"acceptAll": "Chấp Nhận Tất Cả",
+		"rejectAll": "Từ Chối Tất Cả",
+		"customize": "Tùy Chỉnh",
+		"close": "Đóng",
+		"preferencesTitle": "Tùy Chọn Cookie",
+		"preferencesBody": "Chọn danh mục cookie mà TrustLedger có thể sử dụng. Cookie thực sự cần thiết luôn được bật. Bạn có thể thay đổi lựa chọn bất cứ lúc nào.",
+		"necessaryTitle": "Thực Sự Cần Thiết",
+		"necessaryBody": "Cần thiết cho các tính năng cốt lõi như bảo mật, mạng và khả năng tiếp cận. Không thể tắt.",
+		"alwaysOn": "Luôn Bật",
+		"functionalTitle": "Chức Năng",
+		"functionalBody": "Ghi nhớ các tùy chọn như giao diện, độ tương phản và ngôn ngữ để cải thiện trải nghiệm của bạn.",
+		"analyticsTitle": "Phân Tích",
+		"analyticsBody": "Giúp chúng tôi hiểu cách sử dụng tổng hợp, bảo vệ quyền riêng tư để cải thiện nền tảng.",
+		"savePreferences": "Lưu Tùy Chọn"
+	},
+	"Unauthorized": {
+		"eyebrow": "Không được phép",
+		"message": "Xin lỗi. Bạn không có quyền truy cập tài nguyên này.",
+		"body": "Ví hoặc phiên của bạn không được phép xem trang này. Hãy kết nối đúng tài khoản, đổi vai trò hoặc quay lại trang bạn có thể truy cập.",
+		"goHome": "Về Trang Chủ",
+		"openDashboard": "Mở Bảng Điều Khiển",
+		"readFaq": "Đọc Câu Hỏi Thường Gặp",
+		"metadataTitle": "401 - Không được phép"
+	},
+	"ErrorPages": {
+		"goHome": "Về Trang Chủ",
+		"goBack": "Quay Lại",
+		"openDashboard": "Mở Bảng Điều Khiển",
+		"tryAgain": "Thử Lại",
+		"codes": {
+			"400": {
+				"eyebrow": "Yêu Cầu Không Hợp Lệ",
+				"title": "Không thể đọc yêu cầu.",
+				"body": "Yêu cầu bị lỗi định dạng nên máy chủ không thể xử lý. Hãy kiểm tra liên kết và thử lại, hoặc quay về một tuyến đã biết.",
+				"metadataTitle": "400 - Yêu cầu không hợp lệ"
+			},
+			"403": {
+				"eyebrow": "Bị Cấm",
+				"title": "Bạn không thể truy cập tài nguyên này.",
+				"body": "Ví hoặc phiên của bạn không có quyền với trang này. Hãy kết nối tài khoản được ủy quyền, đổi vai trò, hoặc quay lại trang bạn có thể truy cập.",
+				"metadataTitle": "403 - Bị cấm"
+			},
+			"405": {
+				"eyebrow": "Phương Thức Không Được Phép",
+				"title": "Hành động này không được hỗ trợ ở đây.",
+				"body": "Yêu cầu đã dùng một phương thức mà tuyến này không chấp nhận. Hãy quay lại trang trước và thử một hành động được hỗ trợ.",
+				"metadataTitle": "405 - Phương thức không được phép"
+			},
+			"408": {
+				"eyebrow": "Hết Thời Gian Chờ",
+				"title": "Yêu cầu mất quá nhiều thời gian.",
+				"body": "Máy chủ đã ngừng chờ trước khi yêu cầu hoàn tất. Hãy kiểm tra kết nối và thử lại.",
+				"metadataTitle": "408 - Hết thời gian chờ"
+			},
+			"429": {
+				"eyebrow": "Quá Nhiều Yêu Cầu",
+				"title": "Bạn đang thao tác hơi nhanh.",
+				"body": "Chúng tôi nhận quá nhiều yêu cầu từ kết nối này trong thời gian ngắn. Hãy đợi một chút rồi thử lại.",
+				"metadataTitle": "429 - Quá nhiều yêu cầu"
+			},
+			"500": {
+				"eyebrow": "Lỗi Máy Chủ",
+				"title": "Đã xảy ra lỗi từ phía chúng tôi.",
+				"body": "Một lỗi bất ngờ đã làm gián đoạn máy chủ. Sự cố đã được ghi lại — hãy thử lại sau giây lát hoặc quay về trang chủ.",
+				"metadataTitle": "500 - Lỗi máy chủ"
+			},
+			"502": {
+				"eyebrow": "Cổng Kết Nối Lỗi",
+				"title": "Chúng tôi nhận phản hồi không hợp lệ.",
+				"body": "Một dịch vụ mà trang này phụ thuộc đã trả về phản hồi bất ngờ. Sự cố thường chỉ tạm thời — hãy thử lại trong giây lát.",
+				"metadataTitle": "502 - Cổng kết nối lỗi"
+			},
+			"503": {
+				"eyebrow": "Dịch Vụ Không Khả Dụng",
+				"title": "Dịch vụ này tạm thời ngừng hoạt động.",
+				"body": "Máy chủ đang quá tải hoặc bảo trì và chưa thể xử lý yêu cầu ngay lúc này. Hãy thử lại sau vài phút.",
+				"metadataTitle": "503 - Dịch vụ không khả dụng"
+			},
+			"504": {
+				"eyebrow": "Cổng Kết Nối Hết Thời Gian",
+				"title": "Một dịch vụ bên ngoài đã hết thời gian.",
+				"body": "Một dịch vụ mà trang này phụ thuộc đã phản hồi quá lâu. Sự cố thường chỉ tạm thời — hãy thử lại trong giây lát.",
+				"metadataTitle": "504 - Cổng kết nối hết thời gian"
+			},
+			"generic": {
+				"eyebrow": "Đã Xảy Ra Lỗi",
+				"title": "Đã xảy ra lỗi.",
+				"body": "Một lỗi bất ngờ đã làm gián đoạn trang này. Bạn có thể thử lại hoặc quay về một trang bạn biết là hoạt động."
+			}
+		}
+	},
+	"Privacy": {
+		"title": "Quyền Riêng Tư và Dữ Liệu",
+		"intro": "TrustLedger không lưu bất kỳ cơ sở dữ liệu tài khoản nào. Mọi thứ chúng tôi ghi nhớ về bạn đều nằm trong trình duyệt này, cùng với bản ghi công khai mà các giao dịch của bạn để lại trên chuỗi. Dùng các nút bên dưới để xuất hoặc xóa những gì thiết bị này đang lưu.",
+		"collectTitle": "Chúng Tôi Thu Thập Gì",
+		"collectWallet": "Địa chỉ ví đã kết nối của bạn, dùng để đọc hoạt động on-chain của bạn.",
+		"collectPreferences": "Tùy chọn cục bộ như vai trò, giao diện và thời gian tự đăng xuất.",
+		"collectConsent": "Lựa chọn đồng ý về cookie và phân tích của bạn.",
+		"collectOnChain": "Dữ liệu giao dịch công khai, bất biến được ghi trên blockchain.",
+		"policyLink": "Đọc <link>Chính Sách Quyền Riêng Tư</link> của chúng tôi để biết chi tiết đầy đủ.",
+		"downloadButton": "Tải Dữ Liệu Của Tôi",
+		"cookiePreferencesButton": "Tùy Chọn Cookie",
+		"deleteButton": "Xóa Dữ Liệu Của Tôi",
+		"deleteConfirmTitle": "Xóa Dữ Liệu Cục Bộ?",
+		"deleteConfirmBody": "Thao tác này xóa mọi tùy chọn, lựa chọn đồng ý và bản ghi kết nối ví được lưu trong trình duyệt này và đăng xuất bạn khỏi thiết bị này. Không thể hoàn tác.",
+		"deleteImmutableWarning": "Các giao dịch đã được ghi trên blockchain là công khai và vĩnh viễn. TrustLedger hay bất kỳ ai khác đều không thể xóa chúng.",
+		"deleteConfirmAction": "Có, Xóa Dữ Liệu Của Tôi",
+		"deleteCancelAction": "Hủy",
+		"deleteDone": "Dữ liệu cục bộ của bạn đã được xóa và ví đã ngắt kết nối khỏi trình duyệt này."
 	}
 }
