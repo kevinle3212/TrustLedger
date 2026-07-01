@@ -99,7 +99,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Run TruffleHog
-              uses: trufflesecurity/trufflehog@v3.95.6
+              uses: trufflesecurity/trufflehog@v3.95.7
               with:
                   # Explicit base/head pins the scan to the git diff. Without them
                   # the action falls back to a *filesystem* scan, which reads
