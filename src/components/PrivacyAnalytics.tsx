@@ -4,15 +4,14 @@ import { usePathname } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { useEffect } from "react";
 
+import { hasAnalyticsConsent, hasPrivacySignal } from "@/lib/cookie-consent";
+
 const enabled = process.env["NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED"] === "true";
 
-function privacyOptOut(): boolean {
-	const nav = navigator as Navigator & { globalPrivacyControl?: boolean };
-	return navigator.doNotTrack === "1" || nav.globalPrivacyControl === true;
-}
-
 function sendAnalytics(name: "page_view" | "frontend_error", path: string, locale: string): void {
-	if (!enabled || privacyOptOut()) return;
+	// Require explicit analytics consent and honor any browser privacy signal
+	// (GPC / DNT), so nothing is recorded before the user opts in.
+	if (!enabled || hasPrivacySignal() || !hasAnalyticsConsent()) return;
 	const payload = JSON.stringify({ name, path, locale });
 	const body = new Blob([payload], { type: "application/json" });
 	if (navigator.sendBeacon("/api/analytics/events", body)) return;

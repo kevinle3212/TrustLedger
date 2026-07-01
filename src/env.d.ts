@@ -86,6 +86,10 @@ declare namespace NodeJS {
 		// the repository is public. On Vercel, built automatically from
 		// VERCEL_GIT_REPO_OWNER / VERCEL_GIT_REPO_SLUG — no manual config needed.
 		NEXT_PUBLIC_GITHUB_URL?: string;
+		// ─── Docs ───────────────────────────────────────────────────────────────
+		// Documentation site link shown in the navbar beside the GitHub icon.
+		// Optional: when unset or empty, the Docs link is hidden.
+		NEXT_PUBLIC_DOCS_URL?: string;
 		// Server-only token for higher GitHub API rate limits. Private repos remain
 		// hidden from public analytics even when this token can access them.
 		GITHUB_TOKEN?: string;

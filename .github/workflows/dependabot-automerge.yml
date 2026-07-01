@@ -16,7 +16,7 @@ jobs:
         steps:
             - name: Fetch Dependabot metadata
               id: metadata
-              uses: dependabot/fetch-metadata@v3
+              uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3
 
             # Auto-merge any update that fixes a known security advisory (any semver
             # level). The GHSA IDs field is non-empty only when Dependabot opened the

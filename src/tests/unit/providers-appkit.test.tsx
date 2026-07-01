@@ -19,6 +19,7 @@ import { Providers } from "@/components/Providers";
  */
 
 const ensureAppKit = jest.fn();
+const wagmiProviderProps = jest.fn();
 
 jest.mock("@/lib/appkit", () => ({
 	ensureAppKit: (): void => {
@@ -29,7 +30,10 @@ jest.mock("@/lib/appkit", () => ({
 jest.mock("@/lib/wagmi", () => ({ config: {}, isE2eMockWallet: false }));
 
 jest.mock("wagmi", () => ({
-	WagmiProvider: (props: { children: ReactNode }): ReactNode => props.children,
+	WagmiProvider: (props: { children: ReactNode; reconnectOnMount?: boolean }): ReactNode => {
+		wagmiProviderProps({ reconnectOnMount: props.reconnectOnMount });
+		return props.children;
+	},
 	useAccount: (): { isConnected: boolean } => ({ isConnected: false }),
 	useConnect: (): { connect: jest.Mock; connectors: [] } => ({
 		connect: jest.fn(),
@@ -68,7 +72,17 @@ async function renderProviders(): Promise<void> {
 describe("Providers AppKit init gate", () => {
 	beforeEach(() => {
 		ensureAppKit.mockClear();
+		wagmiProviderProps.mockClear();
 		window.localStorage.clear();
+	});
+
+	it("enables wagmi reconnectOnMount so sessions restore on a full reload", async () => {
+		await renderProviders();
+
+		// wagmi's native reconnect is the primary restore path across refresh,
+		// direct URL entry, and back/forward. Regression guard: it must stay on, or
+		// restoration falls back to AppKit's lazy init alone and users get logged out.
+		expect(wagmiProviderProps).toHaveBeenCalledWith({ reconnectOnMount: true });
 	});
 
 	it("does not initialize AppKit for a first-time visitor with no session", async () => {

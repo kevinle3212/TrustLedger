@@ -51,14 +51,25 @@ let appKitInitStarted = false;
  * (see below) so wagmi never settles to "disconnected" before AppKit restores.
  *
  * The gate keeps first-time visitors — and clean-profile tooling such as
- * Lighthouse — from paying the heavy AppKit init and the WalletConnect
- * network/console activity it triggers, while returning users get their session
- * restored. It fires when our reconnect-hint label ({@link getLastWallet}) OR
- * any of AppKit's/wagmi's persisted session markers
- * ({@link hasPersistedWalletSession}) are present. The module is imported
- * dynamically so AppKit stays in a lazy chunk off the initial critical path. A
- * no-op during SSR (the gate reads `window`) and under the E2E mock build, which
- * bypasses AppKit entirely.
+ * Lighthouse — from paying the AppKit init and the WalletConnect network/console
+ * activity it triggers, while returning users get their session restored. It
+ * fires when our reconnect-hint label ({@link getLastWallet}) OR any of
+ * AppKit's/wagmi's persisted session markers ({@link hasPersistedWalletSession})
+ * are present.
+ *
+ * AppKit owns session restore: the Reown wagmi adapter builds its wagmi config
+ * with an empty connector set and only registers connectors when AppKit
+ * initializes (its `syncConnectors` routine, which also reconnects the persisted
+ * account). So restoration across a full reload depends on `ensureAppKit()`
+ * running on load for returning users — which this gate triggers.
+ *
+ * The module is imported dynamically so AppKit stays in a lazy chunk off the
+ * initial critical path (first-time visitors and clean-profile tooling such as
+ * Lighthouse never download it — a static import here bundles ~380 KiB of unused
+ * AppKit JS into every page and tanks LCP). The gate fires the import as early
+ * as possible (first render) so the chunk is already in flight before the user
+ * can interact. A no-op during SSR (the gate reads `window`) and under the E2E
+ * mock build, which bypasses AppKit entirely.
  */
 function useStartAppKit(): void {
 	useState(() => {
@@ -107,15 +118,23 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 		>
 			<RoleProvider>
 				{/*
-				 * reconnectOnMount is disabled for the real wallet path: AppKit (not
-				 * wagmi) owns session restoration via `syncExistingConnection`. Leaving
-				 * it on lets wagmi attempt a reconnect before AppKit has registered its
-				 * connectors, settling state to "disconnected" and causing a logged-out
-				 * flash — or a stuck logged-out state — on refresh and direct
-				 * navigation. The E2E mock path keeps it on so the mock connector
-				 * rehydrates across navigations in tests.
+				 * reconnectOnMount is enabled on every path. It is wagmi's native,
+				 * battle-tested session restore: on mount it reconnects from wagmi's
+				 * own persisted connector state, synchronously in the store and with no
+				 * dependency on the heavy AppKit chunk having loaded yet. This is what
+				 * keeps injected wallets (MetaMask, Coinbase) signed in across a full
+				 * reload, direct URL entry, and back/forward navigation. AppKit's gated
+				 * eager init (see useStartAppKit) still runs so WalletConnect sessions —
+				 * whose connector is only registered once AppKit's universal provider
+				 * is set up — are restored too, and so the modal is ready. The brief
+				 * `reconnecting` window (isConnected is momentarily false) is absorbed
+				 * by the wallet buttons, which render a neutral busy state while
+				 * restoring instead of the logged-out CTA, so there is no flash. Leaving
+				 * this off previously made restoration hinge solely on AppKit's lazy
+				 * `syncConnectors`, which left users stuck logged out whenever that
+				 * async path did not complete.
 				 */}
-				<WagmiProvider config={config} reconnectOnMount={isE2eMockWallet}>
+				<WagmiProvider config={config} reconnectOnMount>
 					<QueryClientProvider client={queryClient}>
 						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : null}
 						<InactivityWatcher />

@@ -196,6 +196,9 @@ const nextConfig: NextConfig = {
 			"NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID",
 		),
 		NEXT_PUBLIC_GITHUB_URL: resolveGithubUrl(),
+		// Documentation site link shown in the navbar. Set in Vercel project
+		// settings or root .env; resolves to "" when unset so the link is hidden.
+		NEXT_PUBLIC_DOCS_URL: resolveEnvValue("NEXT_PUBLIC_DOCS_URL"),
 	},
 };
 

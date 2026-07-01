@@ -186,6 +186,208 @@ $tl-sweep-highlight: rgb(255 255 255 / 26%);
 	}
 }
 
+/* Animated top navigation: the bar slides down and fades in on load, an
+   indigo "scanline" sweeps the bottom border, and the brand mark lifts on
+   hover. All motion is disabled under prefers-reduced-motion below. */
+@keyframes tl-navbar-in {
+	from {
+		opacity: 0;
+		transform: translateY(-0.75rem);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes tl-navbar-sheen {
+	0% {
+		background-position: 200% 0;
+	}
+
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+.tl-navbar {
+	animation: tl-navbar-in 420ms $tl-ease-out both;
+
+	&::after {
+		position: absolute;
+		inset-inline: 0;
+		bottom: -1px;
+		height: 1px;
+		background: linear-gradient(
+			90deg,
+			transparent 0%,
+			transparent 38%,
+			rgb(99 102 241 / 75%) 50%,
+			transparent 62%,
+			transparent 100%
+		);
+		background-size: 200% 100%;
+		animation: tl-navbar-sheen 6s $tl-ease-standard 600ms infinite;
+		content: "";
+	}
+}
+
+.tl-navbar-brand {
+	img {
+		transition: transform 260ms $tl-ease-out;
+	}
+
+	&:hover img,
+	&:focus-visible img {
+		transform: translateY(-1px) rotate(-4deg) scale(1.05);
+	}
+}
+
+/* Cookie consent surfaces ease in from the bottom edge / dialog scrim. */
+@keyframes tl-cookie-banner-in {
+	from {
+		opacity: 0;
+		transform: translateY(1rem);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes tl-cookie-dialog-in {
+	from {
+		opacity: 0;
+		transform: translateY(1.25rem) scale(0.98);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.tl-cookie-banner {
+	animation: tl-cookie-banner-in 320ms $tl-ease-out both;
+}
+
+.tl-cookie-dialog {
+	animation: tl-cookie-dialog-in 260ms $tl-ease-out both;
+}
+
+/* Cow 401: the cow tips forward and drops into the hole on a loop while the
+   hole's shadow pulses to sell the "falling in" gag. */
+@keyframes tl-cow-fall {
+	0%,
+	12% {
+		transform: translateY(0) rotate(0deg);
+	}
+
+	34% {
+		transform: translateY(0.5rem) rotate(8deg);
+	}
+
+	62% {
+		transform: translateY(5.5rem) rotate(26deg);
+		opacity: 1;
+	}
+
+	74%,
+	100% {
+		transform: translateY(8.5rem) rotate(38deg);
+		opacity: 0;
+	}
+}
+
+@keyframes tl-cow-hole {
+	0%,
+	100% {
+		transform: scaleX(1);
+		opacity: 0.85;
+	}
+
+	62% {
+		transform: scaleX(1.12);
+		opacity: 1;
+	}
+}
+
+@keyframes tl-cow-dust {
+	0%,
+	60% {
+		opacity: 0;
+		transform: translateY(0) scale(0.6);
+	}
+
+	72% {
+		opacity: 0.9;
+		transform: translateY(-0.5rem) scale(1);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(-1.25rem) scale(1.2);
+	}
+}
+
+.tl-cow {
+	transform-origin: 50% 90%;
+	animation: tl-cow-fall 3.6s $tl-ease-standard infinite;
+}
+
+.tl-cow-hole {
+	transform-origin: 50% 50%;
+	animation: tl-cow-hole 3.6s $tl-ease-standard infinite;
+}
+
+.tl-cow-dust {
+	animation: tl-cow-dust 3.6s $tl-ease-standard infinite;
+}
+
+/* Generic error scene: a status core pulses while two concentric rings expand
+   outward on a loop, signalling a fault without leaning on any one HTTP code.
+   Frozen under prefers-reduced-motion via the rule near the top of this file. */
+@keyframes tl-error-ring {
+	0% {
+		transform: scale(0.55);
+		opacity: 0.7;
+	}
+
+	100% {
+		transform: scale(1.65);
+		opacity: 0;
+	}
+}
+
+@keyframes tl-error-core {
+	0%,
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+
+	50% {
+		transform: scale(0.86);
+		opacity: 0.72;
+	}
+}
+
+.tl-error-ring {
+	transform-origin: center;
+	animation: tl-error-ring 2.8s $tl-ease-out infinite;
+}
+
+.tl-error-ring--delayed {
+	animation-delay: 1.4s;
+}
+
+.tl-error-core {
+	transform-origin: center;
+	animation: tl-error-core 2.8s $tl-ease-standard infinite;
+}
+
 .tl-contract-stage {
 	position: relative;
 	overflow: hidden;
@@ -736,7 +938,17 @@ details[open] .tl-faq-answer {
 	.tl-contract-progress,
 	.tl-contract-install-progress,
 	.tl-signature-stamp,
-	.tl-contract-hash {
+	.tl-contract-hash,
+	.tl-navbar,
+	.tl-navbar::after,
+	.tl-navbar-brand img,
+	.tl-cookie-banner,
+	.tl-cookie-dialog,
+	.tl-cow,
+	.tl-cow-hole,
+	.tl-cow-dust,
+	.tl-error-ring,
+	.tl-error-core {
 		animation: none !important;
 		transform: none !important;
 	}

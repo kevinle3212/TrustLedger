@@ -26,12 +26,12 @@ jobs:
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
               with:
                   submodules: recursive
 
             - name: Setup Node
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
               with:
                   node-version: 22
 
@@ -48,12 +48,12 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
               with:
                   submodules: recursive
 
             - name: Install Foundry
-              uses: foundry-rs/foundry-toolchain@v1
+              uses: foundry-rs/foundry-toolchain@c7450ba673e133f5ee30098b3b54f444d3a2ca2d # v1
               with:
                   version: stable
               env:
@@ -62,7 +62,7 @@ jobs:
 
             - name: Run Slither
               id: slither
-              uses: crytic/slither-action@v0.4.2
+              uses: crytic/slither-action@b52cc1cbfee9ca3e8722dd5224299d16c9a6b80f # v0.4.2
               with:
                   # Point at contracts/ so Slither finds foundry.toml there.
                   target: contracts
@@ -78,7 +78,7 @@ jobs:
               # hashFiles returns '' when the file does not exist, preventing a
               # "path does not exist" error when Slither produces no findings.
               if: always() && hashFiles('results.sarif') != ''
-              uses: github/codeql-action/upload-sarif@v4
+              uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
               with:
                   sarif_file: results.sarif
                   category: slither
@@ -93,13 +93,13 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
               with:
                   # Full git history. Secrets often slip in via squashed/old commits.
                   fetch-depth: 0
 
             - name: Run TruffleHog
-              uses: trufflesecurity/trufflehog@v3.95.6
+              uses: trufflesecurity/trufflehog@30d5bb91af1a771378349dbbb0c82129392acf70 # v3.95.6
               with:
                   # Explicit base/head pins the scan to the git diff. Without them
                   # the action falls back to a *filesystem* scan, which reads
@@ -119,12 +119,12 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
               with:
                   fetch-depth: 0
 
             - name: Run Gitleaks
-              uses: gitleaks/gitleaks-action@v3
+              uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GITLEAKS_CONFIG: .gitleaks.toml
@@ -138,10 +138,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
             - name: Setup Node
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
               with:
                   node-version: 22
                   cache: npm
@@ -169,10 +169,10 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
             - name: Setup Node
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
               with:
                   node-version: 22
                   cache: npm
@@ -198,14 +198,14 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
             # Scoped to the lockfiles we own and ship. Vendored submodules
             # (contracts/lib/*) carry upstream's own dev lockfiles and are out of
             # scope here, matching the Slither/Semgrep exclusions. Dev-only
             # sub-high advisories are filtered via osv-scanner.toml.
             - name: Run OSV-Scanner
-              uses: google/osv-scanner-action/osv-scanner-action@v2.2.4
+              uses: google/osv-scanner-action/osv-scanner-action@9bb69575e74019c2ad085a1860787043adf47ccb # v2.2.4
               with:
                   scan-args: |-
                       --config=osv-scanner.toml
@@ -216,7 +216,7 @@ jobs:
 
             - name: Upload SARIF to GitHub Security
               if: always() && hashFiles('osv-results.sarif') != ''
-              uses: github/codeql-action/upload-sarif@v4
+              uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
               with:
                   sarif_file: osv-results.sarif
                   category: osv-scanner
@@ -230,17 +230,17 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
             - name: Initialize CodeQL
-              uses: github/codeql-action/init@v4
+              uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
               with:
                   languages: javascript-typescript
                   # security-extended adds higher-precision queries beyond the defaults.
                   queries: security-extended
 
             - name: Analyze
-              uses: github/codeql-action/analyze@v4
+              uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
               with:
                   category: "/language:javascript-typescript"
 
@@ -258,7 +258,7 @@ jobs:
         if: github.actor != 'dependabot[bot]'
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
             # `auto` is augmented with explicit curated rule packs so coverage no
             # longer depends on Semgrep's registry heuristics: OWASP Top Ten,
@@ -287,7 +287,7 @@ jobs:
 
             - name: Upload SARIF to GitHub Security
               if: always() && hashFiles('semgrep.sarif') != ''
-              uses: github/codeql-action/upload-sarif@v4
+              uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
               with:
                   sarif_file: semgrep.sarif
                   category: semgrep

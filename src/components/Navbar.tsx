@@ -27,6 +27,29 @@ function GitHubIcon(): React.JSX.Element {
 	);
 }
 
+/** Documentation ("book") mark SVG icon. */
+function DocsIcon(): React.JSX.Element {
+	return (
+		<svg
+			role="img"
+			viewBox="0 0 24 24"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="1.8"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			width="18"
+			height="18"
+			aria-hidden="true"
+		>
+			<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H18a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5.5A1.5 1.5 0 0 0 4 20.5z" />
+			<path d="M4 20.5A1.5 1.5 0 0 1 5.5 19H19" />
+			<path d="M8 7.5h7M8 11h7" />
+		</svg>
+	);
+}
+
 /** Pill toggle that switches between client and freelancer mode. */
 function RoleToggle(): React.JSX.Element {
 	const { role, setRole } = useRole();
@@ -70,6 +93,7 @@ function RoleToggle(): React.JSX.Element {
 export function Navbar(): React.JSX.Element {
 	const path = usePathname();
 	const githubUrl = process.env.NEXT_PUBLIC_GITHUB_URL;
+	const docsUrl = process.env.NEXT_PUBLIC_DOCS_URL;
 	const t = useTranslations("Nav");
 
 	const linkClass = (href: string): string =>
@@ -80,12 +104,12 @@ export function Navbar(): React.JSX.Element {
 		}`;
 
 	return (
-		<header className="tl-safe-top sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
+		<header className="tl-navbar tl-safe-top sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-gray-950/90">
 			<div className="tl-site-frame grid min-w-0 gap-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)] xl:min-h-16 xl:grid-cols-[auto_minmax(0,1fr)_auto] xl:items-center xl:py-0">
 				<Link
 					href="/"
 					aria-current={path === "/" ? "page" : undefined}
-					className="tl-button-motion flex min-h-11 w-fit shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400 sm:text-xl"
+					className="tl-navbar-brand tl-button-motion flex min-h-11 w-fit shrink-0 items-center gap-2.5 rounded-sm text-lg font-bold tracking-tight text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-indigo-400 sm:text-xl"
 				>
 					<Image
 						src="/trustledger-mark.svg"
@@ -117,6 +141,17 @@ export function Navbar(): React.JSX.Element {
 						<MobileNavMenu />
 					</div>
 					<RoleToggle />
+					{docsUrl !== undefined && docsUrl !== "" && (
+						<a
+							href={docsUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label={t("viewDocs")}
+							className="tl-button-motion hidden min-h-10 min-w-10 items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-white sm:inline-flex"
+						>
+							<DocsIcon />
+						</a>
+					)}
 					{githubUrl !== undefined && githubUrl !== "" && (
 						<a
 							href={githubUrl}

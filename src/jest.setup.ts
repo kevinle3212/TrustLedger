@@ -48,10 +48,21 @@ function translateForTest(namespace: string | undefined, key: string, values?: u
 
 jest.mock("next-intl", () => ({
 	useLocale: (): string => "en",
-	useTranslations:
-		(namespace?: string): ((key: string, values?: unknown) => string) =>
-		(key, values) =>
-			translateForTest(namespace, key, values),
+	useTranslations: (namespace?: string): ((key: string, values?: unknown) => string) => {
+		const translate = (key: string, values?: unknown): string =>
+			translateForTest(namespace, key, values);
+		// Minimal `t.rich` support: resolve the message, then apply any provided
+		// chunk callbacks (e.g. a `link` wrapper) so components using rich text render.
+		(translate as { rich?: unknown }).rich = (
+			key: string,
+			values?: Record<string, (chunks: React.ReactNode) => React.ReactNode>,
+		): React.ReactNode => {
+			const text = translateForTest(namespace, key);
+			const wrap = values ? Object.values(values)[0] : undefined;
+			return typeof wrap === "function" ? wrap(text) : text;
+		};
+		return translate;
+	},
 }));
 
 globalThis.TextDecoder = TextDecoder;

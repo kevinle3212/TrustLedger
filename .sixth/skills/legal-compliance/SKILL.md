@@ -44,6 +44,25 @@ related, or privacy-rights-specific for qualified counsel review.
   "risk-free", "legal advice", "investment advice", and "available everywhere".
 - Keep recommendations concrete and separated from edits.
 
+## Privacy & Cookie Feature Sync (mandatory)
+
+Any change that adds, removes, or alters how personal data is collected, stored,
+processed, exported, deleted, or shared — or that sets/reads/gates on cookies,
+`localStorage`, analytics, or consent — MUST update the policy content in the
+same branch so the docs never describe behavior the code no longer has.
+
+- Update the live, rendered sources: `src/content/legal/PRIVACY_POLICY.md`
+  (Information We Collect, Cookies and Tracking, Data Retention, Your Rights) and
+  `src/content/legal/COOKIE_POLICY.md` (cookie inventory + consent behavior).
+  Bump the `Last Updated` date and `Version` on the privacy policy.
+- Keep the cookie inventory consistent with `lib/cookie-consent.ts` and the
+  consent UI, and cross-check it against every cookie/`localStorage` key the code
+  sets (`trustledger:*`, `wagmi.*`, `@appkit/*`, analytics, consent keys).
+- Claim only functionality that exists; never describe rights the product cannot
+  honor. Flag the draft mirrors (root `PRIVACY_POLICY.md`, root
+  `COOKIE_POLICY.md`, `docs/PRIVACY_POLICY.md`) for owner review when they drift,
+  but do not edit them without explicit per-file approval.
+
 ## Documentation Output
 
 When legal edits are allowed, update committed docs and website references in

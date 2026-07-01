@@ -100,9 +100,15 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 	const [loadWalletUi, setLoadWalletUi] = useState(false);
 	const [loadingWalletUi, setLoadingWalletUi] = useState(false);
 	const [openOnLoadKey, setOpenOnLoadKey] = useState(0);
-	const { address, isConnected, connector } = useAccount();
+	const { address, isConnected, connector, status } = useAccount();
 	const t = useTranslations("Common");
 	const mounted = useMounted();
+
+	// While wagmi restores a persisted session on mount (`reconnectOnMount`), the
+	// account is briefly neither connected nor settled-disconnected. Show a neutral
+	// busy shell for that window instead of the "Connect Wallet" CTA so a returning
+	// user never sees a logged-out flash before the session reappears.
+	const restoring = mounted && (status === "reconnecting" || status === "connecting");
 
 	useEffect(() => {
 		const name = connector?.name;
@@ -140,7 +146,7 @@ export function ConnectButton({ compact = false }: { compact?: boolean } = {}): 
 				onClick={loadAndOpen}
 				onPrepare={prepareWalletUi}
 				label={shellLabel ?? label}
-				busy={loadingWalletUi}
+				busy={loadingWalletUi || restoring}
 			/>
 		);
 	}

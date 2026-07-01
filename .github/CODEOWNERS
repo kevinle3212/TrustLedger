@@ -1,0 +1,25 @@
+# Code owners for TrustLedger.
+#
+# GitHub requests review from the listed owner on any pull request that touches a
+# matching path. This is a review control, not filesystem write-protection: pair
+# it with branch protection that requires Code Owner review (see
+# audits/GOVERNANCE.md). Last matching pattern wins.
+
+# Default owner for everything.
+*                        @kevinle3212
+
+# Audit reports and framework — integrity via review, never "locked".
+/audits/                 @kevinle3212
+
+# Legal drafts must not change without explicit owner approval.
+/*_POLICY.md             @kevinle3212
+/TERMS_AND_CONDITIONS.md @kevinle3212
+/PRIVACY_POLICY.md       @kevinle3212
+/RISK_DISCLOSURE.md      @kevinle3212
+/DISCLAIMER.md           @kevinle3212
+/LICENSE                 @kevinle3212
+
+# CI/CD, security policy, and governance.
+/.github/                @kevinle3212
+/SECURITY.md             @kevinle3212
+/CODEOWNERS              @kevinle3212
