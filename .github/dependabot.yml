@@ -32,11 +32,10 @@ updates:
       directory: "/"
       schedule:
           interval: "weekly"
+      # semver-*-days are only valid for semver ecosystems (npm); actions/docker
+      # support default-days only.
       cooldown:
           default-days: 7
-          semver-major-days: 30
-          semver-minor-days: 7
-          semver-patch-days: 3
 
     # ── Docker base images (docker/Dockerfile.*) ──────────────────────────────
     - package-ecosystem: "docker"
@@ -45,9 +44,6 @@ updates:
           interval: "weekly"
       cooldown:
           default-days: 7
-          semver-major-days: 30
-          semver-minor-days: 7
-          semver-patch-days: 3
 
     # ── Git submodules (contracts/lib/forge-std, contracts/lib/openzeppelin-contracts) ──
     - package-ecosystem: "gitsubmodule"

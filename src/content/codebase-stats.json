@@ -2,8 +2,8 @@
 	"totals": {
 		"files": 836,
 		"directories": 298,
-		"lines": 135154,
-		"bytes": 10709112,
+		"lines": 135150,
+		"bytes": 10709040,
 		"categories": 25
 	},
 	"categories": [
@@ -46,7 +46,7 @@
 		{
 			"name": "YAML",
 			"files": 36,
-			"lines": 2714,
+			"lines": 2710,
 			"share": 2
 		},
 		{
