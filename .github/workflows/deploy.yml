@@ -39,12 +39,12 @@ jobs:
                 working-directory: contracts
         steps:
             - name: Checkout
-              uses: actions/checkout@v7
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
               with:
                   submodules: recursive
 
             - name: Install Foundry
-              uses: foundry-rs/foundry-toolchain@v1
+              uses: foundry-rs/foundry-toolchain@c7450ba673e133f5ee30098b3b54f444d3a2ca2d # v1
               with:
                   version: stable
               env:
@@ -91,7 +91,7 @@ jobs:
             # Keep deployment receipts/addresses for the audit trail.
             - name: Upload broadcast artifacts
               if: always()
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
               with:
                   name: broadcast-${{ github.run_id }}
                   path: contracts/broadcast/

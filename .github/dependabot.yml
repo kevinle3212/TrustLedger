@@ -7,6 +7,13 @@ updates:
       directory: "/"
       schedule:
           interval: "weekly"
+      # Supply-chain cooldown: wait before adopting freshly published versions so
+      # a compromised release has time to be caught and yanked before it lands.
+      cooldown:
+          default-days: 7
+          semver-major-days: 30
+          semver-minor-days: 7
+          semver-patch-days: 3
       groups:
           dev-dependencies:
               dependency-type: "development"
@@ -25,15 +32,27 @@ updates:
       directory: "/"
       schedule:
           interval: "weekly"
+      cooldown:
+          default-days: 7
+          semver-major-days: 30
+          semver-minor-days: 7
+          semver-patch-days: 3
 
     # ── Docker base images (docker/Dockerfile.*) ──────────────────────────────
     - package-ecosystem: "docker"
       directory: "/docker"
       schedule:
           interval: "weekly"
+      cooldown:
+          default-days: 7
+          semver-major-days: 30
+          semver-minor-days: 7
+          semver-patch-days: 3
 
     # ── Git submodules (contracts/lib/forge-std, contracts/lib/openzeppelin-contracts) ──
     - package-ecosystem: "gitsubmodule"
       directory: "/"
       schedule:
           interval: "weekly"
+      cooldown:
+          default-days: 7

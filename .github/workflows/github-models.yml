@@ -62,7 +62,7 @@ jobs:
                       input: "Vercel build failed because a public contract address was missing. No transactions were submitted."
 
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
             # Tolerate transient GitHub Models rate limits (HTTP 429). A 429 is
             # an infrastructure/quota issue, not a prompt regression, so it must
@@ -70,7 +70,7 @@ jobs:
             - name: Run actions/ai-inference
               id: inference
               continue-on-error: true
-              uses: actions/ai-inference@v2
+              uses: actions/ai-inference@a7805884c80886efc241e94a5351df715968a0ad # v2
               with:
                   prompt-file: .github/prompts/${{ matrix.prompt }}
                   input: 'input: "${{ matrix.input }}"'
@@ -105,7 +105,7 @@ jobs:
         continue-on-error: true
         timeout-minutes: 5
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
             - name: Run gh models eval
               continue-on-error: true
@@ -127,9 +127,9 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 5
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
-            - uses: actions/setup-python@v6
+            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with:
                   python-version: "3.12"
 
@@ -145,9 +145,9 @@ jobs:
         name: Error handling (invalid model)
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
-            - uses: actions/setup-python@v6
+            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with:
                   python-version: "3.12"
 
@@ -162,7 +162,7 @@ jobs:
             - name: Invalid prompt-file should fail
               id: bad_inference
               continue-on-error: true
-              uses: actions/ai-inference@v2
+              uses: actions/ai-inference@a7805884c80886efc241e94a5351df715968a0ad # v2
               with:
                   prompt: "Hello"
                   model: invalid/provider-model-id-000
@@ -180,9 +180,9 @@ jobs:
         runs-on: ubuntu-latest
         if: github.event_name == 'workflow_dispatch'
         steps:
-            - uses: actions/checkout@v7
+            - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
-            - uses: actions/setup-python@v6
+            - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
               with:
                   python-version: "3.12"
 
