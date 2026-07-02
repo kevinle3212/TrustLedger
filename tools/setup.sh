@@ -50,7 +50,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 readonly REQUIRED_NODE_MAJOR=22          # package.json engines.node = ">=22.0.0"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-readonly SETUP_GROUPS=(platform git node foundry python gitleaks rtk serena docker npm contracts env hooks smoke)
+readonly SETUP_GROUPS=(platform git node foundry python gitleaks rtk serena graphify docker npm contracts env hooks smoke)
 
 # -----------------------------------------------------------------------------
 # Global state — populated as the script runs, printed in the final report.
@@ -449,6 +449,39 @@ check_serena() {
     fi
 }
 
+# --- graphify (optional: codebase knowledge graph) ---------------------------
+check_graphify() {
+    heading "graphify (optional — codebase knowledge graph)"
+    if has graphify; then
+        ok "graphify present."
+        return
+    fi
+    warn "graphify is not installed (needed for 'npm run graph:*')."
+    if ! has python3 && ! has pip3 && ! has pip; then
+        warn_step "graphify missing (optional)" "Requires Python 3.10+. Install Python, then 'pip install graphifyy && graphify install'. Powers 'npm run graph:*' and the graphify-out/ knowledge graph."
+        return
+    fi
+    [[ "$SKIP_INSTALL" -eq 1 ]] && {
+        warn_step "graphify missing (optional)" "Install with 'pip install graphifyy && graphify install'. Powers 'npm run graph:*' and the graphify-out/ knowledge graph."
+        return
+    }
+    if ask "Install graphify via pip (pip install graphifyy)?"; then
+        if has pip3; then
+            pip3 install graphifyy
+        elif has pip; then
+            pip install graphifyy
+        else
+            python3 -m pip install graphifyy
+        fi
+    fi
+    if has graphify; then
+        ok "graphify installed."
+        manual_step "Build the graph with 'npm run graph:build' (AST-only, no API cost); refresh it after code changes with 'npm run graph:update'."
+    else
+        warn_step "graphify missing (optional)" "Install with 'pip install graphifyy && graphify install', then run 'npm run graph:build'."
+    fi
+}
+
 # --- Docker (optional: local demos, CI parity, reproducible test containers) ---
 check_docker() {
     heading "Docker (optional — demos and CI parity)"
@@ -620,6 +653,7 @@ main() {
     run_group gitleaks check_gitleaks
     run_group rtk check_rtk
     run_group serena check_serena
+    run_group graphify check_graphify
     run_group docker check_docker
     run_group npm install_npm_deps
     run_group contracts install_contracts

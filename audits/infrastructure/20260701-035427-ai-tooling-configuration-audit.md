@@ -83,8 +83,10 @@ Serena context — Cursor's `cursor` was not, which is why serena failed there;
 
 ## Follow-up Actions
 
-- [ ] Reconnect serena in each assistant's `/mcp` after these config changes.
-- [ ] Optionally add an MCP-config parity/lint check.
+- [ ] Reconnect serena in each assistant's `/mcp` after these config changes —
+      manual per-assistant user action; cannot be automated from the repo.
+- [x] Optionally add an MCP-config parity/lint check — done in
+      `20260702-051105-mcp-config-parity-check.md` (`npm run lint:mcp`).
 
 ## Remaining Work
 

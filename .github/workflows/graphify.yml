@@ -1,0 +1,56 @@
+name: Graphify Knowledge Graph
+
+# Rebuilds the graphify knowledge graph (AST-only, no API cost) so reviewers can
+# download an up-to-date graph.json / wiki without running the tool locally.
+# graphify-out/ is git-ignored, so this never commits generated output.
+# The job is advisory: it must never block a merge (continue-on-error: true).
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "src/**"
+            - "contracts/src/**"
+            - "tools/**"
+            - "scripts/**"
+            - ".graphifyignore"
+    workflow_dispatch:
+
+concurrency:
+    group: graphify-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    build-graph:
+        name: Build knowledge graph
+        runs-on: ubuntu-latest
+        continue-on-error: true
+        steps:
+            - name: Checkout
+              uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+
+            - name: Set up Python
+              uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+              with:
+                  python-version: "3.x"
+
+            - name: Install graphify
+              run: pip install graphifyy
+
+            - name: Build graph (AST-only, no API cost)
+              run: graphify . --update || graphify .
+
+            - name: Verify graph output
+              run: npm run graph:check
+
+            - name: Upload graph artifact
+              if: always()
+              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+              with:
+                  name: graphify-out
+                  path: graphify-out/
+                  if-no-files-found: ignore
+                  retention-days: 14

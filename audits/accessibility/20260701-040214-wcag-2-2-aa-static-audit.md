@@ -76,8 +76,10 @@ banner element finishes animating from `opacity: 0`).
 
 ## Follow-up Actions
 
-- [ ] Expand the axe gate coverage (more routes) and add the `wcag22aa` tag.
-- [ ] Human screen-reader + Lighthouse pass on the 28 routes.
+- [x] Expand the axe gate coverage (more routes) and add the `wcag22aa` tag —
+      resolved in the `20260702-051105-axe-gate-expansion-wcag-2-2.md` report.
+- [ ] Human screen-reader + Lighthouse pass on the 28 routes — not automatable
+      in this environment (no screen readers or real browsers); needs a human.
 
 ## Remaining Work
 

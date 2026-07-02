@@ -28,7 +28,8 @@
 		".markdownlintignore": "ignore",
 		".vercelignore": "ignore",
 		"LICENSE": "plaintext",
-		".gitleaksignore": "ignore"
+		".gitleaksignore": "ignore",
+		".graphifyignore": "ignore"
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": [
