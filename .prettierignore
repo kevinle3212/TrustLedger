@@ -31,6 +31,9 @@ src/.next/
 src/out/
 src/next-env.d.ts
 
+# ─── Generated Prisma Client ─────────────────────────────────────────────────
+src/lib/generated/prisma/
+
 # ─── Vercel local metadata ───────────────────────────────────────────────────
 .vercel/
 src/.vercel/

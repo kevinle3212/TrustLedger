@@ -203,6 +203,11 @@
 				"kicker": "History from completed work"
 			}
 		},
+		"previewDemoPhases": {
+			"pending": "Exploratory",
+			"active": "Simulated",
+			"approved": "Example State"
+		},
 		"viewSolanaProgram": "View Solana system program on {network}",
 		"solanaNativeProgram": "Solana Native-Program: {network}",
 		"checkConfig": "(check config)",
@@ -556,7 +561,7 @@
 	"Reputation": {
 		"title": "Reputation",
 		"subtitle": "Look up cumulative escrow ratings from completed TrustLedger contracts.",
-		"walletAddress": "Wallet address",
+		"walletAddress": "Wallet Address",
 		"lookUp": "Look up",
 		"useMyWallet": "Use My Wallet",
 		"connectToLookUp": "Connect to look up your own address quickly.",
@@ -1066,14 +1071,14 @@
 		"trafficEmpty": "No aggregate traffic events are stored for the current runtime.",
 		"contractId": "Contract ID",
 		"disputeId": "Dispute ID",
-		"walletAddress": "Wallet address",
+		"walletAddress": "Wallet Address",
 		"lookupPlaceholder": "Read-only lookup scaffold",
 		"signInEyebrow": "Restricted Operator Access",
-		"signInTitle": "TrustLedger admin sign in",
+		"signInTitle": "TrustLedger Admin Sign In",
 		"signInIntro": "Use a configured admin account. Passwords are verified against server-side PBKDF2 hashes, and access can also be restricted by IP and wallet allowlist.",
-		"emailOrUsername": "Email or username",
+		"emailOrUsername": "Email or Username",
 		"password": "Password",
-		"openAdminDashboard": "Open admin dashboard"
+		"openAdminDashboard": "Open Admin Dashboard"
 	},
 	"Stats": {
 		"eyebrow": "Project Scale",

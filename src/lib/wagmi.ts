@@ -1,7 +1,7 @@
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { arbitrum, type AppKitNetwork, base, optimism, sepolia } from "@reown/appkit/networks";
 import { createConfig, http } from "wagmi";
-import { mock } from "wagmi/connectors";
+import { coinbaseWallet, injected, mock } from "wagmi/connectors";
 import {
 	arbitrum as arbitrumChain,
 	base as baseChain,
@@ -288,10 +288,21 @@ export const appUrl =
 
 // The wagmi adapter builds the wagmi config AppKit drives. `ssr: true` mirrors
 // the previous getDefaultConfig setup so Next.js server rendering stays correct.
+//
+// `connectors` registers a standalone injected + Coinbase connector in the
+// wagmi config from the first mount, *before* AppKit initializes. This is the
+// key to session persistence across reload / direct URL / back-forward: wagmi's
+// `reconnectOnMount` (and our `InjectedSessionRestore` helper) can only restore
+// a connector that already exists in the config. AppKit registers its own
+// connectors lazily via `syncConnectors`, so without these an injected wallet
+// has nothing to reconnect to until the heavy AppKit chunk loads — the cause of
+// the logout-on-navigation bug. Restore stays purely client-side (no SSR cookie
+// reads), so static rendering is unaffected.
 export const wagmiAdapter = new WagmiAdapter({
 	networks,
 	projectId,
 	ssr: true,
+	connectors: [injected({ shimDisconnect: true }), coinbaseWallet({ appName: "TrustLedger" })],
 });
 
 /**

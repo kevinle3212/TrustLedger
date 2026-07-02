@@ -16,7 +16,6 @@ interface InteractiveContractPreviewProps {
 	readonly holdBackLabel: string;
 	readonly documentLabel: string;
 	readonly viewLabel: string;
-	readonly statuses: Readonly<Record<ContractPhase, string>>;
 }
 
 const PHASES = ["PENDING", "ACTIVE", "APPROVED"] as const satisfies readonly ContractPhase[];
@@ -86,7 +85,6 @@ export function InteractiveContractPreview({
 	holdBackLabel,
 	documentLabel,
 	viewLabel,
-	statuses,
 }: InteractiveContractPreviewProps): React.JSX.Element {
 	const t = useTranslations("Home");
 	// Open on PENDING so the example contract starts Unverified at 0% progress.
@@ -110,6 +108,19 @@ export function InteractiveContractPreview({
 		[scene, scenes],
 	);
 	const activeScene = scenes[sceneIndex] ?? scenes[0] ?? FALLBACK_SCENE;
+
+	// This is a UI demo, not a live contract, so the badge and stepper use neutral
+	// demo labels (Exploratory / Simulated / Example State) rather than the real
+	// PENDING/ACTIVE/APPROVED contract states, which would imply blockchain
+	// semantics that don't apply to the preview.
+	const phaseLabels = useMemo(
+		(): Readonly<Record<ContractPhase, string>> => ({
+			PENDING: t("previewDemoPhases.pending"),
+			ACTIVE: t("previewDemoPhases.active"),
+			APPROVED: t("previewDemoPhases.approved"),
+		}),
+		[t],
+	);
 
 	const phaseIndex = useMemo(() => PHASES.indexOf(phase), [phase]);
 
@@ -178,7 +189,7 @@ export function InteractiveContractPreview({
 						</h2>
 					</div>
 					<span className="tl-status-badge tl-status-badge--active rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
-						{statuses[phase]}
+						{phaseLabels[phase]}
 					</span>
 				</div>
 
@@ -198,7 +209,7 @@ export function InteractiveContractPreview({
 									item === phase ? "text-indigo-600 dark:text-indigo-300" : ""
 								}
 							>
-								{statuses[item]}
+								{phaseLabels[item]}
 							</span>
 						))}
 					</div>
@@ -331,7 +342,7 @@ export function InteractiveContractPreview({
 						aria-pressed={item === phase}
 					>
 						<span className="font-mono text-[0.65rem] text-gray-400">0{index + 1}</span>{" "}
-						{statuses[item]}
+						{phaseLabels[item]}
 					</button>
 				))}
 			</div>

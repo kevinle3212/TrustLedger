@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { GoBackButton } from "@/components/GoBackButton";
-import { ErrorScene } from "@/components/ErrorStateContent";
+import { CowErrorScene } from "@/components/CowErrorScene";
 
 /**
  * Locale-scoped error boundary for the App Router. Catches uncaught runtime
@@ -64,7 +64,7 @@ export default function LocaleError({
 					</div>
 				</div>
 				<div className="mx-auto flex w-full max-w-80 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 p-6 text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-300">
-					<ErrorScene />
+					<CowErrorScene />
 				</div>
 			</div>
 		</section>

@@ -1,0 +1,158 @@
+// TrustLedger off-chain database schema (PostgreSQL via Prisma).
+//
+// This complements the on-chain source of truth (escrow, arbitration, juror,
+// and reputation contracts) with off-chain metadata that is impractical or too
+// expensive to keep on-chain: rich text, indexed history, dispute evidence
+// pointers, juror analytics, and privacy-preserving aggregate metrics.
+//
+// See NOTES.md ("Off-chain database") for the rationale behind PostgreSQL +
+// Prisma + Neon. Nothing here is authoritative over the chain; on-chain data
+// always wins on conflict. Connection settings come from the environment
+// (DATABASE_URL / DIRECT_URL) — never hardcode credentials.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  // Prisma 7 moves connection URLs out of the schema. The app connects at
+  // runtime through a driver adapter (see src/lib/db/client.ts) using
+  // DATABASE_URL, and `prisma migrate` reads DIRECT_URL/DATABASE_URL from
+  // prisma.config.ts. No credentials live in this file.
+  provider = "postgresql"
+}
+
+/// Lifecycle status mirrored from the escrow contract, cached off-chain for
+/// fast listing and filtering. The chain remains authoritative.
+enum ContractStatus {
+  PENDING
+  ACTIVE
+  SUBMITTED
+  APPROVED
+  DISPUTED
+  RESOLVED
+  CANCELLED
+}
+
+/// Off-chain view of a dispute's lifecycle.
+enum DisputeStatus {
+  OPEN
+  COMMITTING
+  REVEALING
+  RESOLVED
+  CANCELLED
+}
+
+/// Revealed juror vote in the commit-reveal arbitration flow.
+enum VoteChoice {
+  CLIENT
+  FREELANCER
+  ABSTAIN
+}
+
+/// Off-chain metadata for an on-chain escrow contract. Keyed by (chainId,
+/// contractAddress, onChainId) so the same logical contract is unique per chain.
+model ContractMetadata {
+  id                String         @id @default(cuid())
+  chainId           Int
+  contractAddress   String
+  onChainId         BigInt
+  title             String?
+  description       String?
+  clientAddress     String
+  freelancerAddress String?
+  tokenSymbol       String         @default("ETH")
+  amount            Decimal        @db.Decimal(78, 0)
+  holdBackBps       Int            @default(0)
+  status            ContractStatus @default(PENDING)
+  ipfsCid           String?
+  metadataVersion   String         @default("1")
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  disputes Dispute[]
+
+  @@unique([chainId, contractAddress, onChainId])
+  @@index([clientAddress])
+  @@index([freelancerAddress])
+  @@index([status])
+  @@map("contract_metadata")
+}
+
+/// Off-chain record of an arbitration dispute, including evidence pointers.
+model Dispute {
+  id                 String        @id @default(cuid())
+  chainId            Int
+  onChainDisputeId   BigInt
+  contractMetadataId String?
+  status             DisputeStatus @default(OPEN)
+  evidenceCid        String?
+  outcome            VoteChoice?
+  openedAt           DateTime      @default(now())
+  resolvedAt         DateTime?
+
+  contract ContractMetadata? @relation(fields: [contractMetadataId], references: [id], onDelete: SetNull)
+  votes    JurorVote[]
+
+  @@unique([chainId, onChainDisputeId])
+  @@index([status])
+  @@map("disputes")
+}
+
+/// Off-chain juror profile and reputation/analytics cache.
+model Juror {
+  id              String   @id @default(cuid())
+  chainId         Int
+  walletAddress   String
+  stakeAmount     Decimal  @default(0) @db.Decimal(78, 0)
+  reputationScore Int      @default(0)
+  casesVoted      Int      @default(0)
+  casesWon        Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  lastActiveAt    DateTime @default(now())
+
+  votes JurorVote[]
+
+  @@unique([chainId, walletAddress])
+  @@index([reputationScore])
+  @@map("jurors")
+}
+
+/// A single juror's participation in a dispute's commit-reveal round.
+model JurorVote {
+  id           String      @id @default(cuid())
+  jurorId      String
+  disputeId    String
+  commitHash   String?
+  revealedVote VoteChoice?
+  rewardAmount Decimal     @default(0) @db.Decimal(78, 0)
+  committedAt  DateTime    @default(now())
+  revealedAt   DateTime?
+
+  juror   Juror   @relation(fields: [jurorId], references: [id], onDelete: Cascade)
+  dispute Dispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+
+  @@unique([jurorId, disputeId])
+  @@index([disputeId])
+  @@map("juror_votes")
+}
+
+/// Privacy-preserving aggregate analytics counter. Stores no wallet addresses,
+/// raw IPs, or user agents — only bucketed event type + day + count, so it is
+/// safe to retain. Mirrors the in-memory analytics collector for durability.
+model AnalyticsAggregate {
+  id        String   @id @default(cuid())
+  eventType String
+  day       DateTime @db.Date
+  // 0 means "all chains" (chain-agnostic aggregate). Kept non-null so the
+  // composite unique key can target rows deterministically.
+  chainId   Int      @default(0)
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventType, day, chainId])
+  @@index([day])
+  @@map("analytics_aggregates")
+}

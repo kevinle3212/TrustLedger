@@ -753,6 +753,109 @@ for off-chain profiles, notification preferences, and rebuildable event indexes.
 The database should support user experience, not replace the blockchain-backed
 contract state.
 
+### Off-chain database: PostgreSQL + Prisma on Neon (2026-07-01)
+
+**Decision:** Adopt **PostgreSQL** as the single off-chain database, accessed
+through **Prisma 7** with the **node-postgres driver adapter**, hosted on
+**Neon** (serverless Postgres via the Vercel Marketplace). This supersedes the
+earlier "defer to Phase 6" stance (see the Supabase evaluation above): the
+schema, client, repositories, migrations, and configuration now live in the repo
+so the data layer is ready the moment a connection string is provisioned.
+
+**Why PostgreSQL (not MongoDB):** the data is relational and integrity-sensitive
+— contracts ↔ disputes ↔ juror votes are foreign-key relationships, uint256
+amounts need exact `DECIMAL(78,0)` (not float), and analytics benefit from SQL
+aggregation. Postgres gives transactions, constraints, and mature tooling. The
+workload is not document-shaped, so MongoDB's flexibility would cost integrity.
+
+**Why Prisma:** type-safe client generated from a single schema, first-class
+migrations, and excellent DX — matching the repo's strict-TypeScript standards.
+Prisma 7's driver-adapter model (node-postgres) works with any Postgres,
+including Neon's pooled connection and local Docker Postgres, avoiding lock-in.
+
+**Why Neon:** serverless, autoscaling, scale-to-zero, generous free tier, and a
+native Vercel Marketplace integration that auto-provisions `DATABASE_URL`. Fits
+Vercel Fluid Compute; the pooled endpoint handles serverless connection churn.
+
+**What it stores (never authoritative over the chain):** off-chain contract
+metadata (title/description/IPFS pointers + a cached status mirror), dispute
+records and evidence pointers, juror profiles/analytics, juror votes, and
+privacy-preserving aggregate analytics. On conflict, the chain always wins.
+
+**Layout:** `src/prisma/schema.prisma` (models), `src/prisma.config.ts` (Prisma
+7 config; connection URLs come from env), `src/lib/db/client.ts` (lazy, cached
+`PrismaClient` singleton with the pg adapter), `src/lib/db/repositories/*`
+(typed data-access functions), `src/prisma/migrations/` (initial migration).
+The generated client goes to `src/lib/generated/prisma` (gitignored, produced by
+`prisma generate` on install/build). Scripts: `db:generate`, `db:migrate`,
+`db:migrate:dev`, `db:studio`.
+
+**Graceful degradation:** the client is created lazily and only throws when a
+caller actually needs the DB without `DATABASE_URL`, so the app builds and runs
+with database features dormant until credentials are set.
+
+**Remaining user actions:** provision Neon (or any Postgres), set `DATABASE_URL`
+(pooled) and optionally `DIRECT_URL` (direct, for migrations) in the environment
+and Vercel, then run `npm run db:migrate` to apply the initial migration.
+
+### AI infrastructure: provider-agnostic core (2026-07-01)
+
+**Decision:** Build the Phase 4 AI foundation as a **vendor-neutral** layer in
+`src/core/ai`. No provider is hardcoded: providers are described by
+configuration and implemented behind a small `AiProvider` interface, selected by
+a registry + router. Adding a backend is a new adapter file plus config — call
+sites never change.
+
+**Components:** neutral types (`types.ts`), env-driven config (`config.ts`),
+prompt templates (`prompt.ts`), a provider registry (`registry.ts`), a
+config-based model router (`router.ts`), the high-level service
+(`service.ts` — `generateText` / `streamText` / `collectStream`), and adapters:
+a generic **OpenAI-compatible** HTTP adapter (works with OpenAI, Groq, Together,
+OpenRouter, the Vercel AI Gateway, or a self-hosted model) and a built-in
+**disabled** placeholder so the app runs with zero AI config. Streaming is
+supported via SSE. Feature routing supports per-task provider/model overrides.
+
+**Why this shape:** the existing single-purpose contract-summary service
+(`services/contractSummary.ts`) hardcoded Groq/Gemini branches — fine for one
+feature, but not a foundation. The new core lets future AI features (moderation,
+assistance, richer summaries) share one abstraction and swap providers without
+code changes, which is why provider names never appear in call sites.
+
+**Required to enable (see `.env.example` "AI infrastructure"):** either the
+simple single-provider vars (`AI_PROVIDER_KIND=openai-compatible`, `AI_BASE_URL`,
+`AI_API_KEY`, `AI_DEFAULT_MODEL`) or the advanced `AI_PROVIDERS_JSON` +
+`AI_ROUTES_JSON`. `AI_ENABLED=false` forces the placeholder. **Required API
+keys/services:** an API key for whichever OpenAI-compatible endpoint is chosen
+(e.g. OpenAI, Groq, or the Vercel AI Gateway). No keys are committed.
+
+### Wallet session persistence across navigation (2026-07-01)
+
+**Symptom:** wallets appeared logged out after a refresh, manual URL change, or
+back/forward navigation.
+
+**Root cause:** the Reown AppKit wagmi adapter builds its wagmi config with an
+**empty connector set** and only registers connectors once the (lazy, gated)
+AppKit chunk initializes. So on mount `reconnectOnMount` had no connector to
+reconnect, and restore hinged entirely on AppKit's async `syncConnectors` — which
+left injected wallets logged out whenever that path didn't complete in time.
+
+**Fix (keeps SSG intact, no SSR cookie reads):**
+
+1. Register a standalone `injected()` + `coinbaseWallet()` connector directly on
+   the `WagmiAdapter` config, so an injected connector exists from first mount
+   and `reconnectOnMount` can restore it synchronously, independent of AppKit
+   (`src/lib/wagmi.ts`).
+2. Add `InjectedSessionRestore` in `src/components/Providers.tsx`: after
+   hydration, if wagmi is still disconnected and `window.ethereum` reports the
+   origin as already authorized (`eth_accounts`, which never prompts), connect
+   the injected connector. This is the agreed "synchronous restore for injected
+   wallets independent of AppKit" fallback. It self-limits (never prompts, bails
+   once connected) so it cannot fight AppKit's own restore.
+
+WalletConnect sessions still restore through AppKit's gated eager init. **Needs
+real-wallet verification** (MetaMask/Coinbase across refresh, URL change, and
+back/forward).
+
 ## Technical Debt
 
 <!--

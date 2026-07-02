@@ -16,6 +16,9 @@
 out/
 next-env.d.ts
 
+# ─── Generated Prisma Client ─────────────────────────────────────────────────
+lib/generated/prisma/
+
 # ─── Package manager ─────────────────────────────────────────────────────────
 node_modules/
 package-lock.json
