@@ -10,6 +10,11 @@ startup_timeout_sec = 15
 command = "serena"
 args = ["start-mcp-server", "--project-from-cwd", "--context=codex"]
 
+# Keep ANSI colour codes out of the stdio JSON-RPC stream, matching every other
+# assistant's serena entry.
+[mcp_servers.serena.env]
+NO_COLOR = "1"
+
 # Nexus Graph mirrors the Claude setup: it serves a pre-indexed code graph for
 # token-budgeted context via the project wrapper (matches `.mcp.json` and the
 # `nexus:server` npm script). Refresh the graph with `npm run nexus:index` after

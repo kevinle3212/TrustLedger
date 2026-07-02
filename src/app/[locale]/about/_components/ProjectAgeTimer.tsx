@@ -57,7 +57,18 @@ export function ProjectAgeTimer(): React.JSX.Element {
 						key={label}
 						className="rounded-xl border border-indigo-200/80 bg-white/70 px-3 py-3 text-center dark:border-indigo-300/15 dark:bg-gray-950/35"
 					>
-						<p className="font-mono text-2xl font-bold tabular-nums text-indigo-950 dark:text-white">
+						{/*
+						 * The server renders the age at request time; the client
+						 * re-reads Date.now() at hydration, so these digits differ
+						 * by up to a second. That is the canonical "live clock"
+						 * hydration case — suppress the warning for this text node
+						 * rather than emitting a stale placeholder. The interval in
+						 * useVisibleTimestamp keeps it live thereafter.
+						 */}
+						<p
+							className="font-mono text-2xl font-bold tabular-nums text-indigo-950 dark:text-white"
+							suppressHydrationWarning
+						>
 							{String(value).padStart(pad ? 2 : 1, "0")}
 						</p>
 						<p className="mt-1 text-xs font-semibold text-indigo-800/70 dark:text-indigo-100/70">
