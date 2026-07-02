@@ -785,8 +785,8 @@ privacy-preserving aggregate analytics. On conflict, the chain always wins.
 **Layout:** `src/prisma/schema.prisma` (models), `src/prisma.config.ts` (Prisma
 7 config; connection URLs come from env), `src/lib/db/client.ts` (lazy, cached
 `PrismaClient` singleton with the pg adapter), `src/lib/db/repositories/*`
-(typed data-access functions), `src/prisma/migrations/` (initial migration).
-The generated client goes to `src/lib/generated/prisma` (gitignored, produced by
+(typed data-access functions), `src/prisma/migrations/` (initial migration). The
+generated client goes to `src/lib/generated/prisma` (gitignored, produced by
 `prisma generate` on install/build). Scripts: `db:generate`, `db:migrate`,
 `db:migrate:dev`, `db:studio`.
 
@@ -808,9 +808,9 @@ sites never change.
 
 **Components:** neutral types (`types.ts`), env-driven config (`config.ts`),
 prompt templates (`prompt.ts`), a provider registry (`registry.ts`), a
-config-based model router (`router.ts`), the high-level service
-(`service.ts` — `generateText` / `streamText` / `collectStream`), and adapters:
-a generic **OpenAI-compatible** HTTP adapter (works with OpenAI, Groq, Together,
+config-based model router (`router.ts`), the high-level service (`service.ts` —
+`generateText` / `streamText` / `collectStream`), and adapters: a generic
+**OpenAI-compatible** HTTP adapter (works with OpenAI, Groq, Together,
 OpenRouter, the Vercel AI Gateway, or a self-hosted model) and a built-in
 **disabled** placeholder so the app runs with zero AI config. Streaming is
 supported via SSE. Feature routing supports per-task provider/model overrides.
@@ -822,11 +822,12 @@ assistance, richer summaries) share one abstraction and swap providers without
 code changes, which is why provider names never appear in call sites.
 
 **Required to enable (see `.env.example` "AI infrastructure"):** either the
-simple single-provider vars (`AI_PROVIDER_KIND=openai-compatible`, `AI_BASE_URL`,
-`AI_API_KEY`, `AI_DEFAULT_MODEL`) or the advanced `AI_PROVIDERS_JSON` +
-`AI_ROUTES_JSON`. `AI_ENABLED=false` forces the placeholder. **Required API
-keys/services:** an API key for whichever OpenAI-compatible endpoint is chosen
-(e.g. OpenAI, Groq, or the Vercel AI Gateway). No keys are committed.
+simple single-provider vars (`AI_PROVIDER_KIND=openai-compatible`,
+`AI_BASE_URL`, `AI_API_KEY`, `AI_DEFAULT_MODEL`) or the advanced
+`AI_PROVIDERS_JSON` + `AI_ROUTES_JSON`. `AI_ENABLED=false` forces the
+placeholder. **Required API keys/services:** an API key for whichever
+OpenAI-compatible endpoint is chosen (e.g. OpenAI, Groq, or the Vercel AI
+Gateway). No keys are committed.
 
 ### Wallet session persistence across navigation (2026-07-01)
 
@@ -836,8 +837,9 @@ back/forward navigation.
 **Root cause:** the Reown AppKit wagmi adapter builds its wagmi config with an
 **empty connector set** and only registers connectors once the (lazy, gated)
 AppKit chunk initializes. So on mount `reconnectOnMount` had no connector to
-reconnect, and restore hinged entirely on AppKit's async `syncConnectors` — which
-left injected wallets logged out whenever that path didn't complete in time.
+reconnect, and restore hinged entirely on AppKit's async `syncConnectors` —
+which left injected wallets logged out whenever that path didn't complete in
+time.
 
 **Fix (keeps SSG intact, no SSR cookie reads):**
 

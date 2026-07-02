@@ -2,8 +2,8 @@
 	"totals": {
 		"files": 857,
 		"directories": 306,
-		"lines": 136653,
-		"bytes": 10800621,
+		"lines": 136654,
+		"bytes": 10800655,
 		"categories": 26
 	},
 	"categories": [
@@ -34,7 +34,7 @@
 		{
 			"name": "JSON",
 			"files": 49,
-			"lines": 12728,
+			"lines": 12729,
 			"share": 9.3
 		},
 		{

@@ -217,11 +217,7 @@ export function Providers({ children }: { children: React.ReactNode }): React.JS
 				 */}
 				<WagmiProvider config={config} reconnectOnMount>
 					<QueryClientProvider client={queryClient}>
-						{isE2eMockWallet ? (
-							<E2eMockWalletAutoConnect />
-						) : (
-							<WalletSessionRestore />
-						)}
+						{isE2eMockWallet ? <E2eMockWalletAutoConnect /> : <WalletSessionRestore />}
 						<InactivityWatcher />
 						{children}
 					</QueryClientProvider>

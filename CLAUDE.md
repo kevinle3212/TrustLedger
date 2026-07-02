@@ -292,24 +292,24 @@ Keep these conventions when touching the layers added in the Phase 4 / off-chain
 work. The chain stays authoritative; these are supporting infrastructure.
 
 - **Off-chain database** — PostgreSQL via Prisma 7 (node-postgres adapter),
-    hosted on Neon. Schema: `src/prisma/schema.prisma`; config:
-    `src/prisma.config.ts`; server-only client + repositories: `src/lib/db/`
-    (import from `@/lib/db`). The generated client (`src/lib/generated/prisma`)
-    is gitignored and produced by `prisma generate` (runs on install/build).
-    Manage with `npm run db:generate | db:migrate | db:migrate:dev | db:studio`.
-    Never import `@/lib/db` from a Client Component. Rationale in NOTES.md.
+  hosted on Neon. Schema: `src/prisma/schema.prisma`; config:
+  `src/prisma.config.ts`; server-only client + repositories: `src/lib/db/`
+  (import from `@/lib/db`). The generated client (`src/lib/generated/prisma`) is
+  gitignored and produced by `prisma generate` (runs on install/build). Manage
+  with `npm run db:generate | db:migrate | db:migrate:dev | db:studio`. Never
+  import `@/lib/db` from a Client Component. Rationale in NOTES.md.
 - **AI infrastructure** — provider-agnostic core at `src/core/ai` (import from
-    `@/core/ai`). Never hardcode a provider in call sites; add backends as
-    adapters + config. Use `generateText` / `streamText`. Server-only.
+  `@/core/ai`). Never hardcode a provider in call sites; add backends as
+  adapters + config. Use `generateText` / `streamText`. Server-only.
 - **Sensitive-route protection** — `src/proxy.ts` (Next.js 16's proxy, not a
-    `middleware.ts`) IP-gates `/admin` and `/api/admin/*` via
-    `SENSITIVE_ALLOWED_IPS` (falls back to `ADMIN_ALLOWED_IPS`); blocked IPs get
-    a branded 404 that never leaks the route. Add new sensitive segments to
-    `SENSITIVE_SEGMENTS` there.
+  `middleware.ts`) IP-gates `/admin` and `/api/admin/*` via
+  `SENSITIVE_ALLOWED_IPS` (falls back to `ADMIN_ALLOWED_IPS`); blocked IPs get a
+  branded 404 that never leaks the route. Add new sensitive segments to
+  `SENSITIVE_SEGMENTS` there.
 - **Error pages** — every branded error surface (404/401/403/5xx and the route
-    error boundary) shares one animated scene, `CowErrorScene`
-    (`src/components/CowErrorScene.tsx`): a cow walks in, falls into a hole,
-    then the status message renders. Transform-only (no layout shift), frozen under
+  error boundary) shares one animated scene, `CowErrorScene`
+  (`src/components/CowErrorScene.tsx`): a cow walks in, falls into a hole, then
+  the status message renders. Transform-only (no layout shift), frozen under
   `prefers-reduced-motion`. Reuse it; do not add per-page scenes.
 - **Wallet session restore** — all wallet types persist across reload/navigation
   via standalone `injected()` + `coinbaseWallet()` connectors in
