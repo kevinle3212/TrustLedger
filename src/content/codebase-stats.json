@@ -2,8 +2,8 @@
 	"totals": {
 		"files": 862,
 		"directories": 306,
-		"lines": 137215,
-		"bytes": 10824179,
+		"lines": 137210,
+		"bytes": 10824005,
 		"categories": 26
 	},
 	"categories": [
@@ -88,7 +88,7 @@
 		{
 			"name": "TOML",
 			"files": 15,
-			"lines": 476,
+			"lines": 471,
 			"share": 0.3
 		},
 		{
