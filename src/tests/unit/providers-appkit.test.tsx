@@ -34,11 +34,15 @@ jest.mock("wagmi", () => ({
 		wagmiProviderProps({ reconnectOnMount: props.reconnectOnMount });
 		return props.children;
 	},
-	useAccount: (): { isConnected: boolean } => ({ isConnected: false }),
+	useAccount: (): { isConnected: boolean; status: string } => ({
+		isConnected: false,
+		status: "disconnected",
+	}),
 	useConnect: (): { connect: jest.Mock; connectors: [] } => ({
 		connect: jest.fn(),
 		connectors: [],
 	}),
+	useReconnect: (): { reconnect: jest.Mock } => ({ reconnect: jest.fn() }),
 }));
 
 jest.mock("@tanstack/react-query", () => ({

@@ -1,46 +1,46 @@
 {
 	"totals": {
-		"files": 836,
-		"directories": 298,
-		"lines": 135154,
-		"bytes": 10709141,
-		"categories": 25
+		"files": 857,
+		"directories": 306,
+		"lines": 136654,
+		"bytes": 10800655,
+		"categories": 26
 	},
 	"categories": [
 		{
 			"name": "Solidity",
 			"files": 78,
 			"lines": 34405,
-			"share": 25.5
+			"share": 25.2
 		},
 		{
 			"name": "Markdown",
 			"files": 218,
-			"lines": 33937,
-			"share": 25.1
+			"lines": 34078,
+			"share": 24.9
 		},
 		{
 			"name": "TypeScript",
-			"files": 181,
-			"lines": 21523,
-			"share": 15.9
+			"files": 197,
+			"lines": 22558,
+			"share": 16.5
 		},
 		{
 			"name": "React",
-			"files": 120,
-			"lines": 17283,
-			"share": 12.8
+			"files": 122,
+			"lines": 17344,
+			"share": 12.7
 		},
 		{
 			"name": "JSON",
 			"files": 49,
-			"lines": 12665,
-			"share": 9.4
+			"lines": 12729,
+			"share": 9.3
 		},
 		{
 			"name": "JavaScript",
 			"files": 24,
-			"lines": 2740,
+			"lines": 2747,
 			"share": 2
 		},
 		{
@@ -53,12 +53,12 @@
 			"name": "Python",
 			"files": 21,
 			"lines": 2246,
-			"share": 1.7
+			"share": 1.6
 		},
 		{
 			"name": "CSS",
 			"files": 4,
-			"lines": 2099,
+			"lines": 2142,
 			"share": 1.6
 		},
 		{
@@ -76,7 +76,7 @@
 		{
 			"name": "Ignore/System Files",
 			"files": 23,
-			"lines": 559,
+			"lines": 572,
 			"share": 0.4
 		},
 		{
@@ -86,15 +86,15 @@
 			"share": 0.4
 		},
 		{
-			"name": "Text Files",
-			"files": 10,
+			"name": "TOML",
+			"files": 15,
 			"lines": 471,
 			"share": 0.3
 		},
 		{
-			"name": "TOML",
-			"files": 14,
-			"lines": 468,
+			"name": "Text Files",
+			"files": 10,
+			"lines": 471,
 			"share": 0.3
 		},
 		{
@@ -104,9 +104,15 @@
 			"share": 0.2
 		},
 		{
+			"name": "SQL",
+			"files": 1,
+			"lines": 123,
+			"share": 0.1
+		},
+		{
 			"name": "Configuration Files",
 			"files": 6,
-			"lines": 99,
+			"lines": 109,
 			"share": 0.1
 		},
 		{

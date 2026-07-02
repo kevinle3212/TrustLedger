@@ -3,7 +3,14 @@
 	"paths": {
 		"@/*": ["./*"]
 	},
-	"entry": ["security/index.ts!", "core/index.ts!", "scripts/*.mjs"],
+	"entry": [
+		"security/index.ts!",
+		"core/index.ts!",
+		"core/ai/index.ts!",
+		"lib/db/index.ts!",
+		"prisma.config.ts",
+		"scripts/*.mjs"
+	],
 	"ignoreFiles": [
 		".next/**",
 		".vercel/**",
@@ -13,9 +20,11 @@
 		"doctor.config.ts",
 		"env.d.ts",
 		"jest.setup.ts",
+		"lib/generated/**",
 		"playwright-report/**",
 		"test-results/**"
 	],
+	"ignoreDependencies": ["@prisma/client", "pg", "prisma", "server-only"],
 	"ignoreIssues": {
 		"components/ReactScanMonitor.tsx": ["unlisted"],
 		"controllers/accountProfileController.ts": ["unlisted"],

@@ -1,6 +1,8 @@
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
+import { CowErrorScene } from "@/components/CowErrorScene";
+
 /** 404 page body rendered by the `not-found.tsx` App Router segment. */
 export function NotFoundContent(): React.JSX.Element {
 	const t = useTranslations("NotFound");
@@ -39,21 +41,8 @@ export function NotFoundContent(): React.JSX.Element {
 						</Link>
 					</div>
 				</div>
-				<div
-					aria-hidden="true"
-					className="tl-not-found-mark relative mx-auto aspect-square w-full max-w-80 rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-white/10 dark:bg-white/5"
-				>
-					<div className="absolute inset-6 rounded-xl border border-dashed border-indigo-300 dark:border-indigo-300/40" />
-					<div className="relative flex h-full flex-col justify-between">
-						<div className="h-3 w-24 rounded-full bg-indigo-500/70" />
-						<div className="text-7xl font-semibold tracking-[-0.04em] text-gray-950 dark:text-white">
-							404
-						</div>
-						<div className="grid gap-2">
-							<div className="h-2 rounded-full bg-gray-300 dark:bg-white/20" />
-							<div className="h-2 w-2/3 rounded-full bg-gray-200 dark:bg-white/10" />
-						</div>
-					</div>
+				<div className="mx-auto flex w-full max-w-80 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 p-6 text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-300">
+					<CowErrorScene />
 				</div>
 			</div>
 		</section>

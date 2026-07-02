@@ -40,6 +40,12 @@ target/
 trace/
 *.cpuprofile
 
+# ─── Generated code (regenerated on install/build; never committed) ───────────
+# Prisma Client (`prisma generate`) lands in src/lib/generated/prisma/. Ignore
+# the whole generated/ dir so any future codegen output is covered too. Matches
+# the knip ignoreFiles entry (lib/generated/**).
+src/lib/generated/
+
 # ─── SWC policy manifests and generated native cache ─────────────────────────
 .swc/*
 !.swc/
@@ -152,3 +158,4 @@ NOTES.local.md
 # ─── Miscellaneous ───────────────────────────────────────────────────────────
 .idea/
 assets/presentation/
+.gstack/

@@ -86,6 +86,33 @@ const config = {
 				files: ["app/[locale]/reputation/_components/ReputationPageInner.tsx"],
 				rules: ["react-doctor/async-await-in-loop"],
 			},
+			{
+				// The core/ai and lib/db layers are deliberate Phase 4 scaffolding:
+				// a provider-agnostic AI core and off-chain database repositories that
+				// exist ahead of their call sites (feature-flagged, wired in later).
+				// Each is reachable through its barrel (core/ai/index.ts, lib/db/index.ts);
+				// dead-code enforcement is handled by knip (`npm run lint:knip`, which
+				// treats those barrels as entries), so the unused-file heuristic is a
+				// false positive here.
+				files: ["core/ai/**/*.ts", "lib/db/**/*.ts"],
+				rules: ["deslop/unused-file"],
+			},
+			{
+				// The streaming provider reads a Server-Sent Events response chunk by
+				// chunk; each `reader.read()` must await the previous chunk, so the loop
+				// is inherently sequential and Promise.all does not apply.
+				files: ["core/ai/providers/openaiCompatible.ts"],
+				rules: ["react-doctor/async-await-in-loop"],
+			},
+			{
+				// `pg` is the PostgreSQL driver that `@prisma/adapter-pg` runs on. We
+				// construct the adapter from a connection string (see lib/db/client.ts)
+				// rather than importing `pg` directly, but it is still the runtime
+				// driver and is listed explicitly per Prisma's driver-adapter setup, so
+				// the unused-dependency heuristic is a false positive.
+				files: ["package.json"],
+				rules: ["deslop/unused-dependency"],
+			},
 		],
 	},
 };

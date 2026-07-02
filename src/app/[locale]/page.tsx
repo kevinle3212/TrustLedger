@@ -26,10 +26,9 @@ export default async function HomePage({
 	const { locale } = await params;
 	setRequestLocale(locale);
 
-	const [t, tDashboard, tStatus] = await Promise.all([
+	const [t, tDashboard] = await Promise.all([
 		getTranslations("Home"),
 		getTranslations("Dashboard"),
-		getTranslations("ContractStatus"),
 	]);
 
 	const features = [
@@ -114,11 +113,6 @@ export default async function HomePage({
 					holdBackLabel={tDashboard("holdBack")}
 					documentLabel={tDashboard("document")}
 					viewLabel={tDashboard("view")}
-					statuses={{
-						PENDING: tStatus("PENDING"),
-						ACTIVE: tStatus("ACTIVE"),
-						APPROVED: tStatus("APPROVED"),
-					}}
 				/>
 			</section>
 

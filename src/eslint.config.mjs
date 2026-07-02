@@ -65,7 +65,14 @@ export default [
 		// type-aware `tsconfig.json` project. Globbing every `.mjs` keeps the
 		// typescript-eslint parser from throwing "file was not found in any of
 		// the provided project(s)" on current and future scripts.
-		ignores: [".next/**", "out/**", "next-env.d.ts", "**/*.mjs"],
+		ignores: [
+			".next/**",
+			"out/**",
+			"next-env.d.ts",
+			"**/*.mjs",
+			// Prisma Client is generated code (see prisma/schema.prisma); never lint it.
+			"lib/generated/**",
+		],
 	},
 
 	// Next.js base: @next/next, react, react-hooks, jsx-a11y rules

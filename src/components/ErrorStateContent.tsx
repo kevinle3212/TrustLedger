@@ -1,65 +1,8 @@
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
+import { CowErrorScene } from "@/components/CowErrorScene";
 import { GoBackButton } from "@/components/GoBackButton";
-
-/**
- * Decorative fault scene shared by every branded HTTP error page: a status core
- * pulses inside two concentric rings that expand outward on a loop. Purely
- * presentational (`aria-hidden`); the heading and body copy carry all meaning
- * for assistive tech. Every animated layer is frozen under
- * `prefers-reduced-motion`.
- */
-export function ErrorScene(): React.JSX.Element {
-	return (
-		<svg viewBox="0 0 240 220" role="img" aria-hidden="true" className="h-auto w-full max-w-72">
-			<g transform="translate(120 110)">
-				<circle
-					className="tl-error-ring text-indigo-500/40 dark:text-indigo-300/30"
-					r="46"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2"
-				/>
-				<circle
-					className="tl-error-ring tl-error-ring--delayed text-indigo-500/30 dark:text-indigo-300/20"
-					r="46"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2"
-				/>
-				<circle className="tl-error-core fill-indigo-50 dark:fill-white/5" r="40" />
-				<circle
-					className="tl-error-core text-indigo-500 dark:text-indigo-300"
-					r="40"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2.5"
-				/>
-				{/* Broken-link glyph: two clasps with a gap, evoking an interrupted ledger entry. */}
-				<g
-					className="tl-error-core stroke-indigo-600 dark:stroke-indigo-300"
-					strokeWidth="6"
-					strokeLinecap="round"
-					fill="none"
-				>
-					<path d="M-18 -6a12 12 0 0 0 0 12h8" />
-					<path d="M18 -6a12 12 0 0 1 0 12h-8" />
-				</g>
-				<line
-					x1="-4"
-					y1="0"
-					x2="4"
-					y2="0"
-					className="stroke-indigo-600 dark:stroke-indigo-300"
-					strokeWidth="6"
-					strokeLinecap="round"
-					strokeDasharray="0.5 7"
-				/>
-			</g>
-		</svg>
-	);
-}
 
 /**
  * Body of a branded HTTP error page (400, 403, 408, 429, 500, 502, 503, 504),
@@ -107,7 +50,7 @@ export function ErrorStateContent({ status }: { status: number }): React.JSX.Ele
 					</div>
 				</div>
 				<div className="mx-auto flex w-full max-w-80 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 p-6 text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-300">
-					<ErrorScene />
+					<CowErrorScene />
 				</div>
 			</div>
 		</section>

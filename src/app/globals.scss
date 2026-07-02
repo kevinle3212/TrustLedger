@@ -277,27 +277,61 @@ $tl-sweep-highlight: rgb(255 255 255 / 26%);
 	animation: tl-cookie-dialog-in 260ms $tl-ease-out both;
 }
 
-/* Cow 401: the cow tips forward and drops into the hole on a loop while the
-   hole's shadow pulses to sell the "falling in" gag. */
-@keyframes tl-cow-fall {
-	0%,
-	12% {
-		transform: translateY(0) rotate(0deg);
+/* Cow error scene: the cow walks in from the left, teeters at the edge of the
+   hole, then tips forward and drops in on a loop. The hole shadow pulses and a
+   puff of dust rises as it falls to sell the "this path went nowhere" gag. */
+@keyframes tl-cow-journey {
+	0% {
+		transform: translateX(-5rem) translateY(0) rotate(0deg);
+		opacity: 0;
 	}
 
-	34% {
-		transform: translateY(0.5rem) rotate(8deg);
-	}
-
-	62% {
-		transform: translateY(5.5rem) rotate(26deg);
+	10% {
 		opacity: 1;
 	}
 
-	74%,
+	46% {
+		transform: translateX(0) translateY(0) rotate(0deg);
+		opacity: 1;
+	}
+
+	56% {
+		transform: translateX(0) translateY(0.5rem) rotate(9deg);
+		opacity: 1;
+	}
+
+	80%,
 	100% {
-		transform: translateY(8.5rem) rotate(38deg);
+		transform: translateX(0) translateY(6rem) rotate(32deg);
 		opacity: 0;
+	}
+}
+
+/* Gentle leg sway while the cow crosses, easing to still as it reaches the hole. */
+@keyframes tl-cow-step {
+	0% {
+		transform: rotate(-6deg);
+	}
+
+	11% {
+		transform: rotate(6deg);
+	}
+
+	22% {
+		transform: rotate(-6deg);
+	}
+
+	33% {
+		transform: rotate(6deg);
+	}
+
+	44% {
+		transform: rotate(-6deg);
+	}
+
+	50%,
+	100% {
+		transform: rotate(0deg);
 	}
 }
 
@@ -308,20 +342,20 @@ $tl-sweep-highlight: rgb(255 255 255 / 26%);
 		opacity: 0.85;
 	}
 
-	62% {
-		transform: scaleX(1.12);
+	72% {
+		transform: scaleX(1.14);
 		opacity: 1;
 	}
 }
 
 @keyframes tl-cow-dust {
 	0%,
-	60% {
+	66% {
 		opacity: 0;
 		transform: translateY(0) scale(0.6);
 	}
 
-	72% {
+	78% {
 		opacity: 0.9;
 		transform: translateY(-0.5rem) scale(1);
 	}
@@ -332,18 +366,26 @@ $tl-sweep-highlight: rgb(255 255 255 / 26%);
 	}
 }
 
-.tl-cow {
+.tl-cow-walker {
+	transform-box: fill-box;
 	transform-origin: 50% 90%;
-	animation: tl-cow-fall 3.6s $tl-ease-standard infinite;
+	animation: tl-cow-journey 5s $tl-ease-standard infinite;
+}
+
+.tl-cow-legs {
+	transform-box: fill-box;
+	transform-origin: 50% 0%;
+	animation: tl-cow-step 5s $tl-ease-standard infinite;
 }
 
 .tl-cow-hole {
+	transform-box: fill-box;
 	transform-origin: 50% 50%;
-	animation: tl-cow-hole 3.6s $tl-ease-standard infinite;
+	animation: tl-cow-hole 5s $tl-ease-standard infinite;
 }
 
 .tl-cow-dust {
-	animation: tl-cow-dust 3.6s $tl-ease-standard infinite;
+	animation: tl-cow-dust 5s $tl-ease-standard infinite;
 }
 
 /* Generic error scene: a status core pulses while two concentric rings expand
@@ -944,7 +986,8 @@ details[open] .tl-faq-answer {
 	.tl-navbar-brand img,
 	.tl-cookie-banner,
 	.tl-cookie-dialog,
-	.tl-cow,
+	.tl-cow-walker,
+	.tl-cow-legs,
 	.tl-cow-hole,
 	.tl-cow-dust,
 	.tl-error-ring,

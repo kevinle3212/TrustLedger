@@ -15,6 +15,9 @@ const TRANSLATIONS: Record<string, string> = {
 	"previewScenes.reputation.title": "On-Chain Reputation",
 	"previewScenes.reputation.note": "92 Average Score",
 	"previewScenes.reputation.kicker": "History from completed work",
+	"previewDemoPhases.pending": "Exploratory",
+	"previewDemoPhases.active": "Simulated",
+	"previewDemoPhases.approved": "Example State",
 	"exampleContractProgress": "Example contract progress",
 	"nextPreview": "Next Preview",
 	"previousPreview": "Previous Preview",
@@ -48,11 +51,6 @@ const DEFAULT_PROPS = {
 	holdBackLabel: "Holdback",
 	documentLabel: "Document",
 	viewLabel: "View",
-	statuses: {
-		PENDING: "Pending",
-		ACTIVE: "Active",
-		APPROVED: "Approved",
-	},
 } as const;
 
 describe("InteractiveContractPreview", () => {
@@ -66,7 +64,7 @@ describe("InteractiveContractPreview", () => {
 		render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
 
 		expect(screen.getByText("0.25 ETH")).toBeInTheDocument();
-		expect(screen.getByRole("button", { name: /01 Pending/u })).toHaveAttribute(
+		expect(screen.getByRole("button", { name: /01 Exploratory/u })).toHaveAttribute(
 			"aria-pressed",
 			"true",
 		);
@@ -78,12 +76,12 @@ describe("InteractiveContractPreview", () => {
 		render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
 
 		// Active clears two of three stages but is still Unverified.
-		fireEvent.click(screen.getByRole("button", { name: /02 Active/u }));
+		fireEvent.click(screen.getByRole("button", { name: /02 Simulated/u }));
 		expect(fill()).toHaveStyle({ width: "67%" });
 		expect(screen.getByText("Unverified")).toBeInTheDocument();
 
 		// Approved clears the final stage and flips the badge to Verified.
-		fireEvent.click(screen.getByRole("button", { name: /03 Approved/u }));
+		fireEvent.click(screen.getByRole("button", { name: /03 Example State/u }));
 		expect(fill()).toHaveStyle({ width: "100%" });
 		expect(screen.getByText("Verified")).toBeInTheDocument();
 	});
@@ -92,7 +90,7 @@ describe("InteractiveContractPreview", () => {
 		render(<InteractiveContractPreview {...DEFAULT_PROPS} />);
 		const before = fill();
 
-		fireEvent.click(screen.getByRole("button", { name: /03 Approved/u }));
+		fireEvent.click(screen.getByRole("button", { name: /03 Example State/u }));
 
 		const after = fill();
 		expect(before).not.toBe(after);
