@@ -545,6 +545,8 @@ GitHub Actions cover:
 - Security scans: Slither, TruffleHog, npm audit, CodeQL, Semgrep.
 - Docs build and GitHub Pages publish.
 - Dependabot grouping and selected automerge.
+- Claude Code review on every pull request, plus on-demand `@claude` mentions in
+  issues and pull requests. See [CI/CD](docs/CI-CD.md#claude-code-assistant).
 
 ## Documentation
 

@@ -17,6 +17,10 @@
 - [Deploy Workflow](#deploy-workflow)
 - [Security Workflow](#security-workflow)
 - [CodeRabbit Review](#coderabbit-review)
+- [Claude Code Assistant](#claude-code-assistant)
+    - [How the app was installed](#how-the-app-was-installed)
+    - [Tag `@claude` from issues and pull requests](#tag-claude-from-issues-and-pull-requests)
+    - [Automatic pull request review](#automatic-pull-request-review)
 - [Docs Workflow](#docs-workflow)
 - [Local Hygiene Workflow](#local-hygiene-workflow)
     - [MkDocs Dependency Pinning](#mkdocs-dependency-pinning)
@@ -59,6 +63,8 @@ it when adding a job, debugging CI, or changing deployment secrets.
 | `react-doctor.yml`         | Frontend pushes and pull requests            | Run React Doctor checks on frontend changes.                        |
 | `log-hygiene.yml`          | Push, pull request, weekly schedule, manual  | Check ignored log/tmp retention policy and log Markdown formatting. |
 | `dependabot-automerge.yml` | Dependabot pull requests                     | Auto-merge selected Dependabot updates.                             |
+| `claude.yml`               | `@claude` mentions in issues and PRs         | Run Claude Code on demand from an issue or pull request.            |
+| `claude-code-review.yml`   | Pull request opened, updated, or reopened    | Automatic Claude Code review on every pull request.                 |
 
 ## CI Workflow
 
@@ -134,6 +140,81 @@ whole workflow. Review job logs even when the workflow is green.
 assertive review profile, can request changes, ignores generated/cache/log
 paths, and has path-specific instructions for Solidity, TypeScript, workflows,
 Docker, Kubernetes, package metadata, and docs. See [CodeRabbit](CODERABBIT.md).
+
+## Claude Code Assistant
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+`claude.yml` and `claude-code-review.yml` let Claude Code act on this repository
+directly from GitHub. Both use the pinned
+[`anthropics/claude-code-action`](https://github.com/anthropics/claude-code-action)
+and authenticate with the `CLAUDE_CODE_OAUTH_TOKEN` repository secret.
+
+### How the app was installed
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+The workflows were scaffolded by running the `/install-github-app` slash command
+inside the Claude Code CLI from a local checkout of this repository:
+
+1. From the repository root, run `claude` to open the Claude Code CLI.
+2. Run `/install-github-app` and follow the prompts. It installs the **Claude**
+   GitHub App on the `kevinle3212/TrustLedger` repository, commits the two
+   workflow files under `.github/workflows/`, and stores the generated
+   authentication token as the `CLAUDE_CODE_OAUTH_TOKEN` repository secret
+   (**Settings → Secrets and variables → Actions**).
+3. Merge the workflow pull request the command opens (this repository did so in
+   [#121](https://github.com/kevinle3212/TrustLedger/pull/121)).
+
+Re-run `/install-github-app` only to repair the installation or rotate the
+token; day-to-day use needs nothing beyond the steps below.
+
+### Tag `@claude` from issues and pull requests
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Once installed, `claude.yml` triggers whenever a comment or issue mentions
+`@claude`. Write a plain-language request after the mention:
+
+- **In an issue** — put `@claude` in the issue title or body (for example,
+  `@claude investigate the failing juror payout test and propose a fix`).
+  Assigning an issue also triggers a run.
+- **In a pull request** — comment `@claude` on the PR, or on a specific line in
+  a review comment (for example,
+  `@claude refactor this to reuse the shared formatter`). Claude reads the diff
+  and can push follow-up commits.
+- **In a PR review** — include `@claude` in the review body to ask for changes
+  against the whole review.
+
+Claude has `contents: read`, `issues: read`, `pull-requests: read`, and
+`actions: read` permissions, so it can read CI results on a PR but cannot merge
+or change branch protection. It replies in the same thread you mentioned it in.
+
+### Automatic pull request review
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+`claude-code-review.yml` runs on every pull request that is opened,
+synchronized, reopened, or marked ready for review — no mention required. It
+invokes the `code-review` plugin against the PR and posts findings as a review.
+The workflow ships with optional, commented-out filters (by author or by changed
+paths) if you later want to scope which PRs are reviewed automatically.
 
 ## Docs Workflow
 

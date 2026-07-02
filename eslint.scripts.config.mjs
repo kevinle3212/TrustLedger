@@ -28,6 +28,7 @@ export default [
 			"tools/check-sensitive-files.mjs",
 			"tools/check-docker-storage.mjs",
 			"tools/hardhat-local-cache.mjs",
+			"tools/check-mcp-config-parity.mjs",
 		],
 		languageOptions: {
 			ecmaVersion: 2023,
