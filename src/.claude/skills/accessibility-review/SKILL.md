@@ -3,6 +3,13 @@ name: accessibility-review
 description: Use when auditing or changing forms, navigation, buttons, dialogs, status messages, dark mode, contrast, or keyboard behavior.
 ---
 
+## Tool Fallback <!-- tool-fallback -->
+
+- If a preferred tool, command, or skill is unavailable, failing, or a worse fit
+  for the task, use the best available alternative rather than stopping or
+  forcing it. Note which tool you used and why. Never fall back to a prohibited
+  tool (for example `mcp__claude-in-chrome__*` is banned — use `/browse`).
+
 ## Clarify Before Acting <!-- clarify-before-acting -->
 
 Before running this skill or producing output, if the request is ambiguous or the

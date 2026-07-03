@@ -141,7 +141,7 @@
 		"lint:knip": "knip --strict --workspace . && cd src && npx knip --strict",
 		"lint:prettier": "prettier --check .",
 		"lint:py": "python3 tools/check-python-docstrings.py && mypy utils/generate_contract.py scripts/models/github_models.py scripts/analytics/generate_wallet_analytics.py",
-		"debug:files": "tsc -p tsconfig.debug.json --generateTrace ./trace --generateCpuProfile ./profile.cpuprofile",
+		"debug:files": "cd src && npx tsc -p tsconfig.json --generateTrace ../trace --generateCpuProfile ../profile.cpuprofile",
 		"foundry:gas": "cd contracts && forge test --gas-report",
 		"foundry:build": "cd contracts && forge build",
 		"foundry:test": "node tools/foundry-sandbox.mjs test --offline --no-match-path 'test/fork/**'",

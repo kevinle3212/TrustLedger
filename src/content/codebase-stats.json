@@ -2,22 +2,22 @@
 	"totals": {
 		"files": 930,
 		"directories": 329,
-		"lines": 147541,
-		"bytes": 11370043,
+		"lines": 148025,
+		"bytes": 11394705,
 		"categories": 26
 	},
 	"categories": [
 		{
 			"name": "Markdown",
 			"files": 278,
-			"lines": 44190,
-			"share": 30
+			"lines": 44674,
+			"share": 30.2
 		},
 		{
 			"name": "Solidity",
 			"files": 78,
 			"lines": 34405,
-			"share": 23.3
+			"share": 23.2
 		},
 		{
 			"name": "TypeScript",
@@ -71,7 +71,7 @@
 			"name": "Rust",
 			"files": 6,
 			"lines": 1404,
-			"share": 1
+			"share": 0.9
 		},
 		{
 			"name": "Ignore/System Files",
