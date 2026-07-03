@@ -856,9 +856,21 @@
 	"About": {
 		"eyebrow": "关于 TrustLedger",
 		"title": "面向自由职业工作的托管基础设施。",
-		"intro": "TrustLedger 将 EVM 智能合同托管、加密合同起草、保护隐私的分析、陪审员仲裁和声誉历史整合到一个开源工作流中。此页面目前有意保持简短，以便项目背景可以在不使任务界面杂乱的情况下发展。",
+		"intro": "TrustLedger 将 EVM 智能合约托管、加密合同起草、注重隐私的分析、陪审仲裁和信誉记录整合到一个开源工作流中，专为初次接触 Web3 的自由职业者和客户打造。",
 		"openDashboard": "打开仪表板",
 		"viewStatus": "查看公开状态",
+		"originTitle": "我们为何打造 TrustLedger",
+		"originBody": "自由职业平台掌控着你的资金，并替你裁决纠纷。TrustLedger 用经过审计的智能合约取代这种托管：客户在链上锁定资金，自由职业者提交工作，审批、质保、评价和纠纷都由代码来处理，而非平台运营方。",
+		"originOrigin": "TrustLedger 于 2026 年 5 月 2 日在俄勒冈大学的 Oregon Blockchain Group 启动。它最初基于以太坊，如今已支持 Solana 和 USDC，并具备 commit-reveal 仲裁、Chainlink VRF 陪审员选取以及链上信誉。",
+		"capabilitiesTitle": "TrustLedger 能做什么",
+		"teamTitle": "创始人",
+		"teamIntro": "由俄勒冈大学 Oregon Blockchain Group 的工程师构建并维护。",
+		"orgLine": "Oregon Blockchain Group · 俄勒冈大学",
+		"roleLead": "创始人、创始工程师兼首席工程师",
+		"roleFounding": "创始人兼创始工程师",
+		"bioKevin": "TrustLedger 的联合创始人，自项目伊始便主导工程工作，将其从以太坊扩展到 Solana 和 USDC，并构建了仲裁、陪审员选取和信誉系统。",
+		"bioKellen": "TrustLedger 的联合创始人，奠定了项目的以太坊基础，带来了平台至今仍依赖的架构严谨性与对细节的专注。",
+		"linkedinLabel": "在 LinkedIn 上查看 {name}",
 		"cards": {
 			"custody": {
 				"title": "托管",

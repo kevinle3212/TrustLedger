@@ -9,6 +9,12 @@ description:
 version: "1.1.0"
 ---
 
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+Before running this skill or producing output, if the request is ambiguous or
+the desired outcome is unclear, interview the user with focused questions until
+intent is unambiguous. State assumptions and confirm them before proceeding.
+
 # React Doctor
 
 > Kellen Snider served as Founding Engineer during TrustLedger's Ethereum

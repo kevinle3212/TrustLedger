@@ -37,15 +37,13 @@ import type { CreateState, FormFields } from "./types";
 import { DEFAULT_CONTRACT_TERMS } from "./contractTerms";
 import { createReducer } from "./reducer";
 import type { ShareableDraft } from "./secureDraftShare";
-import {
-	buildCreateSolanaEscrowTransaction,
-	getConfiguredSolanaCluster,
-	getInjectedSolanaWallet,
-	getTrustLedgerSolanaProgramId,
-	normalizeSolanaPublicKey,
-	submitCreateSolanaEscrowTransaction,
-	type SolanaEscrowSubmissionResult,
-} from "@/lib/solanaEscrow";
+// Runtime helpers from `@/lib/solanaEscrow` are loaded via dynamic `import()` at
+// their use sites (readiness gate + submit handler) so `@solana/web3.js` — a
+// heavy dependency only the SOL payment path needs — stays out of the create
+// route's first-load JS. The vast majority of escrows are EVM/USDC and never
+// download it. Mirrors the existing lazy-Arweave pattern in this file. Only the
+// result type is imported statically (types are erased at build time).
+import type { SolanaEscrowSubmissionResult } from "@/lib/solanaEscrow";
 
 const DRAFT_STORAGE_KEY = "tl_create_contract_draft";
 const DRAFT_AUTOSAVE_DELAY_MS = 60_000;
@@ -221,7 +219,24 @@ export function useCreatePageState(): {
 	const isClientProposing = proposerRole === "client";
 	const isUsdc = paymentToken === "usdc";
 	const isSol = paymentToken === "sol";
-	const solanaProgramReady = getTrustLedgerSolanaProgramId() !== null;
+
+	// Whether a valid TrustLedger Solana program ID is configured. Resolved lazily
+	// (and only once the SOL token is selected) via a dynamic import so
+	// `@solana/web3.js` never loads for EVM/USDC users. Defaults to `false` until
+	// the import settles; the paymentToken validator surfaces the same
+	// "configure program ID" hint in that brief window as when it is genuinely
+	// unset, so the gate degrades gracefully.
+	const [solanaProgramReady, setSolanaProgramReady] = useState(false);
+	useEffect(() => {
+		if (!isSol) return;
+		let active = true;
+		void import("@/lib/solanaEscrow").then((solana): void => {
+			if (active) setSolanaProgramReady(solana.getTrustLedgerSolanaProgramId() !== null);
+		});
+		return (): void => {
+			active = false;
+		};
+	}, [isSol]);
 
 	const uploadedBytes = useRef<Uint8Array<ArrayBuffer> | null>(null);
 	const uploadedMime = useRef("application/octet-stream");
@@ -505,7 +520,10 @@ export function useCreatePageState(): {
 		setSolanaSubmission(null);
 		try {
 			setSolanaTxStatus("connecting");
-			const wallet = getInjectedSolanaWallet();
+			// Load the web3.js-backed helpers on demand (SOL submit is the only path
+			// that needs them); keeps @solana/web3.js off the create route's first load.
+			const solana = await import("@/lib/solanaEscrow");
+			const wallet = solana.getInjectedSolanaWallet();
 			if (wallet === null) {
 				throw new Error(
 					"Install or unlock a Solana wallet such as Phantom to submit SOL escrow.",
@@ -516,20 +534,20 @@ export function useCreatePageState(): {
 			if (walletPublicKey === undefined || walletPublicKey === null) {
 				throw new Error("Connect a Solana wallet before submitting.");
 			}
-			const payerAddress = normalizeSolanaPublicKey(walletPublicKey).toBase58();
+			const payerAddress = solana.normalizeSolanaPublicKey(walletPublicKey).toBase58();
 			setSolanaWalletAddress(payerAddress);
 			setSolanaTxStatus("simulating");
-			const draft = buildCreateSolanaEscrowTransaction({
+			const draft = solana.buildCreateSolanaEscrowTransaction({
 				form,
 				proposerRole,
 				payerAddress,
 				fileHash,
 			});
 			setSolanaTxStatus("pending");
-			const submission = await submitCreateSolanaEscrowTransaction({
+			const submission = await solana.submitCreateSolanaEscrowTransaction({
 				wallet: { ...wallet, publicKey: walletPublicKey },
 				draft,
-				cluster: getConfiguredSolanaCluster(),
+				cluster: solana.getConfiguredSolanaCluster(),
 			});
 			setSolanaTxStatus("confirming");
 			setSolanaSubmission(submission);

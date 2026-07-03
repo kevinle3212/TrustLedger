@@ -16,3 +16,11 @@ Rules:
 - Update `docs/ADMIN.md`, `docs/KUBERNETES.md`, and `docs/ENVIRONMENT.md` when
   runtime variables, ports, probes, or deployment topology change.
 - Run `npm run lint:k8s` when Kubernetes manifests change.
+
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+- Before replying or starting work, if the request is ambiguous or my intent is
+  unclear, interview me with focused questions until it is unambiguous.
+- Ask one round of concise, high-signal questions; state any assumptions you
+  must make and confirm them before proceeding.
+- Do not begin implementation while a meaningful interpretation is still open.

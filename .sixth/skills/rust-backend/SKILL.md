@@ -3,6 +3,12 @@ name: rust-backend
 description: Maintain TrustLedger Rust workspace, backend services, strict Cargo configuration, and infrastructure.
 ---
 
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+Before running this skill or producing output, if the request is ambiguous or the
+desired outcome is unclear, interview the user with focused questions until intent
+is unambiguous. State assumptions and confirm them before proceeding.
+
 # Rust Backend Skill
 
 > Kellen Snider served as Founding Engineer during TrustLedger's Ethereum

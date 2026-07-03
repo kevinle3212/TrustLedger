@@ -8,6 +8,12 @@ description:
     canonical playbook.
 ---
 
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+Before running this skill or producing output, if the request is ambiguous or the
+desired outcome is unclear, interview the user with focused questions until intent
+is unambiguous. State assumptions and confirm them before proceeding.
+
 # React Doctor
 
 Scans React codebases for security, performance, correctness, and architecture

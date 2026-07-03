@@ -30,6 +30,7 @@ hardhat-cache/
 node_modules/
 dist/
 *.tsbuildinfo
+*.debug
 .eslintcache
 .stylelintcache
 .node_repl_history

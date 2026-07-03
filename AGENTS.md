@@ -257,6 +257,21 @@ objective implementation and validation evidence exists. When a roadmap item is
 closed, keep any remaining future scope documented in reports or follow-up tasks
 instead of silently dropping it.
 
+## Task Checklists
+
+Whenever a prompt contains more than one distinct task, break it into a visible
+checklist rendered in the terminal before starting work, so the user can track
+progress. Requirements:
+
+- Render the checklist as Markdown checkboxes (`- [ ]` / `- [x]`) in your reply,
+  one line per task, each with a short verification step.
+- Derive one item per distinct task in the prompt; do not merge unrelated tasks
+  into one line or invent work that was not requested.
+- Update the checklist as items complete (`- [ ]` → `- [x]`) and surface it
+  again when you report progress, so the current state is always visible.
+- A single-task prompt does not need a checklist; a brief plan still applies per
+  the goal-driven execution rules.
+
 ## Coding Tasks
 
 When spawning Claude Code sessions for coding work, tell the session to use
@@ -295,3 +310,11 @@ Rules:
   query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current
   (AST-only, no API cost).
+
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+- Before replying or starting work, if the request is ambiguous or my intent is
+  unclear, interview me with focused questions until it is unambiguous.
+- Ask one round of concise, high-signal questions; state any assumptions you
+  must make and confirm them before proceeding.
+- Do not begin implementation while a meaningful interpretation is still open.

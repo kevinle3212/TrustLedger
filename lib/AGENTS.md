@@ -16,3 +16,11 @@ Rules:
 - Do not add secrets, RPC keys, or private documents to examples or tests.
 - Run `npm run rust:fmt`, `npm run rust:clippy`, and `npm run rust:test` after
   Rust changes.
+
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+- Before replying or starting work, if the request is ambiguous or my intent is
+  unclear, interview me with focused questions until it is unambiguous.
+- Ask one round of concise, high-signal questions; state any assumptions you
+  must make and confirm them before proceeding.
+- Do not begin implementation while a meaningful interpretation is still open.

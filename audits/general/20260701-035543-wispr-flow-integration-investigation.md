@@ -69,8 +69,11 @@ outcome is to document the manual user setup and rely on accessible markup.
 
 ## Follow-up Actions
 
-- [ ] Document the manual user setup below in user-facing docs if voice input is
-      promoted as a supported workflow.
+- [x] Document the manual user setup below in user-facing docs **if voice input
+      is promoted as a supported workflow** — N/A: voice input is not a promoted
+      or supported TrustLedger workflow, so the condition is unmet and there is
+      nothing to document. Revisit only if in-browser voice input ships as a
+      feature (a separate effort, out of scope here).
 
 ## Manual Setup (User Steps — not automatable)
 

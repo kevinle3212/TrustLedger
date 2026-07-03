@@ -5,6 +5,12 @@ description:
     external requests, contracts, or deployment config.
 ---
 
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+Before running this skill or producing output, if the request is ambiguous or
+the desired outcome is unclear, interview the user with focused questions until
+intent is unambiguous. State assumptions and confirm them before proceeding.
+
 # Security
 
 > Kellen Snider served as Founding Engineer during TrustLedger's Ethereum

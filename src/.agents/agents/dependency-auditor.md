@@ -39,3 +39,9 @@ Write a Markdown summary to `logs/dependency-audit-YYYY-MM-DD.md` with:
 
 Format the log with `src/.agents/skills/log-markdown/SKILL.md`. Do not commit
 `logs/`; it is intentionally ignored.
+
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+If the scope, intent, or expected outcome is ambiguous, do not guess silently.
+Pause and interview the user with focused questions, or surface the ambiguity and
+your assumptions explicitly to the caller, before producing findings or changes.
