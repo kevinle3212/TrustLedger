@@ -30,3 +30,9 @@ checklists:
 - **Policy & disclosure** — the security model and reporting process live in
   [`docs/SECURITY.md`](../../../docs/SECURITY.md) and the repo-root
   `SECURITY.md`. Never open public issues for vulnerabilities.
+
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+If the scope, intent, or expected outcome is ambiguous, do not guess silently.
+Pause and interview the user with focused questions, or surface the ambiguity and
+your assumptions explicitly to the caller, before producing findings or changes.

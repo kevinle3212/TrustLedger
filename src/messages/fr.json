@@ -856,9 +856,21 @@
 	"About": {
 		"eyebrow": "À Propos De TrustLedger",
 		"title": "Infrastructure d’escrow pour le travail freelance.",
-		"intro": "TrustLedger réunit garde par contrats intelligents EVM, rédaction chiffrée de contrats, analyses respectueuses de la confidentialité, arbitrage par jurés et historique de réputation dans un flux open source.",
+		"intro": "TrustLedger réunit la conservation par contrats intelligents EVM, la rédaction chiffrée de contrats, l'analytique respectueuse de la vie privée, l'arbitrage par jurés et l'historique de réputation dans un seul flux de travail open source, conçu pour les freelances et les clients qui débutent avec le Web3.",
 		"openDashboard": "Ouvrir Le Tableau De Bord",
 		"viewStatus": "Voir L’état Public",
+		"originTitle": "Pourquoi nous avons créé TrustLedger",
+		"originBody": "Les plateformes de freelance détiennent votre argent et tranchent vos litiges. TrustLedger remplace cette conservation par des contrats intelligents audités : un client bloque les fonds on-chain, un freelance remet son travail, et l'approbation, la garantie, les évaluations et les litiges se règlent par le code plutôt que par un opérateur de plateforme.",
+		"originOrigin": "TrustLedger a vu le jour le 2 mai 2026 au sein de l'Oregon Blockchain Group de l'Université de l'Oregon. Lancé sur Ethereum, il prend désormais en charge Solana et l'USDC, avec un arbitrage commit-reveal, une sélection des jurés par Chainlink VRF et une réputation on-chain.",
+		"capabilitiesTitle": "Ce que fait TrustLedger",
+		"teamTitle": "Fondateurs",
+		"teamIntro": "Conçu et maintenu par des ingénieurs de l'Oregon Blockchain Group de l'Université de l'Oregon.",
+		"orgLine": "Oregon Blockchain Group · Université de l'Oregon",
+		"roleLead": "Fondateur, ingénieur fondateur et ingénieur principal",
+		"roleFounding": "Fondateur et ingénieur fondateur",
+		"bioKevin": "Cofondateur de TrustLedger, il dirige l'ingénierie depuis le début, l'étendant au-delà d'Ethereum vers Solana et l'USDC et bâtissant ses systèmes d'arbitrage, de sélection des jurés et de réputation.",
+		"bioKellen": "Cofondateur de TrustLedger, il a façonné ses fondations sur Ethereum, apportant la rigueur d'architecture et le souci du détail sur lesquels la plateforme repose encore.",
+		"linkedinLabel": "{name} sur LinkedIn",
 		"cards": {
 			"custody": {
 				"title": "Garde",

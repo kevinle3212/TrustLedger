@@ -856,9 +856,21 @@
 	"About": {
 		"eyebrow": "Sobre o TrustLedger",
 		"title": "Infraestrutura de custódia para trabalho freelance.",
-		"intro": "O TrustLedger combina custódia por contratos inteligentes EVM, redação de contratos criptografada, análises seguras para a privacidade, arbitragem por jurados e histórico de reputação em um único fluxo de trabalho de código aberto. Esta página é intencionalmente pequena por enquanto para que o histórico do projeto possa crescer sem sobrecarregar as superfícies de tarefas.",
+		"intro": "O TrustLedger combina a custódia por contratos inteligentes EVM, a redação cifrada de contratos, a análise que respeita a privacidade, a arbitragem por jurados e o histórico de reputação num único fluxo de trabalho de código aberto, feito para freelancers e clientes que estão começando no Web3.",
 		"openDashboard": "Abrir painel",
 		"viewStatus": "Ver estado público",
+		"originTitle": "Por que criamos o TrustLedger",
+		"originBody": "As plataformas de freelance guardam o seu dinheiro e decidem as suas disputas. O TrustLedger substitui essa custódia por contratos inteligentes auditados: o cliente bloqueia os fundos on-chain, o freelancer entrega o trabalho, e aprovação, garantia, avaliações e disputas são resolvidas por código, em vez de um operador de plataforma.",
+		"originOrigin": "O TrustLedger começou em 2 de maio de 2026 no Oregon Blockchain Group, da Universidade do Oregon. Foi lançado no Ethereum e agora alcança Solana e USDC, com arbitragem commit-reveal, seleção de jurados por Chainlink VRF e reputação on-chain.",
+		"capabilitiesTitle": "O que o TrustLedger faz",
+		"teamTitle": "Fundadores",
+		"teamIntro": "Criado e mantido por engenheiros do Oregon Blockchain Group, da Universidade do Oregon.",
+		"orgLine": "Oregon Blockchain Group · Universidade do Oregon",
+		"roleLead": "Fundador, engenheiro fundador e engenheiro principal",
+		"roleFounding": "Fundador e engenheiro fundador",
+		"bioKevin": "Cofundou o TrustLedger e lidera a engenharia desde o início, expandindo-o além do Ethereum para Solana e USDC e construindo os seus sistemas de arbitragem, seleção de jurados e reputação.",
+		"bioKellen": "Cofundou o TrustLedger e moldou a sua base no Ethereum, trazendo o rigor de arquitetura e a atenção aos detalhes sobre os quais a plataforma ainda se apoia.",
+		"linkedinLabel": "{name} no LinkedIn",
 		"cards": {
 			"custody": {
 				"title": "Custódia",

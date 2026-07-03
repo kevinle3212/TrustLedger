@@ -856,9 +856,21 @@
 	"About": {
 		"eyebrow": "Giới Thiệu TrustLedger",
 		"title": "Hạ tầng ký quỹ cho công việc freelance.",
-		"intro": "TrustLedger kết hợp lưu ký hợp đồng thông minh EVM, soạn thảo hợp đồng đã mã hóa, phân tích an toàn về quyền riêng tư, phân xử bằng hội thẩm và lịch sử uy tín thành một quy trình mã nguồn mở. Trang này hiện được giữ nhỏ để bối cảnh dự án có thể phát triển mà không làm rối các bề mặt tác vụ.",
+		"intro": "TrustLedger kết hợp việc giữ tài sản bằng hợp đồng thông minh EVM, soạn thảo hợp đồng được mã hóa, phân tích tôn trọng quyền riêng tư, phân xử bằng bồi thẩm và lịch sử uy tín thành một quy trình mã nguồn mở duy nhất, dành cho freelancer và khách hàng mới làm quen với Web3.",
 		"openDashboard": "Mở Bảng Điều Khiển",
 		"viewStatus": "Xem Trạng Thái Công Khai",
+		"originTitle": "Vì sao chúng tôi xây dựng TrustLedger",
+		"originBody": "Các nền tảng freelance giữ tiền của bạn và tự quyết định tranh chấp. TrustLedger thay thế việc giữ tiền đó bằng các hợp đồng thông minh đã được kiểm toán: khách hàng khóa tiền on-chain, freelancer nộp công việc, và việc phê duyệt, bảo hành, đánh giá cùng tranh chấp đều được giải quyết bằng mã nguồn thay vì một đơn vị vận hành nền tảng.",
+		"originOrigin": "TrustLedger khởi đầu vào ngày 2 tháng 5 năm 2026 tại Oregon Blockchain Group, Đại học Oregon. Dự án ra mắt trên Ethereum và nay đã hỗ trợ Solana cùng USDC, với phân xử commit-reveal, chọn bồi thẩm bằng Chainlink VRF và uy tín on-chain.",
+		"capabilitiesTitle": "TrustLedger làm được gì",
+		"teamTitle": "Nhà sáng lập",
+		"teamIntro": "Được xây dựng và duy trì bởi các kỹ sư từ Oregon Blockchain Group thuộc Đại học Oregon.",
+		"orgLine": "Oregon Blockchain Group · Đại học Oregon",
+		"roleLead": "Nhà sáng lập, kỹ sư sáng lập kiêm kỹ sư trưởng",
+		"roleFounding": "Nhà sáng lập kiêm kỹ sư sáng lập",
+		"bioKevin": "Đồng sáng lập TrustLedger và dẫn dắt kỹ thuật từ những ngày đầu, mở rộng dự án vượt ra ngoài Ethereum sang Solana và USDC, đồng thời xây dựng các hệ thống phân xử, chọn bồi thẩm và uy tín.",
+		"bioKellen": "Đồng sáng lập TrustLedger và định hình nền tảng Ethereum của dự án, mang lại sự chặt chẽ về kiến trúc cùng sự tỉ mỉ mà nền tảng vẫn dựa vào đến nay.",
+		"linkedinLabel": "{name} trên LinkedIn",
 		"cards": {
 			"custody": {
 				"title": "Lưu Ký",

@@ -372,6 +372,48 @@ $tl-sweep-highlight: rgb(255 255 255 / 26%);
 	animation: tl-cow-journey 5s $tl-ease-standard infinite;
 }
 
+/* Static horizontal mirror so the cow faces its direction of travel (rightward)
+   and walks forwards. Not animated, so it persists under prefers-reduced-motion. */
+.tl-cow-facing {
+	transform-box: fill-box;
+	transform-origin: 50% 50%;
+	transform: scaleX(-1);
+}
+
+/* About page: staggered entrance for sections/cards, a drifting gradient orb in
+   the hero, and a subtle lift on the capability and founder cards. */
+@keyframes tl-about-rise {
+	from {
+		opacity: 0;
+		transform: translateY(0.75rem);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.tl-about-reveal {
+	animation: tl-about-rise 0.6s $tl-ease-standard both;
+}
+
+.tl-about-orb {
+	animation: tl-soft-float 6s ease-in-out infinite;
+}
+
+.tl-founder-card {
+	transition:
+		transform 0.2s ease,
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-0.25rem);
+		box-shadow: 0 12px 30px -12px rgb(79 70 229 / 25%);
+	}
+}
+
 .tl-cow-legs {
 	transform-box: fill-box;
 	transform-origin: 50% 0%;
@@ -990,6 +1032,9 @@ details[open] .tl-faq-answer {
 	.tl-cow-legs,
 	.tl-cow-hole,
 	.tl-cow-dust,
+	.tl-about-reveal,
+	.tl-about-orb,
+	.tl-founder-card,
 	.tl-error-ring,
 	.tl-error-core {
 		animation: none !important;

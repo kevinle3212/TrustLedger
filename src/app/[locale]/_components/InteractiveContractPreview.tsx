@@ -188,7 +188,7 @@ export function InteractiveContractPreview({
 							{scene === "contract" ? title : activeScene.title}
 						</h2>
 					</div>
-					<span className="tl-status-badge tl-status-badge--active rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
+					<span className="tl-status-badge tl-status-badge--active shrink-0 whitespace-nowrap rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-800 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300">
 						{phaseLabels[phase]}
 					</span>
 				</div>

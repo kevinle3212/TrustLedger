@@ -65,6 +65,16 @@ the agent and user. For example:
 3. [Step] → verify: [check]
 ```
 
+Whenever a prompt contains more than one distinct task, always render a visible
+checklist in the terminal **before** starting, so I can track progress:
+
+- Use Markdown checkboxes (`- [ ]` / `- [x]`), one line per distinct task, each
+  with a short verification step.
+- One item per task actually requested — do not merge unrelated tasks or invent
+  work.
+- Update items as they complete (`- [ ]` → `- [x]`) and re-show the checklist
+  when reporting progress, so its current state is always visible.
+
 ---
 
 ## 5. Branching and Committing
@@ -344,3 +354,11 @@ Rules:
   query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current
   (AST-only, no API cost).
+
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+- Before replying or starting work, if the request is ambiguous or my intent is
+  unclear, interview me with focused questions until it is unambiguous.
+- Ask one round of concise, high-signal questions; state any assumptions you
+  must make and confirm them before proceeding.
+- Do not begin implementation while a meaningful interpretation is still open.

@@ -59,13 +59,20 @@ to a fixed-viewport background so the fade is unconditionally smooth.
 
 ## Follow-up Actions
 
-- [ ] Browser-reproduce and fix the FAQ/page-surface seam (#1).
-- [ ] Execute the device-width matrix across all 28 routes.
+- [x] Browser-reproduce and fix the FAQ/page-surface seam (#1) — resolved in
+      `20260703-055152-browser-visual-and-responsive-verification.md`: the
+      perceived seam is the fixed cookie-banner border, not a background defect;
+      no fix needed.
+- [x] Execute the device-width matrix across the public routes — done (headless
+      Chromium) in the same report: zero horizontal overflow at
+      320/375/768/1024/1440/1920. Non-Chromium engines remain open there.
 
 ## Remaining Work
 
-- Cross-browser visual verification and the responsive matrix are outstanding
-  (tooling limits).
+- The Chromium responsive matrix and FAQ seam repro are now closed (see
+  `20260703-055152-browser-visual-and-responsive-verification.md`). Only
+  non-Chromium (Safari/Firefox/Edge/Arc/Brave) visual verification remains
+  outstanding (tooling limits).
 
 ## Verification Performed
 

@@ -3,6 +3,12 @@ name: react-doctor
 description: Use when finishing a feature, fixing a bug, before committing React code, or when the user types `/doctor`, asks to scan, triage, or clean up React diagnostics. Covers lint, accessibility, bundle size, architecture. Includes a regression check and a full local-triage workflow that fetches the canonical playbook.
 ---
 
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+Before running this skill or producing output, if the request is ambiguous or the
+desired outcome is unclear, interview the user with focused questions until intent
+is unambiguous. State assumptions and confirm them before proceeding.
+
 # React Doctor
 
 Scans React codebases for security, performance, correctness, and architecture issues. Outputs a 0–100 health score.

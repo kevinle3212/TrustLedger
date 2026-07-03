@@ -68,3 +68,9 @@ same branch so the docs never describe behavior the code no longer has.
 When legal edits are allowed, update committed docs and website references in
 the same branch. When legal edits are not allowed, add only a summary of suggested
 review areas to the task response or an ignored markdown log under `logs/`.
+
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+Before running this skill or producing output, if the request is ambiguous or the
+desired outcome is unclear, interview the user with focused questions until intent
+is unambiguous. State assumptions and confirm them before proceeding.

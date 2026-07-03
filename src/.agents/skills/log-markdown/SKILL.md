@@ -4,6 +4,12 @@ description:
     Format any file written under logs/ as markdownlint-compliant Markdown.
 ---
 
+## Clarify Before Acting <!-- clarify-before-acting -->
+
+Before running this skill or producing output, if the request is ambiguous or the
+desired outcome is unclear, interview the user with focused questions until intent
+is unambiguous. State assumptions and confirm them before proceeding.
+
 # Log Markdown
 
 Use this skill before writing or updating any file under `logs/`.
