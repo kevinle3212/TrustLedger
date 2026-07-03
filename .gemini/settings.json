@@ -1,21 +1,43 @@
 {
-	"mcpServers": {
-		"serena": {
-			"command": "serena",
-			"args": ["start-mcp-server", "--context=agent", "--project-from-cwd"],
-			"env": {
-				"NO_COLOR": "1"
-			}
-		},
-		"nexus": {
-			"command": "node",
-			"args": ["./scripts/nexus-mcp.js", "server", "--project", "."],
-			"env": {
-				"NODE_ENV": "development",
-				"NO_COLOR": "1",
-				"NEXUS_MCP_TIMEOUT_MS": "120000",
-				"NEXUS_MAX_TREE_SITTER_TS_BYTES": "25000"
-			}
-		}
-	}
+  "mcpServers": {
+    "serena": {
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--context=agent",
+        "--project-from-cwd"
+      ],
+      "env": {
+        "NO_COLOR": "1"
+      }
+    },
+    "nexus": {
+      "command": "node",
+      "args": [
+        "./scripts/nexus-mcp.js",
+        "server",
+        "--project",
+        "."
+      ],
+      "env": {
+        "NODE_ENV": "development",
+        "NO_COLOR": "1",
+        "NEXUS_MCP_TIMEOUT_MS": "120000",
+        "NEXUS_MAX_TREE_SITTER_TS_BYTES": "25000"
+      }
+    }
+  },
+  "hooks": {
+    "BeforeTool": [
+      {
+        "matcher": "read_file|list_directory",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"import sys,pathlib,json;e=pathlib.Path('graphify-out/graph.json').exists();d={'decision':'allow'};e and d.update({'additionalContext':'graphify: knowledge graph at graphify-out/. For focused questions, run `graphify query \"<question>\"` (scoped subgraph, usually much smaller than GRAPH_REPORT.md) instead of grepping raw files. Read GRAPH_REPORT.md only for broad architecture context.'});sys.stdout.write(json.dumps(d))\""
+          }
+        ]
+      }
+    ]
+  }
 }

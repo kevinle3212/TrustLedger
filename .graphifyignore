@@ -1,0 +1,68 @@
+# graphify corpus exclusions — keep the knowledge graph limited to first-party
+# TrustLedger source. Build output and vendored dependencies otherwise flood the
+# graph with minified/generated nodes (see logs/graphify-findings-2026-07-02.md).
+
+# Build / compiled output
+.vercel/
+.next/
+dist/
+build/
+out/
+coverage/
+.turbo/
+.swc/
+**/__pycache__/
+
+# Generated code
+**/generated/
+graphify-out/
+
+# Solidity toolchain artifacts + vendored libraries
+contracts/lib/
+contracts/out/
+contracts/cache/
+**/artifacts/
+**/typechain*/
+
+# Node deps (usually already ignored, listed for safety)
+node_modules/
+
+# Agent-tooling scaffolding (skills/rules/workflows installed by CLI tools)
+.agents/
+.claude/
+.codex/
+.copilot/
+.cursor/
+.gemini/
+.openclaw/
+.github/
+.husky/
+.serena/
+.sixth/
+.impeccable/
+.vscode/
+
+# Binary/branding assets — logos, icons, screenshots. No knowledge value and
+# vision extraction is expensive; the chain/docs are authoritative, not the art.
+*.png
+*.jpg
+*.jpeg
+*.ico
+*.svg
+*.webp
+
+# Machine-generated data and logs (not authored knowledge)
+**/codebase-stats.json
+.markdownlint-logs.json
+assets/analytics/*.json
+
+# i18n message catalogs — translation string dumps, not graph-worthy
+src/messages/
+
+# Redirect stubs and low-value tool configs
+docs/index.html
+mkdocs.yml
+.coderabbit.yaml
+.markdownlint.json
+src/.lighthouserc.json
+security/slither.config.json

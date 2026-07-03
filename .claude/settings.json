@@ -1,36 +1,61 @@
 {
-	"$schema": "https://json.schemastore.org/claude-code-settings.json",
-	"permissions": {
-		"allow": [
-			"Bash(rtk pwd)",
-			"Bash(rtk ls *)",
-			"Bash(rtk find *)",
-			"Bash(rtk rg *)",
-			"Bash(rtk sed *)",
-			"Bash(rtk npm run docs:build)",
-			"Bash(rtk npm run docs:links)",
-			"Bash(rtk npm run lint:frontend)",
-			"Bash(rtk npm run lint:styles)",
-			"Bash(rtk npm run lint:knip)",
-			"Bash(rtk npm run test:unit)",
-			"Bash(rtk npm run typecheck)",
-			"Bash(rtk npm run build:frontend)",
-			"Bash(rtk npm run lint:py)",
-			"Bash(rtk npm run hardhat:test)",
-			"Bash(rtk npm run foundry:test)",
-			"Bash(rtk npx react-doctor@latest --verbose --diff)",
-			"Bash(rtk npx stylelint \"src/app/**/*.{css,scss}\")",
-			"Bash(rtk npx knip --production --strict)"
-		],
-		"deny": [
-			"Bash(rm -rf *)",
-			"Bash(git reset *)",
-			"Bash(git checkout -- *)",
-			"Bash(git clean *)",
-			"Bash(open *)"
-		]
-	},
-	"enabledMcpjsonServers": ["nexus", "serena"],
-	"disabledMcpjsonServers": [],
-	"enableAllProjectMcpServers": false
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(rtk pwd)",
+      "Bash(rtk ls *)",
+      "Bash(rtk find *)",
+      "Bash(rtk rg *)",
+      "Bash(rtk sed *)",
+      "Bash(rtk npm run docs:build)",
+      "Bash(rtk npm run docs:links)",
+      "Bash(rtk npm run lint:frontend)",
+      "Bash(rtk npm run lint:styles)",
+      "Bash(rtk npm run lint:knip)",
+      "Bash(rtk npm run test:unit)",
+      "Bash(rtk npm run typecheck)",
+      "Bash(rtk npm run build:frontend)",
+      "Bash(rtk npm run lint:py)",
+      "Bash(rtk npm run hardhat:test)",
+      "Bash(rtk npm run foundry:test)",
+      "Bash(rtk npx react-doctor@latest --verbose --diff)",
+      "Bash(rtk npx stylelint \"src/app/**/*.{css,scss}\")",
+      "Bash(rtk npx knip --production --strict)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git reset *)",
+      "Bash(git checkout -- *)",
+      "Bash(git clean *)",
+      "Bash(open *)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "nexus",
+    "serena"
+  ],
+  "disabledMcpjsonServers": [],
+  "enableAllProjectMcpServers": false,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CMD=$(python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('tool_input',d).get('command',''))\" 2>/dev/null || true); case \"$CMD\" in *grep*|*rg\\ *|*ripgrep*|*find\\ *|*fd\\ *|*ack\\ *|*ag\\ *)   [ -f graphify-out/graph.json ] &&   echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"MANDATORY: graphify-out/graph.json exists. You MUST run `graphify query \\\"<question>\\\"` before grepping raw files. Only grep after graphify has oriented you, or to modify/debug specific lines.\"}}'   || true ;; esac"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "HIT=$(python3 -c \"import json,sys;d=json.load(sys.stdin);t=d.get('tool_input',d);exts=('.py','.js','.ts','.tsx','.jsx','.astro','.vue','.svelte','.go','.rs','.java','.rb','.c','.h','.cpp','.hpp','.cc','.cs','.kt','.swift','.php','.scala','.lua','.sh','.md','.rst','.txt','.mdx');vals=[str(t.get('file_path') or ''),str(t.get('pattern') or ''),str(t.get('path') or '')];j=' '.join(vals).lower().replace(chr(92),'/');tails=[('.'+x.rsplit('.',1)[-1]) for v in vals if v for x in [v.lower().replace(chr(92),'/').rsplit('/',1)[-1]] if '.' in x];sys.stdout.write('1' if 'graphify-out/' not in j and any(tl in exts for tl in tails) else '')\" 2>/dev/null || true); if [ \"$HIT\" = 1 ] && [ -f graphify-out/graph.json ]; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"MANDATORY: graphify-out/graph.json exists. You MUST run graphify before reading source files. Use: `graphify query \\\"<question>\\\"` (scoped subgraph), `graphify explain \\\"<concept>\\\"`, or `graphify path \\\"<A>\\\" \\\"<B>\\\"`. Only read raw files after graphify has oriented you, or to modify/debug specific lines. This rule applies to subagents too \u2014 include it in every subagent prompt involving code exploration.\"}}'; fi || true"
+          }
+        ]
+      }
+    ]
+  }
 }

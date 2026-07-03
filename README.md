@@ -370,6 +370,30 @@ Local UI profiling prefers the Codex in-app browser when available. If the
 browser surface cannot be acquired, run the installed Playwright package against
 `http://127.0.0.1:3000` after starting `cd src && npm run dev:frontend`.
 
+### Knowledge Graph (graphify)
+
+The repository ships a [graphify](https://github.com/safishamsi/graphify)
+knowledge graph in `graphify-out/` (git-ignored, generated). It powers
+codebase-wide questions, cross-file relationship lookups, and a Wikipedia-style
+wiki under `graphify-out/wiki/`. Agents query it before grepping raw source (see
+`CLAUDE.md`). Install once with `pip install graphifyy`, then use the npm
+scripts:
+
+| Task                                | Command                                       |
+| ----------------------------------- | --------------------------------------------- |
+| Build the graph from scratch        | `npm run graph:build`                         |
+| Update the graph after code changes | `npm run graph:update`                        |
+| Ask a natural-language question     | `npm run graph:query -- "<question>"`         |
+| Find how two concepts connect       | `npm run graph:path -- "<node a>" "<node b>"` |
+| Explain a single concept            | `npm run graph:explain -- "<concept>"`        |
+| Generate per-community wiki pages   | `npm run graph:wiki`                          |
+| Verify the graph exists (CI guard)  | `npm run graph:check`                         |
+
+Building and updating the graph is AST-only and incurs no API cost. The
+`Graphify Knowledge Graph` workflow (`.github/workflows/graphify.yml`) rebuilds
+it on `main` and uploads `graphify-out/` as a downloadable artifact; the job is
+advisory and never blocks a merge.
+
 ## Environment Configuration
 
 Copy examples before local development:

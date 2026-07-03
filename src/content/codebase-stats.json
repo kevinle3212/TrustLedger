@@ -1,71 +1,71 @@
 {
 	"totals": {
-		"files": 862,
-		"directories": 306,
-		"lines": 137210,
-		"bytes": 10824005,
+		"files": 929,
+		"directories": 329,
+		"lines": 146689,
+		"bytes": 11320279,
 		"categories": 26
 	},
 	"categories": [
 		{
+			"name": "Markdown",
+			"files": 277,
+			"lines": 43616,
+			"share": 29.7
+		},
+		{
 			"name": "Solidity",
 			"files": 78,
 			"lines": 34405,
-			"share": 25.1
-		},
-		{
-			"name": "Markdown",
-			"files": 220,
-			"lines": 34387,
-			"share": 25.1
+			"share": 23.5
 		},
 		{
 			"name": "TypeScript",
 			"files": 197,
 			"lines": 22563,
-			"share": 16.4
+			"share": 15.4
 		},
 		{
 			"name": "React",
 			"files": 122,
 			"lines": 17355,
-			"share": 12.6
+			"share": 11.8
 		},
 		{
 			"name": "JSON",
-			"files": 49,
-			"lines": 12730,
-			"share": 9.3
+			"files": 50,
+			"lines": 12802,
+			"share": 8.7
 		},
 		{
 			"name": "JavaScript",
 			"files": 25,
-			"lines": 2885,
-			"share": 2.1
+			"lines": 2875,
+			"share": 2
 		},
 		{
 			"name": "YAML",
-			"files": 38,
-			"lines": 2802,
-			"share": 2
+			"files": 39,
+			"lines": 2858,
+			"share": 1.9
 		},
 		{
 			"name": "Python",
 			"files": 21,
 			"lines": 2246,
-			"share": 1.6
+			"share": 1.5
 		},
 		{
 			"name": "CSS",
 			"files": 4,
 			"lines": 2142,
-			"share": 1.6
+			"share": 1.5
 		},
 		{
 			"name": "Shell",
-			"files": 12,
-			"lines": 1637,
-			"share": 1.2
+			"files": 13,
+			"lines": 1677,
+			"share": 1.1
 		},
 		{
 			"name": "Rust",
@@ -76,14 +76,14 @@
 		{
 			"name": "Ignore/System Files",
 			"files": 23,
-			"lines": 572,
+			"lines": 590,
 			"share": 0.4
 		},
 		{
 			"name": "HTML",
 			"files": 2,
 			"lines": 506,
-			"share": 0.4
+			"share": 0.3
 		},
 		{
 			"name": "TOML",
@@ -101,18 +101,18 @@
 			"name": "Docker",
 			"files": 5,
 			"lines": 217,
-			"share": 0.2
+			"share": 0.1
+		},
+		{
+			"name": "Configuration Files",
+			"files": 13,
+			"lines": 183,
+			"share": 0.1
 		},
 		{
 			"name": "SQL",
 			"files": 1,
 			"lines": 123,
-			"share": 0.1
-		},
-		{
-			"name": "Configuration Files",
-			"files": 6,
-			"lines": 109,
 			"share": 0.1
 		},
 		{

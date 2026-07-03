@@ -6,6 +6,7 @@
 !.claude/commands/
 !.claude/commands/**
 !.claude/settings.json
+!.claude/skills/
 **/.serena/cache/
 **/.serena/project.local.yml
 
@@ -159,3 +160,6 @@ NOTES.local.md
 .idea/
 assets/presentation/
 .gstack/
+
+# ─── graphify knowledge-graph output (generated; .graphifyignore stays tracked) ─
+graphify-out/

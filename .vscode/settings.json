@@ -28,7 +28,8 @@
 		".markdownlintignore": "ignore",
 		".vercelignore": "ignore",
 		"LICENSE": "plaintext",
-		".gitleaksignore": "ignore"
+		".gitleaksignore": "ignore",
+		".graphifyignore": "ignore"
 	},
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": [
@@ -56,6 +57,7 @@
 		"reportMissingModuleSource": "information"
 	},
 	"python-envs.defaultEnvManager": "ms-python.python:pyenv",
+	"python.terminal.useEnvFile": true,
 	"pylint.ignorePatterns": ["**/*.pyi"],
 	"yaml.customTags": [
 		"tag:yaml.org,2002:python/name:material.extensions.emoji.twemoji",

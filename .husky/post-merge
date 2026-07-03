@@ -1,0 +1,6 @@
+echo "post-merge: TypeScript trace + CPU profile (debug:files)"
+# Runs after every successful merge/pull (git merge, git pull, squash-merge).
+# Regenerates ./trace and ./profile.cpuprofile for compiler diagnostics.
+# Both outputs are git-ignored (trace/, *.cpuprofile), so this never dirties the tree.
+# A failure here does not roll back the merge, so do not abort on error.
+npm run debug:files || echo "post-merge: debug:files failed (non-blocking); tsc diagnostics not refreshed"

@@ -1,1 +1,9 @@
 logs/
+
+# AI agent tool mirrors — generated/vendored skill corpora linted upstream.
+.agents/
+.claude/
+.codex/
+.copilot/
+.gemini/
+.openclaw/

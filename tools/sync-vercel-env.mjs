@@ -48,7 +48,7 @@ const VERCEL_KEYS = [
 
 function readEnv(file) {
 	const values = new Map();
-	let body = "";
+	let body;
 	try {
 		body = fs.readFileSync(path.join(ROOT, file), "utf8");
 	} catch (error) {
