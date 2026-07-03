@@ -44,6 +44,12 @@ src/.vercel/
 
 # ─── Tool local config ───────────────────────────────────────────────────────
 .claude/
+# AI agent tool mirrors — generated/vendored skill corpora, formatted upstream.
+.agents/
+.codex/
+.copilot/
+.gemini/
+.openclaw/
 .serena/
 .sixth/
 src/.playwright-cli/
