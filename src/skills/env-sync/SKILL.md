@@ -21,6 +21,13 @@ Use this skill whenever TrustLedger gains or changes an environment variable.
 Never commit real secrets. `NEXT_PUBLIC_*` values are public, but they should be
 owned by the target environment.
 
+## Tool Fallback <!-- tool-fallback -->
+
+- If a preferred tool, command, or skill is unavailable, failing, or a worse fit
+  for the task, use the best available alternative rather than stopping or
+  forcing it. Note which tool you used and why. Never fall back to a prohibited
+  tool (for example `mcp__claude-in-chrome__*` is banned — use `/browse`).
+
 ## Clarify Before Acting <!-- clarify-before-acting -->
 
 Before running this skill or producing output, if the request is ambiguous or

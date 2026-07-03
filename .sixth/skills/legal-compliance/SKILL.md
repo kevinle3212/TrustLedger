@@ -69,6 +69,13 @@ When legal edits are allowed, update committed docs and website references in
 the same branch. When legal edits are not allowed, add only a summary of suggested
 review areas to the task response or an ignored markdown log under `logs/`.
 
+## Tool Fallback <!-- tool-fallback -->
+
+- If a preferred tool, command, or skill is unavailable, failing, or a worse fit
+  for the task, use the best available alternative rather than stopping or
+  forcing it. Note which tool you used and why. Never fall back to a prohibited
+  tool (for example `mcp__claude-in-chrome__*` is banned — use `/browse`).
+
 ## Clarify Before Acting <!-- clarify-before-acting -->
 
 Before running this skill or producing output, if the request is ambiguous or the

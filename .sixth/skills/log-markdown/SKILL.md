@@ -4,6 +4,13 @@ description: Format TrustLedger logs/ output as markdownlint-compliant Markdown.
 version: "1.0.0"
 ---
 
+## Tool Fallback <!-- tool-fallback -->
+
+- If a preferred tool, command, or skill is unavailable, failing, or a worse fit
+  for the task, use the best available alternative rather than stopping or
+  forcing it. Note which tool you used and why. Never fall back to a prohibited
+  tool (for example `mcp__claude-in-chrome__*` is banned — use `/browse`).
+
 ## Clarify Before Acting <!-- clarify-before-acting -->
 
 Before running this skill or producing output, if the request is ambiguous or the

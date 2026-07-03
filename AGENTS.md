@@ -311,6 +311,17 @@ Rules:
 - After modifying code, run `graphify update .` to keep the graph current
   (AST-only, no API cost).
 
+## Tool Fallback <!-- tool-fallback -->
+
+- When a preferred tool, command, skill, script, or agent is unavailable,
+  failing, or a worse fit for the task, use the best available alternative
+  instead of stopping or forcing the preferred one.
+- Pick the option that most reliably accomplishes the goal; state which tool you
+  used and why you substituted, so the choice stays auditable.
+- This never overrides an explicit prohibition or a hard requirement (for
+  example, never use `mcp__claude-in-chrome__*` — use `/browse`; never bypass
+  the commit/PR quality gates). Fall back only among permitted tools.
+
 ## Clarify Before Acting <!-- clarify-before-acting -->
 
 - Before replying or starting work, if the request is ambiguous or my intent is

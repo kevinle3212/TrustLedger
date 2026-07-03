@@ -3,6 +3,13 @@ name: kubernetes
 description: Use when adding, reviewing, deploying, debugging, or documenting TrustLedger Kubernetes manifests, secrets, probes, images, Kustomize output, or cluster rollout steps.
 ---
 
+## Tool Fallback <!-- tool-fallback -->
+
+- If a preferred tool, command, or skill is unavailable, failing, or a worse fit
+  for the task, use the best available alternative rather than stopping or
+  forcing it. Note which tool you used and why. Never fall back to a prohibited
+  tool (for example `mcp__claude-in-chrome__*` is banned — use `/browse`).
+
 ## Clarify Before Acting <!-- clarify-before-acting -->
 
 Before running this skill or producing output, if the request is ambiguous or the
