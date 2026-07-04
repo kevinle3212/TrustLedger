@@ -357,6 +357,7 @@
 		"previewSubtitle": "Esta vista previa se actualiza mientras editas. Nada se despliega hasta que revises y confirmes.",
 		"previewNotSet": "Not set",
 		"counterparty": "Contraparte",
+		"deadline": "Fecha Límite",
 		"recipientRole": "Rol del destinatario",
 		"isClient": "Cliente",
 		"isFreelancer": "Freelancer",

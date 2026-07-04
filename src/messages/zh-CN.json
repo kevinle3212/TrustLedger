@@ -357,6 +357,7 @@
 		"previewSubtitle": "此预览会随你的编辑而更新。在你审阅并确认之前，不会部署任何内容。",
 		"previewNotSet": "Not set",
 		"counterparty": "对手方",
+		"deadline": "截止日期",
 		"recipientRole": "接收方角色",
 		"isClient": "客户",
 		"isFreelancer": "自由职业者",
