@@ -79,7 +79,7 @@ export interface AiProvider {
 }
 
 /** Supported adapter kinds. Extend the union when adding a new adapter family. */
-export type AiProviderKind = "openai-compatible" | "disabled";
+export type AiProviderKind = "openai-compatible" | "gemini" | "disabled";
 
 /** Declarative description of a provider instance, sourced from configuration. */
 export interface AiProviderConfig {
