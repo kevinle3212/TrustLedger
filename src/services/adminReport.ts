@@ -57,9 +57,9 @@ export function buildAdminDashboardReport(): AdminDashboardReport {
 		metrics: [
 			{
 				label: "Deployment",
-				value: process.env["VERCEL_ENV"] ?? "local",
+				value: process.env.VERCEL_ENV ?? "local",
 				detail:
-					process.env["VERCEL_GIT_COMMIT_SHA"] ??
+					process.env.VERCEL_GIT_COMMIT_SHA ??
 					"Commit metadata is available only in deployment.",
 			},
 			{
@@ -179,7 +179,7 @@ export function buildAdminDashboardReport(): AdminDashboardReport {
 						label: "Deployment metadata",
 						status: hasEnv("VERCEL_GIT_COMMIT_SHA") ? "ok" : "warning",
 						detail:
-							process.env["VERCEL_GIT_COMMIT_SHA"] ??
+							process.env.VERCEL_GIT_COMMIT_SHA ??
 							"Local build or deployment metadata unavailable.",
 					},
 					{

@@ -54,7 +54,7 @@ function isLoopbackIp(ip: string): boolean {
 }
 
 function sessionSecret(): string | undefined {
-	return process.env["ADMIN_SESSION_SECRET"] ?? process.env["ADMIN_API_TOKEN"];
+	return process.env.ADMIN_SESSION_SECRET ?? process.env.ADMIN_API_TOKEN;
 }
 
 function hmac(value: string): string {
@@ -71,7 +71,7 @@ function normalizeWallet(walletAddress: string | undefined): string | undefined 
 }
 
 function parseAccountsJson(): AdminAccount[] {
-	const raw = process.env["ADMIN_ACCOUNTS_JSON"];
+	const raw = process.env.ADMIN_ACCOUNTS_JSON;
 	if (raw === undefined || raw === "") return [];
 
 	const parsed = JSON.parse(raw) as unknown;
@@ -109,16 +109,16 @@ function parseAccountsJson(): AdminAccount[] {
 }
 
 function bootstrapAccount(): AdminAccount | undefined {
-	const passwordHash = process.env["ADMIN_BOOTSTRAP_PASSWORD_HASH"];
+	const passwordHash = process.env.ADMIN_BOOTSTRAP_PASSWORD_HASH;
 	if (passwordHash === undefined || passwordHash === "") return undefined;
-	const email = process.env["ADMIN_BOOTSTRAP_EMAIL"]?.trim().toLowerCase();
-	const username = process.env["ADMIN_BOOTSTRAP_USERNAME"]?.trim().toLowerCase();
+	const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
+	const username = process.env.ADMIN_BOOTSTRAP_USERNAME?.trim().toLowerCase();
 	if (email === undefined || email === "" || username === undefined || username === "") {
 		throw new Error(
 			"ADMIN_BOOTSTRAP_EMAIL and ADMIN_BOOTSTRAP_USERNAME are required when ADMIN_BOOTSTRAP_PASSWORD_HASH is set",
 		);
 	}
-	const walletAddress = normalizeWallet(process.env["ADMIN_BOOTSTRAP_WALLET_ADDRESS"]);
+	const walletAddress = normalizeWallet(process.env.ADMIN_BOOTSTRAP_WALLET_ADDRESS);
 
 	return {
 		email,
@@ -162,14 +162,14 @@ function verifyAdminPassword(password: string, encodedHash: string): boolean {
  *   listed, or (outside production) the IP is loopback.
  */
 export function isAdminIpAllowed(headers: Headers): boolean {
-	const allowedIps = parseCsv(process.env["ADMIN_ALLOWED_IPS"]);
+	const allowedIps = parseCsv(process.env.ADMIN_ALLOWED_IPS);
 	if (allowedIps.length === 0) return true;
 	const ip = clientIp(headers).toLowerCase();
 	return allowedIps.includes(ip) || (process.env.NODE_ENV !== "production" && isLoopbackIp(ip));
 }
 
 function isWalletAllowed(walletAddress: string | undefined): boolean {
-	const allowedWallets = parseCsv(process.env["ADMIN_WALLET_ADDRESSES"]);
+	const allowedWallets = parseCsv(process.env.ADMIN_WALLET_ADDRESSES);
 	if (allowedWallets.length === 0) return true;
 	const normalized = normalizeWallet(walletAddress);
 	return normalized !== undefined && allowedWallets.includes(normalized);
@@ -276,7 +276,7 @@ export function expiredAdminCookieHeader(): string {
  * @returns The session, or `undefined` when no valid credential is present.
  */
 export function adminSessionFromHeaders(headers: Headers): AdminSession | undefined {
-	const token = process.env["ADMIN_API_TOKEN"];
+	const token = process.env.ADMIN_API_TOKEN;
 	const authorization = headers.get("authorization");
 	if (token !== undefined && token !== "" && authorization === `Bearer ${token}`) {
 		const walletAddress = normalizeWallet(headers.get("x-admin-wallet") ?? undefined);

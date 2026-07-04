@@ -5,9 +5,10 @@ import { useTranslations } from "next-intl";
 import {
 	DEFAULT_INACTIVITY_TIMEOUT_MS,
 	INACTIVITY_TIMEOUT_OPTIONS,
+	persistInactivityTimeoutMs,
 	readInactivityTimeoutMs,
 	subscribeInactivityTimeout,
-	writeInactivityTimeoutMs,
+	syncInactivityTimeoutFromProfile,
 } from "@/lib/accountPreferences";
 
 /**
@@ -28,6 +29,12 @@ export function InactivityTimeoutSetting(): React.JSX.Element {
 		INACTIVITY_TIMEOUT_OPTIONS.find((option) => option.ms === value) ??
 		INACTIVITY_TIMEOUT_OPTIONS[2];
 
+	// Seed the local preference from the signed profile once on mount so the
+	// timeout follows the wallet across devices (no-op without a session).
+	useEffect(() => {
+		void syncInactivityTimeoutFromProfile();
+	}, []);
+
 	useEffect(() => {
 		function closeOnOutsideClick(event: MouseEvent): void {
 			if (
@@ -46,7 +53,7 @@ export function InactivityTimeoutSetting(): React.JSX.Element {
 	}, []);
 
 	function selectTimeout(ms: number): void {
-		writeInactivityTimeoutMs(ms);
+		persistInactivityTimeoutMs(ms);
 		setOpen(false);
 	}
 

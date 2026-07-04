@@ -13,6 +13,14 @@ contract, security, testing, and documentation routing.
 After repository changes, use `src/.agents/skills/update-context/SKILL.md` to
 keep docs, comments, visible project surfaces, and agent instructions current.
 
+## Orchestration
+
+Act as the orchestrator: use the most token/usage-friendly approach without
+compromising quality, security, or best practices. Plan and delegate with
+cheaper models where possible, and reserve the most capable model for planning
+and the final QA pass rather than routine implementation. The Claude-specific
+model-tier delegation policy lives in `CLAUDE.md`.
+
 ## graphify
 
 For any question about this repo's architecture, structure, components, or how

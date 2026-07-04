@@ -64,7 +64,7 @@ export async function GET(
 	if (!/^\d+$/.test(id))
 		return NextResponse.json({ error: "id must be a non-negative integer" }, { status: 400 });
 
-	const rpcUrl = process.env["SEPOLIA_RPC_URL"];
+	const rpcUrl = process.env.SEPOLIA_RPC_URL;
 	if (rpcUrl === undefined || rpcUrl === "")
 		return NextResponse.json({ error: "SEPOLIA_RPC_URL not set" }, { status: 500 });
 	if (TRUSTLEDGER_ADDRESS === "0x0000000000000000000000000000000000000000")

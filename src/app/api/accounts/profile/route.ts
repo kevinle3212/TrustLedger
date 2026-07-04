@@ -28,8 +28,8 @@ function bearer(request: NextRequest): string | null {
  * @param request - Incoming request carrying the bearer token.
  * @returns JSON response per the contract above.
  */
-export function GET(request: NextRequest): NextResponse {
-	const result = getProfile(bearer(request));
+export async function GET(request: NextRequest): Promise<NextResponse> {
+	const result = await getProfile(bearer(request));
 	return NextResponse.json(result.body, { status: result.status });
 }
 
@@ -38,11 +38,14 @@ export function GET(request: NextRequest): NextResponse {
  * authenticated wallet's off-chain profile.
  *
  * - **Auth:** required. `Authorization: Bearer <session-token>`.
- * - **Request body (JSON, all optional):** `displayName` (string),
- *   `avatarUrl` (string), `email` (string), `onboardingComplete` (boolean),
- *   `notificationsEnabled` (boolean). Unknown or mistyped fields are ignored.
+ * - **Request body (JSON, all optional):** `displayName` (string, ≤ 80),
+ *   `avatarUrl` (string, ≤ 300), `email` (string, ≤ 254), `onboardingComplete`
+ *   (boolean), `notificationsEnabled` (boolean), `inactivityTimeoutMs` (integer
+ *   in `[60000, 86400000]`, or `null` for the app default). Unknown fields are
+ *   ignored; a present-but-invalid field is rejected with `400`.
  * - **Responses:**
  *   - `200` `{ profile: AccountProfile }` — updated profile.
+ *   - `400` `{ error }` — a provided field failed validation.
  *   - `401` `{ error: "unauthorized" }` — missing or invalid session.
  *
  * @param request - Incoming request carrying the bearer token and JSON body.
@@ -50,6 +53,6 @@ export function GET(request: NextRequest): NextResponse {
  */
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
 	const body = (await request.json()) as Record<string, unknown>;
-	const result = patchProfile(bearer(request), body);
+	const result = await patchProfile(bearer(request), body);
 	return NextResponse.json(result.body, { status: result.status });
 }

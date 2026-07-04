@@ -97,8 +97,8 @@ function parseGitHubRepoUrl(value: string | undefined): { owner: string; repo: s
 }
 
 function configuredRepo(): { owner: string; repo: string } | null {
-	const owner = process.env["VERCEL_GIT_REPO_OWNER"];
-	const slug = process.env["VERCEL_GIT_REPO_SLUG"];
+	const owner = process.env.VERCEL_GIT_REPO_OWNER;
+	const slug = process.env.VERCEL_GIT_REPO_SLUG;
 	if (owner !== undefined && owner !== "" && slug !== undefined && slug !== "") {
 		return { owner, repo: slug };
 	}

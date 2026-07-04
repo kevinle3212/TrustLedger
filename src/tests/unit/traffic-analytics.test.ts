@@ -39,7 +39,7 @@ describe("privacy traffic analytics", () => {
 	});
 
 	it("does not record when analytics are disabled", () => {
-		process.env["TRUSTLEDGER_ANALYTICS_ENABLED"] = "false";
+		process.env.TRUSTLEDGER_ANALYTICS_ENABLED = "false";
 
 		expect(recordAnalyticsEvent({ name: "page_view", path: "/en", locale: "en" })).toBeNull();
 	});

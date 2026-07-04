@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 import { hasAnalyticsConsent, hasPrivacySignal } from "@/lib/cookie-consent";
 
-const enabled = process.env["NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED"] === "true";
+const enabled = process.env.NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED === "true";
 
 function sendAnalytics(name: "page_view" | "frontend_error", path: string, locale: string): void {
 	// Require explicit analytics consent and honor any browser privacy signal

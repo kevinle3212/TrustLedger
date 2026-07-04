@@ -810,24 +810,28 @@ sites never change.
 prompt templates (`prompt.ts`), a provider registry (`registry.ts`), a
 config-based model router (`router.ts`), the high-level service (`service.ts` —
 `generateText` / `streamText` / `collectStream`), and adapters: a generic
-**OpenAI-compatible** HTTP adapter (works with OpenAI, Groq, Together,
-OpenRouter, the Vercel AI Gateway, or a self-hosted model) and a built-in
+**OpenAI-compatible** HTTP adapter (works with OpenAI, Groq, OpenRouter, NVIDIA,
+the Vercel AI Gateway, or a self-hosted model), a **gemini** adapter for
+Google's generative-language API (system→`systemInstruction`, header-key auth,
+`thinkingBudget: 0` so reasoning doesn't truncate short outputs), and a built-in
 **disabled** placeholder so the app runs with zero AI config. Streaming is
 supported via SSE. Feature routing supports per-task provider/model overrides.
 
-**Why this shape:** the existing single-purpose contract-summary service
-(`services/contractSummary.ts`) hardcoded Groq/Gemini branches — fine for one
-feature, but not a foundation. The new core lets future AI features (moderation,
-assistance, richer summaries) share one abstraction and swap providers without
-code changes, which is why provider names never appear in call sites.
+**Consumers:** the contract-summary service (`services/contractSummary.ts`)
+routes the `"summary"` task through `generateText` — its old hardcoded
+Groq/Gemini `fetch` branches are gone — and `POST /api/ai/complete` is a thin
+provider-agnostic completion endpoint (feature-gated by `isAiEnabled`, input
+caps bound cost). Both name no vendor, so future features (moderation,
+assistance, richer summaries) share one abstraction and swap providers via
+config alone.
 
 **Required to enable (see `.env.example` "AI infrastructure"):** either the
-simple single-provider vars (`AI_PROVIDER_KIND=openai-compatible`,
-`AI_BASE_URL`, `AI_API_KEY`, `AI_DEFAULT_MODEL`) or the advanced
-`AI_PROVIDERS_JSON` + `AI_ROUTES_JSON`. `AI_ENABLED=false` forces the
-placeholder. **Required API keys/services:** an API key for whichever
-OpenAI-compatible endpoint is chosen (e.g. OpenAI, Groq, or the Vercel AI
-Gateway). No keys are committed.
+simple single-provider vars (`AI_PROVIDER_KIND=openai-compatible` +
+`AI_BASE_URL`, or `AI_PROVIDER_KIND=gemini`; plus `AI_API_KEY` and
+`AI_DEFAULT_MODEL`) or the advanced `AI_PROVIDERS_JSON` + `AI_ROUTES_JSON`.
+`AI_ENABLED=false` forces the placeholder. **Required API keys/services:** an
+API key for whichever endpoint is chosen (e.g. OpenAI, Groq, NVIDIA, Google
+Gemini, or the Vercel AI Gateway). No keys are committed.
 
 ### Wallet session persistence across navigation (2026-07-01)
 

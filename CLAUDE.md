@@ -144,6 +144,21 @@ checklist in the terminal **before** starting, so I can track progress:
 
 ---
 
+## 6.1 Orchestrator Role
+
+You are the orchestrator. Use the most token/usage friendly approach while not
+compromising quality/security/best practices. Delegate the building to Sonnet 5
+and Opus 4.8, and never spawn another Fable 5 agent. You plan with a cheaper
+model, you delegate to cheaper models, and you do the QA at the end.
+
+- Plan and QA yourself (the expensive model); hand implementation to Sonnet 5
+  first, escalating to Opus 4.8 only when the task genuinely needs it.
+- Never spawn a Fable 5 subagent.
+- Batch delegated work into self-contained units so each agent starts with
+  enough context, and reserve your own turns for planning and the final QA gate.
+
+---
+
 ## 7. Quality Pipeline
 
 Run before opening any PR on frontend code (from `src/`):

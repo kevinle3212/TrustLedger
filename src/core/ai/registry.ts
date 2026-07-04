@@ -2,6 +2,7 @@ import "server-only";
 
 import { DISABLED_PROVIDER, providerConfigs } from "@/core/ai/config";
 import { DisabledAiProvider } from "@/core/ai/providers/disabled";
+import { GeminiProvider } from "@/core/ai/providers/gemini";
 import { OpenAiCompatibleProvider } from "@/core/ai/providers/openaiCompatible";
 import type { AiProvider, AiProviderConfig, AiProviderKind } from "@/core/ai/types";
 
@@ -15,6 +16,7 @@ type AdapterFactory = (config: AiProviderConfig) => AiProvider;
 
 const ADAPTERS: Record<AiProviderKind, AdapterFactory> = {
 	"openai-compatible": (config) => new OpenAiCompatibleProvider(config),
+	"gemini": (config) => new GeminiProvider(config),
 	"disabled": (config) => new DisabledAiProvider(config.name),
 };
 

@@ -49,7 +49,7 @@ describe("admin auth", () => {
 	});
 
 	it("enforces the admin IP allowlist when configured", () => {
-		process.env["ADMIN_ALLOWED_IPS"] = "203.0.113.10";
+		process.env.ADMIN_ALLOWED_IPS = "203.0.113.10";
 
 		expect(isAdminIpAllowed(new Headers({ "x-forwarded-for": "203.0.113.10" }))).toBe(true);
 		expect(isAdminIpAllowed(new Headers({ "x-forwarded-for": "198.51.100.4" }))).toBe(false);

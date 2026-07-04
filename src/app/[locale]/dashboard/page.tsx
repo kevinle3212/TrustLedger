@@ -798,6 +798,127 @@ function ContractCard({
  * RPC cost), filters to the current wallet + role, and displays a count chip for
  * every status that has at least one contract. "Total" is always shown.
  */
+/**
+ * Compact "Upcoming Deadlines" panel shown above the summary banner. Reads the
+ * same on-chain contract batch as `SummaryBanner` (wagmi dedupes the identical
+ * query, so there is no extra RPC cost), filters to the connected wallet + role,
+ * derives each contract's next stage deadline via `nextStageDeadline`, and lists
+ * the soonest first with a live countdown. Renders nothing when no contract has
+ * an active deadline, so it never adds empty chrome to a quiet dashboard.
+ */
+function UpcomingDeadlines({
+	address,
+	role,
+}: {
+	address: `0x${string}`;
+	role: "client" | "freelancer";
+}): React.JSX.Element | null {
+	const t = useTranslations("Dashboard");
+	const locale = useLocale();
+	const now = useNowSeconds();
+
+	const { data: nextId } = useReadContract({
+		address: TRUSTLEDGER_ADDRESS,
+		abi: TRUSTLEDGER_ABI,
+		functionName: "nextId",
+	});
+	const total = Number(nextId ?? BigInt(0));
+	const contractConfigs = useMemo(
+		() =>
+			Array.from({ length: total }, (_, i) => ({
+				address: TRUSTLEDGER_ADDRESS,
+				abi: TRUSTLEDGER_ABI,
+				functionName: "getContract" as const,
+				args: [BigInt(i)] as [bigint],
+			})),
+		[total],
+	);
+	const { data: allContracts } = useReadContracts({ contracts: contractConfigs });
+
+	const items = useMemo(() => {
+		if (allContracts === undefined) return [];
+		const addr = address.toLowerCase();
+		const out: { id: number; title: string; detail: string; target: bigint }[] = [];
+		allContracts.forEach((r, i) => {
+			if (r.status !== "success") return;
+			const c = r.result;
+			const mine =
+				role === "client"
+					? c.client.toLowerCase() === addr
+					: c.freelancer.toLowerCase() === addr;
+			if (!mine) return;
+			const deadline = nextStageDeadline(c, t);
+			if (deadline === null) return;
+			out.push({
+				id: i,
+				title: deadline.title,
+				detail: deadline.detail,
+				target: deadline.target,
+			});
+		});
+		// Soonest deadline first so the most time-sensitive item leads.
+		out.sort((a, b) => (a.target < b.target ? -1 : a.target > b.target ? 1 : 0));
+		return out;
+	}, [allContracts, address, role, t]);
+
+	if (items.length === 0) return null;
+
+	return (
+		<section
+			aria-label={t("upcomingAriaLabel")}
+			className="mb-8 rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03] sm:p-5"
+		>
+			<div className="mb-3 flex items-baseline justify-between gap-3">
+				<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+					{t("upcomingTitle")}
+				</h2>
+				<span
+					className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-white/10 dark:text-gray-300"
+					aria-label={t("upcomingCount", { count: items.length })}
+				>
+					{items.length}
+				</span>
+			</div>
+			<ul className="flex flex-col gap-2">
+				{items.map((item) => {
+					const expired = now >= item.target;
+					const countdown = formatCountdownParts(item.target, now);
+					const tone = expired
+						? "border-amber-200 bg-amber-50 text-amber-950 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-100"
+						: countdown.urgent
+							? "border-orange-200 bg-orange-50 text-orange-950 dark:border-orange-400/25 dark:bg-orange-400/10 dark:text-orange-100"
+							: "border-gray-200 bg-gray-50 text-gray-900 dark:border-white/10 dark:bg-white/5 dark:text-white";
+					return (
+						<li
+							key={item.id}
+							className={`flex flex-col gap-2 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between ${tone}`}
+						>
+							<div className="min-w-0">
+								<p className="text-sm font-medium">
+									<span className="font-mono text-xs opacity-70">#{item.id}</span>{" "}
+									{item.title}
+								</p>
+								<p className="mt-0.5 text-xs leading-5 opacity-80">
+									{item.detail} {formatDeadline(item.target, locale)}
+								</p>
+							</div>
+							<div
+								className="shrink-0 rounded-lg border border-current/15 bg-white/55 px-3 py-1.5 text-right font-mono dark:bg-gray-950/35"
+								aria-live="polite"
+							>
+								<p className="text-[0.6rem] font-semibold uppercase tracking-[0.12em] opacity-70">
+									{expired ? t("countdownSince") : t("countdownRemaining")}
+								</p>
+								<p className="text-sm font-bold tabular-nums">{countdown.label}</p>
+							</div>
+						</li>
+					);
+				})}
+			</ul>
+		</section>
+	);
+}
+
 function SummaryBanner({
 	address,
 	role,
@@ -1402,6 +1523,7 @@ export default function DashboardPage(): React.JSX.Element {
 				</Link>
 			</div>
 
+			<UpcomingDeadlines address={address} role={role} />
 			<SummaryBanner address={address} role={role} />
 			<ContractList
 				address={address}

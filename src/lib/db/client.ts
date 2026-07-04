@@ -19,12 +19,12 @@ const globalForPrisma = globalThis as unknown as { trustledgerPrisma?: PrismaCli
 
 /** True when an off-chain database connection string is configured. */
 export function isDatabaseConfigured(): boolean {
-	const url = process.env["DATABASE_URL"];
+	const url = process.env.DATABASE_URL;
 	return url !== undefined && url !== "";
 }
 
 function createPrismaClient(): PrismaClient {
-	const connectionString = process.env["DATABASE_URL"];
+	const connectionString = process.env.DATABASE_URL;
 	if (connectionString === undefined || connectionString === "") {
 		throw new Error(
 			"DATABASE_URL is not set. Provision the off-chain database (see NOTES.md) " +

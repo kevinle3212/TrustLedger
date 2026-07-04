@@ -109,5 +109,134 @@ declare namespace NodeJS {
 		// Server-side cache TTL in ms for GET /api/oracle/rates.
 		// Defaults to 60000 (1 min); capped at 3600000 (1 hr).
 		ORACLE_RATE_TTL_MS?: string;
+		// ─── AI providers ──────────────────────────────────────────────────────────
+		// Master switch for the AI infrastructure (src/core/ai). Unset/false disables
+		// AI-backed features.
+		AI_ENABLED?: string;
+		// Primary provider adapter kind (e.g. "gemini"). See src/core/ai/registry.ts.
+		AI_PROVIDER_KIND?: string;
+		// Primary provider API base URL override.
+		AI_BASE_URL?: string;
+		// Primary provider API key. Server-only secret.
+		AI_API_KEY?: string;
+		// Primary provider default model id.
+		AI_DEFAULT_MODEL?: string;
+		// Default provider name used when routing is unconfigured.
+		AI_DEFAULT_PROVIDER?: string;
+		// JSON-encoded multi-provider configuration (src/core/ai/config.ts).
+		AI_PROVIDERS_JSON?: string;
+		// JSON-encoded route configuration mapping request types to providers.
+		AI_ROUTES_JSON?: string;
+		// Server-only secret. When set, registers an OpenRouter fallback provider
+		// (OpenAI-compatible) that the AI router uses if the primary provider errors
+		// or is unconfigured. Get a key at https://openrouter.ai/keys. Never
+		// NEXT_PUBLIC.
+		OPENROUTER_API_KEY?: string;
+		// Optional override of the OpenRouter API base. Defaults to
+		// https://openrouter.ai/api/v1.
+		OPENROUTER_BASE_URL?: string;
+		// Optional model id used by the OpenRouter fallback provider. Defaults to
+		// deepseek/deepseek-chat-v3-0324:free (a free OpenRouter model).
+		AI_FALLBACK_MODEL?: string;
+		// ─── Legacy AI vars (deprecated) ───────────────────────────────────────────
+		// Pre-unification provider-specific vars. Read only as backward-compat when
+		// AI_PROVIDER_KIND is unset (src/core/ai/config.ts legacyProvider). Migrate
+		// to the unified AI_* set above; gemini wins when both legacy keys are set.
+		/** @deprecated Set AI_PROVIDER_KIND=gemini + AI_API_KEY instead. */
+		GEMINI_API_KEY?: string;
+		/** @deprecated Set AI_DEFAULT_MODEL instead. */
+		GEMINI_MODEL?: string;
+		/** @deprecated Set AI_PROVIDER_KIND=openai-compatible + AI_API_KEY instead. */
+		OPENAI_API_KEY?: string;
+		/** @deprecated Set AI_BASE_URL instead. */
+		OPENAI_BASE_URL?: string;
+		/** @deprecated Set AI_DEFAULT_MODEL instead. */
+		OPENAI_MODEL?: string;
+		/** @deprecated Superseded by AI_DEFAULT_PROVIDER / AI_PROVIDER_KIND. */
+		AI_SUMMARY_PROVIDER?: string;
+		// ─── Database (Prisma / Neon) ──────────────────────────────────────────────
+		// Pooled Postgres connection string used by the Prisma client (src/lib/db).
+		DATABASE_URL?: string;
+		// Direct (non-pooled) Postgres connection string, used for migrations.
+		DIRECT_URL?: string;
+		// ─── Admin & sensitive-route access ────────────────────────────────────────
+		// Comma-separated IP allowlist gating /admin and /api/admin/* in src/proxy.ts.
+		SENSITIVE_ALLOWED_IPS?: string;
+		// Legacy/fallback IP allowlist for admin routes; used when
+		// SENSITIVE_ALLOWED_IPS is unset (src/proxy.ts, src/services/adminAuth.ts).
+		ADMIN_ALLOWED_IPS?: string;
+		// Bootstrap admin account password hash, used to seed the first admin.
+		ADMIN_BOOTSTRAP_PASSWORD_HASH?: string;
+		// Bootstrap admin account email.
+		ADMIN_BOOTSTRAP_EMAIL?: string;
+		// Bootstrap admin account username.
+		ADMIN_BOOTSTRAP_USERNAME?: string;
+		// Bootstrap admin account wallet address.
+		ADMIN_BOOTSTRAP_WALLET_ADDRESS?: string;
+		// Comma-separated wallet addresses granted admin access.
+		ADMIN_WALLET_ADDRESSES?: string;
+		// JSON-encoded list of admin accounts (src/services/adminAuth.ts).
+		ADMIN_ACCOUNTS_JSON?: string;
+		// Bearer token accepted for admin API authentication.
+		ADMIN_API_TOKEN?: string;
+		// Secret used to sign/verify admin session cookies.
+		ADMIN_SESSION_SECRET?: string;
+		// Bearer token accepted for the health-check endpoint.
+		HEALTH_CHECK_TOKEN?: string;
+		// Comma-separated IP allowlist for the health-check endpoint.
+		HEALTH_CHECK_ALLOWED_IPS?: string;
+		// Bearer token accepted for internal/service-to-service API calls.
+		INTERNAL_API_TOKEN?: string;
+		// Secret required by scheduled cron routes (e.g. deadline reminders).
+		CRON_SECRET?: string;
+		// ─── Auth & session secrets ────────────────────────────────────────────────
+		// Signing secret for offchain-account auth JWTs.
+		AUTH_JWT_SECRET?: string;
+		// Signing secret for offchain-account sessions.
+		ACCOUNT_SESSION_SECRET?: string;
+		// Signing secret for magic-link tokens (send/verify routes).
+		MAGIC_LINK_SECRET?: string;
+		// ─── Email ──────────────────────────────────────────────────────────────────
+		// Selects the active email provider (e.g. "resend" | "postmark" | "brevo").
+		EMAIL_PROVIDER?: string;
+		// Default "from" address used across email providers.
+		EMAIL_FROM?: string;
+		// Resend API key. Server-only secret.
+		RESEND_API_KEY?: string;
+		// Resend "from" address override.
+		RESEND_FROM?: string;
+		// Postmark server token. Server-only secret.
+		POSTMARK_SERVER_TOKEN?: string;
+		// Postmark message stream id.
+		POSTMARK_MESSAGE_STREAM?: string;
+		// Postmark "from" address override.
+		POSTMARK_FROM?: string;
+		// Brevo API key. Server-only secret.
+		BREVO_API_KEY?: string;
+		// Brevo "from" address override.
+		BREVO_FROM?: string;
+		// ─── Notifications ──────────────────────────────────────────────────────────
+		// Comma-separated notification recipient list for cron/deadline reminders.
+		NOTIFICATION_EMAILS?: string;
+		// Shared secret required to call the notifications API route.
+		NOTIFICATIONS_SECRET?: string;
+		// ─── Analytics ──────────────────────────────────────────────────────────────
+		// Server-side switch enabling privacy-respecting traffic analytics.
+		TRUSTLEDGER_ANALYTICS_ENABLED?: string;
+		// Retention window in days for stored traffic analytics events.
+		TRUSTLEDGER_ANALYTICS_RETENTION_DAYS?: string;
+		// Client-visible switch surfaced by /status for the privacy analytics badge.
+		NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED?: string;
+		// ─── RPC ────────────────────────────────────────────────────────────────────
+		// Server-side Sepolia RPC endpoint used by contract read routes.
+		SEPOLIA_RPC_URL?: string;
+		// ─── Vercel system env (auto-populated on Vercel deployments) ──────────────
+		VERCEL?: string;
+		VERCEL_ENV?: string;
+		VERCEL_GIT_REPO_OWNER?: string;
+		VERCEL_GIT_REPO_SLUG?: string;
+		VERCEL_GIT_COMMIT_SHA?: string;
+		// Optional base path override for next.config.ts.
+		NEXT_BASE_PATH?: string;
 	}
 }

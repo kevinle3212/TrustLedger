@@ -98,10 +98,11 @@ const config = {
 				rules: ["deslop/unused-file"],
 			},
 			{
-				// The streaming provider reads a Server-Sent Events response chunk by
+				// The streaming providers read a Server-Sent Events response chunk by
 				// chunk; each `reader.read()` must await the previous chunk, so the loop
-				// is inherently sequential and Promise.all does not apply.
-				files: ["core/ai/providers/openaiCompatible.ts"],
+				// is inherently sequential and Promise.all does not apply. Same pattern
+				// in both the OpenAI-compatible and Gemini adapters.
+				files: ["core/ai/providers/openaiCompatible.ts", "core/ai/providers/gemini.ts"],
 				rules: ["react-doctor/async-await-in-loop"],
 			},
 			{
@@ -112,6 +113,30 @@ const config = {
 				// the unused-dependency heuristic is a false positive.
 				files: ["package.json"],
 				rules: ["deslop/unused-dependency"],
+			},
+			{
+				// The lib/db repositories are a deliberate data-access barrel: every
+				// function is re-exported through lib/db/index.ts and consumed by API
+				// routes/services via that barrel (which this per-file heuristic does not
+				// credit as a consumer). Real dead-code enforcement is handled by knip
+				// (`npm run lint:knip`, entry lib/db/index.ts), exactly as for core/**.
+				files: ["lib/db/repositories/**/*.ts"],
+				rules: ["deslop/unused-export"],
+			},
+			{
+				// The document preview embeds a client-side object URL produced by
+				// decrypting the contract file in the browser. next/image cannot
+				// optimize a runtime blob: URL of unknown dimensions, so a plain <img>
+				// is the correct element here (same rationale as the download path).
+				files: ["components/DecryptDocumentForm.tsx"],
+				rules: ["react-doctor/nextjs-no-img-element"],
+			},
+			{
+				// This suite seeds a foreign `someOtherApp:token` localStorage key as a
+				// fixture to assert the personal-data export never reads keys it does not
+				// own. The literal is test data, not an app-persisted auth token.
+				files: ["tests/unit/personal-data.test.ts"],
+				rules: ["react-doctor/auth-token-in-web-storage"],
 			},
 		],
 	},

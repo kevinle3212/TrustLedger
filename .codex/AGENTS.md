@@ -13,6 +13,17 @@ Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
 - Prefix shell commands with `rtk` when available.
 - Do not duplicate Claude-only behavior from `CLAUDE.md`.
 
+## Orchestration
+
+- Act as the orchestrator. Use the most token/usage-friendly approach without
+  compromising quality, security, or best practices.
+- Plan with a cheaper reasoning setting, delegate the building to cheaper
+  models/agents, and reserve the most capable model for planning and the final
+  QA pass. Do not spend the top tier on routine implementation.
+- The Sonnet 5 / Opus 4.8 / Fable 5 delegation naming is Claude-specific; see
+  `CLAUDE.md`. Apply the equivalent cheap-plan, cheap-build, expensive-QA pattern
+  with Codex's own model tiers.
+
 ## Repo Hygiene
 
 - Treat uncommitted user changes as owned by the user.

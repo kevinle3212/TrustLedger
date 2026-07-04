@@ -23,7 +23,7 @@ const EXPIRY_SECONDS = 72 * 60 * 60; // 72 hours
  * @returns JSON acknowledgement or an error.
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
-	const secret = process.env["MAGIC_LINK_SECRET"];
+	const secret = process.env.MAGIC_LINK_SECRET;
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 	if (secret === undefined || secret === "")

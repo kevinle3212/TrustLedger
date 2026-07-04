@@ -12,7 +12,7 @@ import { defineConfig } from "prisma/config";
  * - `DIRECT_URL`   — optional direct (non-pooled) connection preferred for
  *   migrations; falls back to `DATABASE_URL` when unset.
  */
-const migrateUrl = process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"];
+const migrateUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 
 export default defineConfig({
 	schema: path.join("prisma", "schema.prisma"),

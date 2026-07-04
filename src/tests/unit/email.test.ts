@@ -16,7 +16,7 @@ describe("email service", () => {
 	});
 
 	it("supports a local log provider for multi-recipient development testing", async () => {
-		process.env["EMAIL_PROVIDER"] = "log";
+		process.env.EMAIL_PROVIDER = "log";
 
 		const result = await sendEmail({
 			to: "one@example.com, two@example.com;one@example.com",
@@ -28,8 +28,8 @@ describe("email service", () => {
 	});
 
 	it("uses Brevo when configured without exposing the API key to callers", async () => {
-		process.env["EMAIL_PROVIDER"] = "brevo";
-		process.env["BREVO_API_KEY"] = "brevo-test-key";
+		process.env.EMAIL_PROVIDER = "brevo";
+		process.env.BREVO_API_KEY = "brevo-test-key";
 		global.fetch = jest.fn(async () => {
 			await Promise.resolve();
 			return {
@@ -56,8 +56,8 @@ describe("email service", () => {
 	});
 
 	it("fails cleanly when the selected provider is not configured", async () => {
-		process.env["EMAIL_PROVIDER"] = "postmark";
-		delete process.env["POSTMARK_SERVER_TOKEN"];
+		process.env.EMAIL_PROVIDER = "postmark";
+		delete process.env.POSTMARK_SERVER_TOKEN;
 
 		const result = await sendEmail({
 			to: "ops@example.com",

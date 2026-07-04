@@ -1,12 +1,56 @@
 "use client";
 
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { useTranslations } from "next-intl";
 import { validateRequired } from "@/lib/validation";
 import { decryptFile } from "@/lib/encryption";
 
 type DecryptMode = "fetch" | "paste";
 type DecryptStatus = "idle" | "working" | "done" | "error";
+/** How the decrypted bytes can be rendered inline in the browser. */
+type PreviewKind = "pdf" | "image" | "other";
+
+/**
+ * Sniff a small set of magic-byte signatures so the decrypted document can be
+ * previewed inline without trusting any server-supplied MIME type. Anything not
+ * recognized falls back to download-only, so an unknown blob is never embedded
+ * with a guessed content type.
+ */
+function sniffKind(bytes: Uint8Array): PreviewKind {
+	if (
+		bytes.length >= 4 &&
+		bytes[0] === 0x25 &&
+		bytes[1] === 0x50 &&
+		bytes[2] === 0x44 &&
+		bytes[3] === 0x46
+	)
+		return "pdf"; // "%PDF"
+	if (
+		bytes.length >= 8 &&
+		bytes[0] === 0x89 &&
+		bytes[1] === 0x50 &&
+		bytes[2] === 0x4e &&
+		bytes[3] === 0x47
+	)
+		return "image"; // PNG
+	if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)
+		return "image"; // JPEG
+	if (bytes.length >= 3 && bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46)
+		return "image"; // GIF
+	if (
+		bytes.length >= 12 &&
+		bytes[0] === 0x52 &&
+		bytes[1] === 0x49 &&
+		bytes[2] === 0x46 &&
+		bytes[3] === 0x46 &&
+		bytes[8] === 0x57 &&
+		bytes[9] === 0x45 &&
+		bytes[10] === 0x42 &&
+		bytes[11] === 0x50
+	)
+		return "image"; // WEBP (RIFF....WEBP)
+	return "other";
+}
 
 interface State {
 	mode: DecryptMode;
@@ -17,6 +61,8 @@ interface State {
 	errorMsg: string | null;
 	passphraseTouched: boolean;
 	bundleTouched: boolean;
+	viewUrl: string | null;
+	viewKind: PreviewKind | null;
 }
 
 type Action =
@@ -26,6 +72,8 @@ type Action =
 	| { type: "SET_FILENAME"; value: string }
 	| { type: "DECRYPT_START" }
 	| { type: "DECRYPT_SUCCESS" }
+	| { type: "VIEW_SUCCESS"; url: string; kind: PreviewKind }
+	| { type: "CLEAR_VIEW" }
 	| { type: "DECRYPT_ERROR"; errorMsg: string }
 	| { type: "TOUCH_PASSPHRASE" }
 	| { type: "TOUCH_BUNDLE" }
@@ -40,6 +88,8 @@ const initialState: State = {
 	errorMsg: null,
 	passphraseTouched: false,
 	bundleTouched: false,
+	viewUrl: null,
+	viewKind: null,
 };
 
 function reducer(state: State, action: Action): State {
@@ -56,6 +106,10 @@ function reducer(state: State, action: Action): State {
 			return { ...state, status: "working", errorMsg: null };
 		case "DECRYPT_SUCCESS":
 			return { ...state, status: "done" };
+		case "VIEW_SUCCESS":
+			return { ...state, status: "done", viewUrl: action.url, viewKind: action.kind };
+		case "CLEAR_VIEW":
+			return { ...state, viewUrl: null, viewKind: null, status: "idle" };
 		case "DECRYPT_ERROR":
 			return { ...state, status: "error", errorMsg: action.errorMsg };
 		case "TOUCH_PASSPHRASE":
@@ -65,6 +119,72 @@ function reducer(state: State, action: Action): State {
 		case "RESET_AFTER_DECRYPT":
 			return { ...state, status: "idle", errorMsg: null, passphrase: "" };
 	}
+}
+
+/**
+ * Inline preview panel for a decrypted document. Renders the PDF in a sandboxed
+ * iframe, images in an `<img>`, and anything else as a download-only notice.
+ * Extracted from {@link DecryptDocumentForm} to keep the parent form small.
+ */
+function DecryptedDocumentPreview({
+	viewUrl,
+	viewKind,
+	onClose,
+	t,
+}: {
+	viewUrl: string;
+	viewKind: PreviewKind;
+	onClose: () => void;
+	t: ReturnType<typeof useTranslations>;
+}): React.JSX.Element {
+	return (
+		<div className="flex flex-col gap-2">
+			<div className="flex flex-wrap items-center justify-between gap-2">
+				<span className="text-xs font-medium text-gray-700 dark:text-gray-200">
+					{t("viewing")}
+				</span>
+				<div className="flex items-center gap-3 text-xs">
+					<a
+						href={viewUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="underline text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+					>
+						{t("openInNewTab")}
+					</a>
+					<button
+						type="button"
+						onClick={onClose}
+						className="underline text-gray-500 hover:text-gray-900 dark:hover:text-white"
+					>
+						{t("closeViewer")}
+					</button>
+				</div>
+			</div>
+			{viewKind === "pdf" ? (
+				<iframe
+					title={t("viewing")}
+					src={viewUrl}
+					// Constrain the embedded document: allow the browser's native PDF
+					// viewer (same-origin blob) but withhold script/form/popup/top-nav
+					// so a malicious PDF cannot execute or navigate away.
+					sandbox="allow-same-origin"
+					className="h-[70vh] w-full rounded-lg border border-gray-200 bg-white dark:border-white/10"
+				/>
+			) : viewKind === "image" ? (
+				// eslint-disable-next-line @next/next/no-img-element -- local blob URL of a user-decrypted document, not a remote asset for next/image
+				<img
+					src={viewUrl}
+					alt={t("viewing")}
+					className="max-h-[70vh] w-auto self-start rounded-lg border border-gray-200 dark:border-white/10"
+				/>
+			) : (
+				<p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-100">
+					{t("cannotPreview")}
+				</p>
+			)}
+		</div>
+	);
 }
 
 /// Full-width decrypt panel for AES-256-GCM encrypted IPFS documents.
@@ -89,25 +209,51 @@ export function DecryptDocumentForm({
 		errorMsg,
 		passphraseTouched,
 		bundleTouched,
+		viewUrl,
+		viewKind,
 	} = state;
 
 	const passphraseError = validateRequired(passphrase, "Passphrase");
 	const bundleError =
 		mode === "paste" ? validateRequired(pastedBundle, "Encrypted bundle") : undefined;
 
+	// Revoke the in-app preview object URL when it changes or the form unmounts,
+	// so decrypted document bytes never linger in memory longer than needed.
+	useEffect(() => {
+		if (viewUrl === null) return;
+		return (): void => {
+			URL.revokeObjectURL(viewUrl);
+		};
+	}, [viewUrl]);
+
+	// Shared: fetch/parse the bundle and decrypt it to raw bytes. Both the
+	// download and the in-app view paths reuse this so decryption stays in one place.
+	async function decryptToBytes(): Promise<ArrayBuffer> {
+		let buffer: ArrayBuffer;
+		if (mode === "fetch") {
+			const res = await fetch(gatewayUrl);
+			if (!res.ok)
+				throw new Error(`Gateway returned ${String(res.status)} ${res.statusText}`);
+			buffer = await res.arrayBuffer();
+		} else {
+			buffer = new TextEncoder().encode(pastedBundle.trim()).buffer;
+		}
+		return await decryptFile(buffer, passphrase);
+	}
+
+	function toFriendlyError(err: unknown): string {
+		// AES-GCM throws OperationError when the passphrase is wrong or ciphertext is tampered.
+		return err instanceof DOMException && err.name === "OperationError"
+			? t("decryptionFailed")
+			: err instanceof Error
+				? err.message
+				: String(err);
+	}
+
 	async function handleDecrypt(): Promise<void> {
 		dispatch({ type: "DECRYPT_START" });
 		try {
-			let buffer: ArrayBuffer;
-			if (mode === "fetch") {
-				const res = await fetch(gatewayUrl);
-				if (!res.ok)
-					throw new Error(`Gateway returned ${String(res.status)} ${res.statusText}`);
-				buffer = await res.arrayBuffer();
-			} else {
-				buffer = new TextEncoder().encode(pastedBundle.trim()).buffer;
-			}
-			const decrypted = await decryptFile(buffer, passphrase);
+			const decrypted = await decryptToBytes();
 			// Trigger a browser download by creating a temporary <a> element, clicking it,
 			// and immediately revoking the object URL to free memory.
 			const url = URL.createObjectURL(new Blob([decrypted]));
@@ -120,14 +266,25 @@ export function DecryptDocumentForm({
 			URL.revokeObjectURL(url);
 			dispatch({ type: "DECRYPT_SUCCESS" });
 		} catch (err) {
-			// AES-GCM throws OperationError when the passphrase is wrong or ciphertext is tampered.
-			const friendly =
-				err instanceof DOMException && err.name === "OperationError"
-					? t("decryptionFailed")
-					: err instanceof Error
-						? err.message
-						: String(err);
-			dispatch({ type: "DECRYPT_ERROR", errorMsg: friendly });
+			dispatch({ type: "DECRYPT_ERROR", errorMsg: toFriendlyError(err) });
+		}
+	}
+
+	async function handleView(): Promise<void> {
+		dispatch({ type: "DECRYPT_START" });
+		try {
+			const decrypted = await decryptToBytes();
+			const kind = sniffKind(new Uint8Array(decrypted));
+			// Only PDFs get an explicit content type (needed for the embedded viewer);
+			// images render from a typeless blob, and unknown files preview as download-only.
+			const blob =
+				kind === "pdf"
+					? new Blob([decrypted], { type: "application/pdf" })
+					: new Blob([decrypted]);
+			const url = URL.createObjectURL(blob);
+			dispatch({ type: "VIEW_SUCCESS", url, kind });
+		} catch (err) {
+			dispatch({ type: "DECRYPT_ERROR", errorMsg: toFriendlyError(err) });
 		}
 	}
 
@@ -232,7 +389,16 @@ export function DecryptDocumentForm({
 				className="rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
 			/>
 
-			{status === "done" ? (
+			{viewUrl !== null ? (
+				<DecryptedDocumentPreview
+					viewUrl={viewUrl}
+					viewKind={viewKind ?? "other"}
+					onClose={() => {
+						dispatch({ type: "CLEAR_VIEW" });
+					}}
+					t={t}
+				/>
+			) : status === "done" ? (
 				<p className="text-xs text-green-700 dark:text-green-400">
 					{t("fileDownloaded")}{" "}
 					<button
@@ -246,20 +412,36 @@ export function DecryptDocumentForm({
 					</button>
 				</p>
 			) : (
-				<button
-					type="button"
-					onClick={() => {
-						void handleDecrypt();
-					}}
-					disabled={
-						status === "working" ||
-						passphrase === "" ||
-						(mode === "paste" && pastedBundle.trim() === "")
-					}
-					className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
-				>
-					{status === "working" ? t("decrypting") : t("decryptAndDownload")}
-				</button>
+				<div className="flex flex-wrap gap-2">
+					<button
+						type="button"
+						onClick={() => {
+							void handleView();
+						}}
+						disabled={
+							status === "working" ||
+							passphrase === "" ||
+							(mode === "paste" && pastedBundle.trim() === "")
+						}
+						className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors"
+					>
+						{status === "working" ? t("decrypting") : t("decryptAndView")}
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							void handleDecrypt();
+						}}
+						disabled={
+							status === "working" ||
+							passphrase === "" ||
+							(mode === "paste" && pastedBundle.trim() === "")
+						}
+						className="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 hover:border-gray-300 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors dark:border-white/10 dark:text-gray-200 dark:hover:text-white"
+					>
+						{t("decryptAndDownload")}
+					</button>
+				</div>
 			)}
 
 			{status === "error" && errorMsg !== null && (

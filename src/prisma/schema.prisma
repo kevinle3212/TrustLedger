@@ -139,6 +139,43 @@ model JurorVote {
   @@map("juror_votes")
 }
 
+/// Off-chain account profile for a wallet. Backs the accounts service and
+/// `/api/accounts/profile`; the wallet address is the identity (stored
+/// lowercased). Nothing here is authoritative over the chain.
+model UserProfile {
+  id                  String   @id @default(cuid())
+  /// Lowercased wallet address; the account's unique identity.
+  walletAddress       String   @unique
+  displayName         String?
+  email               String?
+  avatarUrl           String?
+  /// Per-user inactivity auto-logout in milliseconds. Null = use the app default.
+  inactivityTimeoutMs Int?
+  onboardingComplete  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([email])
+  @@map("user_profiles")
+}
+
+/// In-app notification for a wallet's inbox (`/api/notifications/inbox`).
+/// Complements the lifecycle emails with a durable, per-wallet feed.
+model Notification {
+  id            String    @id @default(cuid())
+  /// Lowercased wallet address the notification is addressed to.
+  walletAddress String
+  type          String
+  title         String
+  body          String
+  contractId    String?
+  readAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([walletAddress, createdAt])
+  @@map("notifications")
+}
+
 /// Privacy-preserving aggregate analytics counter. Stores no wallet addresses,
 /// raw IPs, or user agents — only bucketed event type + day + count, so it is
 /// safe to retain. Mirrors the in-memory analytics collector for durability.

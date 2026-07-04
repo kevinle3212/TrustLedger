@@ -49,7 +49,7 @@ function isLoopbackIp(ip: string): boolean {
  * @returns `true` when the request is authorized to read health data.
  */
 export function isAuthorizedHealthRequest(request: Pick<Request, "headers">): boolean {
-	const token = process.env["HEALTH_CHECK_TOKEN"] ?? process.env["ADMIN_API_TOKEN"];
+	const token = process.env.HEALTH_CHECK_TOKEN ?? process.env.ADMIN_API_TOKEN;
 	if (isAuthorizedBearer(request.headers.get("authorization"), token)) {
 		return true;
 	}
@@ -57,5 +57,5 @@ export function isAuthorizedHealthRequest(request: Pick<Request, "headers">): bo
 	const ip = clientIp(request);
 	if (isLoopbackIp(ip)) return true;
 
-	return parseCsv(process.env["HEALTH_CHECK_ALLOWED_IPS"]).includes(ip);
+	return parseCsv(process.env.HEALTH_CHECK_ALLOWED_IPS).includes(ip);
 }

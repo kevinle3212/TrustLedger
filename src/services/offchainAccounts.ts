@@ -1,7 +1,11 @@
 import "server-only";
 
-import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { verifyTypedData } from "viem";
+
+import { isDatabaseConfigured } from "@/lib/db/client";
+import type { UserProfile } from "@/lib/generated/prisma/client";
+import * as userProfiles from "@/lib/db/repositories/userProfiles";
 
 /** Off-chain user profile stored in the TrustLedger accounts database and returned by `GET /api/accounts/profile`. */
 export interface AccountProfile {
@@ -12,6 +16,8 @@ export interface AccountProfile {
 	readonly onboardingComplete: boolean;
 	readonly notificationsEnabled: boolean;
 	readonly totpEnabled: boolean;
+	/** Inactivity auto-logout in milliseconds; `null` means "use the app default". */
+	readonly inactivityTimeoutMs: number | null;
 	readonly updatedAt: string;
 }
 
@@ -31,12 +37,17 @@ function normalizeWallet(address: string): `0x${string}` | null {
 	return /^0x[a-f0-9]{40}$/.test(trimmed) ? (trimmed as `0x${string}`) : null;
 }
 
+// Falls back to a random per-process secret (never a hardcoded literal) so
+// development and tests can sign sessions without a configured secret, while a
+// forgeable, source-visible key never ships. Production must set
+// ACCOUNT_SESSION_SECRET (or AUTH_JWT_SECRET); sessions then survive restarts
+// and multiple instances, which the ephemeral fallback intentionally does not.
+let ephemeralSecret: string | undefined;
 function secret(): string {
-	return (
-		process.env["ACCOUNT_SESSION_SECRET"] ??
-		process.env["AUTH_JWT_SECRET"] ??
-		"dev-only-account-session-secret"
-	);
+	const configured = process.env.ACCOUNT_SESSION_SECRET ?? process.env.AUTH_JWT_SECRET;
+	if (configured !== undefined && configured !== "") return configured;
+	ephemeralSecret ??= randomBytes(32).toString("base64url");
+	return ephemeralSecret;
 }
 
 function sign(payload: string): string {
@@ -52,6 +63,55 @@ function defaultProfile(walletAddress: `0x${string}`): AccountProfile {
 		onboardingComplete: false,
 		notificationsEnabled: true,
 		totpEnabled: false,
+		inactivityTimeoutMs: null,
+		updatedAt: new Date().toISOString(),
+	};
+}
+
+/**
+ * Maps a persisted {@link UserProfile} row to an {@link AccountProfile}. Fields
+ * the off-chain table does not store (`notificationsEnabled`, `totpEnabled`)
+ * fall back to their defaults.
+ */
+function mapProfile(walletAddress: `0x${string}`, row: UserProfile): AccountProfile {
+	return {
+		walletAddress,
+		displayName: row.displayName ?? "",
+		avatarUrl: row.avatarUrl ?? "",
+		email: row.email ?? "",
+		onboardingComplete: row.onboardingComplete,
+		notificationsEnabled: true,
+		totpEnabled: false,
+		inactivityTimeoutMs: row.inactivityTimeoutMs,
+		updatedAt: row.updatedAt.toISOString(),
+	};
+}
+
+/** Whitelisted, mutable subset of an {@link AccountProfile}. */
+type ProfilePatch = Partial<
+	Pick<
+		AccountProfile,
+		| "displayName"
+		| "avatarUrl"
+		| "email"
+		| "onboardingComplete"
+		| "notificationsEnabled"
+		| "inactivityTimeoutMs"
+	>
+>;
+
+/** Applies a patch to a profile, clamping string fields and stamping `updatedAt`. */
+function mergePatch(current: AccountProfile, patch: ProfilePatch): AccountProfile {
+	return {
+		...current,
+		...patch,
+		displayName: patch.displayName?.slice(0, 80) ?? current.displayName,
+		avatarUrl: patch.avatarUrl?.slice(0, 300) ?? current.avatarUrl,
+		email: patch.email?.slice(0, 254) ?? current.email,
+		inactivityTimeoutMs:
+			patch.inactivityTimeoutMs === undefined
+				? current.inactivityTimeoutMs
+				: patch.inactivityTimeoutMs,
 		updatedAt: new Date().toISOString(),
 	};
 }
@@ -191,12 +251,19 @@ export function resetOffchainAccountsForTests(): void {
  * Returns the stored off-chain profile for a wallet, or a default profile when
  * none has been saved yet.
  *
+ * When the off-chain database is configured, the profile is read through the
+ * `userProfiles` repository; otherwise it falls back to the in-memory store.
+ *
  * @param walletAddress - Wallet address to look up.
  * @returns The {@link AccountProfile}, or `null` when the address is invalid.
  */
-export function getAccountProfile(walletAddress: string): AccountProfile | null {
+export async function getAccountProfile(walletAddress: string): Promise<AccountProfile | null> {
 	const normalized = normalizeWallet(walletAddress);
 	if (normalized === null) return null;
+	if (isDatabaseConfigured()) {
+		const row = await userProfiles.getByWallet(normalized);
+		return row === null ? defaultProfile(normalized) : mapProfile(normalized, row);
+	}
 	return profiles.get(normalized) ?? defaultProfile(normalized);
 }
 
@@ -204,31 +271,37 @@ export function getAccountProfile(walletAddress: string): AccountProfile | null 
  * Applies a whitelisted patch to a wallet's off-chain profile, clamping string
  * fields to safe lengths and stamping `updatedAt`.
  *
+ * When the off-chain database is configured, the change is written through the
+ * `userProfiles` repository; otherwise it updates the in-memory store. Note that
+ * `notificationsEnabled` and `totpEnabled` are not persisted in the database.
+ *
  * @param walletAddress - Wallet address whose profile to update.
  * @param patch - Partial profile with only the mutable fields.
  * @returns The updated {@link AccountProfile}.
  * @throws When `walletAddress` is invalid.
  */
-export function updateAccountProfile(
+export async function updateAccountProfile(
 	walletAddress: string,
-	patch: Partial<
-		Pick<
-			AccountProfile,
-			"displayName" | "avatarUrl" | "email" | "onboardingComplete" | "notificationsEnabled"
-		>
-	>,
-): AccountProfile {
+	patch: ProfilePatch,
+): Promise<AccountProfile> {
 	const normalized = normalizeWallet(walletAddress);
 	if (normalized === null) throw new Error("Invalid wallet address.");
+	if (isDatabaseConfigured()) {
+		const existing = await userProfiles.getByWallet(normalized);
+		const base =
+			existing === null ? defaultProfile(normalized) : mapProfile(normalized, existing);
+		const next = mergePatch(base, patch);
+		const row = await userProfiles.upsert(normalized, {
+			displayName: next.displayName,
+			avatarUrl: next.avatarUrl,
+			email: next.email,
+			inactivityTimeoutMs: next.inactivityTimeoutMs,
+			onboardingComplete: next.onboardingComplete,
+		});
+		return mapProfile(normalized, row);
+	}
 	const current = profiles.get(normalized) ?? defaultProfile(normalized);
-	const next: AccountProfile = {
-		...current,
-		...patch,
-		displayName: patch.displayName?.slice(0, 80) ?? current.displayName,
-		avatarUrl: patch.avatarUrl?.slice(0, 300) ?? current.avatarUrl,
-		email: patch.email?.slice(0, 254) ?? current.email,
-		updatedAt: new Date().toISOString(),
-	};
+	const next = mergePatch(current, patch);
 	profiles.set(normalized, next);
 	return next;
 }

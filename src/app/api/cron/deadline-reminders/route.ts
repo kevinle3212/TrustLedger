@@ -6,10 +6,12 @@ import { TRUSTLEDGER_ADDRESS } from "@/lib/wagmi";
 import { sendEmail } from "@/services/email";
 import {
 	buildNotification,
+	type DeadlineReminder,
 	type DeadlineScanContract,
 	findDeadlineReminders,
 } from "@/services/notifications";
 import { isAuthorizedBearer } from "@/services/bearerAuth";
+import { isDatabaseConfigured, notifications, userProfiles } from "@/lib/db";
 
 // GET /api/cron/deadline-reminders
 //
@@ -22,10 +24,11 @@ import { isAuthorizedBearer } from "@/services/bearerAuth";
 // <CRON_SECRET>` to cron invocations when CRON_SECRET is configured. We reject
 // anything without that header so the endpoint cannot be triggered anonymously.
 //
-// Recipient resolution is a deliberate stopgap until the Phase 6 off-chain
-// account database lands: we read an address→email map from the
-// NOTIFICATION_EMAILS env var (JSON). Addresses with no known email are counted
-// as "skipped" rather than emailed. Swap resolveEmail() for a DB lookup later.
+// Recipient resolution prefers the Phase 6 off-chain account database
+// (userProfiles.emailForWallet) and falls back to the NOTIFICATION_EMAILS env
+// map (JSON) when the DB is unconfigured or has no email on file. Addresses with
+// no known email anywhere are counted as "skipped" rather than emailed. When the
+// DB is configured, each reminder is also recorded as an in-app Notification.
 
 export const dynamic = "force-dynamic"; // never cache; always read fresh on-chain state
 
@@ -37,7 +40,7 @@ const MAX_CONTRACTS = 500;
 
 /** Parse the NOTIFICATION_EMAILS env JSON into a lowercase address→email map. */
 function loadEmailMap(): Record<string, string> {
-	const raw = process.env["NOTIFICATION_EMAILS"];
+	const raw = process.env.NOTIFICATION_EMAILS;
 	if (raw === undefined || raw === "") return {};
 	try {
 		const parsed = JSON.parse(raw) as Record<string, string>;
@@ -57,8 +60,10 @@ function loadEmailMap(): Record<string, string> {
  * - **Auth:** required. `Authorization: Bearer <CRON_SECRET>` (Vercel attaches
  *   this to cron invocations). Anonymous calls are rejected.
  * - **Request:** no parameters.
- * - **Behavior:** recipient resolution is a stopgap reading an address→email map
- *   from `NOTIFICATION_EMAILS` (JSON); unknown addresses are counted as skipped.
+ * - **Behavior:** recipient email is resolved from the off-chain account
+ *   database first, then the `NOTIFICATION_EMAILS` env map; addresses with no
+ *   email anywhere are counted as skipped. Each reminder is also recorded as an
+ *   in-app notification when the database is configured.
  * - **Responses:**
  *   - `200` `{ ...counts }` summary of reminders sent/skipped.
  *   - `401` `{ error: "unauthorized" }`.
@@ -68,13 +73,13 @@ function loadEmailMap(): Record<string, string> {
  * @returns JSON run summary or an error.
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
-	const cronSecret = process.env["CRON_SECRET"];
+	const cronSecret = process.env.CRON_SECRET;
 	if (cronSecret === undefined || cronSecret === "")
 		return NextResponse.json({ error: "CRON_SECRET not set" }, { status: 500 });
 	if (!isAuthorizedBearer(req.headers.get("authorization"), cronSecret))
 		return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-	const rpcUrl = process.env["SEPOLIA_RPC_URL"];
+	const rpcUrl = process.env.SEPOLIA_RPC_URL;
 	if (rpcUrl === undefined || rpcUrl === "")
 		return NextResponse.json({ error: "SEPOLIA_RPC_URL not set" }, { status: 500 });
 	if (TRUSTLEDGER_ADDRESS === "0x0000000000000000000000000000000000000000")
@@ -143,11 +148,39 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
 	const errors: string[] = [];
 
-	// Partition into skipped (no email on file) and sendable.
-	const toSend = reminders.flatMap((r) => {
-		const to = emailMap[r.recipient.toLowerCase()];
-		return to !== undefined ? [{ r, to }] : [];
-	});
+	// Best-effort in-app notification feed: record one row per reminder when the
+	// off-chain database is configured. Never fail the run on a write error.
+	if (isDatabaseConfigured()) {
+		await Promise.allSettled(
+			reminders.map(
+				async (r) =>
+					await notifications.create({
+						walletAddress: r.recipient,
+						type: "deadline_reminder",
+						title: `Deadline ${r.upcoming ? "approaching" : "overdue"} — contract #${r.contractId}`,
+						body: `The ${r.kind} deadline for contract #${r.contractId} is ${
+							r.upcoming ? "approaching" : "overdue"
+						}. Take action before an automatic on-chain outcome applies.`,
+						contractId: r.contractId,
+					}),
+			),
+		);
+	}
+
+	// Resolve each recipient's email: prefer the off-chain profile on file, then
+	// fall back to the NOTIFICATION_EMAILS env map. Partition into sendable and
+	// skipped (no email known anywhere).
+	const dbConfigured = isDatabaseConfigured();
+	const resolved = await Promise.all(
+		reminders.map(async (r) => {
+			const dbEmail = dbConfigured ? await userProfiles.emailForWallet(r.recipient) : null;
+			const to = dbEmail ?? emailMap[r.recipient.toLowerCase()];
+			return to !== undefined ? { r, to } : null;
+		}),
+	);
+	const toSend = resolved.filter(
+		(entry): entry is { r: DeadlineReminder; to: string } => entry !== null,
+	);
 	const skipped = reminders.length - toSend.length;
 
 	// Send all emails concurrently to avoid serial await-in-loop.

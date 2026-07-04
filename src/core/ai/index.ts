@@ -25,14 +25,17 @@ export type {
 } from "@/core/ai/types";
 export { definePrompt, renderPrompt, type PromptTemplate } from "@/core/ai/prompt";
 export { generateText, streamText, collectStream } from "@/core/ai/service";
-export { resolveRoute } from "@/core/ai/router";
+export { resolveRoute, resolveRouteChain } from "@/core/ai/router";
 export { getProvider, resetProviderCache } from "@/core/ai/registry";
 export {
 	isAiEnabled,
 	defaultProviderName,
 	defaultModelName,
+	fallbackProviderName,
 	providerConfigs,
 	taskRoutes,
 	resetAiConfigCache,
+	AiConfigError,
 	DISABLED_PROVIDER,
+	OPENROUTER_PROVIDER,
 } from "@/core/ai/config";

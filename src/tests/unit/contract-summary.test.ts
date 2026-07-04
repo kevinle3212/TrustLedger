@@ -1,3 +1,4 @@
+import { resetAiConfigCache, resetProviderCache } from "@/core/ai";
 import {
 	getContractSummaryMetrics,
 	resetContractSummaryForTests,
@@ -27,12 +28,22 @@ describe("contract summary service", () => {
 	const originalEnv = process.env;
 
 	beforeEach(() => {
-		process.env = { ...originalEnv, AI_SUMMARY_PROVIDER: "disabled" };
+		// No AI_* provider config -> @/core/ai runs the disabled placeholder.
+		process.env = { ...originalEnv };
+		delete process.env.AI_PROVIDER_KIND;
+		delete process.env.AI_BASE_URL;
+		delete process.env.AI_API_KEY;
+		delete process.env.AI_DEFAULT_MODEL;
+		delete process.env.AI_ENABLED;
+		resetAiConfigCache();
+		resetProviderCache();
 		resetContractSummaryForTests();
 	});
 
 	afterEach(() => {
 		process.env = originalEnv;
+		resetAiConfigCache();
+		resetProviderCache();
 		jest.restoreAllMocks();
 	});
 
@@ -56,8 +67,12 @@ describe("contract summary service", () => {
 	});
 
 	it("falls back cleanly when a managed provider errors", async () => {
-		process.env["AI_SUMMARY_PROVIDER"] = "groq";
-		process.env["GROQ_API_KEY"] = "test-key";
+		process.env.AI_PROVIDER_KIND = "openai-compatible";
+		process.env.AI_BASE_URL = "https://api.groq.com/openai/v1";
+		process.env.AI_API_KEY = "test-key";
+		process.env.AI_DEFAULT_MODEL = "llama-3.3-70b-versatile";
+		resetAiConfigCache();
+		resetProviderCache();
 		global.fetch = jest.fn(async () => {
 			await Promise.resolve();
 			return { ok: false, status: 429 } as Response;
@@ -65,7 +80,7 @@ describe("contract summary service", () => {
 
 		const result = await summarizeContract(input);
 
-		expect(result.provider).toBe("groq");
+		expect(result.provider).toBe("default");
 		expect(result.status).toBe("fallback");
 		expect(getContractSummaryMetrics().providerErrors).toBe(1);
 	});

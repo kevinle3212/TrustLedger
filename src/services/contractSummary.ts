@@ -1,10 +1,14 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
-import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
+import { defaultProviderName, generateText, isAiEnabled, type AiMessage } from "@/core/ai";
+import { REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
 
-/** AI provider used to generate contract summaries, or `"disabled"` when the feature is off. */
-export type ContractSummaryProvider = "disabled" | "groq" | "gemini";
+/**
+ * Name of the resolved `@/core/ai` provider that produced a summary (e.g.
+ * `"default"`, `"groq"`, `"gemini"`), or `"disabled"` when the feature is off.
+ */
+export type ContractSummaryProvider = string;
 
 /** Structured contract metadata passed to the AI summariser. */
 export interface ContractSummaryInput {
@@ -52,12 +56,6 @@ const METRICS: ContractSummaryMetrics = {
 	estimatedCostUsd: 0,
 };
 
-function provider(): ContractSummaryProvider {
-	const value = process.env["AI_SUMMARY_PROVIDER"]?.trim().toLowerCase();
-	if (value === "groq" || value === "gemini") return value;
-	return "disabled";
-}
-
 function cacheKey(input: ContractSummaryInput): string {
 	return createHash("sha256")
 		.update(
@@ -85,87 +83,34 @@ function fallbackSummary(input: ContractSummaryInput): string {
 	return `Contract #${input.contractId} is ${input.statusLabel}. It is a ${proposer} ${input.tokenSymbol} escrow for ${input.amount}, between ${redactAddress(input.client)} and ${redactAddress(input.freelancer)}, ${deadline}. Hold-back is ${(input.holdBackBps / 100).toFixed(2)}%.`;
 }
 
-function prompt(input: ContractSummaryInput): string {
+function promptMessages(input: ContractSummaryInput): AiMessage[] {
 	return [
-		"Summarize this public escrow contract in one concise, user-facing paragraph.",
-		"Do not infer private facts. Do not ask for private keys, seed phrases, session keys, encrypted documents, unrelated wallet history, or raw documents.",
-		JSON.stringify({
-			contractId: input.contractId,
-			status: input.statusLabel,
-			client: redactAddress(input.client),
-			freelancer: redactAddress(input.freelancer),
-			amount: input.amount,
-			tokenSymbol: input.tokenSymbol,
-			projectDeadlineIso: input.projectDeadlineIso,
-			acceptanceDeadlineIso: input.acceptanceDeadlineIso,
-			warrantyDeadlineIso: input.warrantyDeadlineIso,
-			holdBackBps: input.holdBackBps,
-			proposedByClient: input.proposedByClient,
-		}),
-	].join("\n");
-}
-
-async function callGroq(input: ContractSummaryInput): Promise<string> {
-	const apiKey = process.env["GROQ_API_KEY"];
-	if (apiKey === undefined || apiKey === "") throw new Error("GROQ_API_KEY not set");
-	const model = process.env["GROQ_MODEL"] ?? "llama-3.3-70b-versatile";
-	const response = await fetchWithTimeout(
-		"https://api.groq.com/openai/v1/chat/completions",
 		{
-			method: "POST",
-			headers: {
-				"authorization": `Bearer ${apiKey}`,
-				"content-type": "application/json",
-			},
-			body: JSON.stringify({
-				model,
-				temperature: 0.2,
-				max_tokens: 120,
-				messages: [
-					{
-						role: "system",
-						content:
-							"You write precise escrow-contract summaries for a privacy-focused SaaS product.",
-					},
-					{ role: "user", content: prompt(input) },
-				],
-			}),
+			role: "system",
+			content:
+				"You write precise escrow-contract summaries for a privacy-focused SaaS product.",
 		},
-		REQUEST_TIMEOUT_MS.aiSummary,
-	);
-	if (!response.ok) throw new Error(`Groq summary failed: ${response.status.toString()}`);
-	const body = (await response.json()) as {
-		choices?: readonly { message?: { content?: string } }[];
-	};
-	const content = body.choices?.[0]?.message?.content?.trim();
-	if (content === undefined || content === "") throw new Error("Groq returned an empty summary");
-	return content;
-}
-
-async function callGemini(input: ContractSummaryInput): Promise<string> {
-	const apiKey = process.env["GEMINI_API_KEY"] ?? process.env["GOOGLE_GENERATIVE_AI_API_KEY"];
-	if (apiKey === undefined || apiKey === "") throw new Error("GEMINI_API_KEY not set");
-	const model = process.env["GEMINI_MODEL"] ?? "gemini-2.5-flash";
-	const response = await fetchWithTimeout(
-		`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
 		{
-			method: "POST",
-			headers: { "content-type": "application/json" },
-			body: JSON.stringify({
-				generationConfig: { temperature: 0.2, maxOutputTokens: 120 },
-				contents: [{ parts: [{ text: prompt(input) }] }],
-			}),
+			role: "user",
+			content: [
+				"Summarize this public escrow contract in one concise, user-facing paragraph.",
+				"Do not infer private facts. Do not ask for private keys, seed phrases, session keys, encrypted documents, unrelated wallet history, or raw documents.",
+				JSON.stringify({
+					contractId: input.contractId,
+					status: input.statusLabel,
+					client: redactAddress(input.client),
+					freelancer: redactAddress(input.freelancer),
+					amount: input.amount,
+					tokenSymbol: input.tokenSymbol,
+					projectDeadlineIso: input.projectDeadlineIso,
+					acceptanceDeadlineIso: input.acceptanceDeadlineIso,
+					warrantyDeadlineIso: input.warrantyDeadlineIso,
+					holdBackBps: input.holdBackBps,
+					proposedByClient: input.proposedByClient,
+				}),
+			].join("\n"),
 		},
-		REQUEST_TIMEOUT_MS.aiSummary,
-	);
-	if (!response.ok) throw new Error(`Gemini summary failed: ${response.status.toString()}`);
-	const body = (await response.json()) as {
-		candidates?: readonly { content?: { parts?: readonly { text?: string }[] } }[];
-	};
-	const content = body.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-	if (content === undefined || content === "")
-		throw new Error("Gemini returned an empty summary");
-	return content;
+	];
 }
 
 /**
@@ -207,18 +152,35 @@ export async function summarizeContract(input: ContractSummaryInput): Promise<Co
 		return { ...cached, cached: true };
 	}
 
-	const selectedProvider = provider();
+	const enabled = isAiEnabled();
 	const started = Date.now();
 	(METRICS as { calls: number }).calls += 1;
 
 	let summary = fallbackSummary(input);
-	let status: ContractSummary["status"] =
-		selectedProvider === "disabled" ? "disabled" : "fallback";
+	let status: ContractSummary["status"] = enabled ? "fallback" : "disabled";
+	// Default to the provider the router would attempt so a failed call still
+	// reports which vendor was tried, not a misleading "disabled".
+	let selectedProvider: ContractSummaryProvider = enabled ? defaultProviderName() : "disabled";
 
-	if (selectedProvider !== "disabled") {
+	if (enabled) {
 		try {
-			summary = selectedProvider === "groq" ? await callGroq(input) : await callGemini(input);
-			status = "generated";
+			// The router picks the provider/model for the "summary" task; this call
+			// site never names a vendor. An abort signal preserves the prior timeout.
+			const result = await generateText({
+				task: "summary",
+				messages: promptMessages(input),
+				temperature: 0.2,
+				maxOutputTokens: 120,
+				signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS.aiSummary),
+			});
+			selectedProvider = result.provider;
+			const text = result.text.trim();
+			if (result.placeholder || text === "") {
+				status = result.placeholder ? "disabled" : "fallback";
+			} else {
+				summary = text;
+				status = "generated";
+			}
 		} catch {
 			(METRICS as { providerErrors: number }).providerErrors += 1;
 		}

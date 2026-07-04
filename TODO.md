@@ -12,7 +12,7 @@ mainnet launch deliverables.
 
 ## Phase 4 — Core Contract Lifecycle Features
 
-- [ ] Add an AI-generated summary of each contract and its status to the
+- [x] Add an AI-generated summary of each contract and its status to the
       dashboard, so users can quickly understand the key details and current
       state without reading through all the text.
     - Use a language model (for example Gemini) to generate a concise summary of
@@ -58,6 +58,25 @@ mainnet launch deliverables.
       authentication and authorization so only the relevant parties can access
       the contract details and documents, preventing broad public access to
       potentially sensitive information.
+    - **In-app viewer implemented 2026-07-04:**
+      `src/components/DecryptDocumentForm.tsx` now decrypts the AES-256-GCM
+      bundle in the browser and renders it inline via `DecryptedDocumentPreview`
+      — PDFs in a sandboxed (`allow-same-origin`) iframe, images in an `<img>`
+      from a typeless blob, and unrecognized types as a download-only notice.
+      The kind is chosen by magic-byte sniffing (`sniffKind`), never a
+      server-supplied MIME type, and the preview object URL is revoked on
+      change/unmount so plaintext never lingers. The summary stays public via
+      `GET /api/contract/[id]/summary`; the full document remains gated behind
+      decryption (party-held passphrase/key), so only the client or freelancer
+      can read it. Added five i18n keys per locale (`decryptAndView`, `viewing`,
+      `openInNewTab`, `closeViewer`, `cannotPreview`) across all 8 message
+      files. React Doctor 100/100.
+    - **Dashboard upcoming deadlines added 2026-07-04:** the dashboard now
+      renders an `UpcomingDeadlines` widget above the summary banner that
+      surfaces each visible contract's next project/acceptance/warranty
+      deadline, sorted soonest-first, so users see due dates without opening
+      every card. Localized via `upcomingTitle` / `upcomingAriaLabel` /
+      `upcomingCount`.
 
 ## Phase 6 — Backend Services and Off-Chain Infrastructure (Mainnet)
 
@@ -103,8 +122,25 @@ mainnet launch deliverables.
       preferences when a signed account token exists, with the previous local
       fallback preserved. Production completion still requires the external
       database and encrypted-message persistence listed in Phase 9.
+    - **Database persistence added 2026-07-04:** provisioned PostgreSQL on Neon
+      and moved profiles + notifications off the in-memory stopgap onto Prisma 7
+      (node-postgres adapter). Added the `user_profiles` and `notifications`
+      tables (migration `0002_accounts_notifications`, applied to Neon) with
+      repositories in `src/lib/db/repositories/`. `offchainAccounts.ts` now
+      reads and writes profiles through the DB when configured, falling back to
+      memory otherwise. `GET /api/cron/deadline-reminders` resolves recipient
+      emails from the profile table (superseding the `NOTIFICATION_EMAILS` env
+      stopgap) and best-effort persists an in-app notification. Added the in-app
+      channel: `GET/POST /api/notifications/inbox` (session-gated). The DB
+      schema is also surfaced under `database/` (and a `db` symlink) with
+      `database/README.md` and `database/verify.mjs`.
+    - **Still not done (deferred, not attempted overnight — flagged for
+      review):** end-to-end-encrypted in-app messaging with AI moderation, and
+      opt-in TOTP-based 2FA. These involve key management, message persistence,
+      and a moderation pipeline that should not be merged to `main` unreviewed;
+      they remain open sub-items of this task.
 
-- [ ] Persist the wallet auto-logout timeout preference in the off-chain
+- [x] Persist the wallet auto-logout timeout preference in the off-chain
       database instead of localStorage, so the setting follows the wallet across
       devices. Recommended database: **PostgreSQL** (via Supabase or a
       self-hosted instance) — already the leading candidate for Phase 6 user
@@ -118,6 +154,15 @@ mainnet launch deliverables.
       localStorage (immediate effect) and `PATCH /api/accounts/profile` (cross-
       device sync). `localStorage` remains the source of truth when no signed
       session exists.
+    - **Completed 2026-07-04:** added the nullable `inactivityTimeoutMs` column
+      to `user_profiles` (migration `0002`), persisted it through
+      `offchainAccounts.ts` + `PATCH /api/accounts/profile` with
+      `validateProfilePatch` bounding it to `null` or `[60000, 86400000]` ms,
+      and wired the client: `InactivityTimeoutSetting` seeds `localStorage` from
+      the signed profile on mount via `syncInactivityTimeoutFromProfile()` and
+      writes both `localStorage` and the profile on save via
+      `persistInactivityTimeoutMs()`. `localStorage` stays authoritative when no
+      signed session exists; the profile write is best-effort.
 
 ## Phase 7 — Testing, Quality, and Accessibility
 
@@ -198,10 +243,10 @@ mainnet launch deliverables.
 - [ ] Complete external production setup that cannot be performed from the
       repository alone.
     - **AI summaries:** choose and configure a managed provider with data-use
-      controls enabled. Required keys: `AI_SUMMARY_PROVIDER` (`groq`, `gemini`,
-      or `disabled`), `GROQ_API_KEY` plus optional `GROQ_MODEL`, or
-      `GEMINI_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY` plus optional
-      `GEMINI_MODEL`.
+      controls enabled. Configured through the provider-agnostic `@/core/ai`
+      layer: `AI_PROVIDER_KIND` (`openai-compatible` or `gemini`), `AI_API_KEY`,
+      `AI_DEFAULT_MODEL`, and `AI_BASE_URL` for OpenAI-compatible endpoints (or
+      the advanced `AI_PROVIDERS_JSON` / `AI_ROUTES_JSON`).
     - **Off-chain accounts:** provision a persistent database or managed backend
       for profiles, notification preferences, encrypted message envelopes, and
       onboarding state. Required keys include `ACCOUNT_SESSION_SECRET` or

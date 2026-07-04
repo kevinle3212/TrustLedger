@@ -41,7 +41,11 @@ jobs:
               run: pip install graphifyy
 
             - name: Build graph (AST-only, no API cost)
-              run: graphify . --update || graphify .
+              # `update` re-extracts code files only and never calls an LLM, so it
+              # builds a code-only graph from a clean checkout without an API key.
+              # A bare `graphify .` would try semantic doc extraction and fail with
+              # no key set (see the corpus's 160+ doc/paper files).
+              run: graphify update .
 
             - name: Verify graph output
               run: npm run graph:check

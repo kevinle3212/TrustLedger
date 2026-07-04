@@ -40,12 +40,12 @@ function parseProvider(raw: string | undefined): EmailProvider {
 
 function providerConfig(): ProviderConfig {
 	return {
-		provider: parseProvider(process.env["EMAIL_PROVIDER"]),
+		provider: parseProvider(process.env.EMAIL_PROVIDER),
 		from:
-			process.env["EMAIL_FROM"] ??
-			process.env["RESEND_FROM"] ??
-			process.env["POSTMARK_FROM"] ??
-			process.env["BREVO_FROM"] ??
+			process.env.EMAIL_FROM ??
+			process.env.RESEND_FROM ??
+			process.env.POSTMARK_FROM ??
+			process.env.BREVO_FROM ??
 			DEFAULT_FROM,
 	};
 }
@@ -114,7 +114,7 @@ async function sendResend(
 	recipients: readonly string[],
 	from: string,
 ): Promise<EmailResult> {
-	const apiKey = process.env["RESEND_API_KEY"];
+	const apiKey = process.env.RESEND_API_KEY;
 	if (apiKey === undefined || apiKey === "") return missing("RESEND_API_KEY", "resend");
 
 	try {
@@ -164,7 +164,7 @@ async function sendBrevo(
 	recipients: readonly string[],
 	from: string,
 ): Promise<EmailResult> {
-	const apiKey = process.env["BREVO_API_KEY"];
+	const apiKey = process.env.BREVO_API_KEY;
 	if (apiKey === undefined || apiKey === "") return missing("BREVO_API_KEY", "brevo");
 	const senderEmail = /<([^>]+)>/u.exec(from)?.[1] ?? from;
 	const senderName = from.includes("<") ? from.split("<")[0]?.trim() : "TrustLedger";
@@ -198,7 +198,7 @@ async function sendPostmark(
 	recipients: readonly string[],
 	from: string,
 ): Promise<EmailResult> {
-	const token = process.env["POSTMARK_SERVER_TOKEN"];
+	const token = process.env.POSTMARK_SERVER_TOKEN;
 	if (token === undefined || token === "") return missing("POSTMARK_SERVER_TOKEN", "postmark");
 
 	try {
@@ -216,7 +216,7 @@ async function sendPostmark(
 						To: recipient,
 						Subject: email.subject,
 						HtmlBody: email.html,
-						MessageStream: process.env["POSTMARK_MESSAGE_STREAM"] ?? "outbound",
+						MessageStream: process.env.POSTMARK_MESSAGE_STREAM ?? "outbound",
 					},
 				);
 			}),

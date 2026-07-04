@@ -67,6 +67,68 @@ export function subscribeInactivityTimeout(onChange: () => void): () => void {
 const DASHBOARD_VISITED_KEY = "tl_visited";
 const PROFILE_STORAGE_HANDLE = ["trustledger", "profile", "handle"].join(":");
 
+function readProfileToken(): string | null {
+	try {
+		const token = window.localStorage.getItem(PROFILE_STORAGE_HANDLE);
+		return token === null || token === "" ? null : token;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Seeds the local inactivity-timeout preference from the signed account profile
+ * so the setting follows the wallet across devices. When no session token exists
+ * or the profile has no stored value, `localStorage` stays the source of truth.
+ * Best-effort: any network or storage failure leaves the local value untouched.
+ */
+export async function syncInactivityTimeoutFromProfile(): Promise<void> {
+	const token = readProfileToken();
+	if (token === null) return;
+	try {
+		const response = await fetchWithTimeout(
+			"/api/accounts/profile",
+			{ headers: { authorization: `Bearer ${token}` } },
+			REQUEST_TIMEOUT_MS.accountPreference,
+		);
+		if (!response.ok) return;
+		const payload = (await response.json()) as {
+			profile?: { inactivityTimeoutMs?: unknown };
+		};
+		const ms = payload.profile?.inactivityTimeoutMs;
+		if (typeof ms === "number" && Number.isFinite(ms) && ms > 0) {
+			writeInactivityTimeoutMs(ms);
+		}
+	} catch {
+		// Local value remains authoritative on failure.
+	}
+}
+
+/**
+ * Persists the inactivity-timeout preference locally (immediate effect) and,
+ * when a signed session exists, to the account profile for cross-device sync.
+ * The profile write is best-effort so the local setting always applies.
+ */
+export function persistInactivityTimeoutMs(ms: number): void {
+	writeInactivityTimeoutMs(ms);
+	const token = readProfileToken();
+	if (token === null) return;
+	void fetchWithTimeout(
+		"/api/accounts/profile",
+		{
+			method: "PATCH",
+			headers: {
+				"authorization": `Bearer ${token}`,
+				"content-type": "application/json",
+			},
+			body: JSON.stringify({ inactivityTimeoutMs: ms }),
+		},
+		REQUEST_TIMEOUT_MS.accountPreference,
+	).catch(() => {
+		// Local storage already updated; the account write is best-effort.
+	});
+}
+
 /** Returns `true` if the user has completed the dashboard onboarding guide (local flag only). */
 export function readLocalDashboardVisited(): boolean {
 	try {
