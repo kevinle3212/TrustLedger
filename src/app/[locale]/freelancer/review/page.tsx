@@ -30,7 +30,7 @@ export default async function FreelancerReviewPage({
 	if (token === undefined || token === "") {
 		tokenError = t("tokenMissing");
 	} else {
-		const secret = process.env["MAGIC_LINK_SECRET"];
+		const secret = process.env.MAGIC_LINK_SECRET;
 		if (secret === undefined || secret === "") {
 			tokenError = t("serverConfigError");
 		} else {

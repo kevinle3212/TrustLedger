@@ -28,7 +28,7 @@ describe("health report", () => {
 	});
 
 	it("marks missing required runtime configuration as unhealthy", () => {
-		delete process.env["SEPOLIA_RPC_URL"];
+		delete process.env.SEPOLIA_RPC_URL;
 
 		const report = buildHealthReport();
 
@@ -44,9 +44,9 @@ describe("health report", () => {
 	});
 
 	it("keeps runtime health independent from operational configuration", () => {
-		delete process.env["SEPOLIA_RPC_URL"];
-		delete process.env["NOTIFICATIONS_SECRET"];
-		delete process.env["CRON_SECRET"];
+		delete process.env.SEPOLIA_RPC_URL;
+		delete process.env.NOTIFICATIONS_SECRET;
+		delete process.env.CRON_SECRET;
 
 		const report = buildRuntimeHealthReport();
 
@@ -94,7 +94,7 @@ describe("health report", () => {
 	});
 
 	it("allows allowlisted operational health IPs", () => {
-		process.env["HEALTH_CHECK_ALLOWED_IPS"] = "203.0.113.10, 2001:db8::10";
+		process.env.HEALTH_CHECK_ALLOWED_IPS = "203.0.113.10, 2001:db8::10";
 
 		expect(
 			isAuthorizedHealthRequest(requestWithHeaders({ "x-forwarded-for": "203.0.113.10" })),

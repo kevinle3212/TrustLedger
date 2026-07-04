@@ -17,7 +17,7 @@ import { verifyMagicToken, type MagicLinkPayload } from "@/lib/magicLink";
  * @returns JSON payload or an error.
  */
 export async function GET(req: NextRequest): Promise<NextResponse> {
-	const secret = process.env["MAGIC_LINK_SECRET"];
+	const secret = process.env.MAGIC_LINK_SECRET;
 	if (secret === undefined || secret === "")
 		return NextResponse.json({ error: "MAGIC_LINK_SECRET not set" }, { status: 500 });
 

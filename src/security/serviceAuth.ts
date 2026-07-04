@@ -35,7 +35,7 @@ function timingSafeEqual(left: string, right: string): boolean {
  * secret for other server-to-server callers. Unset/empty values are ignored.
  */
 function trustedTokens(): string[] {
-	return [process.env["CRON_SECRET"], process.env["INTERNAL_API_TOKEN"]].filter(
+	return [process.env.CRON_SECRET, process.env.INTERNAL_API_TOKEN].filter(
 		(token): token is string => token !== undefined && token !== "",
 	);
 }

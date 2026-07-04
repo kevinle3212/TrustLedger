@@ -40,11 +40,11 @@ function store(): AnalyticsEventRecord[] {
 }
 
 function analyticsEnabled(): boolean {
-	return process.env["TRUSTLEDGER_ANALYTICS_ENABLED"] === "true";
+	return process.env.TRUSTLEDGER_ANALYTICS_ENABLED === "true";
 }
 
 function analyticsRetentionDays(): number {
-	const parsed = Number.parseInt(process.env["TRUSTLEDGER_ANALYTICS_RETENTION_DAYS"] ?? "", 10);
+	const parsed = Number.parseInt(process.env.TRUSTLEDGER_ANALYTICS_RETENTION_DAYS ?? "", 10);
 	if (!Number.isFinite(parsed) || parsed < 1 || parsed > 365) return DEFAULT_RETENTION_DAYS;
 	return parsed;
 }

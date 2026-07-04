@@ -83,9 +83,7 @@ function sensitiveIpGate(req: NextRequest): NextResponse | null {
 	const { pathname } = req.nextUrl;
 	if (!isSensitivePath(pathname)) return null;
 
-	const allowedIps = parseCsv(
-		process.env["SENSITIVE_ALLOWED_IPS"] ?? process.env["ADMIN_ALLOWED_IPS"],
-	);
+	const allowedIps = parseCsv(process.env.SENSITIVE_ALLOWED_IPS ?? process.env.ADMIN_ALLOWED_IPS);
 	if (allowedIps.length === 0) return null; // no restriction configured
 
 	const ip = clientIp(req).toLowerCase();

@@ -44,8 +44,8 @@ function checkPublicAppUrl(): HealthCheck {
 }
 
 function checkPrivacyAnalytics(): HealthCheck {
-	const enabled = process.env["TRUSTLEDGER_ANALYTICS_ENABLED"] === "true";
-	const publicEnabled = process.env["NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED"] === "true";
+	const enabled = process.env.TRUSTLEDGER_ANALYTICS_ENABLED === "true";
+	const publicEnabled = process.env.NEXT_PUBLIC_PRIVACY_ANALYTICS_ENABLED === "true";
 	return {
 		name: "privacy-analytics",
 		ok: enabled === publicEnabled,
