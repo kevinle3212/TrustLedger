@@ -217,22 +217,34 @@ secrets.
 
 <!-- docs-section-nav:end -->
 
-| Variable                       | Required For                 | Consumed By                        |
-| ------------------------------ | ---------------------------- | ---------------------------------- |
-| `AI_SUMMARY_PROVIDER`          | Contract summary provider    | `src/services/contractSummary.ts`  |
-| `GROQ_API_KEY`                 | Groq-hosted Llama summaries  | `src/services/contractSummary.ts`  |
-| `GROQ_MODEL`                   | Optional Groq model override | `src/services/contractSummary.ts`  |
-| `GEMINI_API_KEY`               | Gemini summaries             | `src/services/contractSummary.ts`  |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini key fallback          | `src/services/contractSummary.ts`  |
-| `GEMINI_MODEL`                 | Optional Gemini override     | `src/services/contractSummary.ts`  |
-| `ACCOUNT_SESSION_SECRET`       | Account session HMAC         | `src/services/offchainAccounts.ts` |
-| `AUTH_JWT_SECRET`              | Account session fallback     | `src/services/offchainAccounts.ts` |
+All AI features route through the provider-agnostic `@/core/ai` layer; call
+sites never name a vendor. Configure one provider and the contract-summary
+service (`/api/contract/[id]/summary`) and `/api/ai/complete` both use it.
 
-Keep `AI_SUMMARY_PROVIDER=disabled` until the selected managed inference
-provider has data-use controls enabled and monitoring is ready. The summary
-service sends minimized public contract metadata only; it never sends encrypted
-document bodies, private keys, seed phrases, session keys, or unrelated wallet
-history.
+| Variable              | Required For                            | Consumed By          |
+| --------------------- | --------------------------------------- | -------------------- |
+| `AI_ENABLED`          | Master switch (`false` forces off)      | `src/core/ai/config` |
+| `AI_PROVIDER_KIND`    | `openai-compatible` or `gemini`         | `src/core/ai/config` |
+| `AI_BASE_URL`         | API base (required for openai-compat)   | `src/core/ai/config` |
+| `AI_API_KEY`          | Provider key/token                      | `src/core/ai/config` |
+| `AI_DEFAULT_MODEL`    | Default model id                        | `src/core/ai/config` |
+| `AI_DEFAULT_PROVIDER` | Default provider registry name          | `src/core/ai/config` |
+| `AI_PROVIDERS_JSON`   | Advanced multi-provider config          | `src/core/ai/config` |
+| `AI_ROUTES_JSON`      | Per-task provider/model routing         | `src/core/ai/config` |
+| `OPENROUTER_API_KEY`  | OpenRouter fallback provider            | `src/core/ai/config` |
+| `OPENROUTER_BASE_URL` | OpenRouter API base override            | `src/core/ai/config` |
+| `AI_FALLBACK_MODEL`   | Fallback model id (default a free tier) | `src/core/ai/config` |
+
+| Variable                 | Required For             | Consumed By                        |
+| ------------------------ | ------------------------ | ---------------------------------- |
+| `ACCOUNT_SESSION_SECRET` | Account session HMAC     | `src/services/offchainAccounts.ts` |
+| `AUTH_JWT_SECRET`        | Account session fallback | `src/services/offchainAccounts.ts` |
+
+Leave the `AI_*` provider vars unset (built-in `disabled` placeholder) until the
+selected managed inference provider has data-use controls enabled and monitoring
+is ready. The summary service sends minimized public contract metadata only; it
+never sends encrypted document bodies, private keys, seed phrases, session keys,
+or unrelated wallet history.
 
 ## Privacy Analytics Variables
 

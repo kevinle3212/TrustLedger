@@ -59,6 +59,16 @@ commands with `rtk` when available.
   volume, and build-cache growth. If build cache is multiple GB and no active
   Dockerfile iteration depends on it, run `npm run docker:storage:prune`.
 
+## Orchestration
+
+- Act as the orchestrator. Choose the most token- and cost-efficient path that
+  does not compromise quality, security, or best practices.
+- Plan with the cheapest capable model, delegate the building to cheaper
+  models/agents, and reserve the most expensive model for planning and the final
+  QA pass — do not use the top tier for routine implementation.
+- When your tool exposes model tiers by name, see the tool-specific file
+  (`CLAUDE.md`, `.codex/AGENTS.md`) for the exact delegation policy.
+
 ## Commit Messages
 
 Every commit message is validated by `commitlint` (`commitlint.config.js`, run
