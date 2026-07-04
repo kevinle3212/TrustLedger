@@ -40,10 +40,7 @@ const VALID_DEADLINE_KINDS: readonly DeadlineKind[] = ["project", "acceptance", 
 
 /** Constant-time bearer check against NOTIFICATIONS_SECRET. */
 function isAuthorized(req: NextRequest): boolean {
-	return isAuthorizedBearer(
-		req.headers.get("authorization"),
-		process.env["NOTIFICATIONS_SECRET"],
-	);
+	return isAuthorizedBearer(req.headers.get("authorization"), process.env.NOTIFICATIONS_SECRET);
 }
 
 /**
@@ -69,10 +66,7 @@ function isAuthorized(req: NextRequest): boolean {
  * @returns JSON acknowledgement or an error.
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
-	if (
-		process.env["NOTIFICATIONS_SECRET"] === undefined ||
-		process.env["NOTIFICATIONS_SECRET"] === ""
-	)
+	if (process.env.NOTIFICATIONS_SECRET === undefined || process.env.NOTIFICATIONS_SECRET === "")
 		return NextResponse.json({ error: "NOTIFICATIONS_SECRET not set" }, { status: 500 });
 	if (!isAuthorized(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 

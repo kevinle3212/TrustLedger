@@ -1,52 +1,52 @@
 {
 	"totals": {
-		"files": 930,
-		"directories": 329,
-		"lines": 148033,
-		"bytes": 11394957,
+		"files": 942,
+		"directories": 334,
+		"lines": 150000,
+		"bytes": 11482617,
 		"categories": 26
 	},
 	"categories": [
 		{
 			"name": "Markdown",
-			"files": 278,
-			"lines": 44674,
-			"share": 30.2
+			"files": 279,
+			"lines": 44836,
+			"share": 29.9
 		},
 		{
 			"name": "Solidity",
 			"files": 78,
 			"lines": 34405,
-			"share": 23.2
+			"share": 22.9
 		},
 		{
 			"name": "TypeScript",
-			"files": 197,
-			"lines": 22581,
-			"share": 15.3
+			"files": 205,
+			"lines": 23900,
+			"share": 15.9
 		},
 		{
 			"name": "React",
 			"files": 122,
-			"lines": 17473,
-			"share": 11.8
+			"lines": 17784,
+			"share": 11.9
 		},
 		{
 			"name": "JSON",
 			"files": 50,
-			"lines": 12906,
-			"share": 8.7
+			"lines": 12970,
+			"share": 8.6
 		},
 		{
 			"name": "JavaScript",
-			"files": 25,
-			"lines": 2875,
-			"share": 1.9
+			"files": 26,
+			"lines": 2943,
+			"share": 2
 		},
 		{
 			"name": "YAML",
 			"files": 39,
-			"lines": 2858,
+			"lines": 2862,
 			"share": 1.9
 		},
 		{
@@ -111,8 +111,8 @@
 		},
 		{
 			"name": "SQL",
-			"files": 1,
-			"lines": 123,
+			"files": 2,
+			"lines": 162,
 			"share": 0.1
 		},
 		{

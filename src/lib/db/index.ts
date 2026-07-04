@@ -14,3 +14,5 @@ export * from "@/lib/db/repositories/contractMetadata";
 export * from "@/lib/db/repositories/disputes";
 export * from "@/lib/db/repositories/jurors";
 export * from "@/lib/db/repositories/analytics";
+export * as userProfiles from "@/lib/db/repositories/userProfiles";
+export * as notifications from "@/lib/db/repositories/notifications";
