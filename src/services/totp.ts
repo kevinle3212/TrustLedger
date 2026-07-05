@@ -70,7 +70,7 @@ function encryptionKey(): Buffer {
 /** Encrypts a TOTP secret with AES-256-GCM, returning base64 ciphertext + nonce. */
 function encryptSecret(secret: string): { encryptedSecret: string; secretNonce: string } {
 	const iv = randomBytes(12);
-	const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv);
+	const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv, { authTagLength: 16 });
 	const ciphertext = Buffer.concat([cipher.update(secret, "utf8"), cipher.final()]);
 	const authTag = cipher.getAuthTag();
 	return {
@@ -88,6 +88,7 @@ function decryptSecret(encryptedSecret: string, secretNonce: string): string {
 		"aes-256-gcm",
 		encryptionKey(),
 		Buffer.from(secretNonce, "base64"),
+		{ authTagLength: 16 },
 	);
 	decipher.setAuthTag(authTag);
 	return Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString("utf8");

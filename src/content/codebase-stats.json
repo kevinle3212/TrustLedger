@@ -2,8 +2,8 @@
 	"totals": {
 		"files": 982,
 		"directories": 351,
-		"lines": 154325,
-		"bytes": 11657235,
+		"lines": 154326,
+		"bytes": 11657283,
 		"categories": 26
 	},
 	"categories": [
@@ -22,7 +22,7 @@
 		{
 			"name": "TypeScript",
 			"files": 232,
-			"lines": 26214,
+			"lines": 26215,
 			"share": 17
 		},
 		{
