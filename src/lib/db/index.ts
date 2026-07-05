@@ -16,3 +16,7 @@ export * from "@/lib/db/repositories/jurors";
 export * from "@/lib/db/repositories/analytics";
 export * as userProfiles from "@/lib/db/repositories/userProfiles";
 export * as notifications from "@/lib/db/repositories/notifications";
+export * as messagingKeys from "@/lib/db/repositories/messagingKeys";
+export * as conversations from "@/lib/db/repositories/conversations";
+export * as messages from "@/lib/db/repositories/messages";
+export * as totpCredentials from "@/lib/db/repositories/totpCredentials";

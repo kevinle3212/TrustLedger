@@ -75,4 +75,10 @@ jobs:
         steps:
             - name: Deploy
               id: deployment
+              # Suppress the Node DEP0040 punycode warning emitted from the
+              # action's own bundled whatwg-url dependency (upstream, not our
+              # code). Scoped to this step so deprecations in our build job still
+              # surface.
+              env:
+                  NODE_OPTIONS: --no-deprecation
               uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

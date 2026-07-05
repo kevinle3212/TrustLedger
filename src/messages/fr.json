@@ -709,7 +709,13 @@
 		"walletRequiredChecklistTitle": "Avant de Continuer",
 		"walletRequiredChecklistAddress": "Confirmez l’adresse du portefeuille avant de signer.",
 		"walletRequiredChecklistSecrets": "Ne saisissez jamais de phrase de récupération ni de clé privée.",
-		"walletRequiredChecklistNetwork": "Changez de réseau dans votre portefeuille lorsque cela est demandé."
+		"walletRequiredChecklistNetwork": "Changez de réseau dans votre portefeuille lorsque cela est demandé.",
+		"messages": "Messages",
+		"totpPromptTitle": "Code À Deux Facteurs Requis",
+		"totpPromptBody": "Saisissez le code à 6 chiffres de votre application d'authentification pour terminer la connexion.",
+		"totpPromptPlaceholder": "Code à 6 chiffres",
+		"totpPromptSubmit": "Valider",
+		"totpPromptCancel": "Annuler"
 	},
 	"Decrypt": {
 		"title": "Déchiffrer le document AES-256-GCM",
@@ -1012,7 +1018,28 @@
 		"timeout10Min": "10 min",
 		"timeout15Min": "15 min",
 		"timeout30Min": "30 min",
-		"timeout1Hr": "1 h"
+		"timeout1Hr": "1 h",
+		"twoFactorTitle": "Authentification À Deux Facteurs",
+		"twoFactorBody": "Ajoutez un code d'application d'authentification à la connexion pour une protection supplémentaire du compte hors chaîne de ce portefeuille.",
+		"twoFactorLoadingStatus": "Vérification du statut à deux facteurs…",
+		"twoFactorEnabledLabel": "L'authentification à deux facteurs est activée.",
+		"twoFactorDisabledLabel": "L'authentification à deux facteurs n'est pas activée.",
+		"twoFactorEnableButton": "Activer L'Authentification À Deux Facteurs",
+		"twoFactorDisableButton": "Désactiver L'Authentification À Deux Facteurs",
+		"twoFactorSetupInstructions": "Scannez ce code QR avec votre application d'authentification, ou saisissez le secret manuellement, puis saisissez un code pour confirmer.",
+		"twoFactorSecretLabel": "Secret pour la saisie manuelle",
+		"twoFactorCodeLabel": "Code d'authentification",
+		"twoFactorCodePlaceholder": "Code à 6 chiffres",
+		"twoFactorVerifyButton": "Vérifier Et Activer",
+		"twoFactorCancelButton": "Annuler",
+		"twoFactorQrAlt": "Code QR de l'application d'authentification",
+		"twoFactorRecoveryTitle": "Codes De Récupération",
+		"twoFactorRecoveryWarning": "Enregistrez ces codes de récupération maintenant en lieu sûr — ils ne seront plus affichés.",
+		"twoFactorRecoveryCopyButton": "Copier Les Codes",
+		"twoFactorRecoveryCopied": "Copié",
+		"twoFactorRecoveryDoneButton": "Terminé",
+		"twoFactorDisableCodeLabel": "Saisissez un code ou un code de récupération pour désactiver",
+		"twoFactorError": "Une erreur est survenue. Réessayez."
 	},
 	"Status": {
 		"metadata": {
@@ -1234,5 +1261,25 @@
 		"deleteConfirmAction": "Oui, Supprimer Mes Données",
 		"deleteCancelAction": "Annuler",
 		"deleteDone": "Vos données locales ont été supprimées et votre portefeuille déconnecté de ce navigateur."
+	},
+	"Messaging": {
+		"pageTitle": "Messages Chiffrés",
+		"pageIntro": "Les messages sont chiffrés de bout en bout dans votre navigateur avant d'atteindre TrustLedger.",
+		"conversationsTitle": "Conversations",
+		"noConversations": "Aucune conversation pour l'instant.",
+		"openByAddressLabel": "Démarrer une conversation",
+		"openByAddressPlaceholder": "Adresse du portefeuille (0x…)",
+		"openByAddressButton": "Ouvrir",
+		"selectConversationPrompt": "Sélectionnez une conversation pour voir les messages.",
+		"emptyThread": "Aucun message pour l'instant. Dites bonjour !",
+		"composerPlaceholder": "Écrire un message…",
+		"sendButton": "Envoyer",
+		"moderationBlocked": "Ce message a été bloqué : {reason}",
+		"flagCategoriesLabel": "Signalé — catégories : {categories}",
+		"decryptError": "Impossible de déchiffrer ce message.",
+		"keySetupStatus": "Configuration de la messagerie chiffrée…",
+		"keyLoadError": "Impossible de charger la clé de messagerie du destinataire.",
+		"loadError": "Impossible de charger les messages.",
+		"sendError": "L'envoi du message a échoué."
 	}
 }

@@ -68,6 +68,7 @@
 			]
 		}
 	},
+	"tags": ["-internal"],
 	"ignoreFiles": [
 		"artifacts/**",
 		"contracts/**",

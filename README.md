@@ -94,33 +94,90 @@ accessible controls, and visible transaction progress.
 
 ```mermaid
 flowchart TB
-    User["Client, Freelancer, Or Juror"] --> UI["Next.js App (src/)"]
-    UI --> Wallet["Reown AppKit And Wagmi"]
-    Wallet --> Chain["EVM Contracts"]
-    UI --> API["Next.js API Routes"]
-    UI --> About["About, Status, And Analytics Pages"]
-    API --> Services["Server Services"]
-    Services --> Email["Email Provider"]
-    Services --> Oracle["Price Provider"]
-    Services --> Admin["Read-Only Admin Dashboard"]
-    Services --> Chain
-    Chain --> TL["TrustLedger.sol"]
-    Chain --> ARB["Arbitration.sol"]
-    Chain --> JR["JurorRegistry.sol"]
-    Chain --> REP["ReputationRegistry.sol"]
+    User["Client · Freelancer · Juror"] --> UI
+
+    subgraph Client["Client (Browser)"]
+        UI["Next.js App Router UI<br/>i18n · themes · pages"]
+        CryptoC["Client Crypto<br/>messagingCrypto · accountSession · e2e (X25519)"]
+        Wallet["Reown AppKit · wagmi · viem"]
+    end
+
+    UI --> CryptoC
+    UI --> Wallet
+    CryptoC -. "EIP-712 sign (KEK · session)" .-> Wallet
+    Wallet --> Chain["EVM RPC"]
+
+    subgraph Onchain["On-Chain (EVM)"]
+        TL["TrustLedger.sol"]
+        ARB["Arbitration.sol"]
+        JR["JurorRegistry.sol"]
+        REP["ReputationRegistry.sol"]
+    end
+    Chain --> Onchain
+
+    UI --> Proxy["proxy.ts<br/>sensitive-route IP gate"]
+    Proxy --> API
+
+    subgraph API["Next.js API Routes"]
+        AAcc["/api/accounts/*<br/>challenge · session · profile"]
+        A2FA["/api/account/2fa/*<br/>setup · verify · disable"]
+        AMsg["/api/messages/*<br/>keys · conversations · moderate"]
+        AAdmin["/api/admin/*"]
+    end
+
+    subgraph Services["Server Services (server-only)"]
+        SAcc["offchainAccounts<br/>EIP-712 auth · bearer sessions"]
+        STotp["totp<br/>AES-256-GCM secret · sha256 codes"]
+        SMsg["messaging<br/>wrapped keys · ciphertext only"]
+        SMod["moderation<br/>advisory · fail-open"]
+        SInfra["email · oracle · health · adminReport"]
+    end
+
+    AAcc --> SAcc
+    A2FA --> STotp
+    AMsg --> SMsg
+    AMsg --> SMod
+    AAdmin --> SInfra
+    SAcc -. step-up .-> STotp
+
+    subgraph AICore["AI Core (provider-agnostic)"]
+        AIP["generateText · streamText"]
+        Gem["Gemini (primary)"]
+        ORouter["OpenRouter (fallback)"]
+        AIP --> Gem
+        AIP --> ORouter
+    end
+    SMod --> AIP
+
+    subgraph DB["Off-Chain DB (Prisma 7 → Neon Postgres)"]
+        T1["messaging_keys"]
+        T2["conversations"]
+        T3["messages"]
+        T4["totp_credentials"]
+    end
+    SAcc --> DB
+    STotp --> DB
+    SMsg --> DB
+
+    SInfra --> Email["Resend (email)"]
+    SInfra --> OracleP["Price provider"]
+    SInfra --> Chain
 ```
 
 ## Technology Stack
 
-| Layer            | Tools                                                                     |
-| ---------------- | ------------------------------------------------------------------------- |
-| Frontend         | Next.js 16, React 19, TypeScript, next-intl, Tailwind CSS v4, Sass        |
-| Wallet and chain | Reown AppKit, wagmi, viem, Ethereum Sepolia, Arbitrum One, Base, Optimism |
-| Backend          | Next.js route handlers, Resend, server-side viem clients                  |
-| Contracts        | Solidity 0.8.24, OpenZeppelin, Hardhat, Foundry                           |
-| Python           | ReportLab utility generator, GitHub Models scripts, strict mypy           |
-| Docs             | MkDocs Material, markdownlint                                             |
-| CI/CD            | GitHub Actions, Vercel, Dependabot                                        |
+| Layer              | Tools                                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| Frontend           | Next.js 16, React 19, TypeScript, next-intl, Tailwind CSS v4, Sass                         |
+| Wallet and chain   | Reown AppKit, wagmi, viem, Ethereum Sepolia, Arbitrum One, Base, Optimism                  |
+| Backend            | Next.js route handlers, Resend, server-side viem clients                                   |
+| Off-chain database | Prisma 7 (node-postgres adapter), Neon Postgres, server-only repositories in `src/lib/db/` |
+| AI                 | Provider-agnostic core (`src/core/ai`), Gemini (primary), OpenRouter (fallback)            |
+| Client E2E crypto  | X25519 identities, `@noble` cryptography primitives, AES-256-GCM message keys              |
+| Contracts          | Solidity 0.8.24, OpenZeppelin, Hardhat, Foundry                                            |
+| Python             | ReportLab utility generator, GitHub Models scripts, strict mypy                            |
+| Docs               | MkDocs Material, markdownlint                                                              |
+| CI/CD              | GitHub Actions, Vercel, Dependabot                                                         |
 
 ## Repository Structure
 
@@ -418,10 +475,22 @@ Read [Environment](docs/ENVIRONMENT.md).
 ## Authentication Architecture
 
 Wallet connection establishes the active address for client-side contract
-actions. Magic links support email-assisted acceptance and review flows. The
-current implementation is not a full account database. Future off-chain accounts
-should use wallet sign-in, short-lived JWTs, and route authorization bound to
-the authenticated wallet.
+actions. Magic links support email-assisted acceptance and review flows.
+Off-chain account sessions layer on top of the wallet:
+`src/services/offchainAccounts.ts` runs a challenge/response flow — the client
+requests a challenge from `POST /api/accounts/challenge`, signs it with an
+EIP-712 signature, and exchanges it at `POST /api/accounts/session` for a bearer
+token. The token is cached client-side in `sessionStorage` (never
+`localStorage`), keyed by the lowercased wallet address, via
+`src/lib/accountSession.ts` and `src/lib/authedFetch.ts`. API routes read it
+with `sessionFromRequest` from the `Authorization: Bearer <token>` header.
+
+Accounts can opt into TOTP two-factor authentication (`src/services/totp.ts`,
+`/api/account/2fa/{setup,verify,disable}`). When enabled, the session route
+requires a step-up TOTP code before issuing a bearer token. The shared secret is
+encrypted at rest with AES-256-GCM using `TOTP_ENCRYPTION_KEY`; 10 recovery
+codes are stored only as sha256 hashes, and codes tolerate a 30-second clock
+skew.
 
 Privileged routes:
 
@@ -432,33 +501,56 @@ Privileged routes:
   `Authorization: Bearer <NOTIFICATIONS_SECRET>`.
 - `GET /api/cron/deadline-reminders` requires
   `Authorization: Bearer <CRON_SECRET>`.
+- `/api/account/2fa/*` and `/api/messages/*` require an account bearer session
+  (see above).
 
 ## Database Architecture
 
-There is no production database in this repository today. Durable custody and
-lifecycle state live in smart contracts. Off-chain data is limited to:
+Durable custody and lifecycle state live in smart contracts. Alongside that, an
+off-chain PostgreSQL database (Neon) backed by Prisma 7 (node-postgres adapter)
+stores supporting account, security, and messaging state. The server-only client
+and repositories live in `src/lib/db/` (import from `@/lib/db`); never import
+`@/lib/db` from a Client Component. The schema is `src/prisma/schema.prisma`.
 
-- Environment-backed address-to-email maps for deadline reminders.
-- Client-side localStorage for role, theme, contrast, and wallet hints.
-- External storage references such as IPFS and Arweave URIs.
+Migration `0003_messaging_totp` adds four tables:
 
-Any future database must document data ownership, retention, PII handling,
-wallet authorization, and migration strategy before adoption.
+- `messaging_keys` — public X25519 keys and wrapped private keys per account.
+- `conversations` — end-to-end encrypted messaging conversation metadata.
+- `messages` — ciphertext message bodies (server never sees plaintext).
+- `totp_credentials` — encrypted TOTP secrets and hashed recovery codes.
+
+Migrations auto-apply on Vercel builds via `npm run vercel:migrate`; read
+[Deployment](docs/DEPLOYMENT.md) for the environment gating and rollout details.
+
+Other off-chain data remains limited to environment-backed address-to-email maps
+for deadline reminders, client-side localStorage for role/theme/contrast hints,
+and external storage references such as IPFS and Arweave URIs.
 
 ## API Architecture
 
-| Route                              | Purpose                                          | Auth               |
-| ---------------------------------- | ------------------------------------------------ | ------------------ |
-| `GET /api/health/runtime`          | Runtime probe for containers and smoke checks.   | Public             |
-| `GET /api/health`                  | Operational config health.                       | Bearer/IP admin    |
-| `GET /api/contract/[id]`           | JSON-safe on-chain contract aggregation.         | Public             |
-| `POST /api/magic-link/send`        | Send review/acceptance magic link.               | Server env secrets |
-| `GET /api/magic-link/verify`       | Verify HMAC magic-link token.                    | Token              |
-| `POST /api/notifications`          | Send lifecycle email.                            | Bearer secret      |
-| `GET /api/cron/deadline-reminders` | Scan deadlines and send reminders.               | Bearer secret      |
-| `GET /api/oracle/rates`            | Fetch supported display exchange rate.           | Public             |
-| `GET /api/oracle/status`           | Report oracle provider, TTL, pairs, cache state. | Public             |
-| `GET /api/analytics/codebase`      | Codebase scale: lines, files, language mix.      | Public             |
+| Route                                         | Purpose                                           | Auth                       |
+| --------------------------------------------- | ------------------------------------------------- | -------------------------- |
+| `GET /api/health/runtime`                     | Runtime probe for containers and smoke checks.    | Public                     |
+| `GET /api/health`                             | Operational config health.                        | Bearer/IP admin            |
+| `GET /api/contract/[id]`                      | JSON-safe on-chain contract aggregation.          | Public                     |
+| `POST /api/magic-link/send`                   | Send review/acceptance magic link.                | Server env secrets         |
+| `GET /api/magic-link/verify`                  | Verify HMAC magic-link token.                     | Token                      |
+| `POST /api/notifications`                     | Send lifecycle email.                             | Bearer secret              |
+| `GET /api/cron/deadline-reminders`            | Scan deadlines and send reminders.                | Bearer secret              |
+| `GET /api/oracle/rates`                       | Fetch supported display exchange rate.            | Public                     |
+| `GET /api/oracle/status`                      | Report oracle provider, TTL, pairs, cache state.  | Public                     |
+| `GET /api/analytics/codebase`                 | Codebase scale: lines, files, language mix.       | Public                     |
+| `POST /api/accounts/challenge`                | Issue an EIP-712 sign-in challenge.               | Public                     |
+| `POST /api/accounts/session`                  | Exchange a signed challenge for a bearer token.   | Signature (+ TOTP step-up) |
+| `GET /api/accounts/profile`                   | Read the authenticated account profile.           | Bearer                     |
+| `POST /api/account/2fa/setup`                 | Begin TOTP enrollment.                            | Bearer                     |
+| `POST /api/account/2fa/verify`                | Confirm TOTP enrollment or step-up.               | Bearer                     |
+| `POST /api/account/2fa/disable`               | Disable TOTP.                                     | Bearer                     |
+| `GET /api/messages/keys`, `/keys/me`          | Publish/read messaging public keys.               | Bearer                     |
+| `GET`/`POST /api/messages/conversations`      | List/start E2E encrypted conversations.           | Bearer                     |
+| `GET`/`POST /api/messages/conversations/[id]` | Read/send ciphertext messages.                    | Bearer                     |
+| `POST /api/messages/conversations/[id]/read`  | Mark a conversation read.                         | Bearer                     |
+| `POST /api/messages/moderate`                 | AI-moderate outbound plaintext before encryption. | Bearer                     |
 
 ## Frontend Pages
 

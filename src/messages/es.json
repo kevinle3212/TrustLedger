@@ -709,7 +709,13 @@
 		"walletRequiredChecklistTitle": "Antes de Continuar",
 		"walletRequiredChecklistAddress": "Confirma la dirección de la billetera antes de firmar.",
 		"walletRequiredChecklistSecrets": "Nunca ingreses frases semilla ni claves privadas.",
-		"walletRequiredChecklistNetwork": "Cambia de red en tu billetera cuando se te solicite."
+		"walletRequiredChecklistNetwork": "Cambia de red en tu billetera cuando se te solicite.",
+		"messages": "Mensajes",
+		"totpPromptTitle": "Se Requiere Código De Dos Factores",
+		"totpPromptBody": "Introduce el código de 6 dígitos de tu aplicación de autenticación para terminar de iniciar sesión.",
+		"totpPromptPlaceholder": "Código de 6 dígitos",
+		"totpPromptSubmit": "Enviar",
+		"totpPromptCancel": "Cancelar"
 	},
 	"Decrypt": {
 		"title": "Descifrar documento AES-256-GCM",
@@ -1012,7 +1018,28 @@
 		"timeout10Min": "10 min",
 		"timeout15Min": "15 min",
 		"timeout30Min": "30 min",
-		"timeout1Hr": "1 h"
+		"timeout1Hr": "1 h",
+		"twoFactorTitle": "Autenticación De Dos Factores",
+		"twoFactorBody": "Añade un código de una aplicación de autenticación al inicio de sesión para mayor protección de la cuenta off-chain de esta wallet.",
+		"twoFactorLoadingStatus": "Comprobando el estado de dos factores…",
+		"twoFactorEnabledLabel": "La autenticación de dos factores está activada.",
+		"twoFactorDisabledLabel": "La autenticación de dos factores no está activada.",
+		"twoFactorEnableButton": "Activar Autenticación De Dos Factores",
+		"twoFactorDisableButton": "Desactivar Autenticación De Dos Factores",
+		"twoFactorSetupInstructions": "Escanea este código QR con tu aplicación de autenticación o introduce el secreto manualmente, luego introduce un código para confirmar.",
+		"twoFactorSecretLabel": "Secreto para entrada manual",
+		"twoFactorCodeLabel": "Código de autenticación",
+		"twoFactorCodePlaceholder": "Código de 6 dígitos",
+		"twoFactorVerifyButton": "Verificar Y Activar",
+		"twoFactorCancelButton": "Cancelar",
+		"twoFactorQrAlt": "Código QR de la aplicación de autenticación",
+		"twoFactorRecoveryTitle": "Códigos De Recuperación",
+		"twoFactorRecoveryWarning": "Guarda estos códigos de recuperación ahora en un lugar seguro — no se volverán a mostrar.",
+		"twoFactorRecoveryCopyButton": "Copiar Códigos",
+		"twoFactorRecoveryCopied": "Copiado",
+		"twoFactorRecoveryDoneButton": "Listo",
+		"twoFactorDisableCodeLabel": "Introduce un código o código de recuperación para desactivar",
+		"twoFactorError": "Algo salió mal. Inténtalo de nuevo."
 	},
 	"Status": {
 		"metadata": {
@@ -1234,5 +1261,25 @@
 		"deleteConfirmAction": "Sí, Eliminar Mis Datos",
 		"deleteCancelAction": "Cancelar",
 		"deleteDone": "Tus datos locales se han eliminado y tu monedero se ha desconectado de este navegador."
+	},
+	"Messaging": {
+		"pageTitle": "Mensajes Cifrados",
+		"pageIntro": "Los mensajes se cifran de extremo a extremo en tu navegador antes de llegar a TrustLedger.",
+		"conversationsTitle": "Conversaciones",
+		"noConversations": "Aún no hay conversaciones.",
+		"openByAddressLabel": "Iniciar una conversación",
+		"openByAddressPlaceholder": "Dirección de wallet (0x…)",
+		"openByAddressButton": "Abrir",
+		"selectConversationPrompt": "Selecciona una conversación para ver los mensajes.",
+		"emptyThread": "Aún no hay mensajes. ¡Saluda!",
+		"composerPlaceholder": "Escribe un mensaje…",
+		"sendButton": "Enviar",
+		"moderationBlocked": "Este mensaje fue bloqueado: {reason}",
+		"flagCategoriesLabel": "Marcado — categorías: {categories}",
+		"decryptError": "No se pudo descifrar este mensaje.",
+		"keySetupStatus": "Configurando la mensajería cifrada…",
+		"keyLoadError": "No se pudo cargar la clave de mensajería del destinatario.",
+		"loadError": "No se pudieron cargar los mensajes.",
+		"sendError": "El mensaje no se pudo enviar."
 	}
 }

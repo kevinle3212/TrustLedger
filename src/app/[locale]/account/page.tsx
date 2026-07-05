@@ -3,6 +3,7 @@
 import { ConnectButton } from "@/components/ConnectButton";
 import { InactivityTimeoutSetting } from "@/components/InactivityTimeoutSetting";
 import { PrivacyDataRights } from "@/components/PrivacyDataRights";
+import { TwoFactorSetting } from "@/components/TwoFactorSetting";
 import { WalletRequiredPage } from "@/components/WalletRequiredPage";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -85,6 +86,10 @@ export default function AccountPage(): React.JSX.Element {
 						<InactivityTimeoutSetting />
 					</div>
 				</article>
+			</section>
+
+			<section className="mt-6">
+				<TwoFactorSetting />
 			</section>
 
 			<PrivacyDataRights />

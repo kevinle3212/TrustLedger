@@ -862,6 +862,81 @@ WalletConnect sessions still restore through AppKit's gated eager init. **Needs
 real-wallet verification** (MetaMask/Coinbase across refresh, URL change, and
 back/forward).
 
+## Phase 6: E2E Messaging + AI Moderation + TOTP 2FA (2026-07-04)
+
+Two Phase 6 features share the off-chain database and the accounts session. Both
+keep the chain authoritative; these are supporting off-chain surfaces.
+
+### End-to-end encrypted in-app messaging
+
+**Threat model.** The server is treated as honest-but-curious. It must never be
+able to read message plaintext, even transiently at rest, and must not hold any
+key that can decrypt a message. It stores only ciphertext, per-wallet public
+keys, wrapped private keys, and a content-free moderation flag.
+
+**Primitives** (`src/lib/crypto/e2e.ts`, isomorphic — runs in the browser and in
+Node, deliberately not `server-only`): X25519 ECDH for the shared secret,
+HKDF-SHA256 to derive keys, and XChaCha20-Poly1305 AEAD for wrapping and message
+encryption. Built on the audited `@noble/curves`, `@noble/ciphers`, and
+`@noble/hashes`. All binary fields cross the wire as standard base64.
+
+**Key management.** Each wallet generates an X25519 identity client-side. The
+private key is wrapped with a key-encryption key (KEK) derived from the wallet's
+signature over a fixed, nonce-free EIP-712 message — so the signature (and thus
+the KEK) is deterministic and re-derivable on any device, yet the server, which
+only stores the wrapped blob + wrap nonce + public key, can never unwrap it. The
+raw private key and KEK live only in browser memory for the session and are
+re-derived on reload; they are never written to storage.
+
+**Conversation keys.** A one-to-one conversation key is derived from the ECDH
+shared secret plus an order-independent salt (the two lowercased addresses
+sorted ascending). ECDH commutativity means both participants — and the sender
+for their own sent messages — derive the same key. Conversations are keyed by
+the normalized, sorted participant pair, so a pair maps to exactly one row.
+
+**Moderation without breaking E2E.** Moderation runs client-side _before_
+encryption: the plaintext is sent to a transient `POST /api/messages/moderate`
+call (never persisted), classified by the provider-agnostic AI core
+(`@/core/ai`), and the result (`allow` | `flag` | `block` + content-free
+categories) drives the client. `block` refuses to send; `flag` warns and
+attaches a content-free flag; `allow` sends clean. The message is then encrypted
+and only the ciphertext + flag reach the server. Moderation is advisory and
+**fails open** (returns `allow`) whenever AI is disabled or the call/parse
+fails, so it can never become an availability gate on messaging.
+
+Server surface: `src/services/messaging.ts` + `moderation.ts`, repositories
+`messagingKeys` / `conversations` / `messages`, routes under `/api/messages/*`.
+Models `MessagingKey`, `Conversation`, `Message` (migration
+`0003_messaging_totp`). All message routes are participant-gated (403
+otherwise).
+
+### Opt-in TOTP two-factor for the off-chain session
+
+`src/services/totp.ts` backs `/api/account/2fa/*` and a session step-up in
+`offchainAccounts.ts`. TOTP via `otplib` v13 (functional API: `generateSecret`,
+`generateURI`, `verifySync` with `epochTolerance` in seconds — note v13 _throws_
+`TokenLengthError` on non-6-digit tokens, so `checkToken` pre-validates the
+shape before calling the verifier, letting recovery codes fall through). The
+shared secret is stored encrypted with AES-256-GCM under a key derived from
+`TOTP_ENCRYPTION_KEY` (base64, required in production; a random per-process key
+is used in dev, which makes secrets undecryptable after a restart by design).
+Recovery codes are stored only as sha256 hex hashes and consumed one-time.
+
+When a wallet has 2FA enabled, `POST /api/accounts/session` requires a
+`totpCode`; without it the route returns `401 { totpRequired: true }` so the
+client can prompt for a code and retry. Model `TotpCredential` (migration
+`0003_messaging_totp`).
+
+### Build/tooling notes
+
+- `otplib` v13 and its `@otplib/*`, `@scure/base`, and `@noble/*` deps ship
+  untranspiled ESM/TS. They are listed in `transpilePackages` in
+  `next.config.ts` so the server bundle is valid and `next/jest` (which never
+  transforms `node_modules` and only _appends_ custom `transformIgnorePatterns`)
+  can transform them under Jest.
+- Migration `0003_messaging_totp` is applied to Neon by the database owner, not
+  by agents. Run `npm run db:generate` after pulling to regenerate the client.
+
 ## Technical Debt
 
 <!--

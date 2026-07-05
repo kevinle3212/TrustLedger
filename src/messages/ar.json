@@ -709,7 +709,13 @@
 		"walletRequiredChecklistTitle": "قبل المتابعة",
 		"walletRequiredChecklistAddress": "تأكد من عنوان المحفظة قبل التوقيع.",
 		"walletRequiredChecklistSecrets": "لا تدخل عبارات الاسترداد أو المفاتيح الخاصة أبدًا.",
-		"walletRequiredChecklistNetwork": "بدّل الشبكات في محفظتك عند مطالبتك بذلك."
+		"walletRequiredChecklistNetwork": "بدّل الشبكات في محفظتك عند مطالبتك بذلك.",
+		"messages": "الرسائل",
+		"totpPromptTitle": "رمز التحقق بخطوتين مطلوب",
+		"totpPromptBody": "أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة لإكمال تسجيل الدخول.",
+		"totpPromptPlaceholder": "رمز مكوّن من 6 أرقام",
+		"totpPromptSubmit": "إرسال",
+		"totpPromptCancel": "إلغاء"
 	},
 	"Decrypt": {
 		"title": "فك تشفير مستند AES-256-GCM",
@@ -1012,7 +1018,28 @@
 		"timeout10Min": "10 دقائق",
 		"timeout15Min": "15 دقيقة",
 		"timeout30Min": "30 دقيقة",
-		"timeout1Hr": "ساعة واحدة"
+		"timeout1Hr": "ساعة واحدة",
+		"twoFactorTitle": "المصادقة الثنائية",
+		"twoFactorBody": "أضف رمز تطبيق مصادقة إلى تسجيل الدخول لحماية إضافية لحساب هذه المحفظة خارج السلسلة.",
+		"twoFactorLoadingStatus": "جارٍ التحقق من حالة المصادقة الثنائية…",
+		"twoFactorEnabledLabel": "المصادقة الثنائية مفعّلة.",
+		"twoFactorDisabledLabel": "المصادقة الثنائية غير مفعّلة.",
+		"twoFactorEnableButton": "تفعيل المصادقة الثنائية",
+		"twoFactorDisableButton": "تعطيل المصادقة الثنائية",
+		"twoFactorSetupInstructions": "امسح رمز QR هذا باستخدام تطبيق المصادقة، أو أدخل الرمز السري يدويًا، ثم أدخل رمزًا للتأكيد.",
+		"twoFactorSecretLabel": "الرمز السري للإدخال اليدوي",
+		"twoFactorCodeLabel": "رمز المصادقة",
+		"twoFactorCodePlaceholder": "رمز مكوّن من 6 أرقام",
+		"twoFactorVerifyButton": "تحقق وفعّل",
+		"twoFactorCancelButton": "إلغاء",
+		"twoFactorQrAlt": "رمز QR لتطبيق المصادقة",
+		"twoFactorRecoveryTitle": "رموز الاسترداد",
+		"twoFactorRecoveryWarning": "احفظ رموز الاسترداد هذه الآن في مكان آمن — لن تُعرض مرة أخرى.",
+		"twoFactorRecoveryCopyButton": "نسخ الرموز",
+		"twoFactorRecoveryCopied": "تم النسخ",
+		"twoFactorRecoveryDoneButton": "تم",
+		"twoFactorDisableCodeLabel": "أدخل رمزًا أو رمز استرداد للتعطيل",
+		"twoFactorError": "حدث خطأ ما. حاول مرة أخرى."
 	},
 	"Status": {
 		"metadata": {
@@ -1234,5 +1261,25 @@
 		"deleteConfirmAction": "نعم، احذف بياناتي",
 		"deleteCancelAction": "إلغاء",
 		"deleteDone": "تم حذف بياناتك المحلية وفصل محفظتك عن هذا المتصفح."
+	},
+	"Messaging": {
+		"pageTitle": "الرسائل المشفرة",
+		"pageIntro": "يتم تشفير الرسائل من طرف إلى طرف في متصفحك قبل وصولها إلى TrustLedger.",
+		"conversationsTitle": "المحادثات",
+		"noConversations": "لا توجد محادثات بعد.",
+		"openByAddressLabel": "بدء محادثة",
+		"openByAddressPlaceholder": "عنوان المحفظة (0x…)",
+		"openByAddressButton": "فتح",
+		"selectConversationPrompt": "اختر محادثة لعرض الرسائل.",
+		"emptyThread": "لا توجد رسائل بعد. قل مرحبًا!",
+		"composerPlaceholder": "اكتب رسالة…",
+		"sendButton": "إرسال",
+		"moderationBlocked": "تم حظر هذه الرسالة: {reason}",
+		"flagCategoriesLabel": "مُعلّمة — الفئات: {categories}",
+		"decryptError": "تعذّر فك تشفير هذه الرسالة.",
+		"keySetupStatus": "جارٍ إعداد المراسلة المشفرة…",
+		"keyLoadError": "تعذّر تحميل مفتاح مراسلة المستلم.",
+		"loadError": "تعذّر تحميل الرسائل.",
+		"sendError": "فشل إرسال الرسالة."
 	}
 }

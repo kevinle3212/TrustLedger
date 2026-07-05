@@ -157,7 +157,7 @@ describe("@/core/ai", () => {
 		const fetchMock = jest.fn(async (input: unknown) => {
 			await Promise.resolve();
 			const url = String(input);
-			if (url.includes("generativelanguage.googleapis.com")) {
+			if (new URL(url).hostname === "generativelanguage.googleapis.com") {
 				return { ok: false, status: 503 } as Response; // primary (Gemini) is down
 			}
 			return jsonResponse({ choices: [{ message: { content: "fallback-text" } }] });

@@ -17,6 +17,7 @@
 - [Escrow Model](#escrow-model)
 - [Arbitration Model](#arbitration-model)
 - [Frontend Model](#frontend-model)
+- [Off-Chain Layer](#off-chain-layer)
 - [Network Support](#network-support)
 - [Authors and Contributors](#authors-and-contributors)
 - [Legal](#legal)
@@ -147,6 +148,46 @@ Optimism. It also includes:
 Read [Frontend](FRONTEND.md) for routes, services, and environment requirements.
 Read [Oracle Architecture](ORACLE.md) for display-rate data flow and
 [Utilities](UTILITIES.md) for the reusable contract-template generator.
+
+## Off-Chain Layer
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Alongside the on-chain contracts, the frontend has a supporting off-chain layer
+that never becomes the source of truth for escrow custody:
+
+- **Account sessions** — `src/services/offchainAccounts.ts` runs a
+  challenge/response flow: the client requests a challenge, signs it with an
+  EIP-712 signature, and exchanges it for a bearer token cached client-side in
+  `sessionStorage`. Client helpers live in `src/lib/accountSession.ts` and
+  `src/lib/authedFetch.ts`.
+- **TOTP two-factor authentication** — `src/services/totp.ts` provides an opt-in
+  step-up during account session creation. Secrets are encrypted at rest with
+  AES-256-GCM (`TOTP_ENCRYPTION_KEY`); recovery codes are stored only as sha256
+  hashes.
+- **End-to-end encrypted messaging** — `src/services/messaging.ts`,
+  `src/lib/messagingCrypto.ts`, and the pure primitives in `src/lib/crypto/e2e`
+  use X25519 identities and per-conversation message keys. The private key is
+  wrapped by a key-encryption key derived from a deterministic EIP-712 wallet
+  signature, so it re-derives on any device. The server stores only public keys,
+  wrapped private keys, and ciphertext — never plaintext or the key-encryption
+  key.
+- **AI moderation** — `src/services/moderation.ts` moderates outbound message
+  plaintext in a transient server call (never persisted) before the client
+  encrypts it, backing `POST /api/messages/moderate`. It is advisory only and
+  fails open when AI is disabled or the call fails.
+- **AI core** — the provider-agnostic layer at `src/core/ai` (`generateText`,
+  `streamText`) backs moderation and other AI features, with Gemini as the
+  primary provider and OpenRouter as fallback.
+- **Off-chain database** — PostgreSQL on Neon via Prisma 7 (node-postgres
+  adapter). Server-only client and repositories live in `src/lib/db/`. Four
+  tables back the features above: `messaging_keys`, `conversations`, `messages`,
+  and `totp_credentials`. Migration automation on Vercel is covered in
+  [Deployment](DEPLOYMENT.md); this document does not duplicate that detail.
 
 ## Network Support
 

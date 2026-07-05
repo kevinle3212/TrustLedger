@@ -21,6 +21,7 @@
 - [Frontend Address Sync](#frontend-address-sync)
 - [Production Frontend URL](#production-frontend-url)
 - [Container Frontend Deployment](#container-frontend-deployment)
+- [Database Migrations](#database-migrations)
 - [Verification Notes](#verification-notes)
 - [Authors and Contributors](#authors-and-contributors)
 - [Legal](#legal)
@@ -263,6 +264,35 @@ the traced standalone server copied into the runtime image. Keep
 `outputFileTracingRoot` disabled during Vercel builds; forcing it to the
 repository root from the nested `src/` app causes Vercel to look for duplicated
 paths such as `/vercel/path0/path0/.next/*` during packaging.
+
+## Database Migrations
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Prisma migrations are applied automatically during the Vercel build so the
+off-chain Postgres schema (Neon) always matches the deployed app.
+`npm run vercel-build` runs `npm run vercel:migrate`
+(`src/scripts/vercel-migrate.mjs`) before `next build`, which calls the
+idempotent `prisma migrate deploy` (only un-applied migrations run). Behaviour
+is gated on `VERCEL_ENV` so a build never mutates the wrong database:
+
+- **Production** — migrations are required. Set `DIRECT_URL` (the direct,
+  non-pooled Neon connection string) in the Production environment. A missing
+  `DIRECT_URL` or a failed migration fails the build, so the app is never
+  promoted ahead of its schema.
+- **Preview** — migrations run only when `DIRECT_URL` is set for the preview
+  environment (for example a Neon preview branch); otherwise they are skipped so
+  preview builds never touch the production database or fail for lack of a
+  direct connection.
+- **Local / CI builds** — skipped (`VERCEL_ENV` is unset).
+
+To apply migrations manually against a configured `DATABASE_URL` / `DIRECT_URL`,
+run `npm run db:migrate` from `src/`. Never log or commit connection strings;
+set `DATABASE_URL` and `DIRECT_URL` only in the deployment secret store.
 
 ## Verification Notes
 

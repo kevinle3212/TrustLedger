@@ -80,7 +80,7 @@ function resolveEnvValue(envKey: string): string {
 }
 
 const rootEnv = parseRootEnv();
-const isVercelBuild = process.env["VERCEL"] === "1";
+const isVercelBuild = process.env.VERCEL === "1";
 
 // Resolve the public GitHub URL. Priority:
 //   1. Vercel system vars (VERCEL_GIT_REPO_OWNER / VERCEL_GIT_REPO_SLUG) - injected
@@ -89,19 +89,35 @@ const isVercelBuild = process.env["VERCEL"] === "1";
 //      covers `vercel --prod` CLI deploys where the git system vars are absent.
 //   3. Empty string - icon is hidden rather than broken.
 function resolveGithubUrl(): string {
-	const owner = process.env["VERCEL_GIT_REPO_OWNER"];
-	const slug = process.env["VERCEL_GIT_REPO_SLUG"];
+	const owner = process.env.VERCEL_GIT_REPO_OWNER;
+	const slug = process.env.VERCEL_GIT_REPO_SLUG;
 	if (owner !== undefined && owner !== "" && slug !== undefined && slug !== "") {
 		return `https://github.com/${owner}/${slug}`;
 	}
-	return process.env["NEXT_PUBLIC_GITHUB_URL"] ?? rootEnv["NEXT_PUBLIC_GITHUB_URL"] ?? "";
+	return process.env.NEXT_PUBLIC_GITHUB_URL ?? rootEnv["NEXT_PUBLIC_GITHUB_URL"] ?? "";
 }
 
 const nextConfig: NextConfig = {
 	allowedDevOrigins: ["127.0.0.1"],
+	// otplib v13 and its @otplib/@scure subpackages ship untranspiled ESM/TS.
+	// Transpiling them keeps the server bundle valid and lets next/jest transform
+	// them under Jest (which otherwise never transforms node_modules).
+	transpilePackages: [
+		"otplib",
+		"@otplib/core",
+		"@otplib/hotp",
+		"@otplib/totp",
+		"@otplib/uri",
+		"@otplib/plugin-crypto-noble",
+		"@otplib/plugin-base32-scure",
+		"@scure/base",
+		"@noble/hashes",
+		"@noble/ciphers",
+		"@noble/curves",
+	],
 	// Controls the URL prefix. Read from process.env first (set via Vercel project settings),
 	// then falls back to the root .env (parsed above), then to empty string (served at root).
-	basePath: process.env["NEXT_BASE_PATH"] ?? rootEnv["NEXT_BASE_PATH"] ?? "",
+	basePath: process.env.NEXT_BASE_PATH ?? rootEnv["NEXT_BASE_PATH"] ?? "",
 	// Docker and Kubernetes consume Next's standalone server output and need
 	// traces rooted at the repository root. Vercel builds from src/ directly, so
 	// leave both settings unset there to avoid double-rooted package paths.
