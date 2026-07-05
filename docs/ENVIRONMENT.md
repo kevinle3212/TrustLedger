@@ -19,6 +19,7 @@
 - [Frontend Contract Variables](#frontend-contract-variables)
 - [Email And Notification Variables](#email-and-notification-variables)
 - [AI Summary And Account Variables](#ai-summary-and-account-variables)
+- [Off-Chain Database And TOTP Variables](#off-chain-database-and-totp-variables)
 - [Privacy Analytics Variables](#privacy-analytics-variables)
 - [Admin And Health Variables](#admin-and-health-variables)
 - [Rust Admin API Variables](#rust-admin-api-variables)
@@ -245,6 +246,27 @@ selected managed inference provider has data-use controls enabled and monitoring
 is ready. The summary service sends minimized public contract metadata only; it
 never sends encrypted document bodies, private keys, seed phrases, session keys,
 or unrelated wallet history.
+
+## Off-Chain Database And TOTP Variables
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+| Variable              | Required For                                  | Consumed By                                                  |
+| --------------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| `DATABASE_URL`        | Pooled Prisma connection (Neon)               | `src/prisma/schema.prisma`, `src/lib/db/`                    |
+| `DIRECT_URL`          | Direct (non-pooled) connection for migrations | `src/prisma/schema.prisma`, `src/scripts/vercel-migrate.mjs` |
+| `TOTP_ENCRYPTION_KEY` | Encrypting stored TOTP secrets                | `src/services/totp.ts`                                       |
+
+`TOTP_ENCRYPTION_KEY` is a 32-byte base64 secret. Generate one with
+`openssl rand -base64 32`. Production MUST set it: if unset, the service falls
+back to a random per-process key, which is development-only, since secrets do
+not survive a process restart. `DIRECT_URL` is required in production so
+`npm run vercel:migrate` can apply migrations; read [Deployment](DEPLOYMENT.md)
+for the full migration-automation gating.
 
 ## Privacy Analytics Variables
 

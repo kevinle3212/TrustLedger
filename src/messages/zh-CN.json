@@ -709,7 +709,13 @@
 		"walletRequiredChecklistTitle": "继续之前",
 		"walletRequiredChecklistAddress": "签名前确认钱包地址。",
 		"walletRequiredChecklistSecrets": "切勿输入助记词或私钥。",
-		"walletRequiredChecklistNetwork": "按提示在钱包中切换网络。"
+		"walletRequiredChecklistNetwork": "按提示在钱包中切换网络。",
+		"messages": "消息",
+		"totpPromptTitle": "需要双重验证码",
+		"totpPromptBody": "请输入身份验证器应用中的 6 位数验证码以完成登录。",
+		"totpPromptPlaceholder": "6 位数验证码",
+		"totpPromptSubmit": "提交",
+		"totpPromptCancel": "取消"
 	},
 	"Decrypt": {
 		"title": "解密 AES-256-GCM 文档",
@@ -1012,7 +1018,28 @@
 		"timeout10Min": "10 分钟",
 		"timeout15Min": "15 分钟",
 		"timeout30Min": "30 分钟",
-		"timeout1Hr": "1 小时"
+		"timeout1Hr": "1 小时",
+		"twoFactorTitle": "双重身份验证",
+		"twoFactorBody": "在登录时添加身份验证器应用验证码，为此钱包的链下账户提供额外保护。",
+		"twoFactorLoadingStatus": "正在检查双重验证状态…",
+		"twoFactorEnabledLabel": "双重身份验证已启用。",
+		"twoFactorDisabledLabel": "双重身份验证未启用。",
+		"twoFactorEnableButton": "启用双重身份验证",
+		"twoFactorDisableButton": "停用双重身份验证",
+		"twoFactorSetupInstructions": "使用身份验证器应用扫描此二维码，或手动输入密钥，然后输入验证码确认。",
+		"twoFactorSecretLabel": "手动输入密钥",
+		"twoFactorCodeLabel": "身份验证码",
+		"twoFactorCodePlaceholder": "6 位数验证码",
+		"twoFactorVerifyButton": "验证并启用",
+		"twoFactorCancelButton": "取消",
+		"twoFactorQrAlt": "身份验证器应用二维码",
+		"twoFactorRecoveryTitle": "恢复代码",
+		"twoFactorRecoveryWarning": "请立即将这些恢复代码保存到安全的地方——它们不会再次显示。",
+		"twoFactorRecoveryCopyButton": "复制代码",
+		"twoFactorRecoveryCopied": "已复制",
+		"twoFactorRecoveryDoneButton": "完成",
+		"twoFactorDisableCodeLabel": "输入验证码或恢复代码以停用",
+		"twoFactorError": "出了点问题，请重试。"
 	},
 	"Status": {
 		"metadata": {
@@ -1234,5 +1261,25 @@
 		"deleteConfirmAction": "是的，删除我的数据",
 		"deleteCancelAction": "取消",
 		"deleteDone": "你的本地数据已删除，你的钱包已从此浏览器断开连接。"
+	},
+	"Messaging": {
+		"pageTitle": "加密消息",
+		"pageIntro": "消息在到达 TrustLedger 之前会先在您的浏览器中进行端到端加密。",
+		"conversationsTitle": "对话",
+		"noConversations": "暂无对话。",
+		"openByAddressLabel": "开始对话",
+		"openByAddressPlaceholder": "钱包地址（0x…）",
+		"openByAddressButton": "打开",
+		"selectConversationPrompt": "选择一个对话以查看消息。",
+		"emptyThread": "暂无消息，打个招呼吧！",
+		"composerPlaceholder": "输入消息…",
+		"sendButton": "发送",
+		"moderationBlocked": "此消息已被阻止：{reason}",
+		"flagCategoriesLabel": "已标记——类别：{categories}",
+		"decryptError": "无法解密此消息。",
+		"keySetupStatus": "正在设置加密消息…",
+		"keyLoadError": "无法加载收件人的消息密钥。",
+		"loadError": "无法加载消息。",
+		"sendError": "消息发送失败。"
 	}
 }

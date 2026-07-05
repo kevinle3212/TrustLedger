@@ -10,160 +10,6 @@ work. Complete each phase roughly in order: tooling and architecture come first,
 followed by user-facing features, backend services, quality, and finally the
 mainnet launch deliverables.
 
-## Phase 4 — Core Contract Lifecycle Features
-
-- [x] Add an AI-generated summary of each contract and its status to the
-      dashboard, so users can quickly understand the key details and current
-      state without reading through all the text.
-    - Use a language model (for example Gemini) to generate a concise summary of
-      the contract description, key terms (amount and deadlines), and current
-      status (for example "In Progress, 40% completed, no disputes") from the
-      on-chain data and any relevant off-chain metadata.
-    - [x] Research and compare free or free-tier AI providers before committing
-          to one, and document the trade-offs (rate limits, context window,
-          data- retention/privacy terms, and whether a card is required) in
-          `NOTES.md`. Candidates to evaluate:
-        - **Google Gemini API** — generous free tier (e.g. Gemini 2.x Flash)
-          with a simple REST/SDK and no card required to start.
-        - **Groq** — free tier serving open models (Llama, etc.) at very low
-          latency; good for fast, cheap summaries.
-        - **OpenRouter** — single API key fronting many models, including
-          several `:free` variants, useful for provider fallback.
-        - **Cloudflare Workers AI** — free daily allotment of open models that
-          pairs well if any edge/Workers backend is added.
-        - **Mistral (La Plateforme)** and **Together AI** — additional free-tier
-          options worth benchmarking on summary quality and cost. Prefer routing
-          through one abstraction (mirroring `src/services/email.ts`) so the
-          provider can be swapped without touching call sites — e.g. a
-          `src/services/aiSummary.ts` module — and keep the key server-side
-          only.
-    - Display the summary prominently on each contract card in the dashboard,
-      giving users an easy-to-digest overview without clicking into each
-      contract.
-    - **Implemented 2026-06-10:** added the server-only
-      `src/services/contractSummary.ts` provider abstraction, cache, fallback
-      summaries, latency/error/cost metrics, and
-      `GET /api/contract/[id]/summary`. The dashboard now displays a
-      privacy-minimized summary for every visible contract card. Provider keys
-      must stay in deployment secrets only.
-    - Add an in-app PDF viewer for the contract document so users can read the
-      full contract in a readable format without downloading it separately. — If
-      the document is encrypted, prompt the user to decrypt it first. Otherwise,
-      prompt them either to view it on IPFS (and let IPFS download it for them)
-      or to re-authenticate with their wallet so the backend can fetch it. — Do
-      not allow users to view the document unless they are the client or
-      freelancer on the contract, but still allow anyone to view the summary and
-      key details, so sensitive information is protected while the contract
-      remains broadly understandable. — Protect everything behind wallet
-      authentication and authorization so only the relevant parties can access
-      the contract details and documents, preventing broad public access to
-      potentially sensitive information.
-    - **In-app viewer implemented 2026-07-04:**
-      `src/components/DecryptDocumentForm.tsx` now decrypts the AES-256-GCM
-      bundle in the browser and renders it inline via `DecryptedDocumentPreview`
-      — PDFs in a sandboxed (`allow-same-origin`) iframe, images in an `<img>`
-      from a typeless blob, and unrecognized types as a download-only notice.
-      The kind is chosen by magic-byte sniffing (`sniffKind`), never a
-      server-supplied MIME type, and the preview object URL is revoked on
-      change/unmount so plaintext never lingers. The summary stays public via
-      `GET /api/contract/[id]/summary`; the full document remains gated behind
-      decryption (party-held passphrase/key), so only the client or freelancer
-      can read it. Added five i18n keys per locale (`decryptAndView`, `viewing`,
-      `openInNewTab`, `closeViewer`, `cannotPreview`) across all 8 message
-      files. React Doctor 100/100.
-    - **Dashboard upcoming deadlines added 2026-07-04:** the dashboard now
-      renders an `UpcomingDeadlines` widget above the summary banner that
-      surfaces each visible contract's next project/acceptance/warranty
-      deadline, sorted soonest-first, so users see due dates without opening
-      every card. Localized via `upcomingTitle` / `upcomingAriaLabel` /
-      `upcomingCount`.
-
-## Phase 6 — Backend Services and Off-Chain Infrastructure (Mainnet)
-
-- [ ] Add off-chain user accounts to support profile data, notifications, and
-      messaging that cannot or should not live on-chain.
-    - **Authentication:** Require users to sign a typed EIP-712 message with
-      their wallet to prove address ownership. Issue a short-lived JWT on
-      successful verification — no passwords required.
-    - **Authorization:** Gate off-chain write actions (for example updating a
-      profile or reading notifications) to the authenticated wallet. On-chain
-      actions remain permissionless and are enforced entirely by the smart
-      contracts.
-    - **User profiles:** Allow users to set a display name and profile picture,
-      stored off-chain in a database or on IPFS and linked to their on-chain
-      address. Profiles should surface on the reputation and dashboard pages.
-    - **Notifications:** Send email or in-app notifications for key contract
-      lifecycle events — new contract offers, submitted work, approval or
-      dispute outcomes, and rating submissions. — **Email layer scaffolded:**
-      `src/services/notifications.ts` renders every lifecycle email (offer, work
-      submitted, approval, dispute opened/resolved, rating, deadline reminder)
-      via the shared `src/services/email.ts` shell; `POST /api/notifications`
-      (bearer-gated with `NOTIFICATIONS_SECRET`) sends one on demand; and
-      `GET /api/cron/deadline-reminders` (daily Vercel Cron in
-      `src/vercel.json`, gated with `CRON_SECRET`) reads open contracts on-chain
-      via viem and emails the relevant party when a project, acceptance, or
-      warranty deadline is within 48h. **Still pending:** recipient resolution
-      is a stopgap that reads an address→email map from the
-      `NOTIFICATION_EMAILS` env var; replace it with the off-chain account
-      database below, and add the in-app channel.
-    - **In-app messaging:** Allow clients and freelancers to communicate within
-      the platform without exposing personal contact information. Messages
-      should be end-to-end encrypted so only the two parties can read them. Use
-      an AI moderation layer (for example Gemini) to flag policy violations such
-      as harassment or sharing personal information outside the platform.
-    - **2FA (optional):** Add TOTP-based two-factor authentication as an opt-in
-      security layer on top of wallet sign-in.
-    - Requires a backend with API routes and a database. Consider Supabase,
-      PlanetScale, or a self-hosted Postgres instance for persistence, with JWTs
-      for session management.
-    - **Scaffolded 2026-06-10:** added `src/services/offchainAccounts.ts`,
-      EIP-712 challenge/session/profile APIs under `/api/accounts/*`, and the
-      `/account` page. Dashboard onboarding now writes to wallet-scoped account
-      preferences when a signed account token exists, with the previous local
-      fallback preserved. Production completion still requires the external
-      database and encrypted-message persistence listed in Phase 9.
-    - **Database persistence added 2026-07-04:** provisioned PostgreSQL on Neon
-      and moved profiles + notifications off the in-memory stopgap onto Prisma 7
-      (node-postgres adapter). Added the `user_profiles` and `notifications`
-      tables (migration `0002_accounts_notifications`, applied to Neon) with
-      repositories in `src/lib/db/repositories/`. `offchainAccounts.ts` now
-      reads and writes profiles through the DB when configured, falling back to
-      memory otherwise. `GET /api/cron/deadline-reminders` resolves recipient
-      emails from the profile table (superseding the `NOTIFICATION_EMAILS` env
-      stopgap) and best-effort persists an in-app notification. Added the in-app
-      channel: `GET/POST /api/notifications/inbox` (session-gated). The DB
-      schema is also surfaced under `database/` (and a `db` symlink) with
-      `database/README.md` and `database/verify.mjs`.
-    - **Still not done (deferred, not attempted overnight — flagged for
-      review):** end-to-end-encrypted in-app messaging with AI moderation, and
-      opt-in TOTP-based 2FA. These involve key management, message persistence,
-      and a moderation pipeline that should not be merged to `main` unreviewed;
-      they remain open sub-items of this task.
-
-- [x] Persist the wallet auto-logout timeout preference in the off-chain
-      database instead of localStorage, so the setting follows the wallet across
-      devices. Recommended database: **PostgreSQL** (via Supabase or a
-      self-hosted instance) — already the leading candidate for Phase 6 user
-      profiles and consistent with the existing `PATCH /api/accounts/profile`
-      pattern. Add an `inactivity_timeout_ms` column to the user profile table
-      (integer, nullable, default `null` meaning "use the app default of 10
-      minutes"). On `/account` page load, read the value via the authenticated
-      session and seed `localStorage` so the existing
-      `readInactivityTimeoutMs()` / `writeInactivityTimeoutMs()` flow picks it
-      up with no further change to `useInactivityLogout`. On save, write both
-      localStorage (immediate effect) and `PATCH /api/accounts/profile` (cross-
-      device sync). `localStorage` remains the source of truth when no signed
-      session exists.
-    - **Completed 2026-07-04:** added the nullable `inactivityTimeoutMs` column
-      to `user_profiles` (migration `0002`), persisted it through
-      `offchainAccounts.ts` + `PATCH /api/accounts/profile` with
-      `validateProfilePatch` bounding it to `null` or `[60000, 86400000]` ms,
-      and wired the client: `InactivityTimeoutSetting` seeds `localStorage` from
-      the signed profile on mount via `syncInactivityTimeoutFromProfile()` and
-      writes both `localStorage` and the profile on save via
-      `persistInactivityTimeoutMs()`. `localStorage` stays authoritative when no
-      signed session exists; the profile write is best-effort.
-
 ## Phase 7 — Testing, Quality, and Accessibility
 
 - [ ] Perform a thorough security sweep of the entire frontend and backend and
@@ -521,6 +367,176 @@ on-chain.
   a flaky chain never blocks unrelated PRs.
 
 ## Completed
+
+- [x] Add an AI-generated summary of each contract and its status to the
+      dashboard, so users can quickly understand the key details and current
+      state without reading through all the text.
+    - Use a language model (for example Gemini) to generate a concise summary of
+      the contract description, key terms (amount and deadlines), and current
+      status (for example "In Progress, 40% completed, no disputes") from the
+      on-chain data and any relevant off-chain metadata.
+    - [x] Research and compare free or free-tier AI providers before committing
+          to one, and document the trade-offs (rate limits, context window,
+          data- retention/privacy terms, and whether a card is required) in
+          `NOTES.md`. Candidates to evaluate:
+        - **Google Gemini API** — generous free tier (e.g. Gemini 2.x Flash)
+          with a simple REST/SDK and no card required to start.
+        - **Groq** — free tier serving open models (Llama, etc.) at very low
+          latency; good for fast, cheap summaries.
+        - **OpenRouter** — single API key fronting many models, including
+          several `:free` variants, useful for provider fallback.
+        - **Cloudflare Workers AI** — free daily allotment of open models that
+          pairs well if any edge/Workers backend is added.
+        - **Mistral (La Plateforme)** and **Together AI** — additional free-tier
+          options worth benchmarking on summary quality and cost. Prefer routing
+          through one abstraction (mirroring `src/services/email.ts`) so the
+          provider can be swapped without touching call sites — e.g. a
+          `src/services/aiSummary.ts` module — and keep the key server-side
+          only.
+    - Display the summary prominently on each contract card in the dashboard,
+      giving users an easy-to-digest overview without clicking into each
+      contract.
+    - **Implemented 2026-06-10:** added the server-only
+      `src/services/contractSummary.ts` provider abstraction, cache, fallback
+      summaries, latency/error/cost metrics, and
+      `GET /api/contract/[id]/summary`. The dashboard now displays a
+      privacy-minimized summary for every visible contract card. Provider keys
+      must stay in deployment secrets only.
+    - Add an in-app PDF viewer for the contract document so users can read the
+      full contract in a readable format without downloading it separately. — If
+      the document is encrypted, prompt the user to decrypt it first. Otherwise,
+      prompt them either to view it on IPFS (and let IPFS download it for them)
+      or to re-authenticate with their wallet so the backend can fetch it. — Do
+      not allow users to view the document unless they are the client or
+      freelancer on the contract, but still allow anyone to view the summary and
+      key details, so sensitive information is protected while the contract
+      remains broadly understandable. — Protect everything behind wallet
+      authentication and authorization so only the relevant parties can access
+      the contract details and documents, preventing broad public access to
+      potentially sensitive information.
+    - **In-app viewer implemented 2026-07-04:**
+      `src/components/DecryptDocumentForm.tsx` now decrypts the AES-256-GCM
+      bundle in the browser and renders it inline via `DecryptedDocumentPreview`
+      — PDFs in a sandboxed (`allow-same-origin`) iframe, images in an `<img>`
+      from a typeless blob, and unrecognized types as a download-only notice.
+      The kind is chosen by magic-byte sniffing (`sniffKind`), never a
+      server-supplied MIME type, and the preview object URL is revoked on
+      change/unmount so plaintext never lingers. The summary stays public via
+      `GET /api/contract/[id]/summary`; the full document remains gated behind
+      decryption (party-held passphrase/key), so only the client or freelancer
+      can read it. Added five i18n keys per locale (`decryptAndView`, `viewing`,
+      `openInNewTab`, `closeViewer`, `cannotPreview`) across all 8 message
+      files. React Doctor 100/100.
+    - **Dashboard upcoming deadlines added 2026-07-04:** the dashboard now
+      renders an `UpcomingDeadlines` widget above the summary banner that
+      surfaces each visible contract's next project/acceptance/warranty
+      deadline, sorted soonest-first, so users see due dates without opening
+      every card. Localized via `upcomingTitle` / `upcomingAriaLabel` /
+      `upcomingCount`.
+
+- [x] Add off-chain user accounts to support profile data, notifications, and
+      messaging that cannot or should not live on-chain.
+    - **Authentication:** Require users to sign a typed EIP-712 message with
+      their wallet to prove address ownership. Issue a short-lived JWT on
+      successful verification — no passwords required.
+    - **Authorization:** Gate off-chain write actions (for example updating a
+      profile or reading notifications) to the authenticated wallet. On-chain
+      actions remain permissionless and are enforced entirely by the smart
+      contracts.
+    - **User profiles:** Allow users to set a display name and profile picture,
+      stored off-chain in a database or on IPFS and linked to their on-chain
+      address. Profiles should surface on the reputation and dashboard pages.
+    - **Notifications:** Send email or in-app notifications for key contract
+      lifecycle events — new contract offers, submitted work, approval or
+      dispute outcomes, and rating submissions. — **Email layer scaffolded:**
+      `src/services/notifications.ts` renders every lifecycle email (offer, work
+      submitted, approval, dispute opened/resolved, rating, deadline reminder)
+      via the shared `src/services/email.ts` shell; `POST /api/notifications`
+      (bearer-gated with `NOTIFICATIONS_SECRET`) sends one on demand; and
+      `GET /api/cron/deadline-reminders` (daily Vercel Cron in
+      `src/vercel.json`, gated with `CRON_SECRET`) reads open contracts on-chain
+      via viem and emails the relevant party when a project, acceptance, or
+      warranty deadline is within 48h. **Still pending:** recipient resolution
+      is a stopgap that reads an address→email map from the
+      `NOTIFICATION_EMAILS` env var; replace it with the off-chain account
+      database below, and add the in-app channel.
+    - **In-app messaging:** Allow clients and freelancers to communicate within
+      the platform without exposing personal contact information. Messages
+      should be end-to-end encrypted so only the two parties can read them. Use
+      an AI moderation layer (for example Gemini) to flag policy violations such
+      as harassment or sharing personal information outside the platform.
+    - **2FA (optional):** Add TOTP-based two-factor authentication as an opt-in
+      security layer on top of wallet sign-in.
+    - Requires a backend with API routes and a database. Consider Supabase,
+      PlanetScale, or a self-hosted Postgres instance for persistence, with JWTs
+      for session management.
+    - **Scaffolded 2026-06-10:** added `src/services/offchainAccounts.ts`,
+      EIP-712 challenge/session/profile APIs under `/api/accounts/*`, and the
+      `/account` page. Dashboard onboarding now writes to wallet-scoped account
+      preferences when a signed account token exists, with the previous local
+      fallback preserved. Production completion still requires the external
+      database and encrypted-message persistence listed in Phase 9.
+    - **Database persistence added 2026-07-04:** provisioned PostgreSQL on Neon
+      and moved profiles + notifications off the in-memory stopgap onto Prisma 7
+      (node-postgres adapter). Added the `user_profiles` and `notifications`
+      tables (migration `0002_accounts_notifications`, applied to Neon) with
+      repositories in `src/lib/db/repositories/`. `offchainAccounts.ts` now
+      reads and writes profiles through the DB when configured, falling back to
+      memory otherwise. `GET /api/cron/deadline-reminders` resolves recipient
+      emails from the profile table (superseding the `NOTIFICATION_EMAILS` env
+      stopgap) and best-effort persists an in-app notification. Added the in-app
+      channel: `GET/POST /api/notifications/inbox` (session-gated). The DB
+      schema is also surfaced under `database/` (and a `db` symlink) with
+      `database/README.md` and `database/verify.mjs`.
+    - **Completed 2026-07-04:** shipped both remaining sub-items, closing this
+      task.
+        - **End-to-end-encrypted in-app messaging with AI moderation.**
+          Isomorphic crypto in `src/lib/crypto/e2e.ts` (X25519 ECDH +
+          HKDF-SHA256 + XChaCha20-Poly1305 on the audited `@noble/*` libraries).
+          Each wallet's private key is wrapped under a KEK derived from a fixed,
+          deterministic EIP-712 wallet signature the server never sees; the
+          server stores only public keys, the wrapped blob, ciphertext, and a
+          content-free moderation flag. Moderation runs client-side **before**
+          encryption via the provider-agnostic AI core (`@/core/ai`) and **fails
+          open** when AI is disabled, preserving E2E. Models `MessagingKey` /
+          `Conversation` / `Message` (migration `0003_messaging_totp`), services
+          `messaging.ts` + `moderation.ts`, participant-gated routes under
+          `/api/messages/*` and the `/messages` UI with the moderate → encrypt →
+          send pipeline.
+        - **Opt-in TOTP two-factor.** `src/services/totp.ts` +
+          `/api/account/2fa/*` with AES-256-GCM-encrypted secrets
+          (`TOTP_ENCRYPTION_KEY`), sha256 one-time recovery-code hashes, a
+          `TotpCredential` model, and a session step-up:
+          `POST /api/accounts/session` returns `401 { totpRequired }` until a
+          valid code is supplied. `TwoFactorSetting` on `/account` covers
+          enrollment (QR), verification, recovery codes, and disable.
+        - Verified green: `tsc`, ESLint + Prettier, 223 unit tests, `i18n:scan`,
+          React Doctor 100/100, and `next build`. See NOTES.md ("Phase 6") for
+          the threat model and design rationale.
+
+- [x] Persist the wallet auto-logout timeout preference in the off-chain
+      database instead of localStorage, so the setting follows the wallet across
+      devices. Recommended database: **PostgreSQL** (via Supabase or a
+      self-hosted instance) — already the leading candidate for Phase 6 user
+      profiles and consistent with the existing `PATCH /api/accounts/profile`
+      pattern. Add an `inactivity_timeout_ms` column to the user profile table
+      (integer, nullable, default `null` meaning "use the app default of 10
+      minutes"). On `/account` page load, read the value via the authenticated
+      session and seed `localStorage` so the existing
+      `readInactivityTimeoutMs()` / `writeInactivityTimeoutMs()` flow picks it
+      up with no further change to `useInactivityLogout`. On save, write both
+      localStorage (immediate effect) and `PATCH /api/accounts/profile` (cross-
+      device sync). `localStorage` remains the source of truth when no signed
+      session exists.
+    - **Completed 2026-07-04:** added the nullable `inactivityTimeoutMs` column
+      to `user_profiles` (migration `0002`), persisted it through
+      `offchainAccounts.ts` + `PATCH /api/accounts/profile` with
+      `validateProfilePatch` bounding it to `null` or `[60000, 86400000]` ms,
+      and wired the client: `InactivityTimeoutSetting` seeds `localStorage` from
+      the signed profile on mount via `syncInactivityTimeoutFromProfile()` and
+      writes both `localStorage` and the profile on save via
+      `persistInactivityTimeoutMs()`. `localStorage` stays authoritative when no
+      signed session exists; the profile write is best-effort.
 
 - [x] Build out the full automated test matrix.
     - **Scope:** end-to-end (Playwright), accessibility (axe), performance

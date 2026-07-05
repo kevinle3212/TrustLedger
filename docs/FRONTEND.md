@@ -19,6 +19,7 @@
 - [Contract Addresses](#contract-addresses)
 - [Files And Storage](#files-and-storage)
 - [Live Contract Draft Collaboration](#live-contract-draft-collaboration)
+- [Encrypted Messaging And Two-Factor Authentication](#encrypted-messaging-and-two-factor-authentication)
 - [Email And Notifications](#email-and-notifications)
 - [Privacy Analytics](#privacy-analytics)
 - [Oracle Routes](#oracle-routes)
@@ -227,6 +228,36 @@ a vendor. For high-volume production rooms, replace the in-memory relay behind
 the same encrypted snapshot contract with Redis, Postgres realtime, Durable
 Objects, or a WebSocket service. Keep the browser-side encryption and wallet
 allowlist checks intact.
+
+## Encrypted Messaging And Two-Factor Authentication
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+The messages UI lives at `src/app/[locale]/messages/` and imports its components
+from `src/components/messages/` (`ConversationList.tsx`,
+`ActiveThreadPanel.tsx`, `MessageThread.tsx`, `MessageComposer.tsx`,
+`types.ts`). Messages are end-to-end encrypted: the client hook
+`src/lib/messagingCrypto.ts` and the pure primitives in `src/lib/crypto/e2e`
+handle X25519 key generation, per-conversation message-key derivation, and
+encrypt/decrypt calls. Unwrapped keys live only in page memory and are never
+written to storage. Outbound plaintext is moderated by a transient,
+non-persisted server call (`POST /api/messages/moderate`) before the client
+encrypts it.
+
+Two-factor authentication (TOTP) is opt-in and surfaced through
+`src/components/TwoFactorSetting.tsx` (account settings toggle) and
+`src/components/TotpStepUpPrompt.tsx` (step-up challenge during sign-in), with
+supporting UI in `src/components/two-factor/`.
+
+Both features rely on the off-chain account session: `src/lib/accountSession.ts`
+manages the challenge/response bearer token (cached in `sessionStorage`, never
+`localStorage`) and `src/lib/authedFetch.ts` attaches it to authenticated
+requests. Read [Architecture](ARCHITECTURE.md#off-chain-layer) for the
+server-side services and database tables behind these surfaces.
 
 ## Email And Notifications
 

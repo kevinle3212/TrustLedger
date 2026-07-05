@@ -176,6 +176,81 @@ model Notification {
   @@map("notifications")
 }
 
+/// Per-wallet X25519 messaging identity. The public key is shared so peers can
+/// derive a conversation key; the private key is stored only wrapped under a
+/// wallet-signature-derived KEK the server never sees. See NOTES.md ("Phase 6").
+model MessagingKey {
+  id                String   @id @default(cuid())
+  /// Lowercased wallet address; the owner's unique identity.
+  walletAddress     String   @unique
+  publicKey         String
+  wrappedPrivateKey String
+  wrapNonce         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("messaging_keys")
+}
+
+/// A one-to-one, end-to-end-encrypted conversation between two wallets. The
+/// participant pair is normalized (both lowercased, then sorted ascending) so a
+/// pair maps to exactly one row regardless of who opened it.
+model Conversation {
+  id            String    @id @default(cuid())
+  /// Lowercased, lexicographically smaller of the participant pair.
+  participantA  String
+  /// Lowercased, lexicographically larger of the participant pair.
+  participantB  String
+  contractId    String?
+  createdAt     DateTime  @default(now())
+  lastMessageAt DateTime  @default(now())
+
+  messages Message[]
+
+  @@unique([participantA, participantB])
+  @@index([participantA])
+  @@index([participantB])
+  @@map("conversations")
+}
+
+/// A single end-to-end-encrypted message. The server stores only ciphertext and
+/// a content-free moderation flag; plaintext is moderated client-side before
+/// encryption and never persisted.
+model Message {
+  id                   String   @id @default(cuid())
+  conversationId       String
+  senderAddress        String
+  ciphertext           String
+  nonce                String
+  /// null | "flag" | "block" — advisory moderation outcome, carries no content.
+  moderationFlag       String?
+  moderationCategories String[] @default([])
+  createdAt            DateTime @default(now())
+  readAt               DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+/// Opt-in TOTP two-factor credential for a wallet's off-chain session. The
+/// shared secret is stored encrypted (AES-256-GCM); recovery codes are stored
+/// only as sha256 hex hashes of one-time plaintext codes.
+model TotpCredential {
+  id              String    @id @default(cuid())
+  /// Lowercased wallet address; the account's unique identity.
+  walletAddress   String    @unique
+  encryptedSecret String
+  secretNonce     String
+  enabled         Boolean   @default(false)
+  recoveryCodes   String[]  @default([])
+  createdAt       DateTime  @default(now())
+  confirmedAt     DateTime?
+
+  @@map("totp_credentials")
+}
+
 /// Privacy-preserving aggregate analytics counter. Stores no wallet addresses,
 /// raw IPs, or user agents — only bucketed event type + day + count, so it is
 /// safe to retain. Mirrors the in-memory analytics collector for durability.

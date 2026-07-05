@@ -10,6 +10,8 @@
   Otherwise, state your assumption inline and proceed.
 - State assumptions explicitly before implementing. If multiple valid
   interpretations exist, present them — don't pick silently.
+- When you give me options or choices, always state which one you recommend and
+  why — never lay out alternatives without a recommendation.
 - Surface tradeoffs. Push back when a simpler approach exists.
 - Apply a final grammar, punctuation, and clarity pass to every prose change
   (comments, docs, UI copy, commit messages).
@@ -153,6 +155,9 @@ model, you delegate to cheaper models, and you do the QA at the end.
 
 - Plan and QA yourself (the expensive model); hand implementation to Sonnet 5
   first, escalating to Opus 4.8 only when the task genuinely needs it.
+- When delegating, explicitly label which model is assigned to each task (e.g.
+  `→ Sonnet 5` or `→ Opus 4.8`) in the plan/checklist, so every assignment is
+  visible before work starts.
 - Never spawn a Fable 5 subagent.
 - Batch delegated work into self-contained units so each agent starts with
   enough context, and reserve your own turns for planning and the final QA gate.

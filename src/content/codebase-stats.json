@@ -1,52 +1,52 @@
 {
 	"totals": {
-		"files": 942,
-		"directories": 334,
-		"lines": 150000,
-		"bytes": 11482617,
+		"files": 982,
+		"directories": 351,
+		"lines": 154326,
+		"bytes": 11657283,
 		"categories": 26
 	},
 	"categories": [
 		{
 			"name": "Markdown",
 			"files": 279,
-			"lines": 44836,
-			"share": 29.9
+			"lines": 45148,
+			"share": 29.3
 		},
 		{
 			"name": "Solidity",
 			"files": 78,
 			"lines": 34405,
-			"share": 22.9
+			"share": 22.3
 		},
 		{
 			"name": "TypeScript",
-			"files": 205,
-			"lines": 23900,
-			"share": 15.9
+			"files": 232,
+			"lines": 26215,
+			"share": 17
 		},
 		{
 			"name": "React",
-			"files": 122,
-			"lines": 17784,
-			"share": 11.9
+			"files": 133,
+			"lines": 18971,
+			"share": 12.3
 		},
 		{
 			"name": "JSON",
 			"files": 50,
-			"lines": 12970,
-			"share": 8.6
+			"lines": 13354,
+			"share": 8.7
 		},
 		{
 			"name": "JavaScript",
-			"files": 26,
-			"lines": 2943,
-			"share": 2
+			"files": 27,
+			"lines": 2991,
+			"share": 1.9
 		},
 		{
 			"name": "YAML",
 			"files": 39,
-			"lines": 2862,
+			"lines": 2868,
 			"share": 1.9
 		},
 		{
@@ -59,7 +59,7 @@
 			"name": "CSS",
 			"files": 4,
 			"lines": 2187,
-			"share": 1.5
+			"share": 1.4
 		},
 		{
 			"name": "Shell",
@@ -98,6 +98,12 @@
 			"share": 0.3
 		},
 		{
+			"name": "SQL",
+			"files": 3,
+			"lines": 236,
+			"share": 0.2
+		},
+		{
 			"name": "Docker",
 			"files": 5,
 			"lines": 217,
@@ -107,12 +113,6 @@
 			"name": "Configuration Files",
 			"files": 13,
 			"lines": 183,
-			"share": 0.1
-		},
-		{
-			"name": "SQL",
-			"files": 2,
-			"lines": 162,
 			"share": 0.1
 		},
 		{

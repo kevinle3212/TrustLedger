@@ -196,6 +196,10 @@ declare namespace NodeJS {
 		ACCOUNT_SESSION_SECRET?: string;
 		// Signing secret for magic-link tokens (send/verify routes).
 		MAGIC_LINK_SECRET?: string;
+		// 32-byte base64 key encrypting stored TOTP 2FA secrets (AES-256-GCM,
+		// src/services/totp.ts). Unset falls back to a random per-process key
+		// (dev only); production must set it so secrets survive restarts.
+		TOTP_ENCRYPTION_KEY?: string;
 		// ─── Email ──────────────────────────────────────────────────────────────────
 		// Selects the active email provider (e.g. "resend" | "postmark" | "brevo").
 		EMAIL_PROVIDER?: string;

@@ -709,7 +709,13 @@
 		"walletRequiredChecklistTitle": "जारी रखने से पहले",
 		"walletRequiredChecklistAddress": "साइन करने से पहले वॉलेट पता पुष्टि करें।",
 		"walletRequiredChecklistSecrets": "सीड फ़्रेज़ या निजी कुंजियाँ कभी दर्ज न करें।",
-		"walletRequiredChecklistNetwork": "कहने पर अपने वॉलेट में नेटवर्क बदलें।"
+		"walletRequiredChecklistNetwork": "कहने पर अपने वॉलेट में नेटवर्क बदलें।",
+		"messages": "संदेश",
+		"totpPromptTitle": "टू-फैक्टर कोड आवश्यक है",
+		"totpPromptBody": "साइन-इन पूरा करने के लिए अपने ऑथेंटिकेटर ऐप का 6-अंकीय कोड दर्ज करें।",
+		"totpPromptPlaceholder": "6-अंकीय कोड",
+		"totpPromptSubmit": "सबमिट करें",
+		"totpPromptCancel": "रद्द करें"
 	},
 	"Decrypt": {
 		"title": "AES-256-GCM दस्तावेज़ डिक्रिप्ट करें",
@@ -1012,7 +1018,28 @@
 		"timeout10Min": "10 मिनट",
 		"timeout15Min": "15 मिनट",
 		"timeout30Min": "30 मिनट",
-		"timeout1Hr": "1 घंटा"
+		"timeout1Hr": "1 घंटा",
+		"twoFactorTitle": "टू-फैक्टर ऑथेंटिकेशन",
+		"twoFactorBody": "इस वॉलेट के ऑफ-चेन खाते की अतिरिक्त सुरक्षा के लिए साइन-इन में ऑथेंटिकेटर ऐप कोड जोड़ें।",
+		"twoFactorLoadingStatus": "टू-फैक्टर स्थिति जांची जा रही है…",
+		"twoFactorEnabledLabel": "टू-फैक्टर ऑथेंटिकेशन सक्षम है।",
+		"twoFactorDisabledLabel": "टू-फैक्टर ऑथेंटिकेशन सक्षम नहीं है।",
+		"twoFactorEnableButton": "टू-फैक्टर ऑथेंटिकेशन सक्षम करें",
+		"twoFactorDisableButton": "टू-फैक्टर ऑथेंटिकेशन अक्षम करें",
+		"twoFactorSetupInstructions": "इस QR कोड को अपने ऑथेंटिकेटर ऐप से स्कैन करें, या सीक्रेट को मैन्युअल रूप से दर्ज करें, फिर पुष्टि के लिए एक कोड दर्ज करें।",
+		"twoFactorSecretLabel": "मैन्युअल प्रविष्टि सीक्रेट",
+		"twoFactorCodeLabel": "ऑथेंटिकेशन कोड",
+		"twoFactorCodePlaceholder": "6-अंकीय कोड",
+		"twoFactorVerifyButton": "सत्यापित करें और सक्षम करें",
+		"twoFactorCancelButton": "रद्द करें",
+		"twoFactorQrAlt": "ऑथेंटिकेटर ऐप QR कोड",
+		"twoFactorRecoveryTitle": "रिकवरी कोड",
+		"twoFactorRecoveryWarning": "इन रिकवरी कोड को अभी किसी सुरक्षित स्थान पर सहेजें — ये दोबारा नहीं दिखाए जाएंगे।",
+		"twoFactorRecoveryCopyButton": "कोड कॉपी करें",
+		"twoFactorRecoveryCopied": "कॉपी किया गया",
+		"twoFactorRecoveryDoneButton": "पूर्ण",
+		"twoFactorDisableCodeLabel": "अक्षम करने के लिए एक कोड या रिकवरी कोड दर्ज करें",
+		"twoFactorError": "कुछ गलत हो गया। पुनः प्रयास करें।"
 	},
 	"Status": {
 		"metadata": {
@@ -1234,5 +1261,25 @@
 		"deleteConfirmAction": "हाँ, मेरा डेटा हटाएँ",
 		"deleteCancelAction": "रद्द करें",
 		"deleteDone": "आपका स्थानीय डेटा हटा दिया गया है और आपका वॉलेट इस ब्राउज़र से डिस्कनेक्ट कर दिया गया है।"
+	},
+	"Messaging": {
+		"pageTitle": "एन्क्रिप्टेड संदेश",
+		"pageIntro": "TrustLedger तक पहुंचने से पहले संदेश आपके ब्राउज़र में एंड-टू-एंड एन्क्रिप्ट किए जाते हैं।",
+		"conversationsTitle": "बातचीत",
+		"noConversations": "अभी तक कोई बातचीत नहीं है।",
+		"openByAddressLabel": "बातचीत शुरू करें",
+		"openByAddressPlaceholder": "वॉलेट पता (0x…)",
+		"openByAddressButton": "खोलें",
+		"selectConversationPrompt": "संदेश देखने के लिए एक बातचीत चुनें।",
+		"emptyThread": "अभी तक कोई संदेश नहीं है। नमस्ते कहें!",
+		"composerPlaceholder": "संदेश लिखें…",
+		"sendButton": "भेजें",
+		"moderationBlocked": "यह संदेश ब्लॉक कर दिया गया था: {reason}",
+		"flagCategoriesLabel": "फ़्लैग किया गया — श्रेणियाँ: {categories}",
+		"decryptError": "इस संदेश को डिक्रिप्ट नहीं किया जा सका।",
+		"keySetupStatus": "एन्क्रिप्टेड मैसेजिंग सेट अप की जा रही है…",
+		"keyLoadError": "प्राप्तकर्ता की मैसेजिंग कुंजी लोड नहीं की जा सकी।",
+		"loadError": "संदेश लोड नहीं किए जा सके।",
+		"sendError": "संदेश भेजने में विफल रहा।"
 	}
 }

@@ -6,6 +6,7 @@ import { verifyTypedData } from "viem";
 import { isDatabaseConfigured } from "@/lib/db/client";
 import type { UserProfile } from "@/lib/generated/prisma/client";
 import * as userProfiles from "@/lib/db/repositories/userProfiles";
+import * as totp from "@/services/totp";
 
 /** Off-chain user profile stored in the TrustLedger accounts database and returned by `GET /api/accounts/profile`. */
 export interface AccountProfile {
@@ -171,14 +172,18 @@ export function createAccountChallenge(address: string): {
  * Verifies a signed challenge and, on success, issues a short-lived signed
  * session token bound to the wallet.
  *
- * @param input - `{ walletAddress, signature }` where `signature` covers the
- *   previously issued challenge.
+ * @param input - `{ walletAddress, signature, totpCode? }` where `signature`
+ *   covers the previously issued challenge and `totpCode` is required when the
+ *   wallet has TOTP two-factor enabled.
  * @returns A signed session token string.
- * @throws When verification fails (bad/expired challenge or signature).
+ * @throws When verification fails (bad/expired challenge or signature), with
+ *   `Error("TOTP_REQUIRED")` when 2FA is enabled but no code was supplied, or
+ *   `Error("Invalid two-factor code.")` when the supplied code is wrong.
  */
 export async function createAccountSession(input: {
 	readonly walletAddress: string;
 	readonly signature: `0x${string}`;
+	readonly totpCode?: string;
 }): Promise<string> {
 	const walletAddress = normalizeWallet(input.walletAddress);
 	if (walletAddress === null) throw new Error("Invalid wallet address.");
@@ -204,6 +209,11 @@ export async function createAccountSession(input: {
 		signature: input.signature,
 	});
 	if (!valid) throw new Error("Signature verification failed.");
+	if (await totp.isEnabled(walletAddress)) {
+		if (input.totpCode === undefined || input.totpCode === "") throw new Error("TOTP_REQUIRED");
+		if (!(await totp.verify(walletAddress, input.totpCode)))
+			throw new Error("Invalid two-factor code.");
+	}
 	nonces.delete(walletAddress);
 	const session: AccountSession = {
 		walletAddress,
@@ -260,11 +270,13 @@ export function resetOffchainAccountsForTests(): void {
 export async function getAccountProfile(walletAddress: string): Promise<AccountProfile | null> {
 	const normalized = normalizeWallet(walletAddress);
 	if (normalized === null) return null;
+	const totpEnabled = await totp.isEnabled(normalized);
 	if (isDatabaseConfigured()) {
 		const row = await userProfiles.getByWallet(normalized);
-		return row === null ? defaultProfile(normalized) : mapProfile(normalized, row);
+		const base = row === null ? defaultProfile(normalized) : mapProfile(normalized, row);
+		return { ...base, totpEnabled };
 	}
-	return profiles.get(normalized) ?? defaultProfile(normalized);
+	return { ...(profiles.get(normalized) ?? defaultProfile(normalized)), totpEnabled };
 }
 
 /**

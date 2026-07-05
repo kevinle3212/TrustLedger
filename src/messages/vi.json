@@ -709,7 +709,13 @@
 		"walletRequiredChecklistTitle": "Trước Khi Tiếp Tục",
 		"walletRequiredChecklistAddress": "Xác nhận địa chỉ ví trước khi ký.",
 		"walletRequiredChecklistSecrets": "Không bao giờ nhập cụm từ khôi phục hoặc khóa riêng.",
-		"walletRequiredChecklistNetwork": "Chuyển mạng trong ví khi được yêu cầu."
+		"walletRequiredChecklistNetwork": "Chuyển mạng trong ví khi được yêu cầu.",
+		"messages": "Tin Nhắn",
+		"totpPromptTitle": "Yêu Cầu Mã Xác Thực Hai Yếu Tố",
+		"totpPromptBody": "Nhập mã 6 chữ số từ ứng dụng xác thực của bạn để hoàn tất đăng nhập.",
+		"totpPromptPlaceholder": "Mã 6 chữ số",
+		"totpPromptSubmit": "Gửi",
+		"totpPromptCancel": "Hủy"
 	},
 	"Decrypt": {
 		"title": "Giải mã tài liệu AES-256-GCM",
@@ -1012,7 +1018,28 @@
 		"timeout10Min": "10 phút",
 		"timeout15Min": "15 phút",
 		"timeout30Min": "30 phút",
-		"timeout1Hr": "1 giờ"
+		"timeout1Hr": "1 giờ",
+		"twoFactorTitle": "Xác Thực Hai Yếu Tố",
+		"twoFactorBody": "Thêm mã ứng dụng xác thực vào lúc đăng nhập để bảo vệ thêm cho tài khoản off-chain của ví này.",
+		"twoFactorLoadingStatus": "Đang kiểm tra trạng thái hai yếu tố…",
+		"twoFactorEnabledLabel": "Xác thực hai yếu tố đang được bật.",
+		"twoFactorDisabledLabel": "Xác thực hai yếu tố chưa được bật.",
+		"twoFactorEnableButton": "Bật Xác Thực Hai Yếu Tố",
+		"twoFactorDisableButton": "Tắt Xác Thực Hai Yếu Tố",
+		"twoFactorSetupInstructions": "Quét mã QR này bằng ứng dụng xác thực của bạn, hoặc nhập mã bí mật thủ công, sau đó nhập mã để xác nhận.",
+		"twoFactorSecretLabel": "Mã bí mật nhập thủ công",
+		"twoFactorCodeLabel": "Mã xác thực",
+		"twoFactorCodePlaceholder": "Mã 6 chữ số",
+		"twoFactorVerifyButton": "Xác Minh Và Bật",
+		"twoFactorCancelButton": "Hủy",
+		"twoFactorQrAlt": "Mã QR ứng dụng xác thực",
+		"twoFactorRecoveryTitle": "Mã Khôi Phục",
+		"twoFactorRecoveryWarning": "Lưu các mã khôi phục này ngay tại nơi an toàn — chúng sẽ không được hiển thị lại.",
+		"twoFactorRecoveryCopyButton": "Sao Chép Mã",
+		"twoFactorRecoveryCopied": "Đã Sao Chép",
+		"twoFactorRecoveryDoneButton": "Xong",
+		"twoFactorDisableCodeLabel": "Nhập mã hoặc mã khôi phục để tắt",
+		"twoFactorError": "Đã xảy ra lỗi. Vui lòng thử lại."
 	},
 	"Status": {
 		"metadata": {
@@ -1234,5 +1261,25 @@
 		"deleteConfirmAction": "Có, Xóa Dữ Liệu Của Tôi",
 		"deleteCancelAction": "Hủy",
 		"deleteDone": "Dữ liệu cục bộ của bạn đã được xóa và ví đã ngắt kết nối khỏi trình duyệt này."
+	},
+	"Messaging": {
+		"pageTitle": "Tin Nhắn Mã Hóa",
+		"pageIntro": "Tin nhắn được mã hóa đầu cuối ngay trên trình duyệt trước khi đến TrustLedger.",
+		"conversationsTitle": "Cuộc Trò Chuyện",
+		"noConversations": "Chưa có cuộc trò chuyện nào.",
+		"openByAddressLabel": "Bắt đầu cuộc trò chuyện",
+		"openByAddressPlaceholder": "Địa chỉ ví (0x…)",
+		"openByAddressButton": "Mở",
+		"selectConversationPrompt": "Chọn một cuộc trò chuyện để xem tin nhắn.",
+		"emptyThread": "Chưa có tin nhắn nào. Hãy chào hỏi!",
+		"composerPlaceholder": "Nhập tin nhắn…",
+		"sendButton": "Gửi",
+		"moderationBlocked": "Tin nhắn này đã bị chặn: {reason}",
+		"flagCategoriesLabel": "Bị gắn cờ — danh mục: {categories}",
+		"decryptError": "Không thể giải mã tin nhắn này.",
+		"keySetupStatus": "Đang thiết lập nhắn tin mã hóa…",
+		"keyLoadError": "Không thể tải khóa nhắn tin của người nhận.",
+		"loadError": "Không thể tải tin nhắn.",
+		"sendError": "Gửi tin nhắn không thành công."
 	}
 }

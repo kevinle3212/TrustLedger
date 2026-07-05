@@ -765,7 +765,13 @@
 		"walletRequiredChecklistTitle": "Before You Continue",
 		"walletRequiredChecklistAddress": "Confirm the wallet address before signing.",
 		"walletRequiredChecklistSecrets": "Never enter seed phrases or private keys.",
-		"walletRequiredChecklistNetwork": "Switch networks in your wallet when prompted."
+		"walletRequiredChecklistNetwork": "Switch networks in your wallet when prompted.",
+		"messages": "Messages",
+		"totpPromptTitle": "Two-Factor Code Required",
+		"totpPromptBody": "Enter the 6-digit code from your authenticator app to finish signing in.",
+		"totpPromptPlaceholder": "6-digit code",
+		"totpPromptSubmit": "Submit",
+		"totpPromptCancel": "Cancel"
 	},
 	"Decrypt": {
 		"title": "Decrypt AES-256-GCM document",
@@ -1012,7 +1018,28 @@
 		"timeout10Min": "10 Min",
 		"timeout15Min": "15 Min",
 		"timeout30Min": "30 Min",
-		"timeout1Hr": "1 Hr"
+		"timeout1Hr": "1 Hr",
+		"twoFactorTitle": "Two-Factor Authentication",
+		"twoFactorBody": "Add an authenticator app code to sign-in for extra protection on this wallet's off-chain account.",
+		"twoFactorLoadingStatus": "Checking two-factor status…",
+		"twoFactorEnabledLabel": "Two-factor authentication is enabled.",
+		"twoFactorDisabledLabel": "Two-factor authentication is not enabled.",
+		"twoFactorEnableButton": "Enable Two-Factor Authentication",
+		"twoFactorDisableButton": "Disable Two-Factor Authentication",
+		"twoFactorSetupInstructions": "Scan this QR code with your authenticator app, or enter the secret manually, then enter a code to confirm.",
+		"twoFactorSecretLabel": "Manual entry secret",
+		"twoFactorCodeLabel": "Authenticator code",
+		"twoFactorCodePlaceholder": "6-digit code",
+		"twoFactorVerifyButton": "Verify And Enable",
+		"twoFactorCancelButton": "Cancel",
+		"twoFactorQrAlt": "Authenticator app QR code",
+		"twoFactorRecoveryTitle": "Recovery Codes",
+		"twoFactorRecoveryWarning": "Save these recovery codes now in a safe place — they will not be shown again.",
+		"twoFactorRecoveryCopyButton": "Copy Codes",
+		"twoFactorRecoveryCopied": "Copied",
+		"twoFactorRecoveryDoneButton": "Done",
+		"twoFactorDisableCodeLabel": "Enter a code or recovery code to disable",
+		"twoFactorError": "Something went wrong. Try again."
 	},
 	"Status": {
 		"metadata": {
@@ -1234,5 +1261,25 @@
 		"deleteConfirmAction": "Yes, Delete My Data",
 		"deleteCancelAction": "Cancel",
 		"deleteDone": "Your local data has been deleted and your wallet disconnected from this browser."
+	},
+	"Messaging": {
+		"pageTitle": "Encrypted Messages",
+		"pageIntro": "Messages are end-to-end encrypted in your browser before they ever reach TrustLedger.",
+		"conversationsTitle": "Conversations",
+		"noConversations": "No conversations yet.",
+		"openByAddressLabel": "Start a conversation",
+		"openByAddressPlaceholder": "Wallet address (0x…)",
+		"openByAddressButton": "Open",
+		"selectConversationPrompt": "Select a conversation to view messages.",
+		"emptyThread": "No messages yet. Say hello!",
+		"composerPlaceholder": "Write a message…",
+		"sendButton": "Send",
+		"moderationBlocked": "This message was blocked: {reason}",
+		"flagCategoriesLabel": "Flagged — categories: {categories}",
+		"decryptError": "Could not decrypt this message.",
+		"keySetupStatus": "Setting up encrypted messaging…",
+		"keyLoadError": "Could not load the recipient's messaging key.",
+		"loadError": "Could not load messages.",
+		"sendError": "Message failed to send."
 	}
 }

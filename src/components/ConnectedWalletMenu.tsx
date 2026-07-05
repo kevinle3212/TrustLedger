@@ -58,6 +58,7 @@ const MENU_LINKS: readonly MenuLink[] = [
 	{ href: "/stats", labelKey: "statistics" },
 	{ href: "/create", labelKey: "createContract" },
 	{ href: "/reputation", labelKey: "reputation" },
+	{ href: "/messages", labelKey: "messages" },
 	{ href: "/account", labelKey: "account" },
 	{ href: "/status", labelKey: "status" },
 	{ href: "/about", labelKey: "about" },
