@@ -851,6 +851,8 @@ contract TrustLedger is ReentrancyGuard, Pausable {
                 revert TokenTransferFailed();
             }
             uint256 received = IERC20(c.token).balanceOf(address(this)) - balanceBefore;
+            // The nonReentrant guard prevents callbacks; the zero-delta check rejects non-paying tokens.
+            // slither-disable-next-line reentrancy-balance,incorrect-equality
             if (received == 0) {
                 revert TokenTransferFailed();
             }
@@ -1005,10 +1007,14 @@ contract TrustLedger is ReentrancyGuard, Pausable {
                 revert TokenTransferFailed();
             }
             uint256 received = IERC20(c.token).balanceOf(address(this)) - balanceBefore;
+            // The nonReentrant guard prevents callbacks; the zero-delta check rejects non-paying tokens.
+            // slither-disable-next-line reentrancy-balance,incorrect-equality
             if (received == 0) {
                 revert TokenTransferFailed();
             }
             if (received != c.amount) {
+                // Store only the actual received escrow balance so fee-on-transfer payouts stay solvent.
+                // slither-disable-next-line reentrancy-no-eth
                 c.amount = received;
             }
         }

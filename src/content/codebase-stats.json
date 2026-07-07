@@ -2,8 +2,8 @@
 	"totals": {
 		"files": 1000,
 		"directories": 356,
-		"lines": 156588,
-		"bytes": 11753096,
+		"lines": 156590,
+		"bytes": 11753475,
 		"categories": 26
 	},
 	"categories": [
@@ -16,7 +16,7 @@
 		{
 			"name": "Solidity",
 			"files": 80,
-			"lines": 35240,
+			"lines": 35246,
 			"share": 22.5
 		},
 		{
@@ -28,7 +28,7 @@
 		{
 			"name": "React",
 			"files": 134,
-			"lines": 19110,
+			"lines": 19106,
 			"share": 12.2
 		},
 		{
