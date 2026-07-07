@@ -1,41 +1,41 @@
 {
 	"totals": {
-		"files": 982,
-		"directories": 351,
-		"lines": 154326,
-		"bytes": 11657283,
+		"files": 1000,
+		"directories": 356,
+		"lines": 156590,
+		"bytes": 11753475,
 		"categories": 26
 	},
 	"categories": [
 		{
 			"name": "Markdown",
-			"files": 279,
-			"lines": 45148,
+			"files": 288,
+			"lines": 45861,
 			"share": 29.3
 		},
 		{
 			"name": "Solidity",
-			"files": 78,
-			"lines": 34405,
-			"share": 22.3
+			"files": 80,
+			"lines": 35246,
+			"share": 22.5
 		},
 		{
 			"name": "TypeScript",
-			"files": 232,
-			"lines": 26215,
+			"files": 236,
+			"lines": 26567,
 			"share": 17
 		},
 		{
 			"name": "React",
-			"files": 133,
-			"lines": 18971,
-			"share": 12.3
+			"files": 134,
+			"lines": 19106,
+			"share": 12.2
 		},
 		{
 			"name": "JSON",
 			"files": 50,
-			"lines": 13354,
-			"share": 8.7
+			"lines": 13395,
+			"share": 8.6
 		},
 		{
 			"name": "JavaScript",
@@ -47,13 +47,13 @@
 			"name": "YAML",
 			"files": 39,
 			"lines": 2868,
-			"share": 1.9
+			"share": 1.8
 		},
 		{
 			"name": "Python",
 			"files": 21,
 			"lines": 2246,
-			"share": 1.5
+			"share": 1.4
 		},
 		{
 			"name": "CSS",
@@ -63,9 +63,9 @@
 		},
 		{
 			"name": "Shell",
-			"files": 13,
-			"lines": 1677,
-			"share": 1.1
+			"files": 14,
+			"lines": 1842,
+			"share": 1.2
 		},
 		{
 			"name": "Rust",
@@ -99,8 +99,8 @@
 		},
 		{
 			"name": "SQL",
-			"files": 3,
-			"lines": 236,
+			"files": 4,
+			"lines": 253,
 			"share": 0.2
 		},
 		{

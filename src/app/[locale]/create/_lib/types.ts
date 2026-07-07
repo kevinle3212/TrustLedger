@@ -31,7 +31,6 @@ export interface CreateState {
 	selectedFile: File | null;
 	encryptEnabled: boolean;
 	passphrase: string;
-	pinataJwt: string;
 	uploadStatus: UploadStatus;
 	uploadError: string | null;
 	fileHash: `0x${string}` | null;
@@ -57,7 +56,6 @@ export type CreateAction =
 	| { type: "FILE_SELECTED"; file: File | null }
 	| { type: "SET_ENCRYPT_ENABLED"; enabled: boolean }
 	| { type: "SET_PASSPHRASE"; value: string }
-	| { type: "SET_PINATA_JWT"; value: string }
 	| { type: "UPLOAD_START" }
 	| { type: "UPLOAD_SUCCESS"; hash: `0x${string}`; uri: string }
 	| { type: "UPLOAD_ERROR"; error: string }

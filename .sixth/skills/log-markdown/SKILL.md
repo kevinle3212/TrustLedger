@@ -1,6 +1,6 @@
 ---
 name: log-markdown
-description: Format TrustLedger logs/ output as markdownlint-compliant Markdown.
+description: Format TrustLedger logs/ output as readable ignored Markdown.
 version: "1.0.0"
 ---
 

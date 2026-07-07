@@ -1,6 +1,10 @@
 "use client";
 
-import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import {
+	isWalletRestoringStatus,
+	WalletRequiredPage,
+	WalletRestoringPage,
+} from "@/components/WalletRequiredPage";
 import dynamic from "next/dynamic";
 import { Link } from "@/i18n/navigation";
 import { REPUTATION_REGISTRY_ABI, TRUSTLEDGER_ABI } from "@/lib/abi";
@@ -263,7 +267,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 	const t = useTranslations("Analytics");
 	const tStatus = useTranslations("ContractStatus");
 	const locale = useLocale();
-	const { address, isConnected } = useAccount();
+	const { address, isConnected, status } = useAccount();
 	const chainId = useChainId();
 	const deployment = getContractDeployment(chainId);
 	const networkName = getNetworkName(chainId);
@@ -335,6 +339,7 @@ export function AnalyticsPageInner(): React.JSX.Element {
 						: t("insightDeveloping");
 
 	if (!isConnected || address === undefined) {
+		if (isWalletRestoringStatus(status)) return <WalletRestoringPage />;
 		return <WalletRequiredPage />;
 	}
 

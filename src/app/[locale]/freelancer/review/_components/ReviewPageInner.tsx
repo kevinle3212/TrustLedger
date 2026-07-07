@@ -67,7 +67,7 @@ export function ReviewPageInner({ initialPayload, tokenError }: Props): React.JS
 	const { decryptOpen, action } = state;
 	const payload = initialPayload;
 
-	const { address, isConnected } = useAccount();
+	const { address, isConnected, status } = useAccount();
 	const chainId = useChainId();
 
 	const contractId = payload !== null ? BigInt(payload.contractId) : 0n;
@@ -162,6 +162,7 @@ export function ReviewPageInner({ initialPayload, tokenError }: Props): React.JS
 		<TokenVerificationLoader
 			tokenError={tokenError}
 			isConnected={isConnected}
+			walletStatus={status}
 			address={address}
 			payload={payload}
 			contractLoading={contractLoading}

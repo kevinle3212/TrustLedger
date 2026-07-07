@@ -1,10 +1,5 @@
 # cleanup-commit
 
-> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
-> development. His vision, ideas, and dedication during the project's founding
-> were invaluable to the codebase we build on today.
-> See [`CREDITS.md`](../../CREDITS.md).
-
 Step-by-step agent guide for cleaning up code, resolving lint errors, and
 committing changes correctly in TrustLedger.
 
@@ -44,7 +39,8 @@ cd contracts && forge fmt --check
 cd src && npm run lint:frontend
 ```
 
-Shorthand (runs lint:ts + lint:sol together, skips frontend and forge fmt):
+Shorthand (runs config, mcp, ts, js, py, styles, knip, sol, forge, md, cursor,
+k8s, and logs lint checks together; still skips frontend and `forge fmt`):
 
 ```bash
 npm run lint
@@ -122,7 +118,7 @@ Both must exit with code 0 before moving to Phase 4.
 git add path/to/file1 path/to/file2
 ```
 
-Never use `git add -A` or `git add .` without reviewing the diff first. It can
+Never use `git add -A` or `git add .` without reviewing the diff first. It cannot
 include `.env` files, binary artifacts, or generated files.
 
 Verify what is staged:

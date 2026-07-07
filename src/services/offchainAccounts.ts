@@ -1,10 +1,12 @@
 import "server-only";
 
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import { verifyTypedData } from "viem";
+import { createPublicClient, http, verifyTypedData } from "viem";
+import { sepolia } from "viem/chains";
 
 import { isDatabaseConfigured } from "@/lib/db/client";
 import type { UserProfile } from "@/lib/generated/prisma/client";
+import * as signInNonces from "@/lib/db/repositories/signInNonces";
 import * as userProfiles from "@/lib/db/repositories/userProfiles";
 import * as totp from "@/services/totp";
 
@@ -30,8 +32,37 @@ export interface AccountSession {
 }
 
 const profiles = new Map<string, AccountProfile>();
+// In-memory fallback only. When the database is configured, nonces persist via
+// the signInNonces repository so the challenge and session POSTs can land on
+// different serverless instances.
 const nonces = new Map<string, { nonce: string; expiresAt: number }>();
 const SESSION_TTL_MS = 30 * 60 * 1000;
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+/**
+ * Reads the deployed TrustLedger address used to bind EIP-712 sign-in domains.
+ */
+function readVerifyingContract(): `0x${string}` {
+	const value =
+		process.env.NEXT_PUBLIC_TRUSTLEDGER_ADDRESS_SEPOLIA ??
+		process.env.NEXT_PUBLIC_TRUSTLEDGER_ADDRESS ??
+		"";
+	return /^0x[a-fA-F0-9]{40}$/.test(value) ? (value as `0x${string}`) : ZERO_ADDRESS;
+}
+
+// EIP-712 domain for the sign-in challenge. Binding the domain to a chainId and
+// verifying contract scopes a signed challenge to a single deployment so a
+// signature captured elsewhere cannot be replayed against another TrustLedger
+// environment (defense-in-depth alongside the single-use nonce). The challenge
+// builder and verifier MUST use the identical domain, and the client signs the
+// domain returned by the challenge, so this constant is the single source of truth.
+const SIGN_IN_CHAIN_ID = sepolia.id;
+const SIGN_IN_DOMAIN = {
+	name: "TrustLedger",
+	version: "1",
+	chainId: SIGN_IN_CHAIN_ID,
+	verifyingContract: readVerifyingContract(),
+} as const;
 
 function normalizeWallet(address: string): `0x${string}` | null {
 	const trimmed = address.trim().toLowerCase();
@@ -125,11 +156,16 @@ function mergePatch(current: AccountProfile, patch: ProfilePatch): AccountProfil
  * @returns The challenge payload (domain, types, and message) to be signed.
  * @throws When `address` is not a valid wallet address.
  */
-export function createAccountChallenge(address: string): {
+export async function createAccountChallenge(address: string): Promise<{
 	readonly walletAddress: `0x${string}`;
 	readonly nonce: string;
 	readonly expiresAt: string;
-	readonly domain: { readonly name: string; readonly version: string };
+	readonly domain: {
+		readonly name: string;
+		readonly version: string;
+		readonly chainId: number;
+		readonly verifyingContract: `0x${string}`;
+	};
 	readonly types: {
 		readonly TrustLedgerSignIn: readonly [
 			{ readonly name: "wallet"; readonly type: "address" },
@@ -142,17 +178,21 @@ export function createAccountChallenge(address: string): {
 		readonly nonce: string;
 		readonly purpose: string;
 	};
-} {
+}> {
 	const walletAddress = normalizeWallet(address);
 	if (walletAddress === null) throw new Error("Invalid wallet address.");
 	const nonce = randomUUID();
 	const expiresAt = Date.now() + 5 * 60 * 1000;
-	nonces.set(walletAddress, { nonce, expiresAt });
+	if (isDatabaseConfigured()) {
+		await signInNonces.put(walletAddress, nonce, new Date(expiresAt));
+	} else {
+		nonces.set(walletAddress, { nonce, expiresAt });
+	}
 	return {
 		walletAddress,
 		nonce,
 		expiresAt: new Date(expiresAt).toISOString(),
-		domain: { name: "TrustLedger", version: "1" },
+		domain: SIGN_IN_DOMAIN,
 		types: {
 			TrustLedgerSignIn: [
 				{ name: "wallet", type: "address" },
@@ -187,12 +227,23 @@ export async function createAccountSession(input: {
 }): Promise<string> {
 	const walletAddress = normalizeWallet(input.walletAddress);
 	if (walletAddress === null) throw new Error("Invalid wallet address.");
-	const challenge = nonces.get(walletAddress);
+	let challenge: { nonce: string; expiresAt: number } | undefined;
+	if (isDatabaseConfigured()) {
+		const row = await signInNonces.getByWallet(walletAddress);
+		if (row !== null) challenge = { nonce: row.nonce, expiresAt: row.expiresAt.getTime() };
+	} else {
+		challenge = nonces.get(walletAddress);
+	}
 	if (challenge === undefined || challenge.expiresAt < Date.now())
 		throw new Error("Challenge expired.");
-	const valid = await verifyTypedData({
+	// Smart-contract wallets (Coinbase Smart Wallet, AppKit embedded accounts)
+	// produce ERC-1271/6492 signatures that the pure `verifyTypedData` always
+	// rejects; those need an on-chain check via a public client. Fall back to
+	// pure ECDSA verification when no RPC URL is configured (dev/tests).
+	const rpcUrl = process.env.SEPOLIA_RPC_URL;
+	const typedData = {
 		address: walletAddress,
-		domain: { name: "TrustLedger", version: "1" },
+		domain: SIGN_IN_DOMAIN,
 		types: {
 			TrustLedgerSignIn: [
 				{ name: "wallet", type: "address" },
@@ -207,14 +258,24 @@ export async function createAccountSession(input: {
 			purpose: "Sign In To TrustLedger Off-Chain Services",
 		},
 		signature: input.signature,
-	});
+	} as const;
+	const valid =
+		rpcUrl !== undefined && rpcUrl !== ""
+			? await createPublicClient({ chain: sepolia, transport: http(rpcUrl) }).verifyTypedData(
+					typedData,
+				)
+			: await verifyTypedData(typedData);
 	if (!valid) throw new Error("Signature verification failed.");
 	if (await totp.isEnabled(walletAddress)) {
 		if (input.totpCode === undefined || input.totpCode === "") throw new Error("TOTP_REQUIRED");
 		if (!(await totp.verify(walletAddress, input.totpCode)))
 			throw new Error("Invalid two-factor code.");
 	}
-	nonces.delete(walletAddress);
+	if (isDatabaseConfigured()) {
+		await signInNonces.deleteByWallet(walletAddress);
+	} else {
+		nonces.delete(walletAddress);
+	}
 	const session: AccountSession = {
 		walletAddress,
 		issuedAt: Date.now(),

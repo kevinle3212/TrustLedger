@@ -257,7 +257,7 @@ npm run lint:logs
 ```
 
 The workflow usually sees empty `logs/` and `tmp/` directories because both are
-ignored by git. Its job is to keep the policy executable and catch any
+ignored by git. Its job is to keep the retention policy executable and catch any
 accidentally tracked local artifacts. Local hooks enforce the same checks
 against real local logs and scratch files.
 

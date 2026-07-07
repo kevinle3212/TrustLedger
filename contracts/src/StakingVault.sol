@@ -139,6 +139,9 @@ contract StakingVault is Ownable2Step, ReentrancyGuard, Pausable {
     /// @notice recoverERC20() called on the staking token (would let the owner take stakes).
     error CannotRecoverStakingToken();
 
+    /// @notice recoverERC20() would dip into reward tokens reserved for stakers.
+    error CannotRecoverReservedRewards();
+
     // ─── Modifiers
     // ───────────────────────────────────────────────────────────
 
@@ -255,12 +258,26 @@ contract StakingVault is Ownable2Step, ReentrancyGuard, Pausable {
     }
 
     /// @notice Recover an ERC-20 accidentally sent to the vault. The staking token is blocked
-    ///         so staked principal can never be swept. Emits {Recovered}.
+    ///         so staked principal can never be swept. The reward token is recoverable only
+    ///         for the surplus above the rewards still owed to stakers, so the owner can never
+    ///         claw back scheduled or accrued rewards. Emits {Recovered}.
     /// @param token  Token to recover.
     /// @param amount Amount to recover (smallest units).
     function recoverERC20(address token, uint256 amount) external onlyOwner {
         if (token == address(STAKING_TOKEN)) {
             revert CannotRecoverStakingToken();
+        }
+        // For a distinct reward token, only the balance in excess of the rewards
+        // reserved for stakers may be swept. Reserved = the undistributed remainder of
+        // the active schedule (rewardRate × time left) plus rewards already accrued but
+        // not yet claimed. Without this guard the owner could drain unclaimed rewards.
+        if (token == address(REWARDS_TOKEN)) {
+            uint256 balance = REWARDS_TOKEN.balanceOf(address(this));
+            uint256 reserved = _reservedRewards();
+            uint256 recoverable = balance > reserved ? balance - reserved : 0;
+            if (amount > recoverable) {
+                revert CannotRecoverReservedRewards();
+            }
         }
         IERC20(token).safeTransfer(owner(), amount);
         emit Recovered(token, amount);
@@ -286,6 +303,15 @@ contract StakingVault is Ownable2Step, ReentrancyGuard, Pausable {
     /// @return result rewardRate × rewardsDuration (smallest units).
     function getRewardForDuration() external view returns (uint256 result) {
         return rewardRate * rewardsDuration;
+    }
+
+    /// @notice Reward tokens reserved for stakers and therefore not recoverable by the owner.
+    ///         Covers the undistributed remainder of the active schedule (rewardRate × time
+    ///         left). When the reward and staking tokens are the same, the staking-token guard
+    ///         already blocks all recovery, so this reserve applies to a distinct reward token.
+    /// @return result Reward tokens currently reserved for stakers (smallest units).
+    function reservedRewards() external view returns (uint256 result) {
+        return _reservedRewards();
     }
 
     // ─── Public actions
@@ -343,5 +369,18 @@ contract StakingVault is Ownable2Step, ReentrancyGuard, Pausable {
     function earned(address account) public view returns (uint256 result) {
         uint256 perToken = rewardPerToken() - userRewardPerTokenPaid[account];
         return (_balances[account] * perToken) / PRECISION + rewards[account];
+    }
+
+    // ─── Internal
+    // ─────────────────────────────────────────────────────────────
+
+    // Reward tokens still owed to stakers for the active distribution: the emissions
+    // that have not yet streamed out (rewardRate × seconds remaining in the period).
+    // Recovery of the reward token is capped to the balance above this reserve so the
+    // owner can never claw back rewards stakers are entitled to.
+    function _reservedRewards() internal view returns (uint256 reserved) {
+        if (block.timestamp < periodFinish) {
+            reserved = (periodFinish - block.timestamp) * rewardRate;
+        }
     }
 }

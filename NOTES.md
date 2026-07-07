@@ -487,7 +487,7 @@ dev/CI.
 
 #### IPFS / Storage Pinning
 
-_Currently integrated: Pinata. See `NEXT_PUBLIC_PINATA_JWT` in `.env.example`._
+_Currently integrated: Pinata. See server-only `PINATA_JWT` in `.env.example`._
 
 ##### Pinata _(currently in use)_
 

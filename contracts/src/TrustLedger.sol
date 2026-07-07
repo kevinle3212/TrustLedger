@@ -150,6 +150,12 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @notice The Arbitration contract that receives fee pools and issues rulings.
     IArbitration public immutable ARBITRATION;
 
+    /// @notice The address that deployed this contract. Only the deployer may wire in
+    ///         the optional one-time modules (price feed, reputation registry, pauser),
+    ///         preventing an attacker from front-running an unrestricted initializer and
+    ///         permanently seizing a role after deployment.
+    address public immutable DEPLOYER;
+
     /// @notice Auto-incrementing ID counter; the next contract created receives this ID.
     uint256 public nextId;
 
@@ -357,6 +363,9 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     /// @notice Caller is not the designated pauser.
     error NotPauser();
 
+    /// @notice Caller is not the deployer authorized to run one-time module setters.
+    error NotDeployer();
+
     /// @notice contractHash or proofOfWorkHash must not be bytes32(0).
     error EmptyHash();
 
@@ -385,17 +394,30 @@ contract TrustLedger is ReentrancyGuard, Pausable {
             revert ZeroAddress();
         }
         ARBITRATION = IArbitration(arbitration_);
+        // Capture the deployer so the optional module setters below can be gated to
+        // it. This is a minimal access boundary — not a mutable owner/admin role — so
+        // no ownership-transfer surface is introduced.
+        DEPLOYER = msg.sender;
     }
 
     // ─── One-time setters
     // ─────────────────────────────────────────────────────
-    // These allow optional modules to be wired in after deployment without
-    // introducing an owner/admin role. Each address can be set exactly once.
+    // These allow optional modules to be wired in after deployment. Each address can
+    // be set exactly once and only by the deployer, so an attacker cannot front-run an
+    // unset initializer to seize a module role.
+
+    // Reverts unless the caller is the deployer captured at construction.
+    function _onlyDeployer() internal view {
+        if (msg.sender != DEPLOYER) {
+            revert NotDeployer();
+        }
+    }
 
     /// @notice Wire in the Chainlink ETH/USD price feed (optional).
     ///         Once set it cannot be changed. If never called, usdValueAtCreation = 0.
     /// @param feed_ Address of the AggregatorV3Interface price feed contract.
     function initPriceFeed(address feed_) external {
+        _onlyDeployer();
         if (address(priceFeed) != address(0)) {
             revert AlreadySet();
         }
@@ -409,6 +431,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         Once set it cannot be changed. If never called, submitRating() is a no-op.
     /// @param registry_ Address of the ReputationRegistry contract.
     function initReputationRegistry(address registry_) external {
+        _onlyDeployer();
         if (address(reputationRegistry) != address(0)) {
             revert AlreadySet();
         }
@@ -422,6 +445,7 @@ contract TrustLedger is ReentrancyGuard, Pausable {
     ///         Once set it cannot be changed. If never called, pause() and unpause() always revert.
     /// @param pauser_ Address authorized to pause and unpause new contract creation.
     function initPauser(address pauser_) external {
+        _onlyDeployer();
         if (pauser != address(0)) {
             revert AlreadySet();
         }
@@ -817,10 +841,23 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
         // Interaction: pull ERC-20 funds after state is finalised.
         // A revert here (false return or throw) unwinds the state changes above.
+        // Store the actual balance delta so fee-on-transfer / rebasing tokens (which
+        // under-deliver vs. the requested amount) cannot brick later payouts by leaving
+        // the escrow holding fewer units than `c.amount` promises.
         if (c.token != address(0)) {
+            uint256 balanceBefore = IERC20(c.token).balanceOf(address(this));
             bool ok = IERC20(c.token).transferFrom(msg.sender, address(this), c.amount);
             if (!ok) {
                 revert TokenTransferFailed();
+            }
+            uint256 received = IERC20(c.token).balanceOf(address(this)) - balanceBefore;
+            // The nonReentrant guard prevents callbacks; the zero-delta check rejects non-paying tokens.
+            // slither-disable-next-line reentrancy-balance,incorrect-equality
+            if (received == 0) {
+                revert TokenTransferFailed();
+            }
+            if (received != c.amount) {
+                c.amount = received;
             }
         }
 
@@ -959,10 +996,26 @@ contract TrustLedger is ReentrancyGuard, Pausable {
 
         // Interaction: pull ERC-20 funds after state is finalised.
         // A revert here (false return or throw) unwinds the state changes above.
+        // Measure the actual balance delta rather than trusting `c.amount`: a
+        // fee-on-transfer or rebasing token delivers fewer units than requested, and
+        // storing the true received amount keeps every downstream payout solvent
+        // instead of reverting once the escrow tries to send more than it holds.
         if (c.token != address(0)) {
+            uint256 balanceBefore = IERC20(c.token).balanceOf(address(this));
             bool ok = IERC20(c.token).transferFrom(msg.sender, address(this), c.amount);
             if (!ok) {
                 revert TokenTransferFailed();
+            }
+            uint256 received = IERC20(c.token).balanceOf(address(this)) - balanceBefore;
+            // The nonReentrant guard prevents callbacks; the zero-delta check rejects non-paying tokens.
+            // slither-disable-next-line reentrancy-balance,incorrect-equality
+            if (received == 0) {
+                revert TokenTransferFailed();
+            }
+            if (received != c.amount) {
+                // Store only the actual received escrow balance so fee-on-transfer payouts stay solvent.
+                // slither-disable-next-line reentrancy-no-eth
+                c.amount = received;
             }
         }
 

@@ -18,7 +18,7 @@ const account = privateKeyToAccount(`0x${"11".repeat(32)}`);
 
 /** Issues a challenge for the test account and signs it, returning the signature. */
 async function signChallenge(): Promise<`0x${string}`> {
-	const challenge = createAccountChallenge(account.address);
+	const challenge = await createAccountChallenge(account.address);
 	return await account.signTypedData({
 		domain: challenge.domain,
 		types: challenge.types,
@@ -34,11 +34,15 @@ describe("off-chain accounts service", () => {
 		resetOffchainAccountsForTests();
 	});
 
-	it("creates wallet-scoped challenges without passwords", () => {
-		const challenge = createAccountChallenge("0x1111111111111111111111111111111111111111");
+	it("creates wallet-scoped challenges without passwords", async () => {
+		const challenge = await createAccountChallenge(
+			"0x1111111111111111111111111111111111111111",
+		);
 
 		expect(challenge.walletAddress).toBe("0x1111111111111111111111111111111111111111");
 		expect(challenge.message.purpose).toBe("Sign In To TrustLedger Off-Chain Services");
+		expect(challenge.domain.chainId).toBe(11155111);
+		expect(challenge.domain.verifyingContract).toMatch(/^0x[a-fA-F0-9]{40}$/);
 		expect(challenge.nonce).toHaveLength(36);
 	});
 

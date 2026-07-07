@@ -49,7 +49,6 @@ const state: CreateState = {
 	selectedFile: null,
 	encryptEnabled: false,
 	passphrase: "",
-	pinataJwt: "",
 	uploadStatus: "idle",
 	uploadError: null,
 	fileHash: null,

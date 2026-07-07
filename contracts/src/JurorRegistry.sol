@@ -64,6 +64,18 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // is expected to be small (hundreds, not millions).
     address[] private _jurorList;
 
+    // A compact list of jurors that are currently `active` (stake ≥ MIN_STAKE and not
+    // fully slashed/withdrawn). Unlike `_jurorList`, addresses are removed the moment a
+    // juror deactivates, so committee selection iterates a set bounded by *live* stake
+    // rather than by total historical registrations. This prevents an attacker from
+    // inflating `_jurorList` with cheap register/unstake churn to make juror selection
+    // exceed the block gas limit and permanently DoS disputes.
+    address[] private _activeJurors;
+
+    // Position of each active juror in `_activeJurors`, stored as index+1 so that the
+    // default 0 means "not in the active set". Enables O(1) swap-and-pop removal.
+    mapping(address juror => uint256 indexPlusOne) private _activeIndex;
+
     // Per-juror cooldown timestamp. After a dispute finalizes, a juror must wait
     // JUROR_COOLDOWN before committing to another. New jurors default to 0 (no cooldown).
     mapping(address juror => uint64 cooldownUntil) private _jurorCooldown;
@@ -189,6 +201,9 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         // Push to the list so we can iterate over all jurors later.
         _jurorList.push(msg.sender);
 
+        // Track in the active set so committee selection samples a bounded, live pool.
+        _addActive(msg.sender);
+
         emit Registered(msg.sender, msg.value);
     }
 
@@ -242,6 +257,7 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         // They can register again later if they want.
         if (j.stake < MIN_STAKE) {
             j.active = false;
+            _removeActive(msg.sender);
         }
 
         // Low-level ETH transfer. `call` is preferred over `transfer` because
@@ -290,14 +306,17 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     // Also tracks their minority vote count and reduces their reputation score.
 
     /// @notice Slash a juror's stake as a penalty for minority voting or failing to reveal.
-    ///         Emits {Slashed} and {ReputationUpdated}.
+    ///         The slashed ETH is forwarded to the Arbitration contract so it can back the
+    ///         dispute's slashed pool (which funds the appeal panel). Emits {Slashed} and
+    ///         {ReputationUpdated}.
     /// @param juror  The juror's address.
     /// @param amount ETH to slash (wei); capped at current stake.
-    function slash(address juror, uint256 amount) external onlyArbitration {
+    /// @return slashAmt The ETH actually slashed and forwarded to Arbitration.
+    function slash(address juror, uint256 amount) external onlyArbitration returns (uint256 slashAmt) {
         JurorInfo storage j = _jurors[juror];
 
         // Cap the slash at the juror's remaining stake to avoid underflow.
-        uint256 slashAmt = amount < j.stake ? amount : j.stake;
+        slashAmt = amount < j.stake ? amount : j.stake;
         j.stake -= slashAmt;
         ++j.minorityVotes;
 
@@ -312,10 +331,22 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         // on another dispute until they top up their stake.
         if (j.stake < MIN_STAKE) {
             j.active = false;
+            _removeActive(juror);
         }
 
         emit Slashed(juror, slashAmt);
         emit ReputationUpdated(juror, j.reputation);
+
+        // Forward the slashed ETH to Arbitration. Previously the ETH stayed here with no
+        // exit path (permanently stuck), while Arbitration tracked a slashed-pool figure
+        // it held no ETH for. Sending it to the caller (Arbitration) gives that pool real
+        // backing so it can fund the appeal panel and be redistributed rather than locked.
+        if (slashAmt > 0) {
+            (bool ok,) = msg.sender.call{value: slashAmt}("");
+            if (!ok) {
+                revert EthTransferFailed();
+            }
+        }
     }
 
     // ─── View functions
@@ -359,6 +390,20 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
         return _jurorList;
     }
 
+    /// @notice Returns the current active juror set (stake ≥ MIN_STAKE, not deactivated).
+    ///         Used by Arbitration for bounded committee selection; its size is bounded by
+    ///         live staked jurors rather than by total historical registrations.
+    /// @return result Array of currently active juror addresses.
+    function getActiveJurorList() external view returns (address[] memory result) {
+        return _activeJurors;
+    }
+
+    /// @notice Number of jurors currently in the active set.
+    /// @return result Length of the active juror list.
+    function activeJurorCount() external view returns (uint256 result) {
+        return _activeJurors.length;
+    }
+
     // Counts how many jurors are currently eligible to vote.
     // Iterates the entire list - this is fine for a small registry but would
     // need a different pattern (e.g. a separate counter) for a very large pool.
@@ -387,6 +432,35 @@ contract JurorRegistry is IJurorRegistry, ReentrancyGuard {
     /// @return result The unix timestamp after which the juror is re-eligible (0 if never penalized).
     function getCooldownUntil(address juror) external view returns (uint64 result) {
         return _jurorCooldown[juror];
+    }
+
+    // ─── Active-set maintenance
+    // ──────────────────────────────────────────────
+
+    // Adds `juror` to the active set if not already present. Idempotent.
+    function _addActive(address juror) internal {
+        if (_activeIndex[juror] != 0) {
+            return; // already active
+        }
+        _activeJurors.push(juror);
+        _activeIndex[juror] = _activeJurors.length; // store index+1
+    }
+
+    // Removes `juror` from the active set via swap-and-pop. No-op if not present.
+    function _removeActive(address juror) internal {
+        uint256 idxPlusOne = _activeIndex[juror];
+        if (idxPlusOne == 0) {
+            return; // not in the set
+        }
+        uint256 idx = idxPlusOne - 1;
+        uint256 lastIdx = _activeJurors.length - 1;
+        if (idx != lastIdx) {
+            address moved = _activeJurors[lastIdx];
+            _activeJurors[idx] = moved;
+            _activeIndex[moved] = idx + 1;
+        }
+        _activeJurors.pop();
+        _activeIndex[juror] = 0;
     }
 
     // ─── Internal access control

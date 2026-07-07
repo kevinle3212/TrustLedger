@@ -251,6 +251,20 @@ model TotpCredential {
   @@map("totp_credentials")
 }
 
+/// Single-use, expiring EIP-712 sign-in challenge nonce. Persisted so the
+/// challenge POST and the session POST can land on different serverless
+/// instances; one pending challenge per wallet (a new challenge replaces it).
+model SignInNonce {
+  id            String   @id @default(cuid())
+  /// Lowercased wallet address the challenge was issued to.
+  walletAddress String   @unique
+  nonce         String
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+
+  @@map("signin_nonces")
+}
+
 /// Privacy-preserving aggregate analytics counter. Stores no wallet addresses,
 /// raw IPs, or user agents — only bucketed event type + day + count, so it is
 /// safe to retain. Mirrors the in-memory analytics collector for durability.

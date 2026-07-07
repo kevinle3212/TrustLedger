@@ -45,10 +45,12 @@ interface IJurorRegistry {
     // minority (i.e. their vote was far from the median ruling).
     // Also increments minorityVotes and decrements reputation by 10.
 
-    /// @notice Slash a juror's stake for minority voting.
+    /// @notice Slash a juror's stake for minority voting. The slashed ETH is forwarded to
+    ///         the caller (Arbitration) so it can back the dispute's slashed pool.
     /// @param juror  The juror address to slash.
-    /// @param amount The ETH amount to deduct from their stake.
-    function slash(address juror, uint256 amount) external;
+    /// @param amount The ETH amount to deduct from their stake (capped at current stake).
+    /// @return slashAmt The ETH actually slashed and forwarded to the caller.
+    function slash(address juror, uint256 amount) external returns (uint256 slashAmt);
 
     // Returns true if the juror is eligible to commit a vote:
     //   - active == true
@@ -74,4 +76,13 @@ interface IJurorRegistry {
     /// @notice Return every address that has ever called register().
     /// @return result Array of all registered juror wallet addresses.
     function getJurorList() external view returns (address[] memory result);
+
+    // Returns the current active juror set: jurors whose stake is still ≥ MIN_STAKE and
+    // who have not been deactivated by a full withdrawal or slash. Committee selection
+    // samples this bounded set instead of the full historical list, preventing an
+    // unbounded-gas DoS from cheap register/unstake churn.
+
+    /// @notice Return the current active juror set used for bounded committee selection.
+    /// @return result Array of currently active juror wallet addresses.
+    function getActiveJurorList() external view returns (address[] memory result);
 }

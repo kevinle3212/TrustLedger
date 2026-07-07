@@ -18,7 +18,12 @@ interface AccountChallenge {
 	readonly walletAddress: `0x${string}`;
 	readonly nonce: string;
 	readonly expiresAt: string;
-	readonly domain: { readonly name: string; readonly version: string };
+	readonly domain: {
+		readonly name: string;
+		readonly version: string;
+		readonly chainId: number;
+		readonly verifyingContract: `0x${string}`;
+	};
 	readonly types: Record<string, readonly { name: string; type: string }[]>;
 	readonly message: Record<string, unknown>;
 }

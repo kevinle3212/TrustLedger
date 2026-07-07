@@ -11,14 +11,18 @@ import {
 } from "wagmi";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import {
+	isWalletRestoringStatus,
+	WalletRequiredPage,
+	WalletRestoringPage,
+} from "@/components/WalletRequiredPage";
 import { formatEther, parseEther } from "viem";
 import { AssetSelector } from "@/components/staking/AssetSelector";
 import { UsdcStakePanel } from "@/components/staking/UsdcStakePanel";
 import { getAllStakeAssetStatuses, getStakeAssetStatus } from "@/lib/staking/config";
 import type { StakeAssetId } from "@/lib/staking/assets";
 import { ARBITRATION_ABI, JUROR_REGISTRY_ABI } from "@/lib/abi";
-import { ARBITRATION_ADDRESS, JUROR_REGISTRY_ADDRESS } from "@/lib/wagmi";
+import { ARBITRATION_ADDRESS, JUROR_REGISTRY_ADDRESS, ZERO_ADDRESS } from "@/lib/wagmi";
 import { formatAddress, formatDeadline } from "@/lib/utils";
 import { validateEthAmount } from "@/lib/validation";
 import { getRecentDisputeIds } from "@/hooks/useRecentDisputeIds";
@@ -44,6 +48,8 @@ const SEVEN_DAYS_S = 7 * 24 * 60 * 60;
 
 // Captured at module load; avoids calling Date.now() during render
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
+const JUROR_REGISTRY_AVAILABLE = JUROR_REGISTRY_ADDRESS !== ZERO_ADDRESS;
+const ARBITRATION_AVAILABLE = ARBITRATION_ADDRESS !== ZERO_ADDRESS;
 
 interface DisputeRecord {
 	contractId: bigint;
@@ -82,23 +88,27 @@ function StatusCard({ address }: { address: `0x${string}` }): React.JSX.Element 
 		abi: JUROR_REGISTRY_ABI,
 		functionName: "getJuror",
 		args: [address],
+		query: { enabled: JUROR_REGISTRY_AVAILABLE },
 	});
 	const { data: eligible } = useReadContract({
 		address: JUROR_REGISTRY_ADDRESS,
 		abi: JUROR_REGISTRY_ABI,
 		functionName: "isEligible",
 		args: [address],
+		query: { enabled: JUROR_REGISTRY_AVAILABLE },
 	});
 	const { data: cooldown } = useReadContract({
 		address: JUROR_REGISTRY_ADDRESS,
 		abi: JUROR_REGISTRY_ABI,
 		functionName: "getCooldownUntil",
 		args: [address],
+		query: { enabled: JUROR_REGISTRY_AVAILABLE },
 	});
 	const { data: poolCount } = useReadContract({
 		address: JUROR_REGISTRY_ADDRESS,
 		abi: JUROR_REGISTRY_ABI,
 		functionName: "eligibleJurorCount",
+		query: { enabled: JUROR_REGISTRY_AVAILABLE },
 	});
 
 	if (isLoading) return <div className="text-gray-500 text-sm">{t("loading")}</div>;
@@ -231,7 +241,7 @@ function AssetStakeSwitcher({ address }: { address: `0x${string}` }): React.JSX.
 				statusLabel={(configured) => (configured ? t("assetReady") : t("assetSoon"))}
 			/>
 			{asset === "ETH" ? (
-				<RegisterForm />
+				<RegisterForm registryAvailable={JUROR_REGISTRY_AVAILABLE} />
 			) : asset === "USDC" && selectedStatus.configured ? (
 				<UsdcStakePanel account={address} />
 			) : (
@@ -250,7 +260,7 @@ function AssetStakeSwitcher({ address }: { address: `0x${string}` }): React.JSX.
 	);
 }
 
-function RegisterForm(): React.JSX.Element {
+function RegisterForm({ registryAvailable }: { registryAvailable: boolean }): React.JSX.Element {
 	const t = useTranslations("Juror");
 	const [ethAmount, setEthAmount] = useState("0.01");
 	const [touched, setTouched] = useState(false);
@@ -262,6 +272,17 @@ function RegisterForm(): React.JSX.Element {
 		MIN_STAKE_ETH,
 		t("minimumEth", { amount: MIN_STAKE_ETH.toString() }),
 	);
+
+	if (!registryAvailable) {
+		return (
+			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-2">
+				<p className="font-semibold text-gray-900 dark:text-white">ETH</p>
+				<p className="text-sm text-gray-500 dark:text-gray-400">
+					{t("assetUnavailable", { asset: "ETH" })}
+				</p>
+			</div>
+		);
+	}
 
 	function handleRegister(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
@@ -376,7 +397,10 @@ function ManageStakePanel({ address }: { address: `0x${string}` }): React.JSX.El
 		abi: JUROR_REGISTRY_ABI,
 		functionName: "getJuror",
 		args: [address],
+		query: { enabled: JUROR_REGISTRY_AVAILABLE },
 	});
+
+	if (!JUROR_REGISTRY_AVAILABLE) return <></>;
 
 	const isRegistered = juror?.active === true || (juror?.stake ?? 0n) > 0n;
 
@@ -532,6 +556,7 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 		address: ARBITRATION_ADDRESS,
 		abi: ARBITRATION_ABI,
 		functionName: "nextDisputeId",
+		query: { enabled: ARBITRATION_AVAILABLE },
 	});
 	const disputeIds = getRecentDisputeIds(nextDisputeId);
 	const { data: disputeReads } = useReadContracts({
@@ -555,7 +580,7 @@ function OpenDisputesPanel({ address }: { address: `0x${string}` }): React.JSX.E
 				args: [disputeId],
 			},
 		]),
-		query: { enabled: disputeIds.length > 0 },
+		query: { enabled: ARBITRATION_AVAILABLE && disputeIds.length > 0 },
 	});
 
 	const assigned = disputeIds
@@ -726,9 +751,10 @@ function LocalDraftHistoryPanel(): React.JSX.Element {
 
 export function JurorPageInner(): React.JSX.Element {
 	const t = useTranslations("Juror");
-	const { address, isConnected } = useAccount();
+	const { address, isConnected, status } = useAccount();
 
 	if (!isConnected || address === undefined) {
+		if (isWalletRestoringStatus(status)) return <WalletRestoringPage />;
 		return <WalletRequiredPage />;
 	}
 

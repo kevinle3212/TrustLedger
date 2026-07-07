@@ -183,8 +183,9 @@ The frontend includes client-side encryption helpers in `src/lib/encryption.ts`.
 The encryption format uses AES-256-GCM with PBKDF2-SHA256 and stores versioned
 JSON metadata with salt, IV, and ciphertext.
 
-IPFS upload support depends on `NEXT_PUBLIC_PINATA_JWT`. Legacy Pinata API key
-variables exist in `.env.example`, but current source does not consume them.
+IPFS upload support posts documents to `/api/ipfs/pin`, which reads the
+server-only `PINATA_JWT`. Never expose Pinata bearer tokens with a
+`NEXT_PUBLIC_` prefix.
 
 ## Live Contract Draft Collaboration
 

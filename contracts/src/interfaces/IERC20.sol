@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 // Minimal IERC20 subset needed by TrustLedger for stablecoin escrow support.
 // We define this locally because the OZ forge submodule does not have a complete
 // cryptography directory on macOS (file-system checkout limitation with the submodule).
-// Only the two functions TrustLedger actually calls are declared here.
+// Only the functions TrustLedger actually calls are declared here.
 
 /// @title IERC20
 /// @author Kevin Le, Kellen Snider
@@ -28,4 +28,9 @@ interface IERC20 {
     /// @param amount Token units to transfer.
     /// @return result True if the transfer succeeded.
     function transfer(address to, uint256 amount) external returns (bool result);
+
+    /// @notice Return the token balance held by `account`.
+    /// @param account Address whose token balance is queried.
+    /// @return result Token balance in smallest units.
+    function balanceOf(address account) external view returns (uint256 result);
 }

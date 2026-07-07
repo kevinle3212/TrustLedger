@@ -94,10 +94,10 @@ declare namespace NodeJS {
 		// hidden from public analytics even when this token can access them.
 		GITHUB_TOKEN?: string;
 		// ─── IPFS / Pinata ────────────────────────────────────────────────────────
-		// JWT scoped to Files pinning (pinata.cloud → API Keys → + New Key → Files).
-		// Powers the "Upload File" tab on the contract creation page. Safe to expose
-		// when scoped to pinning only — not a secret.
-		NEXT_PUBLIC_PINATA_JWT?: string;
+		// Server-only JWT scoped to Files pinning (pinata.cloud → API Keys → + New Key → Files).
+		// Powers the "Upload File" tab through `/api/ipfs/pin`; never expose it with
+		// a NEXT_PUBLIC_ prefix.
+		PINATA_JWT?: string;
 		// ─── Development tools ────────────────────────────────────────────────────
 		// Enables the React Scan render-diagnostic overlay in development.
 		// Keep false for accessibility testing — the overlay is not part of the TrustLedger UI.

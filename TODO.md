@@ -1289,9 +1289,9 @@ on-chain.
       infrastructure. Audited all `target="_blank"` links — every one already
       carries `rel="noopener noreferrer"`. No `dangerouslySetInnerHTML` found.
       All `NEXT_PUBLIC_*` vars are intentional public values (contract
-      addresses, WalletConnect project ID, GitHub URL); `NEXT_PUBLIC_PINATA_JWT`
-      is a dev-only convenience — the JWT field is shown in the UI when the var
-      is absent so users supply their own key at runtime.
+      addresses, WalletConnect project ID, GitHub URL). Pinata uploads now use
+      server-only `PINATA_JWT` through `/api/ipfs/pin`; do not expose bearer
+      tokens with a `NEXT_PUBLIC_` prefix.
     - **Aesthetics:** Added `prefers-reduced-motion` media query to
       `globals.scss` (collapses all transitions/animations to 0.01 ms for users
       who opt out of motion). Added `--color-brand` and `--color-brand-hover`

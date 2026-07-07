@@ -21,9 +21,6 @@ interface Props {
 	passphrase: string;
 	onPassphraseChange: (value: string) => void;
 	onPassphraseBlur: () => void;
-	pinataJwt: string;
-	onPinataJwtChange: (value: string) => void;
-	onPinataJwtBlur: () => void;
 	uploadStatus: UploadStatus;
 	uploadError: string | null;
 	onUpload: () => void;
@@ -50,9 +47,6 @@ export function ContractDocumentSection({
 	passphrase,
 	onPassphraseChange,
 	onPassphraseBlur,
-	pinataJwt,
-	onPinataJwtChange,
-	onPinataJwtBlur,
 	uploadStatus,
 	uploadError,
 	onUpload,
@@ -104,10 +98,6 @@ export function ContractDocumentSection({
 					onPassphraseChange={onPassphraseChange}
 					onPassphraseBlur={onPassphraseBlur}
 					passphraseError={showError("passphrase")}
-					pinataJwt={pinataJwt}
-					onPinataJwtChange={onPinataJwtChange}
-					onPinataJwtBlur={onPinataJwtBlur}
-					pinataJwtError={showError("pinataJwt")}
 					uploadStatus={uploadStatus}
 					uploadError={uploadError}
 					contractURI={form.contractURI}

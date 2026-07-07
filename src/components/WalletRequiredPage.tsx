@@ -21,6 +21,42 @@ function ShieldIcon(): React.JSX.Element {
 	);
 }
 
+/** Returns true while wagmi is restoring an existing wallet session. */
+export function isWalletRestoringStatus(status: string): boolean {
+	return status === "connecting" || status === "reconnecting";
+}
+
+/** Neutral wallet-gate state shown while wagmi restores a persisted session. */
+export function WalletRestoringPage(): React.JSX.Element {
+	const t = useTranslations("Common");
+
+	return (
+		<div className="tl-site-frame py-12 sm:py-16">
+			<section
+				aria-busy="true"
+				aria-live="polite"
+				className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/10 dark:bg-gray-950"
+			>
+				<div
+					aria-hidden="true"
+					className="absolute inset-x-0 top-0 h-1 bg-indigo-600 dark:bg-indigo-400"
+				/>
+				<div className="p-6 sm:p-8">
+					<div className="inline-flex size-12 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-400/30 dark:bg-indigo-400/10 dark:text-indigo-200">
+						<ShieldIcon />
+					</div>
+					<h1 className="mt-5 text-3xl font-semibold tracking-[-0.02em] text-gray-950 sm:text-4xl dark:text-white">
+						{t("openingWallet")}
+					</h1>
+					<div className="mt-5 h-2 max-w-md overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
+						<div className="h-full w-1/2 animate-pulse rounded-full bg-indigo-600 dark:bg-indigo-400" />
+					</div>
+				</div>
+			</section>
+		</div>
+	);
+}
+
 /** Fallback page shown to unauthenticated users on wallet-gated routes. Prompts connection. */
 export function WalletRequiredPage(): React.JSX.Element {
 	const t = useTranslations("Common");

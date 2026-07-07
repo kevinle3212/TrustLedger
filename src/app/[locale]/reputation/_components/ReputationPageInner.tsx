@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAccount, useChainId, usePublicClient, useReadContract } from "wagmi";
 import { ConnectButton } from "@/components/ConnectButton";
+import { isWalletRestoringStatus } from "@/components/WalletRequiredPage";
 import { isAddress, parseAbiItem } from "viem";
 import { REPUTATION_REGISTRY_ABI, TRUSTLEDGER_ABI } from "@/lib/abi";
 import {
@@ -456,7 +457,7 @@ function ReputationLookup({
 
 export function ReputationPageInner(): React.JSX.Element {
 	const t = useTranslations("Reputation");
-	const { address, isConnected } = useAccount();
+	const { address, isConnected, status } = useAccount();
 	const chainId = useChainId();
 	const [input, setInput] = useState("");
 	const [lookupAddress, setLookupAddress] = useState<`0x${string}` | undefined>(undefined);
@@ -569,7 +570,7 @@ export function ReputationPageInner(): React.JSX.Element {
 						</div>
 					</form>
 
-					{!isConnected && (
+					{!isConnected && !isWalletRestoringStatus(status) && (
 						<div className="flex flex-col items-start gap-2">
 							<p className="whitespace-nowrap text-[0.8125rem] font-medium text-red-600 dark:text-red-400 sm:text-sm">
 								{t("connectToLookUp")}

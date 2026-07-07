@@ -214,11 +214,10 @@ back to [Home](Home.md), page top, and the page table of contents. Run
 `npm run docs:nav` after changing headings, then verify with
 `npm run docs:nav:check`.
 
-Ignored files under `logs/` still need to be Markdown summaries that pass
-markdownlint. Use:
+Ignored files under `logs/` should still be readable Markdown summaries, but
+commit and push hooks do not markdownlint ignored log files. Use:
 
 ```bash
-npm run lint:logs
 npm run logs:check
 npm run tmp:check
 ```

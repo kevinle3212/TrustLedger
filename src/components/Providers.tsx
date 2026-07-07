@@ -83,73 +83,48 @@ function useStartAppKit(): void {
 	});
 }
 
-/** Minimal shape of an EIP-1193 injected provider we probe for a live session. */
-interface Eip1193Provider {
-	readonly request: (args: { method: string }) => Promise<unknown>;
-}
-
 /**
- * Client-side wallet session restore that covers every connector type, closing
- * the logout-on-refresh / direct-URL bug for injected *and* relay/SDK wallets
- * (MetaMask, Coinbase/Base, WalletConnect…), independent of when AppKit loads.
+ * Client-side wallet session restore for connectors that register *after*
+ * wagmi's one-shot `reconnectOnMount` (closing the logout-on-refresh /
+ * direct-URL bug for relay/SDK wallets), independent of when AppKit loads.
  *
- * Two complementary paths, both acting only from a settled `disconnected` state
- * (they bail the moment wagmi reports connecting/reconnecting/connected, so they
- * never fight wagmi's own `reconnectOnMount` or AppKit's restore):
+ * Injected sessions (MetaMask, Phantom, Coinbase extension…) need no help
+ * here: their connectors are registered at mount (standalone `injected()` in
+ * {@link config} plus wagmi's EIP-6963 discovery), so `reconnectOnMount`
+ * restores exactly the persisted connector. Do NOT re-add a `window.ethereum`
+ * `eth_accounts` auto-connect probe: with several wallet extensions installed,
+ * whichever one owns `window.ethereum` (Phantom claims it aggressively) gets
+ * connected in place of the wallet the user actually chose — hijacking a
+ * persisted MetaMask/Coinbase session into a different account on every hard
+ * load — and, because such a probe skips wagmi's `shimDisconnect` bookkeeping,
+ * an explicit disconnect never sticks across a refresh either.
  *
- * 1. Injected no-network probe. If `window.ethereum` still lists this origin as
- *    authorized (`eth_accounts` returns a non-empty list, which never prompts),
- *    connect the standalone injected connector from {@link config}. This path
- *    needs no AppKit chunk and no network, so injected wallets restore instantly.
+ * The one gap left is connector-aware reconnect, acting only from a settled
+ * `disconnected` state (it bails the moment wagmi reports
+ * connecting/reconnecting/connected, so it never fights wagmi's own
+ * `reconnectOnMount` or AppKit's restore):
  *
- * 2. Connector-aware reconnect. wagmi's `reconnectOnMount` fires exactly once, at
- *    mount — *before* AppKit registers its lazily-loaded connectors (the
- *    Coinbase/Base SDK and WalletConnect). At that instant those persisted
- *    sessions have no connector to reconnect to, so the single early attempt
- *    settles to `disconnected` and the user appears logged out. When AppKit
- *    finishes and the connector set grows, we re-run wagmi's `reconnect()` so
- *    those sessions restore too. `reconnect()` only reconnects connectors wagmi
- *    already recorded as previously connected, so it never prompts, and the
- *    {@link hasPersistedWalletSession} gate keeps first-time visitors from
- *    triggering it at all.
+ * wagmi's `reconnectOnMount` fires exactly once, at mount — *before* AppKit
+ * registers its lazily-loaded connectors (the Coinbase/Base SDK and
+ * WalletConnect). At that instant those persisted sessions have no connector
+ * to reconnect to, so the single early attempt settles to `disconnected` and
+ * the user appears logged out. When AppKit finishes and the connector set
+ * grows, we re-run wagmi's `reconnect()` so those sessions restore too.
+ * `reconnect()` only reconnects connectors wagmi already recorded as
+ * previously connected, so it never prompts, and the
+ * {@link hasPersistedWalletSession} gate keeps first-time visitors from
+ * triggering it at all.
  *
  * Everything runs on the client after hydration, so static rendering and SSR
  * hydration are untouched.
  */
 function WalletSessionRestore(): null {
-	const { connect, connectors } = useConnect();
+	const { connectors } = useConnect();
 	const { reconnect } = useReconnect();
 	const { status } = useAccount();
-	const injectedAttempted = useRef(false);
 	const lastConnectorCount = useRef(0);
 
-	// Path 1: injected no-network probe (runs at most once).
-	useEffect(() => {
-		if (injectedAttempted.current) return;
-		if (status !== "disconnected") return;
-
-		const provider = (globalThis as { ethereum?: Eip1193Provider }).ethereum;
-		if (provider === undefined) return;
-
-		const injectedConnector = connectors.find(
-			(c) => c.type === "injected" || c.id === "injected",
-		);
-		if (injectedConnector === undefined) return;
-
-		injectedAttempted.current = true;
-		void provider
-			.request({ method: "eth_accounts" })
-			.then((accounts) => {
-				if (Array.isArray(accounts) && accounts.length > 0) {
-					connect({ connector: injectedConnector });
-				}
-			})
-			.catch(() => {
-				// A failed silent probe just means no restorable session; ignore.
-			});
-	}, [status, connect, connectors]);
-
-	// Path 2: re-run wagmi reconnect when AppKit grows the connector set, so
+	// Re-run wagmi reconnect when AppKit grows the connector set, so
 	// Coinbase/Base SDK and WalletConnect sessions restore after their connectors
 	// register (later than wagmi's one-shot reconnectOnMount). Gated on a real
 	// persisted session so first-time visitors never trigger a reconnect.

@@ -1,13 +1,20 @@
-// Upload a file to IPFS via Pinata's pinning API.
-// jwt: Pinata API JWT (set NEXT_PUBLIC_PINATA_JWT in .env.local or pass at runtime).
-// Returns an "ipfs://<CID>" URI suitable for storing on-chain.
+import "server-only";
+
 import { fetchWithTimeout, REQUEST_TIMEOUT_MS } from "@/lib/fetchTimeout";
 
-export async function uploadToPinata(
-	file: File | Blob,
-	name: string,
-	jwt: string,
-): Promise<string> {
+/**
+ * Uploads a document blob to IPFS via Pinata using the server-only JWT.
+ *
+ * @param file - Document bytes to pin.
+ * @param name - Filename stored in Pinata metadata.
+ * @returns An `ipfs://<CID>` URI suitable for storing on-chain.
+ */
+export async function uploadToPinata(file: File | Blob, name: string): Promise<string> {
+	const jwt = process.env.PINATA_JWT;
+	if (jwt === undefined || jwt === "") {
+		throw new Error("PINATA_JWT is not configured.");
+	}
+
 	const body = new FormData();
 	body.append("file", file, name);
 	body.append("pinataMetadata", JSON.stringify({ name }));

@@ -420,7 +420,7 @@ npm install
 | Check external docs links | `npm run docs:links:external`    |
 | Start frontend            | `cd src && npm run dev:frontend` |
 | Build frontend            | `npm run build:frontend`         |
-| Run frontend unit tests   | `npm run test:frontend:unit`     |
+| Run frontend unit tests   | `npm run test:unit`              |
 | Run React Doctor          | `cd src && npm run doctor`       |
 
 Local UI profiling prefers the Codex in-app browser when available. If the
@@ -462,13 +462,14 @@ cp src/.env.local.example src/.env.local
 
 Important groups:
 
-| Group           | Examples                                                                                |
-| --------------- | --------------------------------------------------------------------------------------- |
-| RPC and deploy  | `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, `ETHERSCAN_API_KEY`                          |
-| Frontend public | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_PINATA_JWT` |
-| Notifications   | `MAGIC_LINK_SECRET`, `RESEND_API_KEY`, `NOTIFICATIONS_SECRET`, `CRON_SECRET`            |
-| Oracle          | `ORACLE_PRICE_SOURCE_URL`, `ORACLE_RATE_TTL_MS`                                         |
-| Vercel          | `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`                                    |
+| Group           | Examples                                                                              |
+| --------------- | ------------------------------------------------------------------------------------- |
+| RPC and deploy  | `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY`, `ETHERSCAN_API_KEY`                        |
+| Frontend public | `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_DOCS_URL` |
+| Server secrets  | `PINATA_JWT`, `MAGIC_LINK_SECRET`, `RESEND_API_KEY`, `NOTIFICATIONS_SECRET`           |
+| Notifications   | `CRON_SECRET`, `NOTIFICATION_EMAILS`                                                  |
+| Oracle          | `ORACLE_PRICE_SOURCE_URL`, `ORACLE_RATE_TTL_MS`                                       |
+| Vercel          | `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`                                  |
 
 Read [Environment](docs/ENVIRONMENT.md).
 

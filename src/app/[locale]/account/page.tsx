@@ -4,14 +4,18 @@ import { ConnectButton } from "@/components/ConnectButton";
 import { InactivityTimeoutSetting } from "@/components/InactivityTimeoutSetting";
 import { PrivacyDataRights } from "@/components/PrivacyDataRights";
 import { TwoFactorSetting } from "@/components/TwoFactorSetting";
-import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import {
+	isWalletRestoringStatus,
+	WalletRequiredPage,
+	WalletRestoringPage,
+} from "@/components/WalletRequiredPage";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAccount } from "wagmi";
 
 export default function AccountPage(): React.JSX.Element {
 	const t = useTranslations("Account");
-	const { address, isConnected } = useAccount();
+	const { address, isConnected, status } = useAccount();
 	const cards = [
 		{ title: t("profilePreferencesTitle"), body: t("profilePreferencesBody") },
 		{ title: t("encryptedMessagingTitle"), body: t("encryptedMessagingBody") },
@@ -19,6 +23,7 @@ export default function AccountPage(): React.JSX.Element {
 	];
 
 	if (!isConnected || address === undefined) {
+		if (isWalletRestoringStatus(status)) return <WalletRestoringPage />;
 		return <WalletRequiredPage />;
 	}
 

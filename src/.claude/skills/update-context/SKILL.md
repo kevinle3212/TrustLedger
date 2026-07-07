@@ -33,7 +33,7 @@ configuration, tests, user-facing copy, or agent guidance.
 3. Update comments only when the surrounding code would otherwise be misleading
    or hard to operate safely. Remove stale comments instead of adding new ones.
 4. Add or adjust tests and validation commands when behavior or tooling changes.
-5. Keep generated run notes under `logs/` as markdownlint-compliant Markdown.
+5. Keep generated run notes under `logs/` as readable Markdown summaries.
    Run `npm run logs:check` after writing log files.
 6. Privacy or cookie behavior changed? Also sync the live policy sources
    `src/content/legal/PRIVACY_POLICY.md` (bump `Last Updated`/`Version`) and
