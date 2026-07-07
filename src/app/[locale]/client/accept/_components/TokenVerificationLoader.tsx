@@ -1,7 +1,11 @@
 "use client";
 
 import { ConnectButton } from "@/components/ConnectButton";
-import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import {
+	isWalletRestoringStatus,
+	WalletRequiredPage,
+	WalletRestoringPage,
+} from "@/components/WalletRequiredPage";
 import type { MagicLinkPayload } from "@/lib/magicLink";
 import { useTranslations } from "next-intl";
 
@@ -12,6 +16,7 @@ function Shell({ children }: { children: React.ReactNode }): React.JSX.Element {
 interface Props {
 	tokenError: string | null;
 	isConnected: boolean;
+	walletStatus: string;
 	address: string | undefined;
 	payload: MagicLinkPayload | null;
 	contractLoading: boolean;
@@ -23,6 +28,7 @@ interface Props {
 export function TokenVerificationLoader({
 	tokenError,
 	isConnected,
+	walletStatus,
 	address,
 	payload,
 	contractLoading,
@@ -43,7 +49,10 @@ export function TokenVerificationLoader({
 			</Shell>
 		);
 
-	if (!isConnected) return <WalletRequiredPage />;
+	if (!isConnected) {
+		if (isWalletRestoringStatus(walletStatus)) return <WalletRestoringPage />;
+		return <WalletRequiredPage />;
+	}
 
 	const expectedAddress = payload?.clientAddress.toLowerCase();
 	if (address?.toLowerCase() !== expectedAddress)

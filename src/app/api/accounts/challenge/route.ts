@@ -1,5 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAccountChallenge } from "@/services/offchainAccounts";
+import {
+	ACCOUNT_SECURITY_RETRY_AFTER_SECONDS,
+	isAccountSecurityRateLimited,
+} from "@/security/accountRateLimit";
 
 /**
  * `POST /api/accounts/challenge` — issues an EIP-712 challenge a wallet must
@@ -18,8 +22,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 	const body = (await request.json()) as { address?: unknown };
 	if (typeof body.address !== "string")
 		return NextResponse.json({ error: "address is required" }, { status: 400 });
+	if (isAccountSecurityRateLimited(body.address)) {
+		const response = NextResponse.json(
+			{ error: "too many account verification attempts" },
+			{ status: 429 },
+		);
+		response.headers.set("Retry-After", String(ACCOUNT_SECURITY_RETRY_AFTER_SECONDS));
+		return response;
+	}
 	try {
-		return NextResponse.json(createAccountChallenge(body.address));
+		return NextResponse.json(await createAccountChallenge(body.address));
 	} catch (error) {
 		return NextResponse.json(
 			{ error: error instanceof Error ? error.message : "invalid challenge request" },

@@ -138,7 +138,7 @@ The frontend is a standalone Next.js package under `src/`. It uses Reown AppKit
 with wagmi and viem to connect wallets on Sepolia, Arbitrum One, Base, and
 Optimism. It also includes:
 
-- IPFS upload support through `NEXT_PUBLIC_PINATA_JWT`.
+- IPFS upload support through server-side `/api/ipfs/pin` with `PINATA_JWT`.
 - AES-GCM client-side encryption helpers in `src/lib/encryption.ts`.
 - Magic link signing and verification in `src/lib/magicLink.ts`.
 - Resend email delivery in `src/services/email.ts`.

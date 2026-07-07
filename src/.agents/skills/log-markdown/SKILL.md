@@ -1,7 +1,7 @@
 ---
 name: log-markdown
 description:
-    Format any file written under logs/ as markdownlint-compliant Markdown.
+    Format any file written under logs/ as readable ignored Markdown.
 ---
 
 ## Tool Fallback <!-- tool-fallback -->
@@ -41,11 +41,10 @@ When a log should be kept or reviewed, run:
 
 ```bash
 npm run logs:check
-npx markdownlint-cli2 "logs/**/*.md"
 ```
 
-If `logs/` is ignored and the command is too broad for the current task, run it
-against the specific log file.
+`logs/` is ignored by git and excluded from markdownlint gates, so hooks enforce
+retention only.
 
 Use `npm run logs:prune` when `logs:check` reports stale, oversized, or excess
 local log files.

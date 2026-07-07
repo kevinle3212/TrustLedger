@@ -218,17 +218,17 @@ Run markdown lint checks:
 npm run lint:md
 ```
 
-Run ignored log Markdown checks:
+Run ignored local artifact retention checks:
 
 ```bash
 npm run lint:logs
+npm run tmp:check
 ```
 
-Run log retention checks:
+Run direct log retention checks:
 
 ```bash
 npm run logs:check
-npm run tmp:check
 ```
 
 Run Python docstring and type checks for the project-owned Python helper

@@ -48,8 +48,8 @@ configuration, tests, user-facing copy, or agent guidance.
 6. If a complex agent mistake took substantial debugging to fix, add one concise
    prevention note to the nearest relevant skill or agent guidance file. Do not
    record simple typos or routine lint fixes.
-7. Keep generated run notes under `logs/` as markdownlint-compliant Markdown.
-   Run `npm run logs:check` after writing log files.
+7. Keep generated run notes under `logs/` as readable Markdown summaries. Run
+   `npm run logs:check` after writing log files.
 
 ## Validation
 

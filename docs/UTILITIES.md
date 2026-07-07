@@ -15,6 +15,16 @@
 - [Contract Generator](#contract-generator)
     - [Function](#function)
     - [Generate The Demo PDF](#generate-the-demo-pdf)
+- [Ollama And Continue](#ollama-and-continue)
+    - [Good Fit For `qwen3:8b`](#good-fit-for-qwen38b)
+    - [Bad Fit For `qwen3:8b`](#bad-fit-for-qwen38b)
+    - [When To Use Continue, Cursor, Claude Code, Or Codex](#when-to-use-continue-cursor-claude-code-or-codex)
+    - [Install Ollama](#install-ollama)
+    - [Pull The Model](#pull-the-model)
+    - [Run On The Same Machine](#run-on-the-same-machine)
+    - [Run On A Separate LAN Machine](#run-on-a-separate-lan-machine)
+    - [Configure Continue](#configure-continue)
+    - [Verify Connectivity](#verify-connectivity)
 - [Python Tooling](#python-tooling)
 - [Log Retention](#log-retention)
 - [Cross-Platform Script Support](#cross-platform-script-support)
@@ -100,6 +110,363 @@ Output:
 utils/sample-contract.pdf
 ```
 
+## Ollama And Continue
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+TrustLedger can use the Continue extension with a local Ollama model for
+private, low-cost coding assistance. The current local profile targets
+`qwen3:8b`, served either on the same development machine or from a separate LAN
+machine with 8 GB RAM.
+
+The helper script is:
+
+```bash
+bash tools/ollama-continue.sh --help
+```
+
+It can install Ollama, pull the model, start local or LAN serving, print a
+Continue snippet, check whether a configured Ollama API exposes the model, and
+send a small generation request.
+
+### Good Fit For `qwen3:8b`
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Use `qwen3:8b` for:
+
+- Short code explanations and repo navigation after graphify has oriented the
+  task.
+- Small TypeScript, React, Solidity, Markdown, shell, and config edits.
+- Drafting tests, docs snippets, commit-message candidates, and review
+  checklists.
+- Summarizing focused files, diagnostics, logs, and command output.
+- Offline or private first-pass work where latency is acceptable.
+
+### Bad Fit For `qwen3:8b`
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Do not rely on `qwen3:8b` alone for:
+
+- Final security review of wallet auth, signatures, sessions, nonces,
+  arbitration, or smart-contract value flow.
+- Large architectural refactors across many subsystems.
+- Mainnet-readiness contract audits, formal verification, or economic analysis.
+- Long-context reasoning over the full repository without graphify or curated
+  context.
+- CI failure triage where exact tool output and deterministic reproduction are
+  required.
+
+For those tasks, use the project review agents, skills, tests, static analyzers,
+and quality gates documented in `AGENTS.md`, `CLAUDE.md`, and
+`docs/QUALITY-STANDARDS.md`.
+
+### When To Use Continue, Cursor, Claude Code, Or Codex
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Use Continue with Ollama when:
+
+- You want private, local, low-cost first-pass help.
+- The task is small, well-scoped, and already oriented by graphify or focused
+  file context.
+- You are drafting docs, tests, comments, refactors, or simple code edits that
+  will still go through the repo's normal validation gates.
+- You want a second opinion without sending code to a hosted model.
+
+Use Cursor when:
+
+- You need tight IDE context, direct edits, project search, diagnostics,
+  terminal commands, and fast pair-programming loops.
+- The task spans several files but is still interactive enough to review as it
+  changes.
+- You need to apply the `.continue/rules/`, `.cursor/rules/`, `AGENTS.md`, and
+  graphify context while keeping the working tree visible.
+
+Use Claude Code when:
+
+- The task needs a strong autonomous coding agent with repo-wide planning,
+  careful editing, and final QA discipline.
+- You are running gstack workflows such as `/autoplan`, `/review`, `/cso`,
+  `/qa`, or `/ship`.
+- The work is security-sensitive, architecture-heavy, or requires coordinating
+  tests, docs, and code changes across subsystems.
+
+Use Codex when:
+
+- You want command-line oriented implementation, debugging, or targeted
+  refactoring with explicit shell validation.
+- You need `rtk`-prefixed command discipline from the home Codex guidance.
+- You are doing focused terminal-heavy tasks such as reproducing a failure,
+  validating scripts, or checking generated artifacts.
+
+Alternate between tools when:
+
+- Continue/Ollama produces a draft, then Cursor or Claude Code applies,
+  validates, and fixes it against the real repository.
+- Cursor or Codex finds a concrete failure, then Continue/Ollama helps draft a
+  focused explanation, test idea, or docs snippet.
+- Claude Code performs a security or architecture pass, then Cursor handles
+  small reviewed edits in the IDE.
+- Any model disagrees with another: prefer repository evidence, tests, graphify,
+  static analyzers, and source-of-truth docs over model confidence.
+
+Avoid using Continue/Ollama as the final authority for security, mainnet,
+deployment, or legal decisions. It is a useful local assistant, not a substitute
+for TrustLedger's review agents, quality gates, or owner judgment.
+
+### Install Ollama
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+macOS with Homebrew:
+
+```bash
+bash tools/ollama-continue.sh install
+```
+
+Manual macOS install:
+
+```bash
+open https://ollama.com/download
+```
+
+Linux install:
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+Verify:
+
+```bash
+ollama --version
+```
+
+### Pull The Model
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Pull the default model:
+
+```bash
+bash tools/ollama-continue.sh pull
+```
+
+Equivalent raw Ollama command:
+
+```bash
+ollama pull qwen3:8b
+```
+
+The model host must have enough disk space for the model and enough memory for
+acceptable latency. The separate TrustLedger LAN host currently uses an 8 GB RAM
+machine for `qwen3:8b`; keep other memory-heavy apps closed on that host.
+
+### Run On The Same Machine
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Use this when Continue and Ollama run on the same Mac or Linux workstation:
+
+```bash
+bash tools/ollama-continue.sh serve-local
+```
+
+Equivalent raw command:
+
+```bash
+OLLAMA_HOST=127.0.0.1:11434 ollama serve
+```
+
+Some desktop installs run Ollama as a background service. If so, `ollama serve`
+may report that the port is already in use; that is fine if this check works:
+
+```bash
+OLLAMA_API_BASE=http://127.0.0.1:11434 bash tools/ollama-continue.sh check
+```
+
+Use `http://127.0.0.1:11434` as the Continue `apiBase`.
+
+### Run On A Separate LAN Machine
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Use this when a separate 8 GB RAM machine hosts `qwen3:8b` and the development
+machine connects over the local network.
+
+On the Ollama host:
+
+```bash
+bash tools/ollama-continue.sh pull
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+```
+
+Equivalent helper command:
+
+```bash
+bash tools/ollama-continue.sh serve-lan
+```
+
+Find the host IP address.
+
+macOS:
+
+```bash
+ipconfig getifaddr en0
+```
+
+Linux:
+
+```bash
+hostname -I
+```
+
+Allow inbound TCP `11434` only from the trusted LAN. Avoid exposing Ollama
+directly to the public internet; it has no project auth layer by default.
+
+On the development machine, verify the host:
+
+```bash
+OLLAMA_API_BASE=http://192.168.12.181:11434 \
+  bash tools/ollama-continue.sh check
+```
+
+Replace `192.168.12.181` with the actual LAN IP. If DHCP changes the address,
+reserve it in the router or update Continue's `apiBase`.
+
+### Configure Continue
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Keep `~/.continue/config.yaml` global and model-focused. TrustLedger-specific
+rules live in `.continue/rules/` so they apply only in this workspace.
+
+Same-machine Continue snippet:
+
+```yaml
+name: Local AI
+version: 1.0.0
+schema: v1
+
+models:
+    - name: Qwen3 Coder 8B (Local)
+      provider: ollama
+      model: qwen3:8b
+      apiBase: http://127.0.0.1:11434
+```
+
+Separate LAN host snippet:
+
+```yaml
+name: Local AI
+version: 1.0.0
+schema: v1
+
+models:
+    - name: Qwen3 Coder 8B (LAN)
+      provider: ollama
+      model: qwen3:8b
+      apiBase: http://192.168.12.181:11434
+```
+
+The Continue extension loads TrustLedger project rules from:
+
+```text
+.continue/rules/
+```
+
+Use Continue for local chat, edits, and first-pass review. Continue responses
+still need the same TrustLedger validation gates as any other code change.
+
+### Verify Connectivity
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+Check the configured API:
+
+```bash
+OLLAMA_API_BASE=http://192.168.12.181:11434 \
+  bash tools/ollama-continue.sh check
+```
+
+Run a functional generation test:
+
+```bash
+OLLAMA_API_BASE=http://192.168.12.181:11434 \
+  bash tools/ollama-continue.sh generate-test
+```
+
+Expected response shape:
+
+```json
+{
+    "response": "ok",
+    "done": true,
+    "done_reason": "stop",
+    "model": "qwen3:8b"
+}
+```
+
+List models:
+
+```bash
+OLLAMA_API_BASE=http://192.168.12.181:11434 \
+  bash tools/ollama-continue.sh tags
+```
+
+Print a Continue snippet:
+
+```bash
+OLLAMA_API_BASE=http://192.168.12.181:11434 \
+  bash tools/ollama-continue.sh continue-snippet
+```
+
+Avoid tiny output budgets when smoke-testing Qwen3. A very small `num_predict`,
+such as `8`, can stop with `done_reason: "length"` before the model emits
+visible text. The helper uses `num_predict: 256` for the generation test.
+
 ## Python Tooling
 
 <!-- docs-section-nav:start -->
@@ -134,11 +501,10 @@ summaries belong in ignored `logs/` as Markdown. They should be useful
 summaries, not raw terminal dumps.
 
 npm is configured through `.npmrc` to write npm debug logs under `logs/npm`.
-Those files are ignored by git; summarize important npm failures in
-markdownlint-compliant `logs/*.md` notes when an agent run needs a durable local
-record.
+Those files are ignored by git; summarize important npm failures in readable
+`logs/*.md` notes when an agent run needs a durable local record.
 
-Check retention and Markdown policy:
+Check ignored local artifact retention:
 
 ```bash
 npm run logs:check

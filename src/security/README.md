@@ -11,15 +11,16 @@ import { copyToClipboard, sanitizeUrl, validateEthAddress } from "@/security";
 
 ## Modules
 
-| File           | Exports                                                                                | Purpose                                                                                                                       |
-| -------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `clipboard.ts` | `copyToClipboard`, `isClipboardAvailable`                                              | Best-effort copy that never throws on insecure origins / in-app webviews (where `navigator.clipboard` is `undefined`).        |
-| `headers.ts`   | `SECURITY_HEADERS`, `applySecurityHeaders`, `buildContentSecurityPolicy`               | Baseline HTTP security headers + CSP. Consumed by `src/proxy.ts`; reusable in route handlers.                                 |
-| `rateLimit.ts` | `createRateLimiter`, `RateLimiter`                                                     | Reusable in-memory fixed-window limiter. Backs the `/api/*` limit in `src/proxy.ts`.                                          |
-| `csrf.ts`      | `isSameOriginRequest`                                                                  | Origin check for state-changing API routes (defense in depth).                                                                |
-| `sanitize.ts`  | `escapeHtml`, `stripControlChars`, `sanitizeText`, `sanitizeUrl`, `sanitizeFileName`   | Conservative, dependency-free sanitizers for non-React sinks.                                                                 |
-| `address.ts`   | `toChecksumAddress`, `addressesEqual`, `isEvmAddress`, `isZeroAddress`, `ZERO_ADDRESS` | Never-throwing EVM address checksum/equality helpers.                                                                         |
-| `index.ts`     | (barrel)                                                                               | Re-exports all of the above plus existing `@/lib/validation` validators and `@/lib/encryption` (`encryptFile`/`decryptFile`). |
+| File                  | Exports                                                                                | Purpose                                                                                                                       |
+| --------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `accountRateLimit.ts` | `ACCOUNT_SECURITY_RETRY_AFTER_SECONDS`, `isAccountSecurityRateLimited`                 | Per-wallet throttle for session signature, TOTP verify, and TOTP disable attempts.                                            |
+| `clipboard.ts`        | `copyToClipboard`, `isClipboardAvailable`                                              | Best-effort copy that never throws on insecure origins / in-app webviews (where `navigator.clipboard` is `undefined`).        |
+| `headers.ts`          | `SECURITY_HEADERS`, `applySecurityHeaders`, `buildContentSecurityPolicy`               | Baseline HTTP security headers + CSP. Consumed by `src/proxy.ts`; reusable in route handlers.                                 |
+| `rateLimit.ts`        | `createRateLimiter`, `RateLimiter`                                                     | Reusable in-memory fixed-window limiter. Backs the `/api/*` limit in `src/proxy.ts`.                                          |
+| `csrf.ts`             | `isSameOriginRequest`                                                                  | Origin check for state-changing API routes (defense in depth).                                                                |
+| `sanitize.ts`         | `escapeHtml`, `stripControlChars`, `sanitizeText`, `sanitizeUrl`, `sanitizeFileName`   | Conservative, dependency-free sanitizers for non-React sinks.                                                                 |
+| `address.ts`          | `toChecksumAddress`, `addressesEqual`, `isEvmAddress`, `isZeroAddress`, `ZERO_ADDRESS` | Never-throwing EVM address checksum/equality helpers.                                                                         |
+| `index.ts`            | (barrel)                                                                               | Re-exports all of the above plus existing `@/lib/validation` validators and `@/lib/encryption` (`encryptFile`/`decryptFile`). |
 
 ## Conventions
 
@@ -37,6 +38,9 @@ import { copyToClipboard, sanitizeUrl, validateEthAddress } from "@/security";
 
 - **HTTP headers + CSP + API rate limiting** → `src/proxy.ts` (runs before every
   matched request).
+- **Per-wallet account verification throttling** →
+  `src/app/api/accounts/session`, `src/app/api/account/2fa/verify`, and
+  `src/app/api/account/2fa/disable`.
 - **CI scanning** → `.github/workflows/security.yml` (Semgrep + gitleaks).
 - **Field validation** → `@/lib/validation` (re-exported here).
 - **At-rest file encryption** → `@/lib/encryption` (AES-GCM via Web Crypto).

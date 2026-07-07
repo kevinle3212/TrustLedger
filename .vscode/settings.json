@@ -31,6 +31,7 @@
 		".gitleaksignore": "ignore",
 		".graphifyignore": "ignore"
 	},
+	"css.customData": [".vscode/tailwind-v4.css-data.json"],
 	"github-actions.workflows.pinned.refresh.enabled": false,
 	"todo-tree.filtering.excludeGlobs": [
 		"**/contracts/lib/**",
@@ -52,6 +53,7 @@
 	],
 	"eslint.useFlatConfig": true,
 	"css.lint.unknownAtRules": "ignore",
+	"scss.lint.unknownAtRules": "ignore",
 	"python.analysis.typeCheckingMode": "basic",
 	"python.analysis.diagnosticSeverityOverrides": {
 		"reportMissingModuleSource": "information"

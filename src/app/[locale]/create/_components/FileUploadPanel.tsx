@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import type { ArweaveJWK } from "@/lib/arweave";
-import { Field } from "@/components/Field";
-import { Input } from "@/components/Input";
 import { useTranslations } from "next-intl";
 import { EncryptionOptions } from "./EncryptionOptions";
 import { ArweaveBackupPanel } from "./ArweaveBackupPanel";
@@ -19,10 +17,6 @@ interface Props {
 	onPassphraseChange: (value: string) => void;
 	onPassphraseBlur: () => void;
 	passphraseError: string | undefined;
-	pinataJwt: string;
-	onPinataJwtChange: (value: string) => void;
-	onPinataJwtBlur: () => void;
-	pinataJwtError: string | undefined;
 	uploadStatus: UploadStatus;
 	uploadError: string | null;
 	contractURI: string;
@@ -45,10 +39,6 @@ export function FileUploadPanel({
 	onPassphraseChange,
 	onPassphraseBlur,
 	passphraseError,
-	pinataJwt,
-	onPinataJwtChange,
-	onPinataJwtBlur,
-	pinataJwtError,
 	uploadStatus,
 	uploadError,
 	contractURI,
@@ -114,23 +104,6 @@ export function FileUploadPanel({
 				passphraseError={passphraseError}
 			/>
 
-			{/* Pinata JWT - shown if not baked in via env */}
-			{(process.env.NEXT_PUBLIC_PINATA_JWT === undefined ||
-				process.env.NEXT_PUBLIC_PINATA_JWT === "") && (
-				<Field label={t("pinataJwt")} hint={t("pinataJwtHint")} error={pinataJwtError}>
-					<Input
-						type="password"
-						placeholder={t("pinataJwtPlaceholder")}
-						value={pinataJwt}
-						onChange={(e) => {
-							onPinataJwtChange(e.target.value);
-						}}
-						onBlur={onPinataJwtBlur}
-						error={pinataJwtError !== undefined}
-					/>
-				</Field>
-			)}
-
 			{/* Upload button */}
 			<button
 				type="button"
@@ -138,8 +111,7 @@ export function FileUploadPanel({
 				disabled={
 					selectedFile === null ||
 					uploadStatus === "working" ||
-					(encryptEnabled && passphrase === "") ||
-					pinataJwt === ""
+					(encryptEnabled && passphrase === "")
 				}
 				className="px-4 py-2 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
 			>

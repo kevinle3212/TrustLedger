@@ -45,8 +45,6 @@ export function createReducer(state: CreateState, action: CreateAction): CreateS
 			return { ...state, encryptEnabled: action.enabled };
 		case "SET_PASSPHRASE":
 			return { ...state, passphrase: action.value };
-		case "SET_PINATA_JWT":
-			return { ...state, pinataJwt: action.value };
 		case "UPLOAD_START":
 			return { ...state, uploadStatus: "working", uploadError: null };
 		case "UPLOAD_SUCCESS":

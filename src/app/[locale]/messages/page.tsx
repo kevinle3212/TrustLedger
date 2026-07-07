@@ -5,7 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAccount } from "wagmi";
 
-import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import {
+	isWalletRestoringStatus,
+	WalletRequiredPage,
+	WalletRestoringPage,
+} from "@/components/WalletRequiredPage";
 import { TotpStepUpPrompt } from "@/components/TotpStepUpPrompt";
 import { ActiveThreadPanel } from "@/components/messages/ActiveThreadPanel";
 import { ConversationList } from "@/components/messages/ConversationList";
@@ -32,7 +36,7 @@ interface SelectedConversation {
  */
 export default function MessagesPage(): React.JSX.Element {
 	const t = useTranslations("Messaging");
-	const { address, isConnected } = useAccount();
+	const { address, isConnected, status } = useAccount();
 	const session = useAccountSession();
 	const identity = useMessagingIdentity(session.token);
 
@@ -113,6 +117,7 @@ export default function MessagesPage(): React.JSX.Element {
 	}
 
 	if (!isConnected || address === undefined) {
+		if (isWalletRestoringStatus(status)) return <WalletRestoringPage />;
 		return <WalletRequiredPage />;
 	}
 

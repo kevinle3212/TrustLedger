@@ -45,6 +45,7 @@
 		"GitHub.copilot-chat",
 		"openai.chatgpt",
 		"ms-playwright.playwright",
-		"ms-vscode.vscode-chat-customizations-evaluations"
+		"ms-vscode.vscode-chat-customizations-evaluations",
+		"continue.continue"
 	]
 }

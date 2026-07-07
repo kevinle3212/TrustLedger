@@ -53,7 +53,6 @@ export function CreatePageWorkspace({
 		selectedFile,
 		encryptEnabled,
 		passphrase,
-		pinataJwt,
 		uploadStatus,
 		uploadError,
 		arweaveWallet,
@@ -113,13 +112,6 @@ export function CreatePageWorkspace({
 					}}
 					onPassphraseBlur={() => {
 						markTouched("passphrase");
-					}}
-					pinataJwt={pinataJwt}
-					onPinataJwtChange={(value) => {
-						dispatch({ type: "SET_PINATA_JWT", value });
-					}}
-					onPinataJwtBlur={() => {
-						markTouched("pinataJwt");
 					}}
 					uploadStatus={uploadStatus}
 					uploadError={uploadError}

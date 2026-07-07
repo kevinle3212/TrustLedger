@@ -145,6 +145,13 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @notice Severe minority slash in basis points (20%).
     uint256 public constant SEVERE_SLASH_BPS = 2000;
 
+    /// @notice Hard upper bound on candidates scanned during committee selection.
+    ///         Even if the active juror set is very large, selection touches at most this
+    ///         many candidates, so openDispute()/appeal() can never exceed the block gas
+    ///         limit and become a permanent DoS. Comfortably larger than any realistic
+    ///         panel (BASE_MAX_JURORS×2 for appeals) so fair selection is preserved.
+    uint256 public constant MAX_SELECTION_SCAN = 128;
+
     // ─── State
     // ───────────────────────────────────────────────────────────────
 
@@ -153,6 +160,11 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
     /// @notice The JurorRegistry that tracks eligibility, stakes, and slashing.
     IJurorRegistry public immutable JUROR_REGISTRY;
+
+    /// @notice The address that deployed this contract. Only the deployer may wire in
+    ///         the optional VRF coordinator, preventing an attacker from front-running
+    ///         the unrestricted initializer and seizing control of juror selection.
+    address public immutable DEPLOYER;
 
     /// @notice Auto-incrementing dispute ID counter.
     uint256 public nextDisputeId;
@@ -178,6 +190,10 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     // ETH slashed from minority/no-reveal jurors is pooled here and added to the
     // next appeal's fee pool if an appeal occurs.
     mapping(uint256 id => uint256 amount) private _slashedPool;
+
+    // Set once a dispute's unclaimable fee/slashed pool has been rescued, preventing a
+    // second rescue from draining ETH that belongs to other disputes.
+    mapping(uint256 id => bool rescued) private _poolRescued;
 
     /// @notice Optional Chainlink VRF coordinator. Set once via initVrfCoordinator().
     ///         When set, openDispute() requests randomness and fulfillRandomWords() pre-selects jurors.
@@ -236,6 +252,12 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @param juror     The claiming juror's address.
     /// @param amount    ETH rewarded.
     event RewardClaimed(uint256 indexed disputeId, address indexed juror, uint256 indexed amount);
+
+    /// @notice Emitted when an unclaimable fee/slashed pool is rescued back to the escrow client.
+    /// @param disputeId The dispute ID.
+    /// @param recipient The address the residual ETH was returned to.
+    /// @param amount    ETH returned.
+    event PoolRescued(uint256 indexed disputeId, address indexed recipient, uint256 indexed amount);
 
     /// @notice Emitted when a client or freelancer submits evidence for a dispute.
     /// @param disputeId The dispute ID.
@@ -327,6 +349,15 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     /// @notice One-time setter has already been called.
     error AlreadySet();
 
+    /// @notice Caller is not the deployer authorized to run the VRF setter.
+    error NotDeployer();
+
+    /// @notice Nothing is available to rescue for this dispute.
+    error NothingToRescue();
+
+    /// @notice The dispute has claimable rewards, so its pool is not rescuable.
+    error PoolStillClaimable();
+
     // ─── Modifiers
     // ────────────────────────────────────────────────────────────
 
@@ -347,6 +378,9 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         }
         TRUST_LEDGER = ITrustLedger(trustLedger_);
         JUROR_REGISTRY = IJurorRegistry(jurorRegistry_);
+        // Capture the deployer so initVrfCoordinator() can be gated to it. Minimal
+        // access boundary, not a mutable admin role.
+        DEPLOYER = msg.sender;
     }
 
     // ─── TrustLedger-called
@@ -430,6 +464,9 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     ///         After this call, new disputes will request randomness for juror selection.
     /// @param vrf_ Address of the deployed Chainlink VRF v2 coordinator.
     function initVrfCoordinator(address vrf_) external {
+        if (msg.sender != DEPLOYER) {
+            revert NotDeployer();
+        }
         if (vrfCoordinator != address(0)) {
             revert AlreadySet();
         }
@@ -721,6 +758,16 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         d.appealDisputeId = appealId;
         uint256 appealMaxJurors = d.maxJurors * 2; // e.g. 5 → 10 jurors for appeal
 
+        // Solvency: the appeal jurors' reward pool must never re-count the original
+        // dispute's feePool. That ETH is still held by this contract and reserved for
+        // the ORIGINAL majority jurors' claims (settled after the appeal window). The
+        // appeal panel is instead funded from ETH that was actually slashed in the
+        // original dispute; the appeal bond is added later, in _resolveAppeal, only if
+        // it is forfeited (ruling unchanged). Consuming the slashed pool here also
+        // clears the previously dead `_slashedPool` state (audit medium #7).
+        uint256 appealFeePool = _slashedPool[disputeId];
+        _slashedPool[disputeId] = 0;
+
         _disputes[appealId] = Dispute({
             contractId: d.contractId,
             client: d.client,
@@ -732,7 +779,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             phaseDeadline: uint64(block.timestamp + COMMIT_DURATION),
             freelancer: d.freelancer,
             contractAmount: d.contractAmount,
-            feePool: d.feePool + msg.value, // appeal bond added to reward pool
+            feePool: appealFeePool, // funded by slashed ETH; forfeited bond added on resolution
             ruling: type(uint256).max,
             appealer: address(0),
             appealBond: 0,
@@ -788,6 +835,15 @@ contract Arbitration is IArbitration, ReentrancyGuard {
 
         _rewardClaimed[disputeId][msg.sender] = true;
 
+        // Fold any slashed ETH into the distributable pool once, on the first claim.
+        // For a non-appealed dispute the slashed stake is never consumed by an appeal,
+        // so awarding it to the honest majority (rather than leaving it stuck) both
+        // rewards good jurors and gives the previously dead slashed ETH an exit path.
+        if (_slashedPool[disputeId] > 0) {
+            d.feePool += _slashedPool[disputeId];
+            _slashedPool[disputeId] = 0;
+        }
+
         // Count how many majority jurors there are so we can split evenly.
         address[] storage jurors = _jurors[disputeId];
         uint256 majorityCount = 0;
@@ -808,6 +864,70 @@ contract Arbitration is IArbitration, ReentrancyGuard {
         }
 
         emit RewardClaimed(disputeId, msg.sender, share);
+    }
+
+    // ─── Rescue unclaimable pools
+    // ─────────────────────────────────────────────
+
+    // When a dispute finalizes with no majority jurors — most commonly when nobody
+    // reveals (ruling defaults to 50 and every juror is slashed/unclassified) — the
+    // feePool has no eligible claimant and, together with any slashed ETH that never
+    // funded an appeal, would otherwise sit in this contract forever. This permissionless
+    // rescue returns that ETH to the escrow client who funded the dispute.
+
+    /// @notice Return an unclaimable fee/slashed pool to the escrow client. Callable once,
+    ///         only for an original dispute that finalized with zero majority jurors and whose
+    ///         appeal window has elapsed without an appeal. Emits {PoolRescued}.
+    /// @param disputeId The dispute ID.
+    function rescueUnclaimableFunds(uint256 disputeId) external nonReentrant {
+        Dispute storage d = _disputes[disputeId];
+        if (!d.finalized) {
+            revert DisputeNotFinalized();
+        }
+        // Only original disputes hold a client-funded fee pool; appeal disputes are
+        // settled through _resolveAppeal.
+        if (d.parentDisputeId != type(uint256).max) {
+            revert PoolStillClaimable();
+        }
+        // An appealed dispute's pool is consumed by the appeal flow, not rescued here.
+        if (d.appealed) {
+            revert PoolStillClaimable();
+        }
+        // Must be terminal: appeal window closed with no appeal filed.
+        if (block.timestamp < uint256(d.phaseDeadline) + 1) {
+            revert AppealWindowNotElapsed();
+        }
+        if (_poolRescued[disputeId]) {
+            revert NothingToRescue();
+        }
+
+        // If any juror qualified as majority, the pool is claimable via claimReward and
+        // must not be rescued out from under them.
+        address[] storage jurors = _jurors[disputeId];
+        uint256 jurorLen = jurors.length;
+        for (uint256 i = 0; i < jurorLen; ++i) {
+            if (_isMajority[disputeId][jurors[i]]) {
+                revert PoolStillClaimable();
+            }
+        }
+
+        uint256 amount = d.feePool + _slashedPool[disputeId];
+        if (amount == 0) {
+            revert NothingToRescue();
+        }
+
+        // Effects before interaction (CEI): zero the pools and mark rescued.
+        _poolRescued[disputeId] = true;
+        d.feePool = 0;
+        _slashedPool[disputeId] = 0;
+
+        address recipient = d.client;
+        (bool ok,) = recipient.call{value: amount}("");
+        if (!ok) {
+            revert EthTransferFailed();
+        }
+
+        emit PoolRescued(disputeId, recipient, amount);
     }
 
     // ─── Post-finalization ruling execution
@@ -884,16 +1004,23 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     // ─── Internal
     // ─────────────────────────────────────────────────────────────
 
-    // Partial Fisher-Yates shuffle over the full juror registry. At each position i,
+    // Partial Fisher-Yates shuffle over the ACTIVE juror set. At each position i,
     // a random index j ∈ [i, n-1] is chosen and swapped to position i; the candidate
-    // at that position is accepted if eligible. This guarantees O(n) unique candidates
+    // at that position is accepted if eligible. This guarantees unique candidates
     // without modulo bias, stopping once maxJurors slots are filled.
+    //
+    // Two bounds keep this DoS-resistant:
+    //   1. It iterates the active set (jurors with live stake), not the full historical
+    //      list, so cheap register/unstake churn cannot inflate the loop.
+    //   2. It scans at most MAX_SELECTION_SCAN candidates, so even a huge active set can
+    //      never push openDispute()/appeal() past the block gas limit.
     function _selectJurorsFromSeed(uint256 disputeId, uint256 seed) internal {
         Dispute storage d = _disputes[disputeId];
-        address[] memory pool = JUROR_REGISTRY.getJurorList();
+        address[] memory pool = JUROR_REGISTRY.getActiveJurorList();
         uint256 n = pool.length;
+        uint256 scanLimit = n < MAX_SELECTION_SCAN ? n : MAX_SELECTION_SCAN;
 
-        for (uint256 i = 0; i < n && d.jurorCount < d.maxJurors; ++i) {
+        for (uint256 i = 0; i < scanLimit && d.jurorCount < d.maxJurors; ++i) {
             // slither-disable-next-line weak-prng
             uint256 j = i + (seed % (n - i)); // RANDAO seed (EIP-4399); Chainlink VRF used in production
             seed = uint256(keccak256(abi.encodePacked(seed)));
@@ -941,8 +1068,9 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             if (!_revealed[disputeId][juror]) {
                 uint256 stake = JUROR_REGISTRY.getJuror(juror).stake;
                 uint256 sAmt = (stake * SLASH_BPS) / BPS_DENOMINATOR;
-                JUROR_REGISTRY.slash(juror, sAmt);
-                slashAmount += sAmt;
+                // Use the actually-slashed amount (capped at remaining stake) so the
+                // slashed pool is backed by the ETH JurorRegistry forwards here.
+                slashAmount += JUROR_REGISTRY.slash(juror, sAmt);
                 continue;
             }
 
@@ -957,8 +1085,7 @@ contract Arbitration is IArbitration, ReentrancyGuard {
                 uint256 deviation = ruling > vote ? ruling - vote : vote - ruling;
                 uint256 activeBps = deviation > SEVERE_MINORITY_THRESHOLD ? SEVERE_SLASH_BPS : SLASH_BPS;
                 uint256 sAmt = (stake * activeBps) / BPS_DENOMINATOR;
-                JUROR_REGISTRY.slash(juror, sAmt);
-                slashAmount += sAmt;
+                slashAmount += JUROR_REGISTRY.slash(juror, sAmt);
             }
         }
     }
@@ -972,18 +1099,17 @@ contract Arbitration is IArbitration, ReentrancyGuard {
     }
 
     // Called from finalizeDispute() when the dispute being finalized is an appeal.
-    // The `/*appealDisputeId*/` parameter is unused - commented out to suppress a compiler warning.
-    function _resolveAppeal(
-        uint256,
-        /*appealDisputeId*/
-        uint256 originalDisputeId,
-        uint256 newRuling
-    )
-        internal
-    {
+    // Handles the appeal bond: refunded to a winning appealer, or forfeited into the
+    // appeal panel's reward pool when the appeal fails.
+    function _resolveAppeal(uint256 appealDisputeId, uint256 originalDisputeId, uint256 newRuling) internal {
         Dispute storage orig = _disputes[originalDisputeId];
         address appealer = orig.appealer;
         uint256 bond = orig.appealBond;
+
+        // Zero the stored bond before any external interaction (CEI): the bond is now
+        // either refunded or moved into the appeal fee pool, so it must not be
+        // double-spent by a re-entrant call.
+        orig.appealBond = 0;
 
         if (newRuling != orig.ruling) {
             // Appeal changed the ruling: the appealer was right, return their bond.
@@ -991,8 +1117,12 @@ contract Arbitration is IArbitration, ReentrancyGuard {
             if (!ok) {
                 revert EthTransferFailed();
             }
+        } else {
+            // Appeal failed: the bond is forfeited to the appeal panel that did the
+            // extra work. Adding it here (rather than at appeal() time) keeps the pool
+            // solvent — the ETH is already held and is only ever promised once.
+            _disputes[appealDisputeId].feePool += bond;
         }
-        // If ruling matched, bond is already in the appeal's feePool (forfeited automatically).
 
         TRUST_LEDGER.executeRuling(orig.contractId, newRuling);
     }

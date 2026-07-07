@@ -46,6 +46,29 @@ function pctKey(id: string): string {
 	return `tl-dispute-${id}-pct`;
 }
 
+/**
+ * Reads localStorage without throwing when the browser blocks persistent storage.
+ */
+function readLocalStorageValue(key: string): string | null {
+	try {
+		return typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Writes localStorage as a recoverable best-effort operation for vote backups.
+ */
+function writeLocalStorageValue(key: string, value: string): boolean {
+	try {
+		window.localStorage.setItem(key, value);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
 // Captured at module load; avoids calling Date.now() during render
 const PAGE_LOAD_TIME_S = BigInt(Math.floor(Date.now() / 1000));
 
@@ -132,6 +155,8 @@ function CommitForm({
 }): React.JSX.Element {
 	const t = useTranslations("Arbitration");
 	const [pct, setPct] = useState(50);
+	const [backup, setBackup] = useState<{ salt: string; pct: number } | null>(null);
+	const [storageFailed, setStorageFailed] = useState(false);
 	const { writeContract, data: txHash, isPending, error } = useWriteContract();
 	const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash: txHash });
 
@@ -156,8 +181,10 @@ function CommitForm({
 			),
 		);
 
-		localStorage.setItem(saltKey(idStr), salt);
-		localStorage.setItem(pctKey(idStr), pct.toString());
+		const saltSaved = writeLocalStorageValue(saltKey(idStr), salt);
+		const pctSaved = writeLocalStorageValue(pctKey(idStr), pct.toString());
+		setBackup({ salt, pct });
+		setStorageFailed(!saltSaved || !pctSaved);
 
 		writeContract({
 			address: ARBITRATION_ADDRESS,
@@ -176,6 +203,20 @@ function CommitForm({
 				<p className="text-xs text-green-700/80 dark:text-green-400/80 mt-1">
 					{t("saltSaved")}
 				</p>
+				{backup !== null && (
+					<div className="mt-3 rounded-lg border border-green-500/20 bg-white/70 p-3 text-xs text-green-900 dark:bg-black/20 dark:text-green-100">
+						<p className="font-semibold">{t("saltBackupTitle")}</p>
+						<p className="mt-1">
+							{t(storageFailed ? "saltStorageFailed" : "saltBackupHint")}
+						</p>
+						<code className="mt-2 block break-all rounded bg-black/5 px-2 py-1 font-mono dark:bg-white/10">
+							{backup.salt}
+						</code>
+						<p className="mt-2 font-mono">
+							{t("completionPercentageBackup", { pct: backup.pct })}
+						</p>
+					</div>
+				)}
 			</div>
 		);
 
@@ -203,6 +244,20 @@ function CommitForm({
 					{(error as { shortMessage?: string }).shortMessage ?? error.message}
 				</p>
 			)}
+			{backup !== null && (
+				<div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-200">
+					<p className="font-semibold">{t("saltBackupTitle")}</p>
+					<p className="mt-1">
+						{t(storageFailed ? "saltStorageFailed" : "saltBackupHint")}
+					</p>
+					<code className="mt-2 block break-all rounded bg-black/5 px-2 py-1 font-mono dark:bg-white/10">
+						{backup.salt}
+					</code>
+					<p className="mt-2 font-mono">
+						{t("completionPercentageBackup", { pct: backup.pct })}
+					</p>
+				</div>
+			)}
 			<button
 				type="submit"
 				disabled={isPending || isConfirming}
@@ -219,10 +274,8 @@ function CommitForm({
 function RevealForm({ disputeId }: { disputeId: bigint }): React.JSX.Element {
 	const t = useTranslations("Arbitration");
 	const idStr = disputeId.toString();
-	const storedSalt =
-		(typeof window !== "undefined" ? localStorage.getItem(saltKey(idStr)) : null) ?? "";
-	const storedPct =
-		(typeof window !== "undefined" ? localStorage.getItem(pctKey(idStr)) : null) ?? "50";
+	const storedSalt = readLocalStorageValue(saltKey(idStr)) ?? "";
+	const storedPct = readLocalStorageValue(pctKey(idStr)) ?? "50";
 
 	const [pct, setPct] = useState(Number(storedPct));
 	const [salt, setSalt] = useState(storedSalt);

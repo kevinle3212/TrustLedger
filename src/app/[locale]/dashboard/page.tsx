@@ -11,7 +11,11 @@ import {
 } from "wagmi";
 import { useLocale, useTranslations } from "next-intl";
 import { useRole } from "@/contexts/RoleContext";
-import { WalletRequiredPage } from "@/components/WalletRequiredPage";
+import {
+	isWalletRestoringStatus,
+	WalletRequiredPage,
+	WalletRestoringPage,
+} from "@/components/WalletRequiredPage";
 import { RowActionMenu } from "@/components/RowActionMenu";
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
@@ -1444,7 +1448,7 @@ function ContractList({
 
 export default function DashboardPage(): React.JSX.Element {
 	const t = useTranslations("Dashboard");
-	const { address, isConnected } = useAccount();
+	const { address, isConnected, status } = useAccount();
 	const { role } = useRole();
 	const [walkthroughOpen, setWalkthroughOpen] = useState(false);
 	const [showIntroActions, setShowIntroActions] = useState(false);
@@ -1501,6 +1505,7 @@ export default function DashboardPage(): React.JSX.Element {
 	}
 
 	if (!isConnected || address === undefined) {
+		if (isWalletRestoringStatus(status)) return <WalletRestoringPage />;
 		return <WalletRequiredPage />;
 	}
 

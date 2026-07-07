@@ -16,6 +16,7 @@
 - [Root Deployment And Test Variables](#root-deployment-and-test-variables)
 - [L2 Variables](#l2-variables)
 - [Frontend Public Variables](#frontend-public-variables)
+- [Server-Side Storage Variables](#server-side-storage-variables)
 - [Frontend Contract Variables](#frontend-contract-variables)
 - [Email And Notification Variables](#email-and-notification-variables)
 - [AI Summary And Account Variables](#ai-summary-and-account-variables)
@@ -58,27 +59,28 @@ tests, or configuring Vercel.
 complete operator or maintainer environment also needs these non-env
 configuration surfaces kept current:
 
-| Surface                           | Required For                                 | Configure / Verify                                                                                                                                                                                            |
-| --------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node and npm                      | All JavaScript, Hardhat, docs, and frontend  | Node `22.x` and npm `11.12.1`; use `bash tools/setup.sh` or the package manager noted in `package.json`.                                                                                                      |
-| Foundry                           | Solidity build, tests, deploys, verification | Install `forge`, `cast`, and `anvil`; run `npm run foundry:build` and `npm run foundry:test`.                                                                                                                 |
-| Contract vendors                  | Solidity imports and tests                   | OpenZeppelin is pinned as `contracts/lib/openzeppelin-contracts` and also listed in root `package.json` for Hardhat imports. `forge-std` is vendored at `contracts/lib/forge-std`, not installed through npm. |
-| Git submodules / vendored code    | Clean clone reproducibility                  | Run `git submodule update --init --recursive`; do not add `forge-std` to root `package.json` unless Foundry imports are intentionally migrated away from vendored libs.                                       |
-| SWC cache                         | Next.js builds in restricted environments    | Run `npm run swc:populate` before frontend builds and push-time checks.                                                                                                                                       |
-| Gitleaks                          | Local and CI secret scanning                 | Install `gitleaks`; run `npm run secrets:check` and `npm run secrets:gitleaks:staged`. CI workflows that call these scripts must install the pinned Gitleaks binary first.                                    |
-| GitHub CLI authentication         | `security:alerts` and `security:dependabot`  | Install `gh`, authenticate with repo security-alert access, and keep `jq` installed for the package scripts that call the GitHub API.                                                                         |
-| GitHub Actions repository secrets | CI deploys and security automation           | Configure `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, deployment RPC keys, explorer keys, and any workflow-only provider tokens in GitHub Secrets.                                                  |
-| GitHub repository settings        | Server-side safety                           | Enable the ruleset in [GitHub Rulesets](GITHUB-RULESETS.md), secret scanning, push protection, Dependabot alerts, and CodeQL/code scanning alerts.                                                            |
-| Vercel project settings           | Production frontend and API routes           | Link the project, set all required public and server-only environment variables, configure the production domain, and confirm cron authorization.                                                             |
-| Email provider dashboard          | Magic links and lifecycle notifications      | Verify sender domain, SPF/DKIM/DMARC, suppression handling, rate limits, and provider API keys.                                                                                                               |
-| WalletConnect/Reown dashboard     | Wallet modal relay                           | Create and configure `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` for the production domain.                                                                                                                        |
-| IPFS / storage provider           | Contract files and proof uploads             | Configure Pinata or the selected provider, review token scope, and rotate any exposed upload token.                                                                                                           |
-| Request timeout policy            | UI responsiveness and API reliability        | Keep external fetches and RPC transports bounded through `src/lib/fetchTimeout.ts` and explicit viem `http()` timeouts. Do not add provider calls that can wait indefinitely.                                 |
-| Local repository location         | File watching, rebuilds, and local tooling   | Keep working clones outside `~/Desktop`, `~/Documents`, iCloud Drive, Dropbox, OneDrive, Google Drive, Box Drive, network shares, and external drives. Prefer `~/Development/TrustLedger`.                    |
-| Browser automation fallback       | UI validation and performance profiling      | Prefer the Codex in-app browser when available. If `iab` cannot be acquired, use installed Playwright with explicit user approval for the local Chromium process and document that fallback in the run notes. |
-| Monitoring provider               | Production operations                        | Configure uptime, logs, alert routing, cost/error dashboards, and health-check bearer tokens.                                                                                                                 |
-| Docker and Kubernetes             | Container deploys                            | Set `k8s/configmap.yaml`, generate ignored `k8s/secret.yaml`, build images, and run Docker storage checks after heavy sessions.                                                                               |
-| External audit package            | Mainnet readiness                            | Provide auditor scope, engagement details, final report, accepted/rejected findings, and remediation evidence before mainnet.                                                                                 |
+| Surface                           | Required For                                 | Configure / Verify                                                                                                                                                                                                                |
+| --------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node and npm                      | All JavaScript, Hardhat, docs, and frontend  | Node `22.x` and npm `11.12.1`; use `bash tools/setup.sh` or the package manager noted in `package.json`.                                                                                                                          |
+| Foundry                           | Solidity build, tests, deploys, verification | Install `forge`, `cast`, and `anvil`; run `npm run foundry:build` and `npm run foundry:test`.                                                                                                                                     |
+| Contract vendors                  | Solidity imports and tests                   | OpenZeppelin is pinned as `contracts/lib/openzeppelin-contracts` and also listed in root `package.json` for Hardhat imports. `forge-std` is vendored at `contracts/lib/forge-std`, not installed through npm.                     |
+| Git submodules / vendored code    | Clean clone reproducibility                  | Run `git submodule update --init --recursive`; do not add `forge-std` to root `package.json` unless Foundry imports are intentionally migrated away from vendored libs.                                                           |
+| SWC cache                         | Next.js builds in restricted environments    | Run `npm run swc:populate` before frontend builds and push-time checks.                                                                                                                                                           |
+| Gitleaks                          | Local and CI secret scanning                 | Install `gitleaks`; run `npm run secrets:check` and `npm run secrets:gitleaks:staged`. CI workflows that call these scripts must install the pinned Gitleaks binary first.                                                        |
+| GitHub CLI authentication         | `security:alerts` and `security:dependabot`  | Install `gh`, authenticate with repo security-alert access, and keep `jq` installed for the package scripts that call the GitHub API.                                                                                             |
+| GitHub Actions repository secrets | CI deploys and security automation           | Configure `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, deployment RPC keys, explorer keys, and any workflow-only provider tokens in GitHub Secrets.                                                                      |
+| GitHub repository settings        | Server-side safety                           | Enable the ruleset in [GitHub Rulesets](GITHUB-RULESETS.md), secret scanning, push protection, Dependabot alerts, and CodeQL/code scanning alerts.                                                                                |
+| Vercel project settings           | Production frontend and API routes           | Link the project, set all required public and server-only environment variables, configure the production domain, and confirm cron authorization.                                                                                 |
+| Email provider dashboard          | Magic links and lifecycle notifications      | Verify sender domain, SPF/DKIM/DMARC, suppression handling, rate limits, and provider API keys.                                                                                                                                   |
+| WalletConnect/Reown dashboard     | Wallet modal relay                           | Create and configure `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` for the production domain.                                                                                                                                            |
+| IPFS / storage provider           | Contract files and proof uploads             | Configure Pinata or the selected provider, review token scope, and rotate any exposed upload token.                                                                                                                               |
+| Request timeout policy            | UI responsiveness and API reliability        | Keep external fetches and RPC transports bounded through `src/lib/fetchTimeout.ts` and explicit viem `http()` timeouts. Do not add provider calls that can wait indefinitely.                                                     |
+| Local repository location         | File watching, rebuilds, and local tooling   | Keep working clones outside `~/Desktop`, `~/Documents`, iCloud Drive, Dropbox, OneDrive, Google Drive, Box Drive, network shares, and external drives. Prefer `~/Development/TrustLedger`.                                        |
+| Browser automation fallback       | UI validation and performance profiling      | Prefer the Codex in-app browser when available. If `iab` cannot be acquired, use installed Playwright with explicit user approval for the local Chromium process and document that fallback in the run notes.                     |
+| Ollama and Continue local AI      | Local coding assistance                      | Install Ollama, pull `qwen3:8b`, and configure Continue with either `http://127.0.0.1:11434` for same-machine use or a trusted LAN host such as `http://192.168.12.181:11434`. See [Utilities](UTILITIES.md#ollama-and-continue). |
+| Monitoring provider               | Production operations                        | Configure uptime, logs, alert routing, cost/error dashboards, and health-check bearer tokens.                                                                                                                                     |
+| Docker and Kubernetes             | Container deploys                            | Set `k8s/configmap.yaml`, generate ignored `k8s/secret.yaml`, build images, and run Docker storage checks after heavy sessions.                                                                                                   |
+| External audit package            | Mainnet readiness                            | Provide auditor scope, engagement details, final report, accepted/rejected findings, and remediation evidence before mainnet.                                                                                                     |
 
 When a new package script depends on external state, update this table and the
 owning docs in the same change. For example, scripts that call `gh api` must
@@ -144,10 +146,25 @@ These variables are safe to expose to the browser because their names start with
 | `NEXT_PUBLIC_APP_URL`                  | Magic links and wallet origin alias                   | API routes, `src/lib/wagmi.ts`               |
 | `NEXT_PUBLIC_GITHUB_URL`               | Navbar source link and public GitHub analytics source | Frontend components, `/api/analytics/github` |
 | `NEXT_PUBLIC_DOCS_URL`                 | Navbar Docs link (beside GitHub); hidden when unset   | `src/components/Navbar.tsx`                  |
-| `NEXT_PUBLIC_PINATA_JWT`               | IPFS uploads                                          | Frontend upload code                         |
 | `NEXT_PUBLIC_SOLANA_CLUSTER`           | Native Solana support label                           | `src/helpers/solana.ts`                      |
 | `NEXT_PUBLIC_SOLANA_PROGRAM_ID`        | SOL escrow submission                                 | `src/lib/solanaEscrow.ts`                    |
 | `NEXT_BASE_PATH`                       | Hosting under a subpath                               | `src/next.config.ts`                         |
+
+## Server-Side Storage Variables
+
+<!-- docs-section-nav:start -->
+
+[Home](Home.md) · [Top](#top) · [Table of Contents](#table-of-contents)
+
+<!-- docs-section-nav:end -->
+
+| Variable     | Required For                  | Consumed By                        |
+| ------------ | ----------------------------- | ---------------------------------- |
+| `PINATA_JWT` | Server-side IPFS file pinning | `/api/ipfs/pin`, `src/lib/ipfs.ts` |
+
+`PINATA_JWT` is a bearer credential and must be stored only in ignored local env
+files and deployment secret stores. Never use a `NEXT_PUBLIC_` prefix for Pinata
+credentials because Next.js inlines those values into the browser bundle.
 
 ## Frontend Contract Variables
 

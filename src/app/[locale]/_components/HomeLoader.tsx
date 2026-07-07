@@ -38,6 +38,7 @@ export function HomeLoader(): React.JSX.Element | null {
 	// Milestone target, mutated as real init work resolves. Kept in a ref so
 	// bumping it never triggers a render — only the eased `displayed` does.
 	const targetRef = useRef(0);
+	const displayedRef = useRef(0);
 	const reducedMotionRef = useRef(false);
 
 	useEffect(() => {
@@ -50,12 +51,33 @@ export function HomeLoader(): React.JSX.Element | null {
 		// Hydration is implied by this effect running; fonts and load resolve async.
 		const reached = { fonts: false, loaded: false };
 
+		// Single animation-frame loop eases the displayed value toward the target,
+		// then parks until a milestone raises the target again.
+		const tick = (): void => {
+			if (cancelled) return;
+			raf = 0;
+			const current = displayedRef.current;
+			const target = targetRef.current;
+			const delta = target - current;
+			const next =
+				reducedMotionRef.current || Math.abs(delta) < 0.5 ? target : current + delta * 0.12;
+			displayedRef.current = next;
+			setDisplayed(next);
+			if (next !== target) scheduleTick();
+		};
+
 		// Recompute the target from resolved milestones. Each milestone is worth
 		// an equal share up to 90%; the final jump to 100% only happens after a
 		// committed paint following the window `load` event.
+		const scheduleTick = (): void => {
+			if (raf !== 0) return;
+			raf = requestAnimationFrame(tick);
+		};
+
 		const recompute = (): void => {
 			const weight = 1 + (reached.fonts ? 1 : 0) + (reached.loaded ? 1 : 0);
 			targetRef.current = Math.round((weight / 3) * 90);
+			scheduleTick();
 		};
 		recompute();
 
@@ -75,7 +97,10 @@ export function HomeLoader(): React.JSX.Element | null {
 			reached.loaded = true;
 			recompute();
 			requestAnimationFrame(() => {
-				if (!cancelled) targetRef.current = 100;
+				if (!cancelled) {
+					targetRef.current = 100;
+					scheduleTick();
+				}
 			});
 		};
 		if (document.readyState === "complete") {
@@ -84,19 +109,7 @@ export function HomeLoader(): React.JSX.Element | null {
 			window.addEventListener("load", markLoaded, { once: true });
 		}
 
-		// Single animation-frame loop eases the displayed value toward the target.
-		const tick = (): void => {
-			if (cancelled) return;
-			setDisplayed((current) => {
-				const target = targetRef.current;
-				if (reducedMotionRef.current) return target;
-				const delta = target - current;
-				if (Math.abs(delta) < 0.5) return target;
-				return current + delta * 0.12;
-			});
-			raf = requestAnimationFrame(tick);
-		};
-		raf = requestAnimationFrame(tick);
+		scheduleTick();
 
 		return (): void => {
 			cancelled = true;

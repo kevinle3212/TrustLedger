@@ -1,5 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAccountSession } from "@/services/offchainAccounts";
+import {
+	ACCOUNT_SECURITY_RETRY_AFTER_SECONDS,
+	isAccountSecurityRateLimited,
+} from "@/security/accountRateLimit";
 
 /**
  * `POST /api/accounts/session` — exchanges a signed challenge for a short-lived
@@ -16,6 +20,7 @@ import { createAccountSession } from "@/services/offchainAccounts";
  *   - `401` `{ error: "Two-factor code required", totpRequired: true }` when 2FA
  *     is enabled but no `totpCode` was supplied.
  *   - `401` `{ error }` when signature or two-factor verification fails.
+ *   - `429` `{ error }` when the wallet exceeds the verification attempt limit.
  *
  * @param request - Incoming request carrying the JSON body.
  * @returns JSON session token or an error.
@@ -31,6 +36,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			{ error: "walletAddress and signature are required" },
 			{ status: 400 },
 		);
+	if (isAccountSecurityRateLimited(body.walletAddress)) {
+		const response = NextResponse.json(
+			{ error: "too many account verification attempts" },
+			{ status: 429 },
+		);
+		response.headers.set("Retry-After", String(ACCOUNT_SECURITY_RETRY_AFTER_SECONDS));
+		return response;
+	}
 	try {
 		const token = await createAccountSession({
 			walletAddress: body.walletAddress,

@@ -42,8 +42,6 @@ function createPrismaClient(): PrismaClient {
  */
 export function getPrisma(): PrismaClient {
 	const client = globalForPrisma.trustledgerPrisma ?? createPrismaClient();
-	if (process.env.NODE_ENV !== "production") {
-		globalForPrisma.trustledgerPrisma = client;
-	}
+	globalForPrisma.trustledgerPrisma = client;
 	return client;
 }

@@ -70,7 +70,7 @@ Local skills live in `.sixth/skills/`:
   action rules.
 - `dependency-audit`: dependency freshness and vulnerability audit workflow.
 - `foundry-sandbox`: sandbox-safe Foundry and fork-test routing.
-- `log-markdown`: markdownlint-compliant files under `logs/`.
+- `log-markdown`: readable ignored Markdown files under `logs/`.
 - `react-doctor`: React Doctor and frontend maintainability checks.
 - `rust-backend`: strict Cargo workspace and backend service rules.
 - `swc-cache`: SWC cache population and `.swc/` policy.
@@ -78,10 +78,10 @@ Local skills live in `.sixth/skills/`:
   after repository changes.
 - `vercel-deploy`: Vercel build/deploy triage and redeploy checks.
 
-When a skill writes output to `logs/`, the output must be Markdown and pass:
+When a skill writes output to `logs/`, the output must be readable Markdown and
+pass retention checks:
 
 ```sh
-npm run lint:logs
 npm run logs:check
 npm run tmp:check
 ```

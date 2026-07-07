@@ -54,7 +54,7 @@ const VAULT_ARTIFACT_PATH = join(CONTRACTS_OUT, "StakingVault.sol", "StakingVaul
 
 interface Artifact {
 	readonly abi: Abi;
-	readonly bytecode: { readonly object: Hex };
+	readonly bytecode: Hex | { readonly object: Hex };
 }
 
 function anvilAvailable(): boolean {
@@ -112,9 +112,11 @@ describeMaybe("USDC staking end-to-end (real chain)", () => {
 	let vault: Address;
 
 	async function deploy(artifact: Artifact, args: readonly unknown[] = []): Promise<Address> {
+		const bytecode =
+			typeof artifact.bytecode === "string" ? artifact.bytecode : artifact.bytecode.object;
 		const hash = await ownerWallet.deployContract({
 			abi: artifact.abi,
-			bytecode: artifact.bytecode.object,
+			bytecode,
 			args,
 		});
 		const receipt = await publicClient.waitForTransactionReceipt({ hash });

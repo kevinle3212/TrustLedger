@@ -28,11 +28,12 @@ import {
 	validateNumberInRange,
 	validateRequired,
 } from "@/lib/validation";
-import { uploadToPinata } from "@/lib/ipfs";
 import { encryptFile } from "@/lib/encryption";
 import type { ArweaveJWK } from "@/lib/arweave";
 import { useRole } from "@/contexts/RoleContext";
 import { decodeContractError, type DecodedContractError } from "@/lib/contractErrors";
+import { authedFetch } from "@/lib/authedFetch";
+import { useAccountSession } from "@/lib/accountSession";
 import type { CreateState, FormFields } from "./types";
 import { DEFAULT_CONTRACT_TERMS } from "./contractTerms";
 import { createReducer } from "./reducer";
@@ -71,7 +72,6 @@ const FIELD_LABELS: Record<string, string> = {
 	acceptanceWindowDays: "acceptance window",
 	arbitrationFeePct: "arbitration fee",
 	warrantyPeriodDays: "warranty period",
-	pinataJwt: "Pinata JWT",
 	passphrase: "passphrase",
 };
 
@@ -100,6 +100,24 @@ async function sendMagicLink(body: MagicLinkRequest): Promise<void> {
 	if (!response.ok) {
 		throw new Error("Failed to send magic link.");
 	}
+}
+
+/**
+ * Pins a prepared document blob through the server-side IPFS route.
+ *
+ * @param file - Document bytes to upload.
+ * @param name - Filename sent to Pinata metadata.
+ * @returns The pinned `ipfs://` URI.
+ */
+async function pinFileToIPFS(file: Blob, name: string, token: string): Promise<string> {
+	const body = new FormData();
+	body.append("file", file, name);
+	const response = await authedFetch(token, "/api/ipfs/pin", { method: "POST", body });
+	const payload = (await response.json().catch(() => ({}))) as { error?: string; uri?: string };
+	if (!response.ok || payload.uri === undefined) {
+		throw new Error(payload.error ?? "IPFS upload failed.");
+	}
+	return payload.uri;
 }
 
 export function useCreatePageState(): {
@@ -145,6 +163,7 @@ export function useCreatePageState(): {
 	applySharedDraft: (draft: ShareableDraft) => void;
 } {
 	const { address, isConnected } = useAccount();
+	const { ensureSession } = useAccountSession();
 	const chainId = useChainId();
 	const usdcAddress = getUsdcAddress(chainId);
 	const { writeContract, data: txHash, isPending, error: writeError } = useWriteContract();
@@ -188,7 +207,6 @@ export function useCreatePageState(): {
 			selectedFile: null,
 			encryptEnabled: false,
 			passphrase: "",
-			pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT ?? "",
 			uploadStatus: "idle",
 			uploadError: null,
 			fileHash: null,
@@ -207,8 +225,6 @@ export function useCreatePageState(): {
 		form,
 		encryptEnabled,
 		passphrase,
-		pinataJwt,
-		docMode,
 		selectedFile,
 		fileHash,
 		arweaveWallet,
@@ -292,24 +308,9 @@ export function useCreatePageState(): {
 							integer: true,
 							unit: "days",
 						}),
-			pinataJwt:
-				docMode === "upload" && selectedFile !== null
-					? validateRequired(pinataJwt, "Pinata JWT")
-					: undefined,
 			passphrase: encryptEnabled ? validateRequired(passphrase, "Passphrase") : undefined,
 		}),
-		[
-			form,
-			docMode,
-			selectedFile,
-			pinataJwt,
-			encryptEnabled,
-			passphrase,
-			isUsdc,
-			isSol,
-			usdcAddress,
-			solanaProgramReady,
-		],
+		[form, encryptEnabled, passphrase, isUsdc, isSol, usdcAddress, solanaProgramReady],
 	);
 
 	function showError(key: string): string | undefined {
@@ -593,13 +594,6 @@ export function useCreatePageState(): {
 
 	async function handleUploadToIPFS(): Promise<void> {
 		if (selectedFile === null) return;
-		if (pinataJwt === "") {
-			dispatch({
-				type: "UPLOAD_ERROR",
-				error: "Enter your Pinata JWT to enable IPFS upload.",
-			});
-			return;
-		}
 		dispatch({ type: "UPLOAD_START" });
 		try {
 			const rawBytes = new Uint8Array(await selectedFile.arrayBuffer());
@@ -615,7 +609,9 @@ export function useCreatePageState(): {
 			}
 			const hash = keccak256(bytes);
 			const blob = new Blob([bytes.buffer], { type: mime });
-			const uri = await uploadToPinata(blob, selectedFile.name, pinataJwt);
+			const token = await ensureSession();
+			if (token === null) throw new Error("Sign in with your wallet to upload to IPFS.");
+			const uri = await pinFileToIPFS(blob, selectedFile.name, token);
 			uploadedBytes.current = bytes;
 			uploadedMime.current = mime;
 			dispatch({ type: "UPLOAD_SUCCESS", hash, uri });
