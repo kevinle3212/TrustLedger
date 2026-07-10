@@ -26,6 +26,13 @@ is unambiguous. State assumptions and confirm them before proceeding.
 Scans React codebases for security, performance, correctness, and architecture
 issues. Outputs a 0–100 health score.
 
+## Project gate
+
+React Doctor must remain `100 / 100` (`npm run doctor` from `src/`); a lower
+score blocks merge, release, and deploy. If a fix requires a code change, keep
+it local to the affected component or hook and rerun the full frontend gate
+(`cd src && npm run quality:all`).
+
 ## After making React code changes
 
 Run `npx react-doctor@latest --verbose --diff` and check the score did not

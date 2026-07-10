@@ -25,6 +25,10 @@
 
 <!-- docs-toc:end -->
 
+This is the engineering security reference. The GitHub security policy
+(vulnerability disclosure) lives at the repository root (`SECURITY.md`); the two
+are intentionally separate documents.
+
 > **Kevin K. Le** ([LinkedIn](https://linkedin.com/in/lekevin1)) — Founder,
 > Founding Engineer, and Current Lead Engineer; Software Engineer at the Oregon
 > Blockchain Group, University of Oregon.

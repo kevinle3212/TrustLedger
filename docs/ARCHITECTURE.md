@@ -205,9 +205,6 @@ that never becomes the source of truth for escrow custody:
 | Base             |     `8453` | Hardhat, Foundry, frontend, and explorer helpers.                  |
 | Optimism         |       `10` | Hardhat, Foundry, frontend, and explorer helpers.                  |
 
-> **TODO:** Add Arbitrum Sepolia config before documenting it as a supported
-> deployment target.
-
 ## Authors and Contributors
 
 <!-- docs-section-nav:start -->

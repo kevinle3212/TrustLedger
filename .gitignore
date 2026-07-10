@@ -164,3 +164,6 @@ assets/presentation/
 
 # ─── graphify knowledge-graph output (generated; .graphifyignore stays tracked) ─
 graphify-out/
+
+# ─── Personal Obsidian vault (separate repo) ────────────────────────────────
+/Claude/

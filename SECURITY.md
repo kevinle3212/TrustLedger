@@ -5,6 +5,11 @@
 > were invaluable to the codebase we build on today. See
 > [`CREDITS.md`](./CREDITS.md).
 
+This file is the GitHub security policy (vulnerability disclosure and threat
+model). The engineering security reference is
+[`docs/SECURITY.md`](docs/SECURITY.md); the two are intentionally separate
+documents.
+
 TrustLedger is unaudited testnet software. Do not deploy mainnet funds until the
 contract, frontend, backend routes, dependencies, and operational controls have
 passed independent review.

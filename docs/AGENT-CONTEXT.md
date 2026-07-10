@@ -74,6 +74,14 @@ npx tsc --noEmit
 - `via_ir = true` and `optimizer_runs = 200` in the default Foundry profile must
   not be changed without an explicit performance justification.
 - React Doctor must stay at 100/100. No merge may proceed below that score.
+- Every change must pass TypeScript, ESLint, the test suites, and the production
+  build before merge or deployment.
+- Lighthouse must stay at 95+ in every category (Performance, Accessibility,
+  Best Practices, SEO) before deployment; target 100 where achievable and
+  document any blocker.
+- Never introduce unused code; preserve accessibility and security standards;
+  investigate and resolve new warnings at their root cause instead of
+  suppressing them.
 
 ---
 

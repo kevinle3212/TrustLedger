@@ -24,6 +24,9 @@
 
 <!-- docs-toc:end -->
 
+This is the developer-facing FAQ. The product-facing FAQ lives at the repository
+root (`FAQ.md`); the two are intentionally separate documents.
+
 > **Kevin K. Le** ([LinkedIn](https://linkedin.com/in/lekevin1)) — Founder,
 > Founding Engineer, and Current Lead Engineer; Software Engineer at the Oregon
 > Blockchain Group, University of Oregon.

@@ -51,6 +51,16 @@ configuration, tests, user-facing copy, or agent guidance.
    `TRUSTLEDGER_TMP_DIR` when scripts or tools need an explicit temporary root.
    Run `npm run tmp:check` after creating scratch files and `npm run tmp:prune`
    when retention limits are exceeded.
+10. If privacy or cookie behavior changed, also sync the live policy sources
+    `src/content/legal/PRIVACY_POLICY.md` (bump `Last Updated`/`Version`) and
+    `src/content/legal/COOKIE_POLICY.md` (cookie inventory + consent behavior),
+    kept consistent with `lib/cookie-consent.ts`. See "Privacy & Cookie Feature
+    Sync" in `src/.agents/skills/legal-compliance/SKILL.md`. Claim only
+    functionality that exists.
+11. For UI-facing changes, keep localhost browser validation documented and use
+    `rtk npm run dev:frontend`; if sandboxed binding blocks the check, rerun
+    with escalation using the user's pre-authorization for localhost browser
+    checks.
 
 ## Validation
 

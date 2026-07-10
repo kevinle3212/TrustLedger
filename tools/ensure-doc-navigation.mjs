@@ -38,12 +38,16 @@ function escapeRegExp(value) {
 }
 
 function slugify(heading) {
-	return heading
-		.toLowerCase()
-		.replace(/[<>]/gu, "")
-		.replace(/[^\p{L}\p{N}\s-]/gu, "")
-		.trim()
-		.replace(/\s+/gu, "-");
+	return (
+		heading
+			.toLowerCase()
+			.replace(/[<>]/gu, "")
+			.replace(/[^\p{L}\p{N}\s-]/gu, "")
+			.trim()
+			// Each space becomes its own hyphen, so a stripped separator (an em dash,
+			// slash, or plus) leaves the doubled hyphen that GitHub anchors carry.
+			.replace(/\s/gu, "-")
+	);
 }
 
 function uniqueSlug(base, seen) {

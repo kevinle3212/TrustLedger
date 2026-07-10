@@ -1,12 +1,8 @@
 # Infra Agent Notes
 
-> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
-> development. His vision, ideas, and dedication during the project's founding
-> were invaluable to the codebase we build on today. See
-> [`CREDITS.md`](../CREDITS.md).
-
-Use `.sixth/skills/kubernetes/SKILL.md`, `.sixth/skills/rust-backend/SKILL.md`,
-and `.sixth/skills/env-sync/SKILL.md` for changes in this directory.
+Use `src/.agents/skills/kubernetes/SKILL.md`,
+`.sixth/skills/rust-backend/SKILL.md`, and
+`src/.agents/skills/env-sync/SKILL.md` for changes in this directory.
 
 Rules:
 

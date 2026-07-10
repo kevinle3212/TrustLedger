@@ -237,9 +237,10 @@ Keep new state local unless it crosses a provider or route boundary.
 ## Legal And Security References
 
 Frontend changes that affect wallet flows, arbitration, dispute copy, privacy,
-risk, or policy language should use `.sixth/skills/legal-compliance/SKILL.md`
-and check [Legal And Compliance](../docs/LEGAL.md), [Security](../SECURITY.md),
-and [Security Docs](../docs/SECURITY.md).
+risk, or policy language should use
+`src/.agents/skills/legal-compliance/SKILL.md` and check
+[Legal And Compliance](../docs/LEGAL.md), [Security](../SECURITY.md), and
+[Security Docs](../docs/SECURITY.md).
 
 Frontend security helpers live in [`security/`](security/README.md): reach for
 `@/security` (safe clipboard, CSP headers, rate limiting, CSRF origin checks,

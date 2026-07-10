@@ -52,4 +52,6 @@ if [[ ! -x "${PYTHON_BIN}" ]] || [[ "$(cat "${STAMP_FILE}" 2>/dev/null || true)"
 	printf "%s" "${CURRENT_HASH}" > "${STAMP_FILE}"
 fi
 
+node tools/check-doc-mirrors.mjs
+
 exec "${PYTHON_BIN}" -m mkdocs build --strict "$@"

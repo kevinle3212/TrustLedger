@@ -80,19 +80,32 @@ npm run doctor            # React Doctor — must stay 100/100
 
 ## Skills and Agents (use, don't reinvent)
 
-- Project skills: `src/.claude/skills/*` (dependency-audit, env-sync,
+- Shared workflow skills: `src/.agents/skills/*` (dependency-audit, env-sync,
   eslint-strict, knip, kubernetes, legal-compliance, log-markdown,
   playwright-a11y, react-doctor, stylelint, swc-config, typescript-strict,
-  update-context). Invoke the matching skill before hand-rolling a workflow.
-- After repo changes: `src/.claude/skills/update-context/SKILL.md` keeps docs
+  update-context). Review-oriented skills: `src/.claude/skills/*`
+  (accessibility-review, documentation-review, frontend-architecture,
+  performance-review, …). Domain skills: `.sixth/skills/*` (admin-dashboard,
+  rust-backend, vercel-deploy, …). Invoke the matching skill before hand-rolling
+  a workflow. Shared skills are canonical in `src/.agents/skills/`; same-named
+  copies in `src/.claude/skills/`, `src/skills/`, and `.sixth/skills/` are
+  pointer stubs — always edit the canonical file.
+- After repo changes: `src/.agents/skills/update-context/SKILL.md` keeps docs
   and agent instructions current. Product/copy/legal-adjacent changes:
-  `src/.claude/skills/legal-compliance/SKILL.md`. Never edit root legal draft
-  markdown without explicit approval.
+  `src/.agents/skills/legal-compliance/SKILL.md` (canonical, matching
+  `AGENTS.md` routing). Never edit root legal draft markdown without explicit
+  approval.
 - Review agents: `src/.agents/agents/*` (accessibility, dependency-auditor,
   documentation, frontend-architect, performance, security, ui). Dependency and
   vulnerability reviews use `dependency-auditor.md`.
 
 ## Docs Sync (per change)
+
+Root legal drafts (`PRIVACY_POLICY.md`, `RISK_DISCLOSURE.md`,
+`TERMS_AND_CONDITIONS.md`) are canonical; their `docs/` copies are mirrors, as
+are `CREDITS.md`/`AGENT-CONTEXT.md` (docs side adds wiki chrome).
+`npm run docs:mirrors` (also run by `docs:build`) fails on drift. `FAQ.md` and
+`SECURITY.md` are intentionally distinct from their `docs/` namesakes.
 
 Before opening a PR, update whatever the change touches: CI/CD → `README.md`
 badges/sections; features/APIs → `README.md` + `docs/`; env vars →

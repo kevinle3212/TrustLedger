@@ -1,125 +1,112 @@
 # Codex Agent Notes
 
-> Kellen Snider served as Founding Engineer during TrustLedger's Ethereum
-> development. His vision, ideas, and dedication during the project's founding
-> were invaluable to the codebase we build on today. See
-> [`CREDITS.md`](../CREDITS.md).
+Read root `AGENTS.md` first. This file adds TrustLedger-specific Codex behavior
+only. Global Codex defaults live in `~/.codex/AGENTS.md` and
+`~/.codex/config.toml`.
 
-Read root `AGENTS.md` first. This file only adds Codex-specific behavior.
+## Orientation
 
-## Shell
+- Use `graphify query "<question>"` before raw source browsing for codebase,
+  architecture, routing, dependency, and ownership questions when
+  `graphify-out/graph.json` exists.
+- Use `graphify path "<A>" "<B>"` for relationship tracing and
+  `graphify explain "<concept>"` for one focused concept.
+- Read `graphify-out/wiki/index.md` for broad navigation when it exists.
+- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review.
+- After modifying code, config, docs, or agent instructions, run
+  `graphify update .` so the local graph stays current.
+
+## Configuration Ownership
+
+- Keep universal Codex defaults in `~/.codex/config.toml`.
+- Keep TrustLedger-only model, hook, and MCP settings in `.codex/config.toml`.
+- Keep project hooks in `.codex/hooks.json`; do not move them into global
+  config.
+- Keep long-lived project behavior in `AGENTS.md` or this file, not in one-off
+  prompts.
+- Do not add API keys, tokens, RPC URLs, private wallet data, deployment
+  secrets, or machine-local credentials to Codex config files.
+- ChatGPT auth is primary for Codex. Do not introduce `OPENAI_API_KEY`
+  dependencies for Codex, Serena, Nexus, Graphify, or hooks.
+
+## MCP Responsibilities
+
+Cross-agent ownership split: root `AGENTS.md` §"MCP and Graph Tool Ownership"
+is the single definition; this section adds Codex mechanics only.
+
+- Serena is global and cwd-aware. Use it for symbolic navigation and focused
+  repository inspection.
+- Nexus is project-local. Use it for MCP-backed source graph context from
+  `./scripts/nexus-mcp.js`.
+- Graphify is a project skill and CLI workflow. Use it for graph queries,
+  graph refreshes, and graph-audit output instead of starting a duplicate
+  always-on MCP.
+- Browser and Chrome tools come from global Codex plugins. Prefer the in-app
+  browser for localhost UI validation; fall back to Playwright only when the
+  browser plugin is unavailable or blocked.
+- Computer Use is for desktop UI tasks only. Do not use it for source inspection
+  or shell work.
+
+## Shell And Permissions
 
 - Read `@/Users/kevinkhanhle/.codex/RTK.md` at session start.
 - Prefix shell commands with `rtk` when available.
-- Do not duplicate Claude-only behavior from `CLAUDE.md`.
+- Treat uncommitted user changes as user-owned.
+- Request escalation for network, GUI, out-of-workspace writes, destructive
+  operations, and sandbox-blocked commands that are necessary to the task.
+- Never run destructive git commands, broad deletes, force pushes, or production
+  mutations unless explicitly requested and approved.
+- Keep local external fetches and RPC transports bounded by explicit timeouts.
 
-## Orchestration
+## Repository Hygiene
 
-- Act as the orchestrator. Use the most token/usage-friendly approach without
-  compromising quality, security, or best practices.
-- Plan with a cheaper reasoning setting, delegate the building to cheaper
-  models/agents, and reserve the most capable model for planning and the final
-  QA pass. Do not spend the top tier on routine implementation.
-- The Sonnet 5 / Opus 4.8 / Fable 5 delegation naming is Claude-specific; see
-  `CLAUDE.md`. Apply the equivalent cheap-plan, cheap-build, expensive-QA pattern
-  with Codex's own model tiers.
-
-## Repo Hygiene
-
-- Treat uncommitted user changes as owned by the user.
-- Keep generated diagnostics, agent run notes, audit output, and error logs in
-  `logs/`; the directory is intentionally ignored by git.
-- Format `logs/*.md` with `src/.agents/skills/log-markdown/SKILL.md`.
-- Run `npm run logs:check` after writing logs; use `npm run logs:prune` when
-  retention limits are exceeded.
-- Keep temporary scratch files in project-local `tmp/` instead of system `/tmp`
-  unless an external tool requires otherwise. Use `TRUSTLEDGER_TMP_DIR=./tmp`
-  for commands that accept an explicit temp root. Run `npm run tmp:check` after
-  creating scratch files and `npm run tmp:prune` when retention limits are
-  exceeded.
-- After heavy Docker test sessions, image builds, or pushes, run
-  `docker system df -v` or `npm run docker:storage:check`. If Docker build cache
-  is multiple GB and Dockerfiles are not actively being iterated, run
-  `npm run docker:storage:prune`.
-- Localhost browser checks are allowed for requested UI validation. Start the
-  frontend from `src/` with `rtk npm run dev:frontend`; if sandboxed binding
-  blocks the check, rerun that command with escalation using the user's
-  repository-level pre-authorization for localhost browser validation.
-- Prefer the Codex in-app Browser plugin for localhost checks. If `iab` cannot
-  be acquired, do not stop the investigation: fall back to the installed
-  Playwright package, request escalation for the local Chromium process when
-  sandboxing blocks launch, and report the fallback explicitly.
-- Keep working clones outside iCloud-synced locations such as `~/Desktop`,
-  `~/Documents`, and `~/Library/Mobile Documents`. Preferred local roots are
-  `~/Development`, `~/Projects`, `~/Code`, and `~/Workspace`.
-- Keep external fetches and RPC transports bounded by explicit timeouts. New
-  provider integrations should reuse `src/lib/fetchTimeout.ts` or an equivalent
-  provider-native timeout so UI loading states cannot wait indefinitely.
-- Prefer targeted checks before broad gates, and check for duplicate
-  build/dev/doctor processes when commands appear stuck.
-- Secret scanning: `npm run secrets:check` requires `gitleaks` and scans git
-  history with redacted output. Use `npm run secrets:gitleaks:staged` for
-  pre-commit reproduction. Avoid `gitleaks dir` as a default hook because it
-  scans ignored local caches and secret-bearing `.env` files; use it only as an
-  explicit manual filesystem investigation.
-- For frontend specialist context, read `src/.agents/README.md` and the matching
-  skill under `src/.agents/skills/` before editing.
+- Keep agent run notes, audit output, and error triage in ignored `logs/`.
+- Format `logs/*.md` with `src/.agents/skills/log-markdown/SKILL.md` and run
+  `npm run logs:check` after writing logs.
+- Keep scratch files in project-local `tmp/` unless an external tool requires
+  another location. Run `npm run tmp:check` after creating scratch files.
+- Prefer targeted checks before broad gates.
+- If a command appears stuck, inspect duplicate build, dev, doctor, analyzer, or
+  generated lock processes before launching another copy.
+- Do not delete pre-existing dead code outside the task. Surface it separately.
 
 ## Required Routing
 
-- Dependency and vulnerability reviews: use
-  `src/.agents/agents/dependency-auditor.md` and write the summary log under
-  `logs/`.
-- If the user explicitly approves high-risk npm audit registry disclosure,
-  request escalated `npm audit` execution and state that approval in the
-  justification.
-- SWC changes: use `src/.agents/skills/swc-config/SKILL.md`, then run
-  `npm run swc:populate` and the relevant build.
-- Quality standards: enforce `docs/QUALITY-STANDARDS.md`. Every change must pass
-  TypeScript, ESLint, the test suites, and the production build. React Doctor
-  must stay at 100/100, and Lighthouse must stay at 95+ in every category
-  (Performance, Accessibility, Best Practices, SEO) before deployment — target
-  100 where achievable and document any blocker. Block merges and deployments
-  when React Doctor, type-check, lint, tests, build, Lighthouse, accessibility,
-  performance, or security checks fail. Never introduce unused code, preserve
-  accessibility and security standards, and investigate and resolve new warnings
-  at their root cause instead of suppressing them. Validate compliance before
-  completing tasks.
-- React diagnostics: use `src/skills/react-doctor/SKILL.md` and keep the score
-  from regressing.
-- Legal and compliance-sensitive changes: use
-  `src/.agents/skills/legal-compliance/SKILL.md`; do not edit root legal drafts
-  without explicit approval for those files.
-- Admin dashboard changes: use `.sixth/skills/admin-dashboard/SKILL.md`, keep
-  admin mode read-only unless explicit audited actions are requested, and never
-  commit plaintext admin credentials.
-- Rust backend changes: use `.sixth/skills/rust-backend/SKILL.md`, then run
-  `npm run rust:fmt`, `npm run rust:clippy`, and `npm run rust:test`.
-- Context sync: after repository changes, use
-  `src/.agents/skills/update-context/SKILL.md` so docs, comments, visible
-  project surfaces, and agent instructions stay current without duplicated
-  guidance. Remove or update stale references to moved or renamed code, assets,
-  commands, environment variables, and docs.
-- Configuration docs: when scripts, hooks, workflows, provider integrations, or
-  external CLI assumptions change, update
-  `docs/ENVIRONMENT.md#configuration-beyond-env` plus the nearest owner doc.
-  Keep `package.json` command assumptions, such as `gh api` authentication,
-  documented outside the script itself.
-- UI copy follows root `AGENTS.md`: Title Case for labels/buttons/headings and
-  sentence case for complete explanatory sentences, while preserving acronyms
-  such as `HTML`, `FAQ`, `URL`, `ETH`, `USDC`, and `IPFS`.
+- Dependency or vulnerability reviews use
+  `src/.agents/agents/dependency-auditor.md` and write a summary under `logs/`.
+- SWC changes use `src/.agents/skills/swc-config/SKILL.md`.
+- Admin dashboard changes use `.sixth/skills/admin-dashboard/SKILL.md`.
+- Rust backend changes use `.sixth/skills/rust-backend/SKILL.md`.
+- Legal, privacy, cookie, or compliance-sensitive changes use
+  `src/.agents/skills/legal-compliance/SKILL.md`.
+- After repository changes, use `src/.agents/skills/update-context/SKILL.md` to
+  keep docs, comments, and agent instructions synchronized.
 
-## Tool Fallback <!-- tool-fallback -->
+## Quality Gates
 
-- If a preferred tool, command, or skill is unavailable, failing, or a worse fit
-  for the task, use the best available alternative rather than stopping or
-  forcing it. Note which tool you used and why. Never fall back to a prohibited
-  tool (for example `mcp__claude-in-chrome__*` is banned — use `/browse`).
+- Enforce `docs/QUALITY-STANDARDS.md`.
+- React Doctor must stay at `100/100`.
+- Lighthouse must stay at `95+` in Performance, Accessibility, Best Practices,
+  and SEO before deployment.
+- Run the nearest relevant lint, type, test, build, and security checks for the
+  files changed.
+- Resolve new warnings at the root cause. Suppress only verified false positives
+  with an inline justification.
+- Keep `controllers/` separation and `CREDITS.md` acknowledgements current.
 
-## Clarify Before Acting <!-- clarify-before-acting -->
+## Commit And Release Discipline
 
-- Before replying or starting work, if the request is ambiguous or my intent is
-  unclear, interview me with focused questions until it is unambiguous.
-- Ask one round of concise, high-signal questions; state any assumptions you must
-  make and confirm them before proceeding.
-- Do not begin implementation while a meaningful interpretation is still open.
+- Never commit directly to `main`.
+- Commit messages must satisfy `commitlint.config.js`: valid type, allowed
+  optional scope, lower-case or sentence-case subject, no trailing period, and a
+  header of `72` characters or fewer.
+- Before staging, run the nearest relevant duplicate, secret, type, lint, test,
+  and build checks for the changed surface.
+- Do not mark roadmap, phase, milestone, or planning items complete without
+  objective implementation and validation evidence.
+
+## Tool Fallback
+
+- If a preferred tool, command, skill, script, or agent is unavailable, use the
+  best permitted alternative and state the substitution.
+- Never use prohibited tools to bypass policy.

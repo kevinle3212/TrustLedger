@@ -273,21 +273,10 @@ function RegisterForm({ registryAvailable }: { registryAvailable: boolean }): Re
 		t("minimumEth", { amount: MIN_STAKE_ETH.toString() }),
 	);
 
-	if (!registryAvailable) {
-		return (
-			<div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 flex flex-col gap-2">
-				<p className="font-semibold text-gray-900 dark:text-white">ETH</p>
-				<p className="text-sm text-gray-500 dark:text-gray-400">
-					{t("assetUnavailable", { asset: "ETH" })}
-				</p>
-			</div>
-		);
-	}
-
 	function handleRegister(e: React.SyntheticEvent<HTMLFormElement>): void {
 		e.preventDefault();
 		setTouched(true);
-		if (amountError !== undefined) return;
+		if (!registryAvailable || amountError !== undefined) return;
 		let value: bigint;
 		try {
 			value = parseEther(ethAmount);
@@ -352,6 +341,11 @@ function RegisterForm({ registryAvailable }: { registryAvailable: boolean }): Re
 				{touched && amountError !== undefined && (
 					<p className="text-xs text-red-500 dark:text-red-400">{amountError}</p>
 				)}
+				{!registryAvailable && (
+					<p className="text-xs text-gray-500 dark:text-gray-400">
+						{t("assetUnavailable", { asset: "ETH" })}
+					</p>
+				)}
 				{error !== null && (
 					<p className="text-xs text-red-500 dark:text-red-400">
 						{(error as { shortMessage?: string }).shortMessage ?? error.message}
@@ -359,7 +353,9 @@ function RegisterForm({ registryAvailable }: { registryAvailable: boolean }): Re
 				)}
 				<button
 					type="submit"
-					disabled={isPending || isConfirming || amountError !== undefined}
+					disabled={
+						!registryAvailable || isPending || isConfirming || amountError !== undefined
+					}
 					className="px-4 py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors self-start"
 				>
 					{isPending || isConfirming ? t("registering") : t("register")}

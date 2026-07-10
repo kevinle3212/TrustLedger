@@ -20,20 +20,40 @@ is unambiguous. State assumptions and confirm them before proceeding.
 
 # Env Sync
 
-Use this skill whenever frontend, API, workflow, Docker, Kubernetes, or docs
-work introduces or changes an environment variable.
+Use this skill whenever code, scripts, workflows, Docker, Kubernetes, or docs
+add, rename, remove, or require an environment variable.
 
-## Required Steps
+## Workflow
 
-1. Search all consumers with `rg "process\.env|NEXT_PUBLIC_|ENV_NAME"`.
-2. Decide whether each variable is secret, public browser config, or local-only.
-3. Update `.env.example`, `src/.env.local.example`, and `docs/ENVIRONMENT.md`.
-4. Update ignored `.env` and `src/.env.local` only when the user has allowed it.
-5. Add or update Vercel env values with `vercel env` for production variables.
-6. Keep Docker and Kubernetes free of baked project-specific values unless the
-   value is a documented public constant.
-7. Validate with typecheck, lint, build, and Vercel inspection when deployment
-   is affected.
+1. Identify every consumer of the variable with
+   `rg "ENV_NAME|process\.env|NEXT_PUBLIC_"`.
+2. Classify the value as secret, public browser config, or local-only tooling.
+3. Update `.env.example` and `src/.env.local.example` with:
+    - purpose,
+    - whether it is required,
+    - whether it is safe to expose,
+    - where to obtain or generate it.
+4. If the user permits local env edits, run `node tools/sync-env-defaults.mjs`
+   to update ignored `.env`, `.env.local`, and `src/.env.local` without
+   printing or overwriting secret values. If a specialized sync script applies
+   (for example `scripts/sync-frontend-env.ts` after local deployment), run that
+   too.
+5. If the variable is required in production and Vercel is the target, run
+   `npm run env:sync:vercel` to add missing non-empty values. It intentionally
+   skips blank placeholders and does not overwrite existing Vercel values.
+6. Update `docs/ENVIRONMENT.md`, Docker docs, Kubernetes docs, and deployment
+   docs when the variable affects those surfaces.
+7. Remove hardcoded defaults from Dockerfiles, Kubernetes manifests, workflows,
+   and source unless the value is a documented public constant.
+8. Run the strictest relevant validation: typecheck, lint, build, and deployment
+   inspection when Vercel is involved.
 
-Never commit secrets. Public `NEXT_PUBLIC_*` values can be exposed to browsers
-but should still be injected per environment.
+## Rules
+
+- Never commit real secrets.
+- `NEXT_PUBLIC_*` values are public browser configuration, not secrets, but they
+  still belong in env files or deployment configuration instead of baked images.
+- Do not invent production secrets. Generate local-only placeholders only when
+  the consuming code explicitly supports arbitrary random values.
+- When a value is intentionally hardcoded, document why it is public, stable,
+  and safe to commit.

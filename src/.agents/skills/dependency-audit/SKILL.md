@@ -20,7 +20,8 @@ is unambiguous. State assumptions and confirm them before proceeding.
 
 # Dependency Audit
 
-Use this skill for package freshness and vulnerability review.
+Use this skill for package freshness and vulnerability review. Follow
+`src/.agents/agents/dependency-auditor.md` for scope and output format.
 
 ## Commands
 
@@ -50,4 +51,5 @@ npm audit --omit=dev --json
 - If the user explicitly approves high-risk npm registry disclosure, request
   escalated execution for `npm audit` and include that approval in the
   justification.
-- Write findings to `logs/dependency-audit-YYYY-MM-DD.md`.
+- Write findings to `logs/dependency-audit-YYYY-MM-DD.md`; `logs/` is
+  gitignored, so never commit it.

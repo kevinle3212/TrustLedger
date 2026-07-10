@@ -84,7 +84,7 @@ posture changes:
 
 <!-- docs-section-nav:end -->
 
-Use `.sixth/skills/legal-compliance/SKILL.md` for any legal or
+Use `src/.agents/skills/legal-compliance/SKILL.md` for any legal or
 compliance-sensitive change. Do not edit root legal draft files unless the
 active user request explicitly authorizes edits to those files.
 
