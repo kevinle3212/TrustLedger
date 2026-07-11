@@ -1,7 +1,5 @@
+# A directory that agentic entities and other tools will output log results to.
 logs/
-
-# Local-only Obsidian vault (gitignored); not repository documentation.
-Claude/
 
 # AI agent tool mirrors — generated/vendored skill corpora linted upstream.
 .agents/

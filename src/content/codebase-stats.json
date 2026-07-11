@@ -2,15 +2,15 @@
 	"totals": {
 		"files": 1008,
 		"directories": 356,
-		"lines": 157452,
-		"bytes": 11783071,
+		"lines": 157457,
+		"bytes": 11783426,
 		"categories": 26
 	},
 	"categories": [
 		{
 			"name": "Markdown",
 			"files": 294,
-			"lines": 46415,
+			"lines": 46420,
 			"share": 29.5
 		},
 		{

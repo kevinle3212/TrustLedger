@@ -1,9 +1,10 @@
 # CLAUDE.md — TrustLedger
 
-Project rules only. Personal preferences (communication style, simplicity,
-surgical changes, git permission rules, gstack, RTK) live in the global
-`~/.claude/CLAUDE.md` and are never repeated here — a rule stated twice drifts
-into two rules.
+Project rules only. The global engineering handbook (`~/.claude/CLAUDE.md`)
+covers identity, communication style, orchestration/model selection, simplicity,
+surgical changes, security baseline, git permission rules, gstack, RTK, and MCP
+usage — never repeated here; a rule stated twice drifts into two rules. On
+conflict, this file wins.
 
 ## Orientation (read before exploring)
 
@@ -55,6 +56,10 @@ npm run doctor            # React Doctor — must stay 100/100
 
 - React Doctor below 100/100 blocks merge, release, and deploy. Fix new `error`
   findings; triage `warning` findings before merging.
+- Husky pre-commit runs React Doctor `--staged` then the lint suite; run the
+  gates above yourself first — the hook fails late.
+- React Scan runs automatically in dev (`ReactScanMonitor` in the root layout);
+  use it for render/performance investigations.
 - Lighthouse 95+ in every category before deploy; document any blocker.
 - Resolve new warnings (build, lint, test, runtime, console) at the root cause.
   Suppress only verified false positives, with an inline justification

@@ -41,6 +41,7 @@ const CONFIGS = [
 	{ path: ".copilot/mcp-config.json", read: readJsonServers },
 	{ path: ".gemini/settings.json", read: readJsonServers },
 	{ path: ".codex/config.toml", read: readTomlServers },
+	{ path: ".windsurf/mcp_config.json", read: readJsonServers },
 ];
 
 function readJsonServers(text) {
