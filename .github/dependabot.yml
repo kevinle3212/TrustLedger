@@ -36,6 +36,15 @@ updates:
       # support default-days only.
       cooldown:
           default-days: 7
+      groups:
+          # init, analyze, and upload-sarif are separate action paths, so
+          # Dependabot opens a PR per path by default. The action refuses to run
+          # a mismatched set ("Loaded a configuration file for version 'X', but
+          # running version 'Y'"), which made #137 and #133 permanently red.
+          # Grouping the bundle is what keeps the five call sites in step.
+          codeql-action:
+              patterns:
+                  - "github/codeql-action*"
 
     # ── Docker base images (docker/Dockerfile.*) ──────────────────────────────
     - package-ecosystem: "docker"
