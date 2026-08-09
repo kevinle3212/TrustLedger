@@ -78,7 +78,7 @@ jobs:
               # hashFiles returns '' when the file does not exist, preventing a
               # "path does not exist" error when Slither produces no findings.
               if: always() && hashFiles('results.sarif') != ''
-              uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+              uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
               with:
                   sarif_file: results.sarif
                   category: slither
@@ -216,7 +216,7 @@ jobs:
 
             - name: Upload SARIF to GitHub Security
               if: always() && hashFiles('osv-results.sarif') != ''
-              uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+              uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
               with:
                   sarif_file: osv-results.sarif
                   category: osv-scanner
@@ -233,14 +233,14 @@ jobs:
               uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
             - name: Initialize CodeQL
-              uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+              uses: github/codeql-action/init@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
               with:
                   languages: javascript-typescript
                   # security-extended adds higher-precision queries beyond the defaults.
                   queries: security-extended
 
             - name: Analyze
-              uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+              uses: github/codeql-action/analyze@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
               with:
                   category: "/language:javascript-typescript"
 
@@ -287,7 +287,7 @@ jobs:
 
             - name: Upload SARIF to GitHub Security
               if: always() && hashFiles('semgrep.sarif') != ''
-              uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+              uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4
               with:
                   sarif_file: semgrep.sarif
                   category: semgrep
